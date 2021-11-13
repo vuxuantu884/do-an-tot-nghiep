@@ -63,8 +63,15 @@ import CreateOrderSidebar from "./component/CreateOrderSidebar";
 import OrderCreatePayments from "./component/OrderCreatePayments";
 import OrderCreateProduct from "./component/OrderCreateProduct";
 import OrderCreateShipment from "./component/OrderCreateShipment";
+import { YDpagePermission } from "config/permissions/fpage.permission";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+
 
 let typeButton = "";
+
+
+const ordersCreatePermission = [YDpagePermission.orders_create];
 
 export default function Order(props: any) {
   const {
@@ -991,121 +998,125 @@ export default function Order(props: any) {
 
   return (
     <div className="yd-page-order" style={{ marginTop: 56 }}>
-      {isLoadForm && (
-        <Form
-          layout="vertical"
-          initialValues={initialForm}
-          ref={formRef}
-          form={form}
-          onFinishFailed={({errorFields}: any) => {
-            const element: any = document.getElementById(errorFields[0].name.join(""));
-            scrollAndFocusToDomElement(element);
-          }}
-          onFinish={onFinish}
-        >
-          <Form.Item noStyle hidden name="action">
-            <Input />
-          </Form.Item>
-          <Form.Item noStyle hidden name="currency">
-            <Input />
-          </Form.Item>
-          <Form.Item noStyle hidden name="account_code">
-            <Input />
-          </Form.Item>
-          <Form.Item noStyle hidden name="tax_treatment">
-            <Input />
-          </Form.Item>
-          <Form.Item noStyle hidden name="tags">
-            <Input />
-          </Form.Item>
-          <Row gutter={20} style={{marginBottom: "70px"}}>
-            <Col span={24}>
-              <CardCustomer
-                customer={customer}
-                handleCustomer={handleCustomer}
-                loyaltyPoint={loyaltyPoint}
-                loyaltyUsageRules={loyaltyUsageRules}
-                ShippingAddressChange={onChangeShippingAddress}
-                shippingAddress={shippingAddress}
-                BillingAddressChange={onChangeBillingAddress}
-                isVisibleCustomer={isVisibleCustomer}
-                setVisibleCustomer={setVisibleCustomer}
-                modalAction={modalAction}
-                setModalAction={setModalAction}
-                districtId={districtId}
-                setDistrictId={setDistrictId}
+      <AuthWrapper acceptPermissions={ordersCreatePermission} passThrough>
+        {(allowed: boolean) => (allowed ?
+          (isLoadForm && (
+            <Form
+              layout="vertical"
+              initialValues={initialForm}
+              ref={formRef}
+              form={form}
+              onFinishFailed={({errorFields}: any) => {
+                const element: any = document.getElementById(errorFields[0].name.join(""));
+                scrollAndFocusToDomElement(element);
+              }}
+              onFinish={onFinish}
+            >
+              <Form.Item noStyle hidden name="action">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="currency">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="account_code">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="tax_treatment">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="tags">
+                <Input />
+              </Form.Item>
+              <Row gutter={20} style={{marginBottom: "70px"}}>
+                <Col span={24}>
+                  <CardCustomer
+                    customer={customer}
+                    handleCustomer={handleCustomer}
+                    loyaltyPoint={loyaltyPoint}
+                    loyaltyUsageRules={loyaltyUsageRules}
+                    ShippingAddressChange={onChangeShippingAddress}
+                    shippingAddress={shippingAddress}
+                    BillingAddressChange={onChangeBillingAddress}
+                    isVisibleCustomer={isVisibleCustomer}
+                    setVisibleCustomer={setVisibleCustomer}
+                    modalAction={modalAction}
+                    setModalAction={setModalAction}
+                    districtId={districtId}
+                    setDistrictId={setDistrictId}
+                  />
+                  <OrderCreateProduct
+                    changeInfo={onChangeInfoProduct}
+                    setStoreId={(value) => {
+                      setStoreId(value);
+                      form.setFieldsValue({store_id: value});
+                    }}
+                    storeId={storeId}
+                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+                    setItemGift={setItemGifts}
+                    form={form}
+                    items={items}
+                    setItems={setItems}
+                    discountRate={discountRate}
+                    setDiscountRate={setDiscountRate}
+                    discountValue={discountValue}
+                    setDiscountValue={setDiscountValue}
+                    inventoryResponse={inventoryResponse}
+                    setInventoryResponse={setInventoryResponse}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    orderConfig={null}
+                  />
+                  <Card>
+                    <OrderCreatePayments
+                      setPaymentMethod={handlePaymentMethod}
+                      payments={payments}
+                      setPayments={setPayments}
+                      paymentMethod={paymentMethod}
+                      shipmentMethod={shipmentMethod}
+                      totalAmountOrder={totalAmountOrder}
+                      loyaltyRate={loyaltyRate}
+                      isDisablePostPayment={isDisablePostPayment}
+                      listPaymentMethod={listPaymentMethod}
+                    />
+                  </Card>
+    
+                  <Card>
+                    <OrderCreateShipment
+                      shipmentMethod={shipmentMethod}
+                      orderPrice={orderAmount}
+                      storeDetail={storeDetail}
+                      customer={customer}
+                      items={items}
+                      isCancelValidateDelivery={false}
+                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                      setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                      onSelectShipment={onSelectShipment}
+                      thirdPL={thirdPL}
+                      setThirdPL={setThirdPL}
+                      form={form}
+                    />
+                  </Card>
+                </Col>
+                <Col span={24}>
+                  <CreateOrderSidebar
+                    accounts={accounts}
+                    tags={tags}
+                    onChangeTag={onChangeTag}
+                    customerId={customer?.id}
+                  />
+                </Col>
+              </Row>
+              <OrderDetailBottomBar
+                  formRef={formRef}
+                  handleTypeButton={handleTypeButton}
+                  isVisibleGroupButtons={true}
+                  showSaveAndConfirmModal={showSaveAndConfirmModal}
+                  creating={creating}
+                  isSaveDraft={isSaveDraft}
               />
-              <OrderCreateProduct
-                changeInfo={onChangeInfoProduct}
-                setStoreId={(value) => {
-                  setStoreId(value);
-                  form.setFieldsValue({store_id: value});
-                }}
-                storeId={storeId}
-                shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-                setItemGift={setItemGifts}
-                form={form}
-                items={items}
-                setItems={setItems}
-                discountRate={discountRate}
-                setDiscountRate={setDiscountRate}
-                discountValue={discountValue}
-                setDiscountValue={setDiscountValue}
-                inventoryResponse={inventoryResponse}
-                setInventoryResponse={setInventoryResponse}
-                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                orderConfig={null}
-              />
-              <Card>
-                <OrderCreatePayments
-                  setPaymentMethod={handlePaymentMethod}
-                  payments={payments}
-                  setPayments={setPayments}
-                  paymentMethod={paymentMethod}
-                  shipmentMethod={shipmentMethod}
-                  totalAmountOrder={totalAmountOrder}
-                  loyaltyRate={loyaltyRate}
-                  isDisablePostPayment={isDisablePostPayment}
-                  listPaymentMethod={listPaymentMethod}
-                />
-              </Card>
-
-              <Card>
-                <OrderCreateShipment
-                  shipmentMethod={shipmentMethod}
-                  orderPrice={orderAmount}
-                  storeDetail={storeDetail}
-                  customer={customer}
-                  items={items}
-                  isCancelValidateDelivery={false}
-                  totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                  setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
-                  onSelectShipment={onSelectShipment}
-                  thirdPL={thirdPL}
-                  setThirdPL={setThirdPL}
-                  form={form}
-                />
-              </Card>
-            </Col>
-            <Col span={24}>
-              <CreateOrderSidebar
-                accounts={accounts}
-                tags={tags}
-                onChangeTag={onChangeTag}
-                customerId={customer?.id}
-              />
-            </Col>
-          </Row>
-          <OrderDetailBottomBar
-              formRef={formRef}
-              handleTypeButton={handleTypeButton}
-              isVisibleGroupButtons={true}
-              showSaveAndConfirmModal={showSaveAndConfirmModal}
-              creating={creating}
-              isSaveDraft={isSaveDraft}
-          />
-        </Form>
-      )}
+            </Form>
+          ))
+        : <NoPermission />)}
+      </AuthWrapper>
 
       <SaveAndConfirmOrder
         onCancel={onCancelSaveAndConfirm}

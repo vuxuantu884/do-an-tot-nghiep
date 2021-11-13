@@ -64,13 +64,8 @@ import CardPayments from "./component/order-detail/CardPayments";
 import CardProduct from "./component/order-detail/CardProduct";
 import CardShipment from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
-import { FpagePermissions } from "config/permissions/fpage.permission";
-import useAuthorization from "hook/useAuthorization";
 // import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
-
-
-const createOrderPermission = [FpagePermissions.CREATE_ORDER];
 
 let typeButton = "";
 
@@ -88,11 +83,6 @@ export default function YDPageOrders(props: any) {
   } = props;
 
   const dispatch = useDispatch();
-
-  const [allowCreateOrder] = useAuthorization({
-    acceptPermissions: createOrderPermission,
-    not: false,
-  });
 
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
@@ -926,29 +916,27 @@ export default function YDPageOrders(props: any) {
               <CreateBillStep status="draff" orderDetail={null} />
             </Col>
 
-            {allowCreateOrder &&
-              <Col className="customer-bottom-button" md={8}>
-                <Button
-                  className="order-button-width"
-                  onClick={() => window.location.reload()}
-                >
-                  Hủy
-                </Button>
+            <Col className="customer-bottom-button" md={8}>
+              <Button
+                className="order-button-width"
+                onClick={() => window.location.reload()}
+              >
+                Hủy
+              </Button>
 
-                <Button
-                  loading={loadingCreateButton}
-                  type="primary"
-                  className="order-button-width"
-                  id="save-and-confirm"
-                  onClick={() => {
-                    typeButton = OrderStatus.FINALIZED;
-                    formRef.current?.submit();
-                  }}
-                >
-                  Tạo đơn hàng
-                </Button>
-              </Col>
-            }
+              <Button
+                loading={loadingCreateButton}
+                type="primary"
+                className="order-button-width"
+                id="save-and-confirm"
+                onClick={() => {
+                  typeButton = OrderStatus.FINALIZED;
+                  formRef.current?.submit();
+                }}
+              >
+                Tạo đơn hàng
+              </Button>
+            </Col>
             
           </Row>
         </Form>

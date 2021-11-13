@@ -29,10 +29,15 @@ import moment from "moment";
 import { formatCurrency } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
-import { FpagePermissions } from "config/permissions/fpage.permission";
+import { YDpagePermission } from "config/permissions/fpage.permission";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
 
 
-const createCustomerPermission = [FpagePermissions.CREATE_CUSTOMER];
+const customersReadPermission = [YDpagePermission?.customers_read];
+const customersCreatePermission = [YDpagePermission?.customers_create];
+const customersUpdatePermission = [YDpagePermission?.customers_update];
+
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -58,11 +63,17 @@ const FpageCustomerDetail = (props: any) => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const [allowCreateCustomer] = useAuthorization({
-    acceptPermissions: createCustomerPermission,
+  
+  const [allowCustomersCreate] = useAuthorization({
+    acceptPermissions: customersCreatePermission,
+    not: false,
+  });
+  const [allowCustomersUpdate] = useAuthorization({
+    acceptPermissions: customersUpdatePermission,
     not: false,
   });
 
+  const isShowFooterButton = allowCustomersCreate || (allowCustomersUpdate && customer);  
   
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
@@ -376,92 +387,102 @@ const FpageCustomerDetail = (props: any) => {
     },
   };
 
+  const isDisableUpdateCustomer = () => {
+    return (!allowCustomersUpdate && customer) || (!allowCustomersCreate && !customer);
+  };
+
+
   return (
     <div style={{ marginTop: 56 }}>
-      <Form
-        form={customerForm}
-        name="customer_add"
-        onFinish={handleSubmitOption}
-        onFinishFailed={handleSubmitFail}
-        layout="vertical"
-      >
-        <Row gutter={24}>
-          <Col span={24}>
-            <GeneralInformation
-              form={customerForm}
-              name="general_add"
-              accounts={accounts}
-              groups={groups}
-              types={types}
-              status={status}
-              setStatus={setStatus}
-              areas={areas}
-              countries={countries}
-              wards={wards}
-              handleChangeArea={handleChangeArea}
-              AccountChangeSearch={AccountChangeSearch}
-              getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
-              customerId={customerId}
-              notes={notes}
-              handleNote={handleNote}
-              customer={customer}
-              loyaltyPoint={loyaltyPoint}
-              loyaltyUsageRules={loyaltyUsageRules}
-              customerPhone={customerPhone}
-              customerPhones={customerPhones}
-              addFpPhone={addFpPhone}
-              deleteFpPhone={deleteFpPhone}
-              setFpDefaultPhone={setFpDefaultPhone}
-            />
-          </Col>
-        </Row>
-        <Card
-          className="padding-12"
-          title={
-            <div>
-              <span style={{ fontWeight: 500 }} className="title-card">
-                ĐƠN GẦN NHẤT
-              </span>
-            </div>
-          }
-        >
-          <Table
-            columns={recentOrder}
-            dataSource={orderHistory}
-            pagination={{
-              pageSize: metaData?.limit,
-              total: metaData?.total,
-              current: metaData?.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            rowKey={(data) => data.id}
-          />
-        </Card>
-        {allowCreateCustomer &&
-          <div className="customer-bottom-button">
-            <Button
-              style={{ marginRight: "10px" }}
-              onClick={() => history.goBack()}
-              type="ghost"
+      <AuthWrapper acceptPermissions={customersReadPermission} passThrough>
+        {(allowed: boolean) => (allowed ?
+          <Form
+            form={customerForm}
+            name="customer_add"
+            onFinish={handleSubmitOption}
+            onFinishFailed={handleSubmitFail}
+            layout="vertical"
+          >
+            <Row gutter={24}>
+              <Col span={24}>
+                <GeneralInformation
+                  form={customerForm}
+                  name="general_add"
+                  accounts={accounts}
+                  groups={groups}
+                  types={types}
+                  status={status}
+                  setStatus={setStatus}
+                  areas={areas}
+                  countries={countries}
+                  wards={wards}
+                  handleChangeArea={handleChangeArea}
+                  AccountChangeSearch={AccountChangeSearch}
+                  getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
+                  customerId={customerId}
+                  notes={notes}
+                  handleNote={handleNote}
+                  customer={customer}
+                  loyaltyPoint={loyaltyPoint}
+                  loyaltyUsageRules={loyaltyUsageRules}
+                  customerPhone={customerPhone}
+                  customerPhones={customerPhones}
+                  addFpPhone={addFpPhone}
+                  deleteFpPhone={deleteFpPhone}
+                  setFpDefaultPhone={setFpDefaultPhone}
+                  isDisable={isDisableUpdateCustomer()}
+                />
+              </Col>
+            </Row>
+            <Card
+              className="padding-12"
+              title={
+                <div>
+                  <span style={{ fontWeight: 500 }} className="title-card">
+                    ĐƠN GẦN NHẤT
+                  </span>
+                </div>
+              }
             >
-              Hủy
-            </Button>
-            {!customer && (
-              <Button type="primary" htmlType="submit" className="create-button-custom">
-                Tạo mới khách hàng
-              </Button>
-            )}
-            {customer && (
-              <Button type="primary" htmlType="submit" className="create-button-custom">
-                Lưu khách hàng
-              </Button>
-            )}
-          </div>
-        }
-        
-      </Form>
+              <Table
+                columns={recentOrder}
+                dataSource={orderHistory}
+                pagination={{
+                  pageSize: metaData?.limit,
+                  total: metaData?.total,
+                  current: metaData?.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                rowKey={(data) => data.id}
+              />
+            </Card>
+            {isShowFooterButton &&
+              <div className="customer-bottom-button">
+                <Button
+                  style={{ marginRight: "10px" }}
+                  onClick={() => history.goBack()}
+                  type="ghost"
+                >
+                  Hủy
+                </Button>
+                {allowCustomersCreate && !customer && (
+                  <Button type="primary" htmlType="submit" className="create-button-custom">
+                    Tạo mới khách hàng
+                  </Button>
+                )}
+                {allowCustomersUpdate && customer && (
+                  <Button type="primary" htmlType="submit" className="create-button-custom">
+                    Lưu khách hàng
+                  </Button>
+                )}
+              </div>
+            }
+            
+          </Form>
+        : <NoPermission />)}
+      </AuthWrapper>
     </div>
   );
 };
