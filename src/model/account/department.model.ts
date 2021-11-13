@@ -28,6 +28,7 @@ export interface DepartmentRequest {
   address: string,
   parent_id: string,
   manager_code: string,
+  status: string,
 }
 
 
