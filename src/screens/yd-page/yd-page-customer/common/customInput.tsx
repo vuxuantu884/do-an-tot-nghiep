@@ -12,6 +12,7 @@ type CustomInputProps = {
   customer?: any;
   loyaltyPoint?: any;
   loyaltyUsageRules?: any;
+  isDisable?: boolean;
 };
 const color: any = {
   "KH mới": "#00F000",
@@ -33,6 +34,7 @@ function CustomInput(props: CustomInputProps) {
     customer,
     loyaltyPoint,
     loyaltyUsageRules,
+    isDisable,
   } = props;
   const [value, setValue] = useState<string>("");
   const handleChange = useCallback((v: any) => {
@@ -71,6 +73,7 @@ function CustomInput(props: CustomInputProps) {
         placeholder={`${placeholder}`}
         onBlur={(value) => handleBlur(value.target.value)}
         onChange={(value) => handleChange(value.target.value)}
+        disabled={isDisable}
       ></Input>
     </Form.Item>
   );
