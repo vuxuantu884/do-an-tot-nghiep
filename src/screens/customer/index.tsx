@@ -292,7 +292,7 @@ const Customer = () => {
     items: [],
   });
 
-  const [tableLoading, setTableLoading] = useState<boolean>(true);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
 
   const onPageChange = React.useCallback(
     (page, limit) => {

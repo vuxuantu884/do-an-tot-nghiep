@@ -3,7 +3,7 @@ import { Form, Input, Row, Col } from "antd";
 import { RegUtil } from "utils/RegUtils";
 
 function CustomInputContact(props: any) {
-  const { form } = props;
+  const { form, isLoading } = props;
 
   const [contactName, setContactName] = React.useState<string>();
   const [contactPhone, setContactPhone] = React.useState<string>();
@@ -46,6 +46,7 @@ function CustomInputContact(props: any) {
           ]}
         >
           <Input
+            disabled={isLoading}
             maxLength={255}
             placeholder="Nhập họ và tên"
             onChange={(value: any) => handleChangeName(value.target.value)}
@@ -70,6 +71,7 @@ function CustomInputContact(props: any) {
           ]}
         >
           <Input
+            disabled={isLoading}
             style={{ borderRadius: 5, width: "100%" }}
             minLength={9}
             maxLength={15}
@@ -90,6 +92,7 @@ function CustomInputContact(props: any) {
           ]}
         >
           <Input
+            disabled={isLoading}
             maxLength={255}
             placeholder="Nhập email"
             onChange={(value: any) => {
@@ -103,6 +106,7 @@ function CustomInputContact(props: any) {
       <Col span={24}>
         <Form.Item label={<b>Ghi chú:</b>} name="contact_note">
           <Input.TextArea
+            disabled={isLoading}
             maxLength={500}
             placeholder="Nhập ghi chú"
             onChange={(value: any) => {
