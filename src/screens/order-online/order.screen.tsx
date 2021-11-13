@@ -527,7 +527,7 @@ export default function Order() {
             shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
             !thirdPL.service
           ) {
-            showError("Vui lòng chọn đơn vị vận chuyển 3");
+            showError("Vui lòng chọn đơn vị vận chuyển!");
             setCreating(false);
           } else {
             if (typeButton === OrderStatus.DRAFT) {
@@ -1085,6 +1085,7 @@ export default function Order() {
                       discountValue={discountValue}
                       setDiscountValue={setDiscountValue}
                       inventoryResponse={inventoryResponse}
+                      customer={customer}
                       setInventoryResponse={setInventoryResponse}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}

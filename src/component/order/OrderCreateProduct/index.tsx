@@ -377,7 +377,6 @@ function OrderCreateProduct(props: PropType) {
   };
 
   const handleChangeItems = useCallback(() => {
-    console.log('33333333333333')
     if (!items) {
       return;
     }
@@ -908,7 +907,7 @@ function OrderCreateProduct(props: PropType) {
       });
       await setItems(itemsResult);
       handleChangeItems();
-      showSuccess("Thêm chiết khấu thành công!");
+      showSuccess("Cập nhật chiết khấu thành công!");
     } else {
       showError("Có lỗi khi áp dụng chiết khấu!");
     }
@@ -1595,6 +1594,15 @@ function OrderCreateProduct(props: PropType) {
       setIsShowProductSearch(true);
     }
   }, []);
+
+  console.log('customer', customer)
+
+  /**
+  * gọi lại api chiết khấu khi update cửa hàng, khách hàng, nguồn
+  */
+  useEffect(() => {
+    handleDiscountWhenActiveAutomaticDiscount();
+  }, [customer?.id, storeId])
 
   console.log("isAutomaticDiscount", isAutomaticDiscount);
 
