@@ -48,6 +48,8 @@ export const applyDiscount = (items: Array<any>, orderInfo:any) : Promise<any> =
   const body: any = {
     sales_channel_name: orderInfo.salesChannelName,
     store_id: orderInfo.storeId,
+    order_source_id: orderInfo.orderSourceId,
+    customer_id: orderInfo.customerId,
   };
   body["line_items"] = items.map(item => {
     return {

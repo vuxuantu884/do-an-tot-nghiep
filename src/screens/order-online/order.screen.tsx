@@ -90,6 +90,7 @@ export default function Order() {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
+  const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
@@ -1067,6 +1068,7 @@ export default function Order() {
                       setVisibleCustomer={setVisibleCustomer}
                       modalAction={modalAction}
                       setModalAction={setModalAction}
+                      setOrderSourceId={setOrderSourceId}
                     />
                     <OrderCreateProduct
                       changeInfo={onChangeInfoProduct}
@@ -1089,6 +1091,7 @@ export default function Order() {
                       setInventoryResponse={setInventoryResponse}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
+                      orderSourceId={orderSourceId}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments

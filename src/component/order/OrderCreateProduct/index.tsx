@@ -104,6 +104,7 @@ type PropType = {
   orderConfig: OrderConfigResponseModel | null | undefined;
   inventoryResponse: Array<InventoryResponse> | null;
   levelOrder?: number;
+  orderSourceId?: number|null;
   updateOrder?: boolean;
   isSplitOrder?: boolean;
   orderDetail?: OrderResponse | null;
@@ -190,6 +191,7 @@ function OrderCreateProduct(props: PropType) {
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
+    orderSourceId,
     customer,
     setStoreId,
     setItems,
@@ -862,6 +864,8 @@ function OrderCreateProduct(props: PropType) {
     const orderInfo: any = {
       storeId,
       salesChannelName: "ADMIN",
+      customerId: customer?.id,
+      orderSourceId: orderSourceId,
     };
     dispatch(showLoading());
     const checkingDiscountResponse = await applyDiscount(items, orderInfo).finally(() => {
@@ -989,8 +993,8 @@ function OrderCreateProduct(props: PropType) {
             promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
           };
           item.discount_items[0] = discountItem;
-          item.discount_value = item.quantity * value;
-          item.discount_rate = rate;
+          // item.discount_value = item.quantity * value;
+          // item.discount_rate = rate;
           item.maxQuantityToApplyDiscount =
           highestValueSuggestDiscount?.allocation_limit || undefined;
         }
@@ -1106,8 +1110,8 @@ function OrderCreateProduct(props: PropType) {
                         discount_code: itemDiscount.applied_discount?.code || undefined,
                       };
                       item.discount_items[0] = discountItem;
-                      item.discount_rate = rateDiscount;
-                      item.discount_value = item.quantity * rateDiscount;
+                      // item.discount_rate = rateDiscount;
+                      // item.discount_value = item.quantity * rateDiscount;
                     }
                     break;
                 }
@@ -1267,8 +1271,8 @@ function OrderCreateProduct(props: PropType) {
                               discount_code,
                             },
                           ],
-                          discount_rate,
-                          discount_value,
+                          // discount_rate,
+                          // discount_value,
                         };
                       }
                       return singleItem;
@@ -1602,7 +1606,7 @@ function OrderCreateProduct(props: PropType) {
   */
   useEffect(() => {
     handleDiscountWhenActiveAutomaticDiscount();
-  }, [customer?.id, storeId])
+  }, [customer?.id, storeId, orderSourceId])
 
   console.log("isAutomaticDiscount", isAutomaticDiscount);
 
