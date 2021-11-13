@@ -57,7 +57,7 @@ export const orderUpdateAction = (
   return BaseAction(OrderType.UPDATE_ORDER_REQUEST, { id, request, setData, onError });
 };
 
-export const orderFpageCreateAction = (
+export const orderYDPpageCreateAction = (
   request: OrderRequest,
   setData: (data: OrderResponse) => void,
   setDisable: (data: any) => void

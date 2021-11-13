@@ -18,13 +18,14 @@ import moment from "moment";
 import "./promo-code.scss";
 import { RiUpload2Line } from "react-icons/ri";
 import {
+  bulkDisablePriceRules,
   bulkEnablePriceRules,
   deletePriceRulesById,
   promoGetDetail,
 } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { addPromoCode, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCode, getListPromoCode, disableBulkPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";
@@ -166,6 +167,11 @@ const PromotionDetailScreen: React.FC = () => {
   const onActivate = () => {
     dispatch(showLoading());
     dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+  }
+
+  const onDeactivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkDisablePriceRules({ids: [idNumber]}, onActivateSuccess));
   }
 
   // section handle call api GET DETAIL
@@ -347,6 +353,18 @@ const PromotionDetailScreen: React.FC = () => {
           {status?.value}
         </span>
     )
+  }
+
+  const renderActionButton = () => {
+    switch (data?.state) {
+      case "ACTIVE":
+        return <Button type="primary" onClick={onDeactivate}>Tạm ngừng</Button>
+      case "DISABLED":
+      case "DRAFT":
+        return <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+      default:
+        return null;
+    }
   }
 
   return (
@@ -694,7 +712,7 @@ const PromotionDetailScreen: React.FC = () => {
             <Button disabled onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
             <Button disabled onClick={onEdit}>Sửa</Button>
             <Button disabled >Nhân bản</Button>
-            <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+            {renderActionButton()}
           </Space>
 
         }
