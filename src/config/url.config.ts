@@ -3,7 +3,7 @@ const UrlConfig = {
   HOME: `/`,
   LOGIN: `/login`,
   PRODUCT: `/products`,
-  VARIANTS: `/products/variants`,
+  VARIANTS: `/variants`,
   CATEGORIES: `/products/categories`,
   PURCHASE_ORDER: `/purchase-order`,
   INVENTORY: "/products/inventory",
@@ -34,6 +34,13 @@ const UrlConfig = {
   DEPARTMENT: `/departments`,
   DISCOUNT: `/discount`,
   PROMO_CODE: `/promo-code`
+};
+
+export const ProductTabUrl = {
+  VARIANTS: UrlConfig.VARIANTS,
+  PRODUCTS: UrlConfig.PRODUCT,
+  PRODUCT_HISTORIES: UrlConfig.PRODUCT + "/histories",
+  HISTORY_PRICES: UrlConfig.PRODUCT + "/history-prices",
 };
 
 export const BASE_NAME_ROUTER = "/unicorn/admin";

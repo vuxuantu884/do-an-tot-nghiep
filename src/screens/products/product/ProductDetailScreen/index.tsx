@@ -82,7 +82,7 @@ const ProductDetailScreen: React.FC = () => {
   });
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
+    history.push(`${UrlConfig.PRODUCT}/${idNumber}/update`);
   }, [history, idNumber]);
   const onResult = useCallback((result: ProductResponse | false) => {
     setLoading(false);
