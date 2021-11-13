@@ -259,7 +259,7 @@ const ListOrderScreen: React.FC = () => {
       ),
       key: "cod",
       visible: true,
-      align: "right",
+      align: "center",
     },
     {
       title: "HT Vận Chuyển",
@@ -326,7 +326,14 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Phí trả đối tác",
       dataIndex: "shipment",
-      render: (shipment?) => shipment?.shipping_fee_paid_to_three_pls,
+      render: (shipment?) => (
+        <NumberFormat
+          value={shipment?.shipping_fee_paid_to_three_pls}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      ),
       key: "shipping_fee_paid_to_three_pls",
       visible: true,
       align: "center",
