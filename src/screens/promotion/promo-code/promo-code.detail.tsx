@@ -666,7 +666,7 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {listChannel &&
-                            data.prerequisite_sales_channel_names.map(id => <li>{listChannel.find(channel => channel.id === Number(id))?.name}</li>)}
+                            data.prerequisite_sales_channel_names.map(name => <li>{listChannel.find(channel => channel.name === name)?.name}</li>)}
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>
