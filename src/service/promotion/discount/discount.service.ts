@@ -58,12 +58,7 @@ export const applyDiscount = (items: Array<any>, orderInfo:any) : Promise<any> =
       "quantity": item.quantity,
 
       "original_unit_price": 0,
-      "applied_discount": {
-        "discount_code": "string",
-        "title": "string",
-        "value_type": "FIXED_AMOUNT",
-        "value": 0
-      },
+      "applied_discount": null,
       "taxable": true
     }
   })

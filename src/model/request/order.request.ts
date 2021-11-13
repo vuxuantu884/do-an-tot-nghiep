@@ -266,6 +266,7 @@ export interface OrderLineItemRequest {
   position?: number;
   gifts: Array<OrderLineItemRequest>;
   available:number|null;
+  maxQuantityToApplyDiscount?: number; // số lượng tối đa để hưởng chiết khấu nếu có
 }
 
 export interface OrderItemDiscountRequest {
@@ -273,6 +274,7 @@ export interface OrderItemDiscountRequest {
   value: number;
   amount: number;
   promotion_id?: number;
+  discount_code?: string;
   reason: string | null;
 }
 
