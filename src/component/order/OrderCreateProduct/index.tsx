@@ -926,7 +926,17 @@ function OrderCreateProduct(props: PropType) {
       };
       dispatch(showLoading());
       const checkingDiscountResponse = await applyDiscount(
-        [{variant_id: item.variant_id, quantity}],
+        // [{variant_id: item.variant_id, quantity}],
+        [{
+          applied_discount: null,
+          custom: true,
+          original_unit_price: item.price,
+          product_id: item.id,
+          quantity,
+          sku: item.sku,
+          taxable: true,
+          variant_id: item.variant_id,
+        }],
         orderInfo
       );
       setLoadingAutomaticDiscount(false);
