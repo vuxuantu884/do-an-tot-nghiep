@@ -1,7 +1,7 @@
 import { Card, Tabs } from 'antd';
 import ContentContainer from 'component/container/content.container';
 import ButtonCreate from 'component/header/ButtonCreate';
-import { CustomerCardPermissions } from 'config/permissions/customer.permission';
+import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
 import UrlConfig from 'config/url.config';
 import useAuthorization from 'hook/useAuthorization';
 import { useState } from 'react';
@@ -11,7 +11,7 @@ import LoyaltyCardRelease from './release';
 
 const { TabPane } = Tabs;
 
-const createCardReleasePermission = [CustomerCardPermissions.CREATE_RELEASE];
+const createCardReleasePermission = [LoyaltyPermission.cards_release];
 
 const LoyaltyCardPage = () => {
   const [allowCreateCardRelease] = useAuthorization({

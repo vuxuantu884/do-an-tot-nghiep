@@ -77,6 +77,7 @@ export interface ShipmentSearchQuery {
   cancelled_on_max: string | null;
   cancelled_on_predefined: string | null;
   print_status: string[];
+  pushing_status?: string[];
   store_ids: [];
   source_ids: [];
   account_codes: [];

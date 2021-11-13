@@ -1,5 +1,17 @@
 import styled from "styled-components";
 
+export const StyledCustomerFilter = styled.div`
+  .inline-filter {
+    width: 100%;
+    display: flex;
+    margin-bottom: 20px;
+    .input-search {
+      flex-grow: 1;
+    }
+  }
+
+`;
+
 export const StyledCustomerBaseFilter = styled.div`
   .base-filter-container {
     display: flex;
@@ -15,11 +27,11 @@ export const StyledCustomerBaseFilter = styled.div`
     }
 
     .left-filter {
-      width: 30%;
+      width: 33%;
     }
 
     .center-filter {
-      width: 30%;
+      width: 33%;
     }
 
     .right-filter {
@@ -34,6 +46,24 @@ export const StyledCustomerBaseFilter = styled.div`
         width: 40%;
       }
     }
+
+    .select-connection-date .date-option .ant-btn {
+      width: 32%;
+      padding: 0 6px;
+    }
+
+  }
+  
+`;
+
+
+export const StyledCustomerExtraButton = styled.div`
+  .import-file-button {
+    margin-right: 15px;
+  }
+
+  .export-file-button {
+    margin-right: 15px;
   }
   
 `;

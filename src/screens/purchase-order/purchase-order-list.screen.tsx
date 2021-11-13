@@ -140,7 +140,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   }, []);
 
   const [canDeletePO] = useAuthorization({
-    acceptPermissions: [PurchaseOrderPermission.po_delete],
+    acceptPermissions: [PurchaseOrderPermission.delete],
   });
   const actions = useMemo(() => {
     return actionsDefault.filter((item) => {
@@ -518,7 +518,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               >
                 Xuất file
               </Button>
-              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.po_create]}>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
               <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
               </AuthWrapper>
             </Space>

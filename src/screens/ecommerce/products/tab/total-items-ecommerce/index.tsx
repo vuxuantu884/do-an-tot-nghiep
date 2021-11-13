@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -100,6 +100,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     connected_date_to: null,
   });
 
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -881,7 +885,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
                 <span style={{ margin: "10px 0" }}>
                   <SettingOutlined style={{ marginRight: "5px" }} />
-                  Tùy chọn khoảng thời gian tạo:
+                  Tuỳ chọn khoảng thời gian tạo: Tuỳ
                 </span>
                 <DatePicker.RangePicker
                   format="DD-MM-YYYY"

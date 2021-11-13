@@ -1,38 +1,38 @@
 import { Button, Dropdown, Menu } from "antd";
-import { EcommerceProductPermissions } from "config/permissions/ecommerce.permission";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
 import threeDot from "assets/icon/three-dot.svg";
 
-const deleteProductPermission = [EcommerceProductPermissions.DELETE_PRODUCT];
-const syncStockPermission = [EcommerceProductPermissions.UPDATE_STOCK_PRODUCT];
-const disconnectProductPermission = [EcommerceProductPermissions.DISCONNECT_PRODUCT];
+const productsDeletePermission = [EcommerceProductPermission.products_delete];
+const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
+const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
 
 
 const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, handleDisconnectItem: any) => {
   const RenderActionColumn = (l: any, item: any, index: number) => {
-    const [allowDeleteProduct] = useAuthorization({
-      acceptPermissions: deleteProductPermission,
+    const [allowProductsDelete] = useAuthorization({
+      acceptPermissions: productsDeletePermission,
       not: false,
     });
 
-    const [allowSyncStock] = useAuthorization({
-      acceptPermissions: syncStockPermission,
+    const [allowProductsUpdateStock] = useAuthorization({
+      acceptPermissions: productsUpdateStockPermission,
       not: false,
     });
 
-    const [allowDisconnectProduct] = useAuthorization({
-      acceptPermissions: disconnectProductPermission,
+    const [allowProductsDisconnect] = useAuthorization({
+      acceptPermissions: productsDisconnectPermission,
       not: false,
     });
     
-    const isShowAction = (item.connect_status === "connected" && (allowDeleteProduct || allowSyncStock || allowDisconnectProduct)) ||
-      (item.connect_status === "waiting" && allowDeleteProduct);
+    const isShowAction = (item.connect_status === "connected" && (allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect)) ||
+      (item.connect_status === "waiting" && allowProductsDelete);
     
     const menu = (
       <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
         {item.connect_status === "connected" &&
           <>
-            {allowSyncStock &&
+            {allowProductsUpdateStock &&
               <Menu.Item key="1">
                 <Button type="text" onClick={() => handleSyncStock(item)}>
                   Đồng bộ tồn kho lên sàn
@@ -40,7 +40,7 @@ const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, 
               </Menu.Item>
             }
             
-            {allowDeleteProduct &&
+            {allowProductsDelete &&
               <Menu.Item key="2">
                 <Button type="text" onClick={() => handleDeleteItem(item)}>
                   Xóa sản phẩm lấy về
@@ -48,7 +48,7 @@ const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, 
               </Menu.Item>
             }
           
-            {allowDisconnectProduct &&
+            {allowProductsDisconnect &&
               <Menu.Item key="3">
                 <Button type="text" onClick={() => handleDisconnectItem(item)}>
                   Hủy liên kết

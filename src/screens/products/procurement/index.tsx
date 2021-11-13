@@ -1,17 +1,13 @@
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
-import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
+import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig from "config/url.config";
 import { useEffect, useState } from "react";
 import { RouteComponentProps, useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import TabCurrent from "./tabs/TabCurrent";
 import TabList from "./tabs/TabList/index";
-// const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-//   <StickyUnderNavbar>
-//     <DefaultTabBar {...props} />
-//   </StickyUnderNavbar>
-// );
+ 
 type PORouteProps = {
   id: string;
 };
@@ -51,7 +47,7 @@ const ProcurementScreen: React.FC<RouteComponentProps<PORouteProps>> = (props) =
           style={{ overflow: "initial" }}
           activeKey={activeTab}
           onChange={(active) => history.replace(`${UrlConfig.PROCUREMENT}/${active}`)}
-          // renderTabBar={renderTabBar}
+          renderTabBar={RenderTabBar}
         >
           <TabPane tab="Hàng về hôm nay" key="1">
             <TabCurrent />

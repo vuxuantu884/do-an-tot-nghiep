@@ -3,13 +3,14 @@
 const PurchaseOrders = "purchase_orders";
 
 export const PurchaseOrderPermission = {
-    po_create: `${PurchaseOrders}_po_create`,
-    po_update : `${PurchaseOrders}_po_update`,
-    po_delete : `${PurchaseOrders}_po_delete`,
-    po_read : `${PurchaseOrders}_po_read`,
-    po_cancel : `${PurchaseOrders}_po_cancel`,
-    po_print : `${PurchaseOrders}_po_print`,
-    po_return : `${PurchaseOrders}_po_return`,
+
+    create: `${PurchaseOrders}_create`,
+    update : `${PurchaseOrders}_update`,
+    delete : `${PurchaseOrders}_delete`,
+    read : `${PurchaseOrders}_read`,
+    cancel : `${PurchaseOrders}_cancel`,
+    print : `${PurchaseOrders}_print`,
+    return : `${PurchaseOrders}_return`,
 
     procurements_create : `${PurchaseOrders}_procurements_create`,
     procurements_update : `${PurchaseOrders}_procurements_update`,

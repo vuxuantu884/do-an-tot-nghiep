@@ -413,3 +413,14 @@ export const getSourcesEcommerceService = (): Promise<
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/ecommerce`);
 };
+
+/**
+* chuyển trạng thái pick: (khi in nhiều phiếu bàn giao)
+*/
+export const changeOrderStatusToPickedService = (
+  orderIds: number[]
+): Promise<BaseResponse<any>> => {
+  const orderIdTexts = orderIds.map((id) => (`ids=${id}`))
+  const params = orderIdTexts.join("&")
+  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/picked?${params}`,);
+};

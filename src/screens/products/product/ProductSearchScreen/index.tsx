@@ -3,26 +3,19 @@ import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
-import {StickyUnderNavbar} from "component/container/sticky-under-navbar";
 import ButtonCreate from "component/header/ButtonCreate";
+import RenderTabBar from "component/table/StickyTabBar";
 import {ProductPermission} from "config/permissions/product.permission";
-import UrlConfig from "config/url.config";
+import UrlConfig, {ProductTabUrl} from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
 import React, {useEffect, useState} from "react";
-import {Link, useHistory, useParams} from "react-router-dom";
+import {Link, useHistory, useRouteMatch} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import {ProductTabId} from "utils/Constants";
 import TabHistoryInfo from "../tab/TabHistoryInfo";
 import TabHistoryPrice from "../tab/TabHistoryPrice";
 import TabProduct from "../tab/TabProduct";
 import TabProductWrapper from "../tab/TabProductWrapper";
 const {TabPane} = Tabs;
-
-// const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-//   <StickyUnderNavbar>
-//     <DefaultTabBar {...props} />
-//   </StickyUnderNavbar>
-// );
 
 const ListProductScreen: React.FC = () => {
   const [canReadHistories] = useAuthorization({
@@ -34,67 +27,75 @@ const ListProductScreen: React.FC = () => {
   const [canReadProducts] = useAuthorization({
     acceptPermissions: [ProductPermission.read],
   });
-  const [activeTab, setActiveTab] = useState<string>(ProductTabId.VARIANTS);
+  const [activeTab, setActiveTab] = useState<string>(ProductTabUrl.VARIANTS);
   const history = useHistory();
-  let {tabId} = useParams<{tabId: string}>();
-  console.log(tabId);
+  let match = useRouteMatch();
+  const {path} = match;
 
   useEffect(() => {
-    if (!tabId || !Object.values(ProductTabId).includes(tabId)) {
+    let redirectUrl = path;
+    if (!path || !Object.values(ProductTabUrl).includes(path)) {
       if (canReadVariants) {
-        setActiveTab(ProductTabId.VARIANTS);
+        history.replace(ProductTabUrl.VARIANTS);
         return;
       }
       if (canReadProducts) {
-        setActiveTab(ProductTabId.PARENT_LIST);
+        history.replace(ProductTabUrl.PRODUCTS);
         return;
       }
       if (canReadHistories) {
-        setActiveTab(ProductTabId.PRODUCT_HISTORY);
+        history.replace(ProductTabUrl.PRODUCT_HISTORIES);
         return;
       }
     }
 
-    if (tabId === ProductTabId.VARIANTS && canReadVariants) {
-      setActiveTab(ProductTabId.VARIANTS);
+    if (redirectUrl === ProductTabUrl.VARIANTS && canReadVariants) {
+      setActiveTab(ProductTabUrl.VARIANTS);
+    } else if (redirectUrl === ProductTabUrl.PRODUCTS) {
+      redirectUrl = ProductTabUrl.PRODUCTS;
     }
 
-    if (tabId === ProductTabId.PARENT_LIST && canReadProducts) {
-      setActiveTab(ProductTabId.PARENT_LIST);
+    if (redirectUrl === ProductTabUrl.PRODUCTS && canReadProducts) {
+      history.replace(redirectUrl);
+      setActiveTab(ProductTabUrl.PRODUCTS);
+    } else if (redirectUrl === ProductTabUrl.PRODUCT_HISTORIES) {
+      redirectUrl = ProductTabUrl.PRODUCT_HISTORIES;
     }
 
     if (canReadHistories) {
-      if (tabId === ProductTabId.PRODUCT_HISTORY) {
-        setActiveTab(ProductTabId.PRODUCT_HISTORY);
+      if (redirectUrl === ProductTabUrl.PRODUCT_HISTORIES) {
+        history.replace(redirectUrl);
+        setActiveTab(ProductTabUrl.PRODUCT_HISTORIES);
       }
-      if (tabId === ProductTabId.PRICE_HISTORY) {
-        setActiveTab(ProductTabId.PRICE_HISTORY);
+      if (redirectUrl === ProductTabUrl.HISTORY_PRICES) {
+        history.replace(redirectUrl);
+        setActiveTab(ProductTabUrl.HISTORY_PRICES);
       }
     }
-  }, [tabId, canReadHistories, canReadVariants, canReadProducts]);
+  }, [path, canReadHistories, canReadVariants, canReadProducts, history]);
 
   const defaultTabs = [
     {
       name: "Danh sách sản phẩm",
-      key: ProductTabId.VARIANTS,
+      key: ProductTabUrl.VARIANTS,
       component: <TabProduct />,
       isShow: canReadVariants,
     },
     {
       name: "Danh sách cha",
-      key: ProductTabId.PARENT_LIST,
+      key: ProductTabUrl.PRODUCTS,
       component: <TabProductWrapper />,
       isShow: canReadProducts,
     },
     {
       name: "Lịch sử sản phẩm",
-      key: ProductTabId.PRODUCT_HISTORY,
+      key: ProductTabUrl.PRODUCT_HISTORIES,
       component: <TabHistoryInfo />,
       isShow: canReadHistories,
     },
     {
       name: "Lịch sử giá",
-      key: ProductTabId.PRICE_HISTORY,
+      key: ProductTabUrl.HISTORY_PRICES,
       component: <TabHistoryPrice />,
       isShow: canReadHistories,
     },
@@ -148,10 +149,9 @@ const ListProductScreen: React.FC = () => {
           style={{overflow: "initial"}}
           activeKey={activeTab}
           onChange={(active) => {
-            const targetUrl = UrlConfig.PRODUCT + "/" + active + "/tabs";
-            history.replace(targetUrl);
+            history.replace(active);
           }}
-          // renderTabBar={renderTabBar}
+          renderTabBar={RenderTabBar}
         >
           {tabs.map((tab) => {
             if (tab.isShow) {

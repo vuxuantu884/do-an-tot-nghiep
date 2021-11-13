@@ -28,7 +28,7 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import CustomerShippingAddressOrder from "screens/fpage/fpage-order/component/order-detail/CardCustomer/customer-shipping";
+import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
 import { showError, showSuccess } from "utils/ToastUtils";
 
 type UpdateCustomerProps = {
