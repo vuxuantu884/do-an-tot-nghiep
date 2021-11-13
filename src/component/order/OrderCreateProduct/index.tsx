@@ -391,6 +391,7 @@ function OrderCreateProduct(props: PropType) {
       _items[index].quantity = Number(
         value == null ? "0" : value.toString().replace(".", "")
       );
+      handleDiscountWhenActiveAutomaticDiscount();
       setItems(_items);
       handleChangeItems();
     }
@@ -604,6 +605,7 @@ function OrderCreateProduct(props: PropType) {
               }
               onChangeQuantity(value, index);
             }}
+            max={l.maxQuantityToApplyDiscount}
             maxLength={4}
             minLength={0}
             disabled={levelOrder > 3}
@@ -972,6 +974,8 @@ function OrderCreateProduct(props: PropType) {
           item.discount_items[0] = discountItem;
           item.discount_value = item.quantity * value;
           item.discount_rate = rate;
+          item.maxQuantityToApplyDiscount =
+          highestValueSuggestDiscount?.allocation_limit || undefined;
         }
         showSuccess("Thêm chiết khấu thành công!");
       }
