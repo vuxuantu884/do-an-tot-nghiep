@@ -328,7 +328,7 @@ const GeneralInfo = (props: any) => {
                   mode="multiple"
                   className="ant-select-selector-min-height"
                 >
-                  {listChannel?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
+                  {listChannel?.map((channel: any) => <Option value={channel.name}>{channel.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
@@ -351,7 +351,7 @@ const GeneralInfo = (props: any) => {
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
               <Form.Item
-                name="prerequisite_order_sources_ids"
+                name="prerequisite_order_source_ids"
                 label={<b>Nguồn đơn hàng áp dụng:</b>}
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
@@ -368,9 +368,9 @@ const GeneralInfo = (props: any) => {
                 <Switch
                   defaultChecked={allSource}
                   onChange={value => {
-                    form.validateFields(['prerequisite_order_sources_ids'])
+                    form.validateFields(['prerequisite_order_source_ids'])
                     form.setFieldsValue({
-                      prerequisite_order_sources_ids: undefined
+                      prerequisite_order_source_ids: undefined
                     })
                     setAllSource(value)
                   }}

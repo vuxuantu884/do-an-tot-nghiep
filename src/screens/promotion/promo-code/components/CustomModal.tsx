@@ -113,7 +113,7 @@ const ModalAddCode: React.FC<ModalProps> = (
               name="discount_add"
               onFinish={onFinish}
               layout="vertical"
-              // initialValues={['']}
+              initialValues={{ listCode:[""]}}
             >
               <Form.List
                 name="listCode"
@@ -158,13 +158,13 @@ const ModalAddCode: React.FC<ModalProps> = (
                                 maxLength={30}
                                 suffix={<img src={CloseIcon} style={{marginRight: 13}} alt="" onClick={() => remove(name)} />}
                               />
-                              
+
                             </Form.Item>
                           )
                         })
                       }
                       <Button
-                        type="link" 
+                        type="link"
                         onClick={() => add()}
                         icon={<PlusOutlined/>}
                         style={{padding: "0 10px"}}
@@ -183,7 +183,7 @@ const ModalAddCode: React.FC<ModalProps> = (
               name="discount_add"
               onFinish={onFinish}
               layout="vertical"
-              initialValues={{ 
+              initialValues={{
                 count: null,
                 prefix: "",
                 length: null,
@@ -202,7 +202,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                       },
                     ]}
                   >
-                    <NumberInput 
+                    <NumberInput
                       placeholder="Tối đã 1,000 mã"
                       style={{ textAlign: "left" }}
                       max={1000}
@@ -235,7 +235,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                       },
                     ]}
                   >
-                    <NumberInput 
+                    <NumberInput
                       placeholder="VD: 6"
                       style={{ textAlign: "left" }}
                     />

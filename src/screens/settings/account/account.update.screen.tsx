@@ -19,6 +19,7 @@ import {
 import deleteIcon from "assets/icon/delete.svg";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
   AccountGetByCodeAction,
@@ -32,6 +33,7 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import {StoreGetListAction} from "domain/actions/core/store.action";
+import useAuthorization from "hook/useAuthorization";
 import {
   AccountJobReQuest,
   AccountJobResponse,
@@ -98,6 +100,10 @@ const AccountUpdateScreen: React.FC = () => {
   const [accountDetail, setAccountDetail] = useState<AccountView | null>(null);
   const [isSelectAllStore, setIsSelectAllStore] = useState(false);
   //EndState
+
+  const allowUpdateAcc = useAuthorization({
+    acceptPermissions: [AccountPermissions.UPDATE],
+  });
 
   //Callback
 
@@ -703,9 +709,11 @@ const AccountUpdateScreen: React.FC = () => {
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
-              <Button htmlType="submit" type="primary">
-                Lưu
-              </Button>
+              {allowUpdateAcc ? (
+                <Button htmlType="submit" type="primary">
+                  Lưu
+                </Button>
+              ) : null}
             </Space>
           </div>
         </Affix>

@@ -32,7 +32,7 @@ const CreatePromotionCodePage = () => {
     sale_type: "SALE_CODE",
     product_type: "PRODUCT",
     value_type: "PERCENTAGE",
-    value: "0",
+    value: null,
     usage_limit: "1"
   };
 
@@ -110,6 +110,7 @@ const CreatePromotionCodePage = () => {
   }, [dispatch, history]);
 
   const onFinish = (values: any) => {
+    console.log("onFinish: ", values);
     // Action: Lưu và kích hoạt
     const body = transformData(values);
     body.activated = true;

@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { OFFSET_HEADER_TABLE, ProductTabId } from "utils/Constants";
 import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
@@ -57,7 +57,7 @@ const TabHistoryInfo: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setParams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}#3?${queryParam}`);
+      history.replace(`${UrlConfig.PRODUCT}/${ProductTabId.PRODUCT_HISTORY}/tabs?${queryParam}`);
     },
     [history, params]
   );
@@ -146,7 +146,7 @@ const TabHistoryInfo: React.FC = () => {
           let newParams = { ...params, ...values, page: 1 };
           setParams(newParams);
           let queryParam = generateQuery(newParams);
-          history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
+          history.replace(`${UrlConfig.PRODUCT}/${ProductTabId.PRODUCT_HISTORY}/tabs?${queryParam}`);
         }}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         onMenuClick={() => {}}

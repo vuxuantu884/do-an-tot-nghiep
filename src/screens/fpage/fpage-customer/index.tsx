@@ -68,9 +68,9 @@ const Customer = () => {
     company: null,
     from_wedding_date: null,
     to_wedding_date: null,
-    customer_type_id: null,
-    customer_group_id: null,
-    customer_level_id: null,
+    customer_type_id: undefined,
+    customer_group_id: undefined,
+    customer_level_id: undefined,
     responsible_staff_code: null,
   }), []);
   const [query, setQuery] = React.useState<CustomerSearchQuery>({
@@ -83,9 +83,9 @@ const Customer = () => {
     company: null,
     from_wedding_date: null,
     to_wedding_date: null,
-    customer_type_id: null,
-    customer_group_id: null,
-    customer_level_id: null,
+    customer_type_id: undefined,
+    customer_group_id: undefined,
+    customer_level_id: undefined,
     responsible_staff_code: "",
   });
   const [visible, setVisible] = React.useState<boolean>(false);
