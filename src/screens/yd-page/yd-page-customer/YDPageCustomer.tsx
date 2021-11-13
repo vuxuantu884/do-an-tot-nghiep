@@ -34,9 +34,9 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 
 
-const customersReadPermission = [YDpagePermission?.customers_read];
-const customersCreatePermission = [YDpagePermission?.customers_create];
-const customersUpdatePermission = [YDpagePermission?.customers_update];
+const customersReadPermission = [YDpagePermission.customers_read];
+const customersCreatePermission = [YDpagePermission.customers_create];
+const customersUpdatePermission = [YDpagePermission.customers_update];
 
 
 const initQueryAccount: AccountSearchQuery = {
@@ -64,16 +64,15 @@ const FpageCustomerDetail = (props: any) => {
   const dispatch = useDispatch();
 
   
-  const [allowCustomersCreate] = useAuthorization({
+  const [allowCreateCustomer] = useAuthorization({
     acceptPermissions: customersCreatePermission,
     not: false,
   });
-  const [allowCustomersUpdate] = useAuthorization({
+  const [allowUpdateCustomer] = useAuthorization({
     acceptPermissions: customersUpdatePermission,
     not: false,
   });
 
-  const isShowFooterButton = allowCustomersCreate || (allowCustomersUpdate && customer);  
   
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
@@ -388,7 +387,7 @@ const FpageCustomerDetail = (props: any) => {
   };
 
   const isDisableUpdateCustomer = () => {
-    return (!allowCustomersUpdate && customer) || (!allowCustomersCreate && !customer);
+    return (!allowUpdateCustomer && customer) || (!allowCreateCustomer && !customer);
   };
 
 
@@ -458,28 +457,26 @@ const FpageCustomerDetail = (props: any) => {
                 rowKey={(data) => data.id}
               />
             </Card>
-            {isShowFooterButton &&
-              <div className="customer-bottom-button">
-                <Button
-                  style={{ marginRight: "10px" }}
-                  onClick={() => history.goBack()}
-                  type="ghost"
-                >
-                  Hủy
-                </Button>
-                {allowCustomersCreate && !customer && (
-                  <Button type="primary" htmlType="submit" className="create-button-custom">
-                    Tạo mới khách hàng
-                  </Button>
-                )}
-                {allowCustomersUpdate && customer && (
-                  <Button type="primary" htmlType="submit" className="create-button-custom">
-                    Lưu khách hàng
-                  </Button>
-                )}
-              </div>
-            }
             
+            <div className="customer-bottom-button">
+              <Button
+                style={{ marginRight: "10px" }}
+                onClick={() => history.goBack()}
+                type="ghost"
+              >
+                Hủy
+              </Button>
+              {allowCreateCustomer && !customer && (
+                <Button type="primary" htmlType="submit" className="create-button-custom">
+                  Tạo mới khách hàng
+                </Button>
+              )}
+              {allowUpdateCustomer && customer && (
+                <Button type="primary" htmlType="submit" className="create-button-custom">
+                  Lưu khách hàng
+                </Button>
+              )}
+            </div>
           </Form>
         : <NoPermission />)}
       </AuthWrapper>

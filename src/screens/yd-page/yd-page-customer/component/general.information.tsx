@@ -449,17 +449,19 @@ const GeneralInformation = (props: any) => {
                     notes.map((note: any, index: number) => (
                       <div className="customer-note-item" key={index}>
                         <span key={note.id}>{note.content}</span>
-                        <img
-                          alt="delete"
-                          onClick={(e: any) => deleteNote(note, e)}
-                          style={{
-                            width: 20,
-                            float: "right",
-                            cursor: "pointer",
-                            marginLeft: 4,
-                          }}
-                          src={isDisable ? "" : XCloseBtn}
-                        ></img>
+                        {!isDisable &&
+                          <img
+                            alt="delete"
+                            onClick={(e: any) => deleteNote(note, e)}
+                            style={{
+                              width: 20,
+                              float: "right",
+                              cursor: "pointer",
+                              marginLeft: 4,
+                            }}
+                            src={XCloseBtn}
+                          />
+                        }
                       </div>
                     ))}
                 </div>
