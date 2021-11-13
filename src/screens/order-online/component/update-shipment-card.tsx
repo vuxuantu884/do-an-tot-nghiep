@@ -564,9 +564,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
     if (
       props.OrderDetail?.status === "draft" &&
-      customerNeedToPayValue === props.totalPaid
+      totalAmountCustomerNeedToPay === props.totalPaid
     ) {
-      value.cod = customerNeedToPayValue;
+      value.cod = totalAmountCustomerNeedToPay;
     }
 
     FulFillmentRequest.shipment = value;
@@ -676,12 +676,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // const isShowTakeHelper = showTakeHelper();
   // khách cần trả
-  const customerNeedToPayValue =
+  const totalAmountCustomerNeedToPay =
     (props.OrderDetail?.total_line_amount_after_line_discount
       ? props.OrderDetail?.total_line_amount_after_line_discount
       : 0) +
-    (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
-    (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0) -
+    (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0)  -
     (props.totalPaid ? props.totalPaid : 0);
   // totalAmountPaid() -
   // (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
@@ -1657,7 +1656,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 customer={props.customerDetail}
                 items={OrderDetail?.items}
                 isCancelValidateDelivery={false}
-                totalAmountCustomerNeedToPay={customerNeedToPayValue}
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                 setShippingFeeInformedToCustomer={props.setShippingFeeInformedCustomer}
                 onSelectShipment={setShipmentMethod}
                 thirdPL={thirdPL}
