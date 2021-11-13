@@ -137,6 +137,7 @@ const CreateInventoryAdjustment: FC = () => {
       showError("Vui lòng chọn sản phẩm");
       return;
     }
+    
     data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
       const variantPrice =
         item &&

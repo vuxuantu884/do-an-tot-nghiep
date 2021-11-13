@@ -12,6 +12,7 @@ import {convertDepartment} from "utils/AppUtils";
 import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 const DepartmentSearchScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -122,6 +123,15 @@ const DepartmentSearchScreen: React.FC = () => {
                       >{`${record.manager_code} - ${value}`}</Link>
                     ),
                 },
+                {
+                  title: "Người tạo",
+                  dataIndex: "created_by",
+                },
+                {
+                  title: "Ngày tạo",
+                  dataIndex: "created_date",
+                  render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+                }
               ]}
             />
           </Card>
