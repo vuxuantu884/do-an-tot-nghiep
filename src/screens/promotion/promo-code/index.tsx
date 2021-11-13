@@ -32,7 +32,7 @@ import { DiscountResponse } from "model/response/promotion/discount/list-discoun
 import { PROMO_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { ACTIONS_PROMO, STATUS_CODE } from "../constant";
+import { ACTIONS_PROMO, STATUS_PROMO } from "../constant";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -137,7 +137,7 @@ const PromotionCode = () => {
       align: 'center',
       width: "20%",
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)}`} - {item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYYY) : <span>&#8734;</span>}</div>,
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)}`} - {item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm) : <span>&#8734;</span>}</div>,
     },
     {
       title: "Người tạo",
@@ -155,7 +155,7 @@ const PromotionCode = () => {
       align: 'center',
       width: '15%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = STATUS_CODE.find(e => e.code === item.state);
+        const status: any | null = STATUS_PROMO.find(e => e.code === item.state);
         return (<div
           style={status?.style}
         >
@@ -259,7 +259,7 @@ const PromotionCode = () => {
       }
     >
       <Card>
-        <div className="promotion-code__search">
+        <div className="discount-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={ACTIONS_PROMO}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Item name="query" className="search">

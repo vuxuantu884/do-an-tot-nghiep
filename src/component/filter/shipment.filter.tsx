@@ -423,8 +423,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     if (initialValues.delivery_provider_ids.length) {
       let textService = ""
-      initialValues.delivery_provider_ids.forEach(i => {
-        const findService = deliveryService?.find(item => item.id === i)
+      initialValues.delivery_provider_ids.forEach((i: any) => {
+        const findService = deliveryService?.find(item => item.id.toString() === i.toString())
         textService = findService ? textService + findService.name + "; " : textService
       })
       list.push({
@@ -867,7 +867,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   getPopupContainer={trigger => trigger.parentNode} allowClear
                 >
                   {deliveryService?.map((item) => (
-                    <Option key={item.id} value={item.id}>
+                    <Option key={item.id} value={item.id.toString()}>
                       {item.name}
                     </Option>
                   ))}

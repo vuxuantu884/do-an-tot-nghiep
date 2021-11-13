@@ -13,7 +13,7 @@ import {
   Divider,
   Collapse,
 } from "antd";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import {AccountSearchAction} from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
@@ -22,36 +22,31 @@ import {
   SupplierDetailAction,
   SupplierUpdateAction,
 } from "domain/actions/core/supplier.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   SupplierDetail,
   SupplierResponse,
   SupplierUpdateRequest,
 } from "model/core/supplier.model";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router";
-import { convertSupplierResponseToDetail } from "utils/AppUtils";
-import { AppConfig } from "config/app.config";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {CountryResponse} from "model/content/country.model";
+import {DistrictResponse} from "model/content/district.model";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory, useParams} from "react-router";
+import {convertSupplierResponseToDetail} from "utils/AppUtils";
+import {AppConfig} from "config/app.config";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { showSuccess } from "utils/ToastUtils";
-import { RegUtil } from "utils/RegUtils";
+import {showSuccess} from "utils/ToastUtils";
+import {RegUtil} from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
+import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import useAuthorization from "hook/useAuthorization";
 
-const { Item } = Form;
-const { Option } = Select;
+const {Item} = Form;
+const {Option} = Select;
 type SupplierParam = {
   id: string;
 };
@@ -59,7 +54,7 @@ type SupplierParam = {
 const DefaultCountry = 233;
 
 const UpdateSupplierScreen: React.FC = () => {
-  const { id } = useParams<SupplierParam>();
+  const {id} = useParams<SupplierParam>();
   let idNumber = parseInt(id);
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -92,10 +87,17 @@ const UpdateSupplierScreen: React.FC = () => {
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [status, setStatus] = useState<string>();
   const [supplier, setSupplier] = useState<SupplierDetail | null>(null);
+
+  //phân quyền
+  const [allowUpdateSup] = useAuthorization({
+    acceptPermissions: [SuppliersPermissions.UPDATE],
+    not: false,
+  });
+
   //EndState
   //Callback
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
       return;
     }
     setAccounts(data.items);
@@ -167,7 +169,7 @@ const UpdateSupplierScreen: React.FC = () => {
     if (isFirstLoad.current) {
       dispatch(
         AccountSearchAction(
-          { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active' },
+          {department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"},
           setDataAccounts
         )
       );
@@ -223,11 +225,7 @@ const UpdateSupplierScreen: React.FC = () => {
                   className="ant-switch-success"
                   defaultChecked
                 />
-                <label
-                  className={
-                    status === "active" ? "text-success" : "text-error"
-                  }
-                >
+                <label className={status === "active" ? "text-success" : "text-error"}>
                   {statusValue}
                 </label>
                 <Item noStyle name="status" hidden>
@@ -278,19 +276,14 @@ const UpdateSupplierScreen: React.FC = () => {
                     name="name"
                     label="Tên nhà cung cấp"
                   >
-                    <Input
-                      placeholder="Nhập tên nhà cung cấp"
-                      maxLength={255}
-                    />
+                    <Input placeholder="Nhập tên nhà cung cấp" maxLength={255} />
                   </Item>
                 </Col>
               </Row>
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
-                    rules={[
-                      { required: true, message: "Vui lòng chọn ngành hàng" },
-                    ]}
+                    rules={[{required: true, message: "Vui lòng chọn ngành hàng"}]}
                     name="goods"
                     label="Ngành hàng"
                   >
@@ -320,10 +313,7 @@ const UpdateSupplierScreen: React.FC = () => {
                     name="person_in_charge"
                     label="Nhân viên phụ trách"
                   >
-                    <Select
-                      placeholder="Chọn nhân viên phụ trách"
-                      className="selector"
-                    >
+                    <Select placeholder="Chọn nhân viên phụ trách" className="selector">
                       {accounts.map((item) => (
                         <Option key={item.code} value={item.code}>
                           {item.full_name}
@@ -337,11 +327,7 @@ const UpdateSupplierScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item label="Quốc gia" name="country_id">
-                    <Select
-                      disabled
-                      className="selector"
-                      placeholder="Chọn ngành hàng"
-                    >
+                    <Select disabled className="selector" placeholder="Chọn ngành hàng">
                       {countries?.map((item) => (
                         <Option key={item.id} value={item.id}>
                           {item.name}
@@ -493,14 +479,14 @@ const UpdateSupplierScreen: React.FC = () => {
                           <NumberInput
                             placeholder="Nhập thời gian công nợ"
                             isFloat
-                            style={{ width: "70%" }}
+                            style={{width: "70%"}}
                           />
                         </Item>
                         <Item name="debt_time_unit" noStyle>
                           <Select
                             className="selector-group"
                             defaultActiveFirstOption
-                            style={{ width: "30%" }}
+                            style={{width: "30%"}}
                           >
                             {date_unit?.map((item) => (
                               <Option key={item.value} value={item.value}>
@@ -520,8 +506,8 @@ const UpdateSupplierScreen: React.FC = () => {
                       name="certifications"
                       help={
                         <div className="t-help">
-                          Tối đa 1 files (doc, pdf, png, jpeg, jpg) và dung
-                          lượng tối đa 3 MB
+                          Tối đa 1 files (doc, pdf, png, jpeg, jpg) và dung lượng tối đa 3
+                          MB
                         </div>
                       }
                     >
@@ -546,13 +532,11 @@ const UpdateSupplierScreen: React.FC = () => {
                           <NumberInput
                             placeholder="Nhập số lượng"
                             isFloat
-                            style={{ width: "70%" }}
+                            style={{width: "70%"}}
                           />
                         </Item>
                         <Item name="moq_unit" noStyle>
-                          <Select
-                            style={{ width: "30%" }}
-                          >
+                          <Select style={{width: "30%"}}>
                             {moq_unit?.map((item) => (
                               <Option key={item.value} value={item.value}>
                                 {item.name}
@@ -567,10 +551,7 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} lg={16} md={24} sm={24}>
                     <Item label="Ghi chú" name="note">
-                      <Input
-                        placeholder="Nhập ghi chú"
-                        maxLength={255}
-                      />
+                      <Input placeholder="Nhập ghi chú" maxLength={255} />
                     </Item>
                   </Col>
                 </Row>
@@ -620,14 +601,16 @@ const UpdateSupplierScreen: React.FC = () => {
               </div>
             </Collapse.Panel>
           </Collapse>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
+          <div className="margin-top-10" style={{textAlign: "right"}}>
             <Space size={12}>
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
-              <Button loading={loading} htmlType="submit" type="primary">
-                Lưu
-              </Button>
+              {allowUpdateSup ? (
+                <Button loading={loading} htmlType="submit" type="primary">
+                  Lưu
+                </Button>
+              ) : null}
             </Space>
           </div>
         </Form>

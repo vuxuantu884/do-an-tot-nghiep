@@ -1,4 +1,4 @@
-import { Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency } from "utils/AppUtils";
@@ -15,10 +15,12 @@ type PropType = {
   shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
   amount: number;
+  isDisableOrderDiscount?: boolean;
   showDiscountModal: () => void;
   showCouponModal: () => void;
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
+  setCoupon?: (value: string) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -43,13 +45,15 @@ function CardProductBottom(props: PropType) {
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
+    isDisableOrderDiscount,
     showDiscountModal,
     showCouponModal,
     setDiscountRate,
     setDiscountValue,
     calculateChangeMoney,
+    setCoupon,
   } = props;
-
+console.log('coupon', coupon)
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -70,7 +74,7 @@ function CardProductBottom(props: PropType) {
 
           <Row className="paymentRow" justify="space-between" align="middle">
             <Space align="center">
-              {setDiscountRate && items && items.length > 0 ? (
+              {setDiscountRate && !isDisableOrderDiscount && items && items.length > 0 ? (
                 <Typography.Link
                   className="font-weight-400"
                   onClick={showDiscountModal}
@@ -110,7 +114,7 @@ function CardProductBottom(props: PropType) {
 
           <Row className="paymentRow" justify="space-between" align="middle">
             <Space align="center">
-              {setDiscountRate && items && items.length > 0 ? (
+              {setDiscountRate && !isDisableOrderDiscount && items && items.length > 0 ? (
                 <Typography.Link
                   className="font-weight-400"
                   onClick={showCouponModal}
@@ -138,9 +142,10 @@ function CardProductBottom(props: PropType) {
                   onClose={() => {
                     setDiscountRate && setDiscountRate(0);
                     setDiscountValue && setDiscountValue(0);
+                    setCoupon && setCoupon("");
                   }}
                 >
-                  {coupon}{" "}
+                  {coupon}
                 </Tag>
               )}
             </Space>

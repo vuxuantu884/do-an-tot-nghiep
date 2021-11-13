@@ -87,7 +87,7 @@ export const getReturnApi = (
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.CORE}/sources/listing`);
+  return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
 };
 
 export const getPaymentMethod = (): Promise<
@@ -224,7 +224,7 @@ export const getSourcesWithParamsService = (
   query: BaseQuery
 ): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
+  return BaseAxios.get(`${ApiConfig.CORE}/sources?${queryString}`);
 };
 
 export const getListSourcesCompaniesService = (): Promise<
@@ -236,20 +236,20 @@ export const getListSourcesCompaniesService = (): Promise<
 export const createOrderSourceService = (
   newOrderSource: OrderSourceModel
 ): Promise<BaseResponse<OrderSourceCompanyModel>> => {
-  return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
+  return BaseAxios.post(`${ApiConfig.CORE}/sources`, newOrderSource);
 };
 
 export const editOrderSourceService = (
   id: number,
   orderSource: OrderSourceModel
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/sources/${id}`, orderSource);
+  return BaseAxios.put(`${ApiConfig.CORE}/sources/${id}`, orderSource);
 };
 
 export const deleteOrderSourceService = (
   id: number
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
-  return BaseAxios.delete(`${ApiConfig.ORDER}/sources/${id}`);
+  return BaseAxios.delete(`${ApiConfig.CORE}/sources/${id}`);
 };
 
 export const deleteMultiOrderSourceService = (
@@ -258,7 +258,7 @@ export const deleteMultiOrderSourceService = (
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
   const source_ids = sourceIds;
   const channel_ids = channelIds;
-  return BaseAxios.delete(`${ApiConfig.ORDER}/sources`, {
+  return BaseAxios.delete(`${ApiConfig.CORE}/sources`, {
     data: {source_ids, channel_ids},
   });
 };
@@ -303,28 +303,28 @@ export const setSubStatusService = (
 };
 
 export const getChannelApi = (): Promise<BaseResponse<Array<ChannelResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/channels`);
+  return BaseAxios.get(`${ApiConfig.CORE}/channels`);
 };
 
 export const getChannelTypeApi = (): Promise<BaseResponse<Array<ChannelTypeModel>>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/channels/types`);
+  return BaseAxios.get(`${ApiConfig.CORE}/channels/types`);
 };
 
 export const createChannelService = (
   params: ChannelModel
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(`${ApiConfig.ORDER}/channels`, params);
+  return BaseAxios.post(`${ApiConfig.CORE}/channels`, params);
 };
 
 export const editChannelService = (
   channelId: number,
   params: ChannelModel
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/channels/${channelId}`, params);
+  return BaseAxios.put(`${ApiConfig.CORE}/channels/${channelId}`, params);
 };
 
 export const deleteChannelService = (channelId: number): Promise<BaseResponse<any>> => {
-  return BaseAxios.delete(`${ApiConfig.ORDER}/channels/${channelId}`);
+  return BaseAxios.delete(`${ApiConfig.CORE}/channels/${channelId}`);
 };
 
 export const getReasonsApi = (): Promise<BaseResponse<Array<any>>> => {
@@ -465,3 +465,13 @@ export const getChannelsService=(typeId:number):Promise<BaseResponse<ChannelResp
     link=`${ApiConfig.ORDER}/channels?type_id=${typeId}`
   return BaseAxios.get(link);
 }
+/**
+* chuyển trạng thái pick: (khi in nhiều phiếu bàn giao)
+*/
+export const changeOrderStatusToPickedService = (
+  orderIds: number[]
+): Promise<BaseResponse<any>> => {
+  const orderIdTexts = orderIds.map((id) => (`ids=${id}`))
+  const params = orderIdTexts.join("&")
+  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/picked?${params}`,);
+};

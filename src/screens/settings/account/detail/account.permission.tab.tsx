@@ -1,8 +1,10 @@
 import {Col, Divider, Form, Row} from "antd";
 import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import {getAllModuleParam} from "config/module.config";
+import { AccountPermissions } from "config/permissions/account.permisssion";
 import {getModuleAction} from "domain/actions/auth/module.action";
 import {updateAccountPermissionAction} from "domain/actions/auth/permission.action";
+import useAuthorization from "hook/useAuthorization";
 import _ from "lodash";
 import {ModuleAuthorize} from "model/auth/module.model";
 import {PermissionsAuthorize, UserPermissionRequest} from "model/auth/permission.model";
@@ -29,6 +31,10 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   const [activePanel, setActivePanel] = useState<string | string[]>([]);
   const [indeterminateModules, setIndeterminateModules] = useState<string[]>([]);
   const [checkedModules, setCheckedModules] = useState<string[]>([]);
+  //phân quyền
+  const [allowUpdateAcc] = useAuthorization({
+    acceptPermissions: [AccountPermissions.UPDATE],
+  });
 
   const detailContext = useContext(AccountDetailContext);
   const {accountInfo} = detailContext;
@@ -181,6 +187,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
             form={form}
             onChangeCheckboxPermission={onChangeCheckBoxPermission}
             onChangeCheckboxModule={onChangeCheckBoxModule}
+            disabled={!allowUpdateAcc}
           />
         </Form>
       </CreateRoleStyled>

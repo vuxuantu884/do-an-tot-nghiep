@@ -22,4 +22,5 @@ export interface DiscountResponse extends BaseObject {
   prerequisite_store_ids: number[];
   prerequisite_sales_channel_names: string[];
   prerequisite_order_source_ids: number[];
+  total_usage_count: number;
 }

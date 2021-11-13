@@ -1007,7 +1007,7 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
     })
     console.log('checkIfNotReturnAll', checkIfNotReturnAll)
     result = !checkIfNotReturnAll;
-  } 
+  }
   console.log('result', result)
   return result;
 }

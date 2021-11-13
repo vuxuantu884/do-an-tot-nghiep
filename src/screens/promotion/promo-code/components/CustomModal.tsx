@@ -113,7 +113,7 @@ const ModalAddCode: React.FC<ModalProps> = (
               name="discount_add"
               onFinish={onFinish}
               layout="vertical"
-              initialValues={{ listCode: [] }}
+              initialValues={{ listCode: [{}] }}
             >
               <Form.List
                 name="listCode"

@@ -109,9 +109,9 @@ function OrderShortDetails(props: PropType) {
           <Col span={10}>Tham chiếu:</Col>
           <Col span={14} style={{wordWrap: "break-word"}}>
             {OrderDetail?.url ? (
-              <a href={OrderDetail?.url}>{OrderDetail?.reference}</a>
+              <a href={OrderDetail?.url}>{OrderDetail?.reference_code}</a>
             ) : (
-              <span className="text-focus">-</span>
+              <span className="text-focus">{OrderDetail?.reference_code}</span>
             )}
           </Col>
         </Row>

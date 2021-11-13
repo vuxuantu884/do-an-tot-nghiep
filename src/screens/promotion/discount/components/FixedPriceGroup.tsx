@@ -15,8 +15,7 @@ import {AiOutlineClose} from "react-icons/ai";
 import {DeleteOutlined} from "@ant-design/icons";
 import {formatCurrency} from "../../../../utils/AppUtils";
 import {showError} from "utils/ToastUtils";
-import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg"
-import {float} from "html2canvas/dist/types/css/property-descriptors/float";
+import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg";
 
 const Option = Select.Option;
 
@@ -49,6 +48,14 @@ const FixedPriceGroup = (props: any) => {
   );
 
   useEffect(() => {
+    const formEntitlement = form.getFieldValue("entitlements")[name];
+    if (formEntitlement) {
+      formEntitlement["prerequisite_quantity_ranges.value_type"] = discountType;
+    }
+  }, [form.getFieldValue("entitlements")[name]])
+
+
+  useEffect(() => {
     const formEntitlements = form.getFieldValue("entitlements");
     const initVariants = formEntitlements[name]?.variants;
     if (initVariants && initVariants.length > 0) {
@@ -59,6 +66,15 @@ const FixedPriceGroup = (props: any) => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (discountMethod === "FIXED_PRICE") {
+      setDiscountType("FIXED_AMOUNT");
+    }
+    if (discountMethod === "QUANTITY") {
+      setDiscountType("PERCENTAGE");
+    }
+  }, [discountMethod]);
 
   const transformVariant = (item: any) => ({
     name: item.variant_title,
@@ -142,6 +158,19 @@ const FixedPriceGroup = (props: any) => {
     [selectedProduct],
   );
 
+  const formatDiscountValue = useCallback((value: number | undefined) => {
+    if (discountType !== "FIXED_AMOUNT") {
+      const floatIndex = value?.toString().indexOf(".") || -1;
+      if (floatIndex > 0) {
+        return `${value}`.slice(0, floatIndex + 3)
+      }
+      return `${value}`
+    } else {
+      return formatCurrency(`${value}`)
+    }
+  }, [discountType])
+
+
   return (
     <div key={name}
          style={{border: "1px solid rgb(229, 229, 229)", padding: "20px", marginBottom: "20px", borderRadius: "5px"}}>
@@ -159,10 +188,9 @@ const FixedPriceGroup = (props: any) => {
               {required: true, message: "Cần nhập số lượng tối thiểu"},
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  const usageLimit = form.getFieldValue("usage_limit");
-                  const entitlements = form.getFieldValue("entitlements");
+                  const usageLimit = getFieldValue("usage_limit");
+                  const entitlements = getFieldValue("entitlements");
                   const allocateLimit = entitlements[name]?.["prerequisite_quantity_ranges.allocation_limit"];
-                  console.log('allocateLimit: ', allocateLimit)
                   if (value && usageLimit && value > usageLimit) {
                     return Promise.reject(new Error('SL Tối thiểu phải nhỏ hơn Số lượng áp dụng'));
                   } else if (value && allocateLimit && value > allocateLimit) {
@@ -204,20 +232,9 @@ const FixedPriceGroup = (props: any) => {
               <InputNumber
                 style={{textAlign: "end", borderRadius: "0px"}}
                 min={1}
-                max={discountType === "PERCENTAGE" ? 99 : 999999999}
-                step={discountType === "PERCENTAGE" ? 0.01 : 1}
-                formatter={value => {
-                  if (discountType === "PERCENTAGE") {
-                    const floatIndex = value?.toString().indexOf(".") || -1;
-                    if (floatIndex > 0) {
-                      return `${value}`.slice(0, floatIndex + 3)
-                    }
-                    return `${value}`
-                  } else {
-                    return formatCurrency(`${value}`)
-                  }
-
-                }}
+                max={discountType === "FIXED_AMOUNT" ? 999999999 : 99}
+                step={discountType === "FIXED_AMOUNT" ? 1: 0.01}
+                formatter={(value) => formatDiscountValue(value)}
               />
             </Form.Item>
             <Form.Item

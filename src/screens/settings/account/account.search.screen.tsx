@@ -1,47 +1,51 @@
-import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
-import { Card, Switch, Tag } from "antd";
+import {DeleteOutlined} from "@ant-design/icons";
+import {Card, Switch, Tag} from "antd";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
 import ButtonCreate from "component/header/ButtonCreate";
-import { MenuAction } from "component/table/ActionButton";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import {MenuAction} from "component/table/ActionButton";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
   AccountDeleteAction,
   AccountSearchAction,
   AccountUpdateAction,
   DepartmentGetListAction,
-  PositionGetListAction
+  PositionGetListAction,
 } from "domain/actions/account/account.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import {StoreGetListAction} from "domain/actions/core/store.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import useAuthorization from "hook/useAuthorization";
 import {
-  AccountResponse, AccountSearchQuery,
-  AccountStoreResponse
+  AccountResponse,
+  AccountSearchQuery,
+  AccountStoreResponse,
 } from "model/account/account.model";
-import { DepartmentResponse } from "model/account/department.model";
-import { PositionResponse } from "model/account/position.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { SearchContainer } from "./account.search.style";
-const actions: Array<MenuAction> = [
+import {DepartmentResponse} from "model/account/department.model";
+import {PositionResponse} from "model/account/position.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {StoreResponse} from "model/core/store.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {Link, useHistory} from "react-router-dom";
+import NoPermission from "screens/no-permission.screen";
+import {generateQuery} from "utils/AppUtils";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {showSuccess} from "utils/ToastUtils";
+import {getQueryParams, useQuery} from "utils/useQuery";
+import {SearchContainer} from "./account.search.style";
+
+const ACTIONS_INDEX = {
+  DELETE: 1,
+};
+
+const actionsDefault: Array<MenuAction> = [
   {
-    id:1,
-    name: "Export",
-    icon:<ExportOutlined />
-  },
-  {
-    id: 2,
+    id: ACTIONS_INDEX.DELETE,
     name: "Xóa",
-    icon:<DeleteOutlined />
+    icon: <DeleteOutlined />,
   },
 ];
 
@@ -60,6 +64,27 @@ const ListAccountScreen: React.FC = () => {
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accountSelected, setAccountSelected] = useState<Array<AccountResponse>>([]);
+
+  //phân quyền
+  const [allowReadAcc] = useAuthorization({
+    acceptPermissions: [AccountPermissions.READ],
+  });
+  const [allowCreateAcc] = useAuthorization({
+    acceptPermissions: [AccountPermissions.CREATE],
+  }); 
+  const [allowDeleteAcc] = useAuthorization({
+    acceptPermissions: [AccountPermissions.DELETE],
+  });
+
+  const actions = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === ACTIONS_INDEX.DELETE) {
+        return allowDeleteAcc;
+      }
+      return false;
+    });
+  }, [allowDeleteAcc]);
+
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.account_status;
   });
@@ -251,52 +276,62 @@ const ListAccountScreen: React.FC = () => {
     dispatch(AccountSearchAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
   return (
-    <ContentContainer
-      title="Quản lý người dùng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Quản lý người dùng",
-        },
-      ]}
-      extra={<ButtonCreate path={`${UrlConfig.ACCOUNTS}/create`} />}
-    >
-      <SearchContainer>
-        <Card>
-          <AccountFilter
-            onMenuClick={onMenuClick}
-            actions={actions}
-            onFilter={onFilter}
-            params={params}
-            listDepartment={listDepartment}
-            listPosition={listPosition}
-            listStatus={listStatus}
-            listStore={listStore}
-          />
-          <CustomTable
-            isRowSelection
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            onSelectedChange={onSelect}
-            isLoading={tableLoading}
-            dataSource={data.items}
-            columns={columns}
-            rowKey={(item: AccountResponse) => item.id}
-            scroll={{x: 1500}}
-            sticky={{offsetScroll: 5, offsetHeader: 55}}
-          />
-        </Card>
-      </SearchContainer>
-    </ContentContainer>
+    <>
+      {allowReadAcc ? (
+        <ContentContainer
+          title="Quản lý người dùng"
+          breadcrumb={[
+            {
+              name: "Tổng quan",
+              path: UrlConfig.HOME,
+            },
+            {
+              name: "Quản lý người dùng",
+            },
+          ]}
+          extra={
+            !allowCreateAcc ? null : (
+              <ButtonCreate path={`${UrlConfig.ACCOUNTS}/create`} />
+            ) 
+          }
+        >
+          <SearchContainer>
+            <Card>
+              <AccountFilter
+                onMenuClick={onMenuClick}
+                actions={actions}
+                onFilter={onFilter}
+                params={params}
+                listDepartment={listDepartment}
+                listPosition={listPosition}
+                listStatus={listStatus}
+                listStore={listStore}
+              />
+              <CustomTable
+                isRowSelection
+                pagination={{
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                onSelectedChange={onSelect}
+                isLoading={tableLoading}
+                dataSource={data.items}
+                columns={columns}
+                rowKey={(item: AccountResponse) => item.id}
+                scroll={{x: 1500}}
+                sticky={{offsetScroll: 5, offsetHeader: 55}}
+              />
+            </Card>
+          </SearchContainer>
+        </ContentContainer>
+      ) : (
+        <NoPermission />
+      )}
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
-import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
+import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
@@ -13,13 +13,6 @@ import HistoryTab from "./tab/history.tab";
 
 const { TabPane } = Tabs;
 
-const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-  <StickyUnderNavbar>
-    <DefaultTabBar
-        {...props}
-      />
-  </StickyUnderNavbar>
-);
 const InventoryScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("1");
   const dispatch = useDispatch();
@@ -72,7 +65,7 @@ const InventoryScreen: React.FC = () => {
           style={{ overflow: "initial" }}
           activeKey={activeTab}
           onChange={(active) => history.replace(`${history.location.pathname}#${active}`)}
-          renderTabBar={renderTabBar}
+          renderTabBar={RenderTabBar}
         >
           <TabPane tab="Toàn hệ thống" key="1">
             <AllTab stores={stores} current={activeTab} />

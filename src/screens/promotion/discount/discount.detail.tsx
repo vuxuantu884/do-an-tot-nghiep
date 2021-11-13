@@ -1,4 +1,4 @@
-import {Card, Col, Divider, Row, Space} from "antd";
+import {Button, Card, Col, Divider, Row, Space} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, {useCallback, useEffect, useState} from "react";
@@ -15,11 +15,22 @@ import {StoreGetListAction} from "domain/actions/core/store.action";
 import {getListSourceRequest} from "domain/actions/product/source.action";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
-import {getVariants, promoGetDetail} from "../../../domain/actions/promotion/discount/discount.action";
+import {
+  bulkEnablePriceRules,
+  getVariants,
+  promoGetDetail,
+} from "../../../domain/actions/promotion/discount/discount.action";
 import CustomTable from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {getListChannelRequest} from "domain/actions/order/order.action";
+import BottomBarContainer from "../../../component/container/bottom-bar.container";
+import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
+import {bulkDisablePriceRules} from "../../../service/promotion/discount/discount.service";
+import {HttpStatus} from "../../../config/http-status.config";
+import {put} from "@redux-saga/core/effects";
+import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
+import {showError} from "../../../utils/ToastUtils";
 
 export interface ProductParams {
   id: string;
@@ -96,40 +107,18 @@ const PromotionDetailScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
-  const [stores, setStore] = useState<Array<StoreResponse>>();
-  const [sources, setSource] = useState<Array<SourceResponse>>();
-  const [channel, setChannel] = useState<Array<ChannelResponse>>();
   const [entitlements, setEntitlements] = useState<Array<any>>([]);
   const [quantityColumn, setQuantityColumn] = useState<any>([]);
 
   useEffect(() => {
-    dispatch(StoreGetListAction(setListStore));
-    dispatch(getListSourceRequest(setListSource));
-    dispatch(getListChannelRequest(setListChannel));
-    dispatch(promoGetDetail(idNumber, onResult));
-    dispatch(getVariants(idNumber, handleResponse));
+    setTimeout(() => {
+      dispatch(StoreGetListAction(setListStore));
+      dispatch(getListSourceRequest(setListSource));
+      dispatch(getListChannelRequest(setListChannel));
+      dispatch(promoGetDetail(idNumber, onResult));
+      dispatch(getVariants(idNumber, handleResponse));
+    }, 500)
   }, []);
-
-  useEffect(() => {
-    const stores = listStore?.filter(
-      (item) => item.id === data?.prerequisite_store_ids[0],
-    );
-    setStore(stores);
-  }, [listStore]);
-
-  useEffect(() => {
-    const source = listSource?.filter(
-      (item) => item.id === data?.prerequisite_order_source_ids[0],
-    );
-    setSource(source);
-  }, [listSource]);
-
-  useEffect(() => {
-    const channel = listChannel?.filter(
-      (item) => item.id === data?.prerequisite_order_source_ids[0],
-    );
-    setChannel(channel);
-  }, [listChannel]);
 
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
@@ -397,6 +386,39 @@ const PromotionDetailScreen: React.FC = () => {
     );
   };
 
+  const onActivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+  }
+
+  const onDeactivate = async () => {
+    dispatch(showLoading());
+    try {
+      const deactivateResponse = await bulkDisablePriceRules({ids: [idNumber]});
+      switch (deactivateResponse.code) {
+        case HttpStatus.SUCCESS:
+          dispatch(promoGetDetail(idNumber, onResult));
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          dispatch(unauthorizedAction());
+          break;
+        default:
+          deactivateResponse.errors.forEach((e:any) => showError(e.toString()));
+          break;
+      }
+    } catch (error) {
+      showError("Thao tác thất bại")
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+
+  const onActivateSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    dispatch(promoGetDetail(idNumber, onResult));
+  }, [dispatch, idNumber, onResult]);
+
+
   // @ts-ignore
   const renderer = ({days, hours, minutes, seconds, completed}) => {
     if (completed) {
@@ -406,7 +428,7 @@ const PromotionDetailScreen: React.FC = () => {
       // Render a countdown
       return (
         <span style={{color: "#FCAF17", fontWeight: 500}}>
-          {days > 0 ? `${days} Ngày` : ""} {hours}:{minutes}:{seconds}
+          {days > 0 ? `${days} Ngày` : ""} {hours}:{minutes}
         </span>
       );
     }
@@ -431,6 +453,18 @@ const PromotionDetailScreen: React.FC = () => {
       key: "3",
     },
   ];
+
+  const renderActionButton = () => {
+    switch (data?.state) {
+      case "ACTIVE":
+        return <Button type="primary" onClick={onDeactivate}>Tạm ngừng</Button>
+      case "DISABLED":
+      case "DRAFT":
+        return <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+      default:
+        return null;
+    }
+  }
 
   return (
     <ContentContainer
@@ -699,8 +733,8 @@ const PromotionDetailScreen: React.FC = () => {
                           padding: "0 16px",
                         }}
                       >
-                        {stores &&
-                        stores.map((item: any, index: number) => <li>{item.name}</li>)}
+                        {listStore &&
+                        data.prerequisite_store_ids.map(id => <li>{listStore.find(store => store.id === id)?.name}</li>)}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"
@@ -740,8 +774,8 @@ const PromotionDetailScreen: React.FC = () => {
                           padding: "0 16px",
                         }}
                       >
-                        {channel &&
-                        channel.map((item: any, index: number) => <li>{item.name}</li>)}
+                        {listChannel &&
+                        data.prerequisite_sales_channel_names.map(id => <li>{listChannel.find(channel => channel.id === Number(id))?.name}</li>)}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"
@@ -781,8 +815,8 @@ const PromotionDetailScreen: React.FC = () => {
                           padding: "0 16px",
                         }}
                       >
-                        {sources &&
-                        sources.map((item: any, index: number) => <li>{item.name}</li>)}
+                        {listSource &&
+                        data.prerequisite_order_source_ids.map(id => <li>{listSource.find(source => source.id === id)?.name}</li>)}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"
@@ -792,6 +826,16 @@ const PromotionDetailScreen: React.FC = () => {
               </Card>
             </Col>
           </Row>
+          <BottomBarContainer
+            back="Quay lại danh sách khuyến mại"
+            rightComponent={
+              <Space>
+                <Button disabled >Sửa</Button>
+                <Button disabled >Nhân bản</Button>
+                {renderActionButton()}
+              </Space>
+            }
+          />
         </React.Fragment>
       )}
     </ContentContainer>
