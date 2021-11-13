@@ -16,8 +16,9 @@ import {
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
-  CustomerDetail,
-  UpdateShippingAddress
+    CreateShippingAddress,
+    CustomerDetail,
+    UpdateShippingAddress
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import { CustomerShippingAddress } from "model/request/customer.request";
@@ -141,6 +142,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           customer_group_id: null,
         };
   //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
+    console.log(shippingAddress)
+
   const initialFormValueshippingAddress =
     shippingAddress && shippingAddress !== null
       ? {
@@ -192,28 +195,55 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         full_address: value.full_address,
         is_default: true,
       };
-      dispatch(
-        UpdateShippingAddress(
-          shippingAddress?.id,
-          customerItem.id,
-          param,
-          (data: any) => {
-            if (data) {
-              dispatch(
-                CustomerDetail(customerItem.id, (datas: CustomerResponse) => {
-                  handleChangeCustomer(datas);
-                })
-              );
+      if(shippingAddress){
+          dispatch(
+              UpdateShippingAddress(
+                  shippingAddress?.id,
+                  customerItem.id,
+                  param,
+                  (data: any) => {
+                      if (data) {
+                          dispatch(
+                              CustomerDetail(customerItem.id, (datas: CustomerResponse) => {
+                                  handleChangeCustomer(datas);
+                              })
+                          );
 
-              //if(data!==null) ShippingAddressChange(data);
-              setVisibleBtnUpdate(false);
-              showSuccess("Cập nhật địa chỉ giao hàng thành công");
-            } else {
-              showError("Cập nhật địa chỉ giao hàng thất bại");
-            }
-          }
-        )
-      );
+                          //if(data!==null) ShippingAddressChange(data);
+                          setVisibleBtnUpdate(false);
+                          showSuccess("Cập nhật địa chỉ giao hàng thành công");
+                      } else {
+                          showError("Cập nhật địa chỉ giao hàng thất bại");
+                      }
+                  }
+              )
+          );
+      }else {
+          param.country_id = 233
+          param.country = "VIETNAM"
+          dispatch(
+              CreateShippingAddress(
+                  customerItem.id,
+                  param,
+                  (data: ShippingAddress) => {
+                      if (data) {
+                          dispatch(
+                              CustomerDetail(customerItem.id, (datas: CustomerResponse) => {
+                                  handleChangeCustomer(datas);
+                              })
+                          );
+
+                          //if(data!==null) ShippingAddressChange(data);
+                          setVisibleBtnUpdate(false);
+                          showSuccess("Thêm mới địa chỉ giao hàng thành công");
+                      } else {
+                          showError("Thêm mới địa chỉ giao hàng thất bại");
+                      }
+                  }
+              )
+          );
+      }
+
     },
     [dispatch, customerItem, areas, shippingAddress, handleChangeCustomer]
   );
@@ -228,8 +258,34 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   return (
     <>
-      <Row style={{ margin: "10px 0px" }}>
-        <div className="page-filter-left">ĐỊA CHỈ GIAO HÀNG</div>
+      <Row style={{ margin: "10px 0px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="page-filter-left font-weight-500">ĐỊA CHỈ GIAO HÀNG</div>
+          {isVisibleBtnUpdate && shippingAddress && (
+              <Button
+                  type="primary"
+                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={(e) => {
+                      e.stopPropagation();
+                      onOkPress();
+                  }}
+              >
+                  Cập nhật địa chỉ
+              </Button>
+          )}
+          {isVisibleBtnUpdate && !shippingAddress && (
+              <Button
+                  type="primary"
+                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={(e) => {
+                      e.stopPropagation();
+                      onOkPress();
+                  }}
+              >
+                  Thêm mới địa chỉ
+              </Button>
+          )}
       </Row>
       <Form
         layout="vertical"
@@ -801,24 +857,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               </div>
             </Divider>
           )}
-
-          <Row style={{ marginTop: 0 }}>
-            <Col md={24} style={{ float: "right", marginTop: "-10px" }}>
-              {isVisibleBtnUpdate && (
-                <Button
-                  type="primary"
-                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOkPress();
-                  }}
-                >
-                  Cập nhật
-                </Button>
-              )}
-            </Col>
-          </Row>
         </div>
       )}
     </>

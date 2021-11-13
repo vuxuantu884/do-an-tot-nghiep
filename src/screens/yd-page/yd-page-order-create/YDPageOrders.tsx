@@ -52,7 +52,7 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
-import {DEFAULT_CHANNEL_ID} from "utils/Order.constants";
+import {FACEBOOK_CHANNEL_ID} from "utils/Order.constants";
 import {showError, showSuccess} from "utils/ToastUtils";
 import {useQuery} from "utils/useQuery";
 
@@ -66,19 +66,51 @@ import OrderCreateShipment from "./component/OrderCreateShipment";
 import { YDpagePermission } from "config/permissions/fpage.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
+import {LoyaltyPoint} from "../../../model/response/loyalty/loyalty-points.response";
+import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
+import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import {OrderModel} from "../../../model/order/order.model";
 
 
 let typeButton = "";
 
+type OrdersCreatePermissionProps = {
+  customer: CustomerResponse | null;
+  setCustomer: (items: CustomerResponse | null) => void;
+  setShippingAddress: (items: ShippingAddress | null) => void;
+  setBillingAddress: (items: BillingAddress | null) => void;
+  setDistrictId: (items: number | null) => void;
+  setActiveTabKey: (items: string) => void;
+  setOrderHistory: (items: Array<OrderModel> | undefined) => void;
+  getCustomerByPhone: (items: string) => void;
+  setVisibleCustomer: (item: boolean) => void;
+  setIsClearOrderTab: (item: boolean) => void;
+  handleCustomerById: (item: number | null) => void;
+  setCustomerPhone: (item: string | null) => void;
+  fbId: string | null;
+  pageId: string | null;
+  loyaltyPoint: LoyaltyPoint | null;
+  loyaltyRate: LoyaltyRateResponse | undefined;
+  loyaltyUsageRules: Array<LoyaltyUsageResponse>;
+  levelOrder?: number;
+  updateOrder?: boolean;
+  isVisibleCustomer: boolean;
+  shippingAddress: ShippingAddress | any;
+  billingAddress: BillingAddress | any;
+  // setModalAction: (item: modalActionType) => void;
+  // modalAction: modalActionType;
+  districtId: number | null;
+
+}
 
 const ordersCreatePermission = [YDpagePermission.orders_create];
 
-export default function Order(props: any) {
+export default function Order(props: OrdersCreatePermissionProps) {
   const {
     customer,
     setCustomer,
     setActiveTabKey,
-    setIsClearOrderTab,
+    // setIsClearOrderTab,
     loyaltyPoint,
     loyaltyUsageRules,
     handleCustomerById,
@@ -159,16 +191,6 @@ export default function Order(props: any) {
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
   const typeParam = queryParams.get("type") || null;
-  const handleCustomer = (_objCustomer: CustomerResponse | null) => {
-    setCustomer(_objCustomer);
-  };
-  const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
-    setShippingAddress(_objShippingAddress);
-  };
-
-  const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
-    setBillingAddress(_objBillingAddress);
-  };
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
     form.setFieldsValue({shipping_fee_informed_to_customer: value});
@@ -421,15 +443,15 @@ export default function Order(props: any) {
         showSuccess("Đơn được lưu và duyệt thành công");
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
-        setIsClearOrderTab(true)
+        // setIsClearOrderTab(true)
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
-        setIsClearOrderTab(true)
+        // setIsClearOrderTab(true)
       }
     },
-    [customer, handleCustomerById, setActiveTabKey, setIsClearOrderTab]
+    [customer, handleCustomerById, setActiveTabKey]
   );
   const handleLoadingBtn = (isLoading: boolean) => {
     setCreating(isLoading);
@@ -459,7 +481,7 @@ export default function Order(props: any) {
     }
   };
   const onFinish = (values: OrderRequest) => {
-    values.channel_id = DEFAULT_CHANNEL_ID;
+    values.channel_id = FACEBOOK_CHANNEL_ID;
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -846,7 +868,7 @@ export default function Order(props: any) {
       value.items.forEach((p: any) => (discount = discount + p.discount_amount));
 
       let rank = loyaltyUsageRules.find(
-        (x: any) =>
+        (x) =>
           x.rank_id ===
           (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
       );
@@ -1031,12 +1053,12 @@ export default function Order(props: any) {
                 <Col span={24}>
                   <CardCustomer
                     customer={customer}
-                    handleCustomer={handleCustomer}
+                    setCustomer={setCustomer}
                     loyaltyPoint={loyaltyPoint}
                     loyaltyUsageRules={loyaltyUsageRules}
-                    ShippingAddressChange={onChangeShippingAddress}
+                    setShippingAddress={setShippingAddress}
                     shippingAddress={shippingAddress}
-                    BillingAddressChange={onChangeBillingAddress}
+                    setBillingAddress={setBillingAddress}
                     isVisibleCustomer={isVisibleCustomer}
                     setVisibleCustomer={setVisibleCustomer}
                     modalAction={modalAction}
