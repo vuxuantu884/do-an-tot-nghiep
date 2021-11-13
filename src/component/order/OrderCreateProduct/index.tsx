@@ -924,13 +924,14 @@ function OrderCreateProduct(props: PropType) {
         storeId,
         salesChannelName: "ADMIN",
       };
+      console.log('item.price', item.price)
       dispatch(showLoading());
       const checkingDiscountResponse = await applyDiscount(
         // [{variant_id: item.variant_id, quantity}],
         [{
           applied_discount: null,
           custom: true,
-          original_unit_price: item.price,
+          price: item.price,
           product_id: item.id,
           quantity,
           sku: item.sku,
@@ -997,6 +998,7 @@ function OrderCreateProduct(props: PropType) {
       console.log(e);
       showError("Thao tác thất bại!");
       setLoadingAutomaticDiscount(false);
+      dispatch(hideLoading());
       return null;
     }
   };
