@@ -31,6 +31,7 @@ const GeneralInformation = (props: any) => {
     handleChangeArea,
     isEdit,
     AccountChangeSearch,
+    isLoading,
   } = props;
 
   const dispatch = useDispatch();
@@ -141,6 +142,7 @@ const GeneralInformation = (props: any) => {
             <Col span={12}>
               <CustomInput
                 name="full_name"
+                disabled={isLoading}
                 label={<b>Họ tên khách hàng:</b>}
                 form={form}
                 message="Vui lòng nhập họ tên khách hàng"
@@ -155,6 +157,7 @@ const GeneralInformation = (props: any) => {
                 name="card_number"
               >
                 <AutoComplete
+                  disabled={isLoading}
                   notFoundContent={getNotFoundContent()}
                   id="search_card"
                   value={keySearchCard}
@@ -195,6 +198,7 @@ const GeneralInformation = (props: any) => {
                 ]}
               >
                 <Input
+                  disabled={isLoading}
                   style={{ borderRadius: 5, width: "100%" }}
                   minLength={9}
                   maxLength={15}
@@ -213,7 +217,7 @@ const GeneralInformation = (props: any) => {
                   },
                 ]}
               >
-                <Input maxLength={255} type="text" placeholder="Nhập email" />
+                <Input disabled={isLoading} maxLength={255} type="text" placeholder="Nhập email" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -222,7 +226,7 @@ const GeneralInformation = (props: any) => {
                 label={<b>Giới tính:</b>}
                 // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
               >
-                <Select placeholder="Chọn giới tính">
+                <Select disabled={isLoading} placeholder="Chọn giới tính">
                   <Option value={"male"}>Nam</Option>
                   <Option value={"female"}>Nữ</Option>
                   <Option value={"other"}>Khác</Option>
@@ -236,6 +240,7 @@ const GeneralInformation = (props: any) => {
                 // rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
               >
                 <DatePicker
+                  disabled={isLoading}
                   style={{ width: "100%" }}
                   placeholder="Chọn ngày sinh"
                   format={"DD/MM/YYYY"}
@@ -255,12 +260,13 @@ const GeneralInformation = (props: any) => {
                       },
                     ]}
                   >
-                    <Input maxLength={255} placeholder="Nhập Facebook" />
+                    <Input disabled={isLoading} maxLength={255} placeholder="Nhập Facebook" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="wedding_date" label={<b>Ngày cưới:</b>}>
                     <DatePicker
+                      disabled={isLoading}
                       style={{ width: "100%" }}
                       placeholder="Chọn ngày cưới"
                       format={"DD/MM/YYYY"}
@@ -271,7 +277,7 @@ const GeneralInformation = (props: any) => {
 
                 <Col span={12}>
                   <Form.Item name="company" label={<b>Tên đơn vị:</b>}>
-                    <Input maxLength={255} placeholder="Nhập tên đơn vị" />
+                    <Input disabled={isLoading} maxLength={255} placeholder="Nhập tên đơn vị" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -285,7 +291,7 @@ const GeneralInformation = (props: any) => {
                       },
                     ]}
                   >
-                    <Input maxLength={255} placeholder="Mã số thuế" />
+                    <Input disabled={isLoading} maxLength={255} placeholder="Mã số thuế" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -322,6 +328,7 @@ const GeneralInformation = (props: any) => {
                     // ]}
                   >
                     <Select
+                      disabled={isLoading}
                       showSearch
                       placeholder="Chọn khu vực"
                       onChange={handleChangeArea}
@@ -351,6 +358,7 @@ const GeneralInformation = (props: any) => {
                     // ]}
                   >
                     <Select
+                      disabled={isLoading}
                       showSearch
                       allowClear
                       optionFilterProp="children"
@@ -367,6 +375,7 @@ const GeneralInformation = (props: any) => {
                 </Col>
                 <Col span={12}>
                   <CustomInput
+                    disabled={isLoading}
                     name="full_address"
                     label={<b>Địa chỉ chi tiết:</b>}
                     form={form}
@@ -402,6 +411,7 @@ const GeneralInformation = (props: any) => {
                 // ]}
               >
                 <Select
+                  disabled={isLoading}
                   showSearch
                   placeholder="Chọn loại khách hàng"
                   allowClear
@@ -428,6 +438,7 @@ const GeneralInformation = (props: any) => {
                 // ]}
               >
                 <Select
+                  disabled={isLoading}
                   showSearch
                   placeholder="Chọn nhóm khách hàng"
                   allowClear
@@ -455,6 +466,7 @@ const GeneralInformation = (props: any) => {
                 // ]}
               >
                 <Select
+                  disabled={isLoading}
                   showSearch
                   placeholder="Chọn nv phụ trách"
                   allowClear
@@ -472,7 +484,7 @@ const GeneralInformation = (props: any) => {
             </Col>
             <Col span={24}>
               <Form.Item label={<b>Mô tả:</b>} name="description">
-                <Input.TextArea maxLength={500} placeholder="Nhập mô tả" />
+                <Input.TextArea disabled={isLoading} maxLength={500} placeholder="Nhập mô tả" />
               </Form.Item>
             </Col>
           </Row>
