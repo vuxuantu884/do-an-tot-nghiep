@@ -13,13 +13,13 @@ import { formatCurrency, replaceFormatString } from 'utils/AppUtils';
 import NumberInput from 'component/custom/number-input.custom';
 import { showError, showSuccess } from 'utils/ToastUtils';
 import { useHistory, useParams } from 'react-router';
-import { CustomerLevelPermissions } from 'config/permissions/customer.permission';
+import { CustomerLevelPermission } from 'config/permissions/customer.permission';
 import useAuthorization from 'hook/useAuthorization';
 
 const { Item } = Form;
 const { Option } = Select;
 
-const updateCustomerLevelPermission = [CustomerLevelPermissions.UPDATE];
+const updateCustomerLevelPermission = [CustomerLevelPermission.levels_update];
 
 const CreateCustomerRanking = () => {
   const formRef = createRef<FormInstance>();
