@@ -995,6 +995,8 @@ export default function Order() {
     );
   }, [discountValue, orderAmount, shippingFeeInformedToCustomer]);
 
+  console.log('orderAmount', orderAmount)
+
   /**
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
    */

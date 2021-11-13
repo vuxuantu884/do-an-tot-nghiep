@@ -334,10 +334,12 @@ function OrderCreateProduct(props: PropType) {
           i.discount_amount = totalDiscount;
         }
       });
+      console.log('totalAmount333', _amount)
       return _amount;
     },
     [items]
   );
+
 
   useEffect(() => {
     if (items) {
@@ -375,8 +377,9 @@ function OrderCreateProduct(props: PropType) {
   };
 
   const handleChangeItems = useCallback(() => {
+    console.log('33333333333333')
     if (!items) {
-      return 0;
+      return;
     }
     let _items = [...items];
     let _amount = totalAmount(_items);
@@ -903,7 +906,8 @@ function OrderCreateProduct(props: PropType) {
           highestValueSuggestDiscount?.allocation_limit || undefined;
         return item;
       });
-      setItems(itemsResult);
+      await setItems(itemsResult);
+      handleChangeItems();
       showSuccess("Thêm chiết khấu thành công!");
     } else {
       showError("Có lỗi khi áp dụng chiết khấu!");
@@ -1123,6 +1127,7 @@ function OrderCreateProduct(props: PropType) {
           dispatch(hideLoading());
         });
       setIsVisiblePickCoupon(false);
+      handleChangeItems();
     }
   };
 
@@ -1200,6 +1205,7 @@ function OrderCreateProduct(props: PropType) {
                       });
                       console.log("itemsResult", itemsResult);
                       await setItems(itemsResult);
+                      handleChangeItems();
                     }
                     break;
                   case DISCOUNT_VALUE_TYPE.fixedAmount:
@@ -1270,6 +1276,7 @@ function OrderCreateProduct(props: PropType) {
                     });
                     console.log("itemsResult", itemsResult);
                     await setItems(itemsResult);
+                    handleChangeItems();
                     break;
                 }
                 showSuccess("Thêm coupon thành công!");
@@ -1465,6 +1472,7 @@ function OrderCreateProduct(props: PropType) {
     if (!_discountValue) {
       _discountValue = 0;
     }
+    console.log('_amount33332211', _amount)
     props.changeInfo(_items, _amount, _discountRate, _discountValue);
   };
 
@@ -1513,27 +1521,24 @@ function OrderCreateProduct(props: PropType) {
     if (!items || items.length === 0) {
       return;
     }
-    await setItems(
-      items.map((lineItem) => {
+    let _items = [...items];
+    _items.forEach((lineItem) => {
+      lineItem.discount_amount = 0;
+      lineItem.discount_items= lineItem.discount_items.map((discount) => {
         return {
-          ...lineItem,
-          discount_amount: 0,
-          discount_items: lineItem.discount_items.map((discount) => {
-            return {
-              ...discount,
-              amount: 0,
-              rate: 0,
-              discount_code: "",
-              promotion_id: undefined,
-              reason: "",
-              value: 0,
-            };
-          }),
-          discount_rate: 0,
-          discount_value: 0,
+          amount: 0,
+          rate: 0,
+          discount_code: "",
+          promotion_id: undefined,
+          reason: "",
+          value: 0,
         };
-      })
-    );
+      });
+      lineItem.discount_rate= 0;
+      lineItem.discount_value= 0;
+    })
+    await setItems(_items);
+    await handleChangeItems();
     showSuccess("Xóa tất cả chiết khấu thành công!");
   };
 
@@ -1896,7 +1901,7 @@ function OrderCreateProduct(props: PropType) {
             setDiscountValue={setDiscountValue}
             showDiscountModal={() => setVisiblePickDiscount(true)}
             showCouponModal={() => setIsVisiblePickCoupon(true)}
-            totalAmountOrder={amount}
+            orderAmount={amount}
             items={items}
             shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
             returnOrderInformation={returnOrderInformation}
