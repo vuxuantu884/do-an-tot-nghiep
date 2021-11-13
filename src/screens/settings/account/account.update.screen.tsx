@@ -315,10 +315,11 @@ const AccountUpdateScreen: React.FC = () => {
               className="selector"
               allowClear
               showArrow
+              showSearch
               optionFilterProp="children"
               onChange={(value) => onChangeDepartment(value, index, item.id)}
               style={{width: "100%"}}
-              defaultValue={item.department_id === 0 ? undefined : item.position_id}
+              defaultValue={item.department_id || undefined}
             >
               {listDepartment?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -340,10 +341,11 @@ const AccountUpdateScreen: React.FC = () => {
               className="selector"
               allowClear
               showArrow
+              showSearch
               optionFilterProp="children"
               onChange={(value) => onChangePosition(value, index, item.id)}
               style={{width: "100%"}}
-              defaultValue={item.position_id === 0 ? undefined : item.position_id}
+              defaultValue={item.position_id || undefined}
             >
               {listPosition?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -447,7 +449,12 @@ const AccountUpdateScreen: React.FC = () => {
                   name="user_name"
                   rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
                 >
-                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" disabled/>
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập tên đăng nhập"
+                    size="large"
+                    disabled
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -477,7 +484,7 @@ const AccountUpdateScreen: React.FC = () => {
                   name="code"
                   rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
                 >
-                  <Input className="r-5" placeholder="VD: YD0000" size="large" disabled/>
+                  <Input className="r-5" placeholder="VD: YD0000" size="large" disabled />
                 </Item>
               </Col>
 
@@ -515,7 +522,8 @@ const AccountUpdateScreen: React.FC = () => {
                   rules={[
                     ({getFieldValue}) => ({
                       validator(_: RuleObject, value: string) {
-                        if (!value || getFieldValue("password") === value) {
+                        const password = getFieldValue("password");
+                        if (password === value || (!value && !password)) {
                           return Promise.resolve();
                         }
                         return Promise.reject(new Error("Nhập lại mật khẩu không đúng"));
@@ -604,10 +612,11 @@ const AccountUpdateScreen: React.FC = () => {
                   ]}
                 >
                   <Select
-                    placeholder="Chọn cửa hàng"
+                    placeholder="Chọn nhóm quyền"
                     className="selector"
                     allowClear
                     showArrow
+                    showSearch
                     optionFilterProp="children"
                     maxTagCount="responsive"
                   >
@@ -636,7 +645,10 @@ const AccountUpdateScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Khu vực" name="district_id">
                   <Select
+                    allowClear
+                    showArrow
                     showSearch
+                    optionFilterProp="children"
                     onSelect={onSelectDistrict}
                     className="selector"
                     placeholder="Chọn khu vực"
