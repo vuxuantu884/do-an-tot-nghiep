@@ -455,7 +455,9 @@ const GeneralCreate = (props: any) => {
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
                   showTime={{ format: 'HH:mm' }}
-                  disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
+                  disabledDate={(currentDate) =>
+                    currentDate.isBefore(moment()) ||
+                    currentDate.valueOf() < form.getFieldValue("starts_date")}
                 />
               </Form.Item>
             </Col>

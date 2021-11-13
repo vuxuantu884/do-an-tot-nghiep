@@ -19,6 +19,7 @@ type PickManyProductModalType = {
   selected: Array<any>;
   onSave: (result: Array<VariantResponse>) => void;
   storeID?: number;
+  emptyText?:string
 };
 
 let initQuery = {
@@ -147,7 +148,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         <div className="modal-product-list">
           <List
             locale={{
-              emptyText: "Không có dữ liệu",
+              emptyText: props.emptyText ? props.emptyText : "Không có dữ liệu",
             }}
             className="product"
             style={{ maxHeight: 280, overflow: "auto" }}

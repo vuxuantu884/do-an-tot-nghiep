@@ -19,7 +19,7 @@ const ChooseDiscount = (props: any) => {
       }
       return `${value}`
     } else {
-      return formatCurrency(`${value}`)
+      return formatCurrency(`${value}`.replaceAll(".", ""))
     }
   }, [typeUnit])
 
