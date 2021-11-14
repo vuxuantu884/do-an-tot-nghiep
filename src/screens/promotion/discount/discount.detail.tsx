@@ -1,4 +1,4 @@
-import {Card, Col, Divider, Row, Space} from "antd";
+import {Button, Card, Col, Divider, Row, Space} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, {useCallback, useEffect, useState} from "react";
@@ -15,11 +15,21 @@ import {StoreGetListAction} from "domain/actions/core/store.action";
 import {getListSourceRequest} from "domain/actions/product/source.action";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
-import {getVariants, promoGetDetail} from "../../../domain/actions/promotion/discount/discount.action";
+import {
+  bulkEnablePriceRules,
+  getVariants,
+  promoGetDetail,
+} from "../../../domain/actions/promotion/discount/discount.action";
 import CustomTable from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {getListChannelRequest} from "domain/actions/order/order.action";
+import BottomBarContainer from "../../../component/container/bottom-bar.container";
+import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
+import {bulkDisablePriceRules} from "../../../service/promotion/discount/discount.service";
+import {HttpStatus} from "../../../config/http-status.config";
+import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
+import {showError} from "../../../utils/ToastUtils";
 
 export interface ProductParams {
   id: string;
@@ -106,7 +116,7 @@ const PromotionDetailScreen: React.FC = () => {
       dispatch(getListChannelRequest(setListChannel));
       dispatch(promoGetDetail(idNumber, onResult));
       dispatch(getVariants(idNumber, handleResponse));
-    }, 2000)
+    }, 500)
   }, []);
 
   const onResult = useCallback((result: DiscountResponse | false) => {
@@ -187,7 +197,7 @@ const PromotionDetailScreen: React.FC = () => {
         dataIndex: "total",
         render: (
           value: string,
-        ) => <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>,
+        ) => <span style={{color: "#E24343"}}>{value}</span>,
       },
       {
         title: "SL Tối thiểu",
@@ -264,13 +274,13 @@ const PromotionDetailScreen: React.FC = () => {
     let result = "";
     switch (valueType) {
       case "FIXED_PRICE":
-        result = formatCurrency(value);
+        result = formatCurrency(Math.round(value /1000)*1000);
         break;
       case "FIXED_AMOUNT":
-        result = `${formatCurrency(cost - discount)}`;
+        result = `${formatCurrency(Math.round((cost - discount)/1000)*1000)}`;
         break;
       case "PERCENTAGE":
-        result = `${cost - ((cost * discount) / 100)}`;
+        result = `${formatCurrency(Math.round((cost - ((cost * discount) / 100)) / 1000)*1000)}`;
         break;
     }
     return result;
@@ -375,6 +385,39 @@ const PromotionDetailScreen: React.FC = () => {
     );
   };
 
+  const onActivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+  }
+
+  const onDeactivate = async () => {
+    dispatch(showLoading());
+    try {
+      const deactivateResponse = await bulkDisablePriceRules({ids: [idNumber]});
+      switch (deactivateResponse.code) {
+        case HttpStatus.SUCCESS:
+          dispatch(promoGetDetail(idNumber, onResult));
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          dispatch(unauthorizedAction());
+          break;
+        default:
+          deactivateResponse.errors.forEach((e:any) => showError(e.toString()));
+          break;
+      }
+    } catch (error) {
+      showError("Thao tác thất bại")
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+
+  const onActivateSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    dispatch(promoGetDetail(idNumber, onResult));
+  }, [dispatch, idNumber, onResult]);
+
+
   // @ts-ignore
   const renderer = ({days, hours, minutes, seconds, completed}) => {
     if (completed) {
@@ -409,6 +452,18 @@ const PromotionDetailScreen: React.FC = () => {
       key: "3",
     },
   ];
+
+  const renderActionButton = () => {
+    switch (data?.state) {
+      case "ACTIVE":
+        return <Button type="primary" onClick={onDeactivate}>Tạm ngừng</Button>
+      case "DISABLED":
+      case "DRAFT":
+        return <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+      default:
+        return null;
+    }
+  }
 
   return (
     <ContentContainer
@@ -719,7 +774,7 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listChannel &&
-                        data.prerequisite_sales_channel_names.map(id => <li>{listChannel.find(channel => channel.id === Number(id))?.name}</li>)}
+                        data.prerequisite_sales_channel_names.map(name => <li>{listChannel.find(channel => channel.name === name)?.name}</li>)}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"
@@ -770,6 +825,16 @@ const PromotionDetailScreen: React.FC = () => {
               </Card>
             </Col>
           </Row>
+          <BottomBarContainer
+            back="Quay lại danh sách khuyến mại"
+            rightComponent={
+              <Space>
+                <Button disabled >Sửa</Button>
+                <Button disabled >Nhân bản</Button>
+                {renderActionButton()}
+              </Space>
+            }
+          />
         </React.Fragment>
       )}
     </ContentContainer>

@@ -18,6 +18,7 @@ import moment from "moment";
 import "./promo-code.scss";
 import { RiUpload2Line } from "react-icons/ri";
 import {
+  bulkDisablePriceRules,
   bulkEnablePriceRules,
   deletePriceRulesById,
   promoGetDetail,
@@ -39,6 +40,7 @@ import {getToken} from "../../../utils/LocalStorageUtils";
 import {CheckCircleOutlined, LoadingOutlined} from "@ant-design/icons";
 import {getListChannelRequest} from "../../../domain/actions/order/order.action";
 import {ChannelResponse} from "../../../model/response/product/channel.response";
+import {formatCurrency} from "../../../utils/AppUtils";
 
 export interface ProductParams {
   id: string;
@@ -168,6 +170,11 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
   }
 
+  const onDeactivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkDisablePriceRules({ids: [idNumber]}, onActivateSuccess));
+  }
+
   // section handle call api GET DETAIL
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
@@ -199,6 +206,10 @@ const PromotionDetailScreen: React.FC = () => {
     // TO DO
   }, []);
 
+  const renderDiscountInfo = (value:any, type:any) => {
+    if (type === "PERCENTAGE") return `Giảm ${value}%`;
+    else return `Giảm ${formatCurrency(value)} VNĐ`
+  }
 
   useEffect(() => {
     dispatch(promoGetDetail(idNumber, onResult));
@@ -259,7 +270,7 @@ const PromotionDetailScreen: React.FC = () => {
         {
           id: "discount",
           name: "Thông tin khuyến mãi",
-          value: `Giảm ${data.entitlements[0].prerequisite_quantity_ranges[0].value} ${data.entitlements[0].prerequisite_quantity_ranges[0].value_type === 'PERCENTAGE' ? '%' : 'VNĐ'}`,
+          value: renderDiscountInfo(data.entitlements[0].prerequisite_quantity_ranges[0].value, data.entitlements[0].prerequisite_quantity_ranges[0].value_type),
           position: "right",
           key: "7",
           color: "#222222"
@@ -347,6 +358,18 @@ const PromotionDetailScreen: React.FC = () => {
           {status?.value}
         </span>
     )
+  }
+
+  const renderActionButton = () => {
+    switch (data?.state) {
+      case "ACTIVE":
+        return <Button type="primary" onClick={onDeactivate}>Tạm ngừng</Button>
+      case "DISABLED":
+      case "DRAFT":
+        return <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+      default:
+        return null;
+    }
   }
 
   return (
@@ -648,7 +671,7 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {listChannel &&
-                            data.prerequisite_sales_channel_names.map(id => <li>{listChannel.find(channel => channel.id === Number(id))?.name}</li>)}
+                            data.prerequisite_sales_channel_names.map(name => <li>{listChannel.find(channel => channel.name === name)?.name}</li>)}
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>
@@ -694,7 +717,7 @@ const PromotionDetailScreen: React.FC = () => {
             <Button disabled onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
             <Button disabled onClick={onEdit}>Sửa</Button>
             <Button disabled >Nhân bản</Button>
-            <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+            {renderActionButton()}
           </Space>
 
         }
@@ -783,6 +806,7 @@ const PromotionDetailScreen: React.FC = () => {
               <Dragger
                 accept=".xlsx"
                 multiple={false}
+                showUploadList={false}
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/${idNumber}/discount-codes/read-file`}
                 headers={{"Authorization": `Bearer ${token}`}}
                 onChange={(info) => {
@@ -796,8 +820,11 @@ const PromotionDetailScreen: React.FC = () => {
                       }
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);
+                      setUploadStatus(status);
+                    } else {
+                      setUploadStatus("error");
                     }
-                    setUploadStatus(status);
+
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
                     setUploadStatus(status);

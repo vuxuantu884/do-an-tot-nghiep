@@ -25,6 +25,7 @@ import {
   OrderActionLogResponse
 } from "model/response/order/action-log.response";
 import {
+  ChannelsResponse,
   DeliveryMappedStoreType,
   DeliveryServiceResponse,
   DeliveryTransportTypesResponse,
@@ -57,7 +58,7 @@ export const orderUpdateAction = (
   return BaseAction(OrderType.UPDATE_ORDER_REQUEST, { id, request, setData, onError });
 };
 
-export const orderFpageCreateAction = (
+export const orderYDPpageCreateAction = (
   request: OrderRequest,
   setData: (data: OrderResponse) => void,
   setDisable: (data: any) => void
@@ -265,6 +266,10 @@ export const setSubStatusAction = (
   };
 };
 
+export const getDetailOrder=(orderId:any,setData:(data:OrderResponse)=>void)=>{
+  return BaseAction(OrderType.GET_DETAIL_ORDER_REQUEST,{orderId, setData})
+}
+
 export const getListOrderAction = (
   query: OrderSearchQuery,
   setData: (data: PageResponse<OrderModel> | false) => void
@@ -432,4 +437,8 @@ export const splitOrderAction = (
 
 export const getSourcesEcommerce = (setData: (data: Array<SourceEcommerceResponse>) => void) => {
   return BaseAction(OrderType.SOURCES_ECOMMERCE, { setData });
+}
+
+export const getChannels=(typeId:number, setData:(data:ChannelsResponse[])=>void)=>{
+  return BaseAction(OrderType.GET_CHANNELS,{typeId,setData});
 }

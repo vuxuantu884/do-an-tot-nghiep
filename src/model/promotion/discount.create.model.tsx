@@ -10,7 +10,7 @@ export interface DiscountCreateModel {
   prerequisite_days: Array<number> | [];
   prerequisite_store_ids: Array<number> | [];
   prerequisite_sales_channel_names: Array<string> | [];
-  prerequisite_order_sources_ids: Array<number> | [];
+  prerequisite_order_source_ids: Array<number> | [];
   customer_selection: boolean | false;
   prerequisite_gender: Array<string> | [];
   prerequisite_customer_group_ids: Array<number> | [];

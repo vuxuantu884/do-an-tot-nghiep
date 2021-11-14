@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import arrowLeft from "assets/icon/arrow-left.svg";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { CustomerListPermissions } from "config/permissions/customer.permission";
+import { CustomerListPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 
 const genreEnum: any = {
@@ -13,7 +13,7 @@ const genreEnum: any = {
   other: "Khác",
 };
 
-const updateCustomerPermission = [CustomerListPermissions.UPDATE_CUSTOMER];
+const updateCustomerPermission = [CustomerListPermission.customers_update];
 
 type CustomerInfoProps = {
   customer: CustomerResponse | undefined;

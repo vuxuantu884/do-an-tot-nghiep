@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -42,7 +42,7 @@ import {
   postSyncStockEcommerceProduct,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import useAuthorization from "hook/useAuthorization";
-import { EcommerceProductPermissions } from "config/permissions/ecommerce.permission";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
@@ -58,9 +58,9 @@ import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-eco
 import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
 
 
-const deleteProductPermission = [EcommerceProductPermissions.DELETE_PRODUCT];
-const syncStockPermission = [EcommerceProductPermissions.UPDATE_STOCK_PRODUCT];
-const disconnectProductPermission = [EcommerceProductPermissions.DISCONNECT_PRODUCT];
+const productsDeletePermission = [EcommerceProductPermission.products_delete];
+const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
+const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
 
 type ConnectedItemsProps = {
   variantData: any;
@@ -76,22 +76,22 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const [allowDeleteProduct] = useAuthorization({
-    acceptPermissions: deleteProductPermission,
+  const [allowProductsDelete] = useAuthorization({
+    acceptPermissions: productsDeletePermission,
     not: false,
   });
 
-  const [allowSyncStock] = useAuthorization({
-    acceptPermissions: syncStockPermission,
+  const [allowProductsUpdateStock] = useAuthorization({
+    acceptPermissions: productsUpdateStockPermission,
     not: false,
   });
 
-  const [allowDisconnectProduct] = useAuthorization({
-    acceptPermissions: disconnectProductPermission,
+  const [allowProductsDisconnect] = useAuthorization({
+    acceptPermissions: productsDisconnectPermission,
     not: false,
   });
   
-  const isShowAction = allowDeleteProduct || allowSyncStock || allowDisconnectProduct;
+  const isShowAction = allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
   
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
@@ -136,6 +136,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     connected_date_to: null,
   });
 
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -576,7 +580,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const actionList = (
     <Menu>
-      {allowSyncStock &&
+      {allowProductsUpdateStock &&
         <Menu.Item key="1">
           <span onClick={handleSyncStockItemsSelected}>
             Đồng bộ tồn kho lên sàn
@@ -584,13 +588,13 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
         </Menu.Item>
       }
 
-      {allowDeleteProduct &&
+      {allowProductsDelete &&
         <Menu.Item key="2" disabled={isDisableAction()}>
           <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
         </Menu.Item>
       }
 
-      {allowDisconnectProduct &&
+      {allowProductsDisconnect &&
         <Menu.Item key="3" disabled={isDisableAction()}>
           <span onClick={handleDisconnectItemsSelected}>Hủy liên kết</span>
         </Menu.Item>
@@ -1010,7 +1014,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
                 <div style={{ margin: "10px 0" }}>
                   <SettingOutlined style={{ marginRight: "5px" }} />
-                  <span>Tùy chọn khoảng thời gian tạo:</span>
+                  <span>Tuỳ chọn khoảng thời gian tạo:</span>
                 </div>
 
                 <DatePicker.RangePicker

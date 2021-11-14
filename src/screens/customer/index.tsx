@@ -1,8 +1,11 @@
 import {
   Card,
   Button,
+  Modal,
+  Radio,
+  Space,
 } from "antd";
-import { ExportOutlined, ImportOutlined, PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import "./customer.scss";
 import { RootReducerType } from "model/reducers/RootReducerType";
 
@@ -21,7 +24,6 @@ import { Link } from "react-router-dom";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { MenuAction } from "component/table/ActionButton";
 
 import {
   CustomerGroups,
@@ -32,14 +34,22 @@ import { getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import CustomerListFilter from "./component/CustomerListFilter";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { CustomerListPermissions } from "config/permissions/customer.permission";
+import { CustomerListPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { ChannelResponse } from "model/response/product/channel.response";
+
+import importIcon from "assets/icon/import.svg";
+import exportIcon from "assets/icon/export.svg";
+import { StyledCustomerExtraButton } from "screens/customer/customerStyled";
+import { showWarning } from "utils/ToastUtils";
 
 
-
-const viewCustomerListPermission = [CustomerListPermissions.VIEW_CUSTOMER_LIST];
-const createCustomerPermission = [CustomerListPermissions.CREATE_CUSTOMER];
-const exportCustomerPermission = [CustomerListPermissions.EXPORT_CUSTOMER];
+const viewCustomerPermission = [CustomerListPermission.customers_read];
+const createCustomerPermission = [CustomerListPermission.customers_create];
+const exportCustomerPermission = [CustomerListPermission.customers_export];
 
 const Customer = () => {
   const dispatch = useDispatch();
@@ -71,9 +81,9 @@ const Customer = () => {
       company: null,
       from_wedding_date: null,
       to_wedding_date: null,
-      customer_type_id: null,
-      customer_group_id: null,
-      customer_level_id: null,
+      customer_type_id: undefined,
+      customer_group_id: undefined,
+      customer_level_id: undefined,
       responsible_staff_code: null,
     }),
     []
@@ -88,14 +98,19 @@ const Customer = () => {
     company: null,
     from_wedding_date: null,
     to_wedding_date: null,
-    customer_type_id: null,
-    customer_group_id: null,
-    customer_level_id: null,
+    customer_type_id: undefined,
+    customer_group_id: undefined,
+    customer_level_id: undefined,
     responsible_staff_code: "",
   });
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
+
+
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
+  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [groups, setGroups] = useState<Array<any>>([]);
+  const [types, setTypes] = useState<Array<any>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([])
+  
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<any>>
   >([
@@ -277,7 +292,7 @@ const Customer = () => {
     items: [],
   });
 
-  const [tableLoading, setTableLoading] = useState<boolean>(true);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -303,19 +318,16 @@ const Customer = () => {
 
   React.useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch]);
-
-  React.useEffect(() => {
-    dispatch(CustomerList(query, setResult));
-  }, [dispatch, query, setResult]);
-
-  const [groups, setGroups] = useState<Array<any>>([]);
-  const [types, setTypes] = useState<Array<any>>([]);
-
-  React.useEffect(() => {
+    dispatch(StoreGetListAction(setStore));
     dispatch(CustomerGroups(setGroups));
     dispatch(CustomerTypes(setTypes));
+    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
+
+  React.useEffect(() => {
+    setTableLoading(true);
+    dispatch(CustomerList(query, setResult));
+  }, [dispatch, query, setResult]);
   
 
   const onFilterClick = React.useCallback((values: CustomerSearchQuery) => {
@@ -328,27 +340,37 @@ const Customer = () => {
   }, [params]);
 
 
-  const getAction = () => {
-    const actions: Array<MenuAction> = [
-      {
-        id: 1,
-        name: "Nhập file",
-        icon:<ImportOutlined />
-      }
-    ]
-
-    if (allowExportCustomer) {
-      actions.push(
-        {
-          id: 2,
-          name: "Xuất file",
-          icon:<ExportOutlined />
-        }
-      )
-    }
-
-    return actions;
+  // handle export file
+  const [isVisibleExportModal, setIsVisibleExportModal] = useState(false);
+  const [exportAll, setExportAll] = useState(true);
+  
+  const handleExportFile = () => {
+    setIsVisibleExportModal(true);
   }
+
+  const onChangeExportOption = (e: any) => {
+    setExportAll(e.target.value);
+  }
+
+  const okExportModal = () => {
+    setIsVisibleExportModal(false);
+    setExportAll(true);
+    showWarning("Sẽ tải dữ liệu xuống sau bạn nhé!");
+  }
+
+  const cancelExportModal = () => {
+    setIsVisibleExportModal(false);
+    setExportAll(true);
+  }
+  // end handle export file
+  
+  // handle import file
+  const handleImportFile = () => {
+    showWarning("Sẽ làm chức năng này sau bạn nhé!");
+  }
+  // end handle import file
+  
+
 
   return (
     <ContentContainer
@@ -364,7 +386,27 @@ const Customer = () => {
         },
       ]}
       extra={
-        <>
+        <StyledCustomerExtraButton>
+          <Button
+            className="import-file-button"
+            size="large"
+            icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+            onClick={handleImportFile}
+          >
+            Nhập file
+          </Button>
+
+          {allowExportCustomer &&
+            <Button
+              className="export-file-button"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={handleExportFile}
+            >
+              Xuất file
+            </Button>
+          }
+
           {allowCreateCustomer &&
             <Link to={`${UrlConfig.CUSTOMER}/create`}>
               <Button
@@ -376,23 +418,25 @@ const Customer = () => {
               </Button>
             </Link>
           }
-        </>
+        </StyledCustomerExtraButton>
       }
     >
-      <AuthWrapper acceptPermissions={viewCustomerListPermission} passThrough>
+      <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
         {(allowed: boolean) => (allowed ?
           <Card>
-            <div className="padding-20 customer-search-filter">
+            <div className="customer-search-filter">
               <CustomerListFilter
-                actions={getAction()}
                 onClearFilter={onClearFilterAdvanceClick}
                 onFilter={onFilterClick}
+                isLoading={tableLoading}
                 params={query}
                 initQuery={params}
                 groups={groups}
-                loyaltyUsageRules={loyaltyUsageRules}
                 types={types}
                 setShowSettingColumn={() => setShowSettingColumn(true)}
+                loyaltyUsageRules={loyaltyUsageRules}
+                listStore={listStore}
+                listChannel={listChannel}
               />
               
               <CustomTable
@@ -416,6 +460,23 @@ const Customer = () => {
           </Card>
           : <NoPermission />)}
       </AuthWrapper>
+
+      <Modal
+        width="600px"
+        visible={isVisibleExportModal}
+        title="Xuất excel dữ liệu khách hàng"
+        okText="Xuất dữ liệu"
+        cancelText="Đóng"
+        onCancel={cancelExportModal}
+        onOk={okExportModal}
+      >
+        <Radio.Group onChange={onChangeExportOption} value={exportAll}>
+          <Space direction="vertical">
+            <Radio value={false}>Tải trang hiện tại</Radio>
+            <Radio value={true}>Tải tất cả các trang</Radio>
+          </Space>
+        </Radio.Group>
+      </Modal>
 
       <ModalSettingColumn
         visible={showSettingColumn}

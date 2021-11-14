@@ -30,6 +30,7 @@ import {Link} from "react-router-dom";
 import {CloseOutlined} from "@ant-design/icons";
 import moment from "moment";
 import {showError} from "utils/ToastUtils";
+import {DATE_FORMAT} from "../../../../utils/DateUtils";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
@@ -144,7 +145,7 @@ const GeneralCreate = (props: any) => {
     // Some system encode vietnamese combining accent as individual utf-8 characters
     str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
-    return str.toUpperCase().replaceAll(/\s/g, "");
+    return str.toUpperCase().replaceAll(/\s/g, "").replace(/[^a-zA-Z ]/g, "");
   }
 
   useEffect(() => {
@@ -154,9 +155,9 @@ const GeneralCreate = (props: any) => {
         entitled_variant_ids: [item.id],
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [{
-          greater_than_or_equal_to: 0,
-          less_than_or_equal_to: 0,
-          allocation_limit: 0,
+          greater_than_or_equal_to: null,
+          less_than_or_equal_to: null,
+          allocation_limit: null,
           value_type: "",
           value: 0,
         }],
@@ -172,9 +173,9 @@ const GeneralCreate = (props: any) => {
         entitled_variant_ids: null,
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [{
-          greater_than_or_equal_to: 0,
-          less_than_or_equal_to: 0,
-          allocation_limit: 0,
+          greater_than_or_equal_to: null,
+          less_than_or_equal_to: null,
+          allocation_limit: null,
           value_type: "",
           value: 0,
         }],
@@ -202,7 +203,7 @@ const GeneralCreate = (props: any) => {
             <Col span={12}>
               <CustomInput
                 name="title"
-                label={<b>Tên đợt phát hàng: </b>}
+                label={<b>Tên đợt phát hành: </b>}
                 form={form}
                 message="Cần nhập tên khuyến mại"
                 placeholder="Nhập tên đợt phát hàng"
@@ -232,7 +233,7 @@ const GeneralCreate = (props: any) => {
                 form={form}
                 placeholder="Nhập mô tả cho đợt phát hàng"
                 maxLength={500}
-
+                autoFocus
               />
             </Col>
           </Row>
@@ -368,7 +369,7 @@ const GeneralCreate = (props: any) => {
                         title: "Số lượng tối thiểu",
                         className: "ant-col-info",
                         align: "center",
-                        width: "20%",
+                        width: "10%",
                         render: (
                           value: string,
                           item,
@@ -376,14 +377,19 @@ const GeneralCreate = (props: any) => {
                         ) => {
                           return (
                             <div>
-                              <NumberInput onChange={(value) => {
-                                if (selectedProduct) {
-                                  let entitlementFields = form.getFieldValue("entitlements");
-                                  let entitlement = entitlementFields.find((ele: any) => ele.entitled_variant_ids.includes(item.id));
-                                  entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to = value;
-                                  form.setFieldsValue({entitlements: entitlementFields});
-                                }
-                              }} />
+                              <Form.Item
+                                name="min_value"
+                                rules={[{required: true, message: "Cần nhập số lượng tối thiếu"}]}
+                              >
+                                <NumberInput onChange={(value) => {
+                                  if (selectedProduct) {
+                                    let entitlementFields = form.getFieldValue("entitlements");
+                                    let entitlement = entitlementFields.find((ele: any) => ele.entitled_variant_ids.includes(item.id));
+                                    entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to = value;
+                                    form.setFieldsValue({entitlements: entitlementFields});
+                                  }
+                                }} />
+                              </Form.Item>
                             </div>
                           );
                         },
@@ -434,12 +440,13 @@ const GeneralCreate = (props: any) => {
                 <DatePicker
                   style={{width: "100%"}}
                   placeholder="Từ ngày"
-                  showNow
                   showTime={{ format: 'HH:mm' }}
+                  format={DATE_FORMAT.DDMMYY_HHmm}
                   disabledDate={(currentDate) =>
-                    currentDate.isBefore(moment().subtract(1, 'days')) ||
-                    currentDate.valueOf() >= form.getFieldValue("ends_date")
+                    currentDate.isBefore(moment()) ||
+                    form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false
                   }
+                  showNow={true}
                 />
               </Form.Item>
             </Col>
@@ -450,7 +457,12 @@ const GeneralCreate = (props: any) => {
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
                   showTime={{ format: 'HH:mm' }}
-                  disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
+                  format={DATE_FORMAT.DDMMYY_HHmm}
+                  disabledDate={(currentDate) =>
+                    currentDate.isBefore(moment()) ||
+                    (form.getFieldValue("starts_date") && currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
+                  }
+                  showNow={false}
                 />
               </Form.Item>
             </Col>
@@ -536,7 +548,7 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch 
+                <Switch
                 defaultChecked={true}
                 onChange={value => {
                   form.setFieldsValue({
@@ -562,11 +574,11 @@ const GeneralCreate = (props: any) => {
                 <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple"
                         className="ant-select-selector-min-height">
                   {listChannel?.map((store: any, index: number) => <Option key={index}
-                                                                           value={store.id}>{store.name}</Option>)}
+                                                                           value={store.name}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch 
+                <Switch
                 defaultChecked={true}
                 onChange={value => {
                   setAllChannel(value);
@@ -593,7 +605,7 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch 
+                <Switch
                 defaultChecked={true}
                 onChange={value => {
                   form.validateFields(["prerequisite_order_source_ids"]);
@@ -610,6 +622,6 @@ const GeneralCreate = (props: any) => {
       </Col>
     </Row>
   );
-};
+}
 
 export default GeneralCreate;

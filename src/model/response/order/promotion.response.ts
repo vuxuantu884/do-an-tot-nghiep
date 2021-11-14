@@ -7,6 +7,7 @@ export interface ApplyCouponLineItemResponseModel {
     title: string | null;
     value: number | null;
     value_type: string | null;
+    code: string| null;
   } | null;
   category_id: number | null;
   custom: boolean;

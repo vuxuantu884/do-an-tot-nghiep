@@ -12,7 +12,7 @@ import { MenuAction } from "component/table/ActionButton";
 import { createRef, useCallback, useEffect,  useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { StoreQuery } from "model/core/store.model";
+import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
 import CustomFilter from "component/table/custom.filter";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { StoreRankResponse } from "model/core/store-rank.model";
@@ -29,6 +29,7 @@ type StoreFilterProps = {
   storeStatusList?: Array<BaseBootstrapResponse>;
   storeRanks?: Array<StoreRankResponse>;
   groups?: Array<GroupResponse>;
+  type?: Array<StoreTypeRequest>;
 };
 
 const { Item } = Form;
@@ -42,7 +43,8 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     storeStatusList,
     storeRanks,
     groups,
-    initValue
+    initValue,
+    type,
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -135,6 +137,16 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               {storeRanks?.map((item) => (
                 <Option key={item.id} value={item.id}>
                   {item.code}
+                </Option>
+              ))}
+            </Select>
+          </Item>
+          <Item name="type" label="Phân loại">
+            <Select placeholder="Chọn loại cửa hàng">
+              <Option value="">Chọn tất cả</Option>
+              {type?.map((item, index) => (
+                <Option key={index} value={item.value}>
+                  {item.name}
                 </Option>
               ))}
             </Select>

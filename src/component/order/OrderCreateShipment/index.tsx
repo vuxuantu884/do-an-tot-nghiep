@@ -117,6 +117,7 @@ function OrderCreateShipment(props: PropType) {
     handleCreateShipment,
     handleCancelCreateShipment,
   } = props;
+  console.log('props', props)
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
@@ -127,6 +128,8 @@ function OrderCreateShipment(props: PropType) {
     ShippingServiceConfigDetailResponseModel[]
   >([]);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+
+console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
@@ -142,6 +145,7 @@ function OrderCreateShipment(props: PropType) {
         shipping_fee_paid_to_three_pls: null,
       });
     }
+    form.setFieldsValue({shipping_fee_informed_to_customer: 0})
   };
 
   const shipping_requirements = useSelector(
@@ -216,7 +220,7 @@ function OrderCreateShipment(props: PropType) {
               handleCreateShipment && handleCreateShipment();
             }}
           >
-            Tạo đơn giao hàng 2
+            Tạo đơn giao hàng
           </Button>
           <Button
             className="ant-btn-outline fixed-button cancle-button create-button-custom"

@@ -49,8 +49,11 @@ const FixedPriceGroup = (props: any) => {
 
   useEffect(() => {
     const formEntitlement = form.getFieldValue("entitlements")[name];
-    setDiscountType(formEntitlement["prerequisite_quantity_ranges.value_type"]);
+    if (formEntitlement) {
+      formEntitlement["prerequisite_quantity_ranges.value_type"] = discountType;
+    }
   }, [form.getFieldValue("entitlements")[name]])
+
 
   useEffect(() => {
     const formEntitlements = form.getFieldValue("entitlements");
@@ -65,16 +68,13 @@ const FixedPriceGroup = (props: any) => {
   }, []);
 
   useEffect(() => {
-    const entitlements = form.getFieldValue("entitlements");
-    if (discountMethod === "FIXED_PRICE" && entitlements[name]) {
+    if (discountMethod === "FIXED_PRICE") {
       setDiscountType("FIXED_AMOUNT");
-      entitlements[name]["prerequisite_quantity_ranges.value_type"] = "FIXED_AMOUNT";
     }
-    if (discountMethod === "QUANTITY" && entitlements[name]) {
+    if (discountMethod === "QUANTITY") {
       setDiscountType("PERCENTAGE");
-      entitlements[name]["prerequisite_quantity_ranges.value_type"] = "PERCENTAGE";
     }
-  }, []);
+  }, [discountMethod]);
 
   const transformVariant = (item: any) => ({
     name: item.variant_title,
@@ -166,7 +166,7 @@ const FixedPriceGroup = (props: any) => {
       }
       return `${value}`
     } else {
-      return formatCurrency(`${value}`)
+      return formatCurrency(`${value}`.replaceAll(".", ""))
     }
   }, [discountType])
 
@@ -244,6 +244,10 @@ const FixedPriceGroup = (props: any) => {
               <Select
                 style={{borderRadius: "0px"}}
                 onSelect={(value: string) => {
+                  const formEntitlements = form.getFieldValue("entitlements");
+
+                  let entitlement = formEntitlements[name];
+                  if (entitlement) entitlement["prerequisite_quantity_ranges.value"] = null
                   setDiscountType(value);
                 }}
                 defaultValue={discountMethod !== 'FIXED_PRICE' ? "PERCENTAGE" : "FIXED_AMOUNT"}
@@ -366,6 +370,7 @@ const FixedPriceGroup = (props: any) => {
           selected={data}
           onCancel={() => setVisibleManyProduct(false)}
           visible={visibleManyProduct}
+          emptyText={"Không tìm thấy sản phẩm"}
         />
       </div>}
     </div>

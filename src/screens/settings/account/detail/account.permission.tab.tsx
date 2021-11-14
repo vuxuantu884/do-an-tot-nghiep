@@ -153,22 +153,18 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   return (
     <>
       <div className="padding-top-20 permission">
-        <Row gutter={80}>
-          <Col className="col-info">
-            <Row className="permission-account">
-              <span className="account-title">Mã nhân viên</span>
-              <b> : {accountInfo?.code}</b>
-            </Row>
-            <Row className="permission-account">
-              <span className="account-title">Họ và tên </span>
-              <b> : {accountInfo?.full_name}</b>
-            </Row>
+        <Row gutter={30}>
+          <Col className="col-info" span={8}>
+            <span className="account-title">Mã nhân viên</span>
+            <b> : {accountInfo?.code}</b>
           </Col>
-          <Col className="col-info">
-            <Row className="permission-account" gutter={48}>
-              <span className="account-title">Nhóm quyền </span>
-              <b> : {accountInfo?.role_name} </b>
-            </Row>
+          <Col className="col-info" span={8}>
+            <span className="account-title">Họ và tên </span>
+            <b> : {accountInfo?.full_name}</b>
+          </Col>
+          <Col className="col-info" span={8}>
+            <span className="account-title">Nhóm quyền </span>
+            <b> : {accountInfo?.role_name} </b>
           </Col>
         </Row>
         <h4 className="margin-top-20">PHÂN QUYỀN CHI TIẾT</h4>

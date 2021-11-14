@@ -261,6 +261,10 @@
 }
 
 .customer-info-detail {
+    margin-bottom: 20px;
+    .ant-card {
+        height: 100%;
+    }
     .ant-tabs-nav {
         padding: 0;
     }

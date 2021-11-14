@@ -16,7 +16,7 @@ import AssignCustomer from '../component/assign-customer/AssignCustomer';
 import ModalConfirmLock from 'component/modal/ModalConfirmLock';
 import AuthWrapper from 'component/authorization/AuthWrapper';
 import NoPermission from 'screens/no-permission.screen';
-import { CustomerCardPermissions } from 'config/permissions/customer.permission';
+import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
 import useAuthorization from 'hook/useAuthorization';
 
 const CARD_STATUS = {
@@ -34,9 +34,9 @@ const CARD_STATUS = {
   }
 }
 
-const viewCardListPermission = [CustomerCardPermissions.VIEW_CARD];
-const assignCardPermission = [CustomerCardPermissions.ASSIGN];
-const lockCardPermission = [CustomerCardPermissions.LOCK];
+const viewCardListPermission = [LoyaltyPermission.cards_read];
+const assignCardPermission = [LoyaltyPermission.cards_assignment];
+const lockCardPermission = [LoyaltyPermission.cards_lock];
 
 const LoyaltyCards = () => {
   const [tableLoading, setTableLoading] = useState<boolean>(true);

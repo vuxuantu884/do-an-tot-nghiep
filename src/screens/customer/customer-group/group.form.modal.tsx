@@ -3,11 +3,11 @@ import { CustomModalFormModel } from "model/modal/modal.model";
 import { useEffect } from "react";
 import * as CONSTANTS from "utils/Constants";
 import CustomInput from "screens/customer/common/customInput";
-import { CustomerGroupPermissions } from "config/permissions/customer.permission";
+import { CustomerGroupPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 
 
-const updateCustomerGroupPermission = [CustomerGroupPermissions.UPDATE];
+const updateCustomerGroupPermission = [CustomerGroupPermission.groups_update];
 
 type FormValueType = {
   code: string;

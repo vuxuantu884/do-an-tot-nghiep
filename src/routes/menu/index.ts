@@ -1,15 +1,15 @@
-import React from 'react';
-import { RouteMenu } from "model/other";
-import setting from './setting.route';
-import product from './product.route';
-import bill from './bill.route';
 import UrlConfig from 'config/url.config';
-import customers from "./customer.route"
-import shipments from "./shipment.route"
-import ecommerce from "./ecommerce.route"
+import { RouteMenu } from "model/other";
+import React from 'react';
+import bill from './bill.route';
+import customers from "./customer.route";
+import ecommerce from "./ecommerce.route";
+import { inventory } from "./inventory.route";
+import product from './product.route';
 import promotion from './promotion.route';
-import {inventory} from "./inventory.route";
 import { AdminPermission } from 'config/permissions/admin.permission';
+import setting from './setting.route';
+import shipments from "./shipment.route";
 
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));

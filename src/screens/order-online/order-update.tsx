@@ -22,6 +22,7 @@ import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
+import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -125,6 +126,7 @@ export default function Order(props: PropType) {
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
+  const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
@@ -1169,8 +1171,9 @@ export default function Order(props: PropType) {
                     shippingAddress={shippingAddress}
                     modalAction={modalAction}
                     setModalAction={setModalAction}
+                    setOrderSourceId={setOrderSourceId}
                   />
-                  <CardProduct
+                  {/* <CardProduct
                     orderId={id}
                     changeInfo={onChangeInfoProduct}
                     selectStore={onStoreSelect}
@@ -1194,6 +1197,30 @@ export default function Order(props: PropType) {
                     orderDetail={OrderDetail}
                     fetchData={fetchData}
                     orderConfig={configOrder}
+                  /> */}
+                  <OrderCreateProduct
+                    changeInfo={onChangeInfoProduct}
+                    setStoreId={(value) => {
+                      setStoreId(value);
+                      form.setFieldsValue({store_id: value});
+                    }}
+                    storeId={storeId}
+                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+                    setItemGift={setItemGifts}
+                    form={form}
+                    items={items}
+                    isSplitOrder={checkIfOrderCanBeSplit}
+                    setItems={setItems}
+                    discountRate={discountRate}
+                    setDiscountRate={setDiscountRate}
+                    discountValue={discountValue}
+                    setDiscountValue={setDiscountValue}
+                    inventoryResponse={inventoryResponse}
+                    customer={customer}
+                    setInventoryResponse={setInventoryResponse}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    orderConfig={null}
+                    orderSourceId={orderSourceId}
                   />
 
                   {OrderDetail !== null &&
@@ -1204,11 +1231,11 @@ export default function Order(props: PropType) {
                         title={
                           <Space>
                             <div className="d-flex">
-                              <span className="title-card">THANH TOÁN 4</span>
+                              <span className="title-card">THANH TOÁN</span>
                             </div>
                             {checkPaymentStatusToShow(OrderDetail) === -1 && (
                               <Tag className="orders-tag orders-tag-default">
-                                Chưa thanh toán 2
+                                Chưa thanh toán
                               </Tag>
                             )}
                             {checkPaymentStatusToShow(OrderDetail) === 0 && (
@@ -1571,7 +1598,7 @@ export default function Order(props: PropType) {
                       //   loyaltyRate={loyaltyRate}
                       //   isDisablePostPayment={isDisablePostPayment}
                       // />
-                      <Card title="THANH TOÁN 31">
+                      <Card title="THANH TOÁN">
                         <OrderCreatePayments
                           setPaymentMethod={setPaymentMethod}
                           payments={payments}

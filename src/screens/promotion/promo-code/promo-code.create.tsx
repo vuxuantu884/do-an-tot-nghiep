@@ -32,7 +32,7 @@ const CreatePromotionCodePage = () => {
     sale_type: "SALE_CODE",
     product_type: "PRODUCT",
     value_type: "PERCENTAGE",
-    value: "0",
+    value: null,
     usage_limit: "1"
   };
 

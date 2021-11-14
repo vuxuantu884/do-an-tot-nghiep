@@ -43,6 +43,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
   } = props;
+console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+
 
   const sercivesFee = useMemo(() => {
     let services: any = []
@@ -216,7 +218,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </Col>
           <Col md={12}>
             <Form.Item
-              label="Phí ship báo khách: 9"
+              label="Phí ship báo khách:"
               name="shipping_fee_informed_to_customer"
             >
               <NumberInput
