@@ -166,7 +166,7 @@ const FixedPriceGroup = (props: any) => {
       }
       return `${value}`
     } else {
-      return formatCurrency(`${value}`)
+      return formatCurrency(`${value}`.replaceAll(".", ""))
     }
   }, [discountType])
 
@@ -244,6 +244,10 @@ const FixedPriceGroup = (props: any) => {
               <Select
                 style={{borderRadius: "0px"}}
                 onSelect={(value: string) => {
+                  const formEntitlements = form.getFieldValue("entitlements");
+
+                  let entitlement = formEntitlements[name];
+                  if (entitlement) entitlement["prerequisite_quantity_ranges.value"] = null
                   setDiscountType(value);
                 }}
                 defaultValue={discountMethod !== 'FIXED_PRICE' ? "PERCENTAGE" : "FIXED_AMOUNT"}
@@ -366,6 +370,7 @@ const FixedPriceGroup = (props: any) => {
           selected={data}
           onCancel={() => setVisibleManyProduct(false)}
           visible={visibleManyProduct}
+          emptyText={"Không tìm thấy sản phẩm"}
         />
       </div>}
     </div>

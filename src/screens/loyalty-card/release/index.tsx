@@ -14,10 +14,10 @@ import threeDot from "assets/icon/three-dot.svg";
 import './loyalty-cards-release.scss';
 import AuthWrapper from 'component/authorization/AuthWrapper';
 import NoPermission from 'screens/no-permission.screen';
-import { CustomerCardPermissions } from 'config/permissions/customer.permission';
+import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
 
 
-const viewCardReleasePermission = [CustomerCardPermissions.VIEW_RELEASE];
+const viewCardReleasePermission = [LoyaltyPermission.cards_release_read];
 
 const LoyaltyCardRelease = () => {
   const [tableLoading, setTableLoading] = useState<boolean>(true);

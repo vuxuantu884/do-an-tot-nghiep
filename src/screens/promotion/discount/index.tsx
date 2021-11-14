@@ -74,10 +74,10 @@ const DiscountPage = () => {
   useEffect(() => {
     dispatch(getListDiscount(params, fetchData));
     dispatch(StoreGetListAction(setStore));
-    dispatch(getListSourceRequest(setListSource));
-    dispatch(actionFetchListCustomerGroup({},
-      (data: CustomerGroupResponseModel) => setCustomerGroups(data.items),
-    ));
+    // dispatch(getListSourceRequest(setListSource));
+    // dispatch(actionFetchListCustomerGroup({},
+    //   (data: CustomerGroupResponseModel) => setCustomerGroups(data.items),
+    // ));
   }, [dispatch, fetchData, params]);
 
   useEffect(() => {

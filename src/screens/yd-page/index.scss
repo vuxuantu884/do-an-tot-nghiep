@@ -5,18 +5,19 @@
         overflow-x: hidden !important;
         overflow-y: scroll;
     }
+    .ant-card-body {
+        padding: 0 !important;
+    }
     .yd-page-create-update-btn{
         position: fixed;
         bottom: 0;
         left: 0;
+        right: 0;
         background-color: #ffffff;
         height: 60px;
         z-index: 4;
+        padding: 10px 20px;
         .yd-page-btns{
-            padding-right: 150px !important;
-            padding-left: 34px !important;
-            padding-top: 10px;
-            width: 600px;
             display: flex;
             justify-content: space-between;
             .create-button-custom{

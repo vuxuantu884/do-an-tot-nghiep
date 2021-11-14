@@ -34,6 +34,7 @@ const GeneralInformation = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
+    isDisable,
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
@@ -99,6 +100,7 @@ const GeneralInformation = (props: any) => {
                 placeholder="Nhập tên khách hàng"
                 isRequired={true}
                 maxLength={255}
+                isDisable={isDisable}
               />
             </Col>
             <Col span={24}>
@@ -108,6 +110,7 @@ const GeneralInformation = (props: any) => {
               >
                 <DatePicker
                   style={{ width: "100%" }}
+                  disabled={isDisable}
                   placeholder="Nhập ngày sinh"
                   format={"DD/MM/YYYY"}
                   suffixIcon={
@@ -151,6 +154,7 @@ const GeneralInformation = (props: any) => {
                 >
                   <Input
                     style={{ borderRadius: 5 }}
+                    disabled={isDisable}
                     minLength={9}
                     maxLength={15}
                     placeholder="Nhập số điện thoại"
@@ -160,6 +164,7 @@ const GeneralInformation = (props: any) => {
 
                 <Button
                   type="primary"
+                  disabled={isDisable}
                   className="p-0 ant-btn-custom"
                   icon={<img src={phonePlus} alt="" />}
                   onClick={showPhoneModal}
@@ -210,7 +215,7 @@ const GeneralInformation = (props: any) => {
                     },
                   ]}
                 >
-                  <Input maxLength={255} type="text" placeholder="Nhập email" />
+                  <Input disabled={isDisable} maxLength={255} type="text" placeholder="Nhập email" />
                 </Form.Item>
               </Col>
               <Col span={24}>
@@ -219,7 +224,7 @@ const GeneralInformation = (props: any) => {
                   label={<span className="customer-field-label">Giới tính:</span>}
                 // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                 >
-                  <Select placeholder="Chọn giới tính">
+                  <Select placeholder="Chọn giới tính" disabled={isDisable}>
                     <Option value={"male"}>Nam</Option>
                     <Option value={"female"}>Nữ</Option>
                     <Option value={"other"}>Khác</Option>
@@ -238,7 +243,7 @@ const GeneralInformation = (props: any) => {
                     },
                   ]}
                 >
-                  <Input maxLength={255} placeholder="Nhập Website/facebook" />
+                  <Input disabled={isDisable} maxLength={255} placeholder="Nhập Website/facebook" />
                 </Form.Item>
               </Col>
               <Col span={24}>
@@ -249,6 +254,7 @@ const GeneralInformation = (props: any) => {
                 >
                   <DatePicker
                     style={{ width: "100%" }}
+                    disabled={isDisable}
                     placeholder="Chọn ngày cưới"
                     format={"DD/MM/YYYY"}
                   />
@@ -261,7 +267,7 @@ const GeneralInformation = (props: any) => {
                   name="company"
                   label={<span className="customer-field-label">Tên đơn vị:</span>}
                 >
-                  <Input maxLength={255} placeholder="Nhập tên đơn vị" />
+                  <Input disabled={isDisable} maxLength={255} placeholder="Nhập tên đơn vị" />
                 </Form.Item>
               </Col>
               <Col span={24}>
@@ -276,7 +282,7 @@ const GeneralInformation = (props: any) => {
                     },
                   ]}
                 >
-                  <Input maxLength={255} placeholder="Mã số thuế" />
+                  <Input disabled={isDisable} maxLength={255} placeholder="Mã số thuế" />
                 </Form.Item>
               </Col>
 
@@ -311,6 +317,7 @@ const GeneralInformation = (props: any) => {
                 >
                   <Select
                     showSearch
+                    disabled={isDisable}
                     placeholder="Chọn khu vực"
                     onChange={handleChangeArea}
                     allowClear
@@ -325,7 +332,7 @@ const GeneralInformation = (props: any) => {
                 </Form.Item>
               </Col>
               <Form.Item label="city" name="city_id" hidden>
-                <Input />
+                <Input disabled={isDisable} />
               </Form.Item>
               <Col span={24}>
                 <Form.Item
@@ -334,6 +341,7 @@ const GeneralInformation = (props: any) => {
                 >
                   <Select
                     showSearch
+                    disabled={isDisable}
                     allowClear
                     optionFilterProp="children"
                     placeholder="Chọn phường/xã"
@@ -350,6 +358,7 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <CustomInput
                   name="full_address"
+                  isDisable={isDisable}
                   label={<span className="customer-field-label">Địa chỉ chi tiết:</span>}
                   form={form}
                   message="Vui lòng nhập địa chỉ"
@@ -420,6 +429,7 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item label={<b>Ghi chú:</b>} name="note">
                   <Input.TextArea
+                    disabled={isDisable}
                     maxLength={500}
                     placeholder="Viết ghi chú"
                     onPressEnter={(e) => addNote(e)}
@@ -439,17 +449,19 @@ const GeneralInformation = (props: any) => {
                     notes.map((note: any, index: number) => (
                       <div className="customer-note-item" key={index}>
                         <span key={note.id}>{note.content}</span>
-                        <img
-                          alt="delete"
-                          onClick={(e: any) => deleteNote(note, e)}
-                          style={{
-                            width: 20,
-                            float: "right",
-                            cursor: "pointer",
-                            marginLeft: 4,
-                          }}
-                          src={XCloseBtn}
-                        ></img>
+                        {!isDisable &&
+                          <img
+                            alt="delete"
+                            onClick={(e: any) => deleteNote(note, e)}
+                            style={{
+                              width: 20,
+                              float: "right",
+                              cursor: "pointer",
+                              marginLeft: 4,
+                            }}
+                            src={XCloseBtn}
+                          />
+                        }
                       </div>
                     ))}
                 </div>
@@ -462,6 +474,7 @@ const GeneralInformation = (props: any) => {
                   label={<span className="customer-field-label">Loại khách hàng:</span>}
                 >
                   <Select
+                    disabled={isDisable}
                     showSearch
                     placeholder="Chọn loại khách hàng"
                     allowClear

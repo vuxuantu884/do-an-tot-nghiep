@@ -24,8 +24,6 @@ type PropType = {
   isVisibleUpdatePayment: boolean;
   amount: any;
   disabled?: boolean;
-  isDisablePostPayment?: boolean;
-  shippingFeeInformedToCustomer: number;
   form: FormInstance<any>;
   setPaymentMethod: (paymentType: number) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
@@ -37,11 +35,9 @@ type PropType = {
 };
 
 function UpdatePaymentCard(props: PropType) {
-  const {disabledActions, listPaymentMethods, amount, isVisibleUpdatePayment, setShowPaymentPartialPayment, isDisablePostPayment, form, setPaymentMethod, shippingFeeInformedToCustomer} =
+  const {disabledActions, listPaymentMethods, amount, isVisibleUpdatePayment, setShowPaymentPartialPayment, form, setPaymentMethod} =
     props;
-    console.log('isDisablePostPayment', isDisablePostPayment);
     console.log('isVisibleUpdatePayment', isVisibleUpdatePayment);
-    console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer);
     console.log('form', form);
     console.log('setPaymentMethod', setPaymentMethod);
   const dispatch = useDispatch();
@@ -55,17 +51,10 @@ function UpdatePaymentCard(props: PropType) {
     props.setVisibleUpdatePayment(true);
   };
 
-  // const totalAmountPaid = useMemo(() => {
-  //   let total = 0;
-  //   paymentData.forEach((p) => (total = total + p.amount));
-  //   return total;
-  // }, [paymentData]);
-
   const onUpdateSuccess = useCallback(
     (value: OrderResponse) => {
       showSuccess("Thanh toán thành công");
       setCreatePayment(false);
-      console.log("onUpdateSuccess payment");
       // window.location.reload();
       setVisibleConfirmPayment(false);
       setPaymentData([]);
@@ -233,25 +222,11 @@ function UpdatePaymentCard(props: PropType) {
           className="margin-top-20 orders-update-payment"
           title={
             <div className="d-flex" style={{marginTop: "5px", border: "none"}}>
-              <span className="title-card">THANH TOÁN 6</span>
+              <span className="title-card">THANH TOÁN</span>
             </div>
           }
         >
           {props.isVisibleUpdatePayment === true && renderPaymentMethod()
-          // (
-            
-          //   <OrderCreatePayments
-          //     setPaymentMethod={setPaymentMethod}
-          //     payments={paymentData}
-          //     setPayments={setPaymentData}
-          //     paymentMethod={props.paymentMethod}
-          //     shipmentMethod={props.shipmentMethod}
-          //     totalAmountOrder={amount}
-          //     loyaltyRate={loyaltyRate}
-          //     isDisablePostPayment={isDisablePostPayment}
-          //     listPaymentMethod={listPaymentMethods}
-          //   />
-          // )
           }
 
           {props.isVisibleUpdatePayment === false && (
@@ -267,7 +242,7 @@ function UpdatePaymentCard(props: PropType) {
                 onClick={ShowPayment}
                 disabled={props.disabled}
               >
-                Thanh toán 2
+                Thanh toán
               </Button>
             </div>
           )}

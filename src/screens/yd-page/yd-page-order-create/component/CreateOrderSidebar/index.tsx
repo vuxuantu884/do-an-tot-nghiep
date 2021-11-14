@@ -75,7 +75,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
 
   return (
     <StyledComponent>
-      <Card>
+      <Card style={{padding: 12}}>
         <Form.Item
           label="Nhân viên bán hàng"
           name="assignee_code"
@@ -194,7 +194,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
         </Form.Item>
         {renderSplitOrder()}
       </Card>
-      <Card>
+        <Card style={{padding: 12}}>
         <Form.Item name="customer_note" label="Ghi chú của khách">
           <Input.TextArea
             placeholder="Điền ghi chú"

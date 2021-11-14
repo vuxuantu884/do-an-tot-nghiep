@@ -28,7 +28,6 @@ import BottomBarContainer from "../../../component/container/bottom-bar.containe
 import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
 import {bulkDisablePriceRules} from "../../../service/promotion/discount/discount.service";
 import {HttpStatus} from "../../../config/http-status.config";
-import {put} from "@redux-saga/core/effects";
 import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
 import {showError} from "../../../utils/ToastUtils";
 
@@ -198,7 +197,7 @@ const PromotionDetailScreen: React.FC = () => {
         dataIndex: "total",
         render: (
           value: string,
-        ) => <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>,
+        ) => <span style={{color: "#E24343"}}>{formatCurrency(Math.round(Number(value)/1000)*1000)}</span>,
       },
       {
         title: "SL Tối thiểu",
@@ -775,7 +774,7 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listChannel &&
-                        data.prerequisite_sales_channel_names.map(id => <li>{listChannel.find(channel => channel.id === Number(id))?.name}</li>)}
+                        data.prerequisite_sales_channel_names.map(name => <li>{listChannel.find(channel => channel.name === name)?.name}</li>)}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"

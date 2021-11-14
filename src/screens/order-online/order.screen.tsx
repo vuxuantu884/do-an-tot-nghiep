@@ -90,6 +90,7 @@ export default function Order() {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
+  const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
@@ -527,7 +528,7 @@ export default function Order() {
             shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
             !thirdPL.service
           ) {
-            showError("Vui lòng chọn đơn vị vận chuyển 3");
+            showError("Vui lòng chọn đơn vị vận chuyển!");
             setCreating(false);
           } else {
             if (typeButton === OrderStatus.DRAFT) {
@@ -539,6 +540,7 @@ export default function Order() {
               let isPointFocus = checkPointFocus(values);
               if (isPointFocus) {
                 (async () => {
+                  console.log('values', values)
                   try {
                     await dispatch(orderCreateAction(values, createOrderCallback));
                   } catch {
@@ -994,6 +996,8 @@ export default function Order() {
     );
   }, [discountValue, orderAmount, shippingFeeInformedToCustomer]);
 
+  console.log('orderAmount', orderAmount)
+
   /**
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
    */
@@ -1064,6 +1068,7 @@ export default function Order() {
                       setVisibleCustomer={setVisibleCustomer}
                       modalAction={modalAction}
                       setModalAction={setModalAction}
+                      setOrderSourceId={setOrderSourceId}
                     />
                     <OrderCreateProduct
                       changeInfo={onChangeInfoProduct}
@@ -1082,11 +1087,13 @@ export default function Order() {
                       discountValue={discountValue}
                       setDiscountValue={setDiscountValue}
                       inventoryResponse={inventoryResponse}
+                      customer={customer}
                       setInventoryResponse={setInventoryResponse}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
+                      orderSourceId={orderSourceId}
                     />
-                    <Card title="THANH TOÁN 31">
+                    <Card title="THANH TOÁN">
                       <OrderCreatePayments
                         setPaymentMethod={handlePaymentMethod}
                         payments={payments}
@@ -1100,7 +1107,7 @@ export default function Order() {
                       />
                     </Card>
 
-                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 252">
+                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                       <OrderCreateShipment
                         shipmentMethod={shipmentMethod}
                         orderPrice={orderAmount}

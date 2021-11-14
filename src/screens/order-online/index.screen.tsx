@@ -47,12 +47,14 @@ import "./scss/index.screen.scss";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const actions: Array<MenuAction> = [
   {
     id: 4,
-    name: "In phiếu giao hàng 2",
+    name: "In phiếu giao hàng",
     icon:<PrinterOutlined />
   },
   {
@@ -727,7 +729,10 @@ const ListOrderScreen: React.FC = () => {
         case 3:
           break;
         case 4:
-          const ids = selectedRow.map((row) => row.id);
+          let ids:number[] = [];
+          selectedRow.forEach((row) => row.fulfillments?.forEach((single) => {
+            ids.push(single.id)
+          }));
           dispatch(showLoading());
           changeOrderStatusToPickedService(ids).then((response) => {
             switch (response.code) {
@@ -915,29 +920,41 @@ const ListOrderScreen: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-                onClick={() => {}}
-              >
-                Nhập file
-              </Button>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                // onClick={onExport}
-                onClick={() => {
-                  console.log("export");
-                  setShowExportModal(true);
-                }}
-              >
-                Xuất file
-              </Button>
-              <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                  onClick={() => {}}
+                  disabled={!isPassed}
+                >
+                  Nhập file
+                </Button>}
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                  // onClick={onExport}
+                  onClick={() => {
+                    console.log("export");
+                    setShowExportModal(true);
+                  }}
+                  disabled={!isPassed}
+                >
+                  Xuất file
+                </Button>}
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                {(isPassed: boolean) => 
+                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />}
+              </AuthWrapper>
+              
             </Space>
           </Row>
         }

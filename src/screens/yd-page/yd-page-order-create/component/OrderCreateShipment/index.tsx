@@ -140,6 +140,7 @@ function OrderCreateShipment(props: PropType) {
         shipping_fee_paid_to_three_pls: null,
       });
     }
+    form.setFieldsValue({shipping_fee_informed_to_customer: 0})
   };
 
   const shipping_requirements = useSelector(
@@ -212,7 +213,7 @@ function OrderCreateShipment(props: PropType) {
               handleCreateShipment && handleCreateShipment();
             }}
           >
-            Tạo đơn giao hàng 2
+            Tạo đơn giao hàng
           </Button>
           <Button
             className="ant-btn-outline fixed-button cancle-button create-button-custom"

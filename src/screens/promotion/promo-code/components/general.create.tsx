@@ -30,6 +30,7 @@ import {Link} from "react-router-dom";
 import {CloseOutlined} from "@ant-design/icons";
 import moment from "moment";
 import {showError} from "utils/ToastUtils";
+import {disabledDateTime} from "../../../../utils/DateUtils";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
@@ -154,9 +155,9 @@ const GeneralCreate = (props: any) => {
         entitled_variant_ids: [item.id],
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [{
-          greater_than_or_equal_to: 0,
-          less_than_or_equal_to: 0,
-          allocation_limit: 0,
+          greater_than_or_equal_to: null,
+          less_than_or_equal_to: null,
+          allocation_limit: null,
           value_type: "",
           value: 0,
         }],
@@ -172,9 +173,9 @@ const GeneralCreate = (props: any) => {
         entitled_variant_ids: null,
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [{
-          greater_than_or_equal_to: 0,
-          less_than_or_equal_to: 0,
-          allocation_limit: 0,
+          greater_than_or_equal_to: null,
+          less_than_or_equal_to: null,
+          allocation_limit: null,
           value_type: "",
           value: 0,
         }],
@@ -368,7 +369,7 @@ const GeneralCreate = (props: any) => {
                         title: "Số lượng tối thiểu",
                         className: "ant-col-info",
                         align: "center",
-                        width: "20%",
+                        width: "10%",
                         render: (
                           value: string,
                           item,
@@ -376,14 +377,19 @@ const GeneralCreate = (props: any) => {
                         ) => {
                           return (
                             <div>
-                              <NumberInput onChange={(value) => {
-                                if (selectedProduct) {
-                                  let entitlementFields = form.getFieldValue("entitlements");
-                                  let entitlement = entitlementFields.find((ele: any) => ele.entitled_variant_ids.includes(item.id));
-                                  entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to = value;
-                                  form.setFieldsValue({entitlements: entitlementFields});
-                                }
-                              }} />
+                              <Form.Item
+                                name="min_value"
+                                rules={[{required: true, message: "Cần nhập số lượng tối thiếu"}]}
+                              >
+                                <NumberInput onChange={(value) => {
+                                  if (selectedProduct) {
+                                    let entitlementFields = form.getFieldValue("entitlements");
+                                    let entitlement = entitlementFields.find((ele: any) => ele.entitled_variant_ids.includes(item.id));
+                                    entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to = value;
+                                    form.setFieldsValue({entitlements: entitlementFields});
+                                  }
+                                }} />
+                              </Form.Item>
                             </div>
                           );
                         },
@@ -436,6 +442,7 @@ const GeneralCreate = (props: any) => {
                   placeholder="Từ ngày"
                   showNow
                   showTime={{ format: 'HH:mm' }}
+                  disabledTime={disabledDateTime}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment().subtract(1, 'days')) ||
                     currentDate.valueOf() >= form.getFieldValue("ends_date")
@@ -450,7 +457,10 @@ const GeneralCreate = (props: any) => {
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
                   showTime={{ format: 'HH:mm' }}
-                  disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
+                  disabledTime={disabledDateTime}
+                  disabledDate={(currentDate) =>
+                    currentDate.isBefore(moment()) ||
+                    currentDate.valueOf() < form.getFieldValue("starts_date")}
                 />
               </Form.Item>
             </Col>
@@ -562,7 +572,7 @@ const GeneralCreate = (props: any) => {
                 <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple"
                         className="ant-select-selector-min-height">
                   {listChannel?.map((store: any, index: number) => <Option key={index}
-                                                                           value={store.id}>{store.name}</Option>)}
+                                                                           value={store.name}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
@@ -610,6 +620,6 @@ const GeneralCreate = (props: any) => {
       </Col>
     </Row>
   );
-};
+}
 
 export default GeneralCreate;

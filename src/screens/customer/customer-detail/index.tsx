@@ -32,7 +32,7 @@ import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.acti
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { CustomerListPermissions } from "config/permissions/customer.permission";
+import { CustomerListPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
@@ -41,8 +41,8 @@ import { StyledCustomerDetail } from "screens/customer/customer-detail/customerD
 
 const { TabPane } = Tabs;
 
-const viewCustomerDetailPermission = [CustomerListPermissions.VIEW_CUSTOMER_DETAIL];
-const updateCustomerPermission = [CustomerListPermissions.UPDATE_CUSTOMER];
+const viewCustomerDetailPermission = [CustomerListPermission.customers_read];
+const updateCustomerPermission = [CustomerListPermission.customers_update];
 
 const CustomerDetailIndex = () => {
 
@@ -192,45 +192,46 @@ const CustomerDetailIndex = () => {
   };
 
   React.useEffect(() => {
+    const purchaseIfo = customer?.report;
     const _detail = [
       {
         name: "Tổng đơn hàng",
-        value: loyaltyPoint?.total_order_count,
+        value: purchaseIfo?.total_finished_order,
       },
       {
         name: "Cửa hàng mua đầu",
-        value: null,
+        value: purchaseIfo?.store_of_first_order,
       },
       {
         name: "Số đơn trả",
-        value: null,
+        value: purchaseIfo?.total_returned_order,
       },
       {
         name: "Tiền tích luỹ",
-        value: null,
+        value: purchaseIfo?.total_paid_amount,
       },
       {
         name: "Ngày mua đầu",
-        value: null,
+        value: purchaseIfo?.first_order_date,
       },
       {
         name: "Tổng giá trị đơn trả",
         value: formatCurrency(
-          loyaltyPoint?.total_money_spend ? loyaltyPoint?.total_money_spend : ""
+          purchaseIfo?.total_refunded_amount ? purchaseIfo?.total_refunded_amount : ""
         ),
       },
       {
         name: "Số ngày chưa mua",
-        value: null,
+        value: purchaseIfo?.number_of_days_without_purchase,
       },
       {
         name: "Cửa hàng mua cuối",
-        value: null,
+        value: purchaseIfo?.store_of_last_order,
       },
       
       {
         name: "Số tiền cần nâng hạng",
-        value: null,
+        value: purchaseIfo?.remain_amount_to_level_up,
       },
       {
         name: 
@@ -239,7 +240,6 @@ const CustomerDetailIndex = () => {
               <Tooltip
                 overlay="GTTB = Tiền tích lũy/Tổng đơn hàng"
                 placement="top"
-                trigger="click"
                 color="blue"
               >
                 <img
@@ -249,16 +249,16 @@ const CustomerDetailIndex = () => {
                 />
               </Tooltip>
             </div>,
-        value: null,
+        value: purchaseIfo?.average_order_value,
       },
       {
         name: "Ngày mua cuối",
-        value: null,
+        value: purchaseIfo?.last_order_date,
       }
     ];
 
     setCustomerSpendDetail(_detail);
-  }, [loyaltyPoint]);
+  }, [customer?.report, loyaltyPoint]);
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -435,37 +435,6 @@ const CustomerDetailIndex = () => {
               <Row gutter={24} className="customer-info-detail">
                 <Col span={18}>
                   <CustomerInfo customer={customer} loyaltyCard={loyaltyCard} />
-
-                  <Card
-                    title={
-                      <div className="d-flex">
-                        <span className="title-card">THÔNG TIN MUA HÀNG</span>
-                      </div>
-                    }
-                    className="purchase-info"
-                  >
-                    <Row gutter={30} style={{ padding: "16px" }}>
-                      {customerSpendDetail &&
-                        customerSpendDetail.map((info: any, index: number) => (
-                          <Col
-                            key={index}
-                            span={8}
-                            style={{
-                              display: "flex",
-                              marginBottom: 10,
-                              color: "#222222",
-                            }}
-                          >
-                            <Col span={11} style={{ padding: "0 0 0 15px" }}>
-                              <span>{info.name}</span>
-                            </Col>
-                            <Col span={13}>
-                              <b>: {info.value ? info.value : "---"}</b>
-                            </Col>
-                          </Col>
-                        ))}
-                    </Row>
-                  </Card>
                 </Col>
 
                 <Col span={6}>
@@ -502,6 +471,42 @@ const CustomerDetailIndex = () => {
                   </Card>
                 </Col>
               </Row>
+
+              <Row gutter={24}>
+                <Col>
+                  <Card
+                    title={
+                      <div className="d-flex">
+                        <span className="title-card">THÔNG TIN MUA HÀNG</span>
+                      </div>
+                    }
+                    className="purchase-info"
+                  >
+                    <Row gutter={30} style={{ padding: "16px" }}>
+                      {customerSpendDetail &&
+                        customerSpendDetail.map((info: any, index: number) => (
+                          <Col
+                            key={index}
+                            span={8}
+                            style={{
+                              display: "flex",
+                              marginBottom: 10,
+                              color: "#222222",
+                            }}
+                          >
+                            <Col span={11} style={{ padding: "0 0 0 15px" }}>
+                              <span>{info.name}</span>
+                            </Col>
+                            <Col span={13}>
+                              <b>: {info.value ? info.value : "---"}</b>
+                            </Col>
+                          </Col>
+                        ))}
+                    </Row>
+                  </Card>
+                </Col>
+              </Row>
+
               <Row className="customer-tabs-detail">
                 <Col span={24}>
                   <Card>

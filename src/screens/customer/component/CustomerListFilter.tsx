@@ -26,14 +26,16 @@ import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
 
 import rightArrow from "assets/icon/right-arrow.svg";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
-import { StyledCustomerBaseFilter } from "screens/customer/customerStyled";
+import { StyledCustomerBaseFilter, StyledCustomerFilter } from "screens/customer/customerStyled";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { RegUtil } from "utils/RegUtils";
 import moment from "moment";
 
+import filterIcon from "assets/icon/filter.svg";
+
 
 type CustomerListFilterProps = {
-  actions?: any;
+  isLoading?: boolean;
   params: any;
   initQuery: any;
   onFilter?: (values: CustomerSearchQuery) => void;
@@ -54,8 +56,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   props: CustomerListFilterProps
 ) => {
   const {
-    actions,
-
+    isLoading,
     params,
     initQuery,
     onClearFilter,
@@ -503,37 +504,41 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
 
   return (
-    <div>
-      <CustomFilter menu={actions}>
-        <Form onFinish={onFinish} initialValues={params} layout="inline">
-          <Form.Item name="request">
-            <Input
-              prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-              placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
-            />
-          </Form.Item>
-          {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Lọc
-            </Button>
-          </Form.Item>
-          <Form.Item>
-            <Button onClick={openBaseFilter}>Thêm bộ lọc</Button>
-          </Form.Item>
-          
-          <Button
-            onClick={setShowSettingColumn}
-            icon={<img
-              style={{ marginBottom: 15 }}
-              src={settingGearIcon}
-              alt=""
-            />}
-            // disabled={tableLoading}
+    <StyledCustomerFilter>
+      <Form
+        form={formCustomerFilter}
+        onFinish={onFinish}
+        initialValues={params}
+        layout="inline"
+        className="inline-filter"
+      >
+        <Form.Item name="request" className="input-search">
+          <Input
+            disabled={isLoading}
+            prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+            placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
           />
-        </Form>
-      </CustomFilter>
+        </Form.Item>
+        
+        <Form.Item>
+          <Button type="primary" htmlType="submit" disabled={isLoading}>
+            Lọc
+          </Button>
+        </Form.Item>
 
+        <Form.Item>
+          <Button onClick={openBaseFilter} disabled={isLoading}>
+            <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
+            <span>Thêm bộ lọc</span>
+          </Button>
+        </Form.Item>
+        
+        <Button
+          disabled={isLoading}
+          onClick={setShowSettingColumn}
+          icon={<img style={{ marginBottom: 15 }} src={settingGearIcon} alt="" />}
+        />
+      </Form>
       
       <BaseFilter
         onClearFilter={onClearBaseFilter}
@@ -1213,7 +1218,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           </Form>
         </StyledCustomerBaseFilter>
       </BaseFilter>
-    </div>
+    </StyledCustomerFilter>
   );
 };
 

@@ -57,7 +57,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu22",
     isShow: true,
     header: null,
-    permissions: [PurchaseOrderPermission.po_read],
+    permissions: [PurchaseOrderPermission.read],
     subMenu: [
       {
         path: `${UrlConfig.PURCHASE_ORDER}/create`,
@@ -68,7 +68,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu221",
         isShow: true,
         header: null,
-        permissions: [PurchaseOrderPermission.po_create],
+        permissions: [PurchaseOrderPermission.create],
         subMenu: [],
       },
       {
@@ -80,7 +80,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu222",
         isShow: true,
         header: null,
-        permissions: [PurchaseOrderPermission.po_read, PurchaseOrderPermission.po_update],
+        permissions: [PurchaseOrderPermission.read, PurchaseOrderPermission.update],
         subMenu: [],
         pathIgnore: ["create"],
       },
@@ -93,7 +93,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu223",
         isShow: true,
         header: null,
-        permissions: [PurchaseOrderPermission.po_return],
+        permissions: [PurchaseOrderPermission.return],
         subMenu: [],
         pathIgnore: ["create"],
       },

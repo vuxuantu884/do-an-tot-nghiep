@@ -31,7 +31,9 @@ export interface StoreResponse extends BaseObject {
   number_of_account: number,
   accounts: Array<any>,
   is_saleable: boolean,
-  is_stocktaking: boolean
+  is_stocktaking: boolean,
+  type: string,
+  type_name: string,
 }
 
 export interface StoreQuery extends BaseQuery {
@@ -54,6 +56,7 @@ export interface StoreQuery extends BaseQuery {
     status?: string,
     to_begin_date?: Date|'',
     to_square?: number|'',
+    type: string|'',
   }
 
   export interface BaseStoreRequest {
@@ -75,6 +78,7 @@ export interface StoreQuery extends BaseQuery {
     group_id: number|null,
     is_saleable: boolean,
     is_stocktaking: boolean,
+    type: string|null,
   }
   
   export interface StoreCreateRequest extends BaseStoreRequest {
@@ -87,4 +91,9 @@ export interface StoreQuery extends BaseQuery {
   export interface StoreValidateRequest {
     name?: string,
     id?: number,
+  }
+
+  export interface StoreTypeRequest{
+    name: string,
+    value: string,
   }

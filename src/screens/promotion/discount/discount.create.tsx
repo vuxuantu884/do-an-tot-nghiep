@@ -16,6 +16,8 @@ import {createPriceRule} from "../../../service/promotion/discount/discount.serv
 import {PROMO_TYPE} from "utils/Constants";
 import {getListChannelRequest} from "domain/actions/order/order.action";
 import {ChannelResponse} from "model/response/product/channel.response";
+import {HttpStatus} from "../../../config/http-status.config";
+import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
 
 const CreateDiscountPage = () => {
   const dispatch = useDispatch();
@@ -62,16 +64,27 @@ const CreateDiscountPage = () => {
     });
     return body;
   };
+
+  const handleCreateSuccess = (response:any) => {
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess("Lưu và kích hoạt thành công");
+        history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${response.data.id}`);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        dispatch(unauthorizedAction);
+        break;
+      default:
+        showError(`${response.code} - ${response.message}`);
+        break;
+    }
+  }
+
   const handleSubmit = async (values: any) => {
     const body = transformData(values);
     body.activated = true;
     const createResponse = await createPriceRule(body);
-    if (createResponse.code === 20000000) {
-      showSuccess("Lưu và kích hoạt thành công");
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${createResponse.data.id}`);
-    } else {
-      showError(`${createResponse.code} - ${createResponse.message}`);
-    }
+    handleCreateSuccess(createResponse);
   };
 
   const save = async () => {
@@ -79,13 +92,7 @@ const CreateDiscountPage = () => {
     const body = transformData(values);
     body.activated = false;
     const createResponse = await createPriceRule(body);
-    if (createResponse.code === 20000000) {
-      showSuccess("Lưu thành công");
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
-    } else {
-      showError(`${createResponse.code} - ${createResponse.message}`);
-    }
-
+    handleCreateSuccess(createResponse);
   };
 
   const handleSubmitFail = (errorFields: any) => {

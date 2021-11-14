@@ -7,7 +7,7 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { CustomerGroupPermissions } from "config/permissions/customer.permission";
+import { CustomerGroupPermission } from "config/permissions/customer.permission";
 import UrlConfig from "config/url.config";
 import {
   actionAddCustomerGroup,
@@ -33,10 +33,10 @@ import CustomerModal from "../customer-modal";
 import { StyledComponent } from "./styles";
 
 
-const createCustomerGroupPermission = [CustomerGroupPermissions.CREATE];
-const viewCustomerGroupPermission = [CustomerGroupPermissions.VIEW];
-const updateCustomerGroupPermission = [CustomerGroupPermissions.UPDATE];
-const deleteCustomerGroupPermission = [CustomerGroupPermissions.DELETE];
+const createCustomerGroupPermission = [CustomerGroupPermission.groups_create];
+const viewCustomerGroupPermission = [CustomerGroupPermission.groups_read];
+const updateCustomerGroupPermission = [CustomerGroupPermission.groups_update];
+const deleteCustomerGroupPermission = [CustomerGroupPermission.groups_delete];
 
 const SettingCustomerGroup: React.FC = () => {
 
