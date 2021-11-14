@@ -14,13 +14,14 @@ import {VscError} from "react-icons/all";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
-  min_amount: "SL Tối thiểu",
+  min_quantity: "SL Tối thiểu",
   usage_limit: "Giới hạn",
   discount_percentage: "Chiết khấu (%)",
   fixed_amount: "Chiết khấu (VND)",
   invalid: "Không đúng định dạng",
   notfound: "không tìm thấy",
   required: "Không được trống",
+  sku_duplicate: "Bị trùng"
 };
 
 const FixedPriceSelection = (props: any) => {
