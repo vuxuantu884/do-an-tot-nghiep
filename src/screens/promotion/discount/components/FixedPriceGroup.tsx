@@ -232,7 +232,7 @@ const FixedPriceGroup = (props: any) => {
               <InputNumber
                 style={{textAlign: "end", borderRadius: "0px"}}
                 min={1}
-                max={discountType === "FIXED_AMOUNT" ? 999999999 : 99}
+                max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
                 step={discountType === "FIXED_AMOUNT" ? 1: 0.01}
                 formatter={(value) => formatDiscountValue(value)}
               />

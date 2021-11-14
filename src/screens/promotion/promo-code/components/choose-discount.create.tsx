@@ -46,7 +46,7 @@ const ChooseDiscount = (props: any) => {
               <InputNumber
                 style={{textAlign: "end", borderRadius: "0px", width: "65%"}}
                 min={1}
-                max={typeUnit === "FIXED_AMOUNT" ? 999999999 : 99}
+                max={typeUnit === "FIXED_AMOUNT" ? 999999999 : 100}
                 step={typeUnit === "FIXED_AMOUNT" ? 1: 0.01}
                 formatter={(value) => formatDiscountValue(value)}
               />
