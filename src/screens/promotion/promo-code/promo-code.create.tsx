@@ -43,6 +43,7 @@ const CreatePromotionCodePage = () => {
   }, [dispatch]);
 
   const transformData = (values: any) => {
+    console.log('values: ', values);
     let body: any = {};
     body.type = PROMO_TYPE.MANUAL;
     body.title = values.title;
@@ -112,6 +113,7 @@ const CreatePromotionCodePage = () => {
   const onFinish = (values: any) => {
     // Action: Lưu và kích hoạt
     const body = transformData(values);
+    console.log("body: ", body);
     body.activated = true;
     dispatch(showLoading());
     dispatch(addPriceRules(body, createCallback));

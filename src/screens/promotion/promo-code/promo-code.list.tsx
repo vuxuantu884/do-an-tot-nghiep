@@ -58,7 +58,7 @@ const csvColumnMapping: any = {
   usage_limit: "Giới hạn",
   discount_percentage: "Chiết khấu (%)",
   fixed_amount: "Chiết khấu (VND)",
-  invalid: "không đúng định dạng",
+  invalid: "không đúng định dạng CHỮ HOA + SỐ",
   notfound: "không tìm thấy",
   required: "Không được trống",
   code: "Mã chiết khấu",
@@ -135,21 +135,21 @@ const ListCode = () => {
     switch (values.state) {
       case 'ENABLED':
         values.disabled = false;
-        values.published = false;
+        values.published = undefined;
         break;
       case 'DISABLED':
         values.disabled = true;
-        values.published = false;
+        values.published = undefined;
         break;
       case 'GIFTED':
-        values.disabled = false;
+        values.disabled = undefined;
         values.published = true;
         break;
       default:
         break;
     }
     let newParams = {...params, ...values, page: 1};
-    if(values.state === "ALL") {
+    if(!values.state) {
       delete newParams['disabled'];
       delete newParams['published'];
     }
@@ -278,7 +278,7 @@ const ListCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = STATUS_PROMO_CODE.find(e => (e.published === item.published && e.disabled === item.disabled));
+        const status: any | null = STATUS_PROMO_CODE.find(e => (e.disabled === item.disabled));
         return (<div
           style={status?.style}
         >
@@ -310,15 +310,11 @@ const ListCode = () => {
     {
       code: 'DISABLED',
       value: 'Ngừng áp dụng',
-    },
-    {
-      code: 'GIFTED',
-      value: 'Đã tặng' ,
-    },
-    {
-      code: 'ALL',
-      value: 'Tất cả',
-    },
+    }
+    // {
+    //   code: 'GIFTED',
+    //   value: 'Đã tặng' ,
+    // }
 
   ]
 
