@@ -3,17 +3,15 @@ import PackFilter from "component/filter/pack.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
 import IconPack from "assets/icon/Pack.svg";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
-import moment from "moment";
 import { useDispatch } from "react-redux";
 import { getGoodsReceiptsSerch } from "domain/actions/goods-receipts/goods-receipts.action";
-import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -24,13 +22,15 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   delivery_service_id: null,
   ecommerce_id: null,
   good_receipt_type_id: null,
+  good_receipt_id:null,
+  order_id:null,
   from_date: "",
   to_date: "",
 };
 
 const PackReportHandOver: React.FC = () => {
   const dispatch = useDispatch();
-  const [listGoodsReceiptsSearch, setListGoodsReceiptsSearch] = useState<GoodsReceiptsResponse[]>([]);
+  //const [listGoodsReceiptsSearch, setListGoodsReceiptsSearch] = useState<GoodsReceiptsResponse[]>([]);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [tableLoading] = useState(true);
   let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(initQueryGoodsReceipts);
@@ -411,7 +411,7 @@ const PackReportHandOver: React.FC = () => {
             {...item, key:index}
           );
         })
-        setListGoodsReceiptsSearch(dataResult)
+        //setListGoodsReceiptsSearch(dataResult)
         setData({
           metadata: {
             limit: data.metadata.limit,

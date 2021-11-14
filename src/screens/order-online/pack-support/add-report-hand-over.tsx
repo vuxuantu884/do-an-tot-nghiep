@@ -10,8 +10,8 @@ import { createGoodsReceipts, getGoodsReceiptsType } from "domain/actions/goods-
 import { DeliveryServicesGetList, getChannels } from "domain/actions/order/order.action";
 import {StoreResponse} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
-import {ChannelsResponse, DeliveryServiceResponse, OrderResponse} from "model/response/order/order.response";
-import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
+import {ChannelsResponse, DeliveryServiceResponse} from "model/response/order/order.response";
+import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse, OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
 import {useCallback, useEffect, useLayoutEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {haveAccess} from "utils/AppUtils";
@@ -26,7 +26,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
-  const [orderListResponse, setOrderListResponse] = useState<Array<OrderResponse>>([]);
+  const [orderListResponse, setOrderListResponse] = useState<OrderConcernGoodsReceiptsResponse[]>([]);
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
   const [listGoodsReceiptsType,setListGoodsReceiptsType] =useState<Array<GoodsReceiptsTypeResponse>>([]);
@@ -142,7 +142,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
   );
 
   const onOkPress = useCallback(() => {
-    console.log("okok")
     goodsReceiptsForm.submit();
   }, [goodsReceiptsForm]);
 

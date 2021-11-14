@@ -32,6 +32,8 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   delivery_service_id: null,
   ecommerce_id: null,
   good_receipt_type_id: null,
+  good_receipt_id:null,
+  order_id:null,
   from_date: "",
   to_date: "",
 };

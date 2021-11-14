@@ -1,11 +1,12 @@
-import { PageResponse } from 'model/base/base-metadata.response';
-import { YodyAction } from "base/base.action";
+import {PageResponse} from "model/base/base-metadata.response";
+import {YodyAction} from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/http-status.config";
+import {HttpStatus} from "config/http-status.config";
 import {
   GoodsReceiptsResponse,
   GoodsReceiptsSearchResponse,
   GoodsReceiptsTypeResponse,
+  OrderConcernGoodsReceiptsResponse,
 } from "model/response/pack/pack.response";
 import {
   createGoodsReceiptsService,
@@ -13,18 +14,20 @@ import {
   getByIdGoodsReceiptsService,
   getGoodsReceiptsSerchService,
   getGoodsReceiptsTypeService,
+  getOrderConcernGoodsReceiptsService,
   updateGoodsReceiptsService,
 } from "service/order/order.service";
-import { unauthorizedAction } from "./../../actions/auth/auth.action";
-import { call, put, takeLatest } from "redux-saga/effects";
-import { showError } from "utils/ToastUtils";
-import { GoodsReceiptsType } from "domain/types/goods-receipts";
+import {unauthorizedAction} from "./../../actions/auth/auth.action";
+import {call, put, takeLatest} from "redux-saga/effects";
+import {showError} from "utils/ToastUtils";
+import {GoodsReceiptsType} from "domain/types/goods-receipts";
+import {take} from "lodash";
 
 /**
  * lấy danh sách loại biên bản
  */
 function* getGoodsReceiptsTypeSaga(action: YodyAction) {
-  let { setData } = action.payload;
+  let {setData} = action.payload;
   try {
     let response: BaseResponse<Array<GoodsReceiptsTypeResponse>> = yield call(
       getGoodsReceiptsTypeService
@@ -49,7 +52,7 @@ function* getGoodsReceiptsTypeSaga(action: YodyAction) {
  * tạo biên bản bàn giao
  */
 function* createGoodsReceiptsSaga(action: YodyAction) {
-  let { data, setData } = action.payload;
+  let {data, setData} = action.payload;
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       createGoodsReceiptsService,
@@ -75,7 +78,7 @@ function* createGoodsReceiptsSaga(action: YodyAction) {
  * tìm kiếm bản bàn giao
  */
 function* getGoodsReceiptsSerchSaga(action: YodyAction) {
-  let { data, setData } = action.payload;
+  let {data, setData} = action.payload;
   try {
     let response: BaseResponse<PageResponse<GoodsReceiptsSearchResponse>> = yield call(
       getGoodsReceiptsSerchService,
@@ -101,7 +104,7 @@ function* getGoodsReceiptsSerchSaga(action: YodyAction) {
  * cập nhật biên bản bàn giao
  */
 function* updateGoodsReceiptsSaga(action: YodyAction) {
-  let { goodsReceiptsId, data, setData } = action.payload;
+  let {goodsReceiptsId, data, setData} = action.payload;
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       updateGoodsReceiptsService,
@@ -129,7 +132,7 @@ function* updateGoodsReceiptsSaga(action: YodyAction) {
  */
 
 function* deleteGoodsReceiptsSaga(action: YodyAction) {
-  let { goodsReceiptsId, setData } = action.payload;
+  let {goodsReceiptsId, setData} = action.payload;
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       deleteGoodsReceiptsService,
@@ -155,7 +158,7 @@ function* deleteGoodsReceiptsSaga(action: YodyAction) {
  * lấy thông tin biên bản bàn giao
  */
 function* getByIdGoodsReceiptsSaga(action: YodyAction) {
-  let { goodsReceiptsId, setData } = action.payload;
+  let {goodsReceiptsId, setData} = action.payload;
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       getByIdGoodsReceiptsService,
@@ -177,29 +180,36 @@ function* getByIdGoodsReceiptsSaga(action: YodyAction) {
   }
 }
 
+function* getOrderConcernGoodsReceiptsSaga(action: YodyAction) {
+  let {param, setData} = action.payload;
+  try {
+    let response: BaseResponse<OrderConcernGoodsReceiptsResponse[]> =
+      yield call(getOrderConcernGoodsReceiptsService, param);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch {
+    showError("Lỗi hệ thống, vui lòng thử lại");
+  }
+}
+
 export function* GoodsReceiptsSaga() {
+  yield takeLatest(GoodsReceiptsType.GET_GOODS_RECEIPTS_TYPE, getGoodsReceiptsTypeSaga);
+  yield takeLatest(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, createGoodsReceiptsSaga);
+  yield takeLatest(GoodsReceiptsType.SEARCH_GOODS_RECEIPTS, getGoodsReceiptsSerchSaga);
+  yield takeLatest(GoodsReceiptsType.UPDATE_GOODS_RECEIPTS, updateGoodsReceiptsSaga);
+  yield takeLatest(GoodsReceiptsType.DELETE_GOODS_RECEIPTS, deleteGoodsReceiptsSaga);
+  yield takeLatest(GoodsReceiptsType.GETBYID_GOODS_RECEIPTS, getByIdGoodsReceiptsSaga);
   yield takeLatest(
-    GoodsReceiptsType.GET_GOODS_RECEIPTS_TYPE,
-    getGoodsReceiptsTypeSaga
-  );
-  yield takeLatest(
-    GoodsReceiptsType.CREATE_GOODS_RECEIPTS,
-    createGoodsReceiptsSaga
-  );
-  yield takeLatest(
-    GoodsReceiptsType.SEARCH_GOODS_RECEIPTS,
-    getGoodsReceiptsSerchSaga
-  );
-  yield takeLatest(
-    GoodsReceiptsType.UPDATE_GOODS_RECEIPTS,
-    updateGoodsReceiptsSaga
-  );
-  yield takeLatest(
-    GoodsReceiptsType.DELETE_GOODS_RECEIPTS,
-    deleteGoodsReceiptsSaga
-  );
-  yield takeLatest(
-    GoodsReceiptsType.GETBYID_GOODS_RECEIPTS,
-    getByIdGoodsReceiptsSaga
+    GoodsReceiptsType.GET_ORDER_CONCERN_GOODS_RECEIPTS,
+    getOrderConcernGoodsReceiptsSaga
   );
 }

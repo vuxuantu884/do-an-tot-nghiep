@@ -440,12 +440,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             <Form.Item
               label="Cửa hàng"
               name="store_request"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn cửa hàng",
-                },
-              ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Vui lòng chọn cửa hàng",
+              //   },
+              // ]}
               style={{ width: "70%" }}
             >
               <Select

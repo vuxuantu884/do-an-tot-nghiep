@@ -1,5 +1,6 @@
 
 import { BaseObject } from "model/base/base.response";
+import { fulfillmentsModel, paymentsModel } from "model/pack/pack.model";
 import { OrderResponse } from "../order/order.response";
 
 export interface GoodsReceiptsTypeResponse extends BaseObject {
@@ -29,4 +30,14 @@ export interface  GoodsReceiptsSearchResponse extends BaseObject{
     delivery_service_id:number;
     delivery_service_name:string;
     orders:Array<OrderResponse>;
+}
+
+export interface OrderConcernGoodsReceiptsResponse extends BaseObject{
+    id: number;
+    code: string;
+    customer_id: number;
+    customer: string;
+    fulfillment_status: string;
+    payments: Array<paymentsModel>;
+    fulfillments:Array<fulfillmentsModel>;
 }

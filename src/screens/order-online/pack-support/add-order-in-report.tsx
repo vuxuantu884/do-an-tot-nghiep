@@ -2,22 +2,22 @@ import {Card, Space, Table, Form, Input, Button, Tooltip} from "antd";
 import ActionButton, {MenuAction} from "component/table/ActionButton";
 import search from "assets/img/search.svg";
 import "component/filter/order.filter.scss";
-import { createRef, useCallback, useEffect, useState } from "react";
-import { FormInstance } from "antd/es/form/Form";
-import { getDetailOrder } from "domain/actions/order/order.action";
-import { useDispatch } from "react-redux";
-import { showError } from "utils/ToastUtils";
-import { OrderResponse } from "model/response/order/order.response";
-import { PackItemOrderModel } from "model/pack/pack.model";
+import {createRef, useCallback, useEffect, useState} from "react";
+import {FormInstance} from "antd/es/form/Form";
+import {useDispatch} from "react-redux";
+import {showError, showWarning} from "utils/ToastUtils";
+import {PackItemOrderModel} from "model/pack/pack.model";
 import UrlConfig from "config/url.config";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import emptyProduct from "assets/icon/empty_products.svg";
+import {getOrderConcernGoodsReceipts} from "domain/actions/goods-receipts/goods-receipts.action";
+import {OrderConcernGoodsReceiptsResponse} from "model/response/pack/pack.response";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
-  orderListResponse:Array<OrderResponse>;
-  setOrderListResponse:(item:Array<OrderResponse>)=>void;
-  onMenuClick?:(index:number)=>void;
+  orderListResponse: Array<OrderConcernGoodsReceiptsResponse>;
+  setOrderListResponse: (item: Array<OrderConcernGoodsReceiptsResponse>) => void;
+  onMenuClick?: (index: number) => void;
 };
 const {Item} = Form;
 
@@ -25,95 +25,100 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
   const dispatch = useDispatch();
-  const {menu,orderListResponse,setOrderListResponse,onMenuClick} = props;
+  const {menu, orderListResponse, setOrderListResponse} = props;
   const formSearchOrderRef = createRef<FormInstance>();
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
-  const [packOrderProductList,setPackOrderProductList]=useState<PackItemOrderModel[]>();
+  const [packOrderProductList, setPackOrderProductList] =
+    useState<PackItemOrderModel[]>();
 
   // const addReportHandOverContextData = useContext(AddReportHandOverContext);
   // const orderListResponse= addReportHandOverContextData?.orderListResponse;
   // const setOrderListResponse=addReportHandOverContextData?.setOrderListResponse;
   //
-  const handleSearchOrder = useCallback(
-    () => {
-        formSearchOrderRef.current?.validateFields(["search_term"]);
-        let search_term:any= formSearchOrderRef.current?.getFieldValue(["search_term"])
-        if (search_term)
-          dispatch(
-            getDetailOrder(search_term, (data: OrderResponse) => {
-              if (data) {
-                let indexOrder=orderListResponse.findIndex((p)=>p.id===data.id);
-                if(indexOrder!==-1)
-                  orderListResponse.splice(indexOrder, 1);
-                  
-                orderListResponse.push(data);
+  const handleSearchOrder = useCallback(() => {
+    formSearchOrderRef.current?.validateFields(["search_term"]);
+    let search_term: any = formSearchOrderRef.current?.getFieldValue(["search_term"]);
+    if (search_term)
+    {
+      dispatch(
+        getOrderConcernGoodsReceipts(
+          search_term,
+          (data: OrderConcernGoodsReceiptsResponse[]) => {
+            if (data.length > 0) {
+              data.forEach(function (item, index) {
+                let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
+                if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
+
+                orderListResponse.push(item);
                 setOrderListResponse([...orderListResponse]);
                 formSearchOrderRef.current?.resetFields();
-              } else {
-                showError("Đơn hàng chưa nhặt hàng");
-              }
-            })
-          );
+              });
+            } else {
+              showError("Không tìm thấy đơn hàng");
+            }
+          }
+        )
+      );
+    }
+    else{
+      showWarning("Vui lòng nhập mã đơn hàng");
+    }
+  }, [dispatch, formSearchOrderRef, orderListResponse, setOrderListResponse]);
+
+  const onMenuClickExt = useCallback(
+    (index: number) => {
+      switch (index) {
+        case 1:
+          // orderListResponse.forEach(function(data,index){
+          //   orderListResponse.splice(index, 1);
+          // })
+          setOrderListResponse([]);
+          break;
+        default:
+          break;
+      }
     },
-    [dispatch, formSearchOrderRef,orderListResponse,setOrderListResponse]
+    [setOrderListResponse]
   );
 
-  const onMenuClickExt =useCallback((index: number)=>{
-    switch (index){
-      case 1:
-        // orderListResponse.forEach(function(data,index){
-        //   orderListResponse.splice(index, 1);
-        // })
-        setOrderListResponse([]);
-        break;
-      default:
-        break;
-    }
-  },[setOrderListResponse]);
- 
-  useEffect(()=>{
-    console.log("orderListResponse_Effect",orderListResponse);
-    if(orderListResponse.length>0)
-    {
-      let _item:Array<PackItemOrderModel>=[];
-     
-      orderListResponse.forEach(function(order){
+  useEffect(() => {
+    console.log("orderListResponse_Effect", orderListResponse);
+    if (orderListResponse.length > 0) {
+      let _item: Array<PackItemOrderModel> = [];
 
-        order.items.forEach(function(product){
-          _item.push(
-            {
-              id:order.id,
-              code:order.code,
-              receiver:order.customer,
-              product:product.product,
-              sku:product.sku,
-              price:product.price,
-              quantity:product.quantity,
-              postage:0,
-              total_revenue:order.total
-            }
-          )
+      orderListResponse.forEach(function (order) {
+        order.fulfillments.forEach(function (fulfillment) {
+          fulfillment.items.forEach(function (item) {
+            _item.push({
+              id: order.id,
+              code: order.code,
+              receiver: order.customer,
+              product: item.product,
+              sku: item.sku,
+              price: fulfillment.total,
+              quantity: fulfillment.total_quantity,
+              postage: 0,
+              total_revenue: fulfillment.total,
+            });
+          });
         });
       });
       setPackOrderProductList(_item);
     }
-  },[orderListResponse]);
+  }, [orderListResponse]);
 
   const columns = [
     {
       title: "ID",
- 
-      render:(l: PackItemOrderModel, item: any, index: number)=>{
-        return(
-          <Link
-                    target="_blank"
-                    to={`${UrlConfig.ORDER}/${l.id}`}
-                  >
-                    {l.sku}
-                  </Link>
-        )
-      }
+
+      render: (l: PackItemOrderModel, item: any, index: number) => {
+        return (
+          <Link target="_blank" to={`${UrlConfig.ORDER}/${l.id}`}>
+            {l.code}
+          </Link>
+        );
+      },
     },
     {
       title: "Người nhận",
@@ -123,7 +128,6 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     {
       title: "Sản phẩm",
       render: (l: PackItemOrderModel, item: any, index: number) => {
-    
         return (
           <div
             className="w-100"
@@ -202,15 +206,12 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
         <div className="page-filter">
           <div className="page-filter-heading">
             <div className="page-filter-left">
-              <ActionButton
-                menu={menu}
-                onMenuClick={onMenuClickExt}
-              />
+              <ActionButton menu={menu} onMenuClick={onMenuClickExt} />
             </div>
-            <div className="page-filter-right" style={{width:"60%"}}>
+            <div className="page-filter-right" style={{width: "60%"}}>
               <Space size={4}>
-                <Form layout="inline" ref={formSearchOrderRef} >
-                  <Item name="search_term" style={{width:"calc(97% - 142px)"}}>
+                <Form layout="inline" ref={formSearchOrderRef}>
+                  <Item name="search_term" style={{width: "calc(97% - 142px)"}}>
                     <Input
                       style={{width: "100%"}}
                       prefix={<img src={search} alt="" />}
@@ -220,7 +221,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
 
                   <Item>
                     <Button type="primary" htmlType="submit" onClick={handleSearchOrder}>
-                        Thêm đơn hàng
+                      Thêm đơn hàng
                     </Button>
                   </Item>
                 </Form>
@@ -229,11 +230,11 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           </div>
         </div>
       </div>
-      {orderListResponse&& orderListResponse.length>0 &&(
-        <Table 
-          columns={columns} 
-          dataSource={packOrderProductList}  
-          key={Math.random()} 
+      {orderListResponse && orderListResponse.length > 0 && (
+        <Table
+          columns={columns}
+          dataSource={packOrderProductList}
+          key={Math.random()}
           locale={{
             emptyText: (
               <div className="sale_order_empty_product">
