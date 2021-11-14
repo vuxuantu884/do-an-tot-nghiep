@@ -51,6 +51,7 @@ import {AppConfig} from "../../../config/app.config";
 import _ from "lodash";
 import {getToken} from "../../../utils/LocalStorageUtils";
 import { ACTIONS_PROMO_CODE, STATUS_PROMO_CODE } from "../constant";
+import {VscError} from "react-icons/all";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -86,6 +87,7 @@ const ListCode = () => {
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [showEditPopup, setShowEditPopup] = React.useState<boolean>(false);
   const [editData, setEditData] = React.useState<any>();
+  const [uploadError, setUploadError] = useState<any>("");
   const [deleteData, setDeleteData] = React.useState<any>();
   const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
     metadata: {
@@ -579,7 +581,10 @@ const ListCode = () => {
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);
                       setUploadStatus(status);
-                    } else setUploadStatus("error")
+                    } else {
+                      setUploadStatus("error")
+                      setUploadError(response.message)
+                    }
 
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
@@ -615,6 +620,18 @@ const ListCode = () => {
                     </Space>
                   {/*</Col>*/}
                 </Row>
+                </Col>
+                : ""}
+              {uploadStatus === "error" ?
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <VscError style={{fontSize: "78px"}} />
+                  </Row>
+                  <Row justify={"center"}>
+                    <h2 style={{padding: "10px 30px"}}>
+                      {uploadError}
+                    </h2>
+                  </Row>
                 </Col>
                 : ""}
               {uploadStatus === "done" ?
