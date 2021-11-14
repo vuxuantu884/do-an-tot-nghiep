@@ -162,7 +162,7 @@ const FixedPriceSelection = (props: any) => {
           </Button>,
         ]}
       >
-        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" || uploadStatus === "error" ? "" : "none"}}>
+        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" ? "" : "none"}}>
           <Row gutter={12}>
             <Col span={3}>
               Chú ý:
@@ -201,7 +201,7 @@ const FixedPriceSelection = (props: any) => {
                       setUploadStatus(status);
                     } else {
                       setUploadStatus("error")
-                      setUploadError(response.message)
+                      setUploadError(response.errors)
                     }
 
                   } else if (status === "error") {
@@ -229,7 +229,7 @@ const FixedPriceSelection = (props: any) => {
             {uploadStatus === "uploading" ?
               <Col span={24}>
                 <Row justify={"center"}>
-                  <LoadingOutlined style={{fontSize: "78px"}} />
+                  <LoadingOutlined style={{fontSize: "78px", color: "#E24343"}} />
                 </Row>
                 <Row justify={"center"}>
                   <h2 style={{padding: "10px 30px"}}>
@@ -245,7 +245,9 @@ const FixedPriceSelection = (props: any) => {
                 </Row>
                 <Row justify={"center"}>
                   <h2 style={{padding: "10px 30px"}}>
-                    {uploadError}
+                    <li>
+                      {uploadError || "Máy chủ đang bận"}
+                    </li>
                   </h2>
                 </Row>
               </Col>

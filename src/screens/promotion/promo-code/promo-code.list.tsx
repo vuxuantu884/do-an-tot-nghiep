@@ -547,7 +547,7 @@ const ListCode = () => {
           </Button>,
         ]}
       >
-        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" || uploadStatus === "error" ? "" : "none"}}>
+        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" ? "" : "none"}}>
           <Row gutter={12}>
             <Col span={3}>
               Chú ý:
@@ -581,9 +581,10 @@ const ListCode = () => {
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);
                       setUploadStatus(status);
+                      dispatch(getListPromoCode(priceRuleId, params, fetchData));
                     } else {
                       setUploadStatus("error")
-                      setUploadError(response.message)
+                      setUploadError(response.errors)
                     }
 
                   } else if (status === "error") {
@@ -613,7 +614,7 @@ const ListCode = () => {
                 <Row justify={"center"}>
                   {/*<Col span={24}>*/}
                     <Space size={"large"}>
-                      <LoadingOutlined style={{fontSize: "78px"}} />
+                      <LoadingOutlined style={{fontSize: "78px", color: "#E24343"}} />
                       <h2 style={{padding: "10px 30px"}}>
                         Đang upload file...
                       </h2>
@@ -625,12 +626,14 @@ const ListCode = () => {
               {uploadStatus === "error" ?
                 <Col span={24}>
                   <Row justify={"center"}>
-                    <VscError style={{fontSize: "78px"}} />
-                  </Row>
-                  <Row justify={"center"}>
-                    <h2 style={{padding: "10px 30px"}}>
-                      {uploadError}
-                    </h2>
+                    <Space size={"large"}>
+                      <VscError style={{fontSize: "78px"}} />
+                      <h2 style={{padding: "10px 30px"}}>
+                        <li>
+                          {uploadError || "Máy chủ đang bận"}
+                        </li>
+                      </h2>
+                    </Space>
                   </Row>
                 </Col>
                 : ""}
