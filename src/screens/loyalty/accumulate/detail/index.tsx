@@ -16,7 +16,7 @@ import { PageResponse } from 'model/base/base-metadata.response';
 import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank.response';
 import LoyaltyProgramProducts from 'screens/loyalty/component/loyalty-program-products/LoyaltyProgramProducts';
 import { ConvertUtcToLocalDate, DATE_FORMAT } from 'utils/DateUtils';
-import { LoyaltyPermissions } from 'config/permissions/loyalty.permission';
+import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
 import AuthWrapper from 'component/authorization/AuthWrapper';
 import NoPermission from 'screens/no-permission.screen';
 import useAuthorization from 'hook/useAuthorization';
@@ -25,8 +25,8 @@ type PathParams = {
   id: string
 }
 
-const viewProgramDetailPermission = [LoyaltyPermissions.VIEW_PROGRAM_DETAIL];
-const updateProgramPermission = [LoyaltyPermissions.UPDATE_PROGRAM];
+const viewProgramDetailPermission = [LoyaltyPermission.programs_read];
+const updateProgramPermission = [LoyaltyPermission.programs_update];
 
 const LoyaltyAccumulateDetail = () => {
   const { id } = useParams<PathParams>();

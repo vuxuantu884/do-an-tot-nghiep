@@ -165,7 +165,7 @@ const SizeUpdateScreen: React.FC = () => {
                   name="category_ids"
                   label="Danh mục"
                 >
-                  <Select mode="multiple" placeholder="Chọn danh mục" showArrow>
+                  <Select mode="multiple" placeholder="Chọn danh mục" showArrow maxTagCount="responsive">
                     {categories.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}

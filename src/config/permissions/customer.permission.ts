@@ -1,36 +1,26 @@
-// đăt tên resouces  có chữ [s] + action , viết thường, snake_case => products_view
-// nếu có resource con :  resouces cha [s] + resource con [s] + action => products_categories_create
+// Đặt tên resouces  có chữ [s] + action , viết thường, snake_case => products_read
+// Nếu có resource con :  resouces cha [s] + resource con [s] + action => products_categories_create
+// Các action chính : read, update, create, delete, print, ..
 
-export const CustomerListPermissions = {
-  VIEW_CUSTOMER_LIST: "customers_list",
-  VIEW_CUSTOMER_DETAIL: "customers_detail",
-  CREATE_CUSTOMER: "customers_create",
-  EXPORT_CUSTOMER: "customers_export",
-  UPDATE_CUSTOMER: "customers_update",
-};
+const Customers = "customers";
 
-export const CustomerGroupPermissions = {
-  CREATE: "customers_group_create",
-  VIEW: "customers_group_view",
-  UPDATE: "customers_group_update",
-  DELETE: "customers_group_delete",
-};
-
-export const CustomerLevelPermissions = {
-  CREATE: "customers_level_create",
-  VIEW: "customers_level_view",
-  UPDATE: "customers_level_update",
-  DELETE: "customers_level_delete",
+export const CustomerListPermission = {
+  customers_read: "customers_read",
+  customers_create: "customers_create",
+  customers_update: "customers_update",
+  customers_export: "customers_export",
 }
 
-export const PointAdjustmentPermissions = {
-  CREATE: "loyalties_point_update",
-};
+export const CustomerGroupPermission = {
+  groups_read: `${Customers}_groups_read`,
+  groups_create: `${Customers}_groups_create`,
+  groups_update: `${Customers}_groups_update`,
+  groups_delete: `${Customers}_groups_delete`,
+}
 
-export const CustomerCardPermissions = {
-  CREATE_RELEASE: "loyalties_card_release",
-  VIEW_RELEASE: "loyalties_card_release_list",
-  VIEW_CARD: "loyalties_card_list",
-  ASSIGN: "loyalties_card_assignment",
-  LOCK: "loyalties_card_lock",
-};
+export const CustomerLevelPermission = {
+  levels_read: `${Customers}_levels_read`,
+  levels_create: `${Customers}_levels_create`,
+  levels_update: `${Customers}_levels_update`,
+  levels_delete: `${Customers}_levels_delete`,
+}

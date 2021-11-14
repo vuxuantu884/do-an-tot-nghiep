@@ -19,7 +19,7 @@ import {
 } from "domain/actions/ecommerce/ecommerce.actions";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { EcommerceProductPermissions } from "config/permissions/ecommerce.permission";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
 
 import checkCircleIcon from "assets/icon/check-circle.svg";
@@ -43,8 +43,8 @@ const PRODUCT_TAB = {
   }
 }
 
-const viewProductPermission = [EcommerceProductPermissions.VIEW_PRODUCT];
-const downloadProductPermission = [EcommerceProductPermissions.DOWNLOAD_PRODUCT];
+const productsReadPermission = [EcommerceProductPermission.products_read];
+const productsDownloadPermission = [EcommerceProductPermission.products_download];
 
 
 const Products: React.FC = () => {
@@ -52,8 +52,8 @@ const Products: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const [allowDownloadProduct] = useAuthorization({
-    acceptPermissions: downloadProductPermission,
+  const [allowProductsDownload] = useAuthorization({
+    acceptPermissions: productsDownloadPermission,
     not: false,
   });
 
@@ -177,7 +177,7 @@ const Products: React.FC = () => {
         ]}
         extra={
           <>
-            {allowDownloadProduct &&
+            {allowProductsDownload &&
               <Button
                 onClick={handleGetProductsFromEcommerce}
                 className="ant-btn-outline ant-btn-primary"
@@ -190,7 +190,7 @@ const Products: React.FC = () => {
           </>
         }
       >
-        <AuthWrapper acceptPermissions={viewProductPermission} passThrough>
+        <AuthWrapper acceptPermissions={productsReadPermission} passThrough>
           {(allowed: boolean) => (allowed ?
             <>
               <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>

@@ -1571,7 +1571,7 @@ export default function Order(props: PropType) {
                       //   loyaltyRate={loyaltyRate}
                       //   isDisablePostPayment={isDisablePostPayment}
                       // />
-                      <Card title="THANH TOÁN 31">
+                      <Card title="THANH TOÁN">
                         <OrderCreatePayments
                           setPaymentMethod={setPaymentMethod}
                           payments={payments}

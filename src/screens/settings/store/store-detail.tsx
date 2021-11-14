@@ -100,13 +100,16 @@ const StoreDetailScreen: React.FC = () => {
             }
           >
             <Row gutter={50}>
-              <Col>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Checkbox
                   checked={data.is_saleable}
                   disabled={data.status === "inactive"}
                 >
                   Cho phép bán
                 </Checkbox>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <RowDetail title="Phân loại" value={data.type_name} />
               </Col>
             </Row>
             <Row style={{marginTop: 20}} gutter={50}>

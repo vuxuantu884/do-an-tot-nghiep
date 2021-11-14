@@ -7,33 +7,33 @@ import {
 } from "model/query/ecommerce.query";
 import { EcommerceRequest } from "model/request/ecommerce.request";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import { FpageCustomerResponse } from "model/response/ecommerce/fpage.response";
+import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
 import { generateQuery } from "utils/AppUtils";
 
 const addFpagePhone = (
   userId: string,
   phone: string
-): Promise<BaseResponse<FpageCustomerResponse>> => {
+): Promise<BaseResponse<YDPageCustomerResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/phones/${phone}`;
   return BaseAxios.post(link);
 };
 const deleteFpagePhone = (
   userId: string,
   phone: string
-): Promise<BaseResponse<FpageCustomerResponse>> => {
+): Promise<BaseResponse<YDPageCustomerResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/phones/${phone}`;
   return BaseAxios.delete(link);
 };
 const setFpageDefaultPhone = (
   userId: string,
   phone: string
-): Promise<BaseResponse<FpageCustomerResponse>> => {
+): Promise<BaseResponse<YDPageCustomerResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/defaultPhone/${phone}`;
   return BaseAxios.post(link);
 };
 const getFpageCustomer = (
   userId: string
-): Promise<BaseResponse<FpageCustomerResponse>> => {
+): Promise<BaseResponse<YDPageCustomerResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}`;
   return BaseAxios.get(link);
 };

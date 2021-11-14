@@ -32,14 +32,14 @@ export const InventoryFiltersWrapper = styled.div`
             width: 100%;
             &-item {
               button.ant-btn.ant-btn-primary {
-                width: 100%
+                width: 100%;
               }
             }
             .search {
               flex: 3;
             }
             .store {
-              flex: 1
+              flex: 1;
             }
             .ant-form-item-control-input-content {
               button.ant-btn {
@@ -60,7 +60,7 @@ export const InventoryFiltersWrapper = styled.div`
   .order-options {
     border-bottom: 1px solid #5252;
     .ant-radio-group {
-      .ant-radio-button-wrapper{
+      .ant-radio-button-wrapper {
         border-style: none;
         border-width: 0;
         box-shadow: none;
@@ -72,7 +72,6 @@ export const InventoryFiltersWrapper = styled.div`
       }
       .ant-radio-button-wrapper:not(:first-child):before {
         width: 0;
-        
       }
       .ant-radio-button-wrapper-checked {
         color: #2a2a86;
@@ -102,7 +101,7 @@ export const InventoryFiltersWrapper = styled.div`
     width: 100%;
   }
 
-  .header-filter{
+  .header-filter {
     font-weight: 500;
     color: #222222;
   }
@@ -130,6 +129,16 @@ export const BaseFilterWrapper = styled.div`
     }
   }
 
+  .site-input-split {
+    width: 10%;
+    text-align: center;
+    height: 38px;
+    padding: 7px;
+    border: 1px solid #d9d9d9;
+    color: #d9d9d9;
+    border-left: unset;
+  }
+
   .price_min {
     width: 100%;
   }
@@ -142,7 +151,7 @@ export const BaseFilterWrapper = styled.div`
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
-  
+
   #price_max {
     border-left: none;
     border-top-left-radius: 0;
@@ -151,28 +160,28 @@ export const BaseFilterWrapper = styled.div`
   .ant-select {
     .ant-select-selector {
       .ant-select-selection-item {
-        background-color: #2A2A86;
+        background-color: #2a2a86;
         border-radius: 6px;
         font-style: normal;
         font-weight: normal;
         font-size: 14px;
         line-height: 18px;
         font-family: Roboto;
-        .ant-select-selection-item-content, .ant-select-selection-item-remove {
-          color: #FFFFFF;
+        .ant-select-selection-item-content,
+        .ant-select-selection-item-remove {
+          color: #ffffff;
         }
       }
     }
   }
   .active {
-    color: #FFFFFF;
+    color: #ffffff;
     border-color: rgba(42, 42, 134, 0.1);
-    background-color: #2A2A86;
+    background-color: #2a2a86;
   }
   .deactive {
     color: #2a2a86;
     border-color: rgba(42, 42, 134, 0.05);
     background-color: rgba(42, 42, 134, 0.05);
   }
-  
 `;

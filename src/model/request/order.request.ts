@@ -40,6 +40,8 @@ export interface OrderRequest {
 
 export interface ReturnRequest extends OrderRequest {
   reason_id: number;
+  reason_name: string | null;
+  sub_reason_id: string|null;
   received: boolean;
   order_returns?: any[];
 }
@@ -266,6 +268,7 @@ export interface OrderLineItemRequest {
   position?: number;
   gifts: Array<OrderLineItemRequest>;
   available:number|null;
+  maxQuantityToApplyDiscount?: number; // số lượng tối đa để hưởng chiết khấu nếu có
 }
 
 export interface OrderItemDiscountRequest {
@@ -273,6 +276,7 @@ export interface OrderItemDiscountRequest {
   value: number;
   amount: number;
   promotion_id?: number;
+  discount_code?: string;
   reason: string | null;
 }
 

@@ -12,7 +12,7 @@ import {
   UpdateCustomer,
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import "./customer.scss";
@@ -42,6 +42,9 @@ const CustomerUpdate = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
   const [customer, setCustomer] = React.useState<any>();
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
@@ -140,6 +143,7 @@ const CustomerUpdate = (props: any) => {
 
   const setResult = React.useCallback(
     (result) => {
+      setIsLoading(false);
       if (result) {
         showSuccess("Cập nhật khách hàng thành công");
         history.goBack();
@@ -172,6 +176,8 @@ const CustomerUpdate = (props: any) => {
       }),
       contacts: customer.contacts,
     };
+
+    setIsLoading(true);
     dispatch(UpdateCustomer(params.id, processValue, setResult));
   };
   const handleSubmitFail = (errorInfo: any) => {
@@ -207,6 +213,7 @@ const CustomerUpdate = (props: any) => {
               accounts={accounts}
               form={customerForm}
               name="general edit"
+              isLoading={isLoading}
               groups={groups}
               types={types}
               customer={customer}
@@ -232,13 +239,14 @@ const CustomerUpdate = (props: any) => {
           </Link>
           <div>
             <Button
+              disabled={isLoading}
               onClick={goBack}
               style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
               type="ghost"
             >
               Hủy
             </Button>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={isLoading}>
               Lưu khách hàng
             </Button>
           </div>

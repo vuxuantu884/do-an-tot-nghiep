@@ -564,9 +564,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
     if (
       props.OrderDetail?.status === "draft" &&
-      customerNeedToPayValue === props.totalPaid
+      totalAmountCustomerNeedToPay === props.totalPaid
     ) {
-      value.cod = customerNeedToPayValue;
+      value.cod = totalAmountCustomerNeedToPay;
     }
 
     FulFillmentRequest.shipment = value;
@@ -676,13 +676,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // const isShowTakeHelper = showTakeHelper();
   // khách cần trả
-  const customerNeedToPayValue =
-    (props.OrderDetail?.total_line_amount_after_line_discount
-      ? props.OrderDetail?.total_line_amount_after_line_discount
-      : 0) +
-    (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
-    (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0) -
-    (props.totalPaid ? props.totalPaid : 0);
+  const totalAmountCustomerNeedToPay =
+  (props.OrderDetail?.total
+    ? props.OrderDetail?.total
+    : 0) +
+  (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
+  (props.totalPaid ? props.totalPaid : 0);
   // totalAmountPaid() -
   // (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
 
@@ -871,7 +870,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title={
           <Space>
             <div className="d-flex">
-              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG 55</span>
+              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
             </div>
             {props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
@@ -1466,7 +1465,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 );
               }}
             >
-              Đổi trả hàng 3
+              Đổi trả hàng
             </Button>
           ) : (
             <React.Fragment>
@@ -1487,7 +1486,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     padding: "0 25px",
                   }}
                 >
-                  Hủy 3
+                  Hủy
                 </Button>
               ) : (
                 props.OrderDetail?.fulfillments &&
@@ -1657,7 +1656,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 customer={props.customerDetail}
                 items={OrderDetail?.items}
                 isCancelValidateDelivery={false}
-                totalAmountCustomerNeedToPay={customerNeedToPayValue}
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                 setShippingFeeInformedToCustomer={props.setShippingFeeInformedCustomer}
                 onSelectShipment={setShipmentMethod}
                 thirdPL={thirdPL}

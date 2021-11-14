@@ -202,7 +202,7 @@ const GeneralCreate = (props: any) => {
             <Col span={12}>
               <CustomInput
                 name="title"
-                label={<b>Tên đợt phát hàng: </b>}
+                label={<b>Tên đợt phát hành: </b>}
                 form={form}
                 message="Cần nhập tên khuyến mại"
                 placeholder="Nhập tên đợt phát hàng"
@@ -536,7 +536,7 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch 
+                <Switch
                 defaultChecked={true}
                 onChange={value => {
                   form.setFieldsValue({
@@ -566,7 +566,7 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch 
+                <Switch
                 defaultChecked={true}
                 onChange={value => {
                   setAllChannel(value);
@@ -593,7 +593,7 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch 
+                <Switch
                 defaultChecked={true}
                 onChange={value => {
                   form.validateFields(["prerequisite_order_source_ids"]);

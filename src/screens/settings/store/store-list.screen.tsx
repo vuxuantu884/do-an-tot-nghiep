@@ -3,8 +3,8 @@ import StoreFilter from "component/filter/store.filter";
 import {MenuAction} from "component/table/ActionButton";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import {StoreRankAction, StoreSearchAction} from "domain/actions/core/store.action";
-import {StoreQuery} from "model/core/store.model";
+import {StoreRankAction, StoreSearchAction, StoreGetTypeAction} from "domain/actions/core/store.action";
+import {StoreQuery, StoreTypeRequest} from "model/core/store.model";
 import {StoreResponse} from "model/core/store.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
@@ -50,6 +50,7 @@ const initQuery: StoreQuery = {
   to_begin_date: "",
   from_square: "",
   to_square: "",
+  type: "",
 };
 
 const StoreListScreen: React.FC = () => {
@@ -66,6 +67,7 @@ const StoreListScreen: React.FC = () => {
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   //end master data
   let dataQuery: StoreQuery = {...initQuery, ...getQueryParams(query)};
   const [params, setPrams] = useState<StoreQuery>(dataQuery);
@@ -135,6 +137,11 @@ const StoreListScreen: React.FC = () => {
       title: "Tên cửa hàng",
       dataIndex: "name",
       sorter: true,
+      visible: true,
+    },
+    {
+      title: "Loại",
+      dataIndex: "type_name",
       visible: true,
     },
     {
@@ -339,6 +346,7 @@ const StoreListScreen: React.FC = () => {
     if (isFirstLoad.current) {
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
+      dispatch(StoreGetTypeAction(setType));
     }
     isFirstLoad.current = false;
     setLoading(true);
@@ -372,6 +380,7 @@ const StoreListScreen: React.FC = () => {
               params={params}
               storeRanks={storeRanks}
               groups={groups}
+              type={type}
             />
             <CustomTable
               selectedRowKey={rowKey}
