@@ -197,7 +197,7 @@ const PromotionDetailScreen: React.FC = () => {
         dataIndex: "total",
         render: (
           value: string,
-        ) => <span style={{color: "#E24343"}}>{formatCurrency(Math.round(Number(value)/1000)*1000)}</span>,
+        ) => <span style={{color: "#E24343"}}>{value}</span>,
       },
       {
         title: "SL Tối thiểu",
@@ -274,13 +274,13 @@ const PromotionDetailScreen: React.FC = () => {
     let result = "";
     switch (valueType) {
       case "FIXED_PRICE":
-        result = formatCurrency(value);
+        result = formatCurrency(Math.round(value /1000)*1000);
         break;
       case "FIXED_AMOUNT":
-        result = `${formatCurrency(cost - discount)}`;
+        result = `${formatCurrency(Math.round((cost - discount)/1000)*1000)}`;
         break;
       case "PERCENTAGE":
-        result = `${cost - ((cost * discount) / 100)}`;
+        result = `${formatCurrency(Math.round((cost - ((cost * discount) / 100)) / 1000)*1000)}`;
         break;
     }
     return result;
