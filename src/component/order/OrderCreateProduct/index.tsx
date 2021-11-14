@@ -1221,7 +1221,7 @@ function OrderCreateProduct(props: PropType) {
                         return single.applied_discount?.invalid === false;
                       }
                     );
-                    let itemsResult = _items.map((singleItem) => {
+                    _items.forEach((singleItem) => {
                       let itemDiscount = lineItemDiscountArray.find((singleLineItem) => {
                         return singleLineItem.product_id === singleItem.product_id;
                       });
@@ -1229,6 +1229,7 @@ function OrderCreateProduct(props: PropType) {
                         let applyDiscountLineItem = itemDiscount.applied_discount;
                         let discount_rate = 0;
                         let discount_value = 0;
+                        console.log('applyDiscountLineItem222', applyDiscountLineItem)
                         switch (applyDiscountLineItem?.value_type) {
                           case DISCOUNT_VALUE_TYPE.percentage:
                             discount_rate = applyDiscountLineItem?.value
@@ -1258,9 +1259,7 @@ function OrderCreateProduct(props: PropType) {
                         let amount = discount_value
                           ? singleItem.quantity * discount_value
                           : 0;
-                        return {
-                          ...singleItem,
-                          discount_items: [
+                          singleItem.discount_items = [
                             {
                               amount,
                               value: discount_value,
@@ -1270,15 +1269,13 @@ function OrderCreateProduct(props: PropType) {
                               reason: "",
                               discount_code,
                             },
-                          ],
-                          // discount_rate,
-                          // discount_value,
-                        };
+                          ]
+                          singleItem.discount_rate = discount_rate;
+                          singleItem.discount_value = discount_value;
                       }
-                      return singleItem;
                     });
-                    console.log("itemsResult", itemsResult);
-                    await setItems(itemsResult);
+                    console.log('_items1111111111', _items)
+                    await setItems(_items);
                     handleChangeItems();
                     break;
                 }
