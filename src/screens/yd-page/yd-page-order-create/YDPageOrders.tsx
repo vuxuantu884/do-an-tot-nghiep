@@ -52,7 +52,7 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
-import {FACEBOOK_CHANNEL_ID} from "utils/Order.constants";
+import {DEFAULT_CHANNEL_ID} from "utils/Order.constants";
 import {showError, showSuccess} from "utils/ToastUtils";
 import {useQuery} from "utils/useQuery";
 
@@ -481,7 +481,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
   };
   const onFinish = (values: OrderRequest) => {
-    values.channel_id = FACEBOOK_CHANNEL_ID;
+    values.channel_id = DEFAULT_CHANNEL_ID;
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
