@@ -24,7 +24,6 @@ export const ORDER_RETURN_HISTORY = [
 ];
 
 export const DEFAULT_CHANNEL_ID = 13; //đang fix cứng admin
-export const FACEBOOK_CHANNEL_ID = 4;
 
 export const  DISCOUNT_VALUE_TYPE = {
   percentage: "PERCENTAGE",
