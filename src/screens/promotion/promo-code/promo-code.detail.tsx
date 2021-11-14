@@ -41,6 +41,7 @@ import {CheckCircleOutlined, LoadingOutlined} from "@ant-design/icons";
 import {getListChannelRequest} from "../../../domain/actions/order/order.action";
 import {ChannelResponse} from "../../../model/response/product/channel.response";
 import {formatCurrency} from "../../../utils/AppUtils";
+import {VscError} from "react-icons/all";
 
 export interface ProductParams {
   id: string;
@@ -139,6 +140,7 @@ const PromotionDetailScreen: React.FC = () => {
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
+  const [uploadError, setUploadError] = useState<any>("");
   const [codeErrorsResponse, setCodeErrorsResponse] = useState<Array<any>>([])
   const [uploadStatus, setUploadStatus] = useState<"error" | "success" | "done" | "uploading" | "removed" | undefined>(undefined);
 
@@ -822,7 +824,8 @@ const PromotionDetailScreen: React.FC = () => {
                       setSuccessCount(response.data.success_count);
                       setUploadStatus(status);
                     } else {
-                      setUploadStatus("error");
+                      setUploadStatus("error")
+                      setUploadError(response.message)
                     }
 
                   } else if (status === "error") {
@@ -845,7 +848,7 @@ const PromotionDetailScreen: React.FC = () => {
           </Row>
         </div>
         <Row>
-          <div style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+          <div style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" || uploadStatus === "error"? "" : "none"}}>
             <Row justify={"center"}>
               {uploadStatus === "uploading" ?
                 <Col span={24}>
@@ -858,6 +861,18 @@ const PromotionDetailScreen: React.FC = () => {
                       </h2>
                     </Space>
                     {/*</Col>*/}
+                  </Row>
+                </Col>
+                : ""}
+              {uploadStatus === "error" ?
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <VscError style={{fontSize: "78px"}} />
+                  </Row>
+                  <Row justify={"center"}>
+                    <h2 style={{padding: "10px 30px"}}>
+                      {uploadError}
+                    </h2>
                   </Row>
                 </Col>
                 : ""}

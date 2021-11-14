@@ -10,6 +10,7 @@ import importIcon from "../../../../assets/icon/import.svg";
 import {AppConfig} from "../../../../config/app.config";
 import {getToken} from "../../../../utils/LocalStorageUtils";
 import {customGroupBy} from "../../../../utils/AppUtils";
+import {VscError} from "react-icons/all";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -29,6 +30,7 @@ const FixedPriceSelection = (props: any) => {
   const [allProduct, setAllProduct] = useState<boolean>(false);
   const [entitlementsResponse, setEntitlementsResponse] = useState([]);
   const [entitlementErrorsResponse, setEntitlementErrorsResponse] = useState<Array<any>>([]);
+  const [uploadError, setUploadError] = useState<any>("");
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<"error" | "success" | "done" | "uploading" | "removed" | undefined>(undefined);
@@ -197,7 +199,10 @@ const FixedPriceSelection = (props: any) => {
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);
                       setUploadStatus(status);
-                    } else setUploadStatus("error")
+                    } else {
+                      setUploadStatus("error")
+                      setUploadError(response.message)
+                    }
 
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
@@ -219,7 +224,7 @@ const FixedPriceSelection = (props: any) => {
           </Row>
         </div>
         <div
-          style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+          style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" || uploadStatus === "error"? "" : "none"}}>
           <Row justify={"center"}>
             {uploadStatus === "uploading" ?
               <Col span={24}>
@@ -229,6 +234,18 @@ const FixedPriceSelection = (props: any) => {
                 <Row justify={"center"}>
                   <h2 style={{padding: "10px 30px"}}>
                     Đang upload file...
+                  </h2>
+                </Row>
+              </Col>
+              : ""}
+            {uploadStatus === "error" ?
+              <Col span={24}>
+                <Row justify={"center"}>
+                  <VscError style={{fontSize: "78px"}} />
+                </Row>
+                <Row justify={"center"}>
+                  <h2 style={{padding: "10px 30px"}}>
+                    {uploadError}
                   </h2>
                 </Row>
               </Col>
