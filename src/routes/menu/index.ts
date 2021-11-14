@@ -7,6 +7,7 @@ import ecommerce from "./ecommerce.route";
 import { inventory } from "./inventory.route";
 import product from './product.route';
 import promotion from './promotion.route';
+import { AdminPermission } from 'config/permissions/admin.permission';
 import setting from './setting.route';
 import shipments from "./shipment.route";
 
@@ -140,7 +141,8 @@ const menu: Array<RouteMenu> = [
     isShow: false,
     header: null,
     subMenu: [],
+    permissions: [AdminPermission.all],
   },
 ]
 
-export default menu;
+export default menu; 
