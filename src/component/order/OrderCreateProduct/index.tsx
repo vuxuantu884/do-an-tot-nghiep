@@ -1638,6 +1638,7 @@ function OrderCreateProduct(props: PropType) {
                 if (e.target.checked) {
                   setCoupon("");
                   setIsDisableOrderDiscount(true);
+                  handleRemoveAllDiscount();
                   handleDiscountWhenActiveAutomaticDiscount();
                 } else {
                   setIsDisableOrderDiscount(false);
