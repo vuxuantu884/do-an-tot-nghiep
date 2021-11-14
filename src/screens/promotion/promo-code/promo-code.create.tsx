@@ -110,7 +110,6 @@ const CreatePromotionCodePage = () => {
   }, [dispatch, history]);
 
   const onFinish = (values: any) => {
-    console.log("onFinish: ", values);
     // Action: Lưu và kích hoạt
     const body = transformData(values);
     body.activated = true;
