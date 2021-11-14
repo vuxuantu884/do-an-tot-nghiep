@@ -380,9 +380,11 @@ const ScreenReturnCreate = (props: PropType) => {
         payments: payments,
         reason_id: form.getFieldValue("reason_id"),
         reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
+        sub_reason_id: form.getFieldValue("sub_reason_id"),
         received: isReceivedReturnProducts,
         order_returns: [],
       };
+      console.log('orderDetailResult', orderDetailResult)
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
@@ -516,6 +518,7 @@ const ScreenReturnCreate = (props: PropType) => {
             payments: payments,
             reason_id: form.getFieldValue("reason_id"),
             reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
+            sub_reason_id: form.getFieldValue("sub_reason_id"),
             received: isReceivedReturnProducts,
             channel_id: DEFAULT_CHANNEL_ID,
           };
@@ -970,7 +973,7 @@ const ScreenReturnCreate = (props: PropType) => {
                   />
                 )} */}
                 {isExchange && isStepExchange && (
-                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 258">
+                  <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                     <OrderCreateShipment
                       shipmentMethod={shipmentMethod}
                       orderPrice={orderAmount}
@@ -996,7 +999,7 @@ const ScreenReturnCreate = (props: PropType) => {
 
               <Col md={6}>
                 <OrderShortDetails OrderDetail={OrderDetail} />
-                <OrderReturnReason listOrderReturnReason={listOrderReturnReason} />
+                <OrderReturnReason listOrderReturnReason={listOrderReturnReason} form={form} />
                 <OrderMoreDetails OrderDetail={OrderDetail} />
               </Col>
             </Row>
