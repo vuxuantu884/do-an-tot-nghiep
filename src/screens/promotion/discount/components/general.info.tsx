@@ -9,7 +9,7 @@ import moment from 'moment';
 import CustomInput from "../../../customer/common/customInput";
 import React, {useEffect, useMemo, useState} from "react";
 import FixedPriceSelection from "./FixedPriceSelection";
-import {disabledDateTime} from "../../../../utils/DateUtils";
+import {DATE_FORMAT} from "../../../../utils/DateUtils";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option
@@ -56,6 +56,7 @@ const GeneralInfo = (props: any) => {
     return <FixedPriceSelection form={form} discountMethod={discountMethod}/>;
   }
 
+  // @ts-ignore
   return (
     <Row gutter={24} className="general-info">
       <Col span={18}>
@@ -200,13 +201,13 @@ const GeneralInfo = (props: any) => {
                 <DatePicker
                   style={{width: "100%"}}
                   placeholder="Từ ngày"
-                  showNow
                   showTime={{ format: 'HH:mm' }}
-                  disabledTime={disabledDateTime}
+                  format={DATE_FORMAT.DDMMYY_HHmm}
                   disabledDate={(currentDate) =>
-                    currentDate.isBefore(moment().set('hour', 0).set("minute", 0).set("second", 0)) ||
-                    currentDate.valueOf() >= form.getFieldValue("ends_date")
+                    currentDate.isBefore(moment()) ||
+                    currentDate.valueOf() > form.getFieldValue("ends_date")
                   }
+                  showNow={true}
                 />
               </Form.Item>
             </Col>
@@ -215,12 +216,14 @@ const GeneralInfo = (props: any) => {
                 <DatePicker
                   disabled={disabledEndDate}
                   showTime={{ format: 'HH:mm' }}
-                  disabledTime={disabledDateTime}
+                  format={DATE_FORMAT.DDMMYY_HHmm}
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
                   disabledDate={(currentDate) =>
-                    currentDate.isBefore(moment().set('hour', 0).set("minute", 0).set("second", 0)) ||
-                    currentDate.valueOf() < form.getFieldValue("starts_date")}
+                    currentDate.isBefore(moment()) ||
+                    (form.getFieldValue("starts_date") && currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
+                  }
+                  showNow={false}
                 />
               </Form.Item>
             </Col>

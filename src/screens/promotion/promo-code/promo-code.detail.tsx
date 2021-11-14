@@ -801,6 +801,7 @@ const PromotionDetailScreen: React.FC = () => {
               <Dragger
                 accept=".xlsx"
                 multiple={false}
+                showUploadList={false}
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/${idNumber}/discount-codes/read-file`}
                 headers={{"Authorization": `Bearer ${token}`}}
                 onChange={(info) => {
@@ -814,8 +815,11 @@ const PromotionDetailScreen: React.FC = () => {
                       }
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);
+                      setUploadStatus(status);
+                    } else {
+                      setUploadStatus("error");
                     }
-                    setUploadStatus(status);
+
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
                     setUploadStatus(status);
