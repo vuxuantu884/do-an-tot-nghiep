@@ -110,7 +110,7 @@ const csvColumnMapping: any = {
   usage_limit: "Giới hạn",
   discount_percentage: "Chiết khấu (%)",
   fixed_amount: "Chiết khấu (VND)",
-  invalid: "không đúng định dạng",
+  invalid: "không đúng định dạng CHỮ HOA + SỐ",
   notfound: "không tìm thấy",
   required: "Không được trống",
   code: "Mã chiết khấu",

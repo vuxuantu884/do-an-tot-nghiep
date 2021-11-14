@@ -201,17 +201,17 @@ const PromotionCode = () => {
       const body = {ids: selectedRowKey}
       switch (index) {
         case 1:
-          dispatch(showLoading());
+          setTableLoading(true)
           dispatch(bulkEnablePriceRules(body, handleCallback));
           break;
         case 2:
-          dispatch(showLoading());
+          setTableLoading(true)
           dispatch(bulkDisablePriceRules(body, handleCallback));
           break;
         case 3:
           break;
         case 4:
-          dispatch(showLoading());
+          setTableLoading(true)
           dispatch(bulkDeletePriceRules(body, handleCallback));
           break;
       }
