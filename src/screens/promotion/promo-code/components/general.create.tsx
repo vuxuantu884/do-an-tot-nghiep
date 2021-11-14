@@ -120,7 +120,7 @@ const GeneralCreate = (props: any) => {
       if (selectedItem) {
         setSelectedProduct([selectedItem].concat(selectedProduct));
       }
-      setData([]);
+      // setData([]);
     },
     [data, selectedProduct],
   );

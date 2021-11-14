@@ -137,15 +137,46 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, []);
 
+  const spreadData = (data: any) => {
+    let result: any[] = [];
+    if (data?.entitlements && data?.entitlements.length > 0) {
+      data?.entitlements.forEach((entitlement:any) => {
+        entitlement.entitled_variant_ids.forEach((vId:any) => {
+          const value = entitlement.prerequisite_quantity_ranges[0]["value"];
+          const valueType = entitlement.prerequisite_quantity_ranges[0]["value_type"];
+          result.push({
+            id: vId,
+            minimum: entitlement.prerequisite_quantity_ranges[0]["greater_than_or_equal_to"],
+            allocationLimit: entitlement.prerequisite_quantity_ranges[0]["allocation_limit"],
+            value: value,
+            valueType: valueType,
+          });
+        })
+
+      });
+    }
+    return result;
+  }
+
+  const mergeVariants = (sourceData: Array<any>) => {
+    return sourceData.map(s => {
+      const variant = dataVariants.find((v:any) => v.variant_id === s.id);
+      if (variant) {
+        s.title = variant.variant_title;
+        s.sku = variant.sku;
+        s.cost = variant.cost;
+        s.discountValue = `${renderDiscountValue(s.value, s.valueType)}`;
+        s.total = `${renderTotalBill(variant.cost, s.value, s.valueType)}`
+      }
+      return s;
+    })
+  }
+
   useEffect(() => {
     if (dataVariants && data && data.entitlements.length > 0) {
-      const entitlementQuantity = data.entitlements[0].prerequisite_quantity_ranges[0];
-      const costType = entitlementQuantity?.value_type;
-      const discountValue = entitlementQuantity?.value;
-      const allocationLimit = entitlementQuantity?.allocation_limit;
-      const minimum = entitlementQuantity?.greater_than_or_equal_to;
-      setEntitlements(transformData(costType, discountValue, allocationLimit, minimum));
-      setCostType(costType);
+      setCostType(data.entitled_method)
+      const flattenData:Array<any> = spreadData(data);
+      setEntitlements(mergeVariants(flattenData));
     }
   }, [data, dataVariants]);
 
@@ -266,21 +297,17 @@ const PromotionDetailScreen: React.FC = () => {
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
   }, [costType]);
 
-  const renderTotalBill = (cost: number, value: number, discount: number, valueType: string) => {
-    console.log("cost: ", cost);
-    console.log("value: ", value);
-    console.log("discount: ", discount);
-    console.log("valueType: ", valueType);
+  const renderTotalBill = (cost: number, value: number, valueType: string) => {
     let result = "";
     switch (valueType) {
       case "FIXED_PRICE":
         result = formatCurrency(Math.round(value /1000)*1000);
         break;
       case "FIXED_AMOUNT":
-        result = `${formatCurrency(Math.round((cost - discount)/1000)*1000)}`;
+        result = `${formatCurrency(Math.round((cost - value)/1000)*1000)}`;
         break;
       case "PERCENTAGE":
-        result = `${formatCurrency(Math.round((cost - ((cost * discount) / 100)) / 1000)*1000)}`;
+        result = `${formatCurrency(Math.round((cost - ((cost * value) / 100)) / 1000)*1000)}`;
         break;
     }
     return result;
@@ -299,29 +326,6 @@ const PromotionDetailScreen: React.FC = () => {
         result = `${value}%`;
         break;
     }
-    return result;
-  };
-
-  const transformData = (costType: string, discountValue: number, allocationLimit: number, minimum: number) => {
-    let result: any[] = [];
-    dataVariants.forEach((variant: any) => {
-      data?.entitlements.forEach(item => {
-        const isExit = (item.entitled_variant_ids as number[]).includes(variant.variant_id);
-        const value = item.prerequisite_quantity_ranges[0].value;
-        if (isExit) {
-          result.push({
-            id: variant?.variant_id,
-            title: variant?.variant_title,
-            sku: variant?.sku,
-            cost: variant?.cost,
-            minimum: minimum,
-            allocationLimit: allocationLimit,
-            discountValue: `${renderDiscountValue(discountValue, costType)}`,
-            total: `${renderTotalBill(variant?.cost, value, discountValue, costType)}`,
-          })
-        }
-      });
-    });
     return result;
   };
 
