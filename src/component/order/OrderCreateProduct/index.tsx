@@ -1605,7 +1605,10 @@ function OrderCreateProduct(props: PropType) {
   * gọi lại api chiết khấu khi update cửa hàng, khách hàng, nguồn
   */
   useEffect(() => {
-    handleDiscountWhenActiveAutomaticDiscount();
+    if(isAutomaticDiscount) {
+      handleDiscountWhenActiveAutomaticDiscount();
+
+    }
   }, [customer?.id, storeId, orderSourceId])
 
   console.log("isAutomaticDiscount", isAutomaticDiscount);

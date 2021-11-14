@@ -40,6 +40,7 @@ export interface OrderRequest {
 
 export interface ReturnRequest extends OrderRequest {
   reason_id: number;
+  reason_name: string | null;
   received: boolean;
   order_returns?: any[];
 }
