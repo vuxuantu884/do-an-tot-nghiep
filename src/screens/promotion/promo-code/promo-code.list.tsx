@@ -568,6 +568,7 @@ const ListCode = () => {
               <Dragger
                 accept=".xlsx"
                 multiple={false}
+                showUploadList={false}
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
                 headers={{"Authorization": `Bearer ${token}`}}
                 onChange={(info) => {
@@ -581,8 +582,9 @@ const ListCode = () => {
                       }
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);
-                    }
-                    setUploadStatus(status);
+                      setUploadStatus(status);
+                    } else setUploadStatus("error")
+
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
                     setUploadStatus(status);
