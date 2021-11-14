@@ -145,7 +145,7 @@ const GeneralCreate = (props: any) => {
     // Some system encode vietnamese combining accent as individual utf-8 characters
     str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
-    return str.toUpperCase().replaceAll(/\s/g, "");
+    return str.toUpperCase().replaceAll(/\s/g, "").replace(/[^a-zA-Z ]/g, "");
   }
 
   useEffect(() => {
@@ -233,7 +233,7 @@ const GeneralCreate = (props: any) => {
                 form={form}
                 placeholder="Nhập mô tả cho đợt phát hàng"
                 maxLength={500}
-
+                autoFocus
               />
             </Col>
           </Row>
@@ -444,7 +444,7 @@ const GeneralCreate = (props: any) => {
                   format={DATE_FORMAT.DDMMYY_HHmm}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment()) ||
-                    currentDate.valueOf() > form.getFieldValue("ends_date")
+                    form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false
                   }
                   showNow={true}
                 />

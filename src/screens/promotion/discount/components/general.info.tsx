@@ -205,7 +205,7 @@ const GeneralInfo = (props: any) => {
                   format={DATE_FORMAT.DDMMYY_HHmm}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment()) ||
-                    currentDate.valueOf() > form.getFieldValue("ends_date")
+                    form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false
                   }
                   showNow={true}
                 />

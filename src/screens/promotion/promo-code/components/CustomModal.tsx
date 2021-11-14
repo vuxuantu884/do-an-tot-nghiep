@@ -53,7 +53,7 @@ const ModalAddCode: React.FC<ModalProps> = (
     // Some system encode vietnamese combining accent as individual utf-8 characters
     str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
-    return str.toUpperCase().replaceAll(/\s/g,'');
+    return str.toUpperCase().replaceAll(/\s/g,'').replace(/[^a-zA-Z ]/g, "");
   }
 
   return (
@@ -156,6 +156,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                                 placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
                                 style={{width: "100%", textTransform: "uppercase"}}
                                 maxLength={30}
+                                autoFocus
                                 suffix={<img src={CloseIcon} style={{marginRight: 13}} alt="" onClick={() => remove(name)} />}
                               />
 

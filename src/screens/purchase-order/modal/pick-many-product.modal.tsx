@@ -83,9 +83,14 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const fillAll = useCallback(
     (checked: boolean) => {
       if (checked) {
-        if (data) setSelection(data?.items);
+        if (data) setSelection(selection.concat(data?.items));
       } else {
-        setSelection([]);
+        const tempSelection = [...selection];
+        data?.items.forEach(item => {
+          const removedIndex = tempSelection.findIndex(s => s.id === item.id)
+          tempSelection.splice(removedIndex, 1);
+        })
+        setSelection([...tempSelection]);
       }
     },
     [data, setSelection]
@@ -136,7 +141,8 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       <Divider />
       <Checkbox
         style={{ marginLeft: 12 }}
-        checked={selection.length === data?.metadata.limit}
+        // checked={selection.length === data?.metadata.limit}
+        checked={data?.items.every(item => selection.findIndex(s => s.id === item.id) > -1)}
         onChange={(e) => {
           fillAll(e.target.checked);
         }}
