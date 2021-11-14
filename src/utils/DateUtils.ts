@@ -95,3 +95,21 @@ export const getStartOfDay = (date: Date | string | number | Moment) => {
 export const getEndOfDay = (date: Date | string | number | Moment) => {
   return  moment(date).endOf('day').format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z";
 }
+
+export const disabledDateTime = (currentDate:any) => {
+  if (moment().format('YYYY MMM DD') === moment(currentDate).format('YYYY MMM DD')) {
+    return {
+      disabledHours: () => range(0, 24).splice(0, moment().get('hour')),
+      disabledMinutes: () => range(0, 60).splice(0, moment().get('minute')),
+    };
+  }
+  else return {};
+}
+
+const range = (start:number, end:number) => {
+  const result = [];
+  for (let i = start; i < end; i++) {
+    result.push(i);
+  }
+  return result;
+}

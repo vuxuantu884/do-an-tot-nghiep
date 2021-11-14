@@ -60,7 +60,6 @@ const PromotionCode = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse> | null) => {
-    dispatch(hideLoading());
     if (data) {
       setDataSource(data)
     }
@@ -68,7 +67,7 @@ const PromotionCode = () => {
   }, [dispatch])
 
   useEffect(() => {
-    dispatch(showLoading());
+    setTableLoading(true)
     dispatch(getListDiscount(params, fetchData));
   }, [dispatch, fetchData, params]);
 

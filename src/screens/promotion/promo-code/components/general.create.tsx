@@ -30,6 +30,7 @@ import {Link} from "react-router-dom";
 import {CloseOutlined} from "@ant-design/icons";
 import moment from "moment";
 import {showError} from "utils/ToastUtils";
+import {disabledDateTime} from "../../../../utils/DateUtils";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
@@ -441,6 +442,7 @@ const GeneralCreate = (props: any) => {
                   placeholder="Từ ngày"
                   showNow
                   showTime={{ format: 'HH:mm' }}
+                  disabledTime={disabledDateTime}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment().subtract(1, 'days')) ||
                     currentDate.valueOf() >= form.getFieldValue("ends_date")
@@ -455,6 +457,7 @@ const GeneralCreate = (props: any) => {
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
                   showTime={{ format: 'HH:mm' }}
+                  disabledTime={disabledDateTime}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment()) ||
                     currentDate.valueOf() < form.getFieldValue("starts_date")}

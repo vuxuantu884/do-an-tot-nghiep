@@ -25,7 +25,7 @@ import {
 } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { addPromoCode, getListPromoCode, disableBulkPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCode, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";

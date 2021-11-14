@@ -9,6 +9,7 @@ import moment from 'moment';
 import CustomInput from "../../../customer/common/customInput";
 import React, {useEffect, useMemo, useState} from "react";
 import FixedPriceSelection from "./FixedPriceSelection";
+import {disabledDateTime} from "../../../../utils/DateUtils";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option
@@ -201,8 +202,9 @@ const GeneralInfo = (props: any) => {
                   placeholder="Từ ngày"
                   showNow
                   showTime={{ format: 'HH:mm' }}
+                  disabledTime={disabledDateTime}
                   disabledDate={(currentDate) =>
-                    currentDate.isBefore(moment()) ||
+                    currentDate.isBefore(moment().set('hour', 0).set("minute", 0).set("second", 0)) ||
                     currentDate.valueOf() >= form.getFieldValue("ends_date")
                   }
                 />
@@ -212,10 +214,13 @@ const GeneralInfo = (props: any) => {
               <Form.Item name="ends_date">
                 <DatePicker
                   disabled={disabledEndDate}
+                  showTime={{ format: 'HH:mm' }}
+                  disabledTime={disabledDateTime}
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
-                  showTime={{ format: 'HH:mm' }}
-                  disabledDate={(currentDate) => currentDate.isBefore(moment()) || currentDate.valueOf() < form.getFieldValue("starts_date")}
+                  disabledDate={(currentDate) =>
+                    currentDate.isBefore(moment().set('hour', 0).set("minute", 0).set("second", 0)) ||
+                    currentDate.valueOf() < form.getFieldValue("starts_date")}
                 />
               </Form.Item>
             </Col>
