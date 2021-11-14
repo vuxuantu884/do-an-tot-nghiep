@@ -379,6 +379,7 @@ const ScreenReturnCreate = (props: PropType) => {
         fulfillments: [],
         payments: payments,
         reason_id: form.getFieldValue("reason_id"),
+        reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
         received: isReceivedReturnProducts,
         order_returns: [],
       };
@@ -514,6 +515,7 @@ const ScreenReturnCreate = (props: PropType) => {
             fulfillments: [],
             payments: payments,
             reason_id: form.getFieldValue("reason_id"),
+            reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
             received: isReceivedReturnProducts,
             channel_id: DEFAULT_CHANNEL_ID,
           };
