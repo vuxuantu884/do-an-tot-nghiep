@@ -77,7 +77,6 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   placeholder="Chọn cửa hàng"
                   notFoundContent="Không tìm thấy kết quả"
                   onChange={(value?: number) => {
-                    console.log(value);
                   }}
                   filterOption={(input, option) => {
                     if (option) {
@@ -118,9 +117,9 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn hãng vận chuyển"
                   notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                    console.log(value);
-                  }}
+                  // onChange={(value?: number) => {
+                  //   console.log(value);
+                  // }}
                   filterOption={(input, option) => {
                     if (option) {
                       return (
@@ -161,9 +160,9 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn loại biên bản"
                   notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                    console.log(value);
-                  }}
+                  // onChange={(value?: number) => {
+                  //   console.log(value);
+                  // }}
                   filterOption={(input, option) => {
                     if (option) {
                       return (
@@ -204,9 +203,9 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn kiểu biên bản"
                   notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                    console.log(value);
-                  }}
+                  // onChange={(value?: number) => {
+                  //   console.log(value);
+                  // }}
                   filterOption={(input, option) => {
                     if (option) {
                       return (

@@ -270,7 +270,6 @@ function OrderCreateShipment(props: PropType) {
         coupon: "",
         cod: 0,
       };
-      console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {

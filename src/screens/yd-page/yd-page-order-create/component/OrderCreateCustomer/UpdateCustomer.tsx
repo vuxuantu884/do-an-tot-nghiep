@@ -142,7 +142,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           customer_group_id: null,
         };
   //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
-    console.log(shippingAddress)
 
   const initialFormValueshippingAddress =
     shippingAddress && shippingAddress !== null
