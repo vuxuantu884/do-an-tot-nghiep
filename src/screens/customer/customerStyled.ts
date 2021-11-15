@@ -14,9 +14,24 @@ export const StyledCustomerFilter = styled.div`
 
 export const StyledCustomerBaseFilter = styled.div`
   .base-filter-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    margin-top: 10px;
+    .base-filter-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+
+      .left-filter {
+        width: 33%;
+      }
+  
+      .center-filter {
+        width: 33%;
+      }
+  
+      .right-filter {
+        width: 30%;
+      }
+    }  
 
     .title {
       font-weight: 500;
@@ -24,18 +39,6 @@ export const StyledCustomerBaseFilter = styled.div`
       font-family: Roboto;
       font-style: normal;
       margin-bottom: 6px;
-    }
-
-    .left-filter {
-      width: 33%;
-    }
-
-    .center-filter {
-      width: 33%;
-    }
-
-    .right-filter {
-      width: 30%;
     }
 
     .select-scope {
@@ -55,7 +58,6 @@ export const StyledCustomerBaseFilter = styled.div`
   }
   
 `;
-
 
 export const StyledCustomerExtraButton = styled.div`
   .import-file-button {
