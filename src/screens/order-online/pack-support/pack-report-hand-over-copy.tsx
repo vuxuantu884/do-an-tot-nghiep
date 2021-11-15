@@ -1,27 +1,24 @@
 import {Button, Dropdown, Menu} from "antd";
-import PackFilter from "component/filter/pack.filter";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {PageResponse} from "model/base/base-metadata.response";
-import {useCallback, useContext, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
 import IconPack from "assets/icon/Pack.svg";
 import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
 import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
-import moment from "moment";
 import {useDispatch} from "react-redux";
 import {getGoodsReceiptsSerch} from "domain/actions/goods-receipts/goods-receipts.action";
-import {OrderPackContext} from "contexts/order-pack/order-pack-context";
 import {GoodsReceiptsSearhModel} from "model/pack/pack.model";
 import {FulFillmentStatus} from "utils/Constants";
-import {getQueryParams, useQuery} from "utils/useQuery";
+import {getQueryParams} from "utils/useQuery";
 import {useHistory} from "react-router";
 import {generateQuery} from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import PackCopyFilter from "component/filter/pack-copy.filter";
-import {DeleteOutlined, ExportOutlined} from "@ant-design/icons";
+import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
 import {MenuAction} from "component/table/ActionButton";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
@@ -43,16 +40,16 @@ const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "In biên bản đầy đủ ",
-    icon: <ExportOutlined />,
+    icon: <PrinterOutlined />,
   },
   {
     id: 2,
     name: "In biên bản rút gọn ",
-    icon: <ExportOutlined />,
+    icon: <PrinterOutlined />,
   },
   {
     id: 3,
-    name: "Xoa",
+    name: "Xóa",
     icon: <DeleteOutlined />,
     color:"#E24343"
   },
@@ -75,7 +72,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   //     []
   //   );
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const [tableLoading] = useState(true);
+  // const [tableLoading] = useState(true);
 
   let dataQuery: GoodsReceiptsSearchQuery = {
     ...initQueryGoodsReceipts,

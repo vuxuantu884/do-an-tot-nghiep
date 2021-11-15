@@ -171,6 +171,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           },
           {
             name: "Hỗ trợ đóng gói",
+            path: UrlConfig.PACK_SUPPORT,
           },
           {
             name: "Thêm mới",
