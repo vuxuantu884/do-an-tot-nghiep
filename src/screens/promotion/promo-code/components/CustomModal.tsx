@@ -85,7 +85,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                   [
                     {required: true, message: "Cần nhập mã giảm giá"},
                     {pattern:  /^(?![0-9]*$)[a-zA-Z0-9]+$/, message: "Không đúng định dạng CHỮ HOA và SỐ"},
-                     ({}) => ({
+                     () => ({
                         validator(rule, value) {
                           return new Promise((resolve, reject) => {
                             const response = checkPromoCode(value);
