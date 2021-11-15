@@ -1075,7 +1075,6 @@ const PromotionDetailScreen: React.FC = () => {
                 multiple={false}
                 showUploadList={false}
                 beforeUpload={(file) => {
-                  console.log('file.type: ', file);
                   if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
                     setUploadStatus("error")
                     setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
@@ -1090,7 +1089,6 @@ const PromotionDetailScreen: React.FC = () => {
                 headers={{Authorization: `Bearer ${token}`}}
                 onChange={(info) => {
                   const {status} = info.file;
-                  console.log('onChange: ', status);
                   if (status === "done") {
                     const response = info.file.response;
                     if (response.code === 20000000) {

@@ -237,7 +237,6 @@ const ModalAddCode: React.FC<ModalProps> = (
                       {required: true, message: "Vui lòng nhập số kí tự ngẫu nhiên"},
                       ({}) => ({
                         validator(rule, value) {
-                          console.log('validator: ', value);
                           if (!value) return Promise.resolve();
                           if (Number(value) < 6) return Promise.reject(new Error("Số ký tự phải lớn hơn 6"));
                           if (Number(value) > 20) return Promise.reject(new Error("Số ký tự phải nhỏ hơn 30"));

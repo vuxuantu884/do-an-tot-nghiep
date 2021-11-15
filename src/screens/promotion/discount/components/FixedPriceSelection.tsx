@@ -49,7 +49,7 @@ const FixedPriceSelection = (props: any) => {
         "prerequisite_quantity_ranges.value_type": form.getFieldValue("entitled_method") === "FIXED_PRICE" ? "FIXED_AMOUNT" : i.discount_type,
         "prerequisite_quantity_ranges.value": i.discount_value,
       };
-        formEntitlements.push(formEntitlement);
+      formEntitlements.push(formEntitlement);
       // }
     });
 
@@ -164,7 +164,6 @@ const FixedPriceSelection = (props: any) => {
               <Dragger
                 accept=".xlsx"
                 beforeUpload={(file) => {
-                  console.log('file.type: ', file);
                   if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
                     setUploadStatus("error")
                     setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
@@ -181,7 +180,6 @@ const FixedPriceSelection = (props: any) => {
                 headers={{"Authorization": `Bearer ${token}`}}
                 onChange={(info) => {
                   const {status} = info.file;
-                  console.log("onChange: ", status);
                   if (status === "done") {
                     const response = info.file.response;
                     if (response.code === 20000000) {
