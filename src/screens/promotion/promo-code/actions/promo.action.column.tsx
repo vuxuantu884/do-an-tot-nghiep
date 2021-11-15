@@ -2,7 +2,6 @@ import { Button, Dropdown, Menu } from "antd";
 import threeDot from "assets/icon/three-dot.svg";
 import editIcon from "assets/icon/edit.svg";
 import closeIcon from "assets/icon/close.svg";
-import checkIcon from "assets/icon/check.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import { StyledMenu, StyledDropDown } from "./styles";
 

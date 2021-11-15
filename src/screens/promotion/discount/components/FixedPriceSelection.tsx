@@ -1,5 +1,5 @@
 import {Button, Checkbox, Col, Divider, Form, message, Modal, Row, Space} from "antd";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import "../discount.scss";
 import _ from "lodash";
 import {RiUpload2Line} from "react-icons/ri";
