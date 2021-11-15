@@ -226,7 +226,7 @@ const ListCode = () => {
   }
 
   // section ADD Manual
-  function handleAddManual(value: any) {
+  function handleAddManual(value: any, form?: any) {
     if (!value) return;
     let body = {
       discount_codes: [],
@@ -238,6 +238,7 @@ const ListCode = () => {
     });
     dispatch(showLoading());
     dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
+    form.resetFields();
   }
   function handleAddRandom(value: any) {
     if (!value) return;
@@ -258,6 +259,7 @@ const ListCode = () => {
       dispatch(hideLoading());
       if (response) {
         showSuccess("Thêm thành công");
+        setShowAddCodeManual(false);
         dispatch(getListPromoCode(priceRuleId, params, fetchData));
       }
     },
@@ -582,9 +584,8 @@ const ListCode = () => {
             onCancel={() => {
               setShowAddCodeManual(false);
             }}
-            onOk={(value) => {
-              setShowAddCodeManual(false);
-              handleAddManual(value);
+            onOk={(value, form) => {
+              handleAddManual(value, form);
             }}
           />
           <CustomModal

@@ -1,5 +1,5 @@
 import {Button, Checkbox, Col, Divider, Form, message, Modal, Row, Space} from "antd";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import "../discount.scss";
 import _ from "lodash";
 import {RiUpload2Line} from "react-icons/ri";
@@ -163,17 +163,30 @@ const FixedPriceSelection = (props: any) => {
             <div className="dragger-wrapper">
               <Dragger
                 accept=".xlsx"
+                beforeUpload={(file) => {
+                  console.log('file.type: ', file);
+                  if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                    setUploadStatus("error")
+                    setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
+                    setEntitlementsResponse([])
+                    return false;
+                  }
+                  setUploadStatus("uploading")
+                  setUploadError([])
+                  return true;
+                }}
                 multiple={false}
                 showUploadList={false}
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/entitlements/read-file?type=${form.getFieldValue("entitled_method")}`}
                 headers={{"Authorization": `Bearer ${token}`}}
                 onChange={(info) => {
                   const {status} = info.file;
+                  console.log("onChange: ", status);
                   if (status === "done") {
                     const response = info.file.response;
                     if (response.code === 20000000) {
                       if (response.data.data.length > 0) {
-                        setEntitlementsResponse(entitlementsResponse.concat(response.data.data));
+                        setEntitlementsResponse(response.data.data);
                       }
                       if (response.data.errors.length > 0) {
                         const errors: Array<any> = _.uniqBy(response.data.errors, "index").sort((a:any, b:any) => a.index - b.index);
@@ -185,14 +198,13 @@ const FixedPriceSelection = (props: any) => {
                     } else {
                       setUploadStatus("error")
                       setUploadError(response.errors)
+                      setEntitlementsResponse([])
                     }
 
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
                     setUploadStatus(status);
-
-                  } else {
-                    setUploadStatus(status);
+                    setEntitlementsResponse([])
                   }
                 }}
               >
