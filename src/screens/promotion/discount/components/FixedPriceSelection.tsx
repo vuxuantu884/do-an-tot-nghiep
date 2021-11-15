@@ -49,24 +49,6 @@ const FixedPriceSelection = (props: any) => {
         "prerequisite_quantity_ranges.value_type": form.getFieldValue("entitled_method") === "FIXED_PRICE" ? "FIXED_AMOUNT" : i.discount_type,
         "prerequisite_quantity_ranges.value": i.discount_value,
       };
-      // console.log('formEntitlement: ', formEntitlement);
-      // const existedEntitlement = formEntitlements.find((e: any, index: number) => {
-      //   console.log(`${index} :`, e);
-      //   if (e["prerequisite_quantity_ranges.allocation_limit"] === formEntitlement["prerequisite_quantity_ranges.allocation_limit"] &&
-      //     e["prerequisite_quantity_ranges.greater_than_or_equal_to"] === formEntitlement["prerequisite_quantity_ranges.greater_than_or_equal_to"] &&
-      //     e["prerequisite_quantity_ranges.value_type"] === formEntitlement["prerequisite_quantity_ranges.value_type"] &&
-      //     e["prerequisite_quantity_ranges.value"] === formEntitlement["prerequisite_quantity_ranges.value"]) {
-      //     existedIndex = index;
-      //     return true;
-      //   }
-      //   return false;
-      // })
-
-      // if (existedEntitlement && existedEntitlement.variants.length > 0) {
-      //   console.log('existedEntitlement: ', existedEntitlement);
-      //   existedEntitlement.variants.push(...formEntitlement.variants);
-      //   formEntitlements[existedIndex] = existedEntitlement;
-      // } else {
         formEntitlements.push(formEntitlement);
       // }
     });

@@ -176,7 +176,27 @@ const PromotionDetailScreen: React.FC = () => {
     if (dataVariants && data && data.entitlements.length > 0) {
       setCostType(data.entitled_method)
       const flattenData:Array<any> = spreadData(data);
-      setEntitlements(mergeVariants(flattenData));
+      console.log('data: ', data);
+      console.log('flattenData: ', flattenData);
+      const listEntitlements:Array<any> = mergeVariants(flattenData);
+      console.log('listEntitlements: ', listEntitlements);
+
+
+      if (!listEntitlements || listEntitlements.length === 0) {
+        const rawEntitlement = data.entitlements[0];
+        const quantityRange = rawEntitlement.prerequisite_quantity_ranges[0];
+        console.log('renderTotalBill: ', `${renderTotalBill(quantityRange.cost, quantityRange.value, quantityRange.value_type)}`);
+        console.log('quantityRange.valueType: ', quantityRange.value_type);
+        listEntitlements.push({
+          title: "Tất cả sản phẩm",
+          // sku: "Tất cả sản phẩm",
+          minimum: quantityRange.greater_than_or_equal_to,
+          allocationLimit: quantityRange.allocation_limit,
+          discountValue: `${renderDiscountValue(quantityRange.value, quantityRange.value_type)}`,
+          total: `${renderTotalBill(quantityRange.cost, quantityRange.value, quantityRange.value_type)}`
+        })
+      }
+      setEntitlements(listEntitlements);
     }
   }, [data, dataVariants]);
 
@@ -299,15 +319,18 @@ const PromotionDetailScreen: React.FC = () => {
 
   const renderTotalBill = (cost: number, value: number, valueType: string) => {
     let result = "";
+
     switch (valueType) {
       case "FIXED_PRICE":
         result = formatCurrency(Math.round(value /1000)*1000);
         break;
       case "FIXED_AMOUNT":
-        result = `${formatCurrency(Math.round((cost - value)/1000)*1000)}`;
+        if (!cost) result = "";
+        else result = `${formatCurrency(Math.round((cost - value)/1000)*1000)}`;
         break;
       case "PERCENTAGE":
-        result = `${formatCurrency(Math.round((cost - ((cost * value) / 100)) / 1000)*1000)}`;
+        if (!cost) result = "";
+        else result = `${formatCurrency(Math.round((cost - ((cost * value) / 100)) / 1000)*1000)}`;
         break;
     }
     return result;

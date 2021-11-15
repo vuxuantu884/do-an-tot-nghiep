@@ -40,7 +40,7 @@ const CreateDiscountPage = () => {
     body.description = values.description;
     body.discount_codes = values.discount_code?.length ? [{code: values.discount_code}] : null;
     body.entitled_method = values.entitled_method;
-    body.usage_limit = values.usage_limit;
+    body.quantity_limit = values.usage_limit;
     body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
     body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length ? values.prerequisite_order_source_ids : null;
