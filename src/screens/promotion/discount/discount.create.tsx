@@ -16,6 +16,10 @@ import {createPriceRule} from "../../../service/promotion/discount/discount.serv
 import {PROMO_TYPE} from "utils/Constants";
 import {getListChannelRequest} from "domain/actions/order/order.action";
 import {ChannelResponse} from "model/response/product/channel.response";
+import {HttpStatus} from "../../../config/http-status.config";
+import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import useAuthorization from "hook/useAuthorization";
 
 const CreateDiscountPage = () => {
   const dispatch = useDispatch();
@@ -24,6 +28,12 @@ const CreateDiscountPage = () => {
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
+
+  //phân quyền
+  const [allowCreatePromoCode] = useAuthorization({
+    acceptPermissions: [PromoPermistion.CREATE],
+  });
+
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
@@ -36,12 +46,21 @@ const CreateDiscountPage = () => {
     body.title = values.title;
     body.priority = values.priority;
     body.description = values.description;
-    body.discount_codes = values.discount_code?.length ? [{code: values.discount_code}] : null;
+    body.discount_codes = values.discount_code?.length
+      ? [{code: values.discount_code}]
+      : null;
     body.entitled_method = values.entitled_method;
     body.usage_limit = values.usage_limit;
-    body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
-    body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
-    body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length ? values.prerequisite_order_source_ids : null;
+    body.prerequisite_store_ids = values.prerequisite_store_ids?.length
+      ? values.prerequisite_store_ids
+      : null;
+    body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names
+      ?.length
+      ? values.prerequisite_sales_channel_names
+      : null;
+    body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length
+      ? values.prerequisite_order_source_ids
+      : null;
     body.starts_date = values.starts_date.format();
     body.ends_date = values.ends_date?.format() || null;
     body.entitlements = values.entitlements.map((entitlement: any) => {
@@ -50,10 +69,15 @@ const CreateDiscountPage = () => {
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [
           {
-            greater_than_or_equal_to: entitlement["prerequisite_quantity_ranges.greater_than_or_equal_to"],
+            greater_than_or_equal_to:
+              entitlement["prerequisite_quantity_ranges.greater_than_or_equal_to"],
             less_than_or_equal_to: null,
-            allocation_limit: entitlement["prerequisite_quantity_ranges.allocation_limit"],
-            value_type: body.entitled_method === "FIXED_PRICE" ? "FIXED_PRICE" : entitlement["prerequisite_quantity_ranges.value_type"],
+            allocation_limit:
+              entitlement["prerequisite_quantity_ranges.allocation_limit"],
+            value_type:
+              body.entitled_method === "FIXED_PRICE"
+                ? "FIXED_PRICE"
+                : entitlement["prerequisite_quantity_ranges.value_type"],
             value: entitlement["prerequisite_quantity_ranges.value"],
           },
         ],
@@ -62,16 +86,27 @@ const CreateDiscountPage = () => {
     });
     return body;
   };
+
+  const handleCreateSuccess = (response: any) => {
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess("Lưu và kích hoạt thành công");
+        history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${response.data.id}`);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        dispatch(unauthorizedAction);
+        break;
+      default:
+        showError(`${response.code} - ${response.message}`);
+        break;
+    }
+  };
+
   const handleSubmit = async (values: any) => {
     const body = transformData(values);
     body.activated = true;
     const createResponse = await createPriceRule(body);
-    if (createResponse.code === 20000000) {
-      showSuccess("Lưu và kích hoạt thành công");
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${createResponse.data.id}`);
-    } else {
-      showError(`${createResponse.code} - ${createResponse.message}`);
-    }
+    handleCreateSuccess(createResponse);
   };
 
   const save = async () => {
@@ -79,13 +114,7 @@ const CreateDiscountPage = () => {
     const body = transformData(values);
     body.activated = false;
     const createResponse = await createPriceRule(body);
-    if (createResponse.code === 20000000) {
-      showSuccess("Lưu thành công");
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
-    } else {
-      showError(`${createResponse.code} - ${createResponse.message}`);
-    }
-
+    handleCreateSuccess(createResponse);
   };
 
   const handleSubmitFail = (errorFields: any) => {
@@ -146,7 +175,11 @@ const CreateDiscountPage = () => {
         </Row>
         <div className="customer-bottom-button">
           <div onClick={() => history.goBack()} style={{cursor: "pointer"}}>
-            <img style={{marginRight: "10px", transform: "rotate(180deg)"}} src={arrowLeft} alt="" />
+            <img
+              style={{marginRight: "10px", transform: "rotate(180deg)"}}
+              src={arrowLeft}
+              alt=""
+            />
             Quay lại danh sách chiết khấu
           </div>
           <div>
@@ -157,16 +190,24 @@ const CreateDiscountPage = () => {
             >
               Hủy
             </Button>
-            <Button
-              onClick={() => save()}
-              style={{marginLeft: ".75rem", marginRight: ".75rem", borderColor: "#2a2a86"}}
-              type="ghost"
-            >
-              Lưu
-            </Button>
-            <Button type="primary" htmlType="submit">
-              Lưu và kích hoạt
-            </Button>
+            {allowCreatePromoCode ? (
+              <>
+                <Button
+                  onClick={() => save()}
+                  style={{
+                    marginLeft: ".75rem",
+                    marginRight: ".75rem",
+                    borderColor: "#2a2a86",
+                  }}
+                  type="ghost"
+                >
+                  Lưu
+                </Button>
+                <Button type="primary" htmlType="submit">
+                  Lưu và kích hoạt
+                </Button>
+              </>
+            ) : null}
           </div>
         </div>
       </Form>

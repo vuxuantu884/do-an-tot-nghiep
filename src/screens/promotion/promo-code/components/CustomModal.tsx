@@ -53,7 +53,7 @@ const ModalAddCode: React.FC<ModalProps> = (
     // Some system encode vietnamese combining accent as individual utf-8 characters
     str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
-    return str.toUpperCase().replaceAll(/\s/g,'');
+    return str.toUpperCase().replaceAll(/\s/g,'').replace(/[^a-z0-9]/gi,"");
   }
 
   return (
@@ -113,7 +113,7 @@ const ModalAddCode: React.FC<ModalProps> = (
               name="discount_add"
               onFinish={onFinish}
               layout="vertical"
-              initialValues={{ listCode: [{}] }}
+              initialValues={{ listCode:[""]}}
             >
               <Form.List
                 name="listCode"
@@ -156,15 +156,16 @@ const ModalAddCode: React.FC<ModalProps> = (
                                 placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
                                 style={{width: "100%", textTransform: "uppercase"}}
                                 maxLength={30}
+                                autoFocus
                                 suffix={<img src={CloseIcon} style={{marginRight: 13}} alt="" onClick={() => remove(name)} />}
                               />
-                              
+
                             </Form.Item>
                           )
                         })
                       }
                       <Button
-                        type="link" 
+                        type="link"
                         onClick={() => add()}
                         icon={<PlusOutlined/>}
                         style={{padding: "0 10px"}}
@@ -183,7 +184,7 @@ const ModalAddCode: React.FC<ModalProps> = (
               name="discount_add"
               onFinish={onFinish}
               layout="vertical"
-              initialValues={{ 
+              initialValues={{
                 count: null,
                 prefix: "",
                 length: null,
@@ -202,7 +203,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                       },
                     ]}
                   >
-                    <NumberInput 
+                    <NumberInput
                       placeholder="Tối đã 1,000 mã"
                       style={{ textAlign: "left" }}
                       max={1000}
@@ -235,7 +236,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                       },
                     ]}
                   >
-                    <NumberInput 
+                    <NumberInput
                       placeholder="VD: 6"
                       style={{ textAlign: "left" }}
                     />

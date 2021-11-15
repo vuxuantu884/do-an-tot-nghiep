@@ -122,13 +122,7 @@ const StoreListScreen: React.FC = () => {
       dataIndex: "code",
       render: (value, item) => {
         return (
-          <>
-            {allowReadStore ? (
-              <Link to={`${UrlConfig.STORE}/${item.id}`}>{value}</Link>
-            ) : (
-              <>{value}</>
-            )}
-          </>
+          <Link to={`${UrlConfig.STORE}/${item.id}`}>{value}</Link>
         );
       },
       visible: true,

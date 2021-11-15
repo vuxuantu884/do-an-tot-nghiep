@@ -58,7 +58,6 @@ function OrderCreatePayments(props: PropType): JSX.Element {
     setPaymentMethod,
   } = props;
 
-  console.log("isDisablePostPayment", isDisablePostPayment);
 
   const changePaymentMethod = (value: number) => {
     setPaymentMethod(value);
@@ -87,8 +86,6 @@ function OrderCreatePayments(props: PropType): JSX.Element {
   const totalAmountCustomerNeedToPay = useMemo(() => {
     return totalAmountOrder - totalAmountPayment;
   }, [totalAmountOrder, totalAmountPayment]);
-
-  console.log("levelOrder", levelOrder);
 
   return (
     <StyledComponent>

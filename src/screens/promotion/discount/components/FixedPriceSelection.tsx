@@ -10,16 +10,18 @@ import importIcon from "../../../../assets/icon/import.svg";
 import {AppConfig} from "../../../../config/app.config";
 import {getToken} from "../../../../utils/LocalStorageUtils";
 import {customGroupBy} from "../../../../utils/AppUtils";
+import {VscError} from "react-icons/all";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
-  min_amount: "SL Tối thiểu",
+  min_quantity: "SL Tối thiểu",
   usage_limit: "Giới hạn",
   discount_percentage: "Chiết khấu (%)",
   fixed_amount: "Chiết khấu (VND)",
-  invalid: "không đúng định dạng",
+  invalid: "Không đúng định dạng",
   notfound: "không tìm thấy",
   required: "Không được trống",
+  sku_duplicate: "Bị trùng"
 };
 
 const FixedPriceSelection = (props: any) => {
@@ -29,6 +31,7 @@ const FixedPriceSelection = (props: any) => {
   const [allProduct, setAllProduct] = useState<boolean>(false);
   const [entitlementsResponse, setEntitlementsResponse] = useState([]);
   const [entitlementErrorsResponse, setEntitlementErrorsResponse] = useState<Array<any>>([]);
+  const [uploadError, setUploadError] = useState<any>("");
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<"error" | "success" | "done" | "uploading" | "removed" | undefined>(undefined);
@@ -160,7 +163,7 @@ const FixedPriceSelection = (props: any) => {
           </Button>,
         ]}
       >
-        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" || uploadStatus === "error" ? "" : "none"}}>
+        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" ? "" : "none"}}>
           <Row gutter={12}>
             <Col span={3}>
               Chú ý:
@@ -179,6 +182,7 @@ const FixedPriceSelection = (props: any) => {
               <Dragger
                 accept=".xlsx"
                 multiple={false}
+                showUploadList={false}
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/entitlements/read-file?type=${form.getFieldValue("entitled_method")}`}
                 headers={{"Authorization": `Bearer ${token}`}}
                 onChange={(info) => {
@@ -195,8 +199,12 @@ const FixedPriceSelection = (props: any) => {
                       }
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);
+                      setUploadStatus(status);
+                    } else {
+                      setUploadStatus("error")
+                      setUploadError(response.errors)
                     }
-                    setUploadStatus(status);
+
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
                     setUploadStatus(status);
@@ -217,16 +225,30 @@ const FixedPriceSelection = (props: any) => {
           </Row>
         </div>
         <div
-          style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+          style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" || uploadStatus === "error"? "" : "none"}}>
           <Row justify={"center"}>
             {uploadStatus === "uploading" ?
               <Col span={24}>
                 <Row justify={"center"}>
-                  <LoadingOutlined style={{fontSize: "78px"}} />
+                  <LoadingOutlined style={{fontSize: "78px", color: "#E24343"}} />
                 </Row>
                 <Row justify={"center"}>
                   <h2 style={{padding: "10px 30px"}}>
                     Đang upload file...
+                  </h2>
+                </Row>
+              </Col>
+              : ""}
+            {uploadStatus === "error" ?
+              <Col span={24}>
+                <Row justify={"center"}>
+                  <VscError style={{fontSize: "78px"}} />
+                </Row>
+                <Row justify={"center"}>
+                  <h2 style={{padding: "10px 30px"}}>
+                    <li>
+                      {uploadError || "Máy chủ đang bận"}
+                    </li>
                   </h2>
                 </Row>
               </Col>

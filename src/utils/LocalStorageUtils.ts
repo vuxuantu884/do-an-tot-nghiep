@@ -15,7 +15,6 @@ const removeToken = () => {
   localStorage.removeItem(ACCESS_TOKEN);
 };
 
-
 const setAppSetting = (appSeting: any) => {
   let data: string = JSON.stringify(appSeting)
   localStorage.setItem(SETTING_APP, data);
@@ -28,7 +27,6 @@ const getSettingApp = (): String | null => {
 
 const setPackInfo=(appSeting: any)=>{
   let data: string = JSON.stringify(appSeting)
-  //localStorage.removeItem(PACKINFO_APP);
   localStorage.setItem(PACKINFO_APP, data); 
 }
 
@@ -36,4 +34,8 @@ const getPackInfo = (): String | null => {
   return localStorage.getItem(PACKINFO_APP);
 };
 
-export {setToken, getToken, removeToken, setAppSetting, getSettingApp, setPackInfo, getPackInfo};
+const removePackInfo = () => {
+  localStorage.removeItem(PACKINFO_APP);
+};
+
+export {setToken, getToken, removeToken, setAppSetting, getSettingApp, setPackInfo, getPackInfo,removePackInfo};

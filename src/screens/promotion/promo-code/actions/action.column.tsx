@@ -16,6 +16,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
           <Menu.Item key="3">
             <Button
+              disabled
               icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
               type="text"
               className=""
@@ -27,6 +28,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
 
           <Menu.Item key="4">
             <Button
+              disabled
               icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
               type="text"
               className=""

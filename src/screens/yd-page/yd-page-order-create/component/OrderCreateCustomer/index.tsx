@@ -68,9 +68,9 @@ import CreateCustomer from "./CreateCustomer";
 //#end region
 
 type CustomerCardProps = {
-  handleCustomer: (items: CustomerResponse | null) => void;
-  ShippingAddressChange: (items: ShippingAddress) => void;
-  BillingAddressChange: (items: BillingAddress) => void;
+  setCustomer: (items: CustomerResponse | null) => void;
+  setShippingAddress: (items: ShippingAddress | null) => void;
+  setBillingAddress: (items: BillingAddress | null) => void;
   setDistrictId: (items: number | null) => void;
   setVisibleCustomer: (item: boolean) => void;
   customer: CustomerResponse | null;
@@ -82,7 +82,8 @@ type CustomerCardProps = {
   shippingAddress: ShippingAddress | any;
   setModalAction: (item: modalActionType) => void;
   modalAction: modalActionType;
-  districtId: number | null
+  districtId: number | null;
+  setOrderSourceId?: (value: number) => void;
 };
 
 //Add query for search Customer
@@ -105,7 +106,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => {
   const {
     customer,
-    handleCustomer,
+    setCustomer,
     loyaltyPoint,
     loyaltyUsageRules,
     levelOrder = 0,
@@ -115,7 +116,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setModalAction,
     modalAction,
       districtId,
-      setDistrictId
+      setDistrictId,
+      setBillingAddress,
+      setShippingAddress,
+    setOrderSourceId
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -214,12 +218,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 initQueryCustomer,
                 (data: Array<CustomerResponse>) => {
                   if (data && data.length !== 0) {
-                    handleCustomer(data[0]);
+                    setCustomer(data[0]);
                     //set Shipping Address
                     if (data[0].shipping_addresses) {
                       data[0].shipping_addresses.forEach((item, index2) => {
                         if (item.default) {
-                          props.ShippingAddressChange(item);
+                          props.setShippingAddress(item);
                         }
                       });
                     }
@@ -228,7 +232,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                     if (data[0].billing_addresses) {
                       data[0].billing_addresses.forEach((item, index2) => {
                         if (item.default) {
-                          props.BillingAddressChange(item);
+                          props.setBillingAddress(item);
                         }
                       });
                     }
@@ -320,7 +324,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   //Delete customer
   const CustomerDeleteInfo = () => {
-    handleCustomer(null);
+    setCustomer(null);
+    setShippingAddress(null);
+    setBillingAddress(null)
     setVisibleCustomer(false);
   };
 
@@ -331,24 +337,28 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       const customer: CustomerResponse | undefined = resultSearch?.find(item => item.id.toString() === value)
       if (customer) {
         OkConfirmCustomerEdit();
-        handleCustomer(customer);
+        setCustomer(customer);
 
         //set Shipping Address
         if (customer?.shipping_addresses) {
           customer.shipping_addresses.forEach((item, index2) => {
             if (item.default) {
-              props.ShippingAddressChange(item);
+              props.setShippingAddress(item);
             }
           });
+        }else{
+          props.setShippingAddress(null);
         }
 
         //set Billing Address
         if (customer?.billing_addresses) {
           customer.billing_addresses.forEach((item, index2) => {
             if (item.default) {
-              props.BillingAddressChange(item);
+              props.setBillingAddress(item);
             }
           });
+        }else{
+          props.setBillingAddress(null);
         }
         autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
@@ -393,7 +403,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
       OkConfirmCustomerEdit();
-      handleCustomer(customers);
+      setCustomer(customers);
     }
   };
 
@@ -458,6 +468,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 }
                 return false;
               }}
+               onChange={(value) => {
+                 setOrderSourceId && setOrderSourceId(value)
+               }}
             >
               {listSources.map((item, index) => (
                 <CustomSelect.Option
@@ -530,6 +543,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               style={{ margin: "10px 0" }}
             >
                   <Col style={{ display: "flex", alignItems: "center" }}>
+                    {levelOrder < 3 && (
+                        <CloseOutlined
+                            style={{ color: "red", fontSize: 20, marginRight: 10 }}
+                            onClick={CustomerDeleteInfo}
+                        />
+                    )}
                 <div className="fpage-order-avatar-customer">
                   <img
                     style={{ width: 34, height: 34 }}
@@ -541,9 +560,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   target="_blank"
                   to={`${UrlConfig.CUSTOMER}/${customer?.id}`}
                   className="primary"
-                  style={{ fontSize: "16px", margin: "0 10px" }}
+                  style={{ fontSize: "16px", margin: "0 10px", fontWeight: 500 }}
                 >
-                  {customer?.full_name}
+                  {customer?.full_name?.toUpperCase()}
                 </Link>{" "}
 
               </Col>
@@ -553,18 +572,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 </span>
                 <span
                   className="customer-detail-text text-body"
-                  style={{ marginRight: "10px" }}
+                  style={{ marginRight: "10px", fontWeight: 500, fontSize: 16 }}
                 >
                   {customer?.phone === undefined
                     ? "0987654321"
                     : customer?.phone}
                 </span>
-                {levelOrder < 3 && (
-                  <CloseOutlined
-                    style={{ color: "red" }}
-                    onClick={CustomerDeleteInfo}
-                  />
-                )}
               </Col>
               </Row>
               <Divider style={{ padding: 0, marginBottom: 6 }} />
@@ -622,7 +635,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 groups={groups}
                 handleChangeArea={handleChangeArea}
                 handleChangeCustomer={handleChangeCustomer}
-                ShippingAddressChange={props.ShippingAddressChange}
+                ShippingAddressChange={props.setShippingAddress}
                 keySearchCustomer={keySearchCustomer}
               />
             )}
@@ -638,7 +651,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 handleChangeArea={handleChangeArea}
                 handleChangeCustomer={handleChangeCustomer}
                 setSingleShippingAddress={setSingleShippingAddress}
-                ShippingAddressChange={props.ShippingAddressChange}
+                ShippingAddressChange={props.setShippingAddress}
                 ShowAddressModalEdit={ShowAddressModalEdit}
                 showAddressModalDelete={showAddressModalDelete}
                 ShowAddressModalAdd={ShowAddressModalAdd}
