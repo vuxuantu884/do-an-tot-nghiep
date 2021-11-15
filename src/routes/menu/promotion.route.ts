@@ -1,3 +1,4 @@
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -80,6 +81,7 @@ const promotion: Array<RouteMenu> = [
     key: "submenu106",
     isShow: true,
     header: null,
+    permissions:[PromoPermistion.READ],
     subMenu: [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`,
@@ -91,6 +93,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions:[PromoPermistion.CREATE],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/:id`,
@@ -102,6 +105,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions:[PromoPermistion.READ],
       },
     ],
   },
@@ -114,6 +118,7 @@ const promotion: Array<RouteMenu> = [
     key: "submenu107",
     isShow: true,
     header: null,
+    permissions: [PromoPermistion.READ],
     subMenu: [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
@@ -125,6 +130,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [PromoPermistion.CREATE],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id`,
@@ -136,6 +142,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [PromoPermistion.READ],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/:id`,
@@ -147,6 +154,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [PromoPermistion.READ],
       }
     ],
   },
