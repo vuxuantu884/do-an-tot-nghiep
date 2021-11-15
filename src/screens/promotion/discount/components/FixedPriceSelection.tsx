@@ -236,7 +236,7 @@ const FixedPriceSelection = (props: any) => {
             {uploadStatus === "error" ?
               <Col span={24}>
                 <Row justify={"center"}>
-                  <VscError style={{fontSize: "78px"}} />
+                  <VscError style={{fontSize: "78px", color: "#E24343"}} />
                 </Row>
                 <Row justify={"center"}>
                   <h2 style={{padding: "10px 30px"}}>

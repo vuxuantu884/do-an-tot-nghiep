@@ -798,9 +798,9 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listChannel &&
-                          data.prerequisite_sales_channel_names.map((name) => (
+                          data.prerequisite_sales_channel_names.map((code) => (
                             <li>
-                              {listChannel.find((channel) => channel.name === name)?.name}
+                              {listChannel.find((channel) => channel.code === code)?.name}
                             </li>
                           ))}
                       </ul>
@@ -971,10 +971,23 @@ const PromotionDetailScreen: React.FC = () => {
                 accept=".xlsx"
                 multiple={false}
                 showUploadList={false}
+                beforeUpload={(file) => {
+                  console.log('file.type: ', file);
+                  if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                    setUploadStatus("error")
+                    setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
+                    return false;
+                  }
+                  setUploadStatus("uploading")
+                  setUploadError([])
+                  return true;
+                }}
+
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/${idNumber}/discount-codes/read-file`}
                 headers={{Authorization: `Bearer ${token}`}}
                 onChange={(info) => {
                   const {status} = info.file;
+                  console.log('onChange: ', status);
                   if (status === "done") {
                     const response = info.file.response;
                     if (response.code === 20000000) {
@@ -995,8 +1008,6 @@ const PromotionDetailScreen: React.FC = () => {
                     }
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
-                    setUploadStatus(status);
-                  } else {
                     setUploadStatus(status);
                   }
                 }}
