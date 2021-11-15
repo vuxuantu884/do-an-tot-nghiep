@@ -1,4 +1,4 @@
-import { PlusSquareOutlined, SaveOutlined } from "@ant-design/icons";
+import { PlusOutlined, PlusSquareOutlined, SaveOutlined } from "@ant-design/icons";
 import { Button, Card, Col, FormInstance, Row, Select, Form } from "antd";
 import React, {
   createRef,
@@ -20,7 +20,7 @@ import { removePackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment from "moment";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
@@ -145,11 +145,7 @@ const ReportHandOver: React.FC = () => {
   );
 
   const handOrderAddGoodsReceipts = useCallback(() => {
-    let codes: any[] = [];
-
-    data.items.forEach(function (i: any) {
-      codes.push(i.code);
-    });
+    
 
     if(!goodsReceipts)
     {
@@ -162,6 +158,15 @@ const ReportHandOver: React.FC = () => {
       showWarning("Chưa có đơn hàng đóng gói");
       return;
     }
+
+    let codes: any[] = [];
+
+    goodsReceipts?.orders?.forEach(function(i){
+      codes.push(i.code);
+    });
+    data.items.forEach(function (i: any) {
+      codes.push(i.code);
+    });
 
     let param: any = {
       ...goodsReceipts,
@@ -184,6 +189,7 @@ const ReportHandOver: React.FC = () => {
               },
               items: [],
             });
+            showSuccess("Thêm đơn hàng vào biên bản bàn giao thành công");
           }
         }
       )
@@ -222,11 +228,11 @@ const ReportHandOver: React.FC = () => {
     <Card
       title="Cho vào biên bản bàn giao"
       bordered={false}
-      style={{ paddingLeft: "18px", paddingRight: "18px" }}
+      className="pack-give-card"
     >
       <div>
         <Row gutter={24}>
-          <Col md={8} sm={24}>
+          <Col md={9} sm={24}>
             <Select
               className="select-with-search"
               showSearch
@@ -257,27 +263,29 @@ const ReportHandOver: React.FC = () => {
               ))}
             </Select>
           </Col>
-          <Col md={3}>
-            <Button
-              icon={<PlusSquareOutlined />}
-              size="large"
+          <div style={{marginRight:10}}>
+          <Button
+              icon={<PlusOutlined />}
+              ghost
+              type="primary"
+              size="small"
               block
               onClick={showModal}
             >
               Thêm mới
             </Button>
-          </Col>
-          <Col md={2}>
-            <Button
+          </div>
+          <div>
+          <Button
               type="primary"
               icon={<SaveOutlined />}
-              size="large"
+              size="small"
               block
               onClick={handOrderAddGoodsReceipts}
             >
               Lưu
             </Button>
-          </Col>
+          </div>
         </Row>
       </div>
       <ReportHandOverModal

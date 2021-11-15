@@ -343,7 +343,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: "10%",
+    width: "5%",
     render: (l: any, item: any, index: number) => {
       return <div className="yody-pos-qtt">{index + 1}</div>;
     },
@@ -434,9 +434,9 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   return (
     <Form layout="vertical" ref={formRef} form={form}>
-      <div style={{ padding: "24px 0 0 0" }}>
+      <div style={{ padding: "20px 0 0 0" }}>
         <Row gutter={24} style={{ marginLeft:"0px", marginRight:"0px"}}>
-          <Col md={9}>
+          <Col md={8}>
             <Form.Item
               label="Cửa hàng"
               name="store_request"
@@ -446,7 +446,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               //     message: "Vui lòng chọn cửa hàng",
               //   },
               // ]}
-              style={{ width: "70%" }}
+              style={{ width: "85%" }}
             >
               <Select
                 className="select-with-search"
@@ -479,7 +479,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             </Form.Item>
           </Col>
 
-          <Col md={7}>
+          <Col md={8} style={{paddingLeft:32, paddingRight:40}}>
             <Form.Item
               label="ID đơn hàng:"
               name="order_request"
@@ -489,7 +489,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                   message: "Vui lòng nhập mã đơn hàng hoặc mã đơn giao",
                 },
               ]}
-              style={{ width: "90%" }}
+              style={{ width: "100%" }}
             >
               <Input
                 className="select-with-search"
@@ -506,8 +506,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             </Form.Item>
           </Col>
 
-          <Col md={8}>
-            <Form.Item label="Sản phẩm:" style={{width: "70%",float: "right"}}>
+          <Col md={8} style={{paddingLeft:53, paddingRight:15}}>
+            <Form.Item label="Sản phẩm:" style={{width: "100%",float: "right"}}>
               <Input.Group
                 compact
                 className="select-with-search"
@@ -555,8 +555,9 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             align="middle"
             justify="space-between"
             style={{ height: "40px", borderTop: "1px solid #E5E5E5", marginLeft:"14px", marginRight:"14px" }}
+            className="pack-info-order"
           >
-            <Col md={7}>
+            <Col md={8}>
               <Space>
                 <span className="customer-detail-text">
                   <strong>Đơn hàng:</strong>
@@ -573,7 +574,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               </Space>
             </Col>
 
-            <Col md={7}>
+            <Col md={8}>
               <Space>
                 <span className="customer-detail-text">
                   <strong>Hãng vận chuyển:</strong>
@@ -590,7 +591,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               </Space>
             </Col>
 
-            <Col md={10}>
+            <Col md={8}>
               <Space>
                 <span className="customer-detail-text">
                   <strong>Khách hàng: </strong>
@@ -610,7 +611,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         )}
       </div>
       <div>
-        <Row className="sale-product-box" justify="space-between" style={{ marginLeft:"14px", marginRight:"14px"}}>
+        <Row className="sale-product-box" justify="space-between" style={{ marginLeft:"14px", marginRight:"14px", marginTop:12}}>
           <Table
              locale={{
               emptyText: (
@@ -679,12 +680,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           />
         </Row>
       </div>
-      <div style={{ padding: "24px 0 0 0" }}>
+      <div style={{ padding: "15px 0 0 0" }}>
         {orderList && orderList.length > 0 && (
           <Row gutter={24} style={{ marginLeft:"2.5px", marginRight:"2.5px"}}>
             <Col md={12}>
               <Button
-                style={{ padding: "0px 50px" }}
+                style={{ padding: "0px 25px" }}
                 onClick={onClickClearPack}
                 id="btnClearPack"
               >
