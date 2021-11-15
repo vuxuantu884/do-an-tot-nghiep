@@ -103,18 +103,22 @@ const CreateDiscountPage = () => {
   };
 
   const handleSubmit = async (values: any) => {
+    console.log('values: ', values)
     const body = transformData(values);
     body.activated = true;
-    const createResponse = await createPriceRule(body);
-    handleCreateSuccess(createResponse);
+    console.log('body: ', body)
+    // const createResponse = await createPriceRule(body);
+    // handleCreateSuccess(createResponse);
   };
 
   const save = async () => {
     const values = await discountForm.validateFields();
+    console.log('values: ', values)
     const body = transformData(values);
+    console.log('body: ', body)
     body.activated = false;
-    const createResponse = await createPriceRule(body);
-    handleCreateSuccess(createResponse);
+    // const createResponse = await createPriceRule(body);
+    // handleCreateSuccess(createResponse);
   };
 
   const handleSubmitFail = (errorFields: any) => {

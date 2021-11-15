@@ -49,7 +49,8 @@ const FixedPriceSelection = (props: any) => {
         "prerequisite_quantity_ranges.value_type": form.getFieldValue("entitled_method") === "FIXED_PRICE" ? "FIXED_AMOUNT" : i.discount_type,
         "prerequisite_quantity_ranges.value": i.discount_value,
       };
-        formEntitlements.push(formEntitlement);
+      console.log("handleImportEntitlements - formEntitlement: ", formEntitlement);
+      formEntitlements.push(formEntitlement);
       // }
     });
 
