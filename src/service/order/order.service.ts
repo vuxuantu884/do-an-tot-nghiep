@@ -1,3 +1,4 @@
+import {PageResponse} from "./../../model/base/base-metadata.response";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import {ApiConfig} from "config/api.config";
@@ -50,9 +51,14 @@ import {
 import {
   GoodsReceiptsResponse,
   GoodsReceiptsTypeResponse,
+  OrderConcernGoodsReceiptsResponse,
 } from "model/response/pack/pack.response";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {generateQuery} from "utils/AppUtils";
+
+export const getDetailOrderApi = (orderId: any): Promise<BaseResponse<OrderResponse>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/${orderId}`);
+};
 
 export const getListOrderApi = (
   query: OrderSearchQuery
@@ -379,24 +385,66 @@ export const createShippingOrderService = (
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
 };
 
+/**
+ * lấy danh sách loại biên bản
+ */
 export const getGoodsReceiptsTypeService = (): Promise<
   BaseResponse<GoodsReceiptsTypeResponse>
 > => {
-  const link = `${ApiConfig.ORDER}/goods-receipts/types`;
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/types`;
   return BaseAxios.get(link);
 };
 
+/**
+ * tạo biên bản bàn giao
+ */
 export const createGoodsReceiptsService = (
   params: GoodsReceiptsRequest
 ): Promise<BaseResponse<GoodsReceiptsResponse>> => {
-  const link = `${ApiConfig.ORDER}/goods-receipts`;
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts`;
   return BaseAxios.post(link, params);
 };
 
+/**
+ * cập nhật biên bản bàn giao
+ */
+export const updateGoodsReceiptsService = (
+  goodsReceiptsId: number,
+  params: GoodsReceiptsRequest
+): Promise<BaseResponse<GoodsReceiptsResponse>> => {
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
+  return BaseAxios.put(link, params);
+};
+
+/**
+ * lấy thông tin biên bản bàn giao
+ */
+export const getByIdGoodsReceiptsService = (goodsReceiptsId: number) => {
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
+  return BaseAxios.put(link);
+};
+
+/**
+ * xóa biên bản bàn giao
+ */
+export const deleteGoodsReceiptsService = (
+  goodsReceiptsId: number
+): Promise<BaseResponse<GoodsReceiptsResponse>> => {
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
+  return BaseAxios.delete(link);
+};
+
+/**
+ * tìm kiếm bản bàn giao
+ */
 export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.ORDER}/goods-receipts/search?${queryString}`);
+  console.log("queryString", queryString);
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?${queryString}`
+  );
 };
+
 /**
  * tách đơn
  */
@@ -415,12 +463,30 @@ export const getSourcesEcommerceService = (): Promise<
 };
 
 /**
-* chuyển trạng thái pick: (khi in nhiều phiếu bàn giao)
-*/
+ * Tìm kiếm đơn hàng thỏa mãn biên bản bàn giao
+ */
+export const getOrderConcernGoodsReceiptsService = (
+  orderCodes: string
+): Promise<BaseResponse<OrderConcernGoodsReceiptsResponse[]>> => {
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/goods-receipt-manager/orders?order_codes=${orderCodes}`
+  );
+};
+
+export const getChannelsService = (
+  typeId: number
+): Promise<BaseResponse<ChannelResponse[]>> => {
+  let link = `${ApiConfig.ORDER}/channels`;
+  if (typeId !== null) link = `${ApiConfig.ORDER}/channels?type_id=${typeId}`;
+  return BaseAxios.get(link);
+};
+/**
+ * chuyển trạng thái pick: (khi in nhiều phiếu bàn giao)
+ */
 export const changeOrderStatusToPickedService = (
   orderIds: number[]
 ): Promise<BaseResponse<any>> => {
-  const orderIdTexts = orderIds.map((id) => (`ids=${id}`))
-  const params = orderIdTexts.join("&")
-  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/picked?${params}`,);
+  const orderIdTexts = orderIds.map((id) => `ids=${id}`);
+  const params = orderIdTexts.join("&");
+  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/picked?${params}`);
 };

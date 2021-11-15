@@ -16,20 +16,20 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any, 
       const menu = (
         <StyledMenu>
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-        { handleGift && 
-            <Menu.Item key="1">
-              <Button
-                icon={<img style={{ marginRight: 12 }} alt="" src={checkIcon} />}
-                type="text"
-                className=""
-                onClick={() => handleGift(item)}
-              >
-                Đã tặng
-              </Button>
-            </Menu.Item>
-          }
+        {/*{ handleGift &&*/}
+        {/*    <Menu.Item key="1">*/}
+        {/*      <Button*/}
+        {/*        icon={<img style={{ marginRight: 12 }} alt="" src={checkIcon} />}*/}
+        {/*        type="text"*/}
+        {/*        className=""*/}
+        {/*        onClick={() => handleGift(item)}*/}
+        {/*      >*/}
+        {/*        Đã tặng*/}
+        {/*      </Button>*/}
+        {/*    </Menu.Item>*/}
+        {/*  }*/}
 
-          { handleStatus && 
+          { handleStatus &&
             <Menu.Item key="2">
               <Button
                 icon={<img style={{ marginRight: 12 }} alt="" src={closeIcon} />}

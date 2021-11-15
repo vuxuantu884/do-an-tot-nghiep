@@ -1,0 +1,64 @@
+
+.pack-card{
+    margin: 0px 10px;
+    margin-bottom: 20px;
+    .ant-card-body {
+        padding: 20px 9px 0px 9px;
+    }
+    // .col-item-right{
+    //     padding: 0px 0px 0px 24px;
+    // }
+    .page-filter{
+        padding: "0px 6px 20px 11px";
+    }
+}
+
+.pack-support-card{
+    margin: 0px 10px;
+    .ant-card-body{
+        padding:0px 10px 20px 10px;
+        .ant-tabs-nav-list{
+            font-size: 14px;
+            line-height: 16px;
+            font-family: 'Roboto';
+        }
+        .ant-tabs-nav{
+            padding-top: 0px;
+        }
+        .ant-tabs-tab{
+            padding: 12px 10px;
+        }
+        .ant-form-item{
+            margin: 0px 25px 18px 0px;
+        }
+        .pack-info-order .ant-col{
+            margin-top: 15px;
+        }
+    }
+}
+
+.pack-success-card{
+    margin: 0px 10px;
+    .ant-card-head{
+        font-size: 1.143rem;
+        padding: 20px 24px 15px 24px;
+        min-height: 40px;
+        border-bottom: 1px solid #E5E5E5;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 16px;
+    }
+    .ant-card-body{
+        padding: 24px ​24px;
+    }
+}
+
+.pack-give-card{
+    margin: 0px 7px;
+    // .ant-select-single.ant-select-sm:not(.ant-select-customize-input) .ant-select-selector{
+
+    // }
+}

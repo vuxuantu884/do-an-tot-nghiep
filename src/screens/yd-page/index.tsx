@@ -1,6 +1,6 @@
 import React, {useEffect, useCallback, useState} from "react";
 import YDPageOrders from "./yd-page-order-create/YDPageOrders";
-import FpageCustomer from "./yd-page-customer/YDPageCustomer";
+import YDPageCustomer from "./yd-page-customer/YDPageCustomer";
 import { Tabs } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
@@ -25,8 +25,8 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
 import { showError } from "utils/ToastUtils";
-import {LoyaltyRateResponse} from "../../model/response/loyalty/loyalty-rate.response";
-import {BillingAddress, ShippingAddress} from "../../model/request/order.request";
+import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import {BillingAddress, ShippingAddress} from "model/request/order.request";
 
 const { TabPane } = Tabs;
 
@@ -41,11 +41,10 @@ function YDPageCRM() {
   let queryString = useQuery();
   const dispatch = useDispatch();
   const [activeTabKey, setActiveTabKey] = React.useState<string>("1");
-  const [customer, setCustomer] = React.useState<CustomerResponse | null>();
+  const [customer, setCustomer] = React.useState<CustomerResponse | null>(null);
   const [isClearOrderTab, setIsClearOrderTab] = React.useState<boolean>(false);
   const [userId] = React.useState<string | null>(queryString?.get("userId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
-  // const [pageId] = React.useState<string | null>(queryString?.get("pageId"));
   const [YDPageCustomerInfo, setYDPageCustomerInfo] = React.useState<YDPageCustomerResponse | null>();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -146,7 +145,6 @@ function YDPageCRM() {
     [querySearchOrderFpage, setQuerySearchOrderFpage]
   );
   const searchByPhoneCallback = (value: any) => {
-    console.log(value)
     if (value) {
       setCustomer(value);
       setVisibleCustomer(true)
@@ -157,7 +155,7 @@ function YDPageCRM() {
       }
       if(value.billing_addresses){
         const billing = value.billing_addresses.find((item: any) => item.default)
-        setShippingAddress(billing)
+        setBillingAddress(billing)
       }
     } else {
       setCustomer(null);
@@ -182,7 +180,7 @@ function YDPageCRM() {
   }, [customer, dispatch, querySearchOrderFpage]);
 
   const getCustomerWhenChoicePhone = React.useCallback(
-    (phoneNumber: any) => {
+    (phoneNumber: string) => {
       setCustomerPhone(phoneNumber);
       if (phoneNumber) {
         initQueryCustomer.phone = phoneNumber;
@@ -197,7 +195,7 @@ function YDPageCRM() {
     setIsClearOrderTab(false);
   }, []);
 
-  const handleCustomerById = React.useCallback((id: number) => {
+  const handleCustomerById = React.useCallback((id: number | null) => {
     dispatch(CustomerDetail(id, searchByPhoneCallback));
   }, [dispatch])
 
@@ -212,7 +210,7 @@ function YDPageCRM() {
         onChange={(value: string) => handleOnchangeTabs(value)}
       >
         <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}>
-          <FpageCustomer
+          <YDPageCustomer
             customer={customer}
             setCustomer={setCustomer}
             getCustomerWhenPhoneChange={getCustomerWhenChoicePhone}

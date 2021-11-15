@@ -140,6 +140,7 @@ function OrderCreateShipment(props: PropType) {
         shipping_fee_paid_to_three_pls: null,
       });
     }
+    form.setFieldsValue({shipping_fee_informed_to_customer: 0})
   };
 
   const shipping_requirements = useSelector(
@@ -269,7 +270,6 @@ function OrderCreateShipment(props: PropType) {
         coupon: "",
         cod: 0,
       };
-      console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {

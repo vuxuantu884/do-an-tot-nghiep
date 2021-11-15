@@ -432,3 +432,14 @@ export interface OrderProductListModel extends OrderLineItemResponse {
   pick: number;
   color: string;
 }
+
+export interface ChannelTypeResponse{
+  id:number;
+  code:string;
+  name:string
+}
+
+export interface ChannelsResponse extends BaseObject{
+  name:string;
+  channel_type:ChannelTypeResponse;
+}

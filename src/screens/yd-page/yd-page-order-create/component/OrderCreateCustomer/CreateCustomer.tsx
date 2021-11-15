@@ -122,7 +122,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     setVisibleBtnUpdate(true);
   });
 
-  console.log("isVisibleBtnUpdate", isVisibleBtnUpdate);
+  // console.log("isVisibleBtnUpdate", isVisibleBtnUpdate);
 
   const DefaultWard = () => {
     let value = customerForm.getFieldsValue();
