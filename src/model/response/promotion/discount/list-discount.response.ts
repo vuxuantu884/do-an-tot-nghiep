@@ -23,4 +23,10 @@ export interface DiscountResponse extends BaseObject {
   prerequisite_sales_channel_names: string[];
   prerequisite_order_source_ids: number[];
   total_usage_count: number;
+  prerequisite_subtotal_range: PrerequisiteSubtotalRange
+}
+
+export interface PrerequisiteSubtotalRange {
+  greater_than_or_equal_to: number;
+  less_than_or_equal_to: number
 }
