@@ -16,7 +16,7 @@ export const CustomerSearchByPhone = (query: FpageCustomerSearchQuery, setData: 
   return BaseAction(CustomerType.CUSTOMER_SEARCH_BY_PHONE, { query, setData });
 }
 
-export const CustomerList = (query: CustomerSearchQuery, setData: (data: any) => void) => {
+export const getCustomerListAction = (query: CustomerSearchQuery, setData: (data: any) => void) => {
     return BaseAction(CustomerType.CUSTOMER_LIST, { query, setData });
 }
 
