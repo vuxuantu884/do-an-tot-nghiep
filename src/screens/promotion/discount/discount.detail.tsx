@@ -176,17 +176,12 @@ const PromotionDetailScreen: React.FC = () => {
     if (dataVariants && data && data.entitlements.length > 0) {
       setCostType(data.entitled_method)
       const flattenData:Array<any> = spreadData(data);
-      console.log('data: ', data);
-      console.log('flattenData: ', flattenData);
       const listEntitlements:Array<any> = mergeVariants(flattenData);
-      console.log('listEntitlements: ', listEntitlements);
 
 
       if (!listEntitlements || listEntitlements.length === 0) {
         const rawEntitlement = data.entitlements[0];
         const quantityRange = rawEntitlement.prerequisite_quantity_ranges[0];
-        console.log('renderTotalBill: ', `${renderTotalBill(quantityRange.cost, quantityRange.value, quantityRange.value_type)}`);
-        console.log('quantityRange.valueType: ', quantityRange.value_type);
         listEntitlements.push({
           title: "Tất cả sản phẩm",
           // sku: "Tất cả sản phẩm",
