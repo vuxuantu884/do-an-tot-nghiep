@@ -290,6 +290,9 @@
   .container {
     margin-left: 0;
   }
+  .container.collapsed{
+    margin-left: 0;
+  }
   .ant-steps {
     display: none !important;
   }
