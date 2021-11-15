@@ -226,7 +226,7 @@ const ListCode = () => {
   }
 
   // section ADD Manual
-  function handleAddManual(value: any) {
+  function handleAddManual(value: any, form?: any) {
     if (!value) return;
     let body = {
       discount_codes: [],
@@ -238,6 +238,7 @@ const ListCode = () => {
     });
     dispatch(showLoading());
     dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
+    form.resetFields();
   }
   function handleAddRandom(value: any) {
     if (!value) return;
@@ -258,6 +259,7 @@ const ListCode = () => {
       dispatch(hideLoading());
       if (response) {
         showSuccess("Thêm thành công");
+        setShowAddCodeManual(false);
         dispatch(getListPromoCode(priceRuleId, params, fetchData));
       }
     },
@@ -582,9 +584,8 @@ const ListCode = () => {
             onCancel={() => {
               setShowAddCodeManual(false);
             }}
-            onOk={(value) => {
-              setShowAddCodeManual(false);
-              handleAddManual(value);
+            onOk={(value, form) => {
+              handleAddManual(value, form);
             }}
           />
           <CustomModal
@@ -663,6 +664,18 @@ const ListCode = () => {
                     showUploadList={false}
                     action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
                     headers={{Authorization: `Bearer ${token}`}}
+                    beforeUpload={(file) => {
+                      console.log('file.type: ', file);
+                      if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                        setUploadStatus("error")
+                        setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
+                        return false;
+                      }
+                      setUploadStatus("uploading")
+                      setUploadError([])
+                      return true;
+                    }}
+
                     onChange={(info) => {
                       const {status} = info.file;
                       if (status === "done") {
@@ -686,8 +699,6 @@ const ListCode = () => {
                       } else if (status === "error") {
                         message.error(`${info.file.name} file upload failed.`);
                         setUploadStatus(status);
-                      } else {
-                        setUploadStatus(status);
                       }
                     }}
                   >
@@ -707,7 +718,8 @@ const ListCode = () => {
                   display:
                     uploadStatus === "done" ||
                     uploadStatus === "uploading" ||
-                    uploadStatus === "success"
+                    uploadStatus === "success" ||
+                    uploadStatus === "error"
                       ? ""
                       : "none",
                 }}
@@ -731,7 +743,7 @@ const ListCode = () => {
                     <Col span={24}>
                       <Row justify={"center"}>
                         <Space size={"large"}>
-                          <VscError style={{fontSize: "78px"}} />
+                          <VscError style={{fontSize: "78px", color: "#E24343"}} />
                           <h2 style={{padding: "10px 30px"}}>
                             <li>{uploadError || "Máy chủ đang bận"}</li>
                           </h2>

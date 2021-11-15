@@ -811,9 +811,9 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listChannel &&
-                          data.prerequisite_sales_channel_names.map((name) => (
+                          data.prerequisite_sales_channel_names.map((code) => (
                             <li>
-                              {listChannel.find((channel) => channel.name === name)?.name}
+                              {listChannel.find((channel) => channel.code === code)?.name}
                             </li>
                           ))}
                       </ul>
