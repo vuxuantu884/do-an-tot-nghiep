@@ -201,9 +201,9 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   ];
 
   return (
-    <Card title="Danh sách đơn hàng trong biên bản">
+    <Card title="Danh sách đơn hàng trong biên bản" className="pack-card">
       <div className="order-filter">
-        <div className="page-filter">
+        <div className="page-filter" style={{padding:"0px 6px 20px 11px"}}>
           <div className="page-filter-heading">
             <div className="page-filter-left">
               <ActionButton menu={menu} onMenuClick={onMenuClickExt} />
@@ -211,7 +211,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
             <div className="page-filter-right" style={{width: "60%"}}>
               <Space size={4}>
                 <Form layout="inline" ref={formSearchOrderRef}>
-                  <Item name="search_term" style={{width: "calc(97% - 142px)"}}>
+                  <Item name="search_term" style={{width: "calc(98% - 142px)"}}>
                     <Input
                       style={{width: "100%"}}
                       prefix={<img src={search} alt="" />}
