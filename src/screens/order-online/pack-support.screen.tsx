@@ -23,6 +23,7 @@ import {GoodsReceiptsTypeResponse} from "model/response/pack/pack.response";
 import {getGoodsReceiptsType} from "domain/actions/goods-receipts/goods-receipts.action";
 import PackReportHandOverCopy from "./pack-support/pack-report-hand-over-copy";
 import {useQuery} from "utils/useQuery";
+import "assets/css/_pack.scss";
 
 const {TabPane} = Tabs;
 
@@ -116,7 +117,7 @@ const PackSupportScreen: React.FC = () => {
       >
         <Row gutter={24}>
           <Col xs={24}>
-            <Card>
+            <Card className="pack-support-card">
               <Tabs activeKey={activeTab} onChange={handleClickTab}>
                 <TabPane tab="Đóng gói" key="1">
                   <PackInfo

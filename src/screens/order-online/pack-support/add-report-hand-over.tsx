@@ -18,6 +18,7 @@ import {haveAccess} from "utils/AppUtils";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./add-order-bottombar";
 import AddOrderInReport from "./add-order-in-report";
+import "assets/css/_pack.scss";
 
 // }
 const AddReportHandOver: React.FC<any> = (props: any) => {
@@ -176,7 +177,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           },
         ]}
       >
-        <Card>
+        <Card className="pack-card">
           <Form layout="vertical" 
             form={goodsReceiptsForm}
             onFinish={handSubmit}
@@ -197,7 +198,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     className="select-with-search"
                     showSearch
                     allowClear
-                    style={{width: "100%"}}
+                    style={{width: "95%"}}
                     placeholder="Chọn cửa hàng"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
@@ -220,7 +221,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col md={6}>
+              <Col md={6} style={{padding:"0px 4px 0px 15px"}}>
                 <Form.Item
                   label="Hãng vận chuyển"
                   name="delivery_service_id"
@@ -235,7 +236,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     className="select-with-search"
                     showSearch
                     allowClear
-                    style={{width: "100%"}}
+                    style={{width: "95%"}}
                     placeholder="Chọn hãng vận chuyển"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
@@ -258,7 +259,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col md={6}>
+              <Col md={6} style={{padding:"0px 0px 0px 22px"}}>
                 <Form.Item
                   label="Loại biên bản"
                   name="receipt_type_id"
@@ -273,7 +274,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     className="select-with-search"
                     showSearch
                     allowClear
-                    style={{width: "100%"}}
+                    style={{width: "95%"}}
                     placeholder="Chọn loại biên bản"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
@@ -296,7 +297,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col md={6}>
+              <Col md={6} className="col-item-right" style={{padding:"0px 0px 0px 24px"}}>
                 <Form.Item
                   label="Biên bản sàn"
                   name="ecommerce_id"
@@ -311,8 +312,8 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     className="select-with-search"
                     showSearch
                     allowClear
-                    style={{width: "100%"}}
-                    placeholder="Chọn kiểu biên bản"
+                    style={{width: "98%"}}
+                    placeholder="Chọn biên bản sàn"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
                       console.log(value);
