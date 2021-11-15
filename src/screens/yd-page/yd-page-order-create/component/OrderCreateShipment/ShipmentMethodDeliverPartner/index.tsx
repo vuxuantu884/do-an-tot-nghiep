@@ -89,7 +89,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
-      console.log("3333");
       const customerShippingAddress = customer?.shipping_addresses.find(
         (single) => single.default
       );
@@ -193,7 +192,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             result = single.transport_fee;
           }
         });
-        console.log("result", result);
         form?.setFieldsValue({shipping_fee_informed_to_customer: result});
         setShippingFeeInformedToCustomer(result);
       } else {

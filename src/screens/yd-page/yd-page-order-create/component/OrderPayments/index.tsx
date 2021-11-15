@@ -48,7 +48,7 @@ function OrderPayments(props: PropType): JSX.Element {
     return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
   }, [listPaymentMethod]);
 
-  console.log("props222", props);
+  // console.log("props222", props);
 
   const usageRate = useMemo(() => {
     let usageRate = loyaltyRate?.usage_rate ? loyaltyRate.usage_rate : 0;
@@ -84,9 +84,6 @@ function OrderPayments(props: PropType): JSX.Element {
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
-    console.log("payment_method_id", payment_method_id);
-
-    console.log("paymentMaster", paymentMaster);
     if (!paymentMaster) return;
     let indexPayment = payments.findIndex(
       (p) => p.payment_method_id === payment_method_id
@@ -110,10 +107,8 @@ function OrderPayments(props: PropType): JSX.Element {
     } else {
       payments.splice(indexPayment, 1);
     }
-    console.log("payments", payments);
     setPayments([...payments]);
   };
-  console.log("payments", payments);
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
@@ -131,10 +126,6 @@ function OrderPayments(props: PropType): JSX.Element {
     _paymentData[index].reference = value;
     setPayments(_paymentData);
   };
-
-  console.log("levelOrder", levelOrder);
-  console.log("ListPaymentMethods", ListPaymentMethods);
-
   return (
     <StyledComponent>
       <Col span={24}>

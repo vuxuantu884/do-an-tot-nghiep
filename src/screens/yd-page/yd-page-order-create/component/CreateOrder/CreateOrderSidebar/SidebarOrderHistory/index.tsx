@@ -17,7 +17,6 @@ type PropType = {
 function SidebarOrderHistory(props: PropType) {
   const formatDate = "hh:mm DD-MM-YYYY";
   const {customerId} = props;
-  console.log("customerId", customerId);
   const dispatch = useDispatch();
   const [customerHistory, setCustomerHistory] = useState<OrderModel[] | null>(null);
   const bootstrapReducer = useSelector(
@@ -34,7 +33,6 @@ function SidebarOrderHistory(props: PropType) {
       };
       dispatch(
         GetListOrderCustomerAction(queryParams, (response) => {
-          console.log("response", response);
           if (response) {
             setCustomerHistory(response.items);
           }

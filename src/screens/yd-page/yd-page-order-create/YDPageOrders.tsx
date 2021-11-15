@@ -127,6 +127,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       setDistrictId
   } = props;
   const dispatch = useDispatch();
+  const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [isSaveDraft, setIsSaveDraft] = useState(false);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
@@ -141,8 +142,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
-  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-  console.log("deliveryServices", deliveryServices);
+  const [, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+  // console.log("deliveryServices", deliveryServices);
 
   // const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   // const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -756,7 +757,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
               if (response.payments && response.payments?.length > 0) {
                 setPaymentMethod(PaymentMethodOption.PREPAYMENT);
                 new_payments = response.payments;
-                console.log("new_payments", new_payments);
+                // console.log("new_payments", new_payments);
                 setPayments(new_payments);
               }
 
@@ -1065,6 +1066,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     setModalAction={setModalAction}
                     districtId={districtId}
                     setDistrictId={setDistrictId}
+                    setOrderSourceId={setOrderSourceId}
                   />
                   <OrderCreateProduct
                     changeInfo={onChangeInfoProduct}
@@ -1086,6 +1088,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     setInventoryResponse={setInventoryResponse}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     orderConfig={null}
+                    orderSourceId={orderSourceId}
                   />
                   <Card>
                     <OrderCreatePayments
