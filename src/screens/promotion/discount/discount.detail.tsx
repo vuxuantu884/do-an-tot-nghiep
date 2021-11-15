@@ -197,8 +197,8 @@ const PromotionDetailScreen: React.FC = () => {
         const rawEntitlement = data.entitlements[0];
         const quantityRange = rawEntitlement.prerequisite_quantity_ranges[0];
         listEntitlements.push({
-          title: "Tất cả sản phẩm",
-          // sku: "Tất cả sản phẩm",
+          title: (<span style={{color: "#2A2A86", fontWeight: 500}}>Tất cả sản phẩm</span>),
+          sku: null,
           minimum: quantityRange.greater_than_or_equal_to,
           allocationLimit: quantityRange.allocation_limit,
           discountValue: `${renderDiscountValue(quantityRange.value, quantityRange.value_type)}`,
@@ -214,6 +214,7 @@ const PromotionDetailScreen: React.FC = () => {
       {
         title: "STT",
         align: "center",
+        width: "5%",
         render: (value: any, item: any, index: number) => index + 1,
       },
       {
@@ -266,6 +267,9 @@ const PromotionDetailScreen: React.FC = () => {
       {
         title: "STT",
         align: "center",
+        width: "5%",
+        // visible: entitlements.length > 1,
+        visible: false,
         render: (value: any, item: any, index: number) => index + 1,
       },
       {
@@ -313,6 +317,7 @@ const PromotionDetailScreen: React.FC = () => {
     ];
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
   }, [costType]);
+
 
   const renderTotalBill = (cost: number, value: number, valueType: string) => {
     let result = "";
@@ -668,7 +673,7 @@ const PromotionDetailScreen: React.FC = () => {
               >
                 <CustomTable
                   dataSource={entitlements}
-                  columns={quantityColumn}
+                  columns={entitlements.length > 1 ? quantityColumn : quantityColumn.filter((column:any) => column.title !== "STT")}
                   pagination={false}
                 />
               </Card>
