@@ -106,10 +106,10 @@ function OrderSources(props: PropsType) {
     });
   }
 
-  let listDepartmentFormatted = renameChildrenInArrayDepartment(listDepartments);
+  // let listDepartmentFormatted = renameChildrenInArrayDepartment(listDepartments);
 
   // console.log('listDepartments', listDepartments);
-  console.log("listDepartmentFormatted", listDepartmentFormatted);
+  // console.log("listDepartmentFormatted", listDepartmentFormatted);
 
   const columns: ICustomTableColumType<any>[] = [
     {
