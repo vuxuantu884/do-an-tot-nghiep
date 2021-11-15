@@ -1,4 +1,4 @@
-import { PlusOutlined, PlusSquareOutlined, SaveOutlined } from "@ant-design/icons";
+import { PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import { Button, Card, Col, FormInstance, Row, Select, Form } from "antd";
 import React, {
   createRef,
@@ -20,7 +20,7 @@ import { removePackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment from "moment";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
