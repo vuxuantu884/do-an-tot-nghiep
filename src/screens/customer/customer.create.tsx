@@ -1,5 +1,5 @@
 import { Form, Row, Col, Button, Collapse } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
@@ -39,6 +39,10 @@ const CustomerCreate = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
+
+  
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
@@ -69,6 +73,12 @@ const CustomerCreate = (props: any) => {
   const reload = React.useCallback(() => {
     customerForm.resetFields();
   }, [customerForm]);
+
+  const goBack = () => {
+    if (!isLoading) {
+      history.goBack();
+    }
+  }
 
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -110,6 +120,7 @@ const CustomerCreate = (props: any) => {
   }, [customerForm]);
   const setResult = React.useCallback(
     (result) => {
+      setIsLoading(false);
       if (result) {
         showSuccess("Thêm khách hàng thành công");
         history.replace(`/customers/${result.id}`);
@@ -139,6 +150,8 @@ const CustomerCreate = (props: any) => {
         },
       ],
     };
+
+    setIsLoading(true);
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
   const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
@@ -182,6 +195,7 @@ const CustomerCreate = (props: any) => {
             <GeneralInformation
               form={customerForm}
               name="general_add"
+              isLoading={isLoading}
               accounts={accounts}
               groups={groups}
               types={types}
@@ -220,7 +234,10 @@ const CustomerCreate = (props: any) => {
                 key="1"
               >
                 <Row gutter={30} style={{ padding: "0 15px" }}>
-                  <CustomInputContact form={customerForm} />
+                  <CustomInputContact
+                    form={customerForm}
+                    isLoading={isLoading}
+                  />
                 </Row>
               </Panel>
             </Collapse>
@@ -228,20 +245,21 @@ const CustomerCreate = (props: any) => {
           <Col span={6} />
         </Row>
         <div className="customer-bottom-button">
-          <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
+          <div onClick={goBack} style={{ cursor: "pointer" }}>
             <img style={{ marginRight: "10px", transform: "rotate(180deg)"}} src={arrowLeft} alt="" />
             Quay lại danh sách khách hàng
           </div>
           <div>
             <Button
-               onClick={() => reload()}
+              disabled={isLoading}
+              onClick={() => reload()}
               style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
               type="ghost"
             >
               Hủy
             </Button>
-            <Button type="primary" htmlType="submit">
-              Tạo mới khách hàng
+            <Button type="primary" htmlType="submit" loading={isLoading}>
+              Tạo mới khách hàng 
             </Button>
           </div>
         </div>

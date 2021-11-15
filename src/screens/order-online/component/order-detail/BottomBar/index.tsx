@@ -6,6 +6,8 @@ import React from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import IconPrint from "assets/icon/printer-blue.svg";
 import { StyledComponent } from "./styles";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -138,34 +140,44 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 disabled={disabledBottomActions}
                 overlay={
                   <Menu>
-                    <Menu.Item
-                      key="update"
-                      onClick={() => orderActionsClick && orderActionsClick("update")}
-                      disabled={
-                        stepsStatusValue === OrderStatus.CANCELLED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPING
-                      }
-                    >
-                      Sửa đơn hàng
-                    </Menu.Item>
-                    <Menu.Item
-                      key="cancel"
-                      onClick={() => orderActionsClick && orderActionsClick("cancel")}
-                      disabled={
-                        stepsStatusValue === OrderStatus.CANCELLED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPING
-                      }
-                    >
-                      Huỷ đơn hàng
-                    </Menu.Item>
-                    <Menu.Item
-                      key="clone"
-                      onClick={() => orderActionsClick && orderActionsClick("clone")}
-                    >
-                      Sao chép đơn hàng
-                    </Menu.Item>
+                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.UPDATE]} passThrough>
+                      {(isPassed: boolean) => 
+                      <Menu.Item
+                        key="update"
+                        onClick={() => orderActionsClick && orderActionsClick("update")}
+                        disabled={
+                          stepsStatusValue === OrderStatus.CANCELLED ||
+                          stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                          stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed
+                        }
+                      >
+                        Sửa đơn hàng
+                      </Menu.Item>}
+                    </AuthWrapper>
+                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CANCEL]} passThrough>
+                      {(isPassed: boolean) => 
+                      <Menu.Item
+                        key="cancel"
+                        onClick={() => orderActionsClick && orderActionsClick("cancel")}
+                        disabled={
+                          stepsStatusValue === OrderStatus.CANCELLED ||
+                          stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                          stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed
+                        }
+                      >
+                        Huỷ đơn hàng
+                      </Menu.Item>}
+                    </AuthWrapper>
+                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                      {(isPassed: boolean) => 
+                      <Menu.Item
+                        key="clone"
+                        onClick={() => orderActionsClick && orderActionsClick("clone")}
+                        disabled={!isPassed}
+                      >
+                        Sao chép đơn hàng
+                      </Menu.Item>}
+                    </AuthWrapper>
                   </Menu>
                 }
                 trigger={["click"]}

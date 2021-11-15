@@ -27,7 +27,7 @@ import { getListSourceRequest } from "domain/actions/product/source.action";
 import { SourceResponse } from "model/response/order/source.response";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { EcommerceConfigPermissions } from "config/permissions/ecommerce.permission";
+import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
 
 const iconMap: any = {
@@ -39,9 +39,9 @@ const iconMap: any = {
 
 const { Option } = Select;
 
-const viewShopDetailPermission = [EcommerceConfigPermissions.VIEW_SHOP_DETAIL];
-const updateShopPermission = [EcommerceConfigPermissions.UPDATE_SHOP];
-const deleteShopPermission = [EcommerceConfigPermissions.DELETE_SHOP];
+const shopsReadPermission = [EcommerceConfigPermission.shops_read];
+const shopsUpdatePermission = [EcommerceConfigPermission.shops_update];
+const shopsDeletePermission = [EcommerceConfigPermission.shops_delete];
 
 type SettingConfigProps = {
   listStores: Array<StoreResponse>;
@@ -87,13 +87,13 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   
-  const [allowUpdateShop] = useAuthorization({
-    acceptPermissions: updateShopPermission,
+  const [allowShopsUpdate] = useAuthorization({
+    acceptPermissions: shopsUpdatePermission,
     not: false,
   });
 
-  const [allowDeleteShop] = useAuthorization({
-    acceptPermissions: deleteShopPermission,
+  const [allowShopsDelete] = useAuthorization({
+    acceptPermissions: shopsDeletePermission,
     not: false,
   });
 
@@ -280,7 +280,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   showSearch
                   placeholder="Chọn cửa hàng"
                   notFoundContent="Không tìm thấy kết quả"
-                  disabled={!allowUpdateShop}
+                  disabled={!allowShopsUpdate}
                   filterOption={(input, option) => {
                     if (option) {
                       return (
@@ -404,7 +404,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Nhập tên gian hàng"
                 maxLength={255}
                 isRequired={true}
-                disabled={!configDetail || !allowUpdateShop}
+                disabled={!configDetail || !allowShopsUpdate}
               />
             </Col>
           </Row>
@@ -448,7 +448,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 <Select
                   showSearch
                   placeholder="Chọn cửa hàng"
-                  disabled={!configDetail || !allowUpdateShop}
+                  disabled={!configDetail || !allowShopsUpdate}
                   allowClear
                   optionFilterProp="children"
                   onSearch={(value) => storeChangeSearch(value)}
@@ -477,7 +477,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 // ]}
               >
                 <Select
-                  disabled={!configDetail || !allowUpdateShop}
+                  disabled={!configDetail || !allowShopsUpdate}
                   showSearch
                   placeholder="Chọn nhân viên bán hàng"
                   allowClear
@@ -504,7 +504,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 // ]}
               >
                 <Select
-                  disabled={!configDetail || !allowUpdateShop}
+                  disabled={!configDetail || !allowShopsUpdate}
                   showSearch
                   placeholder="Chọn nguồn đơn hàng"
                   allowClear
@@ -552,7 +552,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 ]}
               >
                 <CustomSelect
-                  disabled={!configDetail || !allowUpdateShop}
+                  disabled={!configDetail || !allowShopsUpdate}
                   onChange={handleStoreChange}
                   mode="multiple"
                   className="dropdown-rule"
@@ -586,7 +586,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               >
                 <Select
                   placeholder="Chọn kiểu đồng bộ tồn kho"
-                  disabled={!configDetail || !allowUpdateShop}
+                  disabled={!configDetail || !allowShopsUpdate}
                 >
                   <Option value={"auto"}>
                     <span>Tự động</span>
@@ -628,7 +628,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               >
                 <Select
                   placeholder="Chọn kiểu đồng bộ đơn hàng"
-                  disabled={!configDetail || !allowUpdateShop}
+                  disabled={!configDetail || !allowShopsUpdate}
                 >
                   <Option value={"auto"}>
                     <span>Tự động</span>
@@ -648,7 +648,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               >
                 <Select
                   placeholder="Chọn kiểu đồng bộ sản phẩm"
-                  disabled={!configDetail || !allowUpdateShop}
+                  disabled={!configDetail || !allowShopsUpdate}
                 >
                   {/* <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
                     convertToCapitalizedString() || "sàn"
@@ -661,7 +661,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             </Col>
           </Row>
           <div className="customer-bottom-button">
-            {(isConfigExist && allowDeleteShop) ?
+            {(isConfigExist && allowShopsDelete) ?
               <Button
                 className="disconnect-btn"
                 icon={<img src={disconnectIcon} alt="" />}
@@ -675,7 +675,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               : <div></div>
             }
 
-            {allowUpdateShop &&
+            {allowShopsUpdate &&
               <Button
                 type="primary"
                 htmlType="submit"
@@ -692,7 +692,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   }
 
   return (
-    <AuthWrapper acceptPermissions={viewShopDetailPermission} passThrough>
+    <AuthWrapper acceptPermissions={shopsReadPermission} passThrough>
       {(allowed: boolean ) => (allowed ? renderComponent() : <NoPermission/>)}
     </AuthWrapper>
   );

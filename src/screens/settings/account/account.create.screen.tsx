@@ -458,8 +458,9 @@ const AccountCreateScreen: React.FC = () => {
                 >
                   <Select
                     placeholder="Chọn vị trí"
-                    showArrow
                     allowClear
+                    showArrow
+                    showSearch
                     optionFilterProp="children"
                   >
                     {listRole?.map((item) => (
@@ -487,6 +488,8 @@ const AccountCreateScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Khu vực" name="district_id">
                   <Select
+                    allowClear
+                    showArrow
                     showSearch
                     onSelect={onSelectDistrict}
                     placeholder="Chọn khu vực"

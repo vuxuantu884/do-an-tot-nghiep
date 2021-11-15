@@ -19,10 +19,11 @@ import {
 import {
   StoreDetailAction,
   StoreRankAction,
+  StoreGetTypeAction,
   StoreUpdateAction,
   StoreValidateAction,
 } from "domain/actions/core/store.action";
-import {StoreResponse, StoreUpdateRequest} from "model/core/store.model";
+import {StoreResponse, StoreUpdateRequest, StoreTypeRequest} from "model/core/store.model";
 import {CountryResponse} from "model/content/country.model";
 import {DistrictResponse} from "model/content/district.model";
 import {useCallback, useEffect, useRef, useState} from "react";
@@ -69,6 +70,7 @@ const StoreUpdateScreen: React.FC = () => {
   const [isError, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
@@ -126,6 +128,7 @@ const StoreUpdateScreen: React.FC = () => {
       dispatch(DistrictGetByCountryAction(DefaultCountry, setCityView));
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
+      dispatch(StoreGetTypeAction(setType));
       if (!Number.isNaN(idNumber)) {
         dispatch(StoreDetailAction(idNumber, setResult));
       }
@@ -188,7 +191,7 @@ const StoreUpdateScreen: React.FC = () => {
             }
           >
             <Row gutter={50}>
-              <Col>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   noStyle
                   shouldUpdate={(prev, current) =>
@@ -204,6 +207,28 @@ const StoreUpdateScreen: React.FC = () => {
                       </Item>
                     );
                   }}
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[
+                    {required: true, message: "Vui lòng chọn loại cửa hàng"},
+                  ]}
+                  label="Phân loại"
+                  name="type"
+                >
+                  <Select
+                    showSearch
+                    showArrow
+                    optionFilterProp="children"
+                    placeholder="Chọn phân loại"
+                  >
+                    {type?.map((item: StoreTypeRequest, index) => (
+                      <Option key={index} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
                 </Item>
               </Col>
             </Row>

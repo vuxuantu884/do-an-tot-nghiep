@@ -20,14 +20,14 @@ import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm';
 import ButtonCreate from 'component/header/ButtonCreate';
 import AuthWrapper from 'component/authorization/AuthWrapper';
 import NoPermission from 'screens/no-permission.screen';
-import { CustomerLevelPermissions } from 'config/permissions/customer.permission';
+import { CustomerLevelPermission } from 'config/permissions/customer.permission';
 import useAuthorization from 'hook/useAuthorization';
 
 
-const viewCustomerLevelPermission = [CustomerLevelPermissions.VIEW];
-const createCustomerLevelPermission = [CustomerLevelPermissions.CREATE];
-const updateCustomerLevelPermission = [CustomerLevelPermissions.UPDATE];
-const deleteCustomerLevelPermission = [CustomerLevelPermissions.DELETE];
+const viewCustomerLevelPermission = [CustomerLevelPermission.levels_read];
+const createCustomerLevelPermission = [CustomerLevelPermission.levels_create];
+const updateCustomerLevelPermission = [CustomerLevelPermission.levels_update];
+const deleteCustomerLevelPermission = [CustomerLevelPermission.levels_delete];
 
 
 const CustomerRanking = () => {

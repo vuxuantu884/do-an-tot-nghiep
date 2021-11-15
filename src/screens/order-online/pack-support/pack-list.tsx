@@ -69,7 +69,7 @@ function PackList(props: any) {
     <Card
       title="Đơn đã đóng gói "
       bordered={false}
-      style={{paddingLeft: "18px", paddingRight:"18px"}}
+      className="pack-success-card"
     >
       <div>
       <Table 

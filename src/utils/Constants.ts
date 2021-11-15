@@ -181,9 +181,3 @@ export const PROMO_TYPE = {
   AUTOMATIC: "AUTOMATIC",
 };
 
-export const ProductTabId = {
-  VARIANTS: "variants",
-  PARENT_LIST: "parents",
-  PRODUCT_HISTORY: "product-histories",
-  PRICE_HISTORY: "price-histories",
-};

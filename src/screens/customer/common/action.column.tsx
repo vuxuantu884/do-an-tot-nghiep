@@ -2,11 +2,11 @@ import { Button, Dropdown, Menu} from "antd";
 import threeDot from "assets/icon/three-dot.svg";
 import editIcon from "assets/icon/edit.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
-import { CustomerListPermissions } from "config/permissions/customer.permission";
+import { CustomerListPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 
 
-const updateCustomerPermission = [CustomerListPermissions.UPDATE_CUSTOMER];
+const updateCustomerPermission = [CustomerListPermission.customers_update];
 
 const actionColumn = (handleEdit: any, handleDelete: any, customerDetailState: any) => {
   const RenderActionColumn = (value: any, item: any, index: number) => {

@@ -1,10 +1,37 @@
 import styled from "styled-components";
 
+export const StyledCustomerFilter = styled.div`
+  .inline-filter {
+    width: 100%;
+    display: flex;
+    margin-bottom: 20px;
+    .input-search {
+      flex-grow: 1;
+    }
+  }
+
+`;
+
 export const StyledCustomerBaseFilter = styled.div`
   .base-filter-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    margin-top: 10px;
+    .base-filter-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+
+      .left-filter {
+        width: 33%;
+      }
+  
+      .center-filter {
+        width: 33%;
+      }
+  
+      .right-filter {
+        width: 30%;
+      }
+    }  
 
     .title {
       font-weight: 500;
@@ -12,18 +39,6 @@ export const StyledCustomerBaseFilter = styled.div`
       font-family: Roboto;
       font-style: normal;
       margin-bottom: 6px;
-    }
-
-    .left-filter {
-      width: 33%;
-    }
-
-    .center-filter {
-      width: 33%;
-    }
-
-    .right-filter {
-      width: 30%;
     }
 
     .select-scope {
@@ -40,6 +55,17 @@ export const StyledCustomerBaseFilter = styled.div`
       padding: 0 6px;
     }
 
+  }
+  
+`;
+
+export const StyledCustomerExtraButton = styled.div`
+  .import-file-button {
+    margin-right: 15px;
+  }
+
+  .export-file-button {
+    margin-right: 15px;
   }
   
 `;

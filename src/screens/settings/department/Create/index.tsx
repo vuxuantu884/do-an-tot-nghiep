@@ -47,20 +47,16 @@ const DepartmentCreateScreen: React.FC = () => {
     [dispatch]
   );
 
-  const onFinish = useCallback(
-    (value: DepartmentRequest) => {
-      setLoading(true);
-      dispatch(
-        departmentCreateAction(value, (result) => {
-          setLoading(false);
-          if (result) {
-            history.push(`${UrlConfig.DEPARTMENT}/${result.id}`);
-          }
-        })
-      );
-    },
-    [dispatch, history]
-  );
+  const onFinish = useCallback((value: DepartmentRequest) => {
+    setLoading(true);
+    value.status = 'active';
+    dispatch(departmentCreateAction(value, (result) => {
+      setLoading(false);
+      if(result) {
+        history.push(`${UrlConfig.DEPARTMENT}/${result.id}`)
+      }
+    }));
+  }, [dispatch, history]);
 
   useEffect(() => {
     searchAccount({}, false);
@@ -91,21 +87,10 @@ const DepartmentCreateScreen: React.FC = () => {
     >
       <Form onFinish={onFinish} layout="vertical">
         <Card title="Thông tin Phòng ban/Bộ phận">
+          <Form.Item name="status" hidden>
+            <Input />
+          </Form.Item>
           <Row gutter={50}>
-            <Col span={8}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Tên phòng ban",
-                  },
-                ]}
-                label="Mã phòng ban"
-                name="code"
-              >
-                <Input placeholder="Nhập phòng ban" />
-              </Form.Item>
-            </Col>
             <Col span={8}>
               <Form.Item
                 rules={[
@@ -114,10 +99,24 @@ const DepartmentCreateScreen: React.FC = () => {
                     message: "Vui lòng nhập mã phòng ban",
                   },
                 ]}
+                label="Mã phòng ban"
+                name="code"
+              >
+                <Input maxLength={13} placeholder="Nhập phòng ban" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập tên phòng ban",
+                  },
+                ]}
                 label="Tên phòng ban"
                 name="name"
               >
-                <Input placeholder="Tên phòng ban" />
+                <Input maxLength={255} placeholder="Tên phòng ban" />
               </Form.Item>
             </Col>
           </Row>
