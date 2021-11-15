@@ -29,7 +29,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
         <Row gutter={24}>
             <Col span={24}>
             <Form.Item
-              label="Đối tác giao hàng"
+              label="ĐT giao hàng"
               name="shipper_code"
               rules={
                 // khi lưu nháp không validate
@@ -95,7 +95,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             {/* )} */}
             <Form.Item
               name="shipping_fee_paid_to_three_pls"
-              label="Phí ship trả đối tác"
+              label="Phí ship trả ĐT"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
