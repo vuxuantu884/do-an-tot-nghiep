@@ -665,7 +665,6 @@ const ListCode = () => {
                     action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
                     headers={{Authorization: `Bearer ${token}`}}
                     beforeUpload={(file) => {
-                      console.log('file.type: ', file);
                       if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
                         setUploadStatus("error")
                         setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
