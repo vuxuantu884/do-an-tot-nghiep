@@ -50,7 +50,7 @@ const CreateDiscountPage = () => {
       ? [{code: values.discount_code}]
       : null;
     body.entitled_method = values.entitled_method;
-    body.usage_limit = values.usage_limit;
+    body.quantity_limit = values.usage_limit;
     body.prerequisite_store_ids = values.prerequisite_store_ids?.length
       ? values.prerequisite_store_ids
       : null;
