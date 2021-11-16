@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {EditOutlined, LoadingOutlined, SearchOutlined} from "@ant-design/icons";
+import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -15,44 +15,46 @@ import {
   Select,
   Space,
   Table,
-  Tooltip,
+  Tooltip
 } from "antd";
-import {RefSelectProps} from "antd/lib/select";
+import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
+import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
-import {AppConfig} from "config/app.config";
-import {Type} from "config/type.config";
+import { AppConfig } from "config/app.config";
+import { HttpStatus } from "config/http-status.config";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
   StoreGetListAction,
-  StoreSearchListAction,
+  StoreSearchListAction
 } from "domain/actions/core/store.action";
-import {splitOrderAction} from "domain/actions/order/order.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { splitOrderAction } from "domain/actions/order/order.action";
 import {
   SearchBarCode,
-  searchVariantsOrderRequestAction,
+  searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
-import {PageResponse} from "model/base/base-metadata.response";
-import {StoreResponse} from "model/core/store.model";
-import {InventoryResponse} from "model/inventory";
-import {OrderItemDiscountModel} from "model/other/order/order-model";
-import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
+import { OrderItemDiscountModel } from "model/other/order/order-model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderItemDiscountRequest,
   OrderLineItemRequest,
-  SplitOrderRequest,
+  SplitOrderRequest
 } from "model/request/order.request";
-import {OrderResponse} from "model/response/order/order.response";
-import {OrderConfigResponseModel} from "model/response/settings/order-settings.response";
-import {
-  applyCouponService,
-  applyDiscount,
-} from "service/promotion/discount/discount.service";
+import { CouponRequestModel, LineItemRequestModel } from "model/request/promotion.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { OrderResponse } from "model/response/order/order.response";
+import { ApplyCouponResponseModel } from "model/response/order/promotion.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, {
   createRef,
   MutableRefObject,
@@ -61,14 +63,19 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import DiscountGroup from "screens/order-online/component/discount-group";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
+import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
+import {
+  applyCouponService,
+  applyDiscount
+} from "service/promotion/discount/discount.service";
 import {
   findAvatar,
   findPrice,
@@ -80,20 +87,13 @@ import {
   getTotalDiscount,
   getTotalQuantity,
   haveAccess,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
-import {MoneyType} from "utils/Constants";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { MoneyType } from "utils/Constants";
+import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
+import { showError, showSuccess } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
-import {StyledComponent} from "./styles";
-import {CouponRequestModel, LineItemRequestModel} from "model/request/promotion.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
-import {ApplyCouponResponseModel} from "model/response/order/promotion.response";
-import BaseResponse from "base/base.response";
-import {HttpStatus} from "config/http-status.config";
-import {DISCOUNT_VALUE_TYPE} from "utils/Order.constants";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   storeId: number | null;
@@ -412,7 +412,6 @@ function OrderCreateProduct(props: PropType) {
           handleDiscountWhenActiveAutomaticDiscount();
           return;
         }, QUANTITY_DELAY_TIME);
-        return;
       }
       setItems(_items);
       handleChangeItems(_items);
@@ -607,30 +606,30 @@ function OrderCreateProduct(props: PropType) {
     width: "9%",
     align: "right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
-      console.log('maxQuantityToApplyDiscountTest', l)
+      // console.log('maxQuantityToApplyDiscountTest', l)
       return (
         <div className="yody-pos-qtt">
           <NumberInput
             style={{textAlign: "right", fontWeight: 500, color: "#222222"}}
             value={l.quantity}
             onChange={(value) => {
-              let maxQuantityToApplyDiscount = l?.maxQuantityToApplyDiscount;
-              if (
-                isAutomaticDiscount &&
-                value &&
-                maxQuantityToApplyDiscount &&
-                value > maxQuantityToApplyDiscount
-              ) {
-                showError(
-                  `Quá số lượng hưởng chiết khấu/ khuyến mại là ${maxQuantityToApplyDiscount} sản phẩm ở sản phẩm ${l.product} . Vui lòng tách dòng!`
-                );
-                l.quantity = maxQuantityToApplyDiscount;
-                value = maxQuantityToApplyDiscount;
-                return;
-              }
+              // let maxQuantityToApplyDiscount = l?.maxQuantityToApplyDiscount;
+              // if (
+              //   isAutomaticDiscount &&
+              //   value &&
+              //   maxQuantityToApplyDiscount &&
+              //   value > maxQuantityToApplyDiscount
+              // ) {
+              //   showError(
+              //     `Quá số lượng hưởng chiết khấu/ khuyến mại là ${maxQuantityToApplyDiscount} sản phẩm ở sản phẩm ${l.product} . Vui lòng tách dòng!`
+              //   );
+              //   l.quantity = maxQuantityToApplyDiscount;
+              //   value = maxQuantityToApplyDiscount;
+              //   return;
+              // }
               onChangeQuantity(value, index);
             }}
-            max={l.maxQuantityToApplyDiscount}
+            // max={l.maxQuantityToApplyDiscount}
             min={1}
             maxLength={4}
             minLength={0}
@@ -901,24 +900,52 @@ function OrderCreateProduct(props: PropType) {
       checkingDiscountResponse.data.line_items.length > 0
     ) {
       let _items:OrderLineItemRequest[] = [];
+      // let listDiscountItem = checkingDiscountResponse.data.line_items.map((single: any) => {
+      //   return {
+      //     discountId: single.variant_id,
+      //     allocation_limit: single.suggested_discounts[0].allocation_limit
+      //   }
+      // })
+      // let listDiscountItem: {
+      //   variant_id: number,
+      //   suggested_discounts: SuggestDiscountResponseModel[],
+      // }[] = []
+      // // let listDiscountItem = checkingDiscountResponse.data.line_items.reduce((), [])
+      // // console.log('listDiscountItem', listDiscountItem)
+      // checkingDiscountResponse.data.line_items.forEach((single:any) => {
+      //   let duplicateItem = listDiscountItem.find((one) => one.variant_id === single.variant_id)
+      //   if(duplicateItem) {
+      //     return
+      //   } else {
+      //     listDiscountItem.push({
+      //       variant_id: single.variant_id,
+      //       suggested_discounts: single.suggested_discounts,
+      //     })
+      //   }
+      // })
+      // console.log('listDiscountItem', listDiscountItem)
       for (let i = 0; i < items.length; i++) {
         let item = items[i];
+        // let suggested_discounts = listDiscountItem.find(
         let suggested_discounts = checkingDiscountResponse.data.line_items.find(
           (lineItem: any) => lineItem.variant_id === item.variant_id
         )?.suggested_discounts;
         console.log("suggested_discounts", suggested_discounts);
-        if (suggested_discounts?.length === 0) {
+        if (!suggested_discounts || suggested_discounts?.length === 0) {
           return item;
         }
         let highestValueSuggestDiscount = suggested_discounts[0]; // backend đã sắp xếp
         const total = item.price;
         let value = 0;
-        if (highestValueSuggestDiscount.value_type === "FIXED_AMOUNT") {
-          value = highestValueSuggestDiscount.value;
-        } else if (highestValueSuggestDiscount.value_type === "PERCENTAGE") {
-          value = total * (highestValueSuggestDiscount.value / 100);
-        } else if (highestValueSuggestDiscount.value_type === "FIXED_PRICE") {
-          value = item.price - highestValueSuggestDiscount.value;
+        if(!highestValueSuggestDiscount) {
+          return item;
+        }
+        if (highestValueSuggestDiscount.value_type === DISCOUNT_VALUE_TYPE.fixedAmount) {
+          value = highestValueSuggestDiscount.value ? highestValueSuggestDiscount.value : 0;
+        } else if (highestValueSuggestDiscount.value_type === DISCOUNT_VALUE_TYPE.percentage) {
+          value = highestValueSuggestDiscount.value ? total * (highestValueSuggestDiscount.value / 100) : 0;
+        } else if (highestValueSuggestDiscount.value_type === DISCOUNT_VALUE_TYPE.fixedPrice) {
+          value = highestValueSuggestDiscount.value ? item.price - highestValueSuggestDiscount.value : 0;
         }
         const rate = Math.round((value / item.price) * 100 * 100) / 100;
         const discountItem: OrderItemDiscountRequest = {
@@ -931,40 +958,42 @@ function OrderCreateProduct(props: PropType) {
         item.discount_items[0] = discountItem;
         item.discount_value = item.quantity * value;
         item.discount_rate = rate;
-        item.maxQuantityToApplyDiscount =
-          highestValueSuggestDiscount?.allocation_limit || undefined;
+        // item.maxQuantityToApplyDiscount =
+        //   highestValueSuggestDiscount?.allocation_limit || undefined;
         // //thêm tách, 
-        if(item.quantity > highestValueSuggestDiscount?.allocation_limit) {
-          let maxQuantityToDiscount = highestValueSuggestDiscount?.allocation_limit;
-          let clone = {
-            ...item,
-            quantity: maxQuantityToDiscount,
-          };
-          let newItem = {
-            ...item,
-            quantity: item.quantity - maxQuantityToDiscount,
-            discount_items: [{
-              amount: 0,
-              rate: 0,
-              discount_code: "",
-              promotion_id: undefined,
-              reason: "",
-              value: 0,
-            }],
-            discount_rate: 0,
-            discount_value: 0
-          }
-          _items =_items.splice(i).concat([clone, newItem])
-          // handleSplitLineItem(item,item, 1, i+1);
-        }else {
-          _items.push(item)
-        }
+        // if(highestValueSuggestDiscount?.allocation_limit && item.quantity > highestValueSuggestDiscount?.allocation_limit) {
+        //   let maxQuantityToDiscount = highestValueSuggestDiscount?.allocation_limit ? highestValueSuggestDiscount?.allocation_limit : 0;
+        //   let clone = {
+        //     ...item,
+        //     quantity: maxQuantityToDiscount,
+        //   };
+        //   let newItem = {
+        //     ...item,
+        //     quantity: item.quantity - maxQuantityToDiscount,
+        //     discount_items: [{
+        //       amount: 0,
+        //       rate: 0,
+        //       discount_code: "",
+        //       promotion_id: undefined,
+        //       reason: "",
+        //       value: 0,
+        //     }],
+        //     discount_rate: 0,
+        //     discount_value: 0
+        //   }
+        //   _items =_items.splice(i).concat([clone, newItem])
+        //   // handleSplitLineItem(item,item, 1, i+1);
+        // }else {
+        //   _items.push(item)
+        // }
+
+        _items.push(item)
         
       }
       console.log('_itemszzzzzzzzz', _items)
       await setItems(_items);
       handleChangeItems(_items);
-      showSuccess("Cập nhật chiết khấu thành công! 333333");
+      showSuccess("Cập nhật chiết khấu thành công!");
     } else {
       showError("Có lỗi khi áp dụng chiết khấu!");
     }
@@ -1013,13 +1042,16 @@ function OrderCreateProduct(props: PropType) {
         if (suggested_discounts && suggested_discounts.length > 0) {
           let highestValueSuggestDiscount = suggested_discounts[0]; // backend đã sắp xếp
           const total = item.amount;
-          let value = 0;
+          let value:number = 0;
+          if(!highestValueSuggestDiscount) {
+            return;
+          }
           if (highestValueSuggestDiscount.value_type === "FIXED_AMOUNT") {
-            value = highestValueSuggestDiscount.value;
+            value = highestValueSuggestDiscount.value ? highestValueSuggestDiscount.value : 0;
           } else if (highestValueSuggestDiscount.value_type === "PERCENTAGE") {
-            value = total * (highestValueSuggestDiscount.value / 100);
+            value = highestValueSuggestDiscount.value ? total * (highestValueSuggestDiscount.value / 100) : 0;
           } else if (highestValueSuggestDiscount.value_type === "FIXED_PRICE") {
-            value = item.price - highestValueSuggestDiscount.value;
+            value = highestValueSuggestDiscount.value ? item.price - highestValueSuggestDiscount.value : 0;
           }
           // highestValueDiscount = Math.max(
           //   ...suggested_discounts.map((discount: any) => {
@@ -1052,7 +1084,7 @@ function OrderCreateProduct(props: PropType) {
           // dung 3 de test, gia tri o duoi 3 la dung
           // item.maxQuantityToApplyDiscount =
           // highestValueSuggestDiscount?.allocation_limit || undefined;
-          item.maxQuantityToApplyDiscount =3
+          // item.maxQuantityToApplyDiscount =3
         }
         showSuccess("Thêm chiết khấu thành công!");
       }

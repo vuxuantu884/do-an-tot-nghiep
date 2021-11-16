@@ -205,7 +205,8 @@ const FixedPriceGroup = (props: any) => {
             <NumberInput key={`${key}-min`} min={0}/>
           </Form.Item>
         </Col>
-        <Col span={7}>
+        {/* Tạm thời bỏ giới hạn số lượng */}
+        <Col span={7} style={{display: "none"}}>
           <Form.Item
             name={[name, "prerequisite_quantity_ranges.allocation_limit"]}
             label={<Space>
