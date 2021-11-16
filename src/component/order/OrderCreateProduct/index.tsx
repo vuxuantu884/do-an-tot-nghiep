@@ -236,7 +236,7 @@ function OrderCreateProduct(props: PropType) {
   console.log("coupon", coupon);
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
-  const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(true);
+  const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -978,6 +978,7 @@ function OrderCreateProduct(props: PropType) {
               : 0;
           }
           const rate = Math.round((value / item.price) * 100 * 100) / 100;
+          value = Math.round(value);
           const discountItem: OrderItemDiscountRequest = {
             rate,
             value,
@@ -1108,6 +1109,7 @@ function OrderCreateProduct(props: PropType) {
           //   })
           // );
           const rate = Math.round((value / item.price) * 100 * 100) / 100;
+          value = Math.round(value);
           const discountItem: OrderItemDiscountRequest = {
             rate,
             value,
@@ -1228,6 +1230,7 @@ function OrderCreateProduct(props: PropType) {
                         rateDiscount =
                           Math.round((valueDiscount / item.price) * 100 * 100) / 100;
                       }
+                      valueDiscount = Math.round(valueDiscount);
                       const discountItem: OrderItemDiscountRequest = {
                         rate: rateDiscount,
                         value: valueDiscount,
@@ -1297,7 +1300,7 @@ function OrderCreateProduct(props: PropType) {
               console.log("applyDiscountResponse", applyDiscountResponse);
               if (applyDiscountResponse.invalid === true) {
                 showError(applyDiscountResponse.invalid_description);
-                setCoupon(" ");
+                setCoupon("");
               } else {
                 setCoupon(coupon);
                 const discount_code = applyDiscountResponse.code || undefined;
@@ -1418,13 +1421,13 @@ function OrderCreateProduct(props: PropType) {
       if (r.id === newV) {
         if (splitLine || index === -1) {
           _items.push(item);
-          // await handleAutomaticDiscount(_items, item, splitLine);
-          // if (isAutomaticDiscount) {
-          //   await handleAutomaticDiscount(_items, item, splitLine);
-          // } else if (coupon) {
-          //   await handleApplyCouponWhenSelectItem(_items, item);
-          //   // await handleApplyCouponWhenInsertCoupon(coupon, _items);
-          // }
+          await handleAutomaticDiscount(_items, item, splitLine);
+          if (isAutomaticDiscount) {
+            await handleAutomaticDiscount(_items, item, splitLine);
+          } else if (coupon) {
+            await handleApplyCouponWhenSelectItem(_items, item);
+            // await handleApplyCouponWhenInsertCoupon(coupon, _items);
+          }
           setAmount(amount + (item.price - item.discount_items[0].amount));
           calculateChangeMoney(
             _items,
@@ -1441,12 +1444,12 @@ function OrderCreateProduct(props: PropType) {
             variantItems[lastIndex].discount_items[0].amount *
               variantItems[lastIndex].quantity;
 
-          // await handleAutomaticDiscount(_items, item, splitLine);
-          // if (isAutomaticDiscount) {
-          //   await handleAutomaticDiscount(_items, item, splitLine);
-          // } else if (coupon) {
-          //   await handleApplyCouponWhenSelectItem(_items, item);
-          // }
+          await handleAutomaticDiscount(_items, item, splitLine);
+          if (isAutomaticDiscount) {
+            await handleAutomaticDiscount(_items, item, splitLine);
+          } else if (coupon) {
+            await handleApplyCouponWhenSelectItem(_items, item);
+          }
           setAmount(
             amount +
               variantItems[lastIndex].price -
@@ -1559,6 +1562,8 @@ function OrderCreateProduct(props: PropType) {
       // setDiscountRate && setDiscountRate(rate);
       if (coupon) {
         handleApplyCouponWhenInsertCoupon(coupon);
+      } else {
+        showError("Vui lòng điền mã giảm giá!")
       }
       if (items) {
         calculateChangeMoney(items, amount, rate, value);
@@ -1945,7 +1950,7 @@ function OrderCreateProduct(props: PropType) {
               </div>
             ),
           }}
-          rowKey={(record) => record.id + Math.random()}
+          rowKey={(record) => record.id}
           columns={columns}
           dataSource={items}
           className="sale-product-box-table2 w-100"
