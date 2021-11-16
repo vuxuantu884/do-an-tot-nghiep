@@ -100,7 +100,7 @@ function CardProductBottom(props: PropType) {
                 <div>Chiết khấu:</div>
               )}
 
-              {items && (
+              {items && discountRate!==0 && (
                 <Tag
                   style={{
                     marginTop: 0,
@@ -140,7 +140,7 @@ function CardProductBottom(props: PropType) {
                 <div>Mã giảm giá:</div>
               )}
 
-              {coupon !== "" && (
+              {coupon && coupon !== "" && (
                 <Tag
                   style={{
                     margin: 0,
