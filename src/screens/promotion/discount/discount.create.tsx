@@ -50,7 +50,7 @@ const CreateDiscountPage = () => {
       ? [{code: values.discount_code}]
       : null;
     body.entitled_method = values.entitled_method;
-    body.usage_limit = values.usage_limit;
+    body.quantity_limit = values.usage_limit;
     body.prerequisite_store_ids = values.prerequisite_store_ids?.length
       ? values.prerequisite_store_ids
       : null;
@@ -96,6 +96,9 @@ const CreateDiscountPage = () => {
       case HttpStatus.UNAUTHORIZED:
         dispatch(unauthorizedAction);
         break;
+      case 40000003:
+        showError(`${response.code} - ${response.message}`);
+        break;
       default:
         showError(`${response.code} - ${response.message}`);
         break;
@@ -103,18 +106,27 @@ const CreateDiscountPage = () => {
   };
 
   const handleSubmit = async (values: any) => {
-    const body = transformData(values);
-    body.activated = true;
-    const createResponse = await createPriceRule(body);
-    handleCreateSuccess(createResponse);
+    try {
+      const body = transformData(values);
+      body.activated = true;
+      const createResponse = await createPriceRule(body);
+      handleCreateSuccess(createResponse);
+    }  catch(error:any) {
+      showError(error.message)
+    }
+
   };
 
   const save = async () => {
-    const values = await discountForm.validateFields();
-    const body = transformData(values);
-    body.activated = false;
-    const createResponse = await createPriceRule(body);
-    handleCreateSuccess(createResponse);
+    try {
+      const values = await discountForm.validateFields();
+      const body = transformData(values);
+      body.activated = false;
+      const createResponse = await createPriceRule(body);
+      handleCreateSuccess(createResponse);
+    } catch(error:any) {
+       showError(error.message)
+    }
   };
 
   const handleSubmitFail = (errorFields: any) => {

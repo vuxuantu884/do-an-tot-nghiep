@@ -1,4 +1,4 @@
-import { Modal, Input, Table, Button, AutoComplete, Badge } from "antd";
+import { Input, Table, Button, AutoComplete, Badge } from "antd";
 import XCloseBtn from "assets/icon/X_close.svg";
 import searchGift from "assets/icon/search.svg";
 import React, { createRef, useCallback, useMemo, useState } from "react";
@@ -28,9 +28,6 @@ import { OrderLineItemRequest } from "model/request/order.request";
 import UrlConfig from "config/url.config";
 
 type AddGiftModalProps = {
-  visible: boolean;
-  onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  onOk: () => void;
   items: Array<OrderLineItemRequest>;
   onUpdateData: (items: Array<OrderLineItemRequest>) => void;
 };
@@ -91,7 +88,6 @@ const renderSearch = (item: VariantResponse) => {
 const AddGiftModal: React.FC<AddGiftModalProps> = (
   props: AddGiftModalProps
 ) => {
-  const { visible, onCancel, onOk } = props;
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
   const [resultSearch, setResultSearch] = useState<
@@ -283,18 +279,9 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     return newDiscountItem;
   };
 
-  const onOkPress = useCallback(() => {
-    onOk();
-  }, [onOk]);
   return (
-    <Modal
+    <div
       title="Chọn quà tặng"
-      width={700}
-      onCancel={onCancel}
-      onOk={onOkPress}
-      visible={visible}
-      cancelText="Hủy"
-      okText="Lưu"
       className="saleorder-product-modal"
     >
       <AutoComplete
@@ -317,6 +304,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
         />
       </AutoComplete>
       <Table
+          bordered
         locale={{
           emptyText: "Quà tặng trống",
         }}
@@ -325,7 +313,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
         columns={columns}
         rowKey={(record) => record.id}
       />
-    </Modal>
+    </div>
   );
 };
 

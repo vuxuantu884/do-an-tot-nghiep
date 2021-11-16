@@ -77,7 +77,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
     <StyledComponent>
       <Card style={{padding: 12}}>
         <Form.Item
-          label="Nhân viên bán hàng"
+          label="NV Bán hàng"
           name="assignee_code"
           rules={[
             {
@@ -112,7 +112,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
           </Select>
         </Form.Item>
         <Form.Item
-          label="Nhân viên marketing"
+          label="NV marketing"
           name="marketer_code"
           rules={[
             {
@@ -146,7 +146,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="Nhân viên điều phối" name="coordinator_code">
+        <Form.Item label="NV điều phối" name="coordinator_code">
           <Select
             className="select-with-search"
             notFoundContent="Không tìm thấy kết quả"
