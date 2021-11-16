@@ -192,6 +192,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
                         totalVat={totalVat}
                         totalReturn={totalReturn}
                         listStore={listStoreFilter}
+                        poData={poData}
                       />
                       <POReturnPaymentForm
                         formMain={formMain}
