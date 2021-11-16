@@ -1449,7 +1449,7 @@ function OrderCreateProduct(props: PropType) {
       if (r.id === newV) {
         if (splitLine || index === -1) {
           _items.push(item);
-          await handleAutomaticDiscount(_items, item, splitLine);
+          // await handleAutomaticDiscount(_items, item, splitLine);
           if (isAutomaticDiscount) {
             await handleAutomaticDiscount(_items, item, splitLine);
           } else if (coupon) {
@@ -1472,7 +1472,7 @@ function OrderCreateProduct(props: PropType) {
             variantItems[lastIndex].discount_items[0].amount *
               variantItems[lastIndex].quantity;
 
-          await handleAutomaticDiscount(_items, item, splitLine);
+          // await handleAutomaticDiscount(_items, item, splitLine);
           if (isAutomaticDiscount) {
             await handleAutomaticDiscount(_items, item, splitLine);
           } else if (coupon) {
