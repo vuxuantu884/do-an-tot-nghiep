@@ -15,7 +15,7 @@ import { useSelector } from "react-redux";
 
 import UrlConfig from "config/url.config";
 import { useDispatch } from "react-redux";
-import { CustomerList } from "domain/actions/customer/customer.action";
+import { getCustomerListAction } from "domain/actions/customer/customer.action";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import CustomTable, {
   ICustomTableColumType,
@@ -292,7 +292,7 @@ const Customer = () => {
     items: [],
   });
 
-  const [tableLoading, setTableLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -307,7 +307,7 @@ const Customer = () => {
   );
 
   const setResult = React.useCallback((result: PageResponse<any> | false) => {
-    setTableLoading(false);
+    setIsLoading(false);
     if (!!result) {
       setData(result);
     }
@@ -325,8 +325,8 @@ const Customer = () => {
   }, [dispatch]);
 
   React.useEffect(() => {
-    setTableLoading(true);
-    dispatch(CustomerList(query, setResult));
+    setIsLoading(true);
+    dispatch(getCustomerListAction(query, setResult));
   }, [dispatch, query, setResult]);
   
 
@@ -389,6 +389,7 @@ const Customer = () => {
         <StyledCustomerExtraButton>
           <Button
             className="import-file-button"
+            disabled={isLoading}
             size="large"
             icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
             onClick={handleImportFile}
@@ -399,6 +400,7 @@ const Customer = () => {
           {allowExportCustomer &&
             <Button
               className="export-file-button"
+              disabled={isLoading}
               size="large"
               icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
               onClick={handleExportFile}
@@ -410,6 +412,7 @@ const Customer = () => {
           {allowCreateCustomer &&
             <Link to={`${UrlConfig.CUSTOMER}/create`}>
               <Button
+                disabled={isLoading}
                 className="ant-btn-outline ant-btn-primary"
                 size="large"
                 icon={<PlusOutlined />}
@@ -424,39 +427,38 @@ const Customer = () => {
       <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
         {(allowed: boolean) => (allowed ?
           <Card>
-            <div className="customer-search-filter">
-              <CustomerListFilter
-                onClearFilter={onClearFilterAdvanceClick}
-                onFilter={onFilterClick}
-                isLoading={tableLoading}
-                params={query}
-                initQuery={params}
-                groups={groups}
-                types={types}
-                setShowSettingColumn={() => setShowSettingColumn(true)}
-                loyaltyUsageRules={loyaltyUsageRules}
-                listStore={listStore}
-                listChannel={listChannel}
-              />
-              
-              <CustomTable
-                isRowSelection
-                isLoading={tableLoading}
-                scroll={{ x: 2000 }}
-                sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-                pagination={{
-                  pageSize: data.metadata.limit,
-                  total: data.metadata.total,
-                  current: data.metadata.page,
-                  showSizeChanger: true,
-                  onChange: onPageChange,
-                  onShowSizeChange: onPageChange,
-                }}
-                dataSource={data.items}
-                columns={columnFinal}
-                rowKey={(item: any) => item.id}
-              />
-            </div>
+            <CustomerListFilter
+              onClearFilter={onClearFilterAdvanceClick}
+              onFilter={onFilterClick}
+              isLoading={isLoading}
+              params={query}
+              initQuery={params}
+              groups={groups}
+              types={types}
+              setShowSettingColumn={() => setShowSettingColumn(true)}
+              loyaltyUsageRules={loyaltyUsageRules}
+              listStore={listStore}
+              listChannel={listChannel}
+            />
+            
+            <CustomTable
+              isRowSelection
+              isLoading={isLoading}
+              bordered
+              scroll={{ x: 2000 }}
+              sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+              pagination={{
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
+              }}
+              dataSource={data.items}
+              columns={columnFinal}
+              rowKey={(item: any) => item.id}
+            />
           </Card>
           : <NoPermission />)}
       </AuthWrapper>

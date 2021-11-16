@@ -18,9 +18,9 @@ import { FilterOutlined } from "@ant-design/icons"
 type DiscountFilterProps = {
   params: DiscountSearchQuery;
   actions: Array<MenuAction>;
-  listStore: Array<StoreResponse> | undefined;
-  listSource: Array<SourceResponse>;
-  listCustomerCategories: Array<CustomerGroupModel>;
+  listStore?: Array<StoreResponse>;
+  listSource?: Array<SourceResponse>;
+  listCustomerCategories?: Array<CustomerGroupModel>;
   // tableLoading: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (value: DiscountSearchQuery | Object) => void;

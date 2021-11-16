@@ -20,7 +20,7 @@ import {RiUpload2Line} from "react-icons/ri";
 import {
   bulkDisablePriceRules,
   bulkEnablePriceRules,
-  deletePriceRulesById,
+  deletePriceRulesById, getVariants,
   promoGetDetail,
 } from "domain/actions/promotion/discount/discount.action";
 import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
@@ -47,6 +47,7 @@ import {formatCurrency} from "../../../utils/AppUtils";
 import {VscError} from "react-icons/all";
 import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
+import CustomTable from "../../../component/table/CustomTable";
 
 export interface ProductParams {
   id: string;
@@ -150,6 +151,10 @@ const PromotionDetailScreen: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState<
     "error" | "success" | "done" | "uploading" | "removed" | undefined
   >(undefined);
+  const [dataVariants, setDataVariants] = useState<any | null>(null);
+  const [entitlements, setEntitlements] = useState<Array<any>>([]);
+  const [minOrderSubtotal, setMinOrderSubtotal] = useState(0);
+  const [applyFor, setApplyFor] = useState("Sản phẩm")
 
   //phân quyền
   const [allowCancelPromoCode] = useAuthorization({
@@ -166,10 +171,20 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
     dispatch(getListChannelRequest(setListChannel));
+    dispatch(getVariants(idNumber, handleResponse));
   }, [dispatch]);
 
   const checkIsHasPromo = useCallback((data: any) => {
     setCheckPromoCode(data.items.length > 0);
+  }, []);
+
+  const handleResponse = useCallback((result: any | false) => {
+    setLoading(false);
+    if (!result) {
+      setError(true);
+    } else {
+      setDataVariants(result);
+    }
   }, []);
 
   const query = useQuery();
@@ -204,6 +219,46 @@ const PromotionDetailScreen: React.FC = () => {
       setData(result);
     }
   }, []);
+
+  const spreadData = (data: any) => {
+    let result: any[] = [];
+    if (data?.entitlements && data?.entitlements.length > 0) {
+      data?.entitlements.forEach((entitlement: any) => {
+        entitlement.entitled_variant_ids.forEach((vId: any) => {
+          result.push({
+            id: vId,
+            minimum:
+              entitlement.prerequisite_quantity_ranges[0]["greater_than_or_equal_to"],
+          });
+        });
+      });
+    }
+    return result;
+  };
+
+  const mergeVariants = (sourceData: Array<any>) => {
+    return sourceData.map((s) => {
+      const variant = dataVariants.find((v: any) => v.variant_id === s.id);
+      if (variant) {
+        s.title = variant.variant_title;
+        s.sku = variant.sku;
+      }
+      return s;
+    });
+  };
+
+  useEffect(() => {
+    if (dataVariants && data && data.entitlements.length > 0) {
+      if (data.prerequisite_subtotal_range?.greater_than_or_equal_to)
+        setMinOrderSubtotal(data.prerequisite_subtotal_range?.greater_than_or_equal_to)
+      const flattenData:Array<any> = spreadData(data);
+      const listEntitlements:Array<any> = mergeVariants(flattenData);
+      if (!listEntitlements || listEntitlements.length === 0) {
+        setApplyFor("Tất cả sản phẩm")
+      }
+      setEntitlements(listEntitlements);
+    }
+  }, [data, dataVariants]);
 
   const onActivateSuccess = useCallback(() => {
     dispatch(hideLoading());
@@ -409,6 +464,36 @@ const PromotionDetailScreen: React.FC = () => {
         return null;
     }
   };
+
+  const columns: Array<any> = [
+    {
+      title: "STT",
+      align: "center",
+      width: "5%",
+      render: (value: any, item: any, index: number) => index + 1,
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "sku",
+      align: "left",
+      width: "40%",
+      render: (value: string, item: any, index: number) => {
+        return (
+          <div>
+            <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
+              {value}
+            </Link>
+            <div>{item.title}</div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Số lượng tối thiểu",
+      align: "center",
+      dataIndex: "minimum",
+    },
+  ]
 
   return (
     <ContentContainer
@@ -657,7 +742,25 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                <span>Áp dụng cho toàn bộ đơn hàng</span>
+                <Space size={"large"} direction={"vertical"} style={{width: "100%"}}>
+                <Row>
+                  <Col span={12}>
+                    <span style={{fontWeight: 500}}>
+                      Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}
+                    </span>
+                  </Col>
+                  <Col span={12}>
+                    <span style={{fontWeight: 500}}>
+                      Áp dụng cho : {applyFor}
+                    </span>
+                  </Col>
+                </Row>
+                  {entitlements.length > 0 ? <CustomTable
+                    dataSource={entitlements}
+                    columns={entitlements.length > 1 ? columns : columns.filter((column:any) => column.title !== "STT")}
+                    pagination={false}
+                  /> : ""}
+                </Space>
               </Card>
             </Col>
             <Col span={24} md={6}>
@@ -798,9 +901,9 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listChannel &&
-                          data.prerequisite_sales_channel_names.map((name) => (
+                          data.prerequisite_sales_channel_names.map((code) => (
                             <li>
-                              {listChannel.find((channel) => channel.name === name)?.name}
+                              {listChannel.find((channel) => channel.code === code)?.name}
                             </li>
                           ))}
                       </ul>
@@ -971,6 +1074,17 @@ const PromotionDetailScreen: React.FC = () => {
                 accept=".xlsx"
                 multiple={false}
                 showUploadList={false}
+                beforeUpload={(file) => {
+                  if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                    setUploadStatus("error")
+                    setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
+                    return false;
+                  }
+                  setUploadStatus("uploading")
+                  setUploadError([])
+                  return true;
+                }}
+
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/${idNumber}/discount-codes/read-file`}
                 headers={{Authorization: `Bearer ${token}`}}
                 onChange={(info) => {
@@ -995,8 +1109,6 @@ const PromotionDetailScreen: React.FC = () => {
                     }
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
-                    setUploadStatus(status);
-                  } else {
                     setUploadStatus(status);
                   }
                 }}
