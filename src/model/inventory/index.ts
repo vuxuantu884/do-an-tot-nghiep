@@ -55,7 +55,6 @@ export interface InventoryQuery extends BaseQuery {
   to_on_way?: number,
   from_shipping?: number,
   to_shipping?: number,
-  from_import_price?: number,
   to_import_price?: number,
   from_mac?: number,
   to_mac?: number,
@@ -64,7 +63,11 @@ export interface InventoryQuery extends BaseQuery {
   variant_id?: number
   status?: string;
 } 
-
+export interface InventoryVariantListQuery extends InventoryQuery {
+  variant_ids?: Array<number>;
+  store_ids?: Array<number>;
+  is_detail?: boolean;
+}
 export interface AllInventoryResponse {
   id: number,
   sku: string,
