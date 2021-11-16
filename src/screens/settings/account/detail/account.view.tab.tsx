@@ -135,7 +135,7 @@ function AccountViewTab() {
         rightComponent={
           <Space>
             <Button
-              onClick={() => history.push(`${UrlConfig.ACCOUNTS}/edit/${userCode}`)}
+              onClick={() => history.push(`${UrlConfig.ACCOUNTS}/${userCode}/update`)}
             >
               <div style={{display: "flex", alignItems: "center"}}>
                 {allowUpdateAcc ? (

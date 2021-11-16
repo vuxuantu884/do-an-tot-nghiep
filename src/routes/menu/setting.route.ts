@@ -105,7 +105,7 @@ const setting: Array<RouteMenu> = [
         permissions: [AccountPermissions.CREATE],
       },
       {
-        path: `${UrlConfig.ACCOUNTS}/edit/:code`,
+        path: `${UrlConfig.ACCOUNTS}/:code/update`,
         exact: true,
         title: "Chỉnh sửa người dùng",
         icon: "icon-dot",
@@ -216,7 +216,7 @@ const setting: Array<RouteMenu> = [
         permissions: [StorePermissions.READ],
         subMenu: [
           {
-            path: `${UrlConfig.STORE}/:id/edit`,
+            path: `${UrlConfig.STORE}/:id/update`,
             exact: true,
             title: "Sửa cửa hàng",
             icon: "icon-dot",
