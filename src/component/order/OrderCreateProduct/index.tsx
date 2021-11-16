@@ -867,18 +867,18 @@ function OrderCreateProduct(props: PropType) {
 
   const removeDiscountItem = (item: OrderLineItemRequest) => {
     item.discount_amount = 0;
-          item.discount_rate = 0;
-          item.discount_value = 0;
-          item.discount_items = [
-            {
-              amount: 0,
-              rate: 0,
-              discount_code: "",
-              promotion_id: undefined,
-              reason: "",
-              value: 0,
-            },
-          ];
+    item.discount_rate = 0;
+    item.discount_value = 0;
+    item.discount_items = [
+      {
+        amount: 0,
+        rate: 0,
+        discount_code: "",
+        promotion_id: undefined,
+        reason: "",
+        value: 0,
+      },
+    ];
   };
 
   const onDeleteItem = (index: number) => {
@@ -950,13 +950,13 @@ function OrderCreateProduct(props: PropType) {
         )?.suggested_discounts;
         console.log("suggested_discounts", suggested_discounts);
         if (!suggested_discounts || suggested_discounts?.length === 0) {
-          removeDiscountItem(item)
+          removeDiscountItem(item);
         }
         let highestValueSuggestDiscount = suggested_discounts[0]; // backend đã sắp xếp
         const total = item.price;
         let value = 0;
         if (!highestValueSuggestDiscount) {
-          removeDiscountItem(item)
+          removeDiscountItem(item);
         } else {
           if (
             highestValueSuggestDiscount.value_type === DISCOUNT_VALUE_TYPE.fixedAmount
@@ -977,8 +977,11 @@ function OrderCreateProduct(props: PropType) {
               ? item.price - highestValueSuggestDiscount.value
               : 0;
           }
-          const rate = Math.round((value / item.price) * 100 * 100) / 100;
           value = Math.round(value);
+          value = Math.min(value, item.price);
+
+          let rate = Math.round((value / item.price) * 100 * 100) / 100;
+          rate = Math.min(rate, 100);
           const discountItem: OrderItemDiscountRequest = {
             rate,
             value,
@@ -1108,7 +1111,9 @@ function OrderCreateProduct(props: PropType) {
           //     return value;
           //   })
           // );
-          const rate = Math.round((value / item.price) * 100 * 100) / 100;
+          let rate = Math.round((value / item.price) * 100 * 100) / 100;
+          rate = Math.min(rate, 100);
+          value = Math.min(value, item.price);
           value = Math.round(value);
           const discountItem: OrderItemDiscountRequest = {
             rate,
@@ -1230,6 +1235,7 @@ function OrderCreateProduct(props: PropType) {
                         rateDiscount =
                           Math.round((valueDiscount / item.price) * 100 * 100) / 100;
                       }
+                      valueDiscount = Math.min(valueDiscount, amount);
                       valueDiscount = Math.round(valueDiscount);
                       const discountItem: OrderItemDiscountRequest = {
                         rate: rateDiscount,
@@ -1363,12 +1369,14 @@ function OrderCreateProduct(props: PropType) {
                           default:
                             break;
                         }
-                        let amount = discount_value
+                        discount_value = Math.min(discount_value, amount);
+                        discount_rate = Math.min(discount_rate, 100);
+                        let amountDiscount = discount_value
                           ? singleItem.quantity * discount_value
                           : 0;
                         singleItem.discount_items = [
                           {
-                            amount,
+                            amount: amountDiscount,
                             value: discount_value,
                             rate: discount_rate
                               ? Math.round(discount_rate * 100) / 100
@@ -1542,7 +1550,7 @@ function OrderCreateProduct(props: PropType) {
         calculateChangeMoney(items, amount, rate, value);
       }
       showSuccess("Thêm chiết khấu thành công!");
-      setCoupon("")
+      setCoupon("");
     }
     setVisiblePickDiscount(false);
   };
@@ -1563,7 +1571,7 @@ function OrderCreateProduct(props: PropType) {
       if (coupon) {
         handleApplyCouponWhenInsertCoupon(coupon);
       } else {
-        showError("Vui lòng điền mã giảm giá!")
+        showError("Vui lòng điền mã giảm giá!");
       }
       if (items) {
         calculateChangeMoney(items, amount, rate, value);
