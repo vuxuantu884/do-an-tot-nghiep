@@ -68,6 +68,8 @@ type NotConnectedItemsProps = {
   tableLoading: any;
 };
 
+let connectedYodyProductsRequest :object;
+
 const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   props: NotConnectedItemsProps
 ) => {
@@ -98,10 +100,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
   let notMatchSelectedRow: any[] = [];
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
-
-  const [connectedYodyProductsRequest, setConnectedYodyProductsRequest] = useState<any>({
-    variants: null
-  });
 
   const [isShowResultConnectProductModal, setIsShowResultConnectProductModal] = useState(false);
   const [connectProductData, setConnectProductData] = useState<any>({
@@ -811,9 +809,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
       tempSelectedRow.forEach((rowData) => {
         const rowMatch = yodyProductConnectCheck.find(
-          (item) => item.id !== rowData.id
+          (item) => item.id === rowData.id
         );
-        if (rowMatch) {
+        if (!rowMatch) {
           notMatchSelectedRow.push(rowData);
         }
       });
@@ -825,11 +823,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
 
     if (isSaveAble) {
-      const request = {
+      connectedYodyProductsRequest = {
         variants: yodyProductConnectCheck,
       };
-
-      setConnectedYodyProductsRequest(request);
 
       if (isNotEqualPrice) {
         setDiffPriceProductList(diffPriceProductListData);
