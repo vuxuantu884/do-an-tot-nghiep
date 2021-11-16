@@ -27,7 +27,7 @@ const ListInventoryAdjustments: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <ButtonCreate child="Thêm phiếu kiểm" path={`${UrlConfig.INVENTORY_ADJUSTMENT}/create`} />
+              <ButtonCreate child="Thêm phiếu kiểm" path={`${UrlConfig.INVENTORY_ADJUSTMENTS}/create`} />
             </Space>
           </Row>
         }

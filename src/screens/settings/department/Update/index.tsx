@@ -62,7 +62,7 @@ const DepartmentUpdateScreen: React.FC = () => {
   const onFinish = useCallback(
     (value: DepartmentRequest) => {
       setLoading(true);
-      value.status = 'active';
+      value.status = "active";
       dispatch(
         departmentUpdateAction(idNumber, value, (result) => {
           setLoading(false);
@@ -102,14 +102,14 @@ const DepartmentUpdateScreen: React.FC = () => {
     <ContentContainer
       isError={error}
       isLoading={isLoading}
-      title="Quản lý phòng ban/bộ phận"
+      title="Quản lý bộ phận"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý phòng ban/bộ phận",
+          name: "Quản lý bộ phận",
           path: UrlConfig.DEPARTMENT,
         },
         {
@@ -130,7 +130,7 @@ const DepartmentUpdateScreen: React.FC = () => {
           onFinish={onFinish}
           layout="vertical"
         >
-          <Card title="Thông tin Phòng ban/Bộ phận">
+          <Card title="Thông tin bộ phận">
             <Form.Item name="status" hidden>
               <Input />
             </Form.Item>
@@ -186,9 +186,9 @@ const DepartmentUpdateScreen: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name="parent_id" label="Thuộc về phòng ban/Bộ phận">
+                <Form.Item name="parent_id" label="Thuộc về bộ phận" >
                   <TreeSelect
-                    placeholder="Chọn phòng ban/Bộ phận"
+                    placeholder="Chọn bộ phận"
                     treeDefaultExpandAll
                     className="selector"
                     allowClear

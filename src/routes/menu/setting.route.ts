@@ -134,7 +134,7 @@ const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.DEPARTMENT,
     exact: true,
-    title: "Quản lý phòng ban/bộ phận",
+    title: "Quản lý bộ phận",
     icon: "icon-dot",
     component: DepartmentSearchScreen,
     key: "subMenu910",
@@ -157,7 +157,7 @@ const setting: Array<RouteMenu> = [
       {
         path: `${UrlConfig.DEPARTMENT}/:id`,
         exact: true,
-        title: "Chi tiết Phòng ban/Bộ phận",
+        title: "Chi tiết bộ phận",
         icon: "icon-dot",
         component: DepartmentDetailScreen,
         key: "account2",
@@ -170,7 +170,7 @@ const setting: Array<RouteMenu> = [
       {
         path: `${UrlConfig.DEPARTMENT}/:id/update`,
         exact: true,
-        title: "Chi tiết Phòng ban/Bộ phận",
+        title: "Chi tiết bộ phận",
         icon: "icon-dot",
         component: DepartmentUpdateScreen,
         key: "account2",

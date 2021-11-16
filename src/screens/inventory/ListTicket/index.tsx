@@ -43,15 +43,7 @@ const InventoryListScreen: React.FC = () => {
           parseInt(activeTab) === 1 &&
           <Row>
             <Space>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                onClick={() => {}}
-              >
-                Xin hàng
-              </Button>
-              <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFER}/create`} />
+              <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
             </Space>
           </Row>
         }
