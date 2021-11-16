@@ -1555,7 +1555,6 @@ function OrderCreateProduct(props: PropType) {
     rate: number,
     coupon: string
   ) => {
-    console.log("coupoonss");
     console.log('items', items)
     if (items?.length === 0) {
       showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu!");
