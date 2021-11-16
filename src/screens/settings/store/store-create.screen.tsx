@@ -16,7 +16,6 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
-import { StorePermissions } from "config/permissions/setting.permisssion";  
 import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
@@ -30,13 +29,16 @@ import {
   StoreRankAction,
   StoreValidateAction,
 } from "domain/actions/core/store.action";
-import useAuthorization from "hook/useAuthorization";
 import {CountryResponse} from "model/content/country.model";
 import {DistrictResponse} from "model/content/district.model";
 import {GroupResponse} from "model/content/group.model";
 import {WardResponse} from "model/content/ward.model";
 import {StoreRankResponse} from "model/core/store-rank.model";
-import {StoreCreateRequest, StoreResponse, StoreTypeRequest} from "model/core/store.model";
+import {
+  StoreCreateRequest,
+  StoreResponse,
+  StoreTypeRequest,
+} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import {RuleObject, StoreValue} from "rc-field-form/lib/interface";
 import React, {useCallback, useEffect, useRef, useState} from "react";
@@ -87,12 +89,7 @@ const StoreCreateScreen: React.FC = () => {
   );
   const [formMain] = Form.useForm();
 
-  //EndState
-
-  //phân quyền
-  const [allowCreateStore] = useAuthorization({
-    acceptPermissions: [StorePermissions.CREATE],
-  });
+  //EndState 
 
   //ref
   const firstload = useRef(true);
@@ -123,10 +120,7 @@ const StoreCreateScreen: React.FC = () => {
       history.push(`${UrlConfig.STORE}/${data.id}`);
     },
     [history]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
 
   const checkDuplicateStoreName = (
     rule: RuleObject,
@@ -166,7 +160,7 @@ const StoreCreateScreen: React.FC = () => {
     }
     firstload.current = true;
   }, [dispatch]);
-  
+
   return (
     <ContentContainer
       title="Thêm mới cửa hàng"
@@ -240,9 +234,7 @@ const StoreCreateScreen: React.FC = () => {
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
-                rules={[
-                  {required: true, message: "Vui lòng chọn loại cửa hàng"},
-                ]}
+                rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
                 label="Phân loại"
                 name="type"
               >
@@ -515,15 +507,10 @@ const StoreCreateScreen: React.FC = () => {
         <BottomBarContainer
           back={"Quay lại"}
           rightComponent={
-            <Space>
-              <Button type="default" onClick={onCancel}>
-                Hủy
+            <Space> 
+              <Button htmlType="submit" type="primary">
+                Lưu
               </Button>
-              {!allowCreateStore ? (
-                <Button htmlType="submit" type="primary">
-                  Lưu
-                </Button>
-              ) : null}
             </Space>
           }
         />

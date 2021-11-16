@@ -197,7 +197,7 @@ const StoreDetailScreen: React.FC = () => {
                 {allowUpdateStore ? (
                   <Button
                     onClick={() => {
-                      history.push(`${UrlConfig.STORE}/${idNumber}/edit`);
+                      history.push(`${UrlConfig.STORE}/${idNumber}/update`);
                     }}
                     type="primary"
                   >
