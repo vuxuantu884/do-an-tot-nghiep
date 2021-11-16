@@ -44,7 +44,7 @@ const menu: Array<RouteMenu> = [
 
   },
   {
-    path: "/inventory-transfer",
+    path: "/inventory-transfers",
     exact: true,
     title: "Kho hàng",
     icon: 'icon-inventory',

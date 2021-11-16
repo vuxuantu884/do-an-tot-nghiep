@@ -308,7 +308,7 @@ const CreateTicket: FC = () => {
       if (result) {
         setIsLoading(false);
         showSuccess("Thêm mới dữ liệu thành công");
-        history.push(`${UrlConfig.INVENTORY_TRANSFER}/${result.id}`);
+        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
       } else {
         setIsLoading(false);
       }
@@ -344,9 +344,7 @@ const CreateTicket: FC = () => {
   }, [dataTable, form])
 
   const onChangeFromStore = (storeId: number) => {
-    let variantField = form.getFieldValue(VARIANTS_FIELD);
-
-    const variants_id = variantField?.map((item: VariantResponse) => item.id);
+    const variants_id = dataTable?.map((item: VariantResponse) => item.id);
 
     if (variants_id?.length > 0) {
       setIsLoadingTable(true);      
@@ -631,7 +629,7 @@ const CreateTicket: FC = () => {
           },
           {
             name: "Chuyển hàng",
-            path: `${UrlConfig.INVENTORY_TRANSFER}`,
+            path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
             name: "Thêm mới",
@@ -887,7 +885,7 @@ const CreateTicket: FC = () => {
               onCancel={() => {
                 setIsVisibleModalWarning(false);
               }}
-              onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}`)}
+              onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)}
               okText="Đồng ý"
               cancelText="Tiếp tục"
               title={`Bạn có muốn rời khỏi trang?`}

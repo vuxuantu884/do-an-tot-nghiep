@@ -308,7 +308,7 @@ const DetailTicket: FC = () => {
         showSuccess("Nhập hàng thành công");
         setDataTable(result.line_items);
         setData(result);
-        history.push(`${UrlConfig.INVENTORY_TRANSFER}/${result.id}`);
+        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
       }
     },
     [history]
@@ -666,7 +666,7 @@ const DetailTicket: FC = () => {
           },
           {
             name: "Chuyển hàng",
-            path: `${UrlConfig.INVENTORY_TRANSFER}`,
+            path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
             name: `${data? data.code : ''}`,
@@ -1074,7 +1074,7 @@ const DetailTicket: FC = () => {
             </Row>
             <BottomBarContainer 
               leftComponent = {
-                <div onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}`)} style={{ cursor: "pointer" }}>
+                <div onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)} style={{ cursor: "pointer" }}>
                   <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
                   {"Quay lại danh sách"}
                 </div>
@@ -1114,7 +1114,7 @@ const DetailTicket: FC = () => {
                     <Button
                       onClick={() => {
                         history.push(
-                          `${UrlConfig.INVENTORY_TRANSFER}/${data?.id}/update`
+                          `${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update`
                         );
                       }}
                     >
@@ -1124,7 +1124,7 @@ const DetailTicket: FC = () => {
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && 
                     <Button
-                      onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}/${data.id}/update?cloneId=${data.id}`)}
+                      onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data.id}/update?cloneId=${data.id}`)}
                     >
                       Tạo bản sao
                     </Button>

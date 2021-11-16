@@ -150,7 +150,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
 
         const dataItem = JSON.parse(value);
         
-        return <Link to={`${UrlConfig.INVENTORY_TRANSFER}/${dataItem?.id}`}>{dataItem?.code}</Link>
+        return <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${dataItem?.id}`}>{dataItem?.code}</Link>
       }
     },
     {
@@ -251,7 +251,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}#2?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#2?${queryParam}`);
     },
     [history, params]
   );
@@ -260,7 +260,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
     () => {
       setPrams(initQuery);
       let queryParam = generateQuery(initQuery);
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}#2?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#2?${queryParam}`);
     },
     [history]
   );
