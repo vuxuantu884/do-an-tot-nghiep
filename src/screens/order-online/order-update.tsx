@@ -1221,6 +1221,7 @@ export default function Order(props: PropType) {
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     orderConfig={null}
                     orderSourceId={orderSourceId}
+                    levelOrder={levelOrder}
                   />
 
                   {OrderDetail !== null &&
