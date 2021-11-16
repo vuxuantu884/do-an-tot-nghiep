@@ -51,14 +51,14 @@ const ListProductScreen: React.FC = () => {
 
     if (redirectUrl === ProductTabUrl.VARIANTS && canReadVariants) {
       setActiveTab(ProductTabUrl.VARIANTS);
-    } else if (redirectUrl === ProductTabUrl.PRODUCTS) {
+    } else if (redirectUrl === ProductTabUrl.VARIANTS) {
       redirectUrl = ProductTabUrl.PRODUCTS;
     }
 
     if (redirectUrl === ProductTabUrl.PRODUCTS && canReadProducts) {
       history.replace(redirectUrl);
       setActiveTab(ProductTabUrl.PRODUCTS);
-    } else if (redirectUrl === ProductTabUrl.PRODUCT_HISTORIES) {
+    } else if (redirectUrl === ProductTabUrl.PRODUCTS) {
       redirectUrl = ProductTabUrl.PRODUCT_HISTORIES;
     }
 
