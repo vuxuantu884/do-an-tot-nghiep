@@ -122,7 +122,7 @@ export interface FulFillmentResponse {
   account_code: string | null;
   assignee_code: string | null;
   delivery_type: string | null;
-  status: string | null;
+  status: string;
   partner_status: string | null;
   stock_location_id: number | null;
   payment_status: string | null;
