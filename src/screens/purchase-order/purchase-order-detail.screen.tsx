@@ -347,6 +347,8 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
               >
                 {isEditDetail ? "Lưu nháp" : "Sửa"}
               </Button>
+            </AuthWrapper>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
               <Button
                 type="primary"
                 onClick={onConfirmButton}
@@ -354,7 +356,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
                 loading={loadingConfirmButton}
               >
                 Duyệt
-              </Button>{" "}
+              </Button>
             </AuthWrapper>
           </>
         );
@@ -362,21 +364,23 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         return null;
       default:
         return (
-          <Button
-            type="primary"
-            className="create-button-custom ant-btn-outline"
-            loading={isEditDetail && loadingSaveDraftButton}
-            onClick={() => {
-              if (isEditDetail) {
-                setStatusAction(status);
-                formMain.submit();
-              } else {
-                setIsEditDetail(!isEditDetail);
-              }
-            }}
-          >
-            {isEditDetail ? "Lưu" : "Sửa"}
-          </Button>
+          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
+            <Button
+              type="primary"
+              className="create-button-custom ant-btn-outline"
+              loading={isEditDetail && loadingSaveDraftButton}
+              onClick={() => {
+                if (isEditDetail) {
+                  setStatusAction(status);
+                  formMain.submit();
+                } else {
+                  setIsEditDetail(!isEditDetail);
+                }
+              }}
+            >
+              {isEditDetail ? "Lưu" : "Sửa"}
+            </Button>
+          </AuthWrapper>
         );
     }
   }, [

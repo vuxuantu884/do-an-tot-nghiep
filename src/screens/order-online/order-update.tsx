@@ -9,6 +9,7 @@ import {
   FormInstance,
   Input,
   Row,
+  Select,
   Space,
   Tag,
   Typography
@@ -41,6 +42,7 @@ import {
 import {
   configOrderSaga,
   DeliveryServicesGetList,
+  getListSubStatusAction,
   getTrackingLogFulfillmentAction,
   OrderDetailAction,
   orderUpdateAction,
@@ -72,6 +74,7 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import {
   DeliveryServiceResponse,
   FulFillmentResponse, OrderResponse,
+  OrderSubStatusResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
@@ -102,11 +105,11 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
-import CardProduct from "./component/order-detail/CardProduct";
+// import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 
-let typeButton = "";
+// let typeButton = "";
 type PropType = {
   id?: string;
   isCloneOrder?: boolean;
@@ -179,6 +182,9 @@ export default function Order(props: PropType) {
     setBillingAddress(_objBillingAddress);
   };
 
+  const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
+    []
+  );
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
     amount: number,
@@ -193,9 +199,9 @@ export default function Order(props: PropType) {
     setOrderAmount(amount);
   };
 
-  const onStoreSelect = (storeId: number) => {
-    setStoreId(storeId);
-  };
+  // const onStoreSelect = (storeId: number) => {
+  //   setStoreId(storeId);
+  // };
 
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -323,6 +329,7 @@ export default function Order(props: PropType) {
     billing_address: null,
     payments: [],
     channel_id: null,
+    finalized: false,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -394,8 +401,8 @@ export default function Order(props: PropType) {
 
     if (
       paymentMethod === PaymentMethodOption.POSTPAYMENT &&
-      shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
-      typeButton === OrderStatus.FINALIZED
+      shipmentMethod === ShipmentMethodOption.DELIVER_LATER
+      // && typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
       listFulfillmentRequest.push(request);
@@ -538,6 +545,27 @@ export default function Order(props: PropType) {
         );
       }
     }
+    if (OrderDetail?.status) {
+      let resultStatus = OrderDetail.status;
+      if (OrderDetail.status === OrderStatus.FINALIZED && OrderDetail.fulfillments && OrderDetail.fulfillments.length > 0) {
+        switch (OrderDetail.fulfillments[0].status) {
+          case 'packed':
+            resultStatus = 'packed';
+            break;
+          case 'shipping':
+            resultStatus = 'shipping';
+            break;
+          default:
+            break;
+        }
+        
+      }
+      dispatch(
+        getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
+          setListOrderSubStatus(data);
+        })
+      );
+    }
   }, [dispatch, OrderDetail]); //logne
   const createDiscountRequest = () => {
     let objDiscount: OrderDiscountRequest = {
@@ -557,7 +585,7 @@ export default function Order(props: PropType) {
     return listDiscountRequest;
   };
 
-  const createOrderCallback = useCallback(
+  const updateOrderCallback = useCallback(
     (value: OrderResponse) => {
       setUpdating(false);
       showSuccess("Đơn được cập nhật thành công");
@@ -565,9 +593,22 @@ export default function Order(props: PropType) {
     },
     [history]
   );
+  const updateAndConfirmOrderCallback = useCallback(
+    (value: OrderResponse) => {
+      setUpdatingConfirm(false);
+      showSuccess("Đơn được cập nhật và xác nhận thành công");
+      history.push(`${UrlConfig.ORDER}/${value.id}`);
+    },
+    [history]
+  );
+  // type  = update and confirm
+  const [isFinalized, setIsFinalized] = useState<boolean>(false);
+  const [updatingConfirm, setUpdatingConfirm] = useState<boolean>(false);
 
   const handleTypeButton = (type: string) => {
-    typeButton = type;
+    if (type === OrderStatus.FINALIZED) {
+      setIsFinalized(true)
+    }
   };
  
 
@@ -587,6 +628,7 @@ export default function Order(props: PropType) {
     values.action = OrderStatus.FINALIZED;
     values.payments = payments.filter((payment) => payment.amount > 0);
     values.total = orderAmount;
+    values.finalized = isFinalized
     if (
       values?.fulfillments &&
       values.fulfillments.length > 0 &&
@@ -621,16 +663,20 @@ export default function Order(props: PropType) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            setUpdating(true);
+            if (!isFinalized) {
+              setUpdating(true);
+            } else {
+              setUpdatingConfirm(true);
+            }
             (async () => {
               try {
                 dispatch(
-                  orderUpdateAction(OrderDetail.id, values, createOrderCallback, () =>
-                    setUpdating(false)
+                  orderUpdateAction(OrderDetail.id, values, isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback, () =>
+                  isFinalized ? setUpdatingConfirm(false) : setUpdating(false)
                   )
                 );
               } catch {
-                setUpdating(false);
+                isFinalized ? setUpdatingConfirm(false) : setUpdating(false)
               }
             })();
             // dispatch(orderUpdateAction(id, values, createOrderCallback));
@@ -645,16 +691,21 @@ export default function Order(props: PropType) {
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
               if (bolCheckPointfocus) {
-                setUpdating(true);
+                if (!isFinalized) {
+                  setUpdating(true);
+                } else {
+                  setUpdatingConfirm(true);
+                }
+                
                 (async () => {
                   try {
                     dispatch(
-                      orderUpdateAction(OrderDetail.id, values, createOrderCallback, () =>
-                        setUpdating(false)
+                      orderUpdateAction(OrderDetail.id, values, isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback, () =>
+                        isFinalized ? setUpdatingConfirm(false) : setUpdating(false)
                       )
                     );
                   } catch {
-                    setUpdating(false);
+                    isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
                   }
                 })();
                 // dispatch(orderUpdateAction(id, values, createOrderCallback));
@@ -680,8 +731,8 @@ export default function Order(props: PropType) {
     }
   }, []);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  console.log(setIsDisablePostPayment);
-  console.log("isDisablePostPayment", isDisablePostPayment);
+  // console.log(setIsDisablePostPayment);
+  // console.log("isDisablePostPayment", isDisablePostPayment);
 
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
@@ -695,9 +746,9 @@ export default function Order(props: PropType) {
     setShipmentMethod(value);
   };
 
-  const [totalPaid, setTotalPaid] = useState(0);
-  console.log("totalPaid", totalPaid);
-  console.log("setTotalPaid", setTotalPaid);
+  // const [totalPaid, setTotalPaid] = useState(0);
+  // console.log("totalPaid", totalPaid);
+  // console.log("setTotalPaid", setTotalPaid);
 
   // khách cần trả
   const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
@@ -745,7 +796,7 @@ export default function Order(props: PropType) {
   }, [dispatch]);
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
-  console.log("loyaltyRate", loyaltyRate);
+  // console.log("loyaltyRate", loyaltyRate);
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
@@ -756,9 +807,9 @@ export default function Order(props: PropType) {
     shipping_fee_paid_to_three_pls: null,
   });
 
-  const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
-    setItems(cardItems);
-  };
+  // const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
+  //   setItems(cardItems);
+  // };
 
   const updateCancelClick = useCallback(() => {
     history.push(`${UrlConfig.ORDER}/${id}`);
@@ -1097,12 +1148,12 @@ export default function Order(props: PropType) {
     );
   }, [dispatch]);
 
-  const setStoreForm = useCallback(
-    (id: number | null) => {
-      formRef.current?.setFieldsValue({store_id: id});
-    },
-    [formRef]
-  );
+  // const setStoreForm = useCallback(
+  //   (id: number | null) => {
+  //     formRef.current?.setFieldsValue({store_id: id});
+  //   },
+  //   [formRef]
+  // );
 
   return (
     <React.Fragment>
@@ -1221,6 +1272,7 @@ export default function Order(props: PropType) {
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     orderConfig={null}
                     orderSourceId={orderSourceId}
+                    levelOrder={levelOrder}
                   />
 
                   {OrderDetail !== null &&
@@ -2301,11 +2353,12 @@ export default function Order(props: PropType) {
                   )}
                 </Col>
                 <Col md={6}>
-                <CreateOrderSidebar
+                  <CreateOrderSidebar
                     accounts={accounts}
                     tags={tags}
                     onChangeTag={onChangeTag}
                     customerId={customer?.id}
+                    listOrderSubStatus={listOrderSubStatus}
                   />
                 </Col>
               </Row>
@@ -2320,6 +2373,7 @@ export default function Order(props: PropType) {
                   updateCancelClick={updateCancelClick}
                   showSaveAndConfirmModal={() => {}}
                   updating={updating}
+                  updatingConfirm={updatingConfirm}
                 />
               )}
             </Form>

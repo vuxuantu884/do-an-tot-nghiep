@@ -105,7 +105,7 @@ const setting: Array<RouteMenu> = [
         permissions: [AccountPermissions.CREATE],
       },
       {
-        path: `${UrlConfig.ACCOUNTS}/edit/:code`,
+        path: `${UrlConfig.ACCOUNTS}/:code/update`,
         exact: true,
         title: "Chỉnh sửa người dùng",
         icon: "icon-dot",
@@ -134,7 +134,7 @@ const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.DEPARTMENT,
     exact: true,
-    title: "Quản lý phòng ban/bộ phận",
+    title: "Quản lý bộ phận",
     icon: "icon-dot",
     component: DepartmentSearchScreen,
     key: "subMenu910",
@@ -157,7 +157,7 @@ const setting: Array<RouteMenu> = [
       {
         path: `${UrlConfig.DEPARTMENT}/:id`,
         exact: true,
-        title: "Chi tiết Phòng ban/Bộ phận",
+        title: "Chi tiết bộ phận",
         icon: "icon-dot",
         component: DepartmentDetailScreen,
         key: "account2",
@@ -168,9 +168,9 @@ const setting: Array<RouteMenu> = [
         permissions: [DepartmentsPermissions.READ],
       },
       {
-        path: `${UrlConfig.DEPARTMENT}/:id/edit`,
+        path: `${UrlConfig.DEPARTMENT}/:id/update`,
         exact: true,
-        title: "Chi tiết Phòng ban/Bộ phận",
+        title: "Chi tiết bộ phận",
         icon: "icon-dot",
         component: DepartmentUpdateScreen,
         key: "account2",
@@ -216,7 +216,7 @@ const setting: Array<RouteMenu> = [
         permissions: [StorePermissions.READ],
         subMenu: [
           {
-            path: `${UrlConfig.STORE}/:id/edit`,
+            path: `${UrlConfig.STORE}/:id/update`,
             exact: true,
             title: "Sửa cửa hàng",
             icon: "icon-dot",

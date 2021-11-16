@@ -188,9 +188,24 @@ const PromotionDetailScreen: React.FC = () => {
 
   useEffect(() => {
     if (dataVariants && data && data.entitlements.length > 0) {
-      setCostType(data.entitled_method);
-      const flattenData: Array<any> = spreadData(data);
-      setEntitlements(mergeVariants(flattenData));
+      setCostType(data.entitled_method)
+      const flattenData:Array<any> = spreadData(data);
+      const listEntitlements:Array<any> = mergeVariants(flattenData);
+
+
+      if (!listEntitlements || listEntitlements.length === 0) {
+        const rawEntitlement = data.entitlements[0];
+        const quantityRange = rawEntitlement.prerequisite_quantity_ranges[0];
+        listEntitlements.push({
+          title: (<span style={{color: "#2A2A86", fontWeight: 500}}>Tất cả sản phẩm</span>),
+          sku: null,
+          minimum: quantityRange.greater_than_or_equal_to,
+          allocationLimit: quantityRange.allocation_limit,
+          discountValue: `${renderDiscountValue(quantityRange.value, quantityRange.value_type)}`,
+          total: `${renderTotalBill(quantityRange.cost, quantityRange.value, quantityRange.value_type)}`
+        })
+      }
+      setEntitlements(listEntitlements);
     }
   }, [data, dataVariants]);
 
@@ -199,6 +214,7 @@ const PromotionDetailScreen: React.FC = () => {
       {
         title: "STT",
         align: "center",
+        width: "5%",
         render: (value: any, item: any, index: number) => index + 1,
       },
       {
@@ -251,6 +267,9 @@ const PromotionDetailScreen: React.FC = () => {
       {
         title: "STT",
         align: "center",
+        width: "5%",
+        // visible: entitlements.length > 1,
+        visible: false,
         render: (value: any, item: any, index: number) => index + 1,
       },
       {
@@ -299,19 +318,21 @@ const PromotionDetailScreen: React.FC = () => {
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
   }, [costType]);
 
+
   const renderTotalBill = (cost: number, value: number, valueType: string) => {
     let result = "";
+
     switch (valueType) {
       case "FIXED_PRICE":
         result = formatCurrency(Math.round(value / 1000) * 1000);
         break;
       case "FIXED_AMOUNT":
-        result = `${formatCurrency(Math.round((cost - value) / 1000) * 1000)}`;
+        if (!cost) result = "";
+        else result = `${formatCurrency(Math.round((cost - value)/1000)*1000)}`;
         break;
       case "PERCENTAGE":
-        result = `${formatCurrency(
-          Math.round((cost - (cost * value) / 100) / 1000) * 1000
-        )}`;
+        if (!cost) result = "";
+        else result = `${formatCurrency(Math.round((cost - ((cost * value) / 100)) / 1000)*1000)}`;
         break;
     }
     return result;
@@ -652,7 +673,7 @@ const PromotionDetailScreen: React.FC = () => {
               >
                 <CustomTable
                   dataSource={entitlements}
-                  columns={quantityColumn}
+                  columns={entitlements.length > 1 ? quantityColumn : quantityColumn.filter((column:any) => column.title !== "STT")}
                   pagination={false}
                 />
               </Card>
@@ -795,9 +816,9 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listChannel &&
-                          data.prerequisite_sales_channel_names.map((name) => (
+                          data.prerequisite_sales_channel_names.map((code) => (
                             <li>
-                              {listChannel.find((channel) => channel.name === name)?.name}
+                              {listChannel.find((channel) => channel.code === code)?.name}
                             </li>
                           ))}
                       </ul>

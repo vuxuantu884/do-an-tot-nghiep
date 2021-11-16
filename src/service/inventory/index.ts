@@ -7,6 +7,7 @@ import {
   HistoryInventoryResponse,
   InventoryQuery,
   InventoryResponse,
+  InventoryVariantListQuery,
 } from "model/inventory";
 import { LogisticGateAwayResponse } from "model/inventory/transfer";
 import { generateQuery } from "utils/AppUtils";
@@ -70,11 +71,20 @@ const inventoryGetDetailVariantIdsExtApi = (
   return BaseAxios.get(link);
 };
 
+const getInventoryByVariantsApi = (
+  query: InventoryVariantListQuery
+): Promise<BaseResponse<AllInventoryResponse>> => {
+  let params = generateQuery(query);
+  let url = `${ApiConfig.INVENTORY}/inventories?${params}`;
+  return BaseAxios.get(url);
+};
+
 export {
   inventoryGetApi,
   inventoryGetDetailApi,
   inventoryGetHistoryApi,
   inventoryGetDetailVariantIdsApi,
   logisticGateAwayGetApi,
-  inventoryGetDetailVariantIdsExtApi
+  inventoryGetDetailVariantIdsExtApi,
+  getInventoryByVariantsApi
 };

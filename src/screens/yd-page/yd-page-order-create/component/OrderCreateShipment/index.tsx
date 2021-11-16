@@ -149,7 +149,7 @@ function OrderCreateShipment(props: PropType) {
 
   const shipmentButton: Array<ShipmentButtonType> = [
     {
-      name: "Chuyển hãng vận chuyển",
+      name: "Chuyển hãng VC",
       value: 1,
       icon: IconDelivery,
     },

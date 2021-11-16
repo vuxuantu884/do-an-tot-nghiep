@@ -173,7 +173,7 @@ const InventoryTransferTab: React.FC = () => {
       fixed: "left",
       width: "150px",
       render: (value: string, row: InventoryTransferDetailItem) => (
-        <Link to={`${UrlConfig.INVENTORY_TRANSFER}/${row.id}`}>{value}</Link>
+        <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}>{value}</Link>
       ),
     },
     {
@@ -377,7 +377,7 @@ const InventoryTransferTab: React.FC = () => {
       setParams(newParams);
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#1?${queryParam}`);
     },
     [history, params]
   );
@@ -404,10 +404,10 @@ const InventoryTransferTab: React.FC = () => {
           printTicketAction(index);
           break;
         case ACTIONS_INDEX.ADD_FORM_EXCEL:
-          history.push(`${UrlConfig.INVENTORY_TRANSFER}/import`);
+          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`);
           break;
         case ACTIONS_INDEX.MAKE_COPY:
-          history.push(`${UrlConfig.INVENTORY_TRANSFER}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`);
+          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`);
           break;    
         case ACTIONS_INDEX.DELETE_TICKET:
           setIsDeleteTicket(true)
@@ -423,7 +423,7 @@ const InventoryTransferTab: React.FC = () => {
     () => {
       setParams(initQuery);
       let queryParam = generateQuery(initQuery);
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#1?${queryParam}`);
     },
     [history]
   );

@@ -8,10 +8,7 @@ import {PageResponse} from "../../../model/base/base-metadata.response";
 import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
 import {Link} from "react-router-dom";
 import {getListDiscount} from "../../../domain/actions/promotion/discount/discount.action";
-import {
-  bulkDisablePriceRules,
-  bulkEnablePriceRules,
-} from "../../../service/promotion/discount/discount.service";
+import {bulkDisablePriceRules, bulkEnablePriceRules} from "../../../service/promotion/discount/discount.service";
 import {useDispatch} from "react-redux";
 import moment from "moment";
 import {DATE_FORMAT} from "../../../utils/DateUtils";
@@ -19,15 +16,6 @@ import {EditOutlined, PlusOutlined} from "@ant-design/icons";
 import {DiscountSearchQuery} from "../../../model/query/discount.query";
 import DiscountFilter from "./components/DiscountFilter";
 import {getQueryParams, useQuery} from "../../../utils/useQuery";
-import {StoreGetListAction} from "../../../domain/actions/core/store.action";
-import {StoreResponse} from "../../../model/core/store.model";
-import {SourceResponse} from "../../../model/response/order/source.response";
-import {getListSourceRequest} from "../../../domain/actions/product/source.action";
-import {actionFetchListCustomerGroup} from "../../../domain/actions/customer/customer.action";
-import {
-  CustomerGroupModel,
-  CustomerGroupResponseModel,
-} from "../../../model/response/customer/customer-group.response";
 import {showError, showSuccess} from "../../../utils/ToastUtils";
 import {PROMO_TYPE} from "utils/Constants";
 import {ACTIONS_DISCOUNT, STATUS_PROMO} from "../constant";
@@ -68,9 +56,6 @@ const DiscountPage = () => {
     ...getQueryParams(query),
   };
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [customerGroups, setCustomerGroups] = useState<Array<CustomerGroupModel>>([]);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   //phân quyền
@@ -93,7 +78,7 @@ const DiscountPage = () => {
 
   useEffect(() => {
     dispatch(getListDiscount(params, fetchData));
-    dispatch(StoreGetListAction(setStore));
+    // dispatch(StoreGetListAction(setStore));
     // dispatch(getListSourceRequest(setListSource));
     // dispatch(actionFetchListCustomerGroup({},
     //   (data: CustomerGroupResponseModel) => setCustomerGroups(data.items),
@@ -229,7 +214,7 @@ const DiscountPage = () => {
     (page, limit) => {
       setParams({...params, page, limit});
     },
-    [params]
+    [params],
   );
 
   const onFilter = useCallback(
@@ -237,7 +222,7 @@ const DiscountPage = () => {
       let newParams = {...params, ...values, page: 1};
       setParams({...newParams});
     },
-    [params]
+    [params],
   );
 
   const onMenuClick = useCallback(
@@ -271,7 +256,7 @@ const DiscountPage = () => {
           break;
       }
     },
-    [dispatch, fetchData, params, selectedRowKey]
+    [dispatch, fetchData, params, selectedRowKey],
   );
 
   return (
@@ -319,9 +304,6 @@ const DiscountPage = () => {
                 onMenuClick={onMenuClick}
                 params={params}
                 actions={actions}
-                listStore={listStore}
-                listSource={listSource}
-                listCustomerCategories={customerGroups}
                 onFilter={onFilter}
               />
               <CustomTable
