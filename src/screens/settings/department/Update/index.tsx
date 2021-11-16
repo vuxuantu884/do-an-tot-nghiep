@@ -218,7 +218,6 @@ const DepartmentUpdateScreen: React.FC = () => {
             back="Quay lại"
             rightComponent={
               <Space>
-                <Button htmlType="reset">Hủy</Button>
                 {allowUpdateDep ? (
                   <Button loading={loading} htmlType="submit" type="primary">
                     Cập nhật

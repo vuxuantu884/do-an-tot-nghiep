@@ -168,7 +168,7 @@ const setting: Array<RouteMenu> = [
         permissions: [DepartmentsPermissions.READ],
       },
       {
-        path: `${UrlConfig.DEPARTMENT}/:id/edit`,
+        path: `${UrlConfig.DEPARTMENT}/:id/update`,
         exact: true,
         title: "Chi tiết Phòng ban/Bộ phận",
         icon: "icon-dot",

@@ -119,7 +119,7 @@ const DepartmentCreateScreen: React.FC = () => {
             {allowUpdateDep ? (
               <Button
                 onClick={() => {
-                  history.push(`${UrlConfig.DEPARTMENT}/${idNumber}/edit`);
+                  history.push(`${UrlConfig.DEPARTMENT}/${idNumber}/update`);
                 }}
                 type="primary"
               >

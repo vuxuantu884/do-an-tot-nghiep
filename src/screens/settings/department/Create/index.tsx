@@ -174,7 +174,6 @@ const DepartmentCreateScreen: React.FC = () => {
           back="Quay lại"
           rightComponent={
             <Space>
-              <Button>Hủy</Button>
               {allowCreateDep ? (
                 <Button loading={loading} htmlType="submit" type="primary">
                   Tạo mới
