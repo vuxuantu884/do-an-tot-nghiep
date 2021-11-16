@@ -140,7 +140,7 @@ function CardProductBottom(props: PropType) {
                 <div>Mã giảm giá:</div>
               )}
 
-              {coupon !== "" && (
+              {coupon && coupon !== "" && (
                 <Tag
                   style={{
                     margin: 0,

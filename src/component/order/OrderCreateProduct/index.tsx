@@ -1539,7 +1539,9 @@ function OrderCreateProduct(props: PropType) {
         calculateChangeMoney(items, amount, rate, value);
       }
       showSuccess("Thêm chiết khấu thành công!");
+      setCoupon("")
     }
+    setVisiblePickDiscount(false);
   };
   const onOkCouponConfirm = (
     type: string,
