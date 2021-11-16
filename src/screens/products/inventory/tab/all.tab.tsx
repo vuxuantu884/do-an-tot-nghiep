@@ -91,7 +91,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     setLoading(false);
     if (result) {
       setInventiryVariant(new Map());
-      console.log(result);
       setData(result);
       setExpandRow([]);
     }
