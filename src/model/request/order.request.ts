@@ -282,12 +282,14 @@ export interface OrderItemDiscountRequest {
 }
 
 export interface OrderDiscountRequest {
-  rate: number | null;
-  value: number | null;
-  amount: number | null;
-  promotion_id: number | null;
-  reason: string | null;
-  source: string | null;
+  rate?: number | null;
+  value?: number | null;
+  amount?: number | null;
+  promotion_id?: number | null;
+  order_id?: number | null;
+  reason?: string | null;
+  discount_code?: string | null;
+  source?: string | null;
 }
 
 export interface UpdateFulFillmentStatusRequest {
