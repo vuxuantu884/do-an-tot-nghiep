@@ -8,9 +8,7 @@ import {
   Form,
   FormInstance,
   Input,
-  Row,
-  Select,
-  Space,
+  Row, Space,
   Tag,
   Typography
 } from "antd";
@@ -185,6 +183,10 @@ export default function Order(props: PropType) {
   const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
     []
   );
+
+  const [coupon, setCoupon] = useState<string>("");
+  const [promotionId, setPromotionId] = useState<number|null>(null);
+
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
     amount: number,
@@ -567,6 +569,7 @@ export default function Order(props: PropType) {
       );
     }
   }, [dispatch, OrderDetail]); //logne
+
   const createDiscountRequest = () => {
     let objDiscount: OrderDiscountRequest = {
       rate: discountRate,
@@ -575,13 +578,38 @@ export default function Order(props: PropType) {
       promotion_id: null,
       reason: "",
       source: "",
+      discount_code: coupon,
+      order_id: null,
     };
     let listDiscountRequest = [];
-    if (discountRate === 0 && discountValue === 0) {
+    if (coupon) {
+      listDiscountRequest.push({
+        discount_code: coupon,
+          rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: null,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    } else if(promotionId) {
+      listDiscountRequest.push({
+        discount_code: null,
+        rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: promotionId,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    }  else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
     }
+    
     return listDiscountRequest;
   };
 
@@ -1273,6 +1301,9 @@ export default function Order(props: PropType) {
                     orderConfig={null}
                     orderSourceId={orderSourceId}
                     levelOrder={levelOrder}
+                    coupon={coupon}
+                    setCoupon={setCoupon}
+                    setPromotionId={setPromotionId}
                   />
 
                   {OrderDetail !== null &&
