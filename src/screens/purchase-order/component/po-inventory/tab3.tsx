@@ -113,7 +113,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                       <Button disabled>Đã huỷ</Button>
                     ) : (
                       <AuthWrapper
-                        acceptPermissions={[PurchaseOrderPermission.procurements_update]}
+                        acceptPermissions={[PurchaseOrderPermission.procurements_confirm]}
                       >
                         <Button
                           onClick={() => confirmInventory(item, false)}

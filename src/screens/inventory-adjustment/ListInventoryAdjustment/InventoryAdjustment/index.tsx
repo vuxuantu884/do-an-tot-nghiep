@@ -150,7 +150,7 @@ const InventoryAdjustment: React.FC = () => {
       render: (value: string, row: InventoryAdjustmentDetailItem) => (
         <>
           <Link
-            to={`${UrlConfig.INVENTORY_ADJUSTMENT}/${row.id}`}
+            to={`${UrlConfig.INVENTORY_ADJUSTMENTS}/${row.id}`}
             style={{fontWeight: 500}}
           >
             {value}
@@ -397,7 +397,7 @@ const InventoryAdjustment: React.FC = () => {
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
     },
     [history, params]
   );
@@ -442,7 +442,7 @@ const InventoryAdjustment: React.FC = () => {
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}?${queryParam}`);
+    history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
   }, [history]);
 
   const onSelectedChange = useCallback(
