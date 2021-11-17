@@ -33,6 +33,7 @@ type PropType = {
   handleRemoveAllDiscount: () => void;
 };
 
+
 function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
@@ -57,6 +58,9 @@ function CardProductBottom(props: PropType) {
   } = props;
 
   const numberCouponCharactersShowedBeforeAndAfter = 2;
+
+  
+console.log('coupon33', coupon)
 
   const handleDisplayCoupon = (coupon: string) => {
     if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
