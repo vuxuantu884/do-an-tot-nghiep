@@ -243,14 +243,14 @@ function CardReturnProductContainer(props: PropType) {
   const getProductDiscountPerOrder = useCallback(
     (product: ReturnProductModel) => {
       let discountPerOrder = 0;
-      let discountPerProduct = getProductDiscountPerProduct(product);
-      if (discountRate) {
-        discountPerOrder =
-          ((product.price - discountPerProduct) * discountRate) / 100;
-      }
+      OrderDetail?.discounts?.forEach((single) => {
+        if(single?.amount) {
+          discountPerOrder = (single.amount * product.price / OrderDetail.total_line_amount_after_line_discount);
+        }
+      });
       return discountPerOrder;
     },
-    [discountRate]
+    [OrderDetail?.discounts, OrderDetail?.total_line_amount_after_line_discount]
   );
 
   // const pointAmountUsing = useMemo(() => {
@@ -394,9 +394,6 @@ function CardReturnProductContainer(props: PropType) {
     if (!isUsingPoint) {
       if (setTotalAmountReturnProducts) {
         result = getTotalPrice(listReturnProducts);
-        console.log("result", result);
-        // làm tròn đến trăm đồng
-        result = Math.round(result / 100) * 100;
       }
     } else {
       if (moneyRefund) {
