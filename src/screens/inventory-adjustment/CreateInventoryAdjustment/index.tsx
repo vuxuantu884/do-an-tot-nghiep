@@ -137,6 +137,7 @@ const CreateInventoryAdjustment: FC = () => {
       showError("Vui lòng chọn sản phẩm");
       return;
     }
+    
     data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
       const variantPrice =
         item &&
@@ -354,7 +355,7 @@ const CreateInventoryAdjustment: FC = () => {
         setIsLoading(false);
         if (result) {
           showSuccess("Thêm mới dữ liệu thành công");
-          history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}/${result.id}`);
+          history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}/${result.id}`);
         }
       } else {
         setIsLoading(false);
@@ -683,7 +684,7 @@ const CreateInventoryAdjustment: FC = () => {
           },
           {
             name: "Kiểm kho",
-            path: `${UrlConfig.INVENTORY_ADJUSTMENT}`,
+            path: `${UrlConfig.INVENTORY_ADJUSTMENTS}`,
           },
           {
             name: "Thêm mới",
@@ -1065,7 +1066,7 @@ const CreateInventoryAdjustment: FC = () => {
               onCancel={() => {
                 setIsVisibleModalWarning(false);
               }}
-              onOk={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}`)}
+              onOk={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}`)}
               okText="Đồng ý"
               cancelText="Tiếp tục"
               title={`Bạn có muốn rời khỏi trang?`}

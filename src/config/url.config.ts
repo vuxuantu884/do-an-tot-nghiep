@@ -3,7 +3,7 @@ const UrlConfig = {
   HOME: `/`,
   LOGIN: `/login`,
   PRODUCT: `/products`,
-  VARIANTS: `/products/variants`,
+  VARIANTS: `/variants`,
   CATEGORIES: `/products/categories`,
   PURCHASE_ORDER: `/purchase-order`,
   INVENTORY: "/products/inventory",
@@ -17,23 +17,31 @@ const UrlConfig = {
   ORDER: `/orders`,
   ORDERS_RETURN: `/orders-return`,
   ORDER_PROCESSING_STATUS: `/${SETTINGS}/order-processing-status`,
-  ORDER_SOURCES: `/${SETTINGS}/order-source`,
+  ORDER_SOURCES: `/${SETTINGS}/order-sources`,
   PRINTER: `/${SETTINGS}/printer`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   ORDER_SETTINGS: `/${SETTINGS}/order-settings`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
   SHIPMENTS: `/shipments`,
-  FPAGE: `/fpage`,
+  YD_PAGE: `/yd-page`,
   ECOMMERCE: "/ecommerce",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
   PROCUREMENT: '/procurement',
-  INVENTORY_TRANSFER: `/inventory-transfer`,
-  INVENTORY_ADJUSTMENT: `/inventory-adjustment`, 
+  INVENTORY_TRANSFERS: `/inventory-transfers`,
+  INVENTORY_ADJUSTMENTS: `/inventory-adjustments`, 
   DEPARTMENT: `/departments`,
-  DISCOUNT: `/discount`,
-  PROMO_CODE: `/promo-code`
+  DISCOUNT: `/discounts`,
+  PROMO_CODE: `/promo-codes`,
+  PACK_SUPPORT:`/orders-pack-support`
+};
+
+export const ProductTabUrl = {
+  VARIANTS: UrlConfig.VARIANTS,
+  PRODUCTS: UrlConfig.PRODUCT,
+  PRODUCT_HISTORIES: UrlConfig.PRODUCT + "/histories",
+  HISTORY_PRICES: UrlConfig.PRODUCT + "/history-prices",
 };
 
 export const BASE_NAME_ROUTER = "/unicorn/admin";

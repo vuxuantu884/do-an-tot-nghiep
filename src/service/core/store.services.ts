@@ -3,7 +3,7 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
-import { StoreQuery } from "model/core/store.model";
+import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { StoreResponse } from "model/core/store.model";
 import { StoreCreateRequest, StoreUpdateRequest } from "model/core/store.model";
@@ -49,9 +49,14 @@ export const storesPostApi = (
   return BaseAxios.post(`${ApiConfig.CORE}/stores`, request);
 };
 
-
 export const storeValidateApi = (
   request: StoreCreateRequest
 ): Promise<BaseResponse<StoreResponse>> => {
   return BaseAxios.post(`${ApiConfig.CORE}/stores/validate`, request);
+};
+
+export const storeGetTypeApi = (): Promise<
+  BaseResponse<Array<StoreTypeRequest>>
+> => {
+  return BaseAxios.get(`${ApiConfig.CORE}/store-type`);
 };

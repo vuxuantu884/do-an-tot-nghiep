@@ -260,7 +260,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     }
    
   }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
-  const [canCancelPO] = useAuthorization({acceptPermissions:[PurchaseOrderPermission.po_cancel]})
+  const [canCancelPO] = useAuthorization({acceptPermissions:[PurchaseOrderPermission.cancel]})
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [];
     if (!poData) return [];
@@ -331,51 +331,56 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       case POStatus.DRAFT:
         return (
           <>
-            <Button
-              type="primary"
-              className="create-button-custom ant-btn-outline"
-              loading={isEditDetail && loadingSaveDraftButton}
-              onClick={() => {
-                if (isEditDetail) {
-                  setStatusAction(POStatus.DRAFT);
-                  formMain.submit();
-                } else {
-                  setIsEditDetail(!isEditDetail);
-                }
-              }}
-            >
-              {isEditDetail ? "Lưu nháp" : "Sửa"}
-            </Button>
-
-            <Button
-              type="primary"
-              onClick={onConfirmButton}
-              className="create-button-custom"
-              loading={loadingConfirmButton}
-            >
-              Duyệt
-            </Button>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
+              <Button
+                type="primary"
+                className="create-button-custom ant-btn-outline"
+                loading={isEditDetail && loadingSaveDraftButton}
+                onClick={() => {
+                  if (isEditDetail) {
+                    setStatusAction(POStatus.DRAFT);
+                    formMain.submit();
+                  } else {
+                    setIsEditDetail(!isEditDetail);
+                  }
+                }}
+              >
+                {isEditDetail ? "Lưu nháp" : "Sửa"}
+              </Button>
+            </AuthWrapper>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
+              <Button
+                type="primary"
+                onClick={onConfirmButton}
+                className="create-button-custom"
+                loading={loadingConfirmButton}
+              >
+                Duyệt
+              </Button>
+            </AuthWrapper>
           </>
         );
       case POStatus.CANCELLED:
         return null;
       default:
         return (
-          <Button
-            type="primary"
-            className="create-button-custom ant-btn-outline"
-            loading={isEditDetail && loadingSaveDraftButton}
-            onClick={() => {
-              if (isEditDetail) {
-                setStatusAction(status);
-                formMain.submit();
-              } else {
-                setIsEditDetail(!isEditDetail);
-              }
-            }}
-          >
-            {isEditDetail ? "Lưu" : "Sửa"}
-          </Button>
+          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
+            <Button
+              type="primary"
+              className="create-button-custom ant-btn-outline"
+              loading={isEditDetail && loadingSaveDraftButton}
+              onClick={() => {
+                if (isEditDetail) {
+                  setStatusAction(status);
+                  formMain.submit();
+                } else {
+                  setIsEditDetail(!isEditDetail);
+                }
+              }}
+            >
+              {isEditDetail ? "Lưu" : "Sửa"}
+            </Button>
+          </AuthWrapper>
         );
     }
   }, [
@@ -472,7 +477,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       <div id="test" className="page-filter">
         <Space direction="horizontal">
           <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
-          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.po_print]}>
+          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
             <Button
               type="link"
               onClick={(e) => {
@@ -594,11 +599,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
             <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
           height={80}
-          rightComponent={
-            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.po_update]}>
-              {renderButton}
-            </AuthWrapper>
-          }
+          rightComponent={renderButton}
         />
       </Form>
       {renderModalDelete()}

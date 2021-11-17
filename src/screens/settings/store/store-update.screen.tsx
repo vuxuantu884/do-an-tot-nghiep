@@ -19,10 +19,15 @@ import {
 import {
   StoreDetailAction,
   StoreRankAction,
+  StoreGetTypeAction,
   StoreUpdateAction,
   StoreValidateAction,
 } from "domain/actions/core/store.action";
-import {StoreResponse, StoreUpdateRequest} from "model/core/store.model";
+import {
+  StoreResponse,
+  StoreUpdateRequest,
+  StoreTypeRequest,
+} from "model/core/store.model";
 import {CountryResponse} from "model/content/country.model";
 import {DistrictResponse} from "model/content/district.model";
 import {useCallback, useEffect, useRef, useState} from "react";
@@ -38,8 +43,6 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import {RegUtil} from "utils/RegUtils";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import useAuthorization from "hook/useAuthorization";
-import { StorePermissions } from "config/permissions/setting.permisssion";  
 
 const {Item} = Form;
 const {Option} = Select;
@@ -69,15 +72,12 @@ const StoreUpdateScreen: React.FC = () => {
   const [isError, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
   const firstload = useRef(true);
-
-  //phân quyền
-  const [allowUpdateStore] = useAuthorization({
-    acceptPermissions: [StorePermissions.UPDATE],
-  });
+ 
   //EndState
   const onSelectDistrict = useCallback(
     (value: number) => {
@@ -100,10 +100,7 @@ const StoreUpdateScreen: React.FC = () => {
   const onUpdateSuccess = useCallback(() => {
     setLoading(false);
     history.push(UrlConfig.STORE);
-  }, [history]);
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  }, [history]); 
   const onFinish = useCallback(
     (values: StoreUpdateRequest) => {
       setLoading(true);
@@ -126,6 +123,7 @@ const StoreUpdateScreen: React.FC = () => {
       dispatch(DistrictGetByCountryAction(DefaultCountry, setCityView));
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
+      dispatch(StoreGetTypeAction(setType));
       if (!Number.isNaN(idNumber)) {
         dispatch(StoreDetailAction(idNumber, setResult));
       }
@@ -188,7 +186,7 @@ const StoreUpdateScreen: React.FC = () => {
             }
           >
             <Row gutter={50}>
-              <Col>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   noStyle
                   shouldUpdate={(prev, current) =>
@@ -204,6 +202,26 @@ const StoreUpdateScreen: React.FC = () => {
                       </Item>
                     );
                   }}
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
+                  label="Phân loại"
+                  name="type"
+                >
+                  <Select
+                    showSearch
+                    showArrow
+                    optionFilterProp="children"
+                    placeholder="Chọn phân loại"
+                  >
+                    {type?.map((item: StoreTypeRequest, index) => (
+                      <Option key={index} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
                 </Item>
               </Col>
             </Row>
@@ -466,14 +484,9 @@ const StoreUpdateScreen: React.FC = () => {
             back={"Quay lại"}
             rightComponent={
               <Space>
-                <Button type="default" onClick={onCancel}>
-                  Hủy
+                <Button loading={loading} htmlType="submit" type="primary">
+                  Lưu
                 </Button>
-                {!allowUpdateStore ? (
-                  <Button loading={loading} htmlType="submit" type="primary">
-                    Lưu
-                  </Button>
-                ) : null}
               </Space>
             }
           />

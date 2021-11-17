@@ -554,18 +554,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                           max="100000000"
                         />
                       </Item>
-                      
-                      <Input
+                      <div
                         className="site-input-split"
-                        style={{
-                          width: '10%',
-                          borderLeft: 0,
-                          borderRight: 0,
-                          pointerEvents: 'none',
-                        }}
-                        placeholder="~"
-                        readOnly
-                      />
+                      >~</div>
                       <Item name="to_total_variant" style={{width: '45%',textAlign: 'center'}}>
                         <InputNumber
                           className="site-input-right price_max"
@@ -592,18 +583,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                           max="100000000"
                         />
                       </Item>
-                      
-                      <Input
+                      <div
                         className="site-input-split"
-                        style={{
-                          width: '10%',
-                          borderLeft: 0,
-                          borderRight: 0,
-                          pointerEvents: 'none',
-                        }}
-                        placeholder="~"
-                        readOnly
-                      />
+                      >~</div>
                       <Item name="to_total_quantity" style={{width: '45%',textAlign: 'center'}}>
                         <InputNumber
                           className="site-input-right price_max"
@@ -630,18 +612,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                           max="100000000"
                         />
                       </Item>
-                      
-                      <Input
+                      <div
                         className="site-input-split"
-                        style={{
-                          width: '10%',
-                          borderLeft: 0,
-                          borderRight: 0,
-                          pointerEvents: 'none',
-                        }}
-                        placeholder="~"
-                        readOnly
-                      />
+                      >~</div>
                       <Item name="to_total_amount" style={{width: '45%',textAlign: 'center'}}>
                         <InputNumber
                           className="site-input-right price_max"

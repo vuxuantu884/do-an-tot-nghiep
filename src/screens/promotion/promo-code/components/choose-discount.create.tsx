@@ -1,8 +1,8 @@
-import {Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
-import React, {useState} from "react";
+import {Checkbox, Col, Form, Input, InputNumber, Row, Select, Tooltip} from "antd";
+import React, {useCallback, useState} from "react";
 import "../promo-code.scss";
 import NumberInput from "component/custom/number-input.custom";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
 const ChooseDiscount = (props: any) => {
@@ -10,6 +10,18 @@ const ChooseDiscount = (props: any) => {
   const [typeUnit, setTypeUnit] = useState("PERCENTAGE");
   const [isUsageLimit, setIsUsageLimit] = useState(false);
   const [isUsageLimitPerCus, setIsUsageLimitPerCus] = useState(true);
+
+  const formatDiscountValue = useCallback((value: number | undefined) => {
+    if (typeUnit !== "FIXED_AMOUNT") {
+      const floatIndex = value?.toString().indexOf(".") || -1;
+      if (floatIndex > 0) {
+        return `${value}`.slice(0, floatIndex + 3)
+      }
+      return `${value}`
+    } else {
+      return formatCurrency(`${value}`.replaceAll(".", ""))
+    }
+  }, [typeUnit])
 
   return (
     <Col span={24}>
@@ -31,17 +43,13 @@ const ChooseDiscount = (props: any) => {
                 name="value"
                 noStyle
               >
-                <NumberInput
-                  isFloat={typeUnit === 'PERCENTAGE'}
-                  className="product-item-discount-input"
-                  style={{ width: "65%", textAlign: "right" }}
-                  placeholder="Nhập giá trị khuyến mãi"
-                  format={(a) => typeUnit === 'PERCENTAGE' ? a : formatCurrency(a)}
-                  replace={(a) => typeUnit === 'PERCENTAGE' ? a:  replaceFormatString(a)}
-                  min={1}
-                  maxLength={typeUnit === "FIXED_AMOUNT" ? 7 : 3}
-                  max={typeUnit === "FIXED_AMOUNT" ? 9999999 : 100}
-                />
+              <InputNumber
+                style={{textAlign: "end", borderRadius: "0px", width: "65%"}}
+                min={1}
+                max={typeUnit === "FIXED_AMOUNT" ? 999999999 : 100}
+                step={typeUnit === "FIXED_AMOUNT" ? 1: 0.01}
+                formatter={(value) => formatDiscountValue(value)}
+              />
               </Form.Item>
               <Form.Item name="value_type" noStyle>
                 <Select

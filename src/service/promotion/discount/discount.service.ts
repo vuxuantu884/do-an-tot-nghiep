@@ -48,22 +48,19 @@ export const applyDiscount = (items: Array<any>, orderInfo:any) : Promise<any> =
   const body: any = {
     sales_channel_name: orderInfo.salesChannelName,
     store_id: orderInfo.storeId,
+    order_source_id: orderInfo.orderSourceId,
+    customer_id: orderInfo.customerId,
   };
   body["line_items"] = items.map(item => {
     return {
       "custom": true,
-      "product_id": null,
+      "product_id": item.id,
       "variant_id": item.variant_id,
-      "sku": null,
+      "sku": item.sku,
       "quantity": item.quantity,
 
-      "original_unit_price": 0,
-      "applied_discount": {
-        "discount_code": "string",
-        "title": "string",
-        "value_type": "FIXED_AMOUNT",
-        "value": 0
-      },
+      "original_unit_price": item.price,
+      "applied_discount": null,
       "taxable": true
     }
   })

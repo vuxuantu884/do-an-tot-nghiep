@@ -1,4 +1,4 @@
-import { Button, Card, Row, Space, Tabs } from "antd";
+import {Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
@@ -43,15 +43,7 @@ const InventoryListScreen: React.FC = () => {
           parseInt(activeTab) === 1 &&
           <Row>
             <Space>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                onClick={() => {}}
-              >
-                Xin hàng
-              </Button>
-              <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFER}/create`} />
+              <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
             </Space>
           </Row>
         }

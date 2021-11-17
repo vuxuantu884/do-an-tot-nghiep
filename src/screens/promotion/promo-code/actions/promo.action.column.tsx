@@ -2,7 +2,6 @@ import { Button, Dropdown, Menu } from "antd";
 import threeDot from "assets/icon/three-dot.svg";
 import editIcon from "assets/icon/edit.svg";
 import closeIcon from "assets/icon/close.svg";
-import checkIcon from "assets/icon/check.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import { StyledMenu, StyledDropDown } from "./styles";
 
@@ -16,20 +15,20 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any, 
       const menu = (
         <StyledMenu>
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-        { handleGift && 
-            <Menu.Item key="1">
-              <Button
-                icon={<img style={{ marginRight: 12 }} alt="" src={checkIcon} />}
-                type="text"
-                className=""
-                onClick={() => handleGift(item)}
-              >
-                Đã tặng
-              </Button>
-            </Menu.Item>
-          }
+        {/*{ handleGift &&*/}
+        {/*    <Menu.Item key="1">*/}
+        {/*      <Button*/}
+        {/*        icon={<img style={{ marginRight: 12 }} alt="" src={checkIcon} />}*/}
+        {/*        type="text"*/}
+        {/*        className=""*/}
+        {/*        onClick={() => handleGift(item)}*/}
+        {/*      >*/}
+        {/*        Đã tặng*/}
+        {/*      </Button>*/}
+        {/*    </Menu.Item>*/}
+        {/*  }*/}
 
-          { handleStatus && 
+          { handleStatus &&
             <Menu.Item key="2">
               <Button
                 icon={<img style={{ marginRight: 12 }} alt="" src={closeIcon} />}

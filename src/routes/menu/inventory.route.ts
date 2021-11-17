@@ -57,7 +57,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu22",
     isShow: true,
     header: null,
-    permissions: [PurchaseOrderPermission.po_read],
+    permissions: [PurchaseOrderPermission.read],
     subMenu: [
       {
         path: `${UrlConfig.PURCHASE_ORDER}/create`,
@@ -68,7 +68,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu221",
         isShow: true,
         header: null,
-        permissions: [PurchaseOrderPermission.po_create],
+        permissions: [PurchaseOrderPermission.create],
         subMenu: [],
       },
       {
@@ -80,7 +80,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu222",
         isShow: true,
         header: null,
-        permissions: [PurchaseOrderPermission.po_read, PurchaseOrderPermission.po_update],
+        permissions: [PurchaseOrderPermission.read, PurchaseOrderPermission.update],
         subMenu: [],
         pathIgnore: ["create"],
       },
@@ -93,7 +93,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu223",
         isShow: true,
         header: null,
-        permissions: [PurchaseOrderPermission.po_return],
+        permissions: [PurchaseOrderPermission.return],
         subMenu: [],
         pathIgnore: ["create"],
       },
@@ -125,7 +125,7 @@ export const inventory: Array<RouteMenu> = [
     ],
   },
   {
-    path: UrlConfig.INVENTORY_TRANSFER,
+    path: UrlConfig.INVENTORY_TRANSFERS,
     exact: true,
     title: "Chuyển hàng",
     icon: "icon-dot",
@@ -135,7 +135,7 @@ export const inventory: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/create`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/create`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -146,7 +146,7 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/:id`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/:id`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -157,7 +157,7 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/:id/update`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/:id/update`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -168,7 +168,7 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/:id/update`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/:id/update`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -179,7 +179,7 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/createImport`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/createImport`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -190,7 +190,7 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/import`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/import`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -203,7 +203,7 @@ export const inventory: Array<RouteMenu> = [
     ],
   },
   {
-    path: UrlConfig.INVENTORY_ADJUSTMENT,
+    path: UrlConfig.INVENTORY_ADJUSTMENTS,
     exact: true,
     title: "Kiểm kho",
     icon: "icon-dot",
@@ -213,7 +213,7 @@ export const inventory: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.INVENTORY_ADJUSTMENT}/create`,
+        path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/create`,
         exact: true,
         title: "Kiểm kho",
         icon: "icon-dot",
@@ -224,7 +224,7 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_ADJUSTMENT}/:id`,
+        path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/:id`,
         exact: true,
         title: "Kiểm kho",
         icon: "icon-dot",

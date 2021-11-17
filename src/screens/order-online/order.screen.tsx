@@ -11,7 +11,6 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
@@ -90,6 +89,7 @@ export default function Order() {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
+  const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
@@ -166,6 +166,9 @@ export default function Order() {
     form.setFieldsValue({shipping_fee_informed_to_customer: value});
     setShippingFeeInformedToCustomer(value);
   };
+
+  const [coupon, setCoupon] = useState<string>("");
+  // const [promotionId, setPromotionId] = useState<string>("");
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -396,13 +399,20 @@ export default function Order() {
       promotion_id: null,
       reason: "",
       source: "",
+      discount_code: coupon,
+      order_id: null,
     };
     let listDiscountRequest = [];
-    if (discountRate === 0 && discountValue === 0) {
+    if (coupon) {
+      listDiscountRequest.push({
+        discount_code: coupon,
+      });
+    } else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
     }
+    
     return listDiscountRequest;
   };
 
@@ -527,7 +537,7 @@ export default function Order() {
             shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
             !thirdPL.service
           ) {
-            showError("Vui lòng chọn đơn vị vận chuyển 3");
+            showError("Vui lòng chọn đơn vị vận chuyển!");
             setCreating(false);
           } else {
             if (typeButton === OrderStatus.DRAFT) {
@@ -539,6 +549,7 @@ export default function Order() {
               let isPointFocus = checkPointFocus(values);
               if (isPointFocus) {
                 (async () => {
+                  console.log('values', values)
                   try {
                     await dispatch(orderCreateAction(values, createOrderCallback));
                   } catch {
@@ -951,13 +962,13 @@ export default function Order() {
   //   );
   // }, [dispatch]);
 
-  useEffect(() => {
-    if (items && items != null&& items.length) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-  }, [dispatch, items]);
+  // useEffect(() => {
+  //   if (items && items != null&& items.length) {
+  //     let variant_id: Array<number> = [];
+  //     items.forEach((element) => variant_id.push(element.variant_id));
+  //     dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+  //   }
+  // }, [dispatch, items]);
 
   useEffect(() => {
     dispatch(
@@ -993,6 +1004,8 @@ export default function Order() {
       discountValue
     );
   }, [discountValue, orderAmount, shippingFeeInformedToCustomer]);
+
+  console.log('orderAmount', orderAmount)
 
   /**
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
@@ -1064,6 +1077,7 @@ export default function Order() {
                       setVisibleCustomer={setVisibleCustomer}
                       modalAction={modalAction}
                       setModalAction={setModalAction}
+                      setOrderSourceId={setOrderSourceId}
                     />
                     <OrderCreateProduct
                       changeInfo={onChangeInfoProduct}
@@ -1080,13 +1094,17 @@ export default function Order() {
                       discountRate={discountRate}
                       setDiscountRate={setDiscountRate}
                       discountValue={discountValue}
+                      coupon={coupon}
+                      setCoupon={setCoupon}
                       setDiscountValue={setDiscountValue}
                       inventoryResponse={inventoryResponse}
+                      customer={customer}
                       setInventoryResponse={setInventoryResponse}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
+                      orderSourceId={orderSourceId}
                     />
-                    <Card title="THANH TOÁN 31">
+                    <Card title="THANH TOÁN">
                       <OrderCreatePayments
                         setPaymentMethod={handlePaymentMethod}
                         payments={payments}
@@ -1100,7 +1118,7 @@ export default function Order() {
                       />
                     </Card>
 
-                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 252">
+                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                       <OrderCreateShipment
                         shipmentMethod={shipmentMethod}
                         orderPrice={orderAmount}

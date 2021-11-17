@@ -9,6 +9,7 @@ import moment from 'moment';
 import CustomInput from "../../../customer/common/customInput";
 import React, {useEffect, useMemo, useState} from "react";
 import FixedPriceSelection from "./FixedPriceSelection";
+import {DATE_FORMAT} from "../../../../utils/DateUtils";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option
@@ -55,6 +56,7 @@ const GeneralInfo = (props: any) => {
     return <FixedPriceSelection form={form} discountMethod={discountMethod}/>;
   }
 
+  // @ts-ignore
   return (
     <Row gutter={24} className="general-info">
       <Col span={18}>
@@ -199,12 +201,13 @@ const GeneralInfo = (props: any) => {
                 <DatePicker
                   style={{width: "100%"}}
                   placeholder="Từ ngày"
-                  showNow
                   showTime={{ format: 'HH:mm' }}
+                  format={DATE_FORMAT.DDMMYY_HHmm}
                   disabledDate={(currentDate) =>
-                    currentDate.isBefore(moment().subtract(1, 'days')) ||
-                    currentDate.valueOf() >= form.getFieldValue("ends_date")
+                    currentDate.isBefore(moment()) ||
+                    (form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false)
                   }
+                  showNow={true}
                 />
               </Form.Item>
             </Col>
@@ -212,10 +215,15 @@ const GeneralInfo = (props: any) => {
               <Form.Item name="ends_date">
                 <DatePicker
                   disabled={disabledEndDate}
+                  showTime={{ format: 'HH:mm' }}
+                  format={DATE_FORMAT.DDMMYY_HHmm}
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
-                  showTime={{ format: 'HH:mm' }}
-                  disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
+                  disabledDate={(currentDate) =>
+                    currentDate.isBefore(moment()) ||
+                    (form.getFieldValue("starts_date") && currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
+                  }
+                  showNow={false}
                 />
               </Form.Item>
             </Col>
@@ -328,7 +336,7 @@ const GeneralInfo = (props: any) => {
                   mode="multiple"
                   className="ant-select-selector-min-height"
                 >
-                  {listChannel?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
+                  {listChannel?.map((channel: any) => <Option value={channel.name}>{channel.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
@@ -351,7 +359,7 @@ const GeneralInfo = (props: any) => {
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
               <Form.Item
-                name="prerequisite_order_sources_ids"
+                name="prerequisite_order_source_ids"
                 label={<b>Nguồn đơn hàng áp dụng:</b>}
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
@@ -368,9 +376,9 @@ const GeneralInfo = (props: any) => {
                 <Switch
                   defaultChecked={allSource}
                   onChange={value => {
-                    form.validateFields(['prerequisite_order_sources_ids'])
+                    form.validateFields(['prerequisite_order_source_ids'])
                     form.setFieldsValue({
-                      prerequisite_order_sources_ids: undefined
+                      prerequisite_order_source_ids: undefined
                     })
                     setAllSource(value)
                   }}

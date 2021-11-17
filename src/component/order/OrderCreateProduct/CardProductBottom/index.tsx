@@ -1,4 +1,4 @@
-import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency } from "utils/AppUtils";
@@ -6,7 +6,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   levelOrder?: number;
-  totalAmountOrder: number;
+  orderAmount: number;
   items: OrderLineItemRequest[] | undefined;
   discountRate?: number;
   discountValue?: number;
@@ -30,12 +30,13 @@ type PropType = {
   returnOrderInformation?: {
     totalAmountReturn: number;
   };
+  handleRemoveAllDiscount: () => void;
 };
 
 function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
-    totalAmountOrder,
+    orderAmount,
     items,
     discountRate,
     discountValue,
@@ -52,8 +53,20 @@ function CardProductBottom(props: PropType) {
     setDiscountValue,
     calculateChangeMoney,
     setCoupon,
+    handleRemoveAllDiscount,
   } = props;
-console.log('coupon', coupon)
+
+  const numberCouponCharactersShowedBeforeAndAfter = 2;
+
+  const handleDisplayCoupon = (coupon: string) => {
+    if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
+      const firstCharacters = coupon.substring(0,numberCouponCharactersShowedBeforeAndAfter);
+      const lastCharacters = coupon.substring(coupon.length - numberCouponCharactersShowedBeforeAndAfter,coupon.length);
+      return `${firstCharacters}***${lastCharacters}`;
+    } else {
+      return `${coupon}***${coupon}`;
+    }
+  };
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -68,7 +81,7 @@ console.log('coupon', coupon)
           <Row className="paymentRow" style={{justifyContent: "space-between"}}>
             <div>Tổng tiền:</div>
             <div className="font-weight-500" style={{fontWeight: 500}}>
-              {formatCurrency(totalAmountOrder)}
+              {formatCurrency(orderAmount)}
             </div>
           </Row>
 
@@ -90,7 +103,7 @@ console.log('coupon', coupon)
                 <div>Chiết khấu:</div>
               )}
 
-              {items && (
+              {items && discountRate!==0 && (
                 <Tag
                   style={{
                     marginTop: 0,
@@ -130,7 +143,7 @@ console.log('coupon', coupon)
                 <div>Mã giảm giá:</div>
               )}
 
-              {coupon !== "" && (
+              {coupon && coupon !== "" && (
                 <Tag
                   style={{
                     margin: 0,
@@ -142,10 +155,11 @@ console.log('coupon', coupon)
                   onClose={() => {
                     setDiscountRate && setDiscountRate(0);
                     setDiscountValue && setDiscountValue(0);
+                    handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
                   }}
                 >
-                  {coupon}
+                  {handleDisplayCoupon(coupon)}
                 </Tag>
               )}
             </Space>
@@ -153,7 +167,7 @@ console.log('coupon', coupon)
           </Row>
 
           <Row className="paymentRow" justify="space-between">
-            <div>Phí ship báo khách: 34</div>
+            <div>Phí ship báo khách:</div>
             <div className="font-weight-500 paymentRow-money">
               {shippingFeeInformedToCustomer
                 ? formatCurrency(shippingFeeInformedToCustomer)
@@ -166,7 +180,7 @@ console.log('coupon', coupon)
               <Divider className="margin-top-5 margin-bottom-5" />
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng mua:</strong>
-                <strong>{formatCurrency(totalAmountOrder)}</strong>
+                <strong>{formatCurrency(orderAmount)}</strong>
               </Row>
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng trả:</strong>

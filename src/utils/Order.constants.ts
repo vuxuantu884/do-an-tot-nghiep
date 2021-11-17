@@ -28,4 +28,5 @@ export const DEFAULT_CHANNEL_ID = 13; //đang fix cứng admin
 export const  DISCOUNT_VALUE_TYPE = {
   percentage: "PERCENTAGE",
   fixedAmount: "FIXED_AMOUNT",
+  fixedPrice: "FIXED_PRICE",
 }

@@ -1,4 +1,4 @@
-import {Card, Col, Divider, Row, Space} from "antd";
+import {Button, Card, Col, Divider, Row, Space} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, {useCallback, useEffect, useState} from "react";
@@ -15,11 +15,23 @@ import {StoreGetListAction} from "domain/actions/core/store.action";
 import {getListSourceRequest} from "domain/actions/product/source.action";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
-import {getVariants, promoGetDetail} from "../../../domain/actions/promotion/discount/discount.action";
+import {
+  bulkEnablePriceRules,
+  getVariants,
+  promoGetDetail,
+} from "../../../domain/actions/promotion/discount/discount.action";
 import CustomTable from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {getListChannelRequest} from "domain/actions/order/order.action";
+import BottomBarContainer from "../../../component/container/bottom-bar.container";
+import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
+import {bulkDisablePriceRules} from "../../../service/promotion/discount/discount.service";
+import {HttpStatus} from "../../../config/http-status.config";
+import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
+import {showError} from "../../../utils/ToastUtils";
+import useAuthorization from "hook/useAuthorization";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
 
 export interface ProductParams {
   id: string;
@@ -99,15 +111,16 @@ const PromotionDetailScreen: React.FC = () => {
   const [entitlements, setEntitlements] = useState<Array<any>>([]);
   const [quantityColumn, setQuantityColumn] = useState<any>([]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      dispatch(StoreGetListAction(setListStore));
-      dispatch(getListSourceRequest(setListSource));
-      dispatch(getListChannelRequest(setListChannel));
-      dispatch(promoGetDetail(idNumber, onResult));
-      dispatch(getVariants(idNumber, handleResponse));
-    }, 2000)
-  }, []);
+  //phân quyền
+  const [allowCancelPromoCode] = useAuthorization({
+    acceptPermissions: [PromoPermistion.CANCEL],
+  });
+  const [allowUpdatePromoCode] = useAuthorization({
+    acceptPermissions: [PromoPermistion.UPDATE],
+  });
+  const [allowCreatePromoCode] = useAuthorization({
+    acceptPermissions: [PromoPermistion.CREATE],
+  });
 
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
@@ -128,22 +141,82 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (dataVariants && data && data.entitlements.length > 0) {
-      const entitlementQuantity = data.entitlements[0].prerequisite_quantity_ranges[0];
-      const costType = entitlementQuantity?.value_type;
-      const discountValue = entitlementQuantity?.value;
-      const allocationLimit = entitlementQuantity?.allocation_limit;
-      const minimum = entitlementQuantity?.greater_than_or_equal_to;
-      setEntitlements(transformData(costType, discountValue, allocationLimit, minimum));
-      setCostType(costType);
+    setTimeout(() => {
+      dispatch(StoreGetListAction(setListStore));
+      dispatch(getListSourceRequest(setListSource));
+      dispatch(getListChannelRequest(setListChannel));
+      dispatch(promoGetDetail(idNumber, onResult));
+      dispatch(getVariants(idNumber, handleResponse));
+    }, 500);
+  }, [dispatch, handleResponse, idNumber, onResult]);
+
+
+
+  const spreadData = (data: any) => {
+    let result: any[] = [];
+    if (data?.entitlements && data?.entitlements.length > 0) {
+      data?.entitlements.forEach((entitlement: any) => {
+        entitlement.entitled_variant_ids.forEach((vId: any) => {
+          const value = entitlement.prerequisite_quantity_ranges[0]["value"];
+          const valueType = entitlement.prerequisite_quantity_ranges[0]["value_type"];
+          result.push({
+            id: vId,
+            minimum:
+              entitlement.prerequisite_quantity_ranges[0]["greater_than_or_equal_to"],
+            allocationLimit:
+              entitlement.prerequisite_quantity_ranges[0]["allocation_limit"],
+            value: value,
+            valueType: valueType,
+          });
+        });
+      });
     }
-  }, [data, dataVariants]);
+    return result;
+  };
+
+  const mergeVariants = useCallback((sourceData: Array<any>) => {
+    return sourceData.map((s) => {
+      const variant = dataVariants.find((v: any) => v.variant_id === s.id);
+      if (variant) {
+        s.title = variant.variant_title;
+        s.sku = variant.sku;
+        s.cost = variant.cost;
+        s.discountValue = `${renderDiscountValue(s.value, s.valueType)}`;
+        s.total = `${renderTotalBill(variant.cost, s.value, s.valueType)}`;
+      }
+      return s;
+    });
+  },[dataVariants]);
+
+  useEffect(() => {
+    if (dataVariants && data && data.entitlements.length > 0) {
+      setCostType(data.entitled_method)
+      const flattenData:Array<any> = spreadData(data);
+      const listEntitlements:Array<any> = mergeVariants(flattenData);
+
+
+      if (!listEntitlements || listEntitlements.length === 0) {
+        const rawEntitlement = data.entitlements[0];
+        const quantityRange = rawEntitlement.prerequisite_quantity_ranges[0];
+        listEntitlements.push({
+          title: (<span style={{color: "#2A2A86", fontWeight: 500}}>Tất cả sản phẩm</span>),
+          sku: null,
+          minimum: quantityRange.greater_than_or_equal_to,
+          allocationLimit: quantityRange.allocation_limit,
+          discountValue: `${renderDiscountValue(quantityRange.value, quantityRange.value_type)}`,
+          total: `${renderTotalBill(quantityRange.cost, quantityRange.value, quantityRange.value_type)}`
+        })
+      }
+      setEntitlements(listEntitlements);
+    }
+  }, [data, dataVariants, mergeVariants]);
 
   useEffect(() => {
     const column = [
       {
         title: "STT",
         align: "center",
+        width: "5%",
         render: (value: any, item: any, index: number) => index + 1,
       },
       {
@@ -152,11 +225,7 @@ const PromotionDetailScreen: React.FC = () => {
         visible: true,
         align: "left",
         width: "20%",
-        render: (
-          value: string,
-          item: any,
-          index: number,
-        ) => {
+        render: (value: string, item: any, index: number) => {
           return (
             <div>
               <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
@@ -172,9 +241,7 @@ const PromotionDetailScreen: React.FC = () => {
         align: "center",
         visible: false,
         dataIndex: "cost",
-        render: (
-          value: string,
-        ) => formatCurrency(value),
+        render: (value: string) => formatCurrency(value),
       },
       {
         title: "Chiết khấu",
@@ -185,9 +252,7 @@ const PromotionDetailScreen: React.FC = () => {
         title: "Giá sau chiết khấu",
         align: "center",
         dataIndex: "total",
-        render: (
-          value: string,
-        ) => <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>,
+        render: (value: string) => <span style={{color: "#E24343"}}>{value}</span>,
       },
       {
         title: "SL Tối thiểu",
@@ -204,6 +269,9 @@ const PromotionDetailScreen: React.FC = () => {
       {
         title: "STT",
         align: "center",
+        width: "5%",
+        // visible: entitlements.length > 1,
+        visible: false,
         render: (value: any, item: any, index: number) => index + 1,
       },
       {
@@ -212,11 +280,7 @@ const PromotionDetailScreen: React.FC = () => {
         visible: true,
         align: "left",
         width: "20%",
-        render: (
-          value: string,
-          item: any,
-          index: number,
-        ) => {
+        render: (value: string, item: any, index: number) => {
           return (
             <div>
               <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
@@ -232,15 +296,15 @@ const PromotionDetailScreen: React.FC = () => {
         align: "center",
         visible: false,
         dataIndex: "cost",
-        render: (
-          value: string,
-        ) => formatCurrency(value),
+        render: (value: string) => formatCurrency(value),
       },
       {
         title: "Giá cố định",
         align: "center",
         dataIndex: "total",
-        render: (value:any) => <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>,
+        render: (value: any) => (
+          <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>
+        ),
       },
       {
         title: "SL Tối thiểu",
@@ -254,23 +318,23 @@ const PromotionDetailScreen: React.FC = () => {
       },
     ];
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
-  }, [costType]);
+  }, [costType, idNumber]);
 
-  const renderTotalBill = (cost: number, value: number, discount: number, valueType: string) => {
-    console.log("cost: ", cost);
-    console.log("value: ", value);
-    console.log("discount: ", discount);
-    console.log("valueType: ", valueType);
+
+  const renderTotalBill = (cost: number, value: number, valueType: string) => {
     let result = "";
+
     switch (valueType) {
       case "FIXED_PRICE":
-        result = formatCurrency(value);
+        result = formatCurrency(Math.round(value / 1000) * 1000);
         break;
       case "FIXED_AMOUNT":
-        result = `${formatCurrency(cost - discount)}`;
+        if (!cost) result = "";
+        else result = `${formatCurrency(Math.round((cost - value)/1000)*1000)}`;
         break;
       case "PERCENTAGE":
-        result = `${cost - ((cost * discount) / 100)}`;
+        if (!cost) result = "";
+        else result = `${formatCurrency(Math.round((cost - ((cost * value) / 100)) / 1000)*1000)}`;
         break;
     }
     return result;
@@ -289,29 +353,6 @@ const PromotionDetailScreen: React.FC = () => {
         result = `${value}%`;
         break;
     }
-    return result;
-  };
-
-  const transformData = (costType: string, discountValue: number, allocationLimit: number, minimum: number) => {
-    let result: any[] = [];
-    dataVariants.forEach((variant: any) => {
-      data?.entitlements.forEach(item => {
-        const isExit = (item.entitled_variant_ids as number[]).includes(variant.variant_id);
-        const value = item.prerequisite_quantity_ranges[0].value;
-        if (isExit) {
-          result.push({
-            id: variant?.variant_id,
-            title: variant?.variant_title,
-            sku: variant?.sku,
-            cost: variant?.cost,
-            minimum: minimum,
-            allocationLimit: allocationLimit,
-            discountValue: `${renderDiscountValue(discountValue, costType)}`,
-            total: `${renderTotalBill(variant?.cost, value, discountValue, costType)}`,
-          })
-        }
-      });
-    });
     return result;
   };
 
@@ -365,15 +406,41 @@ const PromotionDetailScreen: React.FC = () => {
   }, [data]);
 
   const renderStatus = (data: DiscountResponse) => {
-    const status = discountStatuses.find(status => status.code === data.state);
-    return (
-      <span
-        style={status?.style}
-      >
-          {status?.value}
-        </span>
-    );
+    const status = discountStatuses.find((status) => status.code === data.state);
+    return <span style={status?.style}>{status?.value}</span>;
   };
+
+  const onActivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+  };
+
+  const onDeactivate = async () => {
+    dispatch(showLoading());
+    try {
+      const deactivateResponse = await bulkDisablePriceRules({ids: [idNumber]});
+      switch (deactivateResponse.code) {
+        case HttpStatus.SUCCESS:
+          dispatch(promoGetDetail(idNumber, onResult));
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          dispatch(unauthorizedAction());
+          break;
+        default:
+          deactivateResponse.errors.forEach((e: any) => showError(e.toString()));
+          break;
+      }
+    } catch (error) {
+      showError("Thao tác thất bại");
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
+  const onActivateSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    dispatch(promoGetDetail(idNumber, onResult));
+  }, [dispatch, idNumber, onResult]);
 
   // @ts-ignore
   const renderer = ({days, hours, minutes, seconds, completed}) => {
@@ -404,11 +471,39 @@ const PromotionDetailScreen: React.FC = () => {
     },
     {
       name: "Còn",
-      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2} date={moment(data?.ends_date).toDate()}
-                                          renderer={renderer} /> : "---",
+      value: data?.ends_date ? (
+        <Countdown
+          zeroPadTime={2}
+          zeroPadDays={2}
+          date={moment(data?.ends_date).toDate()}
+          renderer={renderer}
+        />
+      ) : (
+        "---"
+      ),
       key: "3",
     },
   ];
+
+  const renderActionButton = () => {
+    switch (data?.state) {
+      case "ACTIVE":
+        return (
+          <Button type="primary" onClick={onDeactivate}>
+            Tạm ngừng
+          </Button>
+        );
+      case "DISABLED":
+      case "DRAFT":
+        return (
+          <Button type="primary" onClick={onActivate}>
+            Kích hoạt
+          </Button>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <ContentContainer
@@ -449,31 +544,31 @@ const PromotionDetailScreen: React.FC = () => {
                 <Row gutter={30}>
                   <Col span={12}>
                     {promoDetail &&
-                    promoDetail
-                      .filter((detail: detailMapping) => detail.position === "left")
-                      .map((detail: detailMapping, index: number) => (
-                        <Col
-                          key={index}
-                          span={24}
-                          style={{
-                            padding: 0,
-                            display: "flex",
-                            marginBottom: 10,
-                            color: "#222222",
-                          }}
-                        >
+                      promoDetail
+                        .filter((detail: detailMapping) => detail.position === "left")
+                        .map((detail: detailMapping, index: number) => (
                           <Col
-                            span={8}
+                            key={index}
+                            span={24}
                             style={{
+                              padding: 0,
                               display: "flex",
-                              justifyContent: "space-between",
-                              padding: "0 4px 0 0",
+                              marginBottom: 10,
+                              color: "#222222",
                             }}
                           >
-                            <span style={{color: "#666666"}}>{detail.name}</span>
-                            <span style={{fontWeight: 600}}>:</span>
-                          </Col>
-                          <Col span={12} style={{paddingLeft: 0}}>
+                            <Col
+                              span={8}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0 4px 0 0",
+                              }}
+                            >
+                              <span style={{color: "#666666"}}>{detail.name}</span>
+                              <span style={{fontWeight: 600}}>:</span>
+                            </Col>
+                            <Col span={12} style={{paddingLeft: 0}}>
                               <span
                                 style={{
                                   wordWrap: "break-word",
@@ -481,36 +576,36 @@ const PromotionDetailScreen: React.FC = () => {
                               >
                                 {detail.value ? detail.value : "---"}
                               </span>
+                            </Col>
                           </Col>
-                        </Col>
-                      ))}
+                        ))}
                   </Col>
                   <Col span={12}>
                     {promoDetail &&
-                    promoDetail
-                      .filter((detail: detailMapping) => detail.position === "right")
-                      .map((detail: detailMapping, index: number) => (
-                        <Col
-                          key={index}
-                          span={24}
-                          style={{
-                            display: "flex",
-                            marginBottom: 10,
-                            color: "#222222",
-                          }}
-                        >
+                      promoDetail
+                        .filter((detail: detailMapping) => detail.position === "right")
+                        .map((detail: detailMapping, index: number) => (
                           <Col
-                            span={8}
+                            key={index}
+                            span={24}
                             style={{
                               display: "flex",
-                              justifyContent: "space-between",
-                              padding: "0 4px 0 0",
+                              marginBottom: 10,
+                              color: "#222222",
                             }}
                           >
-                            <span style={{color: "#666666"}}>{detail.name}</span>
-                            <span style={{fontWeight: 600}}>:</span>
-                          </Col>
-                          <Col span={12} style={{paddingLeft: 0}}>
+                            <Col
+                              span={8}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0 4px 0 0",
+                              }}
+                            >
+                              <span style={{color: "#666666"}}>{detail.name}</span>
+                              <span style={{fontWeight: 600}}>:</span>
+                            </Col>
+                            <Col span={12} style={{paddingLeft: 0}}>
                               <span
                                 style={{
                                   wordWrap: "break-word",
@@ -518,9 +613,9 @@ const PromotionDetailScreen: React.FC = () => {
                               >
                                 {detail.value ? detail.value : "---"}
                               </span>
+                            </Col>
                           </Col>
-                        </Col>
-                      ))}
+                        ))}
                   </Col>
                 </Row>
                 <Row gutter={30}>
@@ -547,13 +642,13 @@ const PromotionDetailScreen: React.FC = () => {
                         <span style={{fontWeight: 600}}>:</span>
                       </Col>
                       <Col span={18} style={{paddingLeft: 0}}>
-                              <span
-                                style={{
-                                  wordWrap: "break-word",
-                                }}
-                              >
-                                {data.description ? data.description  : "---"}
-                              </span>
+                        <span
+                          style={{
+                            wordWrap: "break-word",
+                          }}
+                        >
+                          {data.description ? data.description : "---"}
+                        </span>
                       </Col>
                     </Col>
                   </Col>
@@ -572,13 +667,15 @@ const PromotionDetailScreen: React.FC = () => {
                 className="card"
                 title={
                   <div style={{alignItems: "center"}}>
-                    <span className="title-card">DANH SÁCH SẢN PHẨM VÀ ĐIỀU KIỆN ÁP DỤNG</span>
+                    <span className="title-card">
+                      DANH SÁCH SẢN PHẨM VÀ ĐIỀU KIỆN ÁP DỤNG
+                    </span>
                   </div>
                 }
               >
                 <CustomTable
                   dataSource={entitlements}
-                  columns={quantityColumn}
+                  columns={entitlements.length > 1 ? quantityColumn : quantityColumn.filter((column:any) => column.title !== "STT")}
                   pagination={false}
                 />
               </Card>
@@ -610,28 +707,28 @@ const PromotionDetailScreen: React.FC = () => {
                     </span>
                   </Col>
                   {timeApply &&
-                  timeApply.map((detail: any, index: number) => (
-                    <Col
-                      key={index}
-                      span={24}
-                      style={{
-                        display: "flex",
-                        marginBottom: 10,
-                        color: "#222222",
-                      }}
-                    >
+                    timeApply.map((detail: any, index: number) => (
                       <Col
-                        span={5}
+                        key={index}
+                        span={24}
                         style={{
                           display: "flex",
-                          justifyContent: "space-between",
-                          padding: "0 4px 0 0",
+                          marginBottom: 10,
+                          color: "#222222",
                         }}
                       >
-                        <span style={{color: "#666666"}}>{detail.name}</span>
-                        <span style={{fontWeight: 600}}>:</span>
-                      </Col>
-                      <Col span={15} style={{paddingLeft: 0}}>
+                        <Col
+                          span={5}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            padding: "0 4px 0 0",
+                          }}
+                        >
+                          <span style={{color: "#666666"}}>{detail.name}</span>
+                          <span style={{fontWeight: 600}}>:</span>
+                        </Col>
+                        <Col span={15} style={{paddingLeft: 0}}>
                           <span
                             style={{
                               wordWrap: "break-word",
@@ -640,9 +737,9 @@ const PromotionDetailScreen: React.FC = () => {
                           >
                             {detail.value ? detail.value : "---"}
                           </span>
+                        </Col>
                       </Col>
-                    </Col>
-                  ))}
+                    ))}
                 </Row>
               </Card>
               {/* Cửa hàng áp dụng */}
@@ -678,7 +775,9 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listStore &&
-                        data.prerequisite_store_ids.map(id => <li>{listStore.find(store => store.id === id)?.name}</li>)}
+                          data.prerequisite_store_ids.map((id) => (
+                            <li>{listStore.find((store) => store.id === id)?.name}</li>
+                          ))}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"
@@ -719,7 +818,11 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listChannel &&
-                        data.prerequisite_sales_channel_names.map(id => <li>{listChannel.find(channel => channel.id === Number(id))?.name}</li>)}
+                          data.prerequisite_sales_channel_names.map((code) => (
+                            <li>
+                              {listChannel.find((channel) => channel.code === code)?.name}
+                            </li>
+                          ))}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"
@@ -760,7 +863,9 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         {listSource &&
-                        data.prerequisite_order_source_ids.map(id => <li>{listSource.find(source => source.id === id)?.name}</li>)}
+                          data.prerequisite_order_source_ids.map((id) => (
+                            <li>{listSource.find((source) => source.id === id)?.name}</li>
+                          ))}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"
@@ -770,6 +875,16 @@ const PromotionDetailScreen: React.FC = () => {
               </Card>
             </Col>
           </Row>
+          <BottomBarContainer
+            back="Quay lại danh sách khuyến mại"
+            rightComponent={
+              <Space>
+                {allowUpdatePromoCode ? <Button disabled>Sửa</Button> : null}
+                {allowCreatePromoCode ? <Button disabled>Nhân bản</Button> : null}
+                {allowCancelPromoCode ? renderActionButton() : null}
+              </Space>
+            }
+          />
         </React.Fragment>
       )}
     </ContentContainer>

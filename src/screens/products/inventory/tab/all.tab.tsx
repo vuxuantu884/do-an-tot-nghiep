@@ -1,23 +1,29 @@
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { AppConfig } from "config/app.config";
+import {AppConfig} from "config/app.config";
 import UrlConfig from "config/url.config";
-import { inventoryGetListAction } from "domain/actions/inventory/inventory.action";
+import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
+import {searchVariantsRequestAction} from "domain/actions/product/products.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
-import { PageResponse } from "model/base/base-metadata.response";
-import { AllInventoryResponse, InventoryQuery, InventoryResponse } from "model/inventory";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi";
-import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import {PageResponse} from "model/base/base-metadata.response";
+import {
+  AllInventoryResponse,
+  InventoryResponse,
+  InventoryVariantListQuery,
+} from "model/inventory";
+import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
+import {useDispatch} from "react-redux";
+import {Link, useHistory} from "react-router-dom";
 import ImageProduct from "screens/products/product/component/image-product.component";
-import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { getQueryParams } from "utils/useQuery";
+import {formatCurrency, generateQuery, Products} from "utils/AppUtils";
+import {OFFSET_HEADER_TABLE} from "utils/Constants";
+import {getQueryParams} from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
-import { TabProps } from "./tab.props";
-
+import {TabProps} from "./tab.props";
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
+  const {stores} = props;
   const history = useHistory();
 
   const query = new URLSearchParams(history.location.hash.substring(2));
@@ -25,11 +31,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  let dataQuery: InventoryQuery = {
+  let dataQuery: VariantSearchQuery = {
     ...getQueryParams(query),
   };
-  let [params, setPrams] = useState<InventoryQuery>(dataQuery);
-  const [data, setData] = useState<PageResponse<AllInventoryResponse>>({
+  let [params, setPrams] = useState<VariantSearchQuery>(dataQuery);
+  const [data, setData] = useState<PageResponse<VariantResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -37,13 +43,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     },
     items: [],
   });
-  const onResult = useCallback((result: PageResponse<AllInventoryResponse> | false) => {
-    setLoading(false);
-    if (result) {
-      console.log(result);
-      setData(result);
-    }
-  }, []);
+  const [expandRow, setExpandRow] = useState<Array<string> | undefined>();
+  const [inventiryVariant, setInventiryVariant] = useState<
+    Map<number, AllInventoryResponse[]>
+  >(new Map());
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -58,6 +61,8 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const onFilter = useCallback(
     (values) => {
       let newPrams = {...params, ...values, page: 1};
+      console.log(newPrams);
+
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.INVENTORY}#1?${queryParam}`);
@@ -82,6 +87,14 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     );
   }, []);
 
+  const onResult = useCallback((result: PageResponse<VariantResponse> | false) => {
+    setLoading(false);
+    if (result) {
+      setInventiryVariant(new Map());
+      setData(result);
+      setExpandRow([]);
+    }
+  }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
 
   const ActionComponent = useChangeHeaderToAction(
@@ -90,6 +103,32 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     () => {},
     []
   );
+
+  const onSaveInventory = (
+    result: Array<AllInventoryResponse>,
+    variant_ids: Array<number>
+  ) => {
+    console.log(result);
+
+    if (Array.isArray(result) && variant_ids[0]) {
+      const tempMap = new Map(inventiryVariant);
+      tempMap.set(variant_ids[0], result);
+      setInventiryVariant(tempMap);
+    }
+  };
+
+  const fetchInventoryByVariant = (
+    variant_ids: Array<number>,
+    store_ids: Array<number>
+  ) => {
+    const params: InventoryVariantListQuery = JSON.parse(
+      JSON.stringify({variant_ids, store_ids, is_detail: true})
+    );
+
+    dispatch(
+      inventoryByVariantAction(params, (result) => onSaveInventory(result, variant_ids))
+    );
+  };
 
   useEffect(() => {
     setColumns([
@@ -128,7 +167,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       {
         title: "Giá",
         visible: true,
-        dataIndex: "prices",
+        dataIndex: "variant_prices",
         align: "right",
         render: (value) => {
           let price = Products.findPrice(value, AppConfig.currency);
@@ -138,19 +177,30 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       {
         title: "Tồn theo trạng thái",
         visible: true,
-        dataIndex: `total_${params.status || "on_hand"}`,
+        dataIndex: `${params.status || "on_hand"}`,
         align: "right",
       },
     ]);
-    
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params, selected]);
 
   useEffect(() => {
     setLoading(true);
-    dispatch(inventoryGetListAction(params, onResult));
+    const temps = {...params};
+    delete temps.status;
+    dispatch(searchVariantsRequestAction(temps, onResult));
   }, [dispatch, onResult, params]);
 
+  const storeRef = useRef<Map<number, string>>(new Map<number, string>());
+  useEffect(() => {
+    if (Array.isArray(stores)) {
+      stores.forEach((item) => {
+        storeRef.current.set(item.id, item.name);
+      });
+    }
+  }, [stores]);
+  
   return (
     <div>
       <AllInventoryFilter
@@ -159,7 +209,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         params={params}
         actions={[]}
         onClearFilter={() => {}}
-        listStore={props.stores}
+        listStore={stores}
       />
       <CustomTable
         isRowSelection
@@ -167,6 +217,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         scroll={{x: 900}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
+        expandedRowKeys={expandRow}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
@@ -191,55 +242,71 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
               </div>
             );
           },
-          expandedRowRender: (record: AllInventoryResponse) => (
-            <CustomTable
-              dataSource={record.inventories}
-              rowKey={(item) => item.id}
-              scroll={{y: 250}}
-              pagination={false}
-              columns={[
-                {
-                  title: "Kho hàng",
-                  dataIndex: "store",
-                },
-                {
-                  align: "right",
-                  title: "Tồn trong kho",
-                  dataIndex: "on_hand",
-                },
-                {
-                  align: "right",
-                  title: "Có thể bán",
-                  dataIndex: "available",
-                },
-                {
-                  align: "right",
-                  title: "Tạm giữ",
-                  dataIndex: "on_hold",
-                },
-                {
-                  align: "right",
-                  title: "Hàng lỗi",
-                  dataIndex: "defect",
-                },
-                {
-                  align: "right",
-                  title: "Chờ nhập",
-                  dataIndex: "in_coming",
-                },
-                {
-                  align: "right",
-                  title: "Đang chuyển đến",
-                  dataIndex: "transferring",
-                },
-                {
-                  align: "right",
-                  title: "Đang chuyển đi",
-                  dataIndex: "on_way",
-                },
-              ]}
-            />
-          ),
+          onExpand: (expanded: boolean, record: VariantResponse) => {
+            console.log("expanded", expanded);
+            setExpandRow(undefined);
+            if (expanded) {
+              let store_ids: any[] = params.store_ids
+                ? params.store_ids.toString().split(",")
+                : [];
+
+              store_ids = store_ids.map((item) => parseInt(item));
+              fetchInventoryByVariant([record.id], store_ids);
+            }
+          },
+          expandedRowRender: (record: VariantResponse, index, indent, expanded) => {
+            return (
+              <CustomTable
+                dataSource={inventiryVariant.get(record.id) || []}
+                scroll={{y: 250}}
+                pagination={false}
+                columns={[
+                  {
+                    title: "Kho hàng",
+                    dataIndex: "store_id",
+                    render (value) {
+                      return storeRef.current.get(value);
+                    },
+                  },
+                  {
+                    align: "right",
+                    title: "Tồn trong kho",
+                    dataIndex: "on_hand",
+                  },
+                  {
+                    align: "right",
+                    title: "Có thể bán",
+                    dataIndex: "available",
+                  },
+                  {
+                    align: "right",
+                    title: "Tạm giữ",
+                    dataIndex: "on_hold",
+                  },
+                  {
+                    align: "right",
+                    title: "Hàng lỗi",
+                    dataIndex: "defect",
+                  },
+                  {
+                    align: "right",
+                    title: "Chờ nhập",
+                    dataIndex: "in_coming",
+                  },
+                  {
+                    align: "right",
+                    title: "Đang chuyển đến",
+                    dataIndex: "transferring",
+                  },
+                  {
+                    align: "right",
+                    title: "Đang chuyển đi",
+                    dataIndex: "on_way",
+                  },
+                ]}
+              />
+            );
+          },
         }}
         columns={columnsFinal}
         rowKey={(data) => data.id}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, createRef } from "react";
+import React, { useState, useMemo, createRef, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { RefSelectProps } from "antd/lib/select";
@@ -34,10 +34,14 @@ import {
   getShopEcommerceList,
   deleteEcommerceItem,
   putConnectEcommerceItem,
+  getProductEcommerceList,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 
 import ConfirmConnectProductModal from "./ConfirmConnectProductModal";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
+import useAuthorization from "hook/useAuthorization";
+import ResultConnectProductModal from "screens/ecommerce/products/tab/not-connected-items/ResultConnectProductModal";
 
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import filterIcon from "assets/icon/filter.svg";
@@ -53,34 +57,32 @@ import {
   StyledComponent,
   StyledProductListDropdown,
   StyledYodyProductColumn,
-} from "./styles";
+} from "screens/ecommerce/products/tab/not-connected-items/styles";
 import { StyledProductConnectStatus, StyledProductFilter } from "screens/ecommerce/products/styles";
-import { EcommerceProductPermissions } from "config/permissions/ecommerce.permission";
-import useAuthorization from "hook/useAuthorization";
 
+const productsDeletePermission = [EcommerceProductPermission.products_delete];
+const productsConnectPermission = [EcommerceProductPermission.products_update];
 
+let connectedYodyProductsRequest :object;
 
-const connectProductPermission = [EcommerceProductPermissions.CONNECT_PRODUCT];
-const deleteProductPermission = [EcommerceProductPermissions.DELETE_PRODUCT];
-
-type NotConnectedItemsProps = {
-  variantData: any;
-  getProductUpdated: any;
-  tableLoading: any;
-};
-
-const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
-  props: NotConnectedItemsProps
-) => {
-  const { variantData, getProductUpdated, tableLoading } = props;
+const NotConnectedItems: React.FC = () => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
   const history = useHistory();
 
-  const [allowConnectProduct] = useAuthorization({
-    acceptPermissions: connectProductPermission,
+  const [allowProductsConnect] = useAuthorization({
+    acceptPermissions: productsConnectPermission,
     not: false,
+  });
+
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
   });
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
@@ -100,8 +102,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   let notMatchSelectedRow: any[] = [];
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
 
-  const [connectedYodyProductsRequest, setConnectedYodyProductsRequest] = useState<any>({
-    variants: null
+  const [isShowResultConnectProductModal, setIsShowResultConnectProductModal] = useState(false);
+  const [connectProductData, setConnectProductData] = useState<any>({
+    total: 0,
+    success_total: 0,
+    error_total: 0,
+    error_list: []
   });
 
   const initialFormValues: ProductEcommerceQuery = useMemo(
@@ -133,6 +139,23 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     connected_date_to: null,
   });
 
+
+  const updateVariantData = useCallback((result: PageResponse<any> | false) => {
+    setIsLoading(false);
+    if (!!result) {
+      setVariantData(result);
+    }
+  }, []);
+
+  const getProductUpdated = useCallback((queryRequest: any) => {
+    setIsLoading(true);
+    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+  }, [dispatch, updateVariantData]);
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    getProductUpdated(query);
+  }, [getProductUpdated, query]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -177,8 +200,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   ) => {
     const autoCompleteRef = createRef<RefSelectProps>();
 
-    const [allowConnectProduct] = useAuthorization({
-      acceptPermissions: connectProductPermission,
+    const [allowProductsConnect] = useAuthorization({
+      acceptPermissions: productsConnectPermission,
       not: false,
     });
 
@@ -187,6 +210,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     const [diffPriceProduct, setDiffPriceProduct] = useState<Array<any>>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
+    const [isShowResultConnectionModal, setIsShowResultConnectionModal] = useState(false);
+    const [resultConnectionData, setResultConnectionData] = useState<any>({
+      total: 0,
+      success_total: 0,
+      error_total: 0,
+      error_list: []
+    });
+    
     const [productSelected, setProductSelected] = useState<any>(
       ecommerceItem?.core_sku ?
         {
@@ -216,6 +247,22 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       updateConnectItemList(copyConnectItemList);
     }
 
+    const closeResultConnectionModal = () => {
+      setIsShowResultConnectionModal(false);
+      reloadPage();
+    };
+
+    const updateNotConnectedProductList = useCallback((data) => {
+      setIsSaving(false);
+      setIsVisibleConfirmConnectModal(false);
+
+      if (data) {
+        setProductSelected(null);
+        setResultConnectionData(data);
+        setIsShowResultConnectionModal(true);
+      }
+    }, []);
+
     // handle save single connected Yody product
     const saveConnectYodyProduct = () => {
       const newConnectItemList =
@@ -241,17 +288,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
       setIsSaving(true);
       dispatch(
-        putConnectEcommerceItem(request, (result) => {
-          setIsVisibleConfirmConnectModal(false);
-          setIsSaving(false);
-          if (result) {
-            setProductSelected(null);
-            showSuccess("Ghép nối sản phẩm thành công");
-            reloadPage();
-          } else {
-            showError("Ghép nối sản phẩm thất bại");
-          }
-        })
+        putConnectEcommerceItem(request, updateNotConnectedProductList)
       );
     };
 
@@ -474,7 +511,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               </li>
             </ul>
 
-            {allowConnectProduct &&
+            {allowProductsConnect &&
               <div className="button">
                 <Button
                   type="primary"
@@ -504,17 +541,24 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             cancelConfirmConnectModal={cancelConfirmConnectModal}
           />
         }
+
+        <ResultConnectProductModal
+          visible={isShowResultConnectionModal}
+          onCancel={closeResultConnectionModal}
+          onOk={closeResultConnectionModal}
+          connectProductData={resultConnectionData}
+        />
       </StyledYodyProductColumn>
     );
   };
 
   const RenderDeleteItemColumn = (l: any, item: any, index: number) => {
-    const [allowDeleteProduct] = useAuthorization({
-      acceptPermissions: deleteProductPermission,
+    const [allowProductsDelete] = useAuthorization({
+      acceptPermissions: productsDeletePermission,
       not: false,
     });
     
-    const isShowAction = item.connect_status === "waiting" && allowDeleteProduct;
+    const isShowAction = item.connect_status === "waiting" && allowProductsDelete;
 
     return (
       <>
@@ -579,8 +623,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },
     {
       title: "Sản phẩm (Yody)",
-      render: (item: any, row: any, index: any) =>
-        RenderProductColumn(item, [...tempConnectItemList], updateConnectItemList)
+      render: (item: any, row: any, index: any) => RenderProductColumn(item, [...tempConnectItemList], updateConnectItemList)
     },
     {
       title: "Ghép nối",
@@ -625,10 +668,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       query.page = page;
       query.limit = limit;
       setQuery({ ...query, page, limit });
-      getProductUpdated({ ...query });
       window.scrollTo(0, 0);
     },
-    [query, getProductUpdated]
+    [query]
   );
 
   // get ecommerce shop list
@@ -725,23 +767,23 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     return connectItemList.length === 0;
   };
 
+  const updateProductList = (data: any) => {
+    setIsLoading(false);
+    setIsVisibleConfirmConnectItemsModal(false);
+
+    if (data) {
+      updateConnectItemList(notMatchConnectItemList);
+      setConnectItemList(tempConnectItemList);
+      setSelectedRow(notMatchSelectedRow);
+      setConnectProductData(data);
+      setIsShowResultConnectProductModal(true);
+    }
+  };
+
   const connectedYodyProducts = () => {
     setIsLoading(true);
     dispatch(
-      putConnectEcommerceItem(connectedYodyProductsRequest, (result) => {
-        setIsVisibleConfirmConnectItemsModal(false);
-        setIsLoading(false);
-        if (result) {
-          updateConnectItemList(notMatchConnectItemList);
-          setConnectItemList(tempConnectItemList);
-          setSelectedRow(notMatchSelectedRow);
-
-          showSuccess("Ghép nối sản phẩm thành công");
-          history.replace(`${history.location.pathname}#connected-item`);
-        } else {
-          showError("Ghép nối sản phẩm thất bại");
-        }
-      })
+      putConnectEcommerceItem(connectedYodyProductsRequest, updateProductList)
     );
   };
   
@@ -779,9 +821,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
       tempSelectedRow.forEach((rowData) => {
         const rowMatch = yodyProductConnectCheck.find(
-          (item) => item.id !== rowData.id
+          (item) => item.id === rowData.id
         );
-        if (rowMatch) {
+        if (!rowMatch) {
           notMatchSelectedRow.push(rowData);
         }
       });
@@ -793,11 +835,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
 
     if (isSaveAble) {
-      const request = {
+      connectedYodyProductsRequest = {
         variants: yodyProductConnectCheck,
       };
-
-      setConnectedYodyProductsRequest(request);
 
       if (isNotEqualPrice) {
         setDiffPriceProductList(diffPriceProductListData);
@@ -892,6 +932,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     setSelectedRow(selectedRow);
   }, []);
 
+  const closeResultConnectProductModal = () => {
+    setIsShowResultConnectProductModal(false);
+    history.replace(`${history.location.pathname}#connected-item`);
+  };
+
+  console.log("return variantData: ", variantData);
   return (
     <StyledComponent>
       <Card>
@@ -901,7 +947,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   placeholder="Chọn sàn"
                   allowClear
                   onSelect={(value) => handleSelectEcommerce(value)}
@@ -927,7 +973,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                 {isEcommerceSelected && (
                   <Select
                     showSearch
-                    disabled={tableLoading || !isEcommerceSelected}
+                    disabled={isLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(false)}
@@ -951,20 +997,20 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
               <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
                 <Input
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="SKU, tên sản phẩm sàn"
                 />
               </Form.Item>
 
               <Form.Item className="filter-item">
-                <Button type="primary" htmlType="submit" disabled={tableLoading}>
+                <Button type="primary" htmlType="submit" disabled={isLoading}>
                   Lọc
                 </Button>
               </Form.Item>
 
               <Form.Item className="filter-item">
-                <Button onClick={openFilter} disabled={tableLoading}>
+                <Button onClick={openFilter} disabled={isLoading}>
                   <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
                   <span>Thêm bộ lọc</span>
                 </Button>
@@ -1017,7 +1063,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                 {isEcommerceSelected && (
                   <Select
                     showSearch
-                    disabled={tableLoading || !isEcommerceSelected}
+                    disabled={isLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(true)}
@@ -1044,8 +1090,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         </StyledProductFilter>
 
         <CustomTable
-          isRowSelection={allowConnectProduct}
-          isLoading={tableLoading}
+          isRowSelection={allowProductsConnect}
+          isLoading={isLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
           dataSource={variantData.items}
@@ -1062,7 +1108,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           rowKey={(data) => data.id}
         />
 
-        {allowConnectProduct &&
+        {allowProductsConnect &&
           <Button
             style={{ margin: "20px 0" }}
             type="primary"
@@ -1087,6 +1133,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           cancelConfirmConnectModal={() => setIsVisibleConfirmConnectItemsModal(false)}
         />
       }
+
+      <ResultConnectProductModal
+        visible={isShowResultConnectProductModal}
+        onCancel={closeResultConnectProductModal}
+        onOk={closeResultConnectProductModal}
+        connectProductData={connectProductData}
+      />
 
       <Modal
         width="600px"

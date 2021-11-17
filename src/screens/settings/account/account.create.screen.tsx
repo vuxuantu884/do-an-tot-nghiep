@@ -55,9 +55,9 @@ import {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {convertDistrict} from "utils/AppUtils";
+import {RegUtil} from "utils/RegUtils";
 import {showSuccess} from "utils/ToastUtils";
 import {PASSWORD_RULES} from "./account.rules";
-
 const {Item, List} = Form;
 const {Option, OptGroup} = Select;
 
@@ -300,11 +300,22 @@ const AccountCreateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Tên đăng nhập"
-                  name="user_name"
-                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
+                  label="Mã nhân viên"
+                  name="code"
+                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  normalize={(value: string) => (value || "").toUpperCase()}
                 >
-                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
+                  <Input
+                    className="r-5"
+                    placeholder="VD: YD0000"
+                    size="large"
+                    onChange={(e) =>
+                      formRef.current?.setFieldsValue({
+                        user_name: e.target.value.toUpperCase(),
+                      })
+                    }
+                    autoComplete="new-password"
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -326,11 +337,16 @@ const AccountCreateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Mã nhân viên"
-                  name="code"
-                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  label="Tên đăng nhập"
+                  name="user_name"
+                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
                 >
-                  <Input className="r-5" placeholder="VD: YD0000" size="large" />
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập tên đăng nhập"
+                    size="large"
+                    disabled
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -393,7 +409,13 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[{required: true, message: "Vui lòng nhập số điện thoại"}]}
+                  rules={[
+                    {required: true, message: "Vui lòng nhập số điện thoại"},
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại không đúng định dạng",
+                    },
+                  ]}
                 >
                   <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
                 </Item>
@@ -458,8 +480,9 @@ const AccountCreateScreen: React.FC = () => {
                 >
                   <Select
                     placeholder="Chọn vị trí"
-                    showArrow
                     allowClear
+                    showArrow
+                    showSearch
                     optionFilterProp="children"
                   >
                     {listRole?.map((item) => (
@@ -487,6 +510,8 @@ const AccountCreateScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Khu vực" name="district_id">
                   <Select
+                    allowClear
+                    showArrow
                     showSearch
                     onSelect={onSelectDistrict}
                     placeholder="Chọn khu vực"

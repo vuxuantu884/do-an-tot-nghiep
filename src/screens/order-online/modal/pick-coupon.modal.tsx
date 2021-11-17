@@ -2,7 +2,7 @@ import {
   Button, Form, FormInstance,
   Input, Modal
 } from "antd";
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, useState } from "react";
 
 type PropType = {
   visible: boolean;
@@ -18,7 +18,7 @@ function PickCouponModal(props: PropType){
   const formRef = createRef<FormInstance>();
   const onSubmit = () => {
     onOkCouponModal("", 0, 0, _coupon);
-    setCoupon("");
+    // setCoupon(_coupon);
   };
 
   const onchangeCoupon = (e: any) => {
@@ -30,17 +30,16 @@ function PickCouponModal(props: PropType){
     }
   };
 
-  useEffect(() => {
-    return () => {
-      setCoupon("")
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //     setCoupon("")
+  //   }
+  // }, [])
 
   return (
     <Modal
       title="Mã giảm giá"
       onCancel={(e) => {
-        setCoupon("")
         onCancelCouponModal(e)
       }}
       centered

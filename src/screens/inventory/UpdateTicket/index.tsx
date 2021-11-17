@@ -384,7 +384,7 @@ const UpdateTicket: FC = () => {
       if (result) {
         setIsLoading(false);
         showSuccess("Đổi dữ liệu thành công");
-        history.push(`${UrlConfig.INVENTORY_TRANSFER}/${result.id}`);
+        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
       }
       else {
         setIsLoading(false);
@@ -627,7 +627,7 @@ const UpdateTicket: FC = () => {
           if (!result) {
             return;
           } else {
-            history.push(`${UrlConfig.INVENTORY_TRANSFER}`);
+            history.push(`${UrlConfig.INVENTORY_TRANSFERS}`);
           }
         }
       )
@@ -769,7 +769,7 @@ const UpdateTicket: FC = () => {
           },
           { 
             name: "Chuyển hàng",
-            path: `${UrlConfig.INVENTORY_TRANSFER}`,
+            path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
             name: `${initDataForm? initDataForm.code : ''}`,
@@ -1029,7 +1029,7 @@ const UpdateTicket: FC = () => {
               leftComponent = {
                 <div onClick={() => setIsVisibleModalWarning(true)} style={{ cursor: "pointer" }}>
                   <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-                  {"Quay lại danh sách"}
+                  {"Quay lại trang chi tiết"}
                 </div>
               }
               rightComponent={
@@ -1080,7 +1080,7 @@ const UpdateTicket: FC = () => {
             onCancel={() => {
               setIsVisibleModalWarning(false);
             }}
-            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}`)}
+            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${idNumber}`)}
             okText="Đồng ý"
             cancelText="Tiếp tục"
             title={`Bạn có muốn rời khỏi trang?`}

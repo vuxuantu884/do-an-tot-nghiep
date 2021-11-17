@@ -1,13 +1,24 @@
-export interface ApplyCouponLineItemResponseModel {
-  applied_discount: {
-    allocation_limit: number | null;
+export interface AppliedDiscountResponseModel {
+  allocation_limit: number | null;
     invalid: boolean;
-    invalid_description: string | null;
+    invalid_description: string;
     price_rule_id: number | null;
     title: string | null;
     value: number | null;
     value_type: string | null;
-  } | null;
+    code: string| null;
+}
+
+export interface SuggestDiscountResponseModel {
+  allocation_limit: number | null;
+price_rule_id: number | null;
+title: string | null;
+value: number | null;
+value_type: string | null;
+}
+
+export interface ApplyDiscountLineItemResponseModel {
+  applied_discount: AppliedDiscountResponseModel | null;
   category_id: number | null;
   custom: boolean;
   discounted_total: number | null;
@@ -17,24 +28,15 @@ export interface ApplyCouponLineItemResponseModel {
   product_id: number;
   quantity: number;
   sku: string;
-  suggested_discounts: any[];
+  suggested_discounts: SuggestDiscountResponseModel[];
   taxable: boolean;
   total_discount: number | null;
   variant_id: number | null;
 }
 
 export interface ApplyCouponResponseModel {
-  applied_discount: {
-    allocation_limit: number | null;
-    code: string;
-    invalid: boolean;
-    invalid_description: string;
-    price_rule_id: number | null;
-    title: string;
-    value: number | null;
-    value_type: string | null;
-  };
-  line_items: ApplyCouponLineItemResponseModel[];
+  applied_discount: AppliedDiscountResponseModel;
+  line_items: ApplyDiscountLineItemResponseModel[];
   customer_id: number | null;
   order_id: number | null;
   order_source_id: number | null;
@@ -42,7 +44,7 @@ export interface ApplyCouponResponseModel {
   sales_channel_name: string;
   store_id: number | null;
   subtotal_price: number | null;
-  suggested_discounts: [];
+  suggested_discounts: SuggestDiscountResponseModel[];
   tax_exempt: boolean;
   taxes_included: boolean;
 }

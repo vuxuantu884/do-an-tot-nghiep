@@ -100,7 +100,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                       <Button disabled>Đã huỷ</Button>
                     ) : (
                       <AuthWrapper
-                        acceptPermissions={[PurchaseOrderPermission.procurements_update]}
+                        acceptPermissions={[PurchaseOrderPermission.procurements_approve]}
                       >
                         <Button onClick={() => confirmDraft(item, false)} type="primary">
                           Duyệt phiếu

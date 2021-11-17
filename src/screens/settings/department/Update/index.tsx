@@ -62,6 +62,7 @@ const DepartmentUpdateScreen: React.FC = () => {
   const onFinish = useCallback(
     (value: DepartmentRequest) => {
       setLoading(true);
+      value.status = "active";
       dispatch(
         departmentUpdateAction(idNumber, value, (result) => {
           setLoading(false);
@@ -101,14 +102,14 @@ const DepartmentUpdateScreen: React.FC = () => {
     <ContentContainer
       isError={error}
       isLoading={isLoading}
-      title="Quản lý phòng ban/bộ phận"
+      title="Quản lý bộ phận"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý phòng ban/bộ phận",
+          name: "Quản lý bộ phận",
           path: UrlConfig.DEPARTMENT,
         },
         {
@@ -129,22 +130,11 @@ const DepartmentUpdateScreen: React.FC = () => {
           onFinish={onFinish}
           layout="vertical"
         >
-          <Card title="Thông tin Phòng ban/Bộ phận">
+          <Card title="Thông tin bộ phận">
+            <Form.Item name="status" hidden>
+              <Input />
+            </Form.Item>
             <Row gutter={50}>
-              <Col span={8}>
-                <Form.Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập Tên phòng ban",
-                    },
-                  ]}
-                  label="Mã phòng ban"
-                  name="code"
-                >
-                  <Input placeholder="Nhập phòng ban" />
-                </Form.Item>
-              </Col>
               <Col span={8}>
                 <Form.Item
                   rules={[
@@ -153,10 +143,24 @@ const DepartmentUpdateScreen: React.FC = () => {
                       message: "Vui lòng nhập mã phòng ban",
                     },
                   ]}
+                  label="Mã phòng ban"
+                  name="code"
+                >
+                  <Input maxLength={13} placeholder="Nhập phòng ban" />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập tên phòng ban",
+                    },
+                  ]}
                   label="Tên phòng ban"
                   name="name"
                 >
-                  <Input placeholder="Tên phòng ban" />
+                  <Input maxLength={255} placeholder="Tên phòng ban" />
                 </Form.Item>
               </Col>
             </Row>
@@ -182,9 +186,9 @@ const DepartmentUpdateScreen: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name="parent_id" label="Thuộc về phòng ban/Bộ phận">
+                <Form.Item name="parent_id" label="Thuộc về bộ phận" >
                   <TreeSelect
-                    placeholder="Chọn phòng ban/Bộ phận"
+                    placeholder="Chọn bộ phận"
                     treeDefaultExpandAll
                     className="selector"
                     allowClear
@@ -214,7 +218,6 @@ const DepartmentUpdateScreen: React.FC = () => {
             back="Quay lại"
             rightComponent={
               <Space>
-                <Button htmlType="reset">Hủy</Button>
                 {allowUpdateDep ? (
                   <Button loading={loading} htmlType="submit" type="primary">
                     Cập nhật

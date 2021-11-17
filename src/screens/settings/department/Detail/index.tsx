@@ -59,7 +59,7 @@ const DepartmentCreateScreen: React.FC = () => {
   }, [dispatch, idNumber]);
   return (
     <ContentContainer
-      title="Quản lý phòng ban/bộ phận"
+      title="Quản lý bộ phận"
       isError={error}
       isLoading={loading}
       breadcrumb={[
@@ -68,7 +68,7 @@ const DepartmentCreateScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý phòng ban/bộ phận",
+          name: "Quản lý bộ phận",
           path: UrlConfig.DEPARTMENT,
         },
         {
@@ -83,7 +83,7 @@ const DepartmentCreateScreen: React.FC = () => {
               <Card title="Thông tin chi tiết">
                 <Row gutter={50}>
                   <Col span={24}>
-                    <RowDetail title="Tên phòng ban/Bộ phận" value={data.name} />
+                    <RowDetail title="Tên bộ phận" value={data.name} />
                   </Col>
                   <Col span={24}>
                     <RowDetail title="Quản lý" value={data.manager} />
@@ -119,7 +119,7 @@ const DepartmentCreateScreen: React.FC = () => {
             {allowUpdateDep ? (
               <Button
                 onClick={() => {
-                  history.push(`${UrlConfig.DEPARTMENT}/${idNumber}/edit`);
+                  history.push(`${UrlConfig.DEPARTMENT}/${idNumber}/update`);
                 }}
                 type="primary"
               >

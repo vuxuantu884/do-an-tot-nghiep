@@ -47,14 +47,29 @@ const FixedPriceGroup = (props: any) => {
     [],
   );
 
+
+  useEffect(() => {
+    if (discountMethod === "FIXED_PRICE") {
+      setDiscountType("FIXED_AMOUNT");
+    }
+    if (discountMethod === "QUANTITY") {
+      setDiscountType("PERCENTAGE");
+    }
+  }, [discountMethod]);
+
   useEffect(() => {
     const formEntitlement = form.getFieldValue("entitlements")[name];
-    setDiscountType(formEntitlement["prerequisite_quantity_ranges.value_type"]);
-  }, [form.getFieldValue("entitlements")[name]])
+    if (formEntitlement && !formEntitlement["prerequisite_quantity_ranges.value_type"]) {
+      formEntitlement["prerequisite_quantity_ranges.value_type"] = discountType;
+    }
+  }, [discountType, form, name])
+
 
   useEffect(() => {
     const formEntitlements = form.getFieldValue("entitlements");
     const initVariants = formEntitlements[name]?.variants;
+    if (formEntitlements[name]?.["prerequisite_quantity_ranges.value_type"])
+      setDiscountType(formEntitlements[name]?.["prerequisite_quantity_ranges.value_type"]);
     if (initVariants && initVariants.length > 0) {
       initVariants.forEach((variant: any) => {
         const product = transformVariant(variant);
@@ -62,19 +77,9 @@ const FixedPriceGroup = (props: any) => {
         setSelectedProduct([...selectedProduct]);
       });
     }
-  }, []);
+  }, [form, name, selectedProduct]);
 
-  useEffect(() => {
-    const entitlements = form.getFieldValue("entitlements");
-    if (discountMethod === "FIXED_PRICE" && entitlements[name]) {
-      setDiscountType("FIXED_AMOUNT");
-      entitlements[name]["prerequisite_quantity_ranges.value_type"] = "FIXED_AMOUNT";
-    }
-    if (discountMethod === "QUANTITY" && entitlements[name]) {
-      setDiscountType("PERCENTAGE");
-      entitlements[name]["prerequisite_quantity_ranges.value_type"] = "PERCENTAGE";
-    }
-  }, []);
+
 
   const transformVariant = (item: any) => ({
     name: item.variant_title,
@@ -147,7 +152,7 @@ const FixedPriceGroup = (props: any) => {
       }
       setVisibleManyProduct(false);
     },
-    [form, name, selectedProduct],
+    [selectedProduct],
   );
 
   const onDeleteItem = useCallback(
@@ -166,7 +171,7 @@ const FixedPriceGroup = (props: any) => {
       }
       return `${value}`
     } else {
-      return formatCurrency(`${value}`)
+      return formatCurrency(`${value}`.replaceAll(".", ""))
     }
   }, [discountType])
 
@@ -205,7 +210,8 @@ const FixedPriceGroup = (props: any) => {
             <NumberInput key={`${key}-min`} min={0}/>
           </Form.Item>
         </Col>
-        <Col span={7}>
+        {/* Tạm thời bỏ giới hạn số lượng */}
+        <Col span={7} style={{display: "none"}}>
           <Form.Item
             name={[name, "prerequisite_quantity_ranges.allocation_limit"]}
             label={<Space>
@@ -232,7 +238,7 @@ const FixedPriceGroup = (props: any) => {
               <InputNumber
                 style={{textAlign: "end", borderRadius: "0px"}}
                 min={1}
-                max={discountType === "FIXED_AMOUNT" ? 999999999 : 99}
+                max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
                 step={discountType === "FIXED_AMOUNT" ? 1: 0.01}
                 formatter={(value) => formatDiscountValue(value)}
               />
@@ -244,6 +250,10 @@ const FixedPriceGroup = (props: any) => {
               <Select
                 style={{borderRadius: "0px"}}
                 onSelect={(value: string) => {
+                  const formEntitlements = form.getFieldValue("entitlements");
+
+                  let entitlement = formEntitlements[name];
+                  if (entitlement) entitlement["prerequisite_quantity_ranges.value"] = null
                   setDiscountType(value);
                 }}
                 defaultValue={discountMethod !== 'FIXED_PRICE' ? "PERCENTAGE" : "FIXED_AMOUNT"}
@@ -366,6 +376,7 @@ const FixedPriceGroup = (props: any) => {
           selected={data}
           onCancel={() => setVisibleManyProduct(false)}
           visible={visibleManyProduct}
+          emptyText={"Không tìm thấy sản phẩm"}
         />
       </div>}
     </div>
