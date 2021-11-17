@@ -1,8 +1,10 @@
-import { Form, Row, Col, Button, Collapse } from "antd";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { Form, Button } from "antd";
+
 import { showSuccess, showError } from "utils/ToastUtils";
+
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   DistrictGetByCountryAction,
@@ -25,13 +27,16 @@ import {
   AccountSearchQuery,
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import arrowLeft from "../../assets/icon/arrow-left.svg";
-import "./customer.scss";
+
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import CustomInputContact from "./common/customInputContact";
-import GeneralInformation from "./common/general.information";
-const { Panel } = Collapse;
+import CustomerContactInfo from "screens/customer/common/CustomerContactInfo";
+import CustomerGeneralInfo from "screens/customer/common/CustomerGeneralInfo";
+
+import arrowBack from "assets/icon/arrow-back.svg";
+import { StyledCustomerInfo } from "screens/customer/customerStyled";
+import "screens/customer/customer.scss";
+
+
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
@@ -62,6 +67,7 @@ const CustomerCreate = (props: any) => {
     },
     []
   );
+
   const AccountChangeSearch = React.useCallback(
     (value) => {
       initQueryAccount.info = value;
@@ -75,9 +81,7 @@ const CustomerCreate = (props: any) => {
   }, [customerForm]);
 
   const goBack = () => {
-    if (!isLoading) {
-      history.goBack();
-    }
+    history.goBack();
   }
 
   React.useEffect(() => {
@@ -114,10 +118,12 @@ const CustomerCreate = (props: any) => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
+
   React.useEffect(() => {
     let customer_type_id = 2;
     customerForm.setFieldsValue({ ...new CustomerModel(), customer_type_id });
   }, [customerForm]);
+
   const setResult = React.useCallback(
     (result) => {
       setIsLoading(false);
@@ -128,6 +134,7 @@ const CustomerCreate = (props: any) => {
     },
     [history]
   );
+
   const handleSubmit = (values: any) => {
     let area = areas.find((area) => area.id === districtId);
     let piece = {
@@ -154,117 +161,78 @@ const CustomerCreate = (props: any) => {
     setIsLoading(true);
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
-  const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
 
   const handleSubmitFail = (errorFields: any) => {
     const fieldName = errorFields[0].name.join("");
     if (fieldName === "contact_name" || fieldName === "contact_phone") {
       showError("Vui lòng nhập thông tin liên hệ");
-      setCollapseActive(true);
     }
   };
-  const handleCollapseChage = () => {
-    setCollapseActive(!isCollapseActive);
-  };
+
   return (
-    <ContentContainer
-      title="Thêm khách hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Khách hàng",
-          path: `/customers`,
-        },
-        {
-          name: "Thêm khách hàng",
-        },
-      ]}
-    >
-      <Form
-        form={customerForm}
-        name="customer_add"
-        onFinish={handleSubmit}
-        onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
-        layout="vertical"
+    <StyledCustomerInfo>
+      <ContentContainer
+        title="Thêm khách hàng"
       >
-        <Row gutter={24}>
-          <Col span={24}>
-            <GeneralInformation
-              form={customerForm}
-              name="general_add"
-              isLoading={isLoading}
-              accounts={accounts}
-              groups={groups}
-              types={types}
-              status={status}
-              setStatus={setStatus}
-              areas={areas}
-              countries={countries}
-              wards={wards}
-              handleChangeArea={handleChangeArea}
-              AccountChangeSearch={AccountChangeSearch}
-            />
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={18}>
-            <Collapse
-              onChange={handleCollapseChage}
-              className="customer-contact-collapse"
-              style={{ backgroundColor: "white", marginTop: 16 }}
-              expandIconPosition="right"
-              activeKey={[isCollapseActive ? "1" : ""]}
-            >
-              <Panel
-                className=""
-                header={
-                  <span
-                    style={{
-                      textTransform: "uppercase",
-                      fontWeight: 500,
-                      padding: "6px",
-                    }}
-                  >
-                    THÔNG TIN LIÊN HỆ
-                  </span>
-                }
-                key="1"
-              >
-                <Row gutter={30} style={{ padding: "0 15px" }}>
-                  <CustomInputContact
-                    form={customerForm}
-                    isLoading={isLoading}
-                  />
-                </Row>
-              </Panel>
-            </Collapse>
-          </Col>
-          <Col span={6} />
-        </Row>
-        <div className="customer-bottom-button">
-          <div onClick={goBack} style={{ cursor: "pointer" }}>
-            <img style={{ marginRight: "10px", transform: "rotate(180deg)"}} src={arrowLeft} alt="" />
-            Quay lại danh sách khách hàng
-          </div>
-          <div>
+        <Form
+          form={customerForm}
+          name="customer_add"
+          onFinish={handleSubmit}
+          onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
+          layout="vertical"
+        >
+          <CustomerGeneralInfo
+            form={customerForm}
+            name="general_add"
+            isLoading={isLoading}
+            accounts={accounts}
+            groups={groups}
+            types={types}
+            status={status}
+            setStatus={setStatus}
+            areas={areas}
+            countries={countries}
+            wards={wards}
+            handleChangeArea={handleChangeArea}
+            AccountChangeSearch={AccountChangeSearch}
+          />
+
+          <CustomerContactInfo
+            form={customerForm}
+            isLoading={isLoading}
+          />
+          
+          <div className="customer-info-footer">
             <Button
               disabled={isLoading}
-              onClick={() => reload()}
-              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
-              type="ghost"
+              onClick={() => goBack()}
+              type="text"
+              className="go-back-button"
             >
-              Hủy
+              <span>
+                <img style={{ marginRight: "10px" }} src={arrowBack} alt="" />
+                Quay lại danh sách khách hàng
+              </span>
             </Button>
-            <Button type="primary" htmlType="submit" loading={isLoading}>
-              Tạo mới khách hàng 
-            </Button>
+            
+            <div>
+              <Button
+                disabled={isLoading}
+                onClick={() => reload()}
+                style={{ marginRight: 10 }}
+                type="ghost"
+              >
+                Huỷ
+              </Button>
+
+              <Button type="primary" htmlType="submit" loading={isLoading}>
+                Tạo mới khách hàng 
+              </Button>
+            </div>
           </div>
-        </div>
-      </Form>
-    </ContentContainer>
+        </Form>
+      </ContentContainer>
+    </StyledCustomerInfo>
   );
 };
 

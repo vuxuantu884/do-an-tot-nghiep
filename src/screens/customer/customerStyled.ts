@@ -69,3 +69,120 @@ export const StyledCustomerExtraButton = styled.div`
   }
   
 `;
+
+export const StyledCustomerInfo = styled.div`
+  .page-header {
+    height: auto;
+  }
+
+  .customer-info {
+    display: flex;
+    justify-content: flex-start;
+    .general-info {
+      width: 75%;
+      margin-right: 20px;
+      .row-item {
+        display: flex;
+        justify-content: space-between;
+        .ant-form-item {
+          margin-bottom: 20px;
+        }
+        &:last-child {
+          .ant-form-item {
+            margin-bottom: 0;
+          }
+        }
+        .left-item {
+          width: 50%;
+          margin-right: 15px;
+        }
+        .right-item {
+          width: 50%;
+          margin-left: 15px;
+        }
+      }
+    }
+
+    .other-info {
+      width: 25%;
+      height: fit-content;
+      .other-info-body {
+        .ant-form-item {
+          margin-bottom: 20px;
+          &:last-child {
+              margin-bottom: 0;
+          }
+          textarea.ant-input {
+            min-height: 80px;
+          }
+        }
+      }
+    }
+  }
+
+  .customer-contact {
+    width: 74%;
+    .ant-card-body {
+      padding: 0;
+      .ant-form-item {
+        margin-bottom: 20px;
+        &:last-child {
+            margin-bottom: 0;
+        }
+      }
+    }
+    .ant-collapse {
+      border: 0;
+      background-color: white;
+    }
+    .ant-collapse-header {
+      padding: 12px 20px;
+    }
+    .ant-collapse-content-box {
+      padding: 20px;
+    }
+    .phone-number-email {
+      display: flex;
+      justify-content: space-between;
+      .left-item {
+        width: 50%;
+        margin-right: 15px;
+      }
+      .right-item {
+        width: 50%;
+        margin-left: 15px;
+      }
+    }
+    .contact-note {
+      .ant-input {
+        min-height: 80px;
+      }
+    }
+  }
+
+  .customer-info-footer {
+    display: flex;
+    justify-content: space-between;
+    height: 55px;
+    width: 100%;
+    box-shadow: 0px -1px 8px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    padding: 0 32px;
+    position: fixed;
+    bottom: 0px;
+    background-color: white;
+    z-index: 99;
+    padding-right: 280px;
+
+    .go-back-button {
+      border: none;
+      padding: 0;
+      color: #737373;
+      :hover {
+        text-decoration: none;
+        background-color: white;
+      }
+    }
+  }
+  
+`;
