@@ -122,16 +122,6 @@ const PromotionDetailScreen: React.FC = () => {
     acceptPermissions: [PromoPermistion.CREATE],
   });
 
-  useEffect(() => {
-    setTimeout(() => {
-      dispatch(StoreGetListAction(setListStore));
-      dispatch(getListSourceRequest(setListSource));
-      dispatch(getListChannelRequest(setListChannel));
-      dispatch(promoGetDetail(idNumber, onResult));
-      dispatch(getVariants(idNumber, handleResponse));
-    }, 500);
-  }, []);
-
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
     if (!result) {
@@ -149,6 +139,18 @@ const PromotionDetailScreen: React.FC = () => {
       setDataVariants(result);
     }
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      dispatch(StoreGetListAction(setListStore));
+      dispatch(getListSourceRequest(setListSource));
+      dispatch(getListChannelRequest(setListChannel));
+      dispatch(promoGetDetail(idNumber, onResult));
+      dispatch(getVariants(idNumber, handleResponse));
+    }, 500);
+  }, [dispatch, handleResponse, idNumber, onResult]);
+
+
 
   const spreadData = (data: any) => {
     let result: any[] = [];
@@ -172,7 +174,7 @@ const PromotionDetailScreen: React.FC = () => {
     return result;
   };
 
-  const mergeVariants = (sourceData: Array<any>) => {
+  const mergeVariants = useCallback((sourceData: Array<any>) => {
     return sourceData.map((s) => {
       const variant = dataVariants.find((v: any) => v.variant_id === s.id);
       if (variant) {
@@ -184,7 +186,7 @@ const PromotionDetailScreen: React.FC = () => {
       }
       return s;
     });
-  };
+  },[dataVariants]);
 
   useEffect(() => {
     if (dataVariants && data && data.entitlements.length > 0) {
@@ -207,7 +209,7 @@ const PromotionDetailScreen: React.FC = () => {
       }
       setEntitlements(listEntitlements);
     }
-  }, [data, dataVariants]);
+  }, [data, dataVariants, mergeVariants]);
 
   useEffect(() => {
     const column = [
@@ -316,7 +318,7 @@ const PromotionDetailScreen: React.FC = () => {
       },
     ];
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
-  }, [costType]);
+  }, [costType, idNumber]);
 
 
   const renderTotalBill = (cost: number, value: number, valueType: string) => {

@@ -38,6 +38,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { exportFile, getFile} from "service/other/import.inventory.service";
 import {STATUS_IMPORT_EXPORT} from "screens/inventory-adjustment/DetailInvetoryAdjustment";
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
+import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -65,17 +67,6 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   status: [],
   audit_type: [],
 };
-
-const actions: Array<MenuAction> = [
-  {
-    id: ACTIONS_INDEX.PRINT,
-    name: "In phiếu",
-  },
-  {
-    id: ACTIONS_INDEX.EXPORT,
-    name: "Xuất Excel",
-  },
-];
 
 const InventoryAdjustment: React.FC = () => {
   const history = useHistory();
@@ -113,6 +104,27 @@ const InventoryAdjustment: React.FC = () => {
     },
     items: [],
   });
+
+  //phân quyền
+  const [allowPrint] = useAuthorization({
+    acceptPermissions: [InventoryAdjustmentPermission.print],
+  });
+  const [allowExportTicket] = useAuthorization({
+    acceptPermissions: [InventoryAdjustmentPermission.export],
+  });
+
+  const actions: Array<MenuAction> = [
+    {
+      id: ACTIONS_INDEX.PRINT,
+      name: "In phiếu",
+      disabled: !allowPrint,
+    },
+    {
+      id: ACTIONS_INDEX.EXPORT,
+      name: "Xuất Excel",
+      disabled: !allowExportTicket,
+    },
+  ];
 
   const pageBreak = "<div class='pageBreak'></div>";
   const printContentCallback = useCallback(

@@ -1,39 +1,40 @@
+import {Image} from "antd";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { MenuAction } from "component/table/ActionButton";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import {MenuAction} from "component/table/ActionButton";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { ProductPermission } from "config/permissions/product.permission";
+import {ProductPermission} from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
-import { AccountGetListAction } from "domain/actions/account/account.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import { materialSearchAll } from "domain/actions/product/material.action";
+import {AccountGetListAction} from "domain/actions/account/account.action";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
+import {getCategoryRequestAction} from "domain/actions/product/category.action";
+import {materialSearchAll} from "domain/actions/product/material.action";
 import {
   productWrapperDeleteAction,
   productWrapperUpdateAction,
-  searchProductWrapperRequestAction
+  searchProductWrapperRequestAction,
 } from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { CategoryResponse, CategoryView } from "model/product/category.model";
-import { MaterialResponse } from "model/product/material.model";
+import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {CategoryResponse, CategoryView} from "model/product/category.model";
+import {MaterialResponse} from "model/product/material.model";
 import {
   ProductResponse,
   ProductWrapperResponse,
   ProductWrapperSearchQuery,
   ProductWrapperUpdateRequest,
-  VariantResponse
+  VariantResponse,
 } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {Link} from "react-router-dom";
 import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
-import { convertCategory } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import {convertCategory} from "utils/AppUtils";
+import {OFFSET_HEADER_TABLE} from "utils/Constants";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {showSuccess, showWarning} from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -114,7 +115,11 @@ const TabProductWrapper: React.FC = () => {
             }
           });
         });
-        return <ImageProduct path={url} />;
+        return (
+          <>
+            {url ? <Image placeholder="Xem" src={url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={url} />}
+          </>
+        );
       },
       visible: true,
     },
@@ -217,7 +222,7 @@ const TabProductWrapper: React.FC = () => {
     if (item.id === ACTIONS_INDEX.ACTIVE || item.id === ACTIONS_INDEX.INACTIVE) {
       return canUpdateParentProduct;
     }
-    if(item.id === ACTIONS_INDEX.EXPORT_EXCEL){
+    if (item.id === ACTIONS_INDEX.EXPORT_EXCEL) {
       return true;
     }
     return false;
@@ -237,7 +242,7 @@ const TabProductWrapper: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
-      let newParams = { ...params, page, limit: size };
+      let newParams = {...params, page, limit: size};
       setParams(newParams);
     },
     [params]
@@ -250,7 +255,9 @@ const TabProductWrapper: React.FC = () => {
 
   const onFilter = useCallback(
     (values) => {
-      let newParams = { ...params, ...values, page: 1 };
+      let {info} = values;
+      values.info = info.trim();
+      let newParams = {...params, ...values, page: 1};
       setParams(newParams);
     },
     [params]
@@ -364,8 +371,8 @@ const TabProductWrapper: React.FC = () => {
         isRowSelection
         isLoading={tableLoading}
         onSelectedChange={onSelect}
-        scroll={{ x: 1500 }}
-        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
+        scroll={{x: 1500}}
+        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

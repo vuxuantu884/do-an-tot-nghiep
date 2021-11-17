@@ -93,7 +93,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         setSelection([...tempSelection]);
       }
     },
-    [data, setSelection]
+    [data, selection]
   );
 
   useEffect(() => {

@@ -15,6 +15,8 @@ import {showSuccess} from "utils/ToastUtils";
 import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "screens/inventory-adjustment/constants";
 import {SearchOutlined} from "@ant-design/icons";
 import {ICustomTableColumType} from "component/table/CustomTable";
+import useAuthorization from "hook/useAuthorization";
+import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 const {TextArea} = Input;
 
 type propsInventoryAdjustment = {
@@ -73,6 +75,11 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     },
     [keySearch, dataTable]
   );
+
+  //phân quyền
+  const [allowUpdate] = useAuthorization({
+    acceptPermissions: [InventoryAdjustmentPermission.update],
+  });
 
   const onChangeReason = useCallback(
     (value: string | null, row: LineItemAdjustment, index: number) => {
@@ -242,7 +249,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       align: "left",
       width: 200,
       render: (value: string, row: LineItemAdjustment, index: number) => {
-        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED) {
+        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
           return (
             <TextArea
               placeholder="Lý do lệch tồn"

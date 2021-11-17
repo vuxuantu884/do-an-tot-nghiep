@@ -37,6 +37,7 @@ export interface OrderRequest {
   payments: Array<OrderPaymentRequest> | null;
   channel_id?: number | null;
   finalized?: boolean;
+  sub_status_code?: string; 
 }
 
 export interface ReturnRequest extends OrderRequest {

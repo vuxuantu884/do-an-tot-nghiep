@@ -38,7 +38,7 @@ const ModalAddCode: React.FC<ModalProps> = (
 
   useEffect(() => {
     if (visible) form.resetFields();
-  }, [visible])
+  }, [form, visible])
 
   function onFinish(value: any) {
     // form.resetFields();
@@ -235,7 +235,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                     label="Số kí tự ngẫu nhiên:"
                     rules={[
                       {required: true, message: "Vui lòng nhập số kí tự ngẫu nhiên"},
-                      ({}) => ({
+                      () => ({
                         validator(rule, value) {
                           if (!value) return Promise.resolve();
                           if (Number(value) < 6) return Promise.reject(new Error("Số ký tự phải lớn hơn 6"));
