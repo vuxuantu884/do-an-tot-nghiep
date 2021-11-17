@@ -1518,7 +1518,7 @@ export default function Order(props: PropType) {
                         title={
                           <Space>
                             <div className="d-flex">
-                              <span className="title-card">THANH TOÁN 5</span>
+                              <span className="title-card">THANH TOÁN</span>
                             </div>
                             {checkPaymentStatusToShow(OrderDetail) === 1 && (
                               <Tag

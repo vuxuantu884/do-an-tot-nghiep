@@ -906,10 +906,12 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                               className="ant-btn-outline fixed-button"
                               onClick={() => setShowPaymentPartialPayment(true)}
                               style={{marginTop: 10}}
+                              // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
                               disabled={
-                                stepsStatusValue === OrderStatus.CANCELLED ||
+                                OrderDetail.source_code !== "POS" &&
+                               ( stepsStatusValue === OrderStatus.CANCELLED ||
                                 stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                                disabledBottomActions
+                                disabledBottomActions)
                               }
                             >
                               Thanh toán
