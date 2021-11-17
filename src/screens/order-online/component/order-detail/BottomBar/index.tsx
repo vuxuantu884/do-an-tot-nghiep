@@ -4,7 +4,6 @@ import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import IconPrint from "assets/icon/printer-blue.svg";
 import { StyledComponent } from "./styles";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";

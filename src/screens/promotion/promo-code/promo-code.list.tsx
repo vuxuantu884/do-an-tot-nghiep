@@ -279,20 +279,20 @@ const ListCode = () => {
   );
 
   // section Ngưng áp dụng
-  const handleStatus = (item: any) => {
+  const handleStatus = useCallback((item: any) => {
     const body = {
       ids: [item.id],
     };
     dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
-  };
+  }, [deleteCallBack, dispatch, priceRuleId]);
 
   // section Đã tặng
-  const handleGift = (item: any) => {
+  const handleGift = useCallback((item: any) => {
     const body = {
       ids: [item.id],
     };
     dispatch(publishedBulkPromoCode(priceRuleId, body, deleteCallBack));
-  };
+  }, [deleteCallBack, dispatch, priceRuleId]);
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(
     () => [
@@ -345,7 +345,7 @@ const ListCode = () => {
       },
       actionColumn(handleUpdate, handleDelete, handleStatus, handleGift),
     ],
-    []
+    [handleGift, handleStatus]
   );
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),

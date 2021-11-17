@@ -2,7 +2,7 @@ import {
   Button, Form, FormInstance,
   Input, Modal
 } from "antd";
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, useState } from "react";
 
 type PropType = {
   visible: boolean;

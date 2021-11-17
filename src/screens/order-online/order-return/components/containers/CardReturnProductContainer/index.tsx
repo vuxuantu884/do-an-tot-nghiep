@@ -19,7 +19,7 @@ type PropType = {
 };
 
 function CardReturnProductContainer(props: PropType) {
-  const { handleCanReturn, isDetailPage, discountRate, orderId } = props;
+  const { handleCanReturn, isDetailPage, orderId } = props;
 
   const dispatch = useDispatch();
 
