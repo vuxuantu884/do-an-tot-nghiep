@@ -21,7 +21,6 @@ import {unauthorizedAction} from "./../../actions/auth/auth.action";
 import {call, put, takeLatest} from "redux-saga/effects";
 import {showError} from "utils/ToastUtils";
 import {GoodsReceiptsType} from "domain/types/goods-receipts";
-import {take} from "lodash";
 
 /**
  * lấy danh sách loại biên bản

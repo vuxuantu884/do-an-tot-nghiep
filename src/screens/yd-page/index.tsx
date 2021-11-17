@@ -145,7 +145,6 @@ function YDPageCRM() {
     [querySearchOrderFpage, setQuerySearchOrderFpage]
   );
   const searchByPhoneCallback = (value: any) => {
-    console.log(value)
     if (value) {
       setCustomer(value);
       setVisibleCustomer(true)

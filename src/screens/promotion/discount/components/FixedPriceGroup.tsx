@@ -47,25 +47,6 @@ const FixedPriceGroup = (props: any) => {
     [],
   );
 
-  useEffect(() => {
-    const formEntitlement = form.getFieldValue("entitlements")[name];
-    if (formEntitlement) {
-      formEntitlement["prerequisite_quantity_ranges.value_type"] = discountType;
-    }
-  }, [form.getFieldValue("entitlements")[name]])
-
-
-  useEffect(() => {
-    const formEntitlements = form.getFieldValue("entitlements");
-    const initVariants = formEntitlements[name]?.variants;
-    if (initVariants && initVariants.length > 0) {
-      initVariants.forEach((variant: any) => {
-        const product = transformVariant(variant);
-        selectedProduct.push(product);
-        setSelectedProduct([...selectedProduct]);
-      });
-    }
-  }, []);
 
   useEffect(() => {
     if (discountMethod === "FIXED_PRICE") {
@@ -75,6 +56,30 @@ const FixedPriceGroup = (props: any) => {
       setDiscountType("PERCENTAGE");
     }
   }, [discountMethod]);
+
+  useEffect(() => {
+    const formEntitlement = form.getFieldValue("entitlements")[name];
+    if (formEntitlement && !formEntitlement["prerequisite_quantity_ranges.value_type"]) {
+      formEntitlement["prerequisite_quantity_ranges.value_type"] = discountType;
+    }
+  }, [form.getFieldValue("entitlements")[name]])
+
+
+  useEffect(() => {
+    const formEntitlements = form.getFieldValue("entitlements");
+    const initVariants = formEntitlements[name]?.variants;
+    if (formEntitlements[name]?.["prerequisite_quantity_ranges.value_type"])
+      setDiscountType(formEntitlements[name]?.["prerequisite_quantity_ranges.value_type"]);
+    if (initVariants && initVariants.length > 0) {
+      initVariants.forEach((variant: any) => {
+        const product = transformVariant(variant);
+        selectedProduct.push(product);
+        setSelectedProduct([...selectedProduct]);
+      });
+    }
+  }, []);
+
+
 
   const transformVariant = (item: any) => ({
     name: item.variant_title,
@@ -205,7 +210,8 @@ const FixedPriceGroup = (props: any) => {
             <NumberInput key={`${key}-min`} min={0}/>
           </Form.Item>
         </Col>
-        <Col span={7}>
+        {/* Tạm thời bỏ giới hạn số lượng */}
+        <Col span={7} style={{display: "none"}}>
           <Form.Item
             name={[name, "prerequisite_quantity_ranges.allocation_limit"]}
             label={<Space>
@@ -232,7 +238,7 @@ const FixedPriceGroup = (props: any) => {
               <InputNumber
                 style={{textAlign: "end", borderRadius: "0px"}}
                 min={1}
-                max={discountType === "FIXED_AMOUNT" ? 999999999 : 99}
+                max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
                 step={discountType === "FIXED_AMOUNT" ? 1: 0.01}
                 formatter={(value) => formatDiscountValue(value)}
               />

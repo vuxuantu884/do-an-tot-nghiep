@@ -122,13 +122,7 @@ const StoreListScreen: React.FC = () => {
       dataIndex: "code",
       render: (value, item) => {
         return (
-          <>
-            {allowReadStore ? (
-              <Link to={`${UrlConfig.STORE}/${item.id}`}>{value}</Link>
-            ) : (
-              <>{value}</>
-            )}
-          </>
+          <Link to={`${UrlConfig.STORE}/${item.id}`}>{value}</Link>
         );
       },
       visible: true,
@@ -325,7 +319,7 @@ const StoreListScreen: React.FC = () => {
       console.log(index, selected);
 
       if (index === actions[0].id && selected.length === 1) {
-        history.push(`${UrlConfig.STORE}/${selected[0].id}/edit`);
+        history.push(`${UrlConfig.STORE}/${selected[0].id}/update`);
       }
     },
     [selected, history, actions]

@@ -168,6 +168,9 @@ export default function Order() {
     setShippingFeeInformedToCustomer(value);
   };
 
+  const [coupon, setCoupon] = useState<string>("");
+  // const [promotionId, setPromotionId] = useState<string>("");
+
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
     amount: number,
@@ -397,13 +400,20 @@ export default function Order() {
       promotion_id: null,
       reason: "",
       source: "",
+      discount_code: coupon,
+      order_id: null,
     };
     let listDiscountRequest = [];
-    if (discountRate === 0 && discountValue === 0) {
+    if (coupon) {
+      listDiscountRequest.push({
+        discount_code: coupon,
+      });
+    } else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
     }
+    
     return listDiscountRequest;
   };
 
@@ -953,13 +963,13 @@ export default function Order() {
   //   );
   // }, [dispatch]);
 
-  useEffect(() => {
-    if (items && items != null&& items.length) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-  }, [dispatch, items]);
+  // useEffect(() => {
+  //   if (items && items != null&& items.length) {
+  //     let variant_id: Array<number> = [];
+  //     items.forEach((element) => variant_id.push(element.variant_id));
+  //     dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+  //   }
+  // }, [dispatch, items]);
 
   useEffect(() => {
     dispatch(
@@ -1085,6 +1095,8 @@ export default function Order() {
                       discountRate={discountRate}
                       setDiscountRate={setDiscountRate}
                       discountValue={discountValue}
+                      coupon={coupon}
+                      setCoupon={setCoupon}
                       setDiscountValue={setDiscountValue}
                       inventoryResponse={inventoryResponse}
                       customer={customer}

@@ -82,7 +82,8 @@ type CustomerCardProps = {
   shippingAddress: ShippingAddress | any;
   setModalAction: (item: modalActionType) => void;
   modalAction: modalActionType;
-  districtId: number | null
+  districtId: number | null;
+  setOrderSourceId?: (value: number) => void;
 };
 
 //Add query for search Customer
@@ -117,7 +118,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       districtId,
       setDistrictId,
       setBillingAddress,
-      setShippingAddress
+      setShippingAddress,
+    setOrderSourceId
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -466,6 +468,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 }
                 return false;
               }}
+               onChange={(value) => {
+                 setOrderSourceId && setOrderSourceId(value)
+               }}
             >
               {listSources.map((item, index) => (
                 <CustomSelect.Option

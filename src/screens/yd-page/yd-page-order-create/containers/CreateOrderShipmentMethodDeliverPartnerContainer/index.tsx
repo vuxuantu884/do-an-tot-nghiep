@@ -1,11 +1,11 @@
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
-import { useContext } from "react";
+// import { OrderCreateContext } from "contexts/order-online/order-create-context";
+// import { useContext } from "react";
 
 type PropType = {};
 
 function OrderDetailCardShipmentContainer(props: PropType) {
-  const createOrderContext = useContext(OrderCreateContext);
-  console.log("createOrderContext", createOrderContext);
+  // const createOrderContext = useContext(OrderCreateContext);
+  // console.log("createOrderContext", createOrderContext);
   return "11111";
 }
 

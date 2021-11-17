@@ -120,7 +120,7 @@ const GeneralCreate = (props: any) => {
       if (selectedItem) {
         setSelectedProduct([selectedItem].concat(selectedProduct));
       }
-      setData([]);
+      // setData([]);
     },
     [data, selectedProduct],
   );
@@ -378,7 +378,7 @@ const GeneralCreate = (props: any) => {
                           return (
                             <div>
                               <Form.Item
-                                name="min_value"
+                                name={index + `min_value`}
                                 rules={[{required: true, message: "Cần nhập số lượng tối thiếu"}]}
                               >
                                 <NumberInput onChange={(value) => {
@@ -444,7 +444,7 @@ const GeneralCreate = (props: any) => {
                   format={DATE_FORMAT.DDMMYY_HHmm}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment()) ||
-                    form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false
+                    (form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false)
                   }
                   showNow={true}
                 />

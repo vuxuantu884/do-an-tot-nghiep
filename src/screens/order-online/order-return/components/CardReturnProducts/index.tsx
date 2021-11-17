@@ -65,18 +65,18 @@ function CardReturnProducts(props: PropType) {
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
-  const discountRate = useMemo(() => {
-    if (OrderDetail && OrderDetail.discounts) {
-      let discountRate = 0;
-      OrderDetail.discounts.forEach((single) => {
-        const singleDiscountRate = single.rate || 0;
-        discountRate += singleDiscountRate;
-      });
-      return discountRate;
-    } else {
-      return 0;
-    }
-  }, [OrderDetail]);
+  // const discountRate = useMemo(() => {
+  //   if (OrderDetail && OrderDetail.discounts) {
+  //     let discountRate = 0;
+  //     OrderDetail.discounts.forEach((single) => {
+  //       const singleDiscountRate = single.rate || 0;
+  //       discountRate += singleDiscountRate;
+  //     });
+  //     return discountRate;
+  //   } else {
+  //     return 0;
+  //   }
+  // }, [OrderDetail]);
 
   const renderCardExtra = () => {
     return (
@@ -103,13 +103,14 @@ function CardReturnProducts(props: PropType) {
   const getProductDiscountPerOrder = useCallback(
     (product: ReturnProductModel) => {
       let discountPerOrder = 0;
-      let discountPerProduct = getProductDiscountPerProduct(product);
-      if (discountRate) {
-        discountPerOrder = ((product.price - discountPerProduct) * discountRate) / 100;
-      }
+      OrderDetail?.discounts?.forEach((single) => {
+        if(single?.amount) {
+          discountPerOrder = (single.amount * product.price / OrderDetail.total_line_amount_after_line_discount);
+        }
+      });
       return discountPerOrder;
     },
-    [discountRate]
+    [OrderDetail?.discounts, OrderDetail?.total_line_amount_after_line_discount]
   );
 
   const renderPopOverPriceTitle = (price: number) => {
@@ -370,7 +371,7 @@ function CardReturnProducts(props: PropType) {
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>
                 {/* làm tròn đến trăm đồng */}
-                {formatCurrency(Math.round(totalAmountReturnProducts / 100) * 100)}
+                {formatCurrency(Math.round(totalAmountReturnProducts))}
               </strong>
             </Row>
           </Col>

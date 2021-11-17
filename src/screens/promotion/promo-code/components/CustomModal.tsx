@@ -9,7 +9,7 @@ import { checkPromoCode } from "service/promotion/promo-code/promo-code.service"
 type ModalProps = {
   visible: boolean;
   onCancel: () => void;
-  onOk: (data: any) => void
+  onOk: (data: any, form?: any) => void
   type?: string;
   title: string;
   okText: string;
@@ -36,9 +36,13 @@ const ModalAddCode: React.FC<ModalProps> = (
     onOk(form.submit());
   }, [onOk, form]);
 
+  useEffect(() => {
+    if (visible) form.resetFields();
+  }, [visible])
+
   function onFinish(value: any) {
-    form.resetFields();
-    onOk(value);
+    // form.resetFields();
+    onOk(value, form);
   }
 
   function nonAccentVietnamese(str: string) {
@@ -53,7 +57,7 @@ const ModalAddCode: React.FC<ModalProps> = (
     // Some system encode vietnamese combining accent as individual utf-8 characters
     str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
-    return str.toUpperCase().replaceAll(/\s/g,'').replace(/[^a-zA-Z ]/g, "");
+    return str.toUpperCase().replaceAll(/\s/g,'').replace(/[^a-z0-9]/gi,"");
   }
 
   return (
@@ -79,9 +83,9 @@ const ModalAddCode: React.FC<ModalProps> = (
                 style={{marginBottom: 19}}
                 rules = {
                   [
-                     ({
-                        getFieldValue
-                     }) => ({
+                    {required: true, message: "Cần nhập mã giảm giá"},
+                    {pattern:  /^(?![0-9]*$)[a-zA-Z0-9]+$/, message: "Không đúng định dạng CHỮ HOA và SỐ"},
+                     () => ({
                         validator(rule, value) {
                           return new Promise((resolve, reject) => {
                             const response = checkPromoCode(value);
@@ -131,6 +135,8 @@ const ModalAddCode: React.FC<ModalProps> = (
                               style={{marginBottom: 19}}
                               rules = {
                                 [
+                                  {required: true, message: "Cần nhập mã giảm giá"},
+                                  {pattern:  /^(?![0-9]*$)[a-zA-Z0-9]+$/, message: "Không đúng định dạng CHỮ HOA và SỐ"},
                                    ({
                                       getFieldValue
                                    }) => ({
@@ -197,10 +203,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                     name="count"
                     label="Số lượng mã giảm giá:"
                     rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập số lượng mã giảm giá",
-                      },
+                      {required: true, message: "Vui lòng nhập số lượng mã giảm giá"},
                     ]}
                   >
                     <NumberInput
@@ -215,6 +218,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                   <Form.Item
                     name="prefix"
                     label="Tiền tố:"
+                    normalize={value => nonAccentVietnamese(value)}
                     rules={[
                       {
                         required: true,
@@ -222,7 +226,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                       },
                     ]}
                   >
-                    <Input placeholder="VD: YODY" />
+                    <Input placeholder="VD: YODY" maxLength={10} />
                   </Form.Item>
                 </Col>
                 <Col span={8}>
@@ -230,10 +234,15 @@ const ModalAddCode: React.FC<ModalProps> = (
                     name="length"
                     label="Số kí tự ngẫu nhiên:"
                     rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập số kí tự ngẫu nhiên",
-                      },
+                      {required: true, message: "Vui lòng nhập số kí tự ngẫu nhiên"},
+                      ({}) => ({
+                        validator(rule, value) {
+                          if (!value) return Promise.resolve();
+                          if (Number(value) < 6) return Promise.reject(new Error("Số ký tự phải lớn hơn 6"));
+                          if (Number(value) > 20) return Promise.reject(new Error("Số ký tự phải nhỏ hơn 30"));
+                          return Promise.resolve();
+                        }
+                      })
                     ]}
                   >
                     <NumberInput
@@ -246,14 +255,12 @@ const ModalAddCode: React.FC<ModalProps> = (
                   <Form.Item
                     name="suffix"
                     label="Hậu tố:"
+                    normalize={value => nonAccentVietnamese(value)}
                     rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập hậu tố",
-                      },
+                      {required: true, message: "Vui lòng nhập hậu tố"},
                     ]}
                   >
-                    <Input placeholder="VD: SALE" />
+                    <Input placeholder="VD: SALE" maxLength={10}/>
                   </Form.Item>
                 </Col>
               </Row>

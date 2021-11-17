@@ -34,6 +34,7 @@ import {
   getShopEcommerceList,
   deleteEcommerceItem,
   putConnectEcommerceItem,
+  getProductEcommerceList,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 
@@ -56,22 +57,15 @@ import {
   StyledComponent,
   StyledProductListDropdown,
   StyledYodyProductColumn,
-} from "./styles";
+} from "screens/ecommerce/products/tab/not-connected-items/styles";
 import { StyledProductConnectStatus, StyledProductFilter } from "screens/ecommerce/products/styles";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
 
-type NotConnectedItemsProps = {
-  variantData: any;
-  getProductUpdated: any;
-  tableLoading: any;
-};
+let connectedYodyProductsRequest :object;
 
-const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
-  props: NotConnectedItemsProps
-) => {
-  const { variantData, getProductUpdated, tableLoading } = props;
+const NotConnectedItems: React.FC = () => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -80,6 +74,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [allowProductsConnect] = useAuthorization({
     acceptPermissions: productsConnectPermission,
     not: false,
+  });
+
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
   });
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
@@ -98,10 +101,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
   let notMatchSelectedRow: any[] = [];
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
-
-  const [connectedYodyProductsRequest, setConnectedYodyProductsRequest] = useState<any>({
-    variants: null
-  });
 
   const [isShowResultConnectProductModal, setIsShowResultConnectProductModal] = useState(false);
   const [connectProductData, setConnectProductData] = useState<any>({
@@ -141,9 +140,22 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   });
 
 
+  const updateVariantData = useCallback((result: PageResponse<any> | false) => {
+    setIsLoading(false);
+    if (!!result) {
+      setVariantData(result);
+    }
+  }, []);
+
+  const getProductUpdated = useCallback((queryRequest: any) => {
+    setIsLoading(true);
+    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+  }, [dispatch, updateVariantData]);
+  
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    getProductUpdated(query);
+  }, [getProductUpdated, query]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -611,8 +623,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },
     {
       title: "Sản phẩm (Yody)",
-      render: (item: any, row: any, index: any) =>
-        RenderProductColumn(item, [...tempConnectItemList], updateConnectItemList)
+      render: (item: any, row: any, index: any) => RenderProductColumn(item, [...tempConnectItemList], updateConnectItemList)
     },
     {
       title: "Ghép nối",
@@ -657,10 +668,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       query.page = page;
       query.limit = limit;
       setQuery({ ...query, page, limit });
-      getProductUpdated({ ...query });
       window.scrollTo(0, 0);
     },
-    [query, getProductUpdated]
+    [query]
   );
 
   // get ecommerce shop list
@@ -811,9 +821,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
       tempSelectedRow.forEach((rowData) => {
         const rowMatch = yodyProductConnectCheck.find(
-          (item) => item.id !== rowData.id
+          (item) => item.id === rowData.id
         );
-        if (rowMatch) {
+        if (!rowMatch) {
           notMatchSelectedRow.push(rowData);
         }
       });
@@ -825,11 +835,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
 
     if (isSaveAble) {
-      const request = {
+      connectedYodyProductsRequest = {
         variants: yodyProductConnectCheck,
       };
-
-      setConnectedYodyProductsRequest(request);
 
       if (isNotEqualPrice) {
         setDiffPriceProductList(diffPriceProductListData);
@@ -929,7 +937,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     history.replace(`${history.location.pathname}#connected-item`);
   };
 
-
+  console.log("return variantData: ", variantData);
   return (
     <StyledComponent>
       <Card>
@@ -939,7 +947,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   placeholder="Chọn sàn"
                   allowClear
                   onSelect={(value) => handleSelectEcommerce(value)}
@@ -965,7 +973,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                 {isEcommerceSelected && (
                   <Select
                     showSearch
-                    disabled={tableLoading || !isEcommerceSelected}
+                    disabled={isLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(false)}
@@ -989,20 +997,20 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
               <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
                 <Input
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="SKU, tên sản phẩm sàn"
                 />
               </Form.Item>
 
               <Form.Item className="filter-item">
-                <Button type="primary" htmlType="submit" disabled={tableLoading}>
+                <Button type="primary" htmlType="submit" disabled={isLoading}>
                   Lọc
                 </Button>
               </Form.Item>
 
               <Form.Item className="filter-item">
-                <Button onClick={openFilter} disabled={tableLoading}>
+                <Button onClick={openFilter} disabled={isLoading}>
                   <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
                   <span>Thêm bộ lọc</span>
                 </Button>
@@ -1055,7 +1063,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                 {isEcommerceSelected && (
                   <Select
                     showSearch
-                    disabled={tableLoading || !isEcommerceSelected}
+                    disabled={isLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(true)}
@@ -1083,7 +1091,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
         <CustomTable
           isRowSelection={allowProductsConnect}
-          isLoading={tableLoading}
+          isLoading={isLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
           dataSource={variantData.items}

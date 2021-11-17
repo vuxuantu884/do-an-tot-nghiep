@@ -216,11 +216,7 @@ const Products: React.FC = () => {
               }
               
               {activeTab === PRODUCT_TAB.notConnected.key &&
-                <NotConnectedItems
-                  tableLoading={tableLoading}
-                  variantData={variantData}
-                  getProductUpdated={getProductUpdated}
-                />
+                <NotConnectedItems />
               }
             </>
           : <NoPermission />)}

@@ -1,48 +1,39 @@
 import {
-  Card,
-  Row,
-  Col,
-  Space,
-  Form,
-  Table,
-  Tooltip,
-  Divider,
-  Input,
-  FormInstance,
-  Checkbox,
-  Select,
-  DatePicker
+  Card, Checkbox, Col, DatePicker, Divider, Form, FormInstance, Input, Row, Select, Space, Table,
+  Tooltip
 } from "antd";
+import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
+import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
-import { Fragment, useState, useEffect, useMemo } from "react";
-import POProgressView from "./po-progress-view";
 import {
   PurchaseOrderLineReturnItem,
-  Vat,
+  Vat
 } from "model/purchase-order/purchase-item.model";
-import imgDefIcon from "assets/img/img-def.svg";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { useSelector } from "react-redux";
-import EmptyPlaceholder from "./EmptyPlaceholder";
-import { POUtils } from "utils/POUtils";
-import "./po-return-form.scss";
-import { StoreResponse } from "model/core/store.model";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { POProcumentField } from "model/purchase-order/purchase-procument";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { POUtils } from "utils/POUtils";
+import EmptyPlaceholder from "./EmptyPlaceholder";
+import POProgressView from "./po-progress-view";
+import "./po-return-form.scss";
 
 type POReturnFormProps = {
   formMain: FormInstance;
   totalReturn: number;
   totalVat: number;
   listStore: Array<StoreResponse>;
+  poData:  PurchaseOrder;
 };
 const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
 ) => {
-  const { formMain, totalReturn, totalVat, listStore } = props;
-  // const [allChecked, setAllChecked] = useState(false);
+  const { formMain, totalReturn, totalVat, listStore, poData } = props;
+
   let [currentLineReturn, setCurrentLineReturn] = useState<
     Array<PurchaseOrderLineReturnItem>
   >([]);
@@ -91,21 +82,43 @@ const POReturnForm: React.FC<POReturnFormProps> = (
     let vats: Array<Vat> = [];
     console.log(currentLineReturn);
     currentLineReturn.forEach((item) => {
-      let index = vats.findIndex((item1) => item.tax_rate === item1.rate );
-      if(index === -1) {
-        if(item.tax_rate > 0) {
+      let index = vats.findIndex((item1) => item.tax_rate === item1.rate);
+      if (index === -1) {
+        if (item.tax_rate > 0) {
           vats.push({
-            rate:  item.tax_rate,
+            rate: item.tax_rate,
             amount: item.amount_tax_refunds ? item.amount_tax_refunds : 0,
-          })
+          });
         }
       } else {
-        vats[index].amount = vats[index].amount + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
+        vats[index].amount =
+          vats[index].amount + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
       }
-    })
+    });
     console.log(vats);
     return vats;
-  }, [currentLineReturn])
+  }, [currentLineReturn]);
+
+  const returnedItemRef = useRef<Map<number, number>>(new Map());
+  useEffect(() => {
+    if(poData)
+    poData?.return_orders?.forEach((item) => {
+      item?.line_return_items?.forEach((lineItemReturn) => {
+        const currentItem = returnedItemRef.current.get(lineItemReturn.variant_id);
+        if (currentItem) {
+          returnedItemRef.current.set(
+            lineItemReturn.variant_id,
+            lineItemReturn.quantity_return + currentItem
+          );
+        } else {
+          returnedItemRef.current.set(
+            lineItemReturn.variant_id,
+            lineItemReturn.quantity_return
+          );
+        }
+      });
+    });
+  }, [poData]);
 
   useEffect(() => {
     let allLineReturn = formMain.getFieldValue(POField.line_items);
@@ -257,7 +270,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                           rowClassName="product-table-row"
                           dataSource={items}
                           tableLayout="fixed"
-                          scroll={{ y: 300, x: 950 }}
+                          scroll={{y: 300, x: 950}}
                           pagination={false}
                           columns={[
                             {
@@ -295,9 +308,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               ) => (
                                 <div>
                                   <div>
-                                    <div className="product-item-sku">
-                                      {item.sku}
-                                    </div>
+                                    <div className="product-item-sku">{item.sku}</div>
                                     <div className="product-item-name">
                                       <span className="product-item-name-detail">
                                         {value}
@@ -308,9 +319,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               ),
                             },
                             {
-                              title: (
-                                <div className="margin-left-4">Đơn vị</div>
-                              ),
+                              title: <div className="margin-left-4">Đơn vị</div>,
                               width: 60,
                               dataIndex: "unit",
                               render: (value) => {
@@ -324,9 +333,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                     result = product_units[index].name;
                                   }
                                 }
-                                return (
-                                  <div className="margin-left-4">{result}</div>
-                                );
+                                return <div className="margin-left-4">{result}</div>;
                               },
                             },
                             {
@@ -355,15 +362,23 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               dataIndex: "receipt_quantity",
                               render: (value, item, index) => {
                                 let currentValue = 0;
+                                let numberCanReturn = 0;
                                 if (currentLineReturn.length > 0) {
                                   let valueIndex = currentLineReturn.findIndex(
                                     (lineItem: PurchaseOrderLineReturnItem) =>
                                       lineItem.id === item.id
                                   );
-                                  if (valueIndex !== -1)
-                                    currentValue =
-                                      currentLineReturn[valueIndex]
-                                        .quantity_return;
+                                  if (valueIndex !== -1) {
+                                    let currentItem = currentLineReturn[valueIndex];
+                                    currentValue = currentItem.quantity_return;
+                                    const currentReturnedQty =
+                                      returnedItemRef.current.get(currentItem.variant_id);
+                                    if (typeof currentReturnedQty === "number") {
+                                      numberCanReturn = value - currentReturnedQty;
+                                    } else {
+                                      numberCanReturn = value;
+                                    }
+                                  }
                                 }
                                 return (
                                   <div
@@ -379,7 +394,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                         width: "50%",
                                       }}
                                       className="hide-number-handle"
-                                      max={value}
+                                      max={numberCanReturn}
                                       min={0}
                                       value={currentValue}
                                       default={0}
@@ -399,7 +414,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                         alignItems: "center",
                                       }}
                                     >
-                                      /{value}
+                                      /{numberCanReturn}
                                     </span>
                                   </div>
                                 );
@@ -436,8 +451,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                       lineItem.id === item.id
                                   );
                                   if (valueIndex !== -1) {
-                                    currentValue =
-                                      currentLineReturn[valueIndex].price;
+                                    currentValue = currentLineReturn[valueIndex].price;
                                   }
                                 }
                                 return (
@@ -448,7 +462,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                     }}
                                   >
                                     <NumberInput
-                                      style={{ width: "70%" }}
+                                      style={{width: "70%"}}
                                       className="hide-number-handle"
                                       min={0}
                                       format={(a: string) =>
@@ -464,18 +478,12 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                             : 0
                                         )
                                       }
-                                      replace={(a: string) =>
-                                        replaceFormatString(a)
-                                      }
+                                      replace={(a: string) => replaceFormatString(a)}
                                       value={currentValue}
                                       default={currentValue}
                                       onChange={(inputValue) => {
                                         if (inputValue === null) return;
-                                        handleChangeReturnPrice(
-                                          inputValue,
-                                          item,
-                                          index
-                                        );
+                                        handleChangeReturnPrice(inputValue, item, index);
                                       }}
                                     />
                                   </div>
@@ -560,8 +568,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                             {
                               title: "",
                               width: 40,
-                              render: (value: string, item, index: number) =>
-                                "",
+                              render: (value: string, item, index: number) => "",
                             },
                           ]}
                         />
@@ -570,10 +577,12 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                   </Form.Item>
                   <Row>
                     <Col span={16}>
-                      <div>
-                        <strong>Lý do hoàn trả:</strong>
-                      </div>
-                      <Form.Item name={POField.return_reason}>
+                      <Form.Item name={POField.return_reason} rules={[{
+                        required: true,
+                        message: "Vui lòng nhập lý do"
+                      }]}
+                      label="Lý do hoàn trả:"
+                      >
                         <Input.TextArea
                           size="large"
                           placeholder="Nhập lý do..."
