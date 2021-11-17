@@ -1270,6 +1270,7 @@ function OrderCreateProduct(props: PropType) {
     if (!_items) {
       return;
     }
+    coupon = coupon.trim();
     const lineItems: LineItemRequestModel[] = _items.map((single) => {
       return {
         original_unit_price: single.price,
