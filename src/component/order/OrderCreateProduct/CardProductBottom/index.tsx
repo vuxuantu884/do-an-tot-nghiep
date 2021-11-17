@@ -56,13 +56,16 @@ function CardProductBottom(props: PropType) {
     handleRemoveAllDiscount,
   } = props;
 
-  const handleDisplay = (coupon: string) => {
-    let numberCharacterShow = 2;
-    if(coupon.length > numberCharacterShow) {
-      return `${coupon.substring(0,numberCharacterShow)}...`;
-    }
+  const numberCouponCharactersShowedBeforeAndAfter = 2;
 
-    return coupon;
+  const handleDisplayCoupon = (coupon: string) => {
+    if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
+      const firstCharacters = coupon.substring(0,numberCouponCharactersShowedBeforeAndAfter);
+      const lastCharacters = coupon.substring(coupon.length - numberCouponCharactersShowedBeforeAndAfter,coupon.length);
+      return `${firstCharacters}***${lastCharacters}`;
+    } else {
+      return `${coupon}***${coupon}`;
+    }
   };
   return (
     <StyledComponent>
@@ -156,7 +159,7 @@ function CardProductBottom(props: PropType) {
                     setCoupon && setCoupon("");
                   }}
                 >
-                  {handleDisplay(coupon)}
+                  {handleDisplayCoupon(coupon)}
                 </Tag>
               )}
             </Space>
