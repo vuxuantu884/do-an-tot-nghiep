@@ -1039,6 +1039,9 @@ export default function Order(props: PropType) {
             }
           }
           setIsLoadForm(true);
+          if(response.discounts && response.discounts[0].discount_code) {
+            setCoupon(response.discounts[0].discount_code)
+          }
         }
       })
     );

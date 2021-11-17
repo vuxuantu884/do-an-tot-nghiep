@@ -406,7 +406,7 @@ function OrderCreateProduct(props: PropType) {
       let _amount = totalAmount(_items);
       // setItems(_items);
       setAmount(_amount);
-      calculateChangeMoney(_items, _amount, discountRate, discountValue);
+      // calculateChangeMoney(_items, _amount, discountRate, discountValue);
     },
     [items]
   );
@@ -1573,6 +1573,7 @@ function OrderCreateProduct(props: PropType) {
                   handleRemoveAllDiscount();
                   handleDiscountWhenActiveAutomaticDiscount();
                 } else {
+                  setIsDisableOrderDiscount(false);
                   handleRemoveAllDiscount();
                 }
               }}
