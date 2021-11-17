@@ -909,7 +909,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                               style={{marginTop: 10}}
                               // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
                               disabled={
-                                OrderDetail.source_code !== "POS" &&
+                                OrderDetail.source_code !== "POS" ||
                                ( stepsStatusValue === OrderStatus.CANCELLED ||
                                 stepsStatusValue === FulFillmentStatus.SHIPPED ||
                                 disabledBottomActions)

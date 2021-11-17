@@ -244,6 +244,7 @@ function OrderCreateProduct(props: PropType) {
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
+  console.log("discountRate", discountRate);
   console.log("discountValue", discountValue);
   //tách đơn
   const [splitOrderNumber, setSplitOrderNumber] = useState(0);
@@ -432,7 +433,8 @@ function OrderCreateProduct(props: PropType) {
         }
         lineItemQuantityInputTimeoutRef.current = setTimeout(() => {
           if(coupon && items && items?.length > 0) {
-            handleApplyCouponWhenInsertCoupon(coupon)
+            handleApplyCouponWhenInsertCoupon(coupon, _items);
+            return;
           }
         }, QUANTITY_DELAY_TIME);
         
@@ -1046,235 +1048,13 @@ function OrderCreateProduct(props: PropType) {
 
         _items.push(item);
       }
-      console.log("_itemszzzzzzzzz", _items);
-      // await setItems(_items);
       handleChangeItems(_items);
       showSuccess("Cập nhật chiết khấu thành công!");
     } else {
       showError("Có lỗi khi áp dụng chiết khấu!");
     }
   };
-
-  const handleAutomaticDiscount = async (
-    _items: Array<OrderLineItemRequest>,
-    item: OrderLineItemRequest,
-    splitLine: boolean
-  ) => {
-    setLoadingAutomaticDiscount(true);
-    let quantity = splitLine
-      ? _items.filter((singleItem) => singleItem.variant_id === item.variant_id).length
-      : item.quantity;
-    try {
-      const orderInfo: any = {
-        storeId,
-        salesChannelName: "ADMIN",
-      };
-      console.log("item.price", item.price);
-      dispatch(showLoading());
-      const checkingDiscountResponse = await applyDiscount(
-        // [{variant_id: item.variant_id, quantity}],
-        [
-          {
-            applied_discount: null,
-            custom: true,
-            price: item.price,
-            product_id: item.id,
-            quantity,
-            sku: item.sku,
-            taxable: true,
-            variant_id: item.variant_id,
-          },
-        ],
-        orderInfo
-      );
-      setLoadingAutomaticDiscount(false);
-      if (
-        item &&
-        checkingDiscountResponse &&
-        checkingDiscountResponse.code === 20000000 &&
-        checkingDiscountResponse.data.line_items.length
-      ) {
-        const suggested_discounts = checkingDiscountResponse.data.line_items.find(
-          (lineItem: any) => lineItem.variant_id === item.variant_id
-        )?.suggested_discounts;
-        if (suggested_discounts && suggested_discounts.length > 0) {
-          let highestValueSuggestDiscount = suggested_discounts[0]; // backend đã sắp xếp
-          const total = item.amount;
-          let value: number = 0;
-          if (!highestValueSuggestDiscount) {
-            return;
-          }
-          if (highestValueSuggestDiscount.value_type === "FIXED_AMOUNT") {
-            value = highestValueSuggestDiscount.value
-              ? highestValueSuggestDiscount.value
-              : 0;
-          } else if (highestValueSuggestDiscount.value_type === "PERCENTAGE") {
-            value = highestValueSuggestDiscount.value
-              ? total * (highestValueSuggestDiscount.value / 100)
-              : 0;
-          } else if (highestValueSuggestDiscount.value_type === "FIXED_PRICE") {
-            value = highestValueSuggestDiscount.value
-              ? item.price - highestValueSuggestDiscount.value
-              : 0;
-          }
-          let rate = Math.round((value / item.price) * 100 * 100) / 100;
-          rate = Math.min(rate, 100);
-          value = Math.min(value, item.price);
-          value = Math.round(value);
-          const discountItem: OrderItemDiscountRequest = {
-            rate,
-            value,
-            amount: value,
-            reason: "",
-            promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
-          };
-          item.discount_items[0] = discountItem;
-          item.discount_value = item.quantity * value;
-          item.discount_rate = rate;
-
-          // dung 3 de test, gia tri o duoi 3 la dung
-          // item.maxQuantityToApplyDiscount =
-          // highestValueSuggestDiscount?.allocation_limit || undefined;
-          // item.maxQuantityToApplyDiscount =3
-        }
-        showSuccess("Thêm chiết khấu thành công!");
-      }
-      dispatch(hideLoading());
-    } catch (e) {
-      console.log(e);
-      showError("Thao tác thất bại!");
-      setLoadingAutomaticDiscount(false);
-      dispatch(hideLoading());
-      return null;
-    }
-  };
-
-  const handleApplyCouponWhenSelectItem = async (
-    _items: Array<OrderLineItemRequest>,
-    item: OrderLineItemRequest
-  ) => {
-    // setLoadingAutomaticDiscount(true);
-    if (!_items) {
-      return;
-    }
-    const lineItems: LineItemRequestModel[] = _items.map((single) => {
-      return {
-        original_unit_price: single.price,
-        product_id: single.product_id,
-        quantity: single.quantity,
-        sku: single.sku,
-        variant_id: single.variant_id,
-      };
-    });
-    if (!isAutomaticDiscount) {
-      let params: CouponRequestModel = {
-        order_id: null,
-        customer_id: customer?.id || null,
-        store_id: form.getFieldValue("store_id"),
-        sales_channel_name: "Admin",
-        order_source_id: form.getFieldValue("source_id"),
-        line_items: lineItems,
-        applied_discount: {
-          code: coupon,
-        },
-        taxes_included: true,
-        tax_exempt: false,
-      };
-      dispatch(showLoading());
-      await applyCouponService(params)
-        .then(async (response: BaseResponse<ApplyCouponResponseModel>) => {
-          switch (response.code) {
-            case HttpStatus.SUCCESS:
-              console.log("response", response);
-              const applyDiscountResponse = response.data.applied_discount;
-              console.log("applyDiscountResponse", applyDiscountResponse);
-              if (applyDiscountResponse.invalid === true) {
-                showError(applyDiscountResponse.invalid_description);
-                setCoupon && setCoupon("");
-              } else {
-                setCoupon && setCoupon(coupon);
-                let couponType = applyDiscountResponse.value_type;
-                switch (couponType) {
-                  case DISCOUNT_VALUE_TYPE.percentage:
-                    break;
-                  case DISCOUNT_VALUE_TYPE.fixedAmount:
-                    break;
-                  default:
-                    let lineItemDiscountArray = response.data.line_items.filter(
-                      (single) => {
-                        return single.applied_discount?.invalid === false;
-                      }
-                    );
-                    let itemDiscount = lineItemDiscountArray.find((singleLineItem) => {
-                      return singleLineItem.product_id === item.product_id;
-                    });
-                    if (itemDiscount) {
-                      let valueDiscount = 0;
-                      let rateDiscount = 0;
-                      console.log(
-                        "itemDiscount.applied_discount?.value_type",
-                        itemDiscount.applied_discount
-                      );
-                      if (
-                        itemDiscount.applied_discount?.value_type ===
-                        DISCOUNT_VALUE_TYPE.fixedAmount
-                      ) {
-                        valueDiscount = itemDiscount.applied_discount?.value || 0;
-                        rateDiscount =
-                          Math.round((valueDiscount / item.price) * 100 * 100) / 100;
-                      } else if (
-                        itemDiscount.applied_discount?.value_type ===
-                        DISCOUNT_VALUE_TYPE.percentage
-                      ) {
-                        valueDiscount = itemDiscount.applied_discount?.value
-                          ? (itemDiscount.applied_discount.value / 100) * item.price
-                          : 0;
-                        rateDiscount = itemDiscount.applied_discount?.value || 0;
-                        // rateDiscount = Math.round((valueDiscount / item.price) * 100 * 100) / 100;
-                      } else if (
-                        itemDiscount.applied_discount?.value_type ===
-                        DISCOUNT_VALUE_TYPE.fixedPrice
-                      ) {
-                        valueDiscount = itemDiscount.applied_discount?.value
-                          ? item.price - itemDiscount.applied_discount?.value
-                          : 0;
-                        rateDiscount =
-                          Math.round((valueDiscount / item.price) * 100 * 100) / 100;
-                      }
-                      valueDiscount = Math.min(valueDiscount, amount);
-                      valueDiscount = Math.round(valueDiscount);
-                      const discountItem: OrderItemDiscountRequest = {
-                        rate: rateDiscount,
-                        value: valueDiscount,
-                        amount: valueDiscount,
-                        reason: "",
-                        discount_code: itemDiscount.applied_discount?.code || undefined,
-                      };
-                      item.discount_items[0] = discountItem;
-                      // item.discount_rate = rateDiscount;
-                      // item.discount_value = item.quantity * rateDiscount;
-                    }
-                    break;
-                }
-              }
-              break;
-            default:
-              response.errors.forEach((e) => showError(e));
-              break;
-          }
-        })
-        .catch((error) => {
-          console.log("error", error);
-          showError("Có lỗi khi kết nối api tính mã giảm giá!");
-        })
-        .finally(() => {
-          dispatch(hideLoading());
-        });
-      setIsVisiblePickCoupon(false);
-      handleChangeItems(_items);
-    }
-  };
-
+  
   const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
     if (!_items) {
       return;
@@ -1325,9 +1105,6 @@ function OrderCreateProduct(props: PropType) {
                 let couponType = applyDiscountResponse.value_type;
                 let listDiscountItem:any[] = [];
                 response.data.line_items.forEach((single) => {
-                  // if(!single.variant_id) {
-                  //   return;
-                  // }
                   if( listDiscountItem.some((a) =>a.variant_id === single.variant_id)) {
                     return;
                   } else if(single.applied_discount?.invalid !== false){
@@ -1343,16 +1120,23 @@ function OrderCreateProduct(props: PropType) {
                       setDiscountRate && setDiscountRate(applyDiscountResponse.value);
                       // làm tròn vd: 17,234 đồng
                       setDiscountValue &&
-                        setDiscountValue(
-                          (Math.round((applyDiscountResponse.value / 100) * amount) *
-                            100) /
-                            100
+                        setDiscountValue((applyDiscountResponse.value / 100) * getTotalAmount(_items)
                         );
                     }
                     break;
                   case DISCOUNT_VALUE_TYPE.fixedAmount:
+                    if(applyDiscountResponse.value) {
+                      setDiscountValue && setDiscountValue(applyDiscountResponse.value);
+                      setDiscountRate && setDiscountRate(applyDiscountResponse.value/getTotalAmount(_items) * 100)
+                    }
                     break;
                   case DISCOUNT_VALUE_TYPE.fixedPrice:
+                    if(applyDiscountResponse.value) {
+                      let value = amount - applyDiscountResponse.value;
+                      setDiscountValue && setDiscountValue(value);
+                      setDiscountRate && setDiscountRate(value/getTotalAmount(_items) * 100)
+
+                    }
                     break;
                     // default là chiết khấu theo line
                   default:
@@ -1457,12 +1241,6 @@ function OrderCreateProduct(props: PropType) {
       if (r.id === newV) {
         if (splitLine || index === -1) {
           _items.push(item);
-          if (isAutomaticDiscount) {
-            await handleAutomaticDiscount(_items, item, splitLine);
-          } else if (coupon) {
-            await handleApplyCouponWhenSelectItem(_items, item);
-            // await handleApplyCouponWhenInsertCoupon(coupon, _items);
-          }
           setAmount(amount + (item.price - item.discount_items[0].amount));
           calculateChangeMoney(
             _items,
@@ -1478,12 +1256,6 @@ function OrderCreateProduct(props: PropType) {
             variantItems[lastIndex].price -
             variantItems[lastIndex].discount_items[0].amount *
               variantItems[lastIndex].quantity;
-
-          if (isAutomaticDiscount) {
-            await handleAutomaticDiscount(_items, item, splitLine);
-          } else if (coupon) {
-            await handleApplyCouponWhenSelectItem(_items, item);
-          }
           setAmount(
             amount +
               variantItems[lastIndex].price -
@@ -1751,6 +1523,15 @@ function OrderCreateProduct(props: PropType) {
       handleDiscountWhenActiveAutomaticDiscount();
     }
   }, [customer?.id, storeId, orderSourceId, items?.length]);
+
+  /**
+   * gọi lại api coupon khi thay đổi số lượng item
+   */
+   useEffect(() => {
+    if (!isAutomaticDiscount && coupon && items && items?.length > 0) {
+      handleApplyCouponWhenInsertCoupon(coupon, items);
+    }
+  }, [items?.length]);
 
   console.log("isAutomaticDiscount", isAutomaticDiscount);
 
