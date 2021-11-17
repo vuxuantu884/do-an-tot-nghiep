@@ -114,6 +114,7 @@ type PropType = {
   customer?: CustomerResponse | null;
   setStoreId: (item: number) => void;
   setCoupon?: (item: string) => void;
+  setPromotionId?: (item: number) => void;
   setItemGift: (item: []) => void;
   changeInfo: (
     items: Array<OrderLineItemRequest>,
@@ -208,6 +209,7 @@ function OrderCreateProduct(props: PropType) {
     setDiscountValue,
     setDiscountRate,
     setCoupon,
+    setPromotionId
   } = props;
   const dispatch = useDispatch();
   console.log("shippingFeeInformedToCustomer", shippingFeeInformedToCustomer);
@@ -239,7 +241,7 @@ function OrderCreateProduct(props: PropType) {
   console.log("coupon", coupon);
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
-  const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(true);
+  const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -692,7 +694,10 @@ function OrderCreateProduct(props: PropType) {
             maxLength={14}
             minLength={0}
             value={l.price}
-            onChange={(value) => onChangePrice(value, index)}
+            onChange={(value) => {
+              onChangePrice(value, index);
+              handleApplyCouponWhenInsertCoupon(coupon);
+            }}
             disabled={levelOrder > 3 || isAutomaticDiscount}
           />
         </div>
