@@ -38,6 +38,8 @@ import moment from "moment";
 import POStep from "./component/po-step";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import BottomBarContainer from "component/container/bottom-bar.container";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 const POCreateScreen: React.FC = () => {
   let now = moment();
@@ -300,6 +302,7 @@ const POCreateScreen: React.FC = () => {
               >
                 Lưu nháp
               </Button>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
               <Button
                 disabled={loadingDraftButton}
                 type="primary"
@@ -312,6 +315,7 @@ const POCreateScreen: React.FC = () => {
               >
                 Lưu và duyệt
               </Button>
+              </AuthWrapper>
             </React.Fragment>
           }
         />

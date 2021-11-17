@@ -45,7 +45,7 @@ const DepartmentSearchScreen: React.FC = () => {
     <>
       {allowReadDep ? (
         <ContentContainer
-          title="Quản lý phòng ban/bộ phận"
+          title="Quản lý bộ phận"
           isError={error}
           breadcrumb={[
             {
@@ -53,7 +53,7 @@ const DepartmentSearchScreen: React.FC = () => {
               path: UrlConfig.HOME,
             },
             {
-              name: "Quản lý phòng ban/bộ phận",
+              name: "Quản lý bộ phận",
             },
           ]}
           extra={
@@ -71,7 +71,7 @@ const DepartmentSearchScreen: React.FC = () => {
               isRowSelection
               columns={[
                 {
-                  title: "Mã phòng ban/Bộ phận",
+                  title: "Mã bộ phận",
                   dataIndex: "code",
                   render: (text: string, item: DepartmentView) => {
                     return <Link to={`${UrlConfig.DEPARTMENT}/${item.id}`}>{text}</Link>;

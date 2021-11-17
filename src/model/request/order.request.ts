@@ -36,6 +36,7 @@ export interface OrderRequest {
   fulfillments: Array<FulFillmentRequest> | null;
   payments: Array<OrderPaymentRequest> | null;
   channel_id?: number | null;
+  finalized?: boolean;
 }
 
 export interface ReturnRequest extends OrderRequest {

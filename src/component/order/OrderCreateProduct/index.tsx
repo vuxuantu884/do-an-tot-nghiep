@@ -1108,22 +1108,6 @@ function OrderCreateProduct(props: PropType) {
               ? item.price - highestValueSuggestDiscount.value
               : 0;
           }
-          // highestValueDiscount = Math.max(
-          //   ...suggested_discounts.map((discount: any) => {
-          //     let value = 0;
-          //     if (discount.value_type === "FIXED_AMOUNT") {
-          //       value = (item.price - discount.value) * quantity;
-          //     } else if (discount.value_type === "PERCENTAGE") {
-          //       value = total * (discount.value / 100);
-          //     } else if (discount.value_type === "FIXED_PRICE") {
-          //       value = item.price - discount.value;
-          //     }
-          //     if (value > item.price) {
-          //       value = item.price;
-          //     }
-          //     return value;
-          //   })
-          // );
           let rate = Math.round((value / item.price) * 100 * 100) / 100;
           rate = Math.min(rate, 100);
           value = Math.min(value, item.price);
@@ -1567,7 +1551,6 @@ function OrderCreateProduct(props: PropType) {
     rate: number,
     coupon: string
   ) => {
-    console.log("coupoonss");
     console.log('items', items)
     if (items?.length === 0) {
       showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu!");
