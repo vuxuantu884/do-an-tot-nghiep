@@ -142,8 +142,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
-  const [, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-  // console.log("deliveryServices", deliveryServices);
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+  console.log('deliveryServices', deliveryServices)
 
   // const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   // const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -197,6 +197,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
     form.setFieldsValue({shipping_fee_informed_to_customer: value});
     setShippingFeeInformedToCustomer(value);
   };
+
+  const [coupon, setCoupon] = useState<string>("");
+  const [promotionId, setPromotionId] = useState<number|null>(null);
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -426,13 +429,38 @@ export default function Order(props: OrdersCreatePermissionProps) {
       promotion_id: null,
       reason: "",
       source: "",
+      discount_code: coupon,
+      order_id: null,
     };
     let listDiscountRequest = [];
-    if (discountRate === 0 && discountValue === 0) {
+    if (coupon) {
+      listDiscountRequest.push({
+        discount_code: coupon,
+          rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: null,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    } else if(promotionId) {
+      listDiscountRequest.push({
+        discount_code: null,
+        rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: promotionId,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    }  else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
     }
+
     return listDiscountRequest;
   };
 
@@ -969,13 +997,13 @@ export default function Order(props: OrdersCreatePermissionProps) {
   //   );
   // }, [dispatch]);
 
-  useEffect(() => {
-    if (items && items.length) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-  }, [dispatch, items]);
+  // useEffect(() => {
+  //   if (items && items != null&& items.length) {
+  //     let variant_id: Array<number> = [];
+  //     items.forEach((element) => variant_id.push(element.variant_id));
+  //     dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+  //   }
+  // }, [dispatch, items]);
 
   useEffect(() => {
     dispatch(
@@ -1089,6 +1117,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     orderConfig={null}
                     orderSourceId={orderSourceId}
+                    coupon={coupon}
+                    setCoupon={setCoupon}
+                    setPromotionId={setPromotionId}
                   />
                   <Card>
                     <OrderCreatePayments
