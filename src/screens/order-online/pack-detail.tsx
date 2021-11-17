@@ -7,7 +7,6 @@ import ContentContainer from "component/container/content.container";
 import {MenuAction} from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
 import {getByIdGoodsReceipts} from "domain/actions/goods-receipts/goods-receipts.action";
-import {PageResponse} from "model/base/base-metadata.response";
 import {
   GoodsReceiptsFileModel,
   GoodsReceiptsOrderListModel,
@@ -16,7 +15,7 @@ import {
 import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
 import {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {useParams} from "react-router";
+import {useHistory, useParams} from "react-router";
 import PackDetailInfo from "./pack-support/pack-detail-info";
 import PackListOrder from "./pack-support/pack-list-order";
 import PackQuantityProduct from "./pack-support/pack-quantity-product";
@@ -50,6 +49,8 @@ const actions: Array<MenuAction> = [
 
 const PackDetail: React.FC = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
+
   let {id} = useParams<PackParam>();
   let PackId = parseInt(id);
 
@@ -141,7 +142,76 @@ const PackDetail: React.FC = () => {
 
   useEffect(() => {
     if (PackId) {
-      dispatch(getByIdGoodsReceipts(PackId, setPackDetail));
+      dispatch(
+        getByIdGoodsReceipts(PackId, (data: GoodsReceiptsResponse) => {
+          setPackDetail(data);
+
+          //PackQuantityProduct
+          let keyProduct = 0;
+          let resultListProduct: GoodsReceiptsTotalProductModel[] = [];
+
+          let keyOrder = 0;
+          let resultListOrder:GoodsReceiptsOrderListModel[]=[];
+
+          data.orders?.forEach(function (itemOrder) {
+            itemOrder.fulfillments?.forEach(function (itemFFM) {
+              itemFFM.items.forEach(function (itemProduct, index) {
+                resultListProduct.push({
+                  key: keyProduct++,
+                  barcode: itemProduct.variant_barcode,
+                  product_id: itemProduct.product_id,
+                  product_sku: itemProduct.sku,
+                  product_name: itemProduct.product,
+                  inventory: itemProduct.available?itemProduct.available:0,
+                  price: itemProduct.price,
+                  total_quantity: itemProduct.quantity,
+                  total_incomplate: 0,
+                });
+
+                ///
+                resultListOrder.push({
+                  key:keyOrder++,
+                  order_id:itemOrder.id?itemOrder.id:0,
+                  order_code:itemOrder.code?itemOrder.code:"n/a",
+                  customer_name:itemOrder.customer?itemOrder.customer:"n/a",
+                  product_sku:itemProduct.sku,
+                  product_name:itemProduct.product,
+                  net_weight:0,
+                  total_quantity:itemProduct.quantity,
+                  total_price:itemProduct.price,
+                  postage:0,
+                  card_number:0,
+                  status:"",
+                  note:"",
+                })
+              });
+            });
+          });
+          setPackProductQuantity(resultListProduct);
+          setPackOrderList(resultListOrder);
+          //
+          //PackListOrder
+
+          // data.orders?.forEach(function (itemOrder) {
+          //   let _item:GoodsReceiptsOrderListModel={
+          //     key:keyOrder++,
+          //     order_id:itemOrder.order_id?itemOrder.order_id:0,
+          //     order_code:itemOrder.order_code?itemOrder.order_code:"n/a",
+          //     customer_name:itemOrder.customer?itemOrder.customer:"n/a",
+          //     product_sku:itemOrder.
+          //     product_name:string;
+          //     net_weight:number;
+          //     total_quantity:number;
+          //     total_price:number;
+          //     postage:number;
+          //     card_number:number;
+          //     status:string;
+          //     note:string;
+          //   }
+          // });
+          //
+        })
+      );
     } else {
       setError(true);
     }
@@ -158,20 +228,20 @@ const PackDetail: React.FC = () => {
 
   const handleSearchOrder = (value: any) => {};
 
-  const onMenuClick = useCallback(
-    (index: number) => {
-      switch (index) {
-        case 1:
-          // orderListResponse.forEach(function(data,index){
-          //   orderListResponse.splice(index, 1);
-          // })
-          break;
-        default:
-          break;
-      }
-    },
-    []
-  );
+  const onMenuClick = useCallback((index: number) => {
+    switch (index) {
+      case 1:
+        // orderListResponse.forEach(function(data,index){
+        //   orderListResponse.splice(index, 1);
+        // })
+        break;
+      case 4:
+        history.push(`${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${PackId}`);
+        break;
+      default:
+        break;
+    }
+  }, [history,PackId]);
 
   return (
     <ContentContainer

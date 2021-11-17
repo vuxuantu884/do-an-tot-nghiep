@@ -2,7 +2,7 @@ import {Button, Dropdown, Menu} from "antd";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {PageResponse} from "model/base/base-metadata.response";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
@@ -20,6 +20,7 @@ import UrlConfig from "config/url.config";
 import PackCopyFilter from "component/filter/pack-copy.filter";
 import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
 import {MenuAction} from "component/table/ActionButton";
+import { Link } from "react-router-dom";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -98,7 +99,10 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
 
   const handleExportHVC = () => {};
 
-  const handleAddPack = () => {};
+  const handleAddPack = (item:any) => {
+    console.log("ok",item.id_handover_record)
+    history.push(`${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${item.id_handover_record}`);
+  };
 
   const actionColumn = (handlePrint: any, handleExportHVC: any, handleAddPack: any) => {
     const _actionColumn = {
@@ -152,7 +156,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
                   background: "transparent",
                   border: "none",
                 }}
-                onClick={handleAddPack}
+                onClick={()=>{handleAddPack(item)}}
               >
                 Thêm đơn hàng vào biên bản
               </Button>
@@ -196,6 +200,15 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       fixed:"left",
+      render:(value:number)=>{
+        return (
+          <React.Fragment>
+             <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
+              {value}
+            </Link>
+          </React.Fragment>
+        )
+      }
     },
     {
       title: "Tên cửa hàng",
@@ -441,6 +454,13 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
           columns={columnFinal}
           //rowKey={(item: ReturnModel) => item.id}
           className="order-list"
+          // onRow={(record: GoodsReceiptsSearhModel) => {
+          //   return {
+          //     onClick: () => {
+          //       console.log("record",record);
+          //     }, // click row
+          //   };
+          // }}
         />
       </div>
 

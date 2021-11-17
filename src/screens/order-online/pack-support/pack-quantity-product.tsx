@@ -11,7 +11,6 @@ import {
   DownOutlined,
   FileExcelOutlined,
   PrinterOutlined,
-  ReconciliationOutlined,
 } from "@ant-design/icons";
 
 type PackQuantityProductProps = {
@@ -45,71 +44,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       width: "5%",
       className: "saleorder-product-card-action ",
       render: (l: any, item: any, index: number) => {
-        const menu = (
-          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-            <Menu.Item key="1">
-              <Button
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={handlePrintPackFull}
-                icon={<PrinterOutlined />}
-              >
-                In biên bản đầy đủ
-              </Button>
-            </Menu.Item>
-
-            <Menu.Item key="2">
-              <Button
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={handlePrintPackCompact}
-                icon={<PrinterOutlined />}
-              >
-                In biên bản rút gọn
-              </Button>
-            </Menu.Item>
-            <Menu.Item key="3">
-              <Button
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={handleExportExcelOrderPack}
-                icon={<FileExcelOutlined />}
-              >
-                Xuất excel đơn hàng trong biên bản
-              </Button>
-            </Menu.Item>
-            <Menu.Item key="4">
-              <Button
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={handleAddOrderInPack}
-                icon={<ReconciliationOutlined />}
-              >
-                Thêm đơn hàng vào biên bản
-              </Button>
-            </Menu.Item>
-          </Menu>
-        );
+      
         return (
           <div
             style={{
@@ -124,13 +59,11 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
                 borderRadius: 5,
               }}
             >
-              <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-                <Button
+              <Button
                   type="text"
                   className="p-0 ant-btn-custom"
                   icon={<img src={threeDot} alt=""></img>}
                 ></Button>
-              </Dropdown>
             </div>
           </div>
         );
@@ -201,7 +134,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       visible: true,
       width: "10.5%",
       render: (value: number) => {
-        return {value};
+        return <div>{value}</div>;
       },
     },
     {

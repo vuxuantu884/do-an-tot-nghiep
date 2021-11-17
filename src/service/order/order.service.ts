@@ -432,6 +432,14 @@ export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<a
     `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?${queryString}`,
   );
 };
+/**
+ *  Danh sách đơn hàng đủ điều kiện thêm vào biên bản
+ */
+export const getOrderGoodsReceiptsService=():Promise<BaseResponse<GoodsReceiptsResponse>>=>{
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?status=packed&last_created_hour=8&limit=1000`,
+  );
+}
 
 /**
  * tách đơn

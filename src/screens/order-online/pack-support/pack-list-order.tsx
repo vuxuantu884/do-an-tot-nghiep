@@ -1,20 +1,31 @@
-import {Button, Card, Col, Dropdown, Row, Space, Table, Input,Form, FormInstance} from "antd";
-import ActionButton, { MenuAction } from "component/table/ActionButton";
+import {
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  Row,
+  Space,
+  Table,
+  Input,
+  Form,
+  FormInstance,
+} from "antd";
+import ActionButton, {MenuAction} from "component/table/ActionButton";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {GoodsReceiptsOrderListModel} from "model/pack/pack.model";
-import React, { createRef } from "react";
+import React, {createRef} from "react";
 import {Link} from "react-router-dom";
 import search from "assets/img/search.svg";
 const {Item} = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
-  actions:Array<MenuAction>;
-  handleSearchOrder:(item:any)=>void;
-  onMenuClick:(item:number)=>void;
+  actions: Array<MenuAction>;
+  handleSearchOrder: (item: any) => void;
+  onMenuClick: (item: number) => void;
 };
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
-  const {packOrderList,actions,handleSearchOrder,onMenuClick} = props;
+  const {packOrderList, actions, handleSearchOrder, onMenuClick} = props;
   const formSearchOrderRef = createRef<FormInstance>();
 
   const column: Array<ICustomTableColumType<GoodsReceiptsOrderListModel>> = [
@@ -23,7 +34,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       dataIndex: "key",
       visible: true,
       width: "3%",
-      align:"center",
+      align: "center",
       render: (value: number) => {
         return <div>{value + 1}</div>;
       },
@@ -136,32 +147,29 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   ];
 
   const rowSelection = {
-    onChange: (selectedRowKeys:any, selectedRows:any) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+    onChange: (selectedRowKeys: any, selectedRows: any) => {
+      console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
     },
-    onSelect: (record:any, selected:any, selectedRows:any) => {
+    onSelect: (record: any, selected: any, selectedRows: any) => {
       console.log(record, selected, selectedRows);
     },
-    onSelectAll: (selected:any, selectedRows:any, changeRows:any) => {
+    onSelectAll: (selected: any, selectedRows: any, changeRows: any) => {
       console.log(selected, selectedRows, changeRows);
     },
   };
 
   return (
-    <Card
-      title="Danh sách đơn hàng trong biên bản"
-      className="pack-card"
-    >
-          <div className="order-filter">
-        <div className="page-filter" style={{padding:"0px 6px 20px 11px"}}>
+    <Card title="Danh sách đơn hàng trong biên bản" className="pack-card">
+      <div className="order-filter">
+        <div className="page-filter row-padding" >
           <div className="page-filter-heading">
             <div className="page-filter-left">
               <ActionButton menu={actions} onMenuClick={onMenuClick} />
             </div>
-            <div className="page-filter-right" style={{width: "60%"}}>
+            <div className="page-filter-right" style={{width: "40%"}}>
               <Space size={4}>
                 <Form layout="inline" ref={formSearchOrderRef}>
-                  <Item name="search_term" style={{width: "calc(98% - 142px)"}}>
+                  <Item name="search_term" style={{width: "calc(98% - 62px)"}}>
                     <Input
                       style={{width: "100%"}}
                       prefix={<img src={search} alt="" />}
@@ -171,7 +179,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
                   <Item>
                     <Button type="primary" htmlType="submit" onClick={handleSearchOrder}>
-                      Thêm đơn hàng
+                      Lọc
                     </Button>
                   </Item>
                 </Form>
@@ -182,7 +190,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       </div>
       <Table
         dataSource={packOrderList}
-        scroll={{ x: 1388 }}
+        scroll={{x: 1388}}
         columns={column}
         rowSelection={rowSelection}
         //pagination={false}

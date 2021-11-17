@@ -14,7 +14,11 @@ import {
 import ContentContainer from "component/container/content.container";
 import ActionButton, {MenuAction} from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
-import {getByIdGoodsReceipts, updateGoodsReceipts} from "domain/actions/goods-receipts/goods-receipts.action";
+import {
+  getByIdGoodsReceipts,
+  getOrderGoodsReceipts,
+  updateGoodsReceipts,
+} from "domain/actions/goods-receipts/goods-receipts.action";
 import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
 import React, {createRef, useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
@@ -27,7 +31,9 @@ import {GoodsReceiptsInfoOrderModel, VariantModel} from "model/pack/pack.model";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import {Link} from "react-router-dom";
 import {StyledComponent} from "./index.screen.styles";
-import { GoodsReceiptsRequest } from "model/request/pack.request";
+import {GoodsReceiptsRequest} from "model/request/pack.request";
+import {OrderResponse} from "model/response/order/order.response";
+import {showWarning} from "utils/ToastUtils";
 
 const {Item} = Form;
 type PackParam = {
@@ -57,10 +63,12 @@ const PackUpdate: React.FC = () => {
   const [goodsReceiptsInfoOrderModel, setGoodsReceiptsInfoOrderModel] = useState<
     GoodsReceiptsInfoOrderModel[]
   >([]);
+  const [orderList, setOrderList] = useState<OrderResponse[]>([]);
 
   useEffect(() => {
     if (PackId) {
       dispatch(getByIdGoodsReceipts(PackId, setPackDetail));
+      dispatch(getOrderGoodsReceipts(setOrderList));
     } else {
       setError(true);
     }
@@ -119,7 +127,7 @@ const PackUpdate: React.FC = () => {
     console.log(index);
   };
 
-  const handleSearchOrder = useCallback(() => {}, []);
+  // const handleSearchOrder = useCallback(() => {}, []);
 
   const rowSelection = {
     onChange: (
@@ -134,24 +142,33 @@ const PackUpdate: React.FC = () => {
     }),
   };
 
-  const handleSubmit=useCallback((value:any)=>{
-    console.log("values",value)
+  const handleSubmit = useCallback(
+    (value: any) => {
+      console.log("values", value);
 
-    let order=value.card_order_id;
-    let codes: any[] = [];
-    codes.push(order)
+      let order_id = value.order_id;
+      if (order_id) {
+        let codes: any[] = [];
+        codes.push(order_id);
 
-    let id=packDetail?.id?packDetail?.id:0;
-    let param:any={
-        ...packDetail,
-        codes:codes
-    }
+        let id = packDetail?.id ? packDetail?.id : 0;
+        let param: any = {
+          ...packDetail,
+          codes: codes,
+        };
 
-    dispatch(updateGoodsReceipts(id,param,(data:GoodsReceiptsResponse)=>{
-        console.log(data)
-    }));
-    searchOrderForm.resetFields();
-  },[dispatch,searchOrderForm,packDetail]);
+        dispatch(
+          updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
+            console.log(data);
+          })
+        );
+        searchOrderForm.resetFields();
+      } else {
+        showWarning("Vui lòng chọn đơn hàng cần thêm");
+      }
+    },
+    [dispatch, searchOrderForm, packDetail]
+  );
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
     {
@@ -163,7 +180,11 @@ const PackUpdate: React.FC = () => {
       render: (value: string, i: GoodsReceiptsInfoOrderModel) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.ORDER}/${i.order_id}`} style={{fontWeight:500}}>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ORDER}/${i.order_id}`}
+              style={{fontWeight: 500}}
+            >
               {value}
             </Link>
           </React.Fragment>
@@ -352,19 +373,27 @@ const PackUpdate: React.FC = () => {
                 </div>
                 <div className="page-filter-right" style={{width: "88%"}}>
                   <Space size={4}>
-                    <Form layout="inline" ref={formSearchOrderRef} form={searchOrderForm}  onFinish={handleSubmit}>
-
+                    <Form
+                      layout="inline"
+                      ref={formSearchOrderRef}
+                      form={searchOrderForm}
+                      onFinish={handleSubmit}
+                    >
                       <Item name="order_id" style={{width: "230px"}}>
                         <Select
                           showSearch
+                          allowClear
                           placeholder="ID Đơn hàng"
                           filterOption={(input, option: any) =>
-                            option.children.toLowerCase().indexOf(input.toLowerCase()) >=0
+                            option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                            0
                           }
                         >
-                          <Select.Option value="test1">Test 1</Select.Option>
-                          <Select.Option value="test2">Test 2</Select.Option>
-                          <Select.Option value="test3">Test 3</Select.Option>
+                          {orderList.map((item, index) => (
+                            <Select.Option key={index} value={item.code}>
+                              {item.code}
+                            </Select.Option>
+                          ))}
                         </Select>
                       </Item>
 
@@ -390,28 +419,6 @@ const PackUpdate: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* <CustomTable
-            isRowSelection
-            //isLoading={tableLoading}
-            showColumnSetting={true}
-            //scroll={{ x: 4400 * columnFinal.length/(columns.length ? columns.length : 1)}}
-            //sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-            // pagination={{
-            //   pageSize: data.metadata.limit,
-            //   total: data.metadata.total,
-            //   current: data.metadata.page,
-            //   showSizeChanger: true,
-            //   onChange: onPageChange,
-            //   onShowSizeChange: onPageChange,
-            // }}
-            //onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-            //onShowColumnSetting={() => setShowSettingColumn(true)}
-            dataSource={goodsReceiptsInfoOrderModel}
-            columns={columns}
-            rowKey={(item: GoodsReceiptsInfoOrderModel) => item.order_id}
-            className="order-list"
-          /> */}
 
           {goodsReceiptsInfoOrderModel && goodsReceiptsInfoOrderModel.length > 0}
           {
