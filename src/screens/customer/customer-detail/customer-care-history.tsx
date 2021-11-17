@@ -53,6 +53,10 @@ function CustomerCareHistory(props: any) {
       title: "Giá trị",
       dataIndex: "change_point",
       width: "7%",
+      render: (value: any, row: any, index: any) => {
+        const pointValue = value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        return <span>{pointValue}</span>;
+      },
     },
     {
       title: "Mô tả",

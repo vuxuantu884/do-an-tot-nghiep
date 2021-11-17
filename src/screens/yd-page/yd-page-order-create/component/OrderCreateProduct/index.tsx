@@ -193,7 +193,7 @@ function OrderCreateProduct(props: PropType) {
     },
     items: [],
   });
-  const [isVisibleGift, setVisibleGift] = useState(false);
+  const [isVisibleGift, setVisibleGift] = useState<boolean>(false);
   const [searchProducts, setSearchProducts] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
@@ -334,6 +334,7 @@ function OrderCreateProduct(props: PropType) {
     },
     [items]
   );
+
   const onChangeNote = (e: any, index: number) => {
     let value = e.target.value;
     if (items) {
@@ -667,18 +668,54 @@ function OrderCreateProduct(props: PropType) {
             </Popover>
           </Menu.Item>
           <Menu.Item key="2">
-            <Button
-              type="text"
-              onClick={() => showAddGiftModal(index)}
-              className=""
-              style={{
-                paddingLeft: 24,
-                background: "transparent",
-                border: "none",
-              }}
+            <Popover
+            content={
+              <div className="discount-item-popup">
+                <div className="title">
+                  Thêm quà tặng
+                </div>
+
+                <div className="discount-group">
+                  <AddGiftModal
+                      items={itemGifts}
+                      onUpdateData={onUpdateData}
+                  />
+              </div>
+
+                <div style={{display: "flex", justifyContent: "flex-end", alignItems: "center"}}>
+                  <Button
+                      onClick={() => setVisibleGift(false)}
+                  >
+                    Hủy
+                  </Button>
+                  <Button type="primary"
+                          style={{marginLeft: 20}}
+                          onClick={onOkConfirm}
+                  >
+                    Lưu
+                  </Button>
+                </div>
+
+              </div>
+            }
+            trigger="click"
+            visible={isVisibleGift}
+            destroyTooltipOnHide={true}
             >
-              Thêm quà tặng
-            </Button>
+              <Button
+                  type="text"
+                  onClick={() => showAddGiftModal(index)}
+                  className=""
+                  style={{
+                    paddingLeft: 24,
+                    background: "transparent",
+                    border: "none",
+                  }}
+              >
+                Thêm quà tặng
+              </Button>
+            </Popover>
+
           </Menu.Item>
           <Menu.Item key="3">
             <Button
@@ -1431,10 +1468,6 @@ function OrderCreateProduct(props: PropType) {
     [items]
   );
 
-  const onCancleConfirm = useCallback(() => {
-    setVisibleGift(false);
-  }, []);
-
   const onOkConfirm = useCallback(() => {
     if (!items) {
       return;
@@ -1678,29 +1711,6 @@ function OrderCreateProduct(props: PropType) {
                 disabled={levelOrder > 3 || loadingAutomaticDiscount}
                 dropdownRender={(menu) => (
                   <div>
-                    {/* <div
-                      className="row-search w-100"
-                      style={{
-                        minHeight: "42px",
-                        lineHeight: "50px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <div className="rs-left w-100">
-                        <div style={{ float: "left", marginLeft: "20px" }}>
-                          <img src={addIcon} alt="" />
-                        </div>
-                        <div className="rs-info w-100">
-                          <span
-                            className="text"
-                            style={{ marginLeft: "23px", lineHeight: "18px" }}
-                          >
-                            Thêm mới sản phẩm
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <Divider style={{ margin: "4px 0" }} /> */}
                     {menu}
                   </div>
                 )}
@@ -1722,14 +1732,8 @@ function OrderCreateProduct(props: PropType) {
             </Form.Item>
           </Col>
         </Row>
-        <AddGiftModal
-          items={itemGifts}
-          onUpdateData={onUpdateData}
-          onCancel={onCancleConfirm}
-          onOk={onOkConfirm}
-          visible={isVisibleGift}
-        />
         <Table
+            bordered
           locale={{
             emptyText: (
               <div className="sale_order_empty_product">

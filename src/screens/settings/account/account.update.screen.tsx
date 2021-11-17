@@ -168,9 +168,9 @@ const AccountUpdateScreen: React.FC = () => {
   );
   const onUpdateSuccess = useCallback(
     (data: AccountResponse) => {
-      history.push(UrlConfig.ACCOUNTS);
+      history.push(UrlConfig.ACCOUNTS + "/" + userCode);
     },
-    [history]
+    [history, userCode]
   );
   const onFinish = useCallback(
     (values: AccountView) => {
