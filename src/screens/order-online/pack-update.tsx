@@ -137,7 +137,7 @@ const PackUpdate: React.FC = () => {
   const handleSubmit=useCallback((value:any)=>{
     console.log("values",value)
 
-    let order="SO000006141";
+    let order=value.card_order_id;
     let codes: any[] = [];
     codes.push(order)
 
@@ -157,6 +157,9 @@ const PackUpdate: React.FC = () => {
     {
       title: "ID",
       dataIndex: "order_code",
+      visible: true,
+      className: "custom-shadow-td",
+      width: "10%",
       render: (value: string, i: GoodsReceiptsInfoOrderModel) => {
         return (
           <React.Fragment>
@@ -166,9 +169,6 @@ const PackUpdate: React.FC = () => {
           </React.Fragment>
         );
       },
-      visible: true,
-      className: "custom-shadow-td",
-      width: "10%",
     },
     {
       title: "Khách hàng",

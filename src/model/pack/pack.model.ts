@@ -72,3 +72,37 @@ export interface GoodsReceiptsInfoOrderModel{
   ship_price:number;
   total_price:number;
 }
+
+export interface GoodsReceiptsFileModel{
+  file_name:string;
+  create_name:string;
+  create_time:string;
+}
+
+export interface GoodsReceiptsTotalProductModel{
+  key:number;
+  barcode:string;
+  product_id:number;
+  product_sku:string;
+  product_name:string;
+  inventory:number;
+  price:number;
+  total_quantity:number;
+  total_incomplate:number;
+}
+
+export interface GoodsReceiptsOrderListModel{
+  key:number;
+  order_id:number;
+  order_code:string;
+  customer_name:string;
+  product_sku:string;
+  product_name:string;
+  net_weight:number;
+  total_quantity:number;
+  total_price:number;
+  postage:number;
+  card_number:number;
+  status:string;
+  note:string;
+}

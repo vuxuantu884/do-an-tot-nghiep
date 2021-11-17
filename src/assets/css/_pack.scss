@@ -65,12 +65,54 @@
 
 .pack-info-update-card{
     margin: 0px 10px;
-    .t1{
-        color: #222222;
-        font-weight: 500;
-        margin-left: 5px;
-    }
-    .t1-color{
-        color:#666666;
-    }
+    // .t1{
+    //     color: #222222;
+    //     font-weight: 500;
+    //     margin-left: 5px;
+    // }
+    // .t1-color{
+    //     color:#666666;
+    // }
+}
+
+.t1{
+    color: #222222;
+    font-weight: 500;
+    margin-left: 5px;
+}
+.t1-color{
+    color:#666666;
+}
+
+.title-note-file{
+    margin:14px 14px;
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 16px;
+}
+.file-info{
+    padding: 12px 8px;
+    font-family: Roboto;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 14px;
+}
+.row-padding{
+    margin-left: 14px;
+    margin-right: 14px;
+}
+
+.t1-margin{
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+.t1-btn{
+    width: 120px;
+    color: #666666 !important;
+}
+.t1-btn span{
+    padding-right: 15px;
 }
