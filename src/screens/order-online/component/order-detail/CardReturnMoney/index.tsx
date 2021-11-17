@@ -30,7 +30,7 @@ function CardReturnMoney(props: PropType) {
     return (
       <React.Fragment>
         <span className="title-card">
-          Hoàn tiền
+          Hoàn tiền {" "}
           {payments && payments.length > 0 && (
             <Tag
               className="orders-tag orders-tag-success"

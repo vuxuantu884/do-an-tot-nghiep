@@ -196,6 +196,32 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
         </Form.Item>
         {renderSplitOrder()}
       </Card>
+      {listOrderSubStatus &&
+      <Card title="XỬ LÝ ĐƠN HÀNG">
+        <Form.Item
+          name="sub_status_code"
+        >
+          <Select
+            showSearch
+            style={{ width: "100%" }}
+            placeholder="Chọn trạng thái phụ"
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            notFoundContent="Không tìm thấy trạng thái phụ"
+            key={Math.random()}
+          >
+            {listOrderSubStatus.map((single) => {
+              return (
+                <Select.Option value={single.code} key={single.code}>
+                  {single.sub_status}
+                </Select.Option>
+              );
+            })}
+          </Select>
+        </Form.Item>
+      </Card>}
       <Card title="THÔNG TIN BỔ SUNG">
         <Form.Item name="customer_note" label="Ghi chú của khách">
           <Input.TextArea
@@ -228,30 +254,6 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
         >
           <CustomInputTags onChangeTag={onChangeTag} tags={tags} />
         </Form.Item>
-        {listOrderSubStatus && <Form.Item
-          label="Trạng thái xử lý đơn"
-          name="sub_status_code"
-        >
-          <Select
-            showSearch
-            style={{ width: "100%" }}
-            placeholder="Chọn trạng thái phụ"
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-            notFoundContent="Không tìm thấy trạng thái phụ"
-            key={Math.random()}
-          >
-            {listOrderSubStatus.map((single) => {
-              return (
-                <Select.Option value={single.code} key={single.code}>
-                  {single.sub_status}
-                </Select.Option>
-              );
-            })}
-          </Select>
-        </Form.Item>}
       </Card>
       <SidebarOrderHistory customerId={customerId} />
     </StyledComponent>

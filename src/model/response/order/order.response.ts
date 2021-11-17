@@ -64,7 +64,7 @@ export interface OrderResponse extends BaseObject {
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status?: string;
   sub_status_id?: number | null;
-  sub_status_code?: string | null;
+  sub_status_code?: string;
   reason_name?: string;
   return_date?: string;
   receive_date?: string;
@@ -160,6 +160,7 @@ export interface OrderDiscountResponse {
   promotion_id: number | null;
   reason: string | null;
   source: string | null;
+  discount_code: string | null;
 }
 
 // export interface OrderItemDiscountResponse {

@@ -1,4 +1,4 @@
-import { Button, Card, Row, Space, Tabs } from "antd";
+import {Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
@@ -7,6 +7,8 @@ import { useHistory } from "react-router";
 import HistoryInventoryTransferTab from "./ListTicketTab/HistoryInventoryTransfer";
 import InventoryTransferTab from "./ListTicketTab/InventoryTransfer";
 import { ListTicketStylesWrapper } from "./Styles";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 const { TabPane } = Tabs;
 
 const InventoryListScreen: React.FC = () => {
@@ -43,7 +45,11 @@ const InventoryListScreen: React.FC = () => {
           parseInt(activeTab) === 1 &&
           <Row>
             <Space>
-              <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
+              <AuthWrapper 
+                acceptPermissions={[InventoryTransferPermission.create]}
+              >
+                <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
+              </AuthWrapper>
             </Space>
           </Row>
         }

@@ -35,6 +35,8 @@ import { useReactToPrint } from "react-to-print";
 
 import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
 import { actionFetchPrintFormByInventoryTransferIds } from "domain/actions/printer/printer.action";
+import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
+import useAuthorization from "hook/useAuthorization";
 const { TextArea } = Input;
 
 const ACTIONS_INDEX = {
@@ -68,44 +70,6 @@ const initQuery: InventoryTransferSearchQuery = {
   from_receive_date: null,
   to_receive_date: null
 };
-
-const actions: Array<MenuAction> = [
-  {
-    id: ACTIONS_INDEX.ADD_FORM_EXCEL,
-    name: "Thêm mới từ Excel",
-    icon:<ImportOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.WATCH_MANY_TICKET,
-    name: "Xem nhiều phiếu",
-    icon:<BarsOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.DELETE_TICKET,
-    name: "Hủy phiếu",
-    icon:<StopOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.PRINT,
-    name: "In vận đơn",
-    icon:<PrinterOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.PRINT_TICKET,
-    name: "In phiếu",
-    icon:<PrinterOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.EXPORT_EXCEL,
-    name: "Xuất Excel",
-    icon:<ExportOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.MAKE_COPY,
-    name: "Tạo bản sao",
-    icon:<CopyOutlined />
-  },
-];
 
 const InventoryTransferTab: React.FC = () => {
 
@@ -148,6 +112,65 @@ const InventoryTransferTab: React.FC = () => {
     [handlePrint]
   );
  
+  //phân quyền
+  const [allowImportFromExcel] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.import],
+  });
+  const [allowCancel] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.cancel],
+  });
+  const [allowPrint] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.print],
+  });
+  const [allowClone] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.clone],
+  });  
+
+  const actions: Array<MenuAction> = [
+    {
+      id: ACTIONS_INDEX.ADD_FORM_EXCEL,
+      name: "Thêm mới từ Excel",
+      icon:<ImportOutlined />,
+      disabled: !allowImportFromExcel,
+    },
+    {
+      id: ACTIONS_INDEX.WATCH_MANY_TICKET,
+      name: "Xem nhiều phiếu",
+      icon:<BarsOutlined />,
+      disabled: true,
+    },
+    {
+      id: ACTIONS_INDEX.DELETE_TICKET,
+      name: "Hủy phiếu",
+      icon:<StopOutlined />,
+      disabled: !allowCancel,
+    },
+    {
+      id: ACTIONS_INDEX.PRINT,
+      name: "In vận đơn",
+      icon:<PrinterOutlined />,
+      disabled: !allowPrint,
+    },
+    {
+      id: ACTIONS_INDEX.PRINT_TICKET,
+      name: "In phiếu",
+      icon:<PrinterOutlined />,
+      disabled: !allowPrint,
+    },
+    {
+      id: ACTIONS_INDEX.EXPORT_EXCEL,
+      name: "Xuất Excel",
+      icon:<ExportOutlined />,
+      disabled: true,
+    },
+    {
+      id: ACTIONS_INDEX.MAKE_COPY,
+      name: "Tạo bản sao",
+      icon:<CopyOutlined />,
+      disabled: !allowClone,
+    },
+  ];
+
   const dispatch = useDispatch();
   let dataQuery: InventoryTransferSearchQuery = {
     ...initQuery,

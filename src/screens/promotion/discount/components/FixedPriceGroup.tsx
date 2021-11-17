@@ -62,7 +62,7 @@ const FixedPriceGroup = (props: any) => {
     if (formEntitlement && !formEntitlement["prerequisite_quantity_ranges.value_type"]) {
       formEntitlement["prerequisite_quantity_ranges.value_type"] = discountType;
     }
-  }, [form.getFieldValue("entitlements")[name]])
+  }, [discountType, form, name])
 
 
   useEffect(() => {
@@ -77,7 +77,7 @@ const FixedPriceGroup = (props: any) => {
         setSelectedProduct([...selectedProduct]);
       });
     }
-  }, []);
+  }, [form, name, selectedProduct]);
 
 
 
@@ -152,7 +152,7 @@ const FixedPriceGroup = (props: any) => {
       }
       setVisibleManyProduct(false);
     },
-    [form, name, selectedProduct],
+    [selectedProduct],
   );
 
   const onDeleteItem = useCallback(

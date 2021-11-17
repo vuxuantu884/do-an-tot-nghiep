@@ -167,16 +167,6 @@ const PromotionDetailScreen: React.FC = () => {
     acceptPermissions: [PromoPermistion.UPDATE],
   });
 
-  useEffect(() => {
-    dispatch(StoreGetListAction(setListStore));
-    dispatch(getListSourceRequest(setListSource));
-    dispatch(getListChannelRequest(setListChannel));
-    dispatch(getVariants(idNumber, handleResponse));
-  }, [dispatch]);
-
-  const checkIsHasPromo = useCallback((data: any) => {
-    setCheckPromoCode(data.items.length > 0);
-  }, []);
 
   const handleResponse = useCallback((result: any | false) => {
     setLoading(false);
@@ -185,6 +175,18 @@ const PromotionDetailScreen: React.FC = () => {
     } else {
       setDataVariants(result);
     }
+  }, []);
+
+
+  useEffect(() => {
+    dispatch(StoreGetListAction(setListStore));
+    dispatch(getListSourceRequest(setListSource));
+    dispatch(getListChannelRequest(setListChannel));
+    dispatch(getVariants(idNumber, handleResponse));
+  }, [dispatch, handleResponse, idNumber]);
+
+  const checkIsHasPromo = useCallback((data: any) => {
+    setCheckPromoCode(data.items.length > 0);
   }, []);
 
   const query = useQuery();
@@ -236,7 +238,7 @@ const PromotionDetailScreen: React.FC = () => {
     return result;
   };
 
-  const mergeVariants = (sourceData: Array<any>) => {
+  const mergeVariants = useCallback((sourceData: Array<any>) => {
     return sourceData.map((s) => {
       const variant = dataVariants.find((v: any) => v.variant_id === s.id);
       if (variant) {
@@ -245,7 +247,7 @@ const PromotionDetailScreen: React.FC = () => {
       }
       return s;
     });
-  };
+  }, [dataVariants]);
 
   useEffect(() => {
     if (dataVariants && data && data.entitlements.length > 0) {
@@ -258,7 +260,7 @@ const PromotionDetailScreen: React.FC = () => {
       }
       setEntitlements(listEntitlements);
     }
-  }, [data, dataVariants]);
+  }, [data, dataVariants, mergeVariants]);
 
   const onActivateSuccess = useCallback(() => {
     dispatch(hideLoading());
