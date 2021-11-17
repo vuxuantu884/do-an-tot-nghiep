@@ -16,7 +16,7 @@ function useAuthorization(props: useAuthorizationProps) {
   const currentRoles: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer?.permissions
   );
-
+    
   const [allowed, setAllowed] = useState(false);
   useEffect(() => {
     setAllowed(checkUserPermission(acceptPermissions, currentRoles));
