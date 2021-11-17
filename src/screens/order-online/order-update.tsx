@@ -960,6 +960,7 @@ export default function Order(props: PropType) {
             tags: response.tags,
             marketer_code: response.marketer_code,
             coordinator_code: response.coordinator_code,
+            sub_status_code: response.sub_status_code,
           });
           let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
           if (
