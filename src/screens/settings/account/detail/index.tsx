@@ -1,15 +1,15 @@
-import {Card, Tabs} from "antd";
+import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
-import {StickyUnderNavbar} from "component/container/sticky-under-navbar";
+import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig from "config/url.config";
-import {AccountGetByCodeAction} from "domain/actions/account/account.action";
-import {AccountResponse} from "model/account/account.model";
-import React, {useCallback, useContext, useEffect} from "react";
-import {useDispatch} from "react-redux";
-import {useParams} from "react-router";
-import {AccountDetailStyle} from "../account.detail.style";
+import { AccountGetByCodeAction } from "domain/actions/account/account.action";
+import { AccountResponse } from "model/account/account.model";
+import React, { useCallback, useContext, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router";
+import { AccountDetailStyle } from "../account.detail.style";
 import AccountDetailProvider, {
-  AccountDetailContext,
+  AccountDetailContext
 } from "../provider/account.detail.provider";
 import AccountPermissionTab from "./account.permission.tab";
 import AccountViewTab from "./account.view.tab";
@@ -45,12 +45,6 @@ function AccountDetail() {
   useEffect(() => {
     getAccountData();
   }, [getAccountData]);
-
-  const RenderTabBar = <P extends object>(props: any, DefaultTabBar: React.ComponentType<P>) => (
-    <StickyUnderNavbar>
-      <DefaultTabBar {...props} />
-    </StickyUnderNavbar>
-  );
 
   return (
     <ContentContainer

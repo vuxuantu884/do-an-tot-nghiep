@@ -834,7 +834,7 @@ const DetailInvetoryAdjustment: FC = () => {
           },
           {
             name: "Kiểm kho",
-            path: `${UrlConfig.INVENTORY_ADJUSTMENT}`,
+            path: `${UrlConfig.INVENTORY_ADJUSTMENTS}`,
           },
           {
             name: `${data?.code}`,
@@ -1072,7 +1072,7 @@ const DetailInvetoryAdjustment: FC = () => {
             <BottomBarContainer
               leftComponent={
                 <div
-                  onClick={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}`)}
+                  onClick={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}`)}
                   style={{cursor: "pointer"}}
                 >
                   <img style={{marginRight: "10px"}} src={arrowLeft} alt="" />

@@ -319,7 +319,7 @@ const StoreListScreen: React.FC = () => {
       console.log(index, selected);
 
       if (index === actions[0].id && selected.length === 1) {
-        history.push(`${UrlConfig.STORE}/${selected[0].id}/edit`);
+        history.push(`${UrlConfig.STORE}/${selected[0].id}/update`);
       }
     },
     [selected, history, actions]
