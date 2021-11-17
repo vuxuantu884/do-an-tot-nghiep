@@ -319,6 +319,12 @@ function OrderCreateProduct(props: PropType) {
     };
   }, [eventKeyPress]);
 
+  useEffect(() => {
+    if(isAutomaticDiscount) {
+      setIsDisableOrderDiscount(true)
+    }
+  }, [])
+
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
       if (!items) {
@@ -1769,7 +1775,6 @@ function OrderCreateProduct(props: PropType) {
 
                 if (e.target.checked) {
                   setCoupon("");
-                  setIsDisableOrderDiscount(true);
                   handleRemoveAllDiscount();
                   handleDiscountWhenActiveAutomaticDiscount();
                 } else {
