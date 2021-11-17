@@ -50,7 +50,7 @@ export interface GoodsReceiptsSearhModel{
   handover_record_type:string;//loại biên bản
   product_quantity:number;// sl sản phẩm
   order_quantity:number;//SL đơn 
-  order_send_quantity:number;//Số đơn gửi hvc
+  order_send_quantity:number;//Số đơn gửi hvc                                                                                                          
   order_transport:number;//Đơn đang chuyển
   order_have_not_taken:number;//Đơn chưa lấy
   order_cancel:number;//đơn hủy 
@@ -58,4 +58,17 @@ export interface GoodsReceiptsSearhModel{
   order_success:number;//đơn thành công
   order_complete:number;//đơn hoàn
   account_create:string;//người tạo
+}
+
+export interface GoodsReceiptsInfoOrderModel{
+  key:number;
+  order_id:number;
+  order_code:string;
+  customer_id:number;
+  customer_name:string;
+  customer_phone:string;
+  customer_address:string;
+  product:VariantModel[];
+  ship_price:number;
+  total_price:number;
 }

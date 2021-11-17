@@ -409,7 +409,7 @@ export const updateGoodsReceiptsService = (
  */
 export const getByIdGoodsReceiptsService = (goodsReceiptsId: number) => {
   const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
-  return BaseAxios.put(link);
+  return BaseAxios.get(link);
 };
 
 /**
