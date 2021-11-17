@@ -163,8 +163,8 @@ const TabHistoryPrice: React.FC = () => {
   return (
     <div>
       <HistoryProductFilter
-        onFinish={(values: any) => {
-          let { from_action_date, to_action_date } = values;
+        onFinish={(values: any) => { 
+          let { from_action_date, to_action_date, condition } = values;
       
           if (from_action_date) {
             values.from_action_date = getStartOfDay(from_action_date)
@@ -172,7 +172,7 @@ const TabHistoryPrice: React.FC = () => {
           if (to_action_date) {
             values.to_action_date = getEndOfDay(to_action_date)
           }
-
+          values.condition = condition.trim();
           let newParams = { ...params, ...values, page: 1 };
 
           setParams(newParams);
