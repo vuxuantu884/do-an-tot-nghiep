@@ -19,7 +19,7 @@ import NumberInput from "component/custom/number-input.custom";
 import UrlConfig from "config/url.config";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderResponse, ReturnProductModel } from "model/response/order/order.response";
-import React, { createRef, useCallback, useMemo } from "react";
+import React, { createRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
