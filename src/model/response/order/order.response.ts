@@ -160,6 +160,7 @@ export interface OrderDiscountResponse {
   promotion_id: number | null;
   reason: string | null;
   source: string | null;
+  discount_code: string | null;
 }
 
 // export interface OrderItemDiscountResponse {
