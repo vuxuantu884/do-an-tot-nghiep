@@ -140,13 +140,13 @@ const DepartmentUpdateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập mã phòng ban",
+                      message: "Vui lòng nhập mã bộ phận",
                     },
                   ]}
-                  label="Mã phòng ban"
+                  label="Mã bộ phận"
                   name="code"
                 >
-                  <Input maxLength={13} placeholder="Nhập phòng ban" />
+                  <Input maxLength={13} placeholder="Nhập mã bộ phận" />
                 </Form.Item>
               </Col>
               <Col span={8}>
@@ -154,13 +154,13 @@ const DepartmentUpdateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập tên phòng ban",
+                      message: "Vui lòng nhập tên bộ phận",
                     },
                   ]}
-                  label="Tên phòng ban"
+                  label="Tên bộ phận"
                   name="name"
                 >
-                  <Input maxLength={255} placeholder="Tên phòng ban" />
+                  <Input maxLength={255} placeholder="Tên bộ phận" />
                 </Form.Item>
               </Col>
             </Row>
