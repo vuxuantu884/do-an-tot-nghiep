@@ -913,9 +913,10 @@ const DetailTicket: FC = () => {
                     }
                   >
                     {
-                      (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
-                      || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
-                      || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && 
+                      ((data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
+                        || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+                        || data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status
+                        || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && data.shipment !==null ) && 
                       <>
                         <Row className="shipment">
                           <div className="shipment-logo">
