@@ -75,6 +75,14 @@ export const StyledCustomerInfo = styled.div`
     height: auto;
   }
 
+  .card-title {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    text-transform: uppercase;
+    padding-left: 0;
+  }
+
   .customer-info {
     display: flex;
     justify-content: flex-start;

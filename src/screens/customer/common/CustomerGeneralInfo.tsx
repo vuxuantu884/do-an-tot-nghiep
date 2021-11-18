@@ -108,7 +108,7 @@ const CustomerGeneralInfo = (props: any) => {
     <div className="customer-info">
       <Card
         title={
-          <span className="title-card">THÔNG TIN CHUNG</span>
+          <span className="card-title">THÔNG TIN CHUNG</span>
         }
         extra={[
           <Space key="status" size={15} style={{ marginRight: "10px" }}>
@@ -385,7 +385,7 @@ const CustomerGeneralInfo = (props: any) => {
       
       <Card
         title={
-          <span className="title-card">THÔNG TIN KHÁC</span>
+          <span className="card-title">THÔNG TIN KHÁC</span>
         }
         className="other-info"
       >
