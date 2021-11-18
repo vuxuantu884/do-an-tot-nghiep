@@ -1015,7 +1015,7 @@ function OrderCreateProduct(props: PropType) {
             rate,
             value,
             amount: value,
-            reason: "",
+            reason: highestValueSuggestDiscount.title || null,
             promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
           };
           item.discount_items[0] = discountItem;
@@ -1197,7 +1197,7 @@ function OrderCreateProduct(props: PropType) {
                             rate: discount_rate
                               ? Math.round(discount_rate * 100) / 100
                               : 0,
-                            reason: "",
+                            reason: applyDiscountLineItem?.title || null,
                             discount_code,
                           },
                         ];
