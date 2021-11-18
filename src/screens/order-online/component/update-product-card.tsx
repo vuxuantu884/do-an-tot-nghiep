@@ -21,7 +21,8 @@ import {
 } from "model/response/order/order.response";
 import React from "react";
 import { Link } from "react-router-dom";
-import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
+import { formatCurrency, getTotalQuantity, handleDisplayCoupon } from "utils/AppUtils";
+import { dangerColor } from "utils/global-styles/variables";
 //#endregion
 
 type ProductCardUpdateProps = {
@@ -357,7 +358,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </Row>
             <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">Mã giảm giá:</Space>
-              <div className="font-weight-500 ">0</div>
+              <div className="font-weight-500 " style={{color: dangerColor}}>{OrderDetail?.discounts && OrderDetail?.discounts[0]?.discount_code ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code) : "-"}</div>
             </Row>
 
             <Row className="payment-row padding-top-10" justify="space-between">

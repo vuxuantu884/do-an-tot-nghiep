@@ -222,7 +222,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
       }
       extra={allowUpdateCustomer &&
         [
-          <Link key={params.id} to={`/customers/${params.id}/edit`}>
+          <Link key={params.id} to={`/customers/${params.id}/update`}>
             Cập nhật
           </Link>,
         ]

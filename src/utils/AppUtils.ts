@@ -1064,3 +1064,14 @@ export const customGroupBy = (array:any, groupBy:any) => {
     return r;
   });
 };
+
+
+export const handleDisplayCoupon = (coupon: string, numberCouponCharactersShowedBeforeAndAfter: number = 2) => {
+  if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
+    const firstCharacters = coupon.substring(0,numberCouponCharactersShowedBeforeAndAfter);
+    const lastCharacters = coupon.substring(coupon.length - numberCouponCharactersShowedBeforeAndAfter,coupon.length);
+    return `${firstCharacters}***${lastCharacters}`;
+  } else {
+    return `${coupon}***${coupon}`;
+  }
+};

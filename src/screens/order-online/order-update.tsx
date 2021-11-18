@@ -9,7 +9,6 @@ import {
   FormInstance,
   Input,
   Row,
-  Select,
   Space,
   Tag,
   Typography
@@ -185,6 +184,10 @@ export default function Order(props: PropType) {
   const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
     []
   );
+
+  const [coupon, setCoupon] = useState<string>("");
+  const [promotionId, setPromotionId] = useState<number|null>(null);
+
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
     amount: number,
@@ -567,6 +570,7 @@ export default function Order(props: PropType) {
       );
     }
   }, [dispatch, OrderDetail]); //logne
+
   const createDiscountRequest = () => {
     let objDiscount: OrderDiscountRequest = {
       rate: discountRate,
@@ -575,13 +579,38 @@ export default function Order(props: PropType) {
       promotion_id: null,
       reason: "",
       source: "",
+      discount_code: coupon,
+      order_id: null,
     };
     let listDiscountRequest = [];
-    if (discountRate === 0 && discountValue === 0) {
+    if (coupon) {
+      listDiscountRequest.push({
+        discount_code: coupon,
+          rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: null,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    } else if(promotionId) {
+      listDiscountRequest.push({
+        discount_code: null,
+        rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: promotionId,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    }  else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
     }
+    
     return listDiscountRequest;
   };
 
@@ -961,6 +990,7 @@ export default function Order(props: PropType) {
             tags: response.tags,
             marketer_code: response.marketer_code,
             coordinator_code: response.coordinator_code,
+            sub_status_code: response.sub_status_code,
           });
           let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
           if (
@@ -1009,6 +1039,9 @@ export default function Order(props: PropType) {
             }
           }
           setIsLoadForm(true);
+          if(response.discounts && response.discounts[0].discount_code) {
+            setCoupon(response.discounts[0].discount_code)
+          }
         }
       })
     );
@@ -1273,6 +1306,9 @@ export default function Order(props: PropType) {
                     orderConfig={null}
                     orderSourceId={orderSourceId}
                     levelOrder={levelOrder}
+                    coupon={coupon}
+                    setCoupon={setCoupon}
+                    setPromotionId={setPromotionId}
                   />
 
                   {OrderDetail !== null &&
@@ -1519,7 +1555,7 @@ export default function Order(props: PropType) {
                         title={
                           <Space>
                             <div className="d-flex">
-                              <span className="title-card">THANH TOÁN 5</span>
+                              <span className="title-card">THANH TOÁN</span>
                             </div>
                             {checkPaymentStatusToShow(OrderDetail) === 1 && (
                               <Tag

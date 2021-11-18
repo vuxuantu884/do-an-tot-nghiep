@@ -1,38 +1,42 @@
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useHistory, useParams } from "react-router-dom";
+
 import {
   Form,
-  Row,
-  Col,
   Button,
 } from "antd";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
+
+import moment from "moment";
+import { showSuccess, showError } from "utils/ToastUtils";
+
+import {
+  AccountResponse,
+  AccountSearchQuery,
+} from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { WardResponse } from "model/content/ward.model";
+import { CountryResponse } from "model/content/country.model";
+
+import {
+  CountryGetAllAction,
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   CustomerDetail,
   CustomerGroups,
   CustomerTypes,
   UpdateCustomer,
 } from "domain/actions/customer/customer.action";
-import { CountryResponse } from "model/content/country.model";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { Link, useHistory, useParams } from "react-router-dom";
-import "./customer.scss";
-import moment from "moment";
-import { showSuccess, showError } from "utils/ToastUtils";
+
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import GeneralInformation from "./common/general.information";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { WardResponse } from "model/content/ward.model";
-import {
-  DistrictGetByCountryAction,
-  WardGetByDistrictAction,
-} from "domain/actions/content/content.action";
-import arrowLeft from "../../assets/icon/arrow-left.svg";
+import CustomerGeneralInfo from "screens/customer/common/CustomerGeneralInfo";
+
+import arrowBack from "assets/icon/arrow-back.svg";
+import { StyledCustomerInfo } from "screens/customer/customerStyled";
+import "screens/customer/customer.scss";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -68,6 +72,7 @@ const CustomerUpdate = (props: any) => {
     },
     []
   );
+
   const AccountChangeSearch = React.useCallback(
     (value) => {
       initQueryAccount.info = value;
@@ -151,6 +156,7 @@ const CustomerUpdate = (props: any) => {
     },
     [history]
   );
+
   const handleSubmit = (values: any) => {
     values.full_name = values.full_name.trim();
     if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
@@ -180,79 +186,71 @@ const CustomerUpdate = (props: any) => {
     setIsLoading(true);
     dispatch(UpdateCustomer(params.id, processValue, setResult));
   };
+
   const handleSubmitFail = (errorInfo: any) => {
   };
+  
   return (
-    <ContentContainer
-      title="Quản lý khách hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Khách hàng",
-          path: `/customers`,
-        },
-        {
-          name: "Sửa thông tin khách hàng",
-        },
-      ]}
-    >
-      <Form
-        form={customerForm}
-        name="customer_edit"
-        onFinish={handleSubmit}
-        onFinishFailed={handleSubmitFail}
-        layout="vertical"
-        // initialValues={customerInit}
+    <StyledCustomerInfo>
+      <ContentContainer
+        title="Sửa khách hàng"
       >
-        <Row gutter={24}>
-          <Col span={24}>
-            <GeneralInformation
-              accounts={accounts}
-              form={customerForm}
-              name="general edit"
-              isLoading={isLoading}
-              groups={groups}
-              types={types}
-              customer={customer}
-              status={status}
-              setStatus={setStatus}
-              areas={areas}
-              countries={countries}
-              wards={wards}
-              districtId={districtId}
-              handleChangeArea={handleChangeArea}
-              isEdit={true}
-              AccountChangeSearch={AccountChangeSearch}
-            />
-          </Col>
-        </Row>
+        <Form
+          form={customerForm}
+          name="customer_edit"
+          onFinish={handleSubmit}
+          onFinishFailed={handleSubmitFail}
+          layout="vertical"
+        >
+          <CustomerGeneralInfo
+            accounts={accounts}
+            form={customerForm}
+            name="general edit"
+            isLoading={isLoading}
+            groups={groups}
+            types={types}
+            customer={customer}
+            status={status}
+            setStatus={setStatus}
+            areas={areas}
+            countries={countries}
+            wards={wards}
+            districtId={districtId}
+            handleChangeArea={handleChangeArea}
+            isEdit={true}
+            AccountChangeSearch={AccountChangeSearch}
+          />
 
-        <div className="customer-bottom-button" style={{}}>
-          <Link to="/customers">
-            <div style={{ cursor: "pointer" }}>
-              <img style={{ marginRight: "10px", transform: "rotate(180deg)" }} src={arrowLeft} alt="" />
-              Quay lại danh sách khách hàng
-            </div>
-          </Link>
-          <div>
+          <div className="customer-info-footer">
             <Button
               disabled={isLoading}
-              onClick={goBack}
-              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
-              type="ghost"
+              type="text"
+              className="go-back-button"
             >
-              Hủy
+               <Link to="/customers">
+                <img style={{ marginRight: "10px" }} src={arrowBack} alt="" />
+                Quay lại danh sách khách hàng
+              </Link>
             </Button>
-            <Button type="primary" htmlType="submit" loading={isLoading}>
-              Lưu khách hàng
-            </Button>
+            
+            <div>
+              <Button
+                disabled={isLoading}
+                onClick={goBack}
+                style={{ marginRight: 10 }}
+                type="ghost"
+              >
+                Hủy
+              </Button>
+
+              <Button type="primary" htmlType="submit" loading={isLoading}>
+                Lưu khách hàng
+              </Button>
+            </div>
           </div>
-        </div>
-      </Form>
-    </ContentContainer>
+        </Form>
+      </ContentContainer>
+    </StyledCustomerInfo>
   );
 };
 
