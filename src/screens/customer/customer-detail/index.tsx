@@ -500,7 +500,7 @@ const CustomerDetailIndex = () => {
                     />
                   </TabPane>
 
-                  <TabPane tab="Địa chỉ nhận hàng" key="shipping">
+                  <TabPane tab="Đ/c nhận hàng" key="shipping">
                     <CustomerShippingAddressInfo
                       isShowModalShipping={isShowModalShipping}
                       setIsShowModalShipping={setIsShowModalShipping}
@@ -512,7 +512,7 @@ const CustomerDetailIndex = () => {
                     />
                   </TabPane>
 
-                  <TabPane tab="Địa chỉ nhận hóa đơn" key="billing">
+                  <TabPane tab="Đ/c nhận hóa đơn" key="billing">
                     <CustomerShippingInfo
                       setIsShowModalBilling={setIsShowModalBilling}
                       isShowModalBilling={isShowModalBilling}
@@ -534,7 +534,7 @@ const CustomerDetailIndex = () => {
                       modalAction={modalAction}
                     />
                   </TabPane>
-                  
+
                   {allowUpdateCustomer && isShowAddBtn && (
                     <TabPane
                       tab={

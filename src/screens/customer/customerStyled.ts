@@ -1,5 +1,13 @@
 import styled from "styled-components";
 
+
+export const StyledCustomer = styled.div`
+  .page-header {
+    height: auto;
+  }
+
+`;
+
 export const StyledCustomerFilter = styled.div`
   .inline-filter {
     width: 100%;

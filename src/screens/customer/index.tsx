@@ -41,9 +41,10 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { ChannelResponse } from "model/response/product/channel.response";
 
-import importIcon from "assets/icon/import.svg";
+// Thêm nhập file sau
+// import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
-import { StyledCustomerExtraButton } from "screens/customer/customerStyled";
+import { StyledCustomer, StyledCustomerExtraButton } from "screens/customer/customerStyled";
 import { showWarning } from "utils/ToastUtils";
 
 
@@ -364,134 +365,128 @@ const Customer = () => {
   }
   // end handle export file
   
+  // Thêm nhập file sau
   // handle import file
-  const handleImportFile = () => {
-    showWarning("Sẽ làm chức năng này sau bạn nhé!");
-  }
+  // const handleImportFile = () => {
+  //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
+  // }
   // end handle import file
   
 
 
   return (
-    <ContentContainer
-      title="Danh sách khách hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Danh sách khách hàng",
-          path: `/customers`,
-        },
-      ]}
-      extra={
-        <StyledCustomerExtraButton>
-          <Button
-            className="import-file-button"
-            disabled={isLoading}
-            size="large"
-            icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-            onClick={handleImportFile}
-          >
-            Nhập file
-          </Button>
-
-          {allowExportCustomer &&
-            <Button
-              className="export-file-button"
+    <StyledCustomer>
+      <ContentContainer
+        title="Danh sách khách hàng"
+        extra={
+          <StyledCustomerExtraButton>
+            {/* Thêm nhập file sau */}
+            {/* <Button
+              className="import-file-button"
               disabled={isLoading}
               size="large"
-              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={handleExportFile}
+              icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={handleImportFile}
             >
-              Xuất file
-            </Button>
-          }
+              Nhập file
+            </Button> */}
 
-          {allowCreateCustomer &&
-            <Link to={`${UrlConfig.CUSTOMER}/create`}>
+            {allowExportCustomer &&
               <Button
+                className="export-file-button"
                 disabled={isLoading}
-                className="ant-btn-outline ant-btn-primary"
                 size="large"
-                icon={<PlusOutlined />}
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={handleExportFile}
               >
-                Thêm khách hàng mới
+                Xuất file
               </Button>
-            </Link>
-          }
-        </StyledCustomerExtraButton>
-      }
-    >
-      <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
-        {(allowed: boolean) => (allowed ?
-          <Card>
-            <CustomerListFilter
-              onClearFilter={onClearFilterAdvanceClick}
-              onFilter={onFilterClick}
-              isLoading={isLoading}
-              params={query}
-              initQuery={params}
-              groups={groups}
-              types={types}
-              setShowSettingColumn={() => setShowSettingColumn(true)}
-              loyaltyUsageRules={loyaltyUsageRules}
-              listStore={listStore}
-              listChannel={listChannel}
-            />
-            
-            <CustomTable
-              isRowSelection
-              isLoading={isLoading}
-              bordered
-              scroll={{ x: 2000 }}
-              sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-              pagination={{
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              dataSource={data.items}
-              columns={columnFinal}
-              rowKey={(item: any) => item.id}
-            />
-          </Card>
-          : <NoPermission />)}
-      </AuthWrapper>
+            }
 
-      <Modal
-        width="600px"
-        visible={isVisibleExportModal}
-        title="Xuất excel dữ liệu khách hàng"
-        okText="Xuất dữ liệu"
-        cancelText="Đóng"
-        onCancel={cancelExportModal}
-        onOk={okExportModal}
+            {allowCreateCustomer &&
+              <Link to={`${UrlConfig.CUSTOMER}/create`}>
+                <Button
+                  disabled={isLoading}
+                  className="ant-btn-outline ant-btn-primary"
+                  size="large"
+                  icon={<PlusOutlined />}
+                >
+                  Thêm khách hàng mới
+                </Button>
+              </Link>
+            }
+          </StyledCustomerExtraButton>
+        }
       >
-        <Radio.Group onChange={onChangeExportOption} value={exportAll}>
-          <Space direction="vertical">
-            <Radio value={false}>Tải trang hiện tại</Radio>
-            <Radio value={true}>Tải tất cả các trang</Radio>
-          </Space>
-        </Radio.Group>
-      </Modal>
+        <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <Card>
+              <CustomerListFilter
+                onClearFilter={onClearFilterAdvanceClick}
+                onFilter={onFilterClick}
+                isLoading={isLoading}
+                params={query}
+                initQuery={params}
+                groups={groups}
+                types={types}
+                setShowSettingColumn={() => setShowSettingColumn(true)}
+                loyaltyUsageRules={loyaltyUsageRules}
+                listStore={listStore}
+                listChannel={listChannel}
+              />
+              
+              <CustomTable
+                isRowSelection
+                isLoading={isLoading}
+                bordered
+                scroll={{ x: 2000 }}
+                sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                pagination={{
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                dataSource={data.items}
+                columns={columnFinal}
+                rowKey={(item: any) => item.id}
+              />
+            </Card>
+            : <NoPermission />)}
+        </AuthWrapper>
 
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => {
-          setShowSettingColumn(false);
-        }}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
-    </ContentContainer>
+        <Modal
+          width="600px"
+          visible={isVisibleExportModal}
+          title="Xuất excel dữ liệu khách hàng"
+          okText="Xuất dữ liệu"
+          cancelText="Đóng"
+          onCancel={cancelExportModal}
+          onOk={okExportModal}
+        >
+          <Radio.Group onChange={onChangeExportOption} value={exportAll}>
+            <Space direction="vertical">
+              <Radio value={false}>Tải trang hiện tại</Radio>
+              <Radio value={true}>Tải tất cả các trang</Radio>
+            </Space>
+          </Radio.Group>
+        </Modal>
+
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => {
+            setShowSettingColumn(false);
+          }}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
+        />
+      </ContentContainer>
+    </StyledCustomer>
   );
 };
 
