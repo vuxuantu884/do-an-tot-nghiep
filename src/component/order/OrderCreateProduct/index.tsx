@@ -210,11 +210,10 @@ function OrderCreateProduct(props: PropType) {
     setDiscountValue,
     setDiscountRate,
     setCoupon,
-    setPromotionId
   } = props;
   const dispatch = useDispatch();
   console.log("shippingFeeInformedToCustomer", shippingFeeInformedToCustomer);
-  const [loadingAutomaticDiscount, setLoadingAutomaticDiscount] = useState(false);
+  const [loadingAutomaticDiscount] = useState(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [isDisableOrderDiscount, setIsDisableOrderDiscount] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);

@@ -1,12 +1,12 @@
-import { Col, Input, Modal, Radio, Row } from "antd";
-import { StoreResponse } from "model/core/store.model";
-import { InventoryResponse } from "model/inventory";
-import { OrderLineItemRequest } from "model/request/order.request";
-import React, { useCallback, useEffect, useState } from "react";
+import {Col, Input, Modal, Radio, Row} from "antd";
+import {StoreResponse} from "model/core/store.model";
+import {InventoryResponse} from "model/inventory";
+import {OrderLineItemRequest} from "model/request/order.request";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 
 type InventoryModalProps = {
   isModalVisible: boolean;
-  setInventoryModalVisible:(item:boolean)=>void;
+  setInventoryModalVisible: (item: boolean) => void;
   storeId: number | null;
   setStoreId: (item: number) => void;
   columnsItem?: Array<OrderLineItemRequest>;
@@ -16,9 +16,21 @@ type InventoryModalProps = {
   handleCancel: () => void;
 };
 
-const InventoryModal: React.FC<InventoryModalProps> = (
-  props: InventoryModalProps
-) => {
+const pitority = {
+  ware_house: 2,
+  store: 1,
+  distribution_center: 1,
+  stockpile: 1,
+};
+
+interface InventoryStore {
+  id: number,
+  name: string,
+  pitority: number,
+  data: any,
+}
+
+const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProps) => {
   const {
     isModalVisible,
     columnsItem,
@@ -34,23 +46,12 @@ const InventoryModal: React.FC<InventoryModalProps> = (
   // const [changeStoreItem, sethangeStoreItem] = useState<number | null>(null);
   // const inventoryData:any=[];
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
-  const setAvailable = (storeId: number, variantId: number) => {
-    let inventoryInt = null;
-    if (inventoryArray && inventoryArray.length) {
-      let inventory = inventoryArray.find(
-        (x: any) => x.store_id === storeId && x.variant_id === variantId
-      );
-      inventoryInt =
-        inventory === undefined || inventory === null ? 0 : inventory.available;
-    }
-    return inventoryInt === null ? 0 : inventoryInt;
-  };
 
   const setAllAvailable = (variantId: number) => {
     let inventoryInt = 0;
     if (inventoryArray && inventoryArray.length) {
       let newData: Array<InventoryResponse> = [];
-      newData = inventoryArray.filter((store) => store.variant_id===variantId);
+      newData = inventoryArray.filter((store) => store.variant_id === variantId);
       newData.forEach(function (value) {
         if (value.variant_id === variantId)
           inventoryInt +=
@@ -66,7 +67,6 @@ const InventoryModal: React.FC<InventoryModalProps> = (
     setSelectedStoreId(e.target.value);
   };
 
-
   const onSearchInventory = useCallback(
     (value) => {
       setResultSearchStore(value);
@@ -75,16 +75,66 @@ const InventoryModal: React.FC<InventoryModalProps> = (
   );
 
   const handleOk = useCallback(() => {
-    if(selectedStoreId) {
-      setStoreId(selectedStoreId)
+    if (selectedStoreId) {
+      setStoreId(selectedStoreId);
     }
-    setInventoryModalVisible(false)
+    setInventoryModalVisible(false);
   }, [selectedStoreId, setInventoryModalVisible, setStoreId]);
+
+  const data = useMemo(() => {
+    let stores: Array<InventoryStore> = [];
+    dataSearchCanAccess?.forEach((value, index) => {
+      let store: InventoryStore = {
+        id: value.id,
+        name: value.name,
+        pitority: value.type === "ware_house" ? pitority.ware_house : 1,
+        data: {},
+      };
+
+      columnsItem?.forEach((value1) => {
+        let inventory = inventoryArray?.find((value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id);
+        store.data[value1.variant_id.toString()] =  inventory && inventory.available ? inventory.available : 0
+      });
+      stores.push(store);
+    });
+    stores.sort((a, b) => {
+      let item1 = 0;
+      let item2 = 0;
+      let totalAvaiable1= 0;
+      let totalAvaiable2 = 0;
+      columnsItem?.forEach((value) => {
+        if(a.data[value.variant_id.toString()] > value.quantity) {
+          item1++;
+        }
+        if(b.data[value.variant_id.toString()] > value.quantity) {
+          item2++;
+        }
+      });
+      
+      Object.keys(a.data).forEach((key) => {
+        totalAvaiable1 = totalAvaiable1 + a.data[key];
+      })
+      Object.keys(b.data).forEach((key) => {
+        totalAvaiable2 = totalAvaiable2 + b.data[key];
+      })
+      if(item1 === columnsItem?.length && item2 === columnsItem?.length) {
+        if(a.pitority >= b.pitority) {
+          return totalAvaiable2 - totalAvaiable1;
+        } else {
+          return b.pitority - a.pitority;
+        }
+      }
+      if(totalAvaiable1 !== totalAvaiable2) {
+        return totalAvaiable2 - totalAvaiable1;
+      }
+      return item2 - item1;
+    })
+    return stores;
+  }, [columnsItem, dataSearchCanAccess, inventoryArray]);
 
   useEffect(() => {
     if (storeId) setSelectedStoreId(storeId);
   }, [storeId]);
-
 
   return (
     <Modal
@@ -109,7 +159,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (
       <Row gutter={24} className="margin-top-10">
         <Col md={24}>
           <div className="overflow-table">
-            <Radio.Group onChange={onChange} value={selectedStoreId}  style={{ width: "100%" }}> 
+            <Radio.Group
+              onChange={onChange}
+              value={selectedStoreId}
+              style={{width: "100%"}}
+            >
               <table className="rules">
                 <thead>
                   <tr>
@@ -131,26 +185,24 @@ const InventoryModal: React.FC<InventoryModalProps> = (
                   <tr>
                     <th className="condition">Tổng có thế bán</th>
                     {columnsItem?.map((data) => (
-                      <th className="condition">
-                        {setAllAvailable(data.variant_id)}
-                      </th>
+                      <th className="condition">{setAllAvailable(data.variant_id)}</th>
                     ))}
                   </tr>
                 </thead>
 
                 <tbody>
-                  {dataSearchCanAccess?.map((data, index) => (
+                  {data?.map((item, index) => (
                     <tr>
                       <th className="condition" key={index}>
                         {/* <Checkbox
                                   defaultChecked={false}
                                   onChange={(e) => onChangePreventIndex(e.target.checked, index)}
                                 /> {data.name} */}
-                        <Radio value={data.id}>{data.name}</Radio>
+                        <Radio value={item.id}>{item.name}</Radio>
                       </th>
-                      {columnsItem?.map((dataI) => (
+                      {Object.keys(item.data).map((key: any) => (
                         <td className="condition">
-                          {setAvailable(data.id, dataI.variant_id)}
+                          {item.data[key]}
                         </td>
                       ))}
                     </tr>
