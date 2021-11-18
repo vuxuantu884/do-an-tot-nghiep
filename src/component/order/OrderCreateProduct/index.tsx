@@ -329,7 +329,7 @@ function OrderCreateProduct(props: PropType) {
     if(isAutomaticDiscount) {
       setIsDisableOrderDiscount(true)
     }
-  }, [isAutomaticDiscount])
+  }, [])
 
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
@@ -406,7 +406,7 @@ function OrderCreateProduct(props: PropType) {
       let _amount = totalAmount(_items);
       // setItems(_items);
       setAmount(_amount);
-      // calculateChangeMoney(_items, _amount, discountRate, discountValue);
+      calculateChangeMoney(_items, _amount, discountRate, discountValue);
     },
     [items]
   );
@@ -1109,12 +1109,6 @@ function OrderCreateProduct(props: PropType) {
                 const discount_code = applyDiscountResponse.code || undefined;
                 let couponType = applyDiscountResponse.value_type;
                 let listDiscountItem:any[] = [];
-                // xóa discount line item rồi mới apply 
-                _items?.forEach((item) => {
-                  removeDiscountItem(item)
-                  setItems(_items);
-                  handleChangeItems(_items)
-                })
                 response.data.line_items.forEach((single) => {
                   if( listDiscountItem.some((a) =>a.variant_id === single.variant_id)) {
                     return;
