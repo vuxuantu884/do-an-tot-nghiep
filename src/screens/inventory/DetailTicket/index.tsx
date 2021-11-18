@@ -134,7 +134,6 @@ const DetailTicket: FC = () => {
         else {
           setDataTable(result.line_items);
         }
-        debugger
         setData(result);
         setDataShipment(result.shipment);
       }
