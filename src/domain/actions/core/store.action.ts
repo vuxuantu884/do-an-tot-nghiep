@@ -87,3 +87,7 @@ export const StoreGetTypeAction = (
 ) => {
   return BaseAction(StoreType.STORE_TYPE, { onSuccess });
 };
+
+export const getStoreSearchIdsAction=(storeids:number[],setData:(data:PageResponse<StoreResponse>)=>void)=>{
+  return BaseAction(StoreType.STORE_SEARCH_IDS, { storeids,setData });
+}

@@ -1,4 +1,4 @@
-import { getListStore, getListStoreSimple, getSearchListStore } from "service/core/store.service";
+import { getListStore, getListStoreSimple, getSearchListStore, getStoreSearchIdsApi } from "service/core/store.service";
 import BaseResponse from "base/base.response";
 import { YodyAction } from "base/base.action";
 import { showError } from "utils/ToastUtils";
@@ -264,6 +264,31 @@ function* storeGetTypeSaga(action: YodyAction) {
   }
 }
 
+
+function* getStoreSearchIdsSaga(action: YodyAction) {
+  let {storeids, setData} = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<StoreResponse>> = yield call(
+      getStoreSearchIdsApi,
+      storeids
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.GET_SEARCH_STORE_REQUEST, storeGetSearchSaga);
@@ -279,4 +304,5 @@ export function* storeSaga() {
   yield takeLatest(StoreType.STORE_UPDATE, storeUpdateSaga);
   yield takeLatest(StoreType.STORE_VALIDATE, storeValidateSaga);
   yield takeLatest(StoreType.STORE_TYPE, storeGetTypeSaga);
+  yield takeLatest(StoreType.STORE_SEARCH_IDS, getStoreSearchIdsSaga);
 }

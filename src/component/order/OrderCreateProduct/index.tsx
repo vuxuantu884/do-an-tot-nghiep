@@ -30,6 +30,7 @@ import {HttpStatus} from "config/http-status.config";
 import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
+  getStoreSearchIdsAction,
   StoreGetListAction,
   StoreSearchListAction,
 } from "domain/actions/core/store.action";
@@ -256,6 +257,8 @@ function OrderCreateProduct(props: PropType) {
 
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
+
+  const [storeSearchIds,setStoreSearchIds]=useState<PageResponse<StoreResponse>>();
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -1333,6 +1336,13 @@ function OrderCreateProduct(props: PropType) {
   useEffect(() => {
     dispatch(StoreSearchListAction(resultSearchStore, setStoreArrayResponse));
   }, [resultSearchStore]);
+
+  useEffect(()=>{
+    let storeids=[104435,104436];
+    dispatch(getStoreSearchIdsAction(storeids, setStoreSearchIds));
+  },[]);
+
+  console.log("storeSearchIds",storeSearchIds)
 
   const handleInventoryCancel = useCallback(() => {
     setInventoryModalVisible(false);
