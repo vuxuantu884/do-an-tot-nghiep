@@ -389,7 +389,7 @@ const PackUpdate: React.FC = () => {
                             0
                           }
                         >
-                          {orderList.map((item, index) => (
+                          {orderList?.map((item, index) => (
                             <Select.Option key={index} value={item.code}>
                               {item.code}
                             </Select.Option>
