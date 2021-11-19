@@ -132,12 +132,22 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     },
     [formMain]
   );
+
+  const printContentCallback = useCallback(
+    (printContent: Array<PurchaseOrderPrint>) => {
+      if (!printContent || printContent.length === 0) return;
+      setPrintContent(printContent[0].html_content);
+    },
+    [setPrintContent]
+  );
+
   const loadDetail = useCallback(
     (id: number, isLoading, isSuggestDetail: boolean) => {
       setSuggest(isSuggestDetail);
       dispatch(PoDetailAction(idNumber, onDetail));
+      dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     },
-    [dispatch, idNumber, onDetail]
+    [dispatch, idNumber, onDetail, printContentCallback]
   );
 
   const onConfirmButton = useCallback(() => {
@@ -392,13 +402,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     status,
   ]);
 
-  const printContentCallback = useCallback(
-    (printContent: Array<PurchaseOrderPrint>) => {
-      if (!printContent || printContent.length === 0) return;
-      setPrintContent(printContent[0].html_content);
-    },
-    [setPrintContent]
-  );
+ 
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
