@@ -3,7 +3,7 @@ import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
 import { Button, Card, Menu } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -20,7 +20,7 @@ import {
 } from "model/order/order.model";
 import { AccountResponse } from "model/account/account.model";
 
-import { getListOrderAction } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
@@ -36,19 +36,25 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import DownloadOrderDataModal from "./component/DownloadOrderDataModal";
-import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
-import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
+import DownloadOrderDataModal from "screens/ecommerce/orders/component/DownloadOrderDataModal";
+import ResultDownloadOrderDataModal from "screens/ecommerce/orders/component/ResultDownloadOrderDataModal";
+import SOOrderFilter from "screens/ecommerce/orders/component/SOOrderFilter";
+
+// Update order filter as per SO
+// import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
+
 // todo thai: handle later
 // import UpdateConnectionModal from "./component/UpdateConnectionModal";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
 
-import ImageGHTK from "assets/img/imageGHTK.svg";
-import ImageGHN from "assets/img/imageGHN.png";
-import ImageVTP from "assets/img/imageVTP.svg";
-import ImageDHL from "assets/img/imageDHL.svg";
+// thai todo: Thông tin hãng vận chuyển
+// import ImageGHTK from "assets/img/imageGHTK.svg";
+// import ImageGHN from "assets/img/imageGHN.png";
+// import ImageVTP from "assets/img/imageVTP.svg";
+// import ImageDHL from "assets/img/imageDHL.svg";
+
 import CircleEmptyIcon from "assets/icon/circle_empty.svg";
 import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
@@ -62,6 +68,10 @@ import {
   StyledComponent,
 } from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
+import { SourceResponse } from "model/response/order/source.response";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -188,6 +198,21 @@ const EcommerceOrderSync: React.FC = () => {
     items: [],
   });
 
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
+  
+  // thai todo: Thông tin hãng vận chuyển
+  // let delivery_services: Array<DeliveryServiceResponse> = []
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // delivery_services = response
+        setDeliveryServices(response)
+      })
+    );
+  }, [dispatch]);
+
   const status_order = [
     { name: "Nháp", value: "draft" },
     { name: "Đóng gói", value: "packed" },
@@ -199,41 +224,50 @@ const EcommerceOrderSync: React.FC = () => {
     { name: "Đã hết hạn", value: "expired" },
   ];
 
-  const delivery_service = [
-    {
-      code: "ghtk",
-      id: 1,
-      logo: ImageGHTK,
-      name: "Giao hàng tiết kiệm",
-    },
-    {
-      code: "ghn",
-      id: 2,
-      logo: ImageGHN,
-      name: "Giao hàng nhanh",
-    },
-    {
-      code: "vtp",
-      id: 3,
-      logo: ImageVTP,
-      name: "Viettel Post",
-    },
-    {
-      code: "dhl",
-      id: 4,
-      logo: ImageDHL,
-      name: "DHL",
-    },
-  ];
+  
+  // thai todo: Thông tin hãng vận chuyển
+
+  // const delivery_service = [
+  //   {
+  //     code: "ghtk",
+  //     id: 1,
+  //     logo: ImageGHTK,
+  //     name: "Giao hàng tiết kiệm",
+  //   },
+  //   {
+  //     code: "ghn",
+  //     id: 2,
+  //     logo: ImageGHN,
+  //     name: "Giao hàng nhanh",
+  //   },
+  //   {
+  //     code: "vtp",
+  //     id: 3,
+  //     logo: ImageVTP,
+  //     name: "Viettel Post",
+  //   },
+  //   {
+  //     code: "dhl",
+  //     id: 4,
+  //     logo: ImageDHL,
+  //     name: "DHL",
+  //   },
+  // ];
 
   const actionList = (
     <Menu>
       <Menu.Item key="1">
-        <span onClick={() => onMenuClick(1)}>In phiếu giao hàng</span>
+        <div>
+          <PrinterOutlined style={{ marginRight: 5 }} />
+          <span onClick={() => onMenuClick(1)}>In phiếu giao hàng</span>
+        </div>
       </Menu.Item>
   
       <Menu.Item key="2">
-        <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
+        <div>
+          <PrinterOutlined style={{ marginRight: 5 }} />
+          <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
+        </div>
       </Menu.Item>
     </Menu>
   );
@@ -722,6 +756,8 @@ const EcommerceOrderSync: React.FC = () => {
   useEffect(() => {
     if (allowOrdersView) {
       dispatch(AccountSearchAction({}, setDataAccounts));
+      dispatch(getListSourceRequest(setListSource));
+      dispatch(PaymentMethodGetList(setListPaymentMethod));
       dispatch(StoreGetListAction(setStore));
       dispatch(
         actionFetchListOrderProcessingStatus(
@@ -770,7 +806,24 @@ const EcommerceOrderSync: React.FC = () => {
         <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
           {(allowed: boolean) => (allowed ?
             <Card>
-              <EcommerceOrderFilter
+              <SOOrderFilter
+                onMenuClick={onMenuClick}
+                actions={actionList}
+                onFilter={onFilter}
+                isLoading={tableLoading}
+                params={params}
+                listSource={listSource}
+                listStore={listStore}
+                accounts={accounts}
+                deliveryService={deliveryServices}
+                listPaymentMethod={listPaymentMethod}
+                subStatus={listOrderProcessingStatus}
+                onShowColumnSetting={() => setShowSettingColumn(true)}
+                onClearFilter={() => onClearFilter()}
+              />
+
+              
+              {/* <EcommerceOrderFilter
                 tableLoading={tableLoading}
                 onMenuClick={onMenuClick}
                 actionList={actionList}
@@ -783,10 +836,11 @@ const EcommerceOrderSync: React.FC = () => {
                 deliveryService={delivery_service}
                 subStatus={listOrderProcessingStatus}
                 onShowColumnSetting={() => setShowSettingColumn(true)}
-              />
+              /> */}
     
               <CustomTable
                 isRowSelection
+                bordered
                 isLoading={tableLoading}
                 showColumnSetting={true}
                 scroll={{ x: 3630 }}
