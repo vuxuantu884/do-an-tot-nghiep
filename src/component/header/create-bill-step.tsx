@@ -50,20 +50,26 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   useEffect(() => {
-    switch (props.status) {
+    if(!orderDetail) {
+      return;
+    }
+    switch (orderDetail.status) {
       case "draff":
         setCurrentStep(0);
         break;
       case "finalized":
+        console.log('orderDetail', orderDetail)
         // const confirmDraftOrderSubStatusId = 1;
         if (orderDetail) {
-          if (
-            // orderDetail.sub_status_id === confirmDraftOrderSubStatusId ||
-            (orderDetail.payments && orderDetail.payments?.length > 0) ||
-            (orderDetail.fulfillments && orderDetail.fulfillments?.length > 0)
-          ) {
-            setCurrentStep(1);
-          }
+          // if (
+          //   // orderDetail.sub_status_id === confirmDraftOrderSubStatusId ||
+          //   (orderDetail.payments && orderDetail.payments?.length > 0) ||
+          //   (orderDetail.fulfillments && orderDetail.fulfillments?.length > 0)
+          // ) {
+          //   setCurrentStep(1);
+          // } 
+
+          setCurrentStep(1);
         }
         break;
       case "picked":
@@ -81,7 +87,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         break;
       default: break;
     }
-  }, [orderDetail, props.status]);
+  }, [orderDetail]);
 
   const progressDot = (dot: any, {status, index}: any) => (
     <div className="ant-steps-icon-dot">
@@ -111,15 +117,15 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           fulfillments[0].created_date &&
           moment(fulfillments[0].created_date).format(formatDate)
         }
-        className={
-          !(
-            props.orderDetail &&
-            fulfillments &&
-            fulfillments.length > 0
-          )
-            ? "inactive"
-            : ""
-        }
+        // className={
+        //   !(
+        //     props.orderDetail &&
+        //     fulfillments &&
+        //     fulfillments.length > 0
+        //   )
+        //     ? "inactive"
+        //     : ""
+        // }
       />
       <Steps.Step
         title="Đóng gói"
