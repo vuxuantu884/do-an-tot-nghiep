@@ -1204,7 +1204,7 @@ export default function Order(props: PropType) {
             name: `Sửa đơn hàng ${id}`,
           },
         ]}
-        extra={<CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />}
+        extra={<CreateBillStep  orderDetail={OrderDetail} />}
       >
         <div className="orders">
           {isLoadForm && (

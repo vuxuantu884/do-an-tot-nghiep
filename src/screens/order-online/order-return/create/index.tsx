@@ -385,11 +385,13 @@ const ScreenReturnCreate = (props: PropType) => {
         order_returns: [],
       };
       console.log('orderDetailResult', orderDetailResult)
+      dispatch(showLoading());
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
         })
-      );
+        );
+      dispatch(hideLoading());
     }
   };
 
@@ -533,10 +535,11 @@ const ScreenReturnCreate = (props: PropType) => {
                 showError("Đã tạo đơn đổi hàng không thành công!");
                 return;
               }
+              dispatch(showLoading());
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
-                  showLoading();
+                  dispatch(showLoading());
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
@@ -549,7 +552,7 @@ const ScreenReturnCreate = (props: PropType) => {
                   );
                 })
               );
-              hideLoading();
+              dispatch(hideLoading());
             };
             if (!values.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");

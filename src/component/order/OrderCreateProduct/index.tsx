@@ -1063,7 +1063,7 @@ function OrderCreateProduct(props: PropType) {
   };
   
   const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
-    if (!_items) {
+    if (!_items || !coupon) {
       return;
     }
     coupon = coupon.trim();
@@ -1417,9 +1417,12 @@ function OrderCreateProduct(props: PropType) {
         )
       );
     }
-    // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên
+    // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
     if (newData && newData[0]?.id) {
-      setStoreId(newData[0].id);
+      if(!storeId) {
+        setStoreId(newData[0].id);
+
+      }
     }
     return newData;
   }, [listStores, userReducer.account]);

@@ -571,7 +571,6 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
       ]}
       extra={
         <CreateBillStep
-          status={stepsStatusValue}
           orderDetail={OrderDetailAllFullfilment}
         />
       }

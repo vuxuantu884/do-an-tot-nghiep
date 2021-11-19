@@ -54,7 +54,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
       <div className="bottomBar">
         <Row gutter={24}>
           <Col md={12}>
-            <CreateBillStep status={stepsStatusValue} orderDetail={orderDetail} />
+            <CreateBillStep orderDetail={orderDetail} />
           </Col>
           {isVisibleGroupButtons &&
             formRef &&
