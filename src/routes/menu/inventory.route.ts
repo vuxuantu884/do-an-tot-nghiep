@@ -138,6 +138,18 @@ export const inventory: Array<RouteMenu> = [
     permissions:[InventoryTransferPermission.read],
     subMenu: [
       {
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/histories`,
+        exact: true,
+        title: "Lịch sử chuyển hàng",
+        icon: "icon-dot",
+        component: ListTicket,
+        key: "submenu31",
+        isShow: true,
+        header: null,
+        permissions:[InventoryTransferPermission.read],
+        subMenu: [],
+      },
+      {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/create`,
         exact: true,
         title: "Chuyển hàng",
@@ -148,7 +160,7 @@ export const inventory: Array<RouteMenu> = [
         header: null,
         permissions:[InventoryTransferPermission.create],
         subMenu: [],
-      },
+      },  
       {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/:id`,
         exact: true,
