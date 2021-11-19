@@ -1,6 +1,6 @@
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { inventoryGetHistoryAction } from "domain/actions/inventory/inventory.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -50,7 +50,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.replace(
-        `${UrlConfig.INVENTORY}#3?${queryParam}`
+        `${InventoryTabUrl.HISTORIES}?${queryParam}`
       );
     },
     [history, params]
