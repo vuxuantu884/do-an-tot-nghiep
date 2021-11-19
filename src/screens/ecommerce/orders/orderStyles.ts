@@ -229,7 +229,7 @@ export const StyledEcommerceOrderBaseFilter = styled.div`
     .site-input-split {
       width: 10%;
       border: 0;
-      pointerevents: none;
+      pointer-events: none;
     }
   }
 `;
