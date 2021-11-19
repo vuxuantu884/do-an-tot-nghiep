@@ -409,7 +409,7 @@ export const updateGoodsReceiptsService = (
  */
 export const getByIdGoodsReceiptsService = (goodsReceiptsId: number) => {
   const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
-  return BaseAxios.put(link);
+  return BaseAxios.get(link);
 };
 
 /**
@@ -432,6 +432,14 @@ export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<a
     `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?${queryString}`,
   );
 };
+/**
+ *  Danh sách đơn hàng đủ điều kiện thêm vào biên bản
+ */
+export const getOrderGoodsReceiptsService=():Promise<BaseResponse<OrderResponse>>=>{
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/goods-receipt-manager/orders?status=packed&last_created_hour=8`,
+  );
+}
 
 /**
  * tách đơn

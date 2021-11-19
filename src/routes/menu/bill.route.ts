@@ -3,8 +3,10 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 import OrderUpdate from "screens/order-online/order-update";
+import PackDetail from "screens/order-online/pack-detail";
 import PackSupportScreen from "screens/order-online/pack-support.screen";
 import AddReportHandOver from "screens/order-online/pack-support/add-report-hand-over";
+import PackUpdate from "screens/order-online/pack-update";
 
 const ListOrder = React.lazy(() => import("screens/order-online/index.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
@@ -145,6 +147,28 @@ const bill: Array<RouteMenu> = [
         icon: "icon-dot",
         component: AddReportHandOver,
         key: "submenu57",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.PACK_SUPPORT}/:id`,
+        exact: true,
+        title: "Chi tiet",
+        icon: "icon-dot",
+        component: PackDetail,
+        key: "submenu58",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.PACK_SUPPORT}/report-hand-over-update/:id`,
+        exact: true,
+        title: "Cập nhật",
+        icon: "icon-dot",
+        component: PackUpdate,
+        key: "submenu59",
         isShow: true,
         header: null,
         subMenu: [],

@@ -17,10 +17,12 @@ import {
   getGoodsReceiptsSerchService,
   getGoodsReceiptsTypeService,
   getOrderConcernGoodsReceiptsService,
-  updateGoodsReceiptsService
+  getOrderGoodsReceiptsService,
+  updateGoodsReceiptsService,
 } from "service/order/order.service";
-import { showError } from "utils/ToastUtils";
-import { unauthorizedAction } from "./../../actions/auth/auth.action";
+import {unauthorizedAction} from "./../../actions/auth/auth.action";
+import {showError} from "utils/ToastUtils";
+import { OrderResponse } from "model/response/order/order.response";
 
 /**
  * lấy danh sách loại biên bản
@@ -133,13 +135,13 @@ function* updateGoodsReceiptsSaga(action: YodyAction) {
 function* deleteGoodsReceiptsSaga(action: YodyAction) {
   let {goodsReceiptsId, setData} = action.payload;
   try {
-    let response: BaseResponse<GoodsReceiptsResponse> = yield call(
+    let response: BaseResponse<any> = yield call(
       deleteGoodsReceiptsService,
       goodsReceiptsId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(true);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -200,6 +202,31 @@ function* getOrderConcernGoodsReceiptsSaga(action: YodyAction) {
   }
 }
 
+/**
+ *  Danh sách đơn hàng đủ điều kiện thêm vào biên bản
+ */
+
+function* getOrderGoodsReceiptsSaga(action: YodyAction){
+  let {setData} = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<OrderResponse>> =
+      yield call(getOrderGoodsReceiptsService);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data.items);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch {
+    showError("Lỗi hệ thống, vui lòng thử lại");
+  }
+}
+
 export function* GoodsReceiptsSaga() {
   yield takeLatest(GoodsReceiptsType.GET_GOODS_RECEIPTS_TYPE, getGoodsReceiptsTypeSaga);
   yield takeLatest(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, createGoodsReceiptsSaga);
@@ -211,4 +238,5 @@ export function* GoodsReceiptsSaga() {
     GoodsReceiptsType.GET_ORDER_CONCERN_GOODS_RECEIPTS,
     getOrderConcernGoodsReceiptsSaga
   );
+  yield takeLatest(GoodsReceiptsType.GET_ORDER_GOODS_RECEIPTS_ADD,getOrderGoodsReceiptsSaga)
 }
