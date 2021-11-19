@@ -51,7 +51,7 @@ export const inventory: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: UrlConfig.PURCHASE_ORDER,
+    path: UrlConfig.PURCHASE_ORDERS,
     exact: true,
     title: "Nhập hàng",
     icon: "icon-dot",
@@ -62,7 +62,7 @@ export const inventory: Array<RouteMenu> = [
     permissions: [PurchaseOrderPermission.read],
     subMenu: [
       {
-        path: `${UrlConfig.PURCHASE_ORDER}/create`,
+        path: `${UrlConfig.PURCHASE_ORDERS}/create`,
         exact: true,
         title: "Tạo mới đơn đặt hàng",
         icon: "icon-dot",
@@ -74,7 +74,7 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.PURCHASE_ORDER}/:id`,
+        path: `${UrlConfig.PURCHASE_ORDERS}/:id`,
         exact: true,
         title: "Quản lý đơn đặt hàng",
         icon: "icon-dot",
@@ -87,7 +87,7 @@ export const inventory: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
       {
-        path: `${UrlConfig.PURCHASE_ORDER}/:id/return`,
+        path: `${UrlConfig.PURCHASE_ORDERS}/:id/return`,
         exact: true,
         title: "Trả hàng cho đơn mua hàng",
         icon: "icon-dot",

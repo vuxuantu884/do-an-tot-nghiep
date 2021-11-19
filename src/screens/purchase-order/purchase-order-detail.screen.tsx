@@ -252,7 +252,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         amount: poData.total_paid,
       });
     }else{
-       history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
+       history.push(`${UrlConfig.PURCHASE_ORDERS}/${id}/return`, {
       params: poData,
       listCountries: listCountries,
       listDistrict: listDistrict,
@@ -466,7 +466,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         },
         {
           name: "Đặt hàng",
-          path: `${UrlConfig.PURCHASE_ORDER}`,
+          path: `${UrlConfig.PURCHASE_ORDERS}`,
         },
         {
           name: `Đơn hàng ${id}`,
