@@ -129,6 +129,7 @@ function* getOrderReturnReasonsSaga(action: YodyAction) {
 
 function* orderRefundSaga(action: YodyAction) {
   const { id, params, handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(
       orderRefundService,
@@ -151,11 +152,14 @@ function* orderRefundSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* createOrderExchangeSaga(action: YodyAction) {
   const { params, handleData, handleError } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(
       createOrderExchangeService,
@@ -178,7 +182,9 @@ function* createOrderExchangeSaga(action: YodyAction) {
     console.log("error", error);
     handleError(error);
     showError("Có lỗi khi tạo đơn đổi hàng! Vui lòng thử lại sau!");
-  } 
+  } finally {
+    yield put(hideLoading());
+  }
 }
 
 function* getOrderReturnLogSaga(action: YodyAction) {

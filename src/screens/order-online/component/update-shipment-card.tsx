@@ -1481,21 +1481,33 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             justifyContent: "flex-end",
           }}
         >
-          {props.stepsStatusValue === FulFillmentStatus.SHIPPED 
-          && !checkIfOrderHasReturnedAll(OrderDetail) 
-          ? (
-            <Button
-              type="primary"
-              style={{margin: "0 10px", padding: "0 25px"}}
-              className="create-button-custom ant-btn-outline fixed-button"
-              onClick={() => {
-                history.push(
-                  `${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}`
-                );
-              }}
-            >
-              Đổi trả hàng
-            </Button>
+          {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
+            <React.Fragment>
+              {!checkIfOrderHasReturnedAll(OrderDetail) ? (
+                  <Button
+                  type="primary"
+                  style={{margin: "0 10px", padding: "0 25px"}}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={() => {
+                    history.push(
+                      `${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}`
+                    );
+                  }}
+                >
+                  Đổi trả hàng
+                </Button>
+                ) : (
+                  <Button
+                  type="primary"
+                  style={{margin: "0 10px", padding: "0 25px"}}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  disabled
+                >
+                  Đơn hàng đã đổi trả hàng hết!
+                </Button>
+                )
+              }
+            </React.Fragment>
           ) : (
             <React.Fragment>
               {checkIfOrderHasReturnedAll(OrderDetail) ? null : 

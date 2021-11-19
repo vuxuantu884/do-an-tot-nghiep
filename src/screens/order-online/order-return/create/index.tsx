@@ -461,7 +461,7 @@ const ScreenReturnCreate = (props: PropType) => {
           return single.quantity > 0;
         });
         if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
-          showError("Vui lòng chọn ít nhất 1 sản phẩm mua");
+          showError("Vui lòng chọn ít nhất 1 sản phẩm mua!");
           const element: any = document.getElementById("search_product");
           const offsetY =
             element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
@@ -535,11 +535,9 @@ const ScreenReturnCreate = (props: PropType) => {
                 showError("Đã tạo đơn đổi hàng không thành công!");
                 return;
               }
-              dispatch(showLoading());
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
-                  dispatch(showLoading());
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
@@ -552,7 +550,6 @@ const ScreenReturnCreate = (props: PropType) => {
                   );
                 })
               );
-              dispatch(hideLoading());
             };
             if (!values.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
