@@ -8,6 +8,7 @@ import {MenuAction} from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
 import {getByIdGoodsReceipts} from "domain/actions/goods-receipts/goods-receipts.action";
 import {
+  FulfillmentsItemModel,
   GoodsReceiptsFileModel,
   GoodsReceiptsOrderListModel,
   GoodsReceiptsTotalProductModel,
@@ -107,38 +108,7 @@ const PackDetail: React.FC = () => {
     },
   ]);
 
-  const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([
-    {
-      key: 0,
-      order_id: 1,
-      order_code: "12332443535",
-      customer_name: "Phạm Thị Lưu Luyến",
-      product_sku: "APN3340 - XXA - XL",
-      product_name: "Áo Polo mắt chim nam",
-      net_weight: 132,
-      total_quantity: 132,
-      total_price: 500000,
-      postage: 500000,
-      card_number: 500000,
-      status: "Chờ thu gom",
-      note: "Ghi cái gì cũng được",
-    },
-    {
-      key: 1,
-      order_id: 1,
-      order_code: "12332443535",
-      customer_name: "Phạm Thị Lưu Luyến",
-      product_sku: "APN3340 - XXA - XL",
-      product_name: "Áo Polo mắt chim nam",
-      net_weight: 132,
-      total_quantity: 132,
-      total_price: 500000,
-      postage: 500000,
-      card_number: 500000,
-      status: "Chờ thu gom",
-      note: "Ghi cái gì cũng được",
-    },
-  ]);
+  const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
   useEffect(() => {
     if (PackId) {
@@ -151,72 +121,87 @@ const PackDetail: React.FC = () => {
           let resultListProduct: GoodsReceiptsTotalProductModel[] = [];
 
           let keyOrder = 0;
-          let resultListOrder:GoodsReceiptsOrderListModel[]=[];
+          let resultListOrder: GoodsReceiptsOrderListModel[] = [];
 
           data.orders?.forEach(function (itemOrder) {
             itemOrder.fulfillments?.forEach(function (itemFFM) {
               itemFFM.items.forEach(function (itemProduct, index) {
+                ////
                 resultListProduct.push({
                   key: keyProduct++,
                   barcode: itemProduct.variant_barcode,
                   product_id: itemProduct.product_id,
                   product_sku: itemProduct.sku,
                   product_name: itemProduct.product,
-                  inventory: itemProduct.available?itemProduct.available:0,
+                  inventory: itemProduct.available ? itemProduct.available : 0,
                   price: itemProduct.price,
                   total_quantity: itemProduct.quantity,
                   total_incomplate: 0,
                 });
-
+                
                 ///
-                resultListOrder.push({
-                  key:keyOrder++,
-                  order_id:itemOrder.id?itemOrder.id:0,
-                  order_code:itemOrder.code?itemOrder.code:"n/a",
-                  customer_name:itemOrder.customer?itemOrder.customer:"n/a",
-                  product_sku:itemProduct.sku,
-                  product_name:itemProduct.product,
-                  net_weight:0,
-                  total_quantity:itemProduct.quantity,
-                  total_price:itemProduct.price,
-                  postage:0,
-                  card_number:0,
-                  status:"",
-                  note:"",
-                })
               });
             });
           });
+
+          
+
+          data.orders?.forEach(function (itemOrder) {
+
+            let total_quantity=0;
+            let total_price=0;
+            let postage=0;
+            let card_number=0;
+
+            let _itemProduct:FulfillmentsItemModel[]=[];
+
+            itemOrder.fulfillments?.forEach(function (itemFFM) {
+
+              total_quantity+=itemFFM.total_quantity?itemFFM.total_quantity:0;
+              total_price+=itemFFM.total?itemFFM.total:0;
+              postage+=itemFFM?.shipment?.shipping_fee_informed_to_customer?itemFFM.shipment.shipping_fee_informed_to_customer:0;
+
+              itemFFM.items.forEach(function (itemProduct) {
+                _itemProduct.push({
+                  sku: itemProduct.sku,
+                  product_id:itemProduct.product_id,
+                  variant_id: itemProduct.variant_id,
+                  variant: itemProduct.variant,
+                  variant_barcode:itemProduct.variant_barcode,
+                  net_weight:itemProduct.weight,
+                  quantity:itemProduct.quantity,
+                  price:itemProduct.price
+                })
+              });
+            });
+
+            itemOrder.payments?.forEach(function(itemPayment){
+              card_number+=itemPayment.amount;
+            })
+
+            resultListOrder.push({
+              key:keyOrder++,
+              order_id:itemOrder.id,
+              order_code:itemOrder.code,
+              customer_name:itemOrder.customer?itemOrder.customer:"n/a",
+              total_quantity:total_quantity,
+              total_price:total_price,
+              postage:postage,
+              card_number:card_number,//tong thanh toan
+              status:"",
+              note:itemOrder.note,
+              items:_itemProduct
+            })
+          });
           setPackProductQuantity(resultListProduct);
           setPackOrderList(resultListOrder);
-          //
-          //PackListOrder
-
-          // data.orders?.forEach(function (itemOrder) {
-          //   let _item:GoodsReceiptsOrderListModel={
-          //     key:keyOrder++,
-          //     order_id:itemOrder.order_id?itemOrder.order_id:0,
-          //     order_code:itemOrder.order_code?itemOrder.order_code:"n/a",
-          //     customer_name:itemOrder.customer?itemOrder.customer:"n/a",
-          //     product_sku:itemOrder.
-          //     product_name:string;
-          //     net_weight:number;
-          //     total_quantity:number;
-          //     total_price:number;
-          //     postage:number;
-          //     card_number:number;
-          //     status:string;
-          //     note:string;
-          //   }
-          // });
-          //
         })
       );
     } else {
       setError(true);
     }
   }, [dispatch, PackId]);
-  console.log(PackId);
+  console.log("resultListOrder",packOrderList)
 
   const handleDownLoad = () => {};
   const handleDeleteFile = () => {};
@@ -228,20 +213,23 @@ const PackDetail: React.FC = () => {
 
   const handleSearchOrder = (value: any) => {};
 
-  const onMenuClick = useCallback((index: number) => {
-    switch (index) {
-      case 1:
-        // orderListResponse.forEach(function(data,index){
-        //   orderListResponse.splice(index, 1);
-        // })
-        break;
-      case 4:
-        history.push(`${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${PackId}`);
-        break;
-      default:
-        break;
-    }
-  }, [history,PackId]);
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case 1:
+          // orderListResponse.forEach(function(data,index){
+          //   orderListResponse.splice(index, 1);
+          // })
+          break;
+        case 4:
+          history.push(`${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${PackId}`);
+          break;
+        default:
+          break;
+      }
+    },
+    [history, PackId]
+  );
 
   return (
     <ContentContainer

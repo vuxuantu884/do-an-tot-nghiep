@@ -96,13 +96,22 @@ export interface GoodsReceiptsOrderListModel{
   order_id:number;
   order_code:string;
   customer_name:string;
-  product_sku:string;
-  product_name:string;
-  net_weight:number;
   total_quantity:number;
   total_price:number;
   postage:number;
   card_number:number;
   status:string;
-  note:string;
+  note:string|null;
+  items:Array<FulfillmentsItemModel>;
+}
+
+export interface FulfillmentsItemModel{
+  sku: string;
+  product_id:number;
+  variant_id: number;
+  variant: string;
+  variant_barcode: string;
+  net_weight:number|undefined|null;
+  quantity:number|undefined|null;
+  price:number|undefined|null;
 }

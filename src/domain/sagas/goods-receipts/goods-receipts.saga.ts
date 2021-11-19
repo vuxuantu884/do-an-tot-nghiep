@@ -135,13 +135,13 @@ function* updateGoodsReceiptsSaga(action: YodyAction) {
 function* deleteGoodsReceiptsSaga(action: YodyAction) {
   let {goodsReceiptsId, setData} = action.payload;
   try {
-    let response: BaseResponse<GoodsReceiptsResponse> = yield call(
+    let response: BaseResponse<any> = yield call(
       deleteGoodsReceiptsService,
       goodsReceiptsId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(true);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

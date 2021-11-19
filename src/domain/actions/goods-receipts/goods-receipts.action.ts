@@ -21,7 +21,7 @@ export const updateGoodsReceipts=(goodsReceiptsId:number,data:GoodsReceiptsReque
     return BaseAction(GoodsReceiptsType.UPDATE_GOODS_RECEIPTS,{goodsReceiptsId,data,setData});
 }
 
-export const deleteGoodsReceipts=(goodsReceiptsId:number,setData:(data:GoodsReceiptsResponse)=>void)=>{
+export const deleteGoodsReceipts=(goodsReceiptsId:number,setData:(data:boolean)=>void)=>{
     return BaseAction(GoodsReceiptsType.DELETE_GOODS_RECEIPTS,{goodsReceiptsId,setData});
 }
 

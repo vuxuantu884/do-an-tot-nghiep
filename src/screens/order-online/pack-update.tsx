@@ -22,7 +22,7 @@ import {
 import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
 import React, {createRef, useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {useParams} from "react-router";
+import {useHistory, useParams} from "react-router";
 import search from "assets/img/search.svg";
 import moment from "moment";
 import "assets/css/_pack.scss";
@@ -31,9 +31,8 @@ import {GoodsReceiptsInfoOrderModel, VariantModel} from "model/pack/pack.model";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import {Link} from "react-router-dom";
 import {StyledComponent} from "./index.screen.styles";
-import {GoodsReceiptsRequest} from "model/request/pack.request";
 import {OrderResponse} from "model/response/order/order.response";
-import {showWarning} from "utils/ToastUtils";
+import {showSuccess, showWarning} from "utils/ToastUtils";
 
 const {Item} = Form;
 type PackParam = {
@@ -64,6 +63,7 @@ const PackUpdate: React.FC = () => {
     GoodsReceiptsInfoOrderModel[]
   >([]);
   const [orderList, setOrderList] = useState<OrderResponse[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   useEffect(() => {
     if (PackId) {
@@ -123,18 +123,52 @@ const PackUpdate: React.FC = () => {
     }
   }, [packDetail]);
 
-  const onMenuClick = (index: number) => {
-    console.log(index);
-  };
+  const onMenuClick = useCallback(
+    (index: number) => {
+      console.log(index);
+      switch (index) {
+        case 1: //xóa
+          if(selectedRowKeys.length===0) {
+            showWarning("Vui lòng chọn đơn hàng cần xóa");
+            break;
+          }
+          let _newItem: string[] = [];
 
-  // const handleSearchOrder = useCallback(() => {}, []);
+          packDetail?.orders?.forEach(function (data) {
+            let success = true;
+            selectedRowKeys.forEach(function (item) {
+              if (data.code === item) success = false;
+            });
+
+            if (success === true) _newItem.push(data.code);
+          });
+          
+          let param: any = {
+            ...packDetail,
+            codes: _newItem,
+          };
+  
+          dispatch(
+            updateGoodsReceipts(PackId, param, (data: GoodsReceiptsResponse) => {
+              if(data){
+                showSuccess("Cập nhập biên bản thành công");
+                setPackDetail(data);
+                console.log(data);
+              }
+            })
+          );
+          break;
+      }
+    },
+    [dispatch,selectedRowKeys, packDetail,PackId]
+  );
 
   const rowSelection = {
-    onChange: (
-      selectedRowKeys: React.Key[],
-      selectedRows: GoodsReceiptsInfoOrderModel[]
-    ) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+    onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
+      // console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+      const _item = selectedRows.map((row: any) => row.order_code);
+      // console.log("_item",_item);
+      setSelectedRowKeys(_item);
     },
     getCheckboxProps: (record: GoodsReceiptsInfoOrderModel) => ({
       //   disabled: record.name === 'Disabled User', // Column configuration not to be checked
@@ -160,6 +194,7 @@ const PackUpdate: React.FC = () => {
         dispatch(
           updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
             console.log(data);
+            if(data)showSuccess("Thêm đơn hàng vào biên bản thành công")
           })
         );
         searchOrderForm.resetFields();
@@ -273,8 +308,6 @@ const PackUpdate: React.FC = () => {
       align: "center",
     },
   ];
-  console.log("packDetail", packDetail);
-  console.log("goodsReceiptsInfoOrderModel", goodsReceiptsInfoOrderModel);
 
   return (
     <StyledComponent>
@@ -430,7 +463,7 @@ const PackUpdate: React.FC = () => {
               bordered
               columns={columns}
               dataSource={goodsReceiptsInfoOrderModel}
-              key={Math.random()}
+              //key={Math.random()}
             />
           }
         </Card>
