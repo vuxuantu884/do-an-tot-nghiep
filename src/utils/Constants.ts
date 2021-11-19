@@ -180,3 +180,4 @@ export const PROMO_TYPE = {
   MANUAL: "MANUAL",
   AUTOMATIC: "AUTOMATIC",
 };
+

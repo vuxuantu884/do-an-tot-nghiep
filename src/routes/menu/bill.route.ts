@@ -1,8 +1,10 @@
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 import OrderUpdate from "screens/order-online/order-update";
 import PackSupportScreen from "screens/order-online/pack-support.screen";
+import AddReportHandOver from "screens/order-online/pack-support/add-report-hand-over";
 
 const ListOrder = React.lazy(() => import("screens/order-online/index.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
@@ -15,7 +17,7 @@ const ScreenReturnDetail = React.lazy(
   () => import("screens/order-online/order-return/[id]")
 );
 
-const FpageCRM = React.lazy(() => import("screens/fpage"));
+const YDPageCRM = React.lazy(() => import("screens/yd-page"));
 
 const bill: Array<RouteMenu> = [
   {
@@ -27,6 +29,7 @@ const bill: Array<RouteMenu> = [
     key: "submenu52",
     isShow: true,
     header: null,
+    permissions: [ODERS_PERMISSIONS.CREATE],
     subMenu: [],
   },
   {
@@ -48,6 +51,7 @@ const bill: Array<RouteMenu> = [
         key: "submenu5412",
         isShow: true,
         header: null,
+        permissions: [ODERS_PERMISSIONS.VIEW],
         subMenu: [],
       },
       {
@@ -59,6 +63,7 @@ const bill: Array<RouteMenu> = [
         key: "submenu5413",
         isShow: true,
         header: null,
+        permissions: [ODERS_PERMISSIONS.VIEW],
         subMenu: [],
       },
       {
@@ -70,14 +75,15 @@ const bill: Array<RouteMenu> = [
         key: "submenu5414",
         isShow: true,
         header: null,
+        permissions: [ODERS_PERMISSIONS.UPDATE],
         subMenu: [],
       },
       {
-        path: `${UrlConfig.FPAGE}`,
+        path: `${UrlConfig.YD_PAGE}`,
         exact: true,
-        title: "Đơn hàng từ Fpage",
+        title: "Đơn hàng từ YDPage",
         icon: "icon-dot",
-        component: FpageCRM,
+        component: YDPageCRM,
         key: "submenu5414",
         isShow: true,
         header: null,
@@ -94,6 +100,7 @@ const bill: Array<RouteMenu> = [
     key: "submenu55",
     isShow: true,
     header: null,
+    permissions: [ODERS_PERMISSIONS.VIEW],
     subMenu: [
       {
         path: `${UrlConfig.ORDERS_RETURN}/create`,
@@ -104,6 +111,7 @@ const bill: Array<RouteMenu> = [
         key: "create-return",
         isShow: true,
         header: null,
+        permissions: [ODERS_PERMISSIONS.CREATE],
         subMenu: [],
       },
       {
@@ -115,6 +123,7 @@ const bill: Array<RouteMenu> = [
         key: "single-return",
         isShow: true,
         header: null,
+        permissions: [ODERS_PERMISSIONS.VIEW],
         subMenu: [],
       },
     ],
@@ -128,7 +137,20 @@ const bill: Array<RouteMenu> = [
     key: "submenu56",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.PACK_SUPPORT}/report-hand-over-create`,
+        exact: true,
+        title: "Thêm mới",
+        icon: "icon-dot",
+        component: AddReportHandOver,
+        key: "submenu57",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      }
+    ],
+    permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
   },
 ];
 

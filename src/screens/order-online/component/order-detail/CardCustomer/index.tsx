@@ -81,6 +81,7 @@ type CustomerCardProps = {
   shippingAddress: ShippingAddress | any;
   setModalAction: (item: modalActionType) => void;
   modalAction: modalActionType;
+  setOrderSourceId?: (value: number) => void;
 };
 
 //Add query for search Customer
@@ -94,9 +95,9 @@ const initQueryCustomer: CustomerSearchQuery = {
   company: null,
   from_wedding_date: null,
   to_wedding_date: null,
-  customer_type_id: null,
-  customer_group_id: null,
-  customer_level_id: null,
+  customer_type_id: undefined,
+  customer_group_id: undefined,
+  customer_level_id: undefined,
   responsible_staff_code: null,
 };
 
@@ -113,7 +114,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     isVisibleCustomer,
     shippingAddress,
     setModalAction,
-    modalAction
+    modalAction,
+    setOrderSourceId,
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -470,6 +472,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   );
                 }
                 return false;
+              }}
+              onChange={(value) => {
+                setOrderSourceId && setOrderSourceId(value)
               }}
             >
               {listSources.map((item, index) => (

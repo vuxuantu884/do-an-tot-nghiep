@@ -1,6 +1,7 @@
 import { Button, Card, Row, Space } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -11,11 +12,13 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { PODeleteAction, PoSearchAction } from "domain/actions/po/po.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import useAuthorization from "hook/useAuthorization";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -46,7 +49,12 @@ const supplierQuery: AccountSearchQuery = {
 const rdQuery: AccountSearchQuery = {
   department_ids: [AppConfig.RD_DEPARTMENT],
 };
-
+const actionsDefault: Array<MenuAction> = [
+  {
+    id: 1,
+    name: "Xóa",
+  },
+];
 const PurchaseOrderListScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -131,12 +139,17 @@ const PurchaseOrderListScreen: React.FC = () => {
     }
   }, []);
 
-  let actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Xóa",
-    },
-  ];
+  const [canDeletePO] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.delete],
+  });
+  const actions = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === 1) {
+        return canDeletePO;
+      }
+      return false;
+    });
+  }, [canDeletePO]);
 
   const ActionComponent = useChangeHeaderToAction(
     "ID đơn hàng",
@@ -505,7 +518,9 @@ const PurchaseOrderListScreen: React.FC = () => {
               >
                 Xuất file
               </Button>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
               <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
+              </AuthWrapper>
             </Space>
           </Row>
         }

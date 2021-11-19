@@ -10,6 +10,8 @@ import ModalConfirm from "component/modal/ModalConfirm";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { PoProcumentFinishAction } from "domain/actions/po/po-procument.action";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 type TabAllProps = {
   id?: number;
@@ -220,12 +222,16 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                     justifyContent: "flex-end",
                   }}
                 >
+                  <AuthWrapper 
+                        acceptPermissions={[PurchaseOrderPermission.procurements_finish]}
+                      >
                   <Button
                     onClick={() => setVisibleWarning(true)}
                     className="create-button-custom ant-btn-outline fixed-button"
                   >
                     Kết thúc nhập kho
                   </Button>
+                  </AuthWrapper>
                 </div>
               )}
             <ModalConfirm

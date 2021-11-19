@@ -64,7 +64,7 @@ export interface OrderResponse extends BaseObject {
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status?: string;
   sub_status_id?: number | null;
-  sub_status_code?: string | null;
+  sub_status_code?: string;
   reason_name?: string;
   return_date?: string;
   receive_date?: string;
@@ -160,6 +160,7 @@ export interface OrderDiscountResponse {
   promotion_id: number | null;
   reason: string | null;
   source: string | null;
+  discount_code: string | null;
 }
 
 // export interface OrderItemDiscountResponse {
@@ -371,6 +372,8 @@ export interface StoreCustomResponse extends BaseObject {
   accounts: Array<any>;
   is_saleable: boolean;
   is_stocktaking: boolean;
+  type: string,
+  type_name: string,
 }
 
 export interface OrderSubStatusResponse {
@@ -416,6 +419,10 @@ export interface OrderReturnModel extends OrderResponse {
 export interface OrderReturnReasonModel {
   id: number;
   name: string;
+  sub_reasons: {
+    id: number;
+    name: string;
+  }[]
 }
 
 export interface OrderConfig extends BaseObject {
@@ -425,4 +432,15 @@ export interface OrderConfig extends BaseObject {
 export interface OrderProductListModel extends OrderLineItemResponse {
   pick: number;
   color: string;
+}
+
+export interface ChannelTypeResponse{
+  id:number;
+  code:string;
+  name:string
+}
+
+export interface ChannelsResponse extends BaseObject{
+  name:string;
+  channel_type:ChannelTypeResponse;
 }

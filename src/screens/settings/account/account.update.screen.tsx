@@ -19,6 +19,7 @@ import {
 import deleteIcon from "assets/icon/delete.svg";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
   AccountGetByCodeAction,
@@ -32,6 +33,7 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import {StoreGetListAction} from "domain/actions/core/store.action";
+import useAuthorization from "hook/useAuthorization";
 import {
   AccountJobReQuest,
   AccountJobResponse,
@@ -54,6 +56,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {useParams} from "react-router-dom";
 import {convertDistrict} from "utils/AppUtils";
+import {RegUtil} from "utils/RegUtils";
 import {PASSWORD_RULES} from "./account.rules";
 
 const {Item} = Form;
@@ -98,6 +101,10 @@ const AccountUpdateScreen: React.FC = () => {
   const [accountDetail, setAccountDetail] = useState<AccountView | null>(null);
   const [isSelectAllStore, setIsSelectAllStore] = useState(false);
   //EndState
+
+  const allowUpdateAcc = useAuthorization({
+    acceptPermissions: [AccountPermissions.UPDATE],
+  });
 
   //Callback
 
@@ -162,9 +169,9 @@ const AccountUpdateScreen: React.FC = () => {
   );
   const onUpdateSuccess = useCallback(
     (data: AccountResponse) => {
-      history.push(UrlConfig.ACCOUNTS);
+      history.push(UrlConfig.ACCOUNTS + "/" + userCode);
     },
-    [history]
+    [history, userCode]
   );
   const onFinish = useCallback(
     (values: AccountView) => {
@@ -309,10 +316,11 @@ const AccountUpdateScreen: React.FC = () => {
               className="selector"
               allowClear
               showArrow
+              showSearch
               optionFilterProp="children"
               onChange={(value) => onChangeDepartment(value, index, item.id)}
               style={{width: "100%"}}
-              defaultValue={item.department_id === 0 ? undefined : item.position_id}
+              defaultValue={item.department_id || undefined}
             >
               {listDepartment?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -334,10 +342,11 @@ const AccountUpdateScreen: React.FC = () => {
               className="selector"
               allowClear
               showArrow
+              showSearch
               optionFilterProp="children"
               onChange={(value) => onChangePosition(value, index, item.id)}
               style={{width: "100%"}}
-              defaultValue={item.position_id === 0 ? undefined : item.position_id}
+              defaultValue={item.position_id || undefined}
             >
               {listPosition?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -437,11 +446,22 @@ const AccountUpdateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Tên đăng nhập"
-                  name="user_name"
-                  rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
+                  label="Mã nhân viên"
+                  name="code"
+                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  normalize={(value: string) => (value || "").toUpperCase()}
                 >
-                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
+                  <Input
+                    className="r-5"
+                    placeholder="VD: YD0000"
+                    size="large"
+                    onChange={(e) =>
+                      formRef.current?.setFieldsValue({
+                        user_name: e.target.value.toUpperCase(),
+                      })
+                    }
+                    autoComplete="new-password"
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -467,11 +487,16 @@ const AccountUpdateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Mã nhân viên"
-                  name="code"
-                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  label="Tên đăng nhập"
+                  name="user_name"
+                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
                 >
-                  <Input className="r-5" placeholder="VD: YD0000" size="large" />
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập tên đăng nhập"
+                    size="large"
+                    disabled
+                  />
                 </Item>
               </Col>
 
@@ -509,7 +534,8 @@ const AccountUpdateScreen: React.FC = () => {
                   rules={[
                     ({getFieldValue}) => ({
                       validator(_: RuleObject, value: string) {
-                        if (!value || getFieldValue("password") === value) {
+                        const password = getFieldValue("password");
+                        if (password === value || (!value && !password)) {
                           return Promise.resolve();
                         }
                         return Promise.reject(new Error("Nhập lại mật khẩu không đúng"));
@@ -530,7 +556,13 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[{required: true, message: "Vui lòng nhập số điện thoại"}]}
+                  rules={[
+                    {required: true, message: "Vui lòng nhập số điện thoại"},
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại không đúng định dạng",
+                    },
+                  ]}
                 >
                   <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
                 </Item>
@@ -598,10 +630,11 @@ const AccountUpdateScreen: React.FC = () => {
                   ]}
                 >
                   <Select
-                    placeholder="Chọn cửa hàng"
+                    placeholder="Chọn nhóm quyền"
                     className="selector"
                     allowClear
                     showArrow
+                    showSearch
                     optionFilterProp="children"
                     maxTagCount="responsive"
                   >
@@ -630,7 +663,10 @@ const AccountUpdateScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Khu vực" name="district_id">
                   <Select
+                    allowClear
+                    showArrow
                     showSearch
+                    optionFilterProp="children"
                     onSelect={onSelectDistrict}
                     className="selector"
                     placeholder="Chọn khu vực"
@@ -703,9 +739,11 @@ const AccountUpdateScreen: React.FC = () => {
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
-              <Button htmlType="submit" type="primary">
-                Lưu
-              </Button>
+              {allowUpdateAcc ? (
+                <Button htmlType="submit" type="primary">
+                  Lưu
+                </Button>
+              ) : null}
             </Space>
           </div>
         </Affix>

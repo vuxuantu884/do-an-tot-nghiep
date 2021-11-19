@@ -163,7 +163,7 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
     history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
   };
   return (
-    <Row style={{ marginTop: 16 }}>
+    <Row>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}

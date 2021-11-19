@@ -1,4 +1,5 @@
 import { ProductPermission } from "config/permissions/product.permission";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -70,7 +71,7 @@ const ProductBarcodeScreen = React.lazy(
 
 const product: Array<RouteMenu> = [
   {
-    path: UrlConfig.PRODUCT,
+    path: UrlConfig.VARIANTS,
     exact: true,
     title: "Danh sách sản phẩm",
     icon: "icon-dot",
@@ -78,7 +79,7 @@ const product: Array<RouteMenu> = [
     key: "submenu21",
     isShow: true,
     header: null,
-    permissions: [ProductPermission.read],
+    permissions:[ProductPermission.read, ProductPermission.read_variant, ProductPermission.read_histories],
     subMenu: [
       {
         path: `${UrlConfig.PRODUCT}/create`,
@@ -109,10 +110,47 @@ const product: Array<RouteMenu> = [
         title: "Nhập file",
         icon: "icon-dot",
         component: ProductBarcodeScreen,
-        key: "submenu214",
+        key: "submenu215",
         isShow: true,
         header: null,
         permissions: [ProductPermission.print_temp],
+        subMenu: [],
+      },
+
+      {
+        path: `${UrlConfig.PRODUCT}`,
+        exact: true,
+        title: "Danh sách cha",
+        icon: "icon-dot",
+        component: Product,
+        key: "submenu216",
+        isShow: true,
+        header: null,
+        permissions: [ProductPermission.read],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.PRODUCT}/histories`,
+        exact: true,
+        title: "Lịch sử sản phẩm",
+        icon: "icon-dot",
+        component: Product,
+        key: "submenu217",
+        isShow: true,
+        permissions: [ProductPermission.read_histories],
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.PRODUCT}/history-prices`,
+        exact: true,
+        title: "Lịch sử giá",
+        icon: "icon-dot",
+        component: Product,
+        key: "submenu218",
+        isShow: true,
+        permissions: [ProductPermission.read_histories],
+        header: null,
         subMenu: [],
       },
       {
@@ -121,7 +159,7 @@ const product: Array<RouteMenu> = [
         title: "Chi tiết sản phẩm",
         icon: "icon-dot",
         component: ProductDetailScreen,
-        key: "submenu213",
+        key: "submenu219",
         isShow: true,
         header: null,
         permissions: [ProductPermission.read],
@@ -134,19 +172,20 @@ const product: Array<RouteMenu> = [
         title: "Chi tiết sản phẩm",
         icon: "icon-dot",
         component: ProductDetailScreen,
-        key: "submenu213",
+        key: "submenu2220",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.read, ProductPermission.update],
         subMenu: [],
         pathIgnore: ["create"],
       },
       {
-        path: `${UrlConfig.PRODUCT}/:id/edit`,
+        path: `${UrlConfig.PRODUCT}/:id/update`,
         exact: true,
         title: "Sửa sản phẩm",
         icon: "icon-dot",
         component: ProductUpdateScreen,
-        key: "submenu215",
+        key: "submenu2221",
         isShow: true,
         header: null,
         permissions: [ProductPermission.update],
@@ -175,6 +214,7 @@ const product: Array<RouteMenu> = [
         key: "submenu231",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.categories_read],
         subMenu: [
           {
             path: `${UrlConfig.CATEGORIES}/create`,
@@ -238,7 +278,10 @@ const product: Array<RouteMenu> = [
             key: "submenu2322",
             isShow: true,
             header: null,
-            permissions: [ProductPermission.materials_read, ProductPermission.materials_update],
+            permissions: [
+              ProductPermission.materials_read,
+              ProductPermission.materials_update,
+            ],
             subMenu: [],
             pathIgnore: ["create"],
           },
@@ -331,6 +374,7 @@ const product: Array<RouteMenu> = [
     key: "submenu235",
     isShow: true,
     header: null,
+    permissions: [SuppliersPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.SUPPLIERS}/create`,
@@ -342,6 +386,7 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [SuppliersPermissions.CREATE],
       },
       {
         path: `${UrlConfig.SUPPLIERS}/:id`,
@@ -354,6 +399,7 @@ const product: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [SuppliersPermissions.UPDATE, SuppliersPermissions.READ],
       },
     ],
   },

@@ -1,5 +1,5 @@
 import {Button, Checkbox, Col, Divider, Form, message, Modal, Row, Space} from "antd";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import "../discount.scss";
 import _ from "lodash";
 import {RiUpload2Line} from "react-icons/ri";
@@ -10,16 +10,18 @@ import importIcon from "../../../../assets/icon/import.svg";
 import {AppConfig} from "../../../../config/app.config";
 import {getToken} from "../../../../utils/LocalStorageUtils";
 import {customGroupBy} from "../../../../utils/AppUtils";
+import {VscError} from "react-icons/all";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
-  min_amount: "SL Tối thiểu",
+  min_quantity: "SL Tối thiểu",
   usage_limit: "Giới hạn",
   discount_percentage: "Chiết khấu (%)",
   fixed_amount: "Chiết khấu (VND)",
-  invalid: "không đúng định dạng",
+  invalid: "Không đúng định dạng",
   notfound: "không tìm thấy",
   required: "Không được trống",
+  sku_duplicate: "Bị trùng"
 };
 
 const FixedPriceSelection = (props: any) => {
@@ -29,6 +31,7 @@ const FixedPriceSelection = (props: any) => {
   const [allProduct, setAllProduct] = useState<boolean>(false);
   const [entitlementsResponse, setEntitlementsResponse] = useState([]);
   const [entitlementErrorsResponse, setEntitlementErrorsResponse] = useState<Array<any>>([]);
+  const [uploadError, setUploadError] = useState<any>("");
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<"error" | "success" | "done" | "uploading" | "removed" | undefined>(undefined);
@@ -46,25 +49,7 @@ const FixedPriceSelection = (props: any) => {
         "prerequisite_quantity_ranges.value_type": form.getFieldValue("entitled_method") === "FIXED_PRICE" ? "FIXED_AMOUNT" : i.discount_type,
         "prerequisite_quantity_ranges.value": i.discount_value,
       };
-      // console.log('formEntitlement: ', formEntitlement);
-      // const existedEntitlement = formEntitlements.find((e: any, index: number) => {
-      //   console.log(`${index} :`, e);
-      //   if (e["prerequisite_quantity_ranges.allocation_limit"] === formEntitlement["prerequisite_quantity_ranges.allocation_limit"] &&
-      //     e["prerequisite_quantity_ranges.greater_than_or_equal_to"] === formEntitlement["prerequisite_quantity_ranges.greater_than_or_equal_to"] &&
-      //     e["prerequisite_quantity_ranges.value_type"] === formEntitlement["prerequisite_quantity_ranges.value_type"] &&
-      //     e["prerequisite_quantity_ranges.value"] === formEntitlement["prerequisite_quantity_ranges.value"]) {
-      //     existedIndex = index;
-      //     return true;
-      //   }
-      //   return false;
-      // })
-
-      // if (existedEntitlement && existedEntitlement.variants.length > 0) {
-      //   console.log('existedEntitlement: ', existedEntitlement);
-      //   existedEntitlement.variants.push(...formEntitlement.variants);
-      //   formEntitlements[existedIndex] = existedEntitlement;
-      // } else {
-        formEntitlements.push(formEntitlement);
+      formEntitlements.push(formEntitlement);
       // }
     });
 
@@ -160,7 +145,7 @@ const FixedPriceSelection = (props: any) => {
           </Button>,
         ]}
       >
-        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" || uploadStatus === "error" ? "" : "none"}}>
+        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" ? "" : "none"}}>
           <Row gutter={12}>
             <Col span={3}>
               Chú ý:
@@ -178,7 +163,19 @@ const FixedPriceSelection = (props: any) => {
             <div className="dragger-wrapper">
               <Dragger
                 accept=".xlsx"
+                beforeUpload={(file) => {
+                  if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                    setUploadStatus("error")
+                    setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
+                    setEntitlementsResponse([])
+                    return false;
+                  }
+                  setUploadStatus("uploading")
+                  setUploadError([])
+                  return true;
+                }}
                 multiple={false}
+                showUploadList={false}
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/entitlements/read-file?type=${form.getFieldValue("entitled_method")}`}
                 headers={{"Authorization": `Bearer ${token}`}}
                 onChange={(info) => {
@@ -187,22 +184,25 @@ const FixedPriceSelection = (props: any) => {
                     const response = info.file.response;
                     if (response.code === 20000000) {
                       if (response.data.data.length > 0) {
-                        setEntitlementsResponse(entitlementsResponse.concat(response.data.data));
+                        setEntitlementsResponse(response.data.data);
                       }
                       if (response.data.errors.length > 0) {
-                        const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                        const errors: Array<any> = _.uniqBy(response.data.errors, "index").sort((a:any, b:any) => a.index - b.index);
                         setEntitlementErrorsResponse([...errors]);
                       }
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);
+                      setUploadStatus(status);
+                    } else {
+                      setUploadStatus("error")
+                      setUploadError(response.errors)
+                      setEntitlementsResponse([])
                     }
-                    setUploadStatus(status);
+
                   } else if (status === "error") {
                     message.error(`${info.file.name} file upload failed.`);
                     setUploadStatus(status);
-
-                  } else {
-                    setUploadStatus(status);
+                    setEntitlementsResponse([])
                   }
                 }}
               >
@@ -217,12 +217,12 @@ const FixedPriceSelection = (props: any) => {
           </Row>
         </div>
         <div
-          style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+          style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" || uploadStatus === "error"? "" : "none"}}>
           <Row justify={"center"}>
             {uploadStatus === "uploading" ?
               <Col span={24}>
                 <Row justify={"center"}>
-                  <LoadingOutlined style={{fontSize: "78px"}} />
+                  <LoadingOutlined style={{fontSize: "78px", color: "#E24343"}} />
                 </Row>
                 <Row justify={"center"}>
                   <h2 style={{padding: "10px 30px"}}>
@@ -230,7 +230,20 @@ const FixedPriceSelection = (props: any) => {
                   </h2>
                 </Row>
               </Col>
-
+              : ""}
+            {uploadStatus === "error" ?
+              <Col span={24}>
+                <Row justify={"center"}>
+                  <VscError style={{fontSize: "78px", color: "#E24343"}} />
+                </Row>
+                <Row justify={"center"}>
+                  <h2 style={{padding: "10px 30px"}}>
+                    <li>
+                      {uploadError || "Máy chủ đang bận"}
+                    </li>
+                  </h2>
+                </Row>
+              </Col>
               : ""}
             {uploadStatus === "done" || uploadStatus === "success" ?
               <Col span={24}>

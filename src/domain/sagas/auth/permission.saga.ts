@@ -54,26 +54,33 @@ function* profilePermissionSaga(action: YodyAction) {
   } catch (e) {}
 }
 
-function* updateAccountPermissionSaga(action: YodyAction) {
-  let {params, onResult} = action.payload;
-  try {
-    let response: BaseResponse<string> = yield call(updateAccountPermissionApi, params);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        onResult("DONE");
-        showSuccess("Cập nhật quyền thành công");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        throw new Error(response.data);
+  function* updateAccountPermissionSaga(action: YodyAction) {
+    let {params, onResult} = action.payload;
+    try {
+      let response: BaseResponse<string> = yield call(updateAccountPermissionApi, params);
+      switch (response.code) {
+        case HttpStatus.SUCCESS:
+          onResult("DONE");
+          showSuccess("Cập nhật quyền thành công");
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
+        default:
+          throw new Error(response.errors.toString());
+      }
+    } catch (e: any) {
+      onResult("");
+      const messages = e.message.split(",");
+      if (Array.isArray(messages)) {
+        messages.forEach((message: string) => {
+          showError(message);
+        });
+      } else {
+        showError("Cập nhật quyền thất bại");
+      }
     }
-  } catch (e) {
-    onResult('');
-    showError("Cập nhật quyền thất bại");
   }
-}
 
 export function* permissionSaga() {
   yield takeLatest(PermissionType.GET_PROFILE_PERMISSION, profilePermissionSaga);

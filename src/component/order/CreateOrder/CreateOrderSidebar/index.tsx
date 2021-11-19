@@ -2,7 +2,7 @@ import {InfoCircleOutlined, SearchOutlined} from "@ant-design/icons";
 import {Card, Form, Input, Select} from "antd";
 import UrlConfig from "config/url.config";
 import {AccountResponse} from "model/account/account.model";
-import {OrderResponse} from "model/response/order/order.response";
+import {OrderResponse, OrderSubStatusResponse} from "model/response/order/order.response";
 import React from "react";
 import {Link} from "react-router-dom";
 import SidebarOrderHistory from "./SidebarOrderHistory";
@@ -16,6 +16,7 @@ type PropType = {
   updateOrder?: boolean;
   customerId?: number | undefined;
   orderDetail?: OrderResponse | null;
+  listOrderSubStatus?: OrderSubStatusResponse[];
   onChangeTag: (value: []) => void;
 };
 
@@ -35,7 +36,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {accounts, onChangeTag, tags, customerId, orderDetail} = props;
+  const {accounts, onChangeTag, tags, customerId, orderDetail, listOrderSubStatus} = props;
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";
@@ -76,7 +77,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
 
   return (
     <StyledComponent>
-      <Card title="THÔNG TIN ĐƠN HÀNG 10">
+      <Card title="THÔNG TIN ĐƠN HÀNG">
         <Form.Item
           label="Nhân viên bán hàng"
           name="assignee_code"
@@ -195,6 +196,32 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
         </Form.Item>
         {renderSplitOrder()}
       </Card>
+      {listOrderSubStatus &&
+      <Card title="XỬ LÝ ĐƠN HÀNG">
+        <Form.Item
+          name="sub_status_code"
+        >
+          <Select
+            showSearch
+            style={{ width: "100%" }}
+            placeholder="Chọn trạng thái phụ"
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            notFoundContent="Không tìm thấy trạng thái phụ"
+            key={Math.random()}
+          >
+            {listOrderSubStatus.map((single) => {
+              return (
+                <Select.Option value={single.code} key={single.code}>
+                  {single.sub_status}
+                </Select.Option>
+              );
+            })}
+          </Select>
+        </Form.Item>
+      </Card>}
       <Card title="THÔNG TIN BỔ SUNG">
         <Form.Item name="customer_note" label="Ghi chú của khách">
           <Input.TextArea

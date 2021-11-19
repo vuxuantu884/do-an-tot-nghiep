@@ -3,8 +3,10 @@ import {Button, Card, Col, Row, Tree} from "antd";
 import {DataNode} from "antd/lib/tree";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import { DepartmentsPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {departmentDetailAction} from "domain/actions/account/department.action";
+import useAuthorization from "hook/useAuthorization";
 import {DepartmentResponse} from "model/account/department.model";
 import React, {useEffect, useMemo, useState} from "react";
 import {useDispatch} from "react-redux";
@@ -35,6 +37,13 @@ const DepartmentCreateScreen: React.FC = () => {
     }
     return dataNode;
   }, [data]);
+
+  //phân quyền
+  const [allowUpdateDep] = useAuthorization({
+    acceptPermissions: [DepartmentsPermissions.UPDATE],
+    not: false,
+  });
+
   useEffect(() => {
     setLoading(true);
     dispatch(
@@ -50,7 +59,7 @@ const DepartmentCreateScreen: React.FC = () => {
   }, [dispatch, idNumber]);
   return (
     <ContentContainer
-      title="Quản lý phòng ban/bộ phận"
+      title="Quản lý bộ phận"
       isError={error}
       isLoading={loading}
       breadcrumb={[
@@ -59,7 +68,7 @@ const DepartmentCreateScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý phòng ban/bộ phận",
+          name: "Quản lý bộ phận",
           path: UrlConfig.DEPARTMENT,
         },
         {
@@ -74,7 +83,7 @@ const DepartmentCreateScreen: React.FC = () => {
               <Card title="Thông tin chi tiết">
                 <Row gutter={50}>
                   <Col span={24}>
-                    <RowDetail title="Tên phòng ban/Bộ phận" value={data.name} />
+                    <RowDetail title="Tên bộ phận" value={data.name} />
                   </Col>
                   <Col span={24}>
                     <RowDetail title="Quản lý" value={data.manager} />
@@ -107,9 +116,18 @@ const DepartmentCreateScreen: React.FC = () => {
         back="Quay lại"
         rightComponent={
           <React.Fragment>
-            <Button onClick={() => {
-              history.push(`${UrlConfig.DEPARTMENT}/${idNumber}/edit`)
-            }} type="primary">Sửa</Button>
+            {allowUpdateDep ? (
+              <Button
+                onClick={() => {
+                  history.push(`${UrlConfig.DEPARTMENT}/${idNumber}/update`);
+                }}
+                type="primary"
+              >
+                Sửa
+              </Button>
+            ) : (
+              <></>
+            )}
           </React.Fragment>
         }
       />

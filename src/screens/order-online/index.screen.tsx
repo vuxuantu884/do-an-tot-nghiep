@@ -40,10 +40,15 @@ import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 import { nameQuantityWidth, StyledComponent } from "./index.screen.styles";
 import ExportModal from "./modal/export.modal";
 import "./scss/index.screen.scss";
+import { changeOrderStatusToPickedService } from "service/order/order.service";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const actions: Array<MenuAction> = [
@@ -69,6 +74,7 @@ const initQuery: OrderSearchQuery = {
   customer_ids: [],
   store_ids: [],
   source_ids: [],
+  variant_ids: [],
   issued_on_min: null,
   issued_on_max: null,
   issued_on_predefined: null,
@@ -131,14 +137,14 @@ const ListOrderScreen: React.FC = () => {
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
-  let deliveryServices: any[] = []
+  let delivery_services: Array<DeliveryServiceResponse> = []
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        deliveryServices = response
-        // setDeliveryServices(response);
+        delivery_services = response
+        setDeliveryServices(response)
       })
     );
   }, [dispatch]);
@@ -168,7 +174,7 @@ const ListOrderScreen: React.FC = () => {
       title: "ID đơn hàng",
       dataIndex: "code",
       render: (value: string, i: OrderModel) => {
-        console.log('i', i)
+        // console.log('i', i)
         return (
           <React.Fragment>
             <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`}>
@@ -302,7 +308,7 @@ const ListOrderScreen: React.FC = () => {
             switch (newFulfillments[0].shipment.delivery_service_provider_type) {
               case "external_service":
                 const service_id = newFulfillments[0].shipment.delivery_service_provider_id;
-                const service = deliveryServices.find((service) => service.id === service_id);
+                const service = delivery_services.find((service) => service.id === service_id);
                 return (
                   service && (
                     <img
@@ -668,8 +674,11 @@ const ListOrderScreen: React.FC = () => {
   ]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
+  const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
 
+  
   const onSelectedChange = useCallback((selectedRow) => {
+    setSelectedRow(selectedRow);
     const selectedRowKeys = selectedRow.map((row: any) => row.id);
     setSelectedRowKeys(selectedRowKeys);
 
@@ -720,16 +729,43 @@ const ListOrderScreen: React.FC = () => {
         case 3:
           break;
         case 4:
-          history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
+          let ids:number[] = [];
+          selectedRow.forEach((row) => row.fulfillments?.forEach((single) => {
+            ids.push(single.id)
+          }));
+          dispatch(showLoading());
+          changeOrderStatusToPickedService(ids).then((response) => {
+            switch (response.code) {
+              case HttpStatus.SUCCESS:
+                setData(response.data);
+                break;
+              case HttpStatus.UNAUTHORIZED:
+                dispatch(unauthorizedAction());
+                break;
+              default:
+                response.errors.forEach((e: any) => showError(e));
+                break;
+            }
+          }).catch((error) => {
+            console.log('error', error);
+          }).finally(()=> {
+            dispatch(hideLoading());
+            
+          })
+          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
+          const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          window.open(printPreviewUrl);
           break;
         case 5:
-          history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
+          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
+          const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          window.open(printPreviewUrlExport);
           break;
         default:
           break;
       }
     },
-    [history, selectedRowKeys]
+    [dispatch, selectedRow, selectedRowKeys]
   );
 
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
@@ -884,29 +920,41 @@ const ListOrderScreen: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-                onClick={() => {}}
-              >
-                Nhập file
-              </Button>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                // onClick={onExport}
-                onClick={() => {
-                  console.log("export");
-                  setShowExportModal(true);
-                }}
-              >
-                Xuất file
-              </Button>
-              <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                  onClick={() => {}}
+                  disabled={!isPassed}
+                >
+                  Nhập file
+                </Button>}
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                  // onClick={onExport}
+                  onClick={() => {
+                    console.log("export");
+                    setShowExportModal(true);
+                  }}
+                  disabled={!isPassed}
+                >
+                  Xuất file
+                </Button>}
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                {(isPassed: boolean) => 
+                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />}
+              </AuthWrapper>
+              
             </Space>
           </Row>
         }

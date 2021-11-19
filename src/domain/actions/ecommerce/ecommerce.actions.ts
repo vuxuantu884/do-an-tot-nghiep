@@ -2,7 +2,7 @@ import { EcommerceRequest } from "model/request/ecommerce.request";
 import BaseAction from "base/base.action";
 import { EcommerceType } from "domain/types/ecommerce.type";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import { FpageCustomerResponse } from "model/response/ecommerce/fpage.response";
+import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
 import {
   ProductEcommerceQuery,
   PostProductEcommerceQuery,
@@ -12,7 +12,7 @@ import {
 export const addFpagePhone = (
   userId: string,
   phone: string,
-  setData: (data: FpageCustomerResponse) => void
+  setData: (data: YDPageCustomerResponse) => void
 ) => {
   return BaseAction(EcommerceType.ADD_FPAGE_PHONE, {
     userId,
@@ -23,7 +23,7 @@ export const addFpagePhone = (
 export const deleteFpagePhone = (
   userId: string,
   phone: string,
-  setData: (data: FpageCustomerResponse) => void
+  setData: (data: YDPageCustomerResponse) => void
 ) => {
   return BaseAction(EcommerceType.DELETE_FPAGE_PHONE, {
     userId,
@@ -34,7 +34,7 @@ export const deleteFpagePhone = (
 export const setFpageDefaultPhone = (
   userId: string,
   phone: string,
-  setData: (data: FpageCustomerResponse) => void
+  setData: (data: YDPageCustomerResponse) => void
 ) => {
   return BaseAction(EcommerceType.SET_FPAGE_DEFAULT_PHONE, {
     userId,
@@ -45,7 +45,7 @@ export const setFpageDefaultPhone = (
 
 export const getFpageCustomerInfo = (
   userId: string,
-  setData: (data: FpageCustomerResponse) => void
+  setData: (data: YDPageCustomerResponse) => void
 ) => {
   return BaseAction(EcommerceType.GET_FPAGE_CUSTOMER, {
     userId,

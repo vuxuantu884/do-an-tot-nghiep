@@ -1,4 +1,4 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
+import {InfoCircleOutlined} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -9,7 +9,7 @@ import {
   Input,
   Row,
   Select,
-  Space
+  Space,
 } from "antd";
 import StoreTooltip from "assets/icon/store-tooltip.png";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -21,25 +21,34 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
   GroupGetAction,
-  WardGetByDistrictAction
+  WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
-import { StoreCreateAction, StoreRankAction, StoreValidateAction } from "domain/actions/core/store.action";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
-import { GroupResponse } from "model/content/group.model";
-import { WardResponse } from "model/content/ward.model";
-import { StoreRankResponse } from "model/core/store-rank.model";
-import { StoreCreateRequest, StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { RuleObject, StoreValue } from "rc-field-form/lib/interface";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { RegUtil } from "utils/RegUtils";
+import {
+  StoreCreateAction,
+  StoreGetTypeAction,
+  StoreRankAction,
+  StoreValidateAction,
+} from "domain/actions/core/store.action";
+import {CountryResponse} from "model/content/country.model";
+import {DistrictResponse} from "model/content/district.model";
+import {GroupResponse} from "model/content/group.model";
+import {WardResponse} from "model/content/ward.model";
+import {StoreRankResponse} from "model/core/store-rank.model";
+import {
+  StoreCreateRequest,
+  StoreResponse,
+  StoreTypeRequest,
+} from "model/core/store.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import {RuleObject, StoreValue} from "rc-field-form/lib/interface";
+import React, {useCallback, useEffect, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {RegUtil} from "utils/RegUtils";
 
-const { Item } = Form;
-const { Panel } = Collapse;
-const { Option } = Select;
+const {Item} = Form;
+const {Panel} = Collapse;
+const {Option} = Select;
 const DefaultCountry = 233;
 const initRequest: StoreCreateRequest = {
   name: "",
@@ -60,6 +69,7 @@ const initRequest: StoreCreateRequest = {
   group_id: null,
   is_saleable: true,
   is_stocktaking: false,
+  type: null,
 };
 
 const StoreCreateScreen: React.FC = () => {
@@ -73,12 +83,13 @@ const StoreCreateScreen: React.FC = () => {
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
   const [formMain] = Form.useForm();
 
-  //EndState
+  //EndState 
 
   //ref
   const firstload = useRef(true);
@@ -109,10 +120,7 @@ const StoreCreateScreen: React.FC = () => {
       history.push(`${UrlConfig.STORE}/${data.id}`);
     },
     [history]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
 
   const checkDuplicateStoreName = (
     rule: RuleObject,
@@ -125,7 +133,7 @@ const StoreCreateScreen: React.FC = () => {
 
     debounceSearchStoreNameRef.current = setTimeout(() => {
       dispatch(
-        StoreValidateAction({ name: value }, (data) => {
+        StoreValidateAction({name: value}, (data) => {
           console.log(data);
           if (data instanceof Array) {
             callback("Tên cửa hàng đã tồn tại");
@@ -148,9 +156,11 @@ const StoreCreateScreen: React.FC = () => {
       dispatch(DistrictGetByCountryAction(DefaultCountry, setCityView));
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
+      dispatch(StoreGetTypeAction(setType));
     }
     firstload.current = true;
   }, [dispatch]);
+
   return (
     <ContentContainer
       title="Thêm mới cửa hàng"
@@ -190,7 +200,7 @@ const StoreCreateScreen: React.FC = () => {
                         });
                       }
                     }}
-                    style={{ width: 180 }}
+                    style={{width: 180}}
                   >
                     {storeStatusList?.map((item) => (
                       <Option key={item.value} value={item.value}>
@@ -204,7 +214,7 @@ const StoreCreateScreen: React.FC = () => {
           }
         >
           <Row gutter={50}>
-            <Col>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 noStyle
                 shouldUpdate={(prev, current) =>
@@ -212,7 +222,7 @@ const StoreCreateScreen: React.FC = () => {
                   prev.status !== current.status
                 }
               >
-                {({ getFieldValue }) => {
+                {({getFieldValue}) => {
                   let status = getFieldValue("status");
                   return (
                     <Item valuePropName="checked" name="is_saleable">
@@ -220,6 +230,26 @@ const StoreCreateScreen: React.FC = () => {
                     </Item>
                   );
                 }}
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
+                label="Phân loại"
+                name="type"
+              >
+                <Select
+                  showSearch
+                  showArrow
+                  optionFilterProp="children"
+                  placeholder="Chọn phân loại"
+                >
+                  {type?.map((item: StoreTypeRequest, index) => (
+                    <Option key={index} value={item.value}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
               </Item>
             </Col>
           </Row>
@@ -232,7 +262,7 @@ const StoreCreateScreen: React.FC = () => {
                   prev.status !== current.status
                 }
               >
-                {({ getFieldValue }) => {
+                {({getFieldValue}) => {
                   let status = getFieldValue("status");
                   return (
                     <Item valuePropName="checked" name="is_stocktaking">
@@ -247,8 +277,8 @@ const StoreCreateScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[
-                  { required: true, message: "Vui lòng nhập tên danh mục" },
-                  { max: 255, message: "Tên danh mục không quá 255 kí tự" },
+                  {required: true, message: "Vui lòng nhập tên danh mục"},
+                  {max: 255, message: "Tên danh mục không quá 255 kí tự"},
                   {
                     pattern: RegUtil.STRINGUTF8,
                     message: "Tên danh mục không gồm kí tự đặc biệt",
@@ -286,7 +316,7 @@ const StoreCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Item rules={[{ required: true }]} label="Quốc gia" name="country_id">
+              <Item rules={[{required: true}]} label="Quốc gia" name="country_id">
                 <Select disabled placeholder="Chọn quốc gia">
                   {countries?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -298,7 +328,7 @@ const StoreCreateScreen: React.FC = () => {
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
-                rules={[{ required: true, message: "Vui lòng chọn khu vực" }]}
+                rules={[{required: true, message: "Vui lòng chọn khu vực"}]}
                 label="Khu vực"
                 name="district_id"
               >
@@ -326,7 +356,7 @@ const StoreCreateScreen: React.FC = () => {
               <Item
                 label="Phường/xã"
                 name="ward_id"
-                rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
+                rules={[{required: true, message: "Vui lòng chọn phường/xã"}]}
               >
                 <Select showSearch>
                   <Option value="">Chọn phường xã</Option>
@@ -392,7 +422,7 @@ const StoreCreateScreen: React.FC = () => {
           </Row>
         </Card>
         <Collapse
-          style={{ marginBottom: 50 }}
+          style={{marginBottom: 50}}
           defaultActiveKey="1"
           className="ant-collapse-card margin-top-20"
           expandIconPosition="right"
@@ -419,8 +449,8 @@ const StoreCreateScreen: React.FC = () => {
                         padding: 0,
                       },
                       title: () => (
-                        <div style={{ width: 1000, display: "flex" }}>
-                          <img style={{ width: 1000 }} src={StoreTooltip} alt="" />
+                        <div style={{width: 1000, display: "flex"}}>
+                          <img style={{width: 1000}} src={StoreTooltip} alt="" />
                         </div>
                       ),
                       icon: <InfoCircleOutlined />,
@@ -440,7 +470,7 @@ const StoreCreateScreen: React.FC = () => {
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
-                    rules={[{ required: true, message: "Vui lòng chọn trực thuộc" }]}
+                    rules={[{required: true, message: "Vui lòng chọn trực thuộc"}]}
                     label="Trực thuộc"
                     name="group_id"
                   >
@@ -465,7 +495,7 @@ const StoreCreateScreen: React.FC = () => {
                     name="begin_date"
                   >
                     <CustomDatepicker
-                      style={{ width: "100%" }}
+                      style={{width: "100%"}}
                       placeholder="Chọn ngày mở cửa"
                     />
                   </Item>
@@ -477,10 +507,7 @@ const StoreCreateScreen: React.FC = () => {
         <BottomBarContainer
           back={"Quay lại"}
           rightComponent={
-            <Space>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
+            <Space> 
               <Button htmlType="submit" type="primary">
                 Lưu
               </Button>

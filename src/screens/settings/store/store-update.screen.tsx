@@ -19,29 +19,34 @@ import {
 import {
   StoreDetailAction,
   StoreRankAction,
+  StoreGetTypeAction,
   StoreUpdateAction,
   StoreValidateAction,
 } from "domain/actions/core/store.action";
-import { StoreResponse, StoreUpdateRequest } from "model/core/store.model";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { StoreRankResponse } from "model/core/store-rank.model";
-import { WardResponse } from "model/content/ward.model";
-import { GroupResponse } from "model/content/group.model";
+import {
+  StoreResponse,
+  StoreUpdateRequest,
+  StoreTypeRequest,
+} from "model/core/store.model";
+import {CountryResponse} from "model/content/country.model";
+import {DistrictResponse} from "model/content/district.model";
+import {useCallback, useEffect, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {StoreRankResponse} from "model/core/store-rank.model";
+import {WardResponse} from "model/content/ward.model";
+import {GroupResponse} from "model/content/group.model";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import { useParams } from "react-router-dom";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {useParams} from "react-router-dom";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { RegUtil } from "utils/RegUtils";
+import {RegUtil} from "utils/RegUtils";
 import BottomBarContainer from "component/container/bottom-bar.container";
 
-const { Item } = Form;
-const { Option } = Select;
-const { Panel } = Collapse;
+const {Item} = Form;
+const {Option} = Select;
+const {Panel} = Collapse;
 
 type StoreParam = {
   id: string;
@@ -50,7 +55,7 @@ type StoreParam = {
 const DefaultCountry = 233;
 
 const StoreUpdateScreen: React.FC = () => {
-  const { id } = useParams<StoreParam>();
+  const {id} = useParams<StoreParam>();
   const idNumber = parseInt(id);
   //Hook
   const dispatch = useDispatch();
@@ -67,10 +72,12 @@ const StoreUpdateScreen: React.FC = () => {
   const [isError, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
   const firstload = useRef(true);
+ 
   //EndState
   const onSelectDistrict = useCallback(
     (value: number) => {
@@ -93,10 +100,7 @@ const StoreUpdateScreen: React.FC = () => {
   const onUpdateSuccess = useCallback(() => {
     setLoading(false);
     history.push(UrlConfig.STORE);
-  }, [history]);
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  }, [history]); 
   const onFinish = useCallback(
     (values: StoreUpdateRequest) => {
       setLoading(true);
@@ -119,6 +123,7 @@ const StoreUpdateScreen: React.FC = () => {
       dispatch(DistrictGetByCountryAction(DefaultCountry, setCityView));
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
+      dispatch(StoreGetTypeAction(setType));
       if (!Number.isNaN(idNumber)) {
         dispatch(StoreDetailAction(idNumber, setResult));
       }
@@ -167,7 +172,7 @@ const StoreUpdateScreen: React.FC = () => {
                           });
                         }
                       }}
-                      style={{ width: 180 }}
+                      style={{width: 180}}
                     >
                       {storeStatusList?.map((item) => (
                         <Option key={item.value} value={item.value}>
@@ -181,7 +186,7 @@ const StoreUpdateScreen: React.FC = () => {
             }
           >
             <Row gutter={50}>
-              <Col>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   noStyle
                   shouldUpdate={(prev, current) =>
@@ -189,7 +194,7 @@ const StoreUpdateScreen: React.FC = () => {
                     prev.status !== current.status
                   }
                 >
-                  {({ getFieldValue }) => {
+                  {({getFieldValue}) => {
                     let status = getFieldValue("status");
                     return (
                       <Item valuePropName="checked" name="is_saleable">
@@ -197,6 +202,26 @@ const StoreUpdateScreen: React.FC = () => {
                       </Item>
                     );
                   }}
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
+                  label="Phân loại"
+                  name="type"
+                >
+                  <Select
+                    showSearch
+                    showArrow
+                    optionFilterProp="children"
+                    placeholder="Chọn phân loại"
+                  >
+                    {type?.map((item: StoreTypeRequest, index) => (
+                      <Option key={index} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
                 </Item>
               </Col>
             </Row>
@@ -209,7 +234,7 @@ const StoreUpdateScreen: React.FC = () => {
                     prev.status !== current.status
                   }
                 >
-                  {({ getFieldValue }) => {
+                  {({getFieldValue}) => {
                     let status = getFieldValue("status");
                     return (
                       <Item valuePropName="checked" name="is_stocktaking">
@@ -229,8 +254,8 @@ const StoreUpdateScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
-                    { required: true, message: "Vui lòng nhập tên danh mục" },
-                    { max: 255, message: "Tên danh mục không quá 255 kí tự" },
+                    {required: true, message: "Vui lòng nhập tên danh mục"},
+                    {max: 255, message: "Tên danh mục không quá 255 kí tự"},
                     {
                       pattern: RegUtil.STRINGUTF8,
                       message: "Tên danh mục không gồm kí tự đặc biệt",
@@ -242,18 +267,21 @@ const StoreUpdateScreen: React.FC = () => {
                   <Input
                     onChange={(e) => {
                       dispatch(
-                        StoreValidateAction({id: idNumber, name: e.target.value }, (data) => {
-                          console.log(data);
-                          if (data instanceof Array) {
-                            formMain.setFields([
-                              {
-                                validating: false,
-                                name: "name",
-                                errors: data,
-                              },
-                            ]);
+                        StoreValidateAction(
+                          {id: idNumber, name: e.target.value},
+                          (data) => {
+                            console.log(data);
+                            if (data instanceof Array) {
+                              formMain.setFields([
+                                {
+                                  validating: false,
+                                  name: "name",
+                                  errors: data,
+                                },
+                              ]);
+                            }
                           }
-                        })
+                        )
                       );
                     }}
                     maxLength={255}
@@ -282,7 +310,7 @@ const StoreUpdateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Item rules={[{ required: true }]} label="Quốc gia" name="country_id">
+                <Item rules={[{required: true}]} label="Quốc gia" name="country_id">
                   <Select disabled placeholder="Chọn quốc gia">
                     {countries?.map((item) => (
                       <Option key={item.id} value={item.id}>
@@ -294,7 +322,7 @@ const StoreUpdateScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{ required: true, message: "Vui lòng chọn khu vực" }]}
+                  rules={[{required: true, message: "Vui lòng chọn khu vực"}]}
                   label="Khu vực"
                   name="district_id"
                 >
@@ -322,7 +350,7 @@ const StoreUpdateScreen: React.FC = () => {
                 <Item
                   label="Phường/xã"
                   name="ward_id"
-                  rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
+                  rules={[{required: true, message: "Vui lòng chọn phường/xã"}]}
                 >
                   <Select>
                     <Option value="">Chọn phường xã</Option>
@@ -388,7 +416,7 @@ const StoreUpdateScreen: React.FC = () => {
             </Row>
           </Card>
           <Collapse
-            style={{ marginBottom: 50 }}
+            style={{marginBottom: 50}}
             defaultActiveKey="1"
             className="ant-collapse-card margin-top-20"
             expandIconPosition="right"
@@ -419,7 +447,7 @@ const StoreUpdateScreen: React.FC = () => {
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item
-                      rules={[{ required: true, message: "Vui lòng chọn trực thuộc" }]}
+                      rules={[{required: true, message: "Vui lòng chọn trực thuộc"}]}
                       label="Trực thuộc"
                       name="group_id"
                     >
@@ -443,7 +471,7 @@ const StoreUpdateScreen: React.FC = () => {
                       name="begin_date"
                     >
                       <CustomDatepicker
-                        style={{ width: "100%" }}
+                        style={{width: "100%"}}
                         placeholder="Chọn ngày mở cửa"
                       />
                     </Item>
@@ -456,9 +484,6 @@ const StoreUpdateScreen: React.FC = () => {
             back={"Quay lại"}
             rightComponent={
               <Space>
-                <Button type="default" onClick={onCancel}>
-                  Hủy
-                </Button>
                 <Button loading={loading} htmlType="submit" type="primary">
                   Lưu
                 </Button>

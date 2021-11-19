@@ -35,6 +35,8 @@ import { useReactToPrint } from "react-to-print";
 
 import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
 import { actionFetchPrintFormByInventoryTransferIds } from "domain/actions/printer/printer.action";
+import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
+import useAuthorization from "hook/useAuthorization";
 const { TextArea } = Input;
 
 const ACTIONS_INDEX = {
@@ -68,44 +70,6 @@ const initQuery: InventoryTransferSearchQuery = {
   from_receive_date: null,
   to_receive_date: null
 };
-
-const actions: Array<MenuAction> = [
-  {
-    id: ACTIONS_INDEX.ADD_FORM_EXCEL,
-    name: "Thêm mới từ Excel",
-    icon:<ImportOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.WATCH_MANY_TICKET,
-    name: "Xem nhiều phiếu",
-    icon:<BarsOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.DELETE_TICKET,
-    name: "Hủy phiếu",
-    icon:<StopOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.PRINT,
-    name: "In vận đơn",
-    icon:<PrinterOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.PRINT_TICKET,
-    name: "In phiếu",
-    icon:<PrinterOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.EXPORT_EXCEL,
-    name: "Xuất Excel",
-    icon:<ExportOutlined />
-  },
-  {
-    id: ACTIONS_INDEX.MAKE_COPY,
-    name: "Tạo bản sao",
-    icon:<CopyOutlined />
-  },
-];
 
 const InventoryTransferTab: React.FC = () => {
 
@@ -148,6 +112,65 @@ const InventoryTransferTab: React.FC = () => {
     [handlePrint]
   );
  
+  //phân quyền
+  const [allowImportFromExcel] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.import],
+  });
+  const [allowCancel] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.cancel],
+  });
+  const [allowPrint] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.print],
+  });
+  const [allowClone] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.clone],
+  });  
+
+  const actions: Array<MenuAction> = [
+    {
+      id: ACTIONS_INDEX.ADD_FORM_EXCEL,
+      name: "Thêm mới từ Excel",
+      icon:<ImportOutlined />,
+      disabled: !allowImportFromExcel,
+    },
+    {
+      id: ACTIONS_INDEX.WATCH_MANY_TICKET,
+      name: "Xem nhiều phiếu",
+      icon:<BarsOutlined />,
+      disabled: true,
+    },
+    {
+      id: ACTIONS_INDEX.DELETE_TICKET,
+      name: "Hủy phiếu",
+      icon:<StopOutlined />,
+      disabled: !allowCancel,
+    },
+    {
+      id: ACTIONS_INDEX.PRINT,
+      name: "In vận đơn",
+      icon:<PrinterOutlined />,
+      disabled: !allowPrint,
+    },
+    {
+      id: ACTIONS_INDEX.PRINT_TICKET,
+      name: "In phiếu",
+      icon:<PrinterOutlined />,
+      disabled: !allowPrint,
+    },
+    {
+      id: ACTIONS_INDEX.EXPORT_EXCEL,
+      name: "Xuất Excel",
+      icon:<ExportOutlined />,
+      disabled: true,
+    },
+    {
+      id: ACTIONS_INDEX.MAKE_COPY,
+      name: "Tạo bản sao",
+      icon:<CopyOutlined />,
+      disabled: !allowClone,
+    },
+  ];
+
   const dispatch = useDispatch();
   let dataQuery: InventoryTransferSearchQuery = {
     ...initQuery,
@@ -173,7 +196,7 @@ const InventoryTransferTab: React.FC = () => {
       fixed: "left",
       width: "150px",
       render: (value: string, row: InventoryTransferDetailItem) => (
-        <Link to={`${UrlConfig.INVENTORY_TRANSFER}/${row.id}`}>{value}</Link>
+        <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}>{value}</Link>
       ),
     },
     {
@@ -377,7 +400,7 @@ const InventoryTransferTab: React.FC = () => {
       setParams(newParams);
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#1?${queryParam}`);
     },
     [history, params]
   );
@@ -404,10 +427,10 @@ const InventoryTransferTab: React.FC = () => {
           printTicketAction(index);
           break;
         case ACTIONS_INDEX.ADD_FORM_EXCEL:
-          history.push(`${UrlConfig.INVENTORY_TRANSFER}/import`);
+          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`);
           break;
         case ACTIONS_INDEX.MAKE_COPY:
-          history.push(`${UrlConfig.INVENTORY_TRANSFER}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`);
+          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`);
           break;    
         case ACTIONS_INDEX.DELETE_TICKET:
           setIsDeleteTicket(true)
@@ -423,7 +446,7 @@ const InventoryTransferTab: React.FC = () => {
     () => {
       setParams(initQuery);
       let queryParam = generateQuery(initQuery);
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#1?${queryParam}`);
     },
     [history]
   );

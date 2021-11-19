@@ -12,30 +12,32 @@ import {
   Divider,
   Collapse,
 } from "antd";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import {AccountSearchAction} from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { SupplierCreateAction } from "domain/actions/core/supplier.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { SupplierCreateRequest } from "model/core/supplier.model";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { AppConfig } from "config/app.config";
+import {SupplierCreateAction} from "domain/actions/core/supplier.action";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import {SupplierCreateRequest} from "model/core/supplier.model";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {CountryResponse} from "model/content/country.model";
+import {DistrictResponse} from "model/content/district.model";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {AppConfig} from "config/app.config";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { RegUtil } from "utils/RegUtils";
+import {RegUtil} from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
-import { VietNamId } from "utils/Constants";
+import {VietNamId} from "utils/Constants";
+import useAuthorization from "hook/useAuthorization";
+import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
 
-const { Item } = Form;
-const { Option } = Select;
+const {Item} = Form;
+const {Option} = Select;
 
 const DefaultCountry = VietNamId;
 const initRequest: SupplierCreateRequest = {
@@ -96,18 +98,22 @@ const CreateSupplierScreen: React.FC = () => {
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [status, setStatus] = useState<string>(initRequest.status);
+
+  const [allowCreateSup] = useAuthorization({
+    acceptPermissions: [SuppliersPermissions.CREATE],
+    not: false,
+  });
   //EndState
+
   //Callback
   const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse>|false) => {
-      if(!data) {
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
         return false;
       }
       let listWinAccount = data.items;
       setAccounts(listWinAccount);
-      let checkUser = listWinAccount.findIndex(
-        (val) => val.code === currentUserCode
-      );
+      let checkUser = listWinAccount.findIndex((val) => val.code === currentUserCode);
       if (checkUser !== -1 && currentUserCode !== undefined) {
         formSupplier.setFieldsValue({
           person_in_charge: currentUserCode,
@@ -129,7 +135,6 @@ const CreateSupplierScreen: React.FC = () => {
 
   const onSelectDistrict = useCallback(
     (value: number) => {
-      
       let cityId = -1;
       listDistrict.forEach((item) => {
         if (item.id === value) {
@@ -144,14 +149,16 @@ const CreateSupplierScreen: React.FC = () => {
     },
     [formSupplier, listDistrict]
   );
-  const onCreateSuccess = useCallback((data) => {
-    if (!data) return;
-    
-    history.push(`${UrlConfig.SUPPLIERS}`);
-  }, [history]);
+  const onCreateSuccess = useCallback(
+    (data) => {
+      if (!data) return;
+
+      history.push(`${UrlConfig.SUPPLIERS}`);
+    },
+    [history]
+  );
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-      
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
@@ -173,7 +180,7 @@ const CreateSupplierScreen: React.FC = () => {
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active' },
+        {department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"},
         setDataAccounts
       )
     );
@@ -219,9 +226,7 @@ const CreateSupplierScreen: React.FC = () => {
                 className="ant-switch-success"
                 checked={status === "active"}
               />
-              <label
-                className={status === "active" ? "text-success" : "text-error"}
-              >
+              <label className={status === "active" ? "text-success" : "text-error"}>
                 {statusValue}
               </label>
               <Item noStyle name="status" hidden>
@@ -230,208 +235,201 @@ const CreateSupplierScreen: React.FC = () => {
             </Space>
           }
         >
-       
-            <Row>
+          <Row>
+            <Item
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn loại nhà cung cấp",
+                },
+              ]}
+              label="Loại nhà cung cấp"
+              name="type"
+            >
+              <Radio.Group>
+                {supplier_type?.map((item) => (
+                  <Radio value={item.value} key={item.value}>
+                    {item.name}
+                  </Radio>
+                ))}
+              </Radio.Group>
+            </Item>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item label="Mã nhà cung cấp" name="code">
+                <Input disabled placeholder="Mã nhà cung cấp" />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọn loại nhà cung cấp",
+                    message: "Vui lòng nhập tên nhà cung cấp",
                   },
                 ]}
-                label="Loại nhà cung cấp"
-                name="type"
+                name="name"
+                label="Tên nhà cung cấp"
               >
-                <Radio.Group>
-                  {supplier_type?.map((item) => (
-                    <Radio value={item.value} key={item.value}>
-                      {item.name}
-                    </Radio>
-                  ))}
-                </Radio.Group>
+                <Input placeholder="Nhập tên nhà cung cấp" maxLength={255} />
               </Item>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item label="Mã nhà cung cấp" name="code">
-                  <Input disabled placeholder="Mã nhà cung cấp" />
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập tên nhà cung cấp",
-                    },
-                  ]}
-                  name="name"
-                  label="Tên nhà cung cấp"
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[{required: true, message: "Vui lòng chọn ngành hàng"}]}
+                name="goods"
+                label="Ngành hàng"
+              >
+                <Select
+                  mode="multiple"
+                  className="selector"
+                  placeholder="Chọn ngành hàng"
+                  showArrow
+                  // defaultValue="fashion"
                 >
-                  <Input placeholder="Nhập tên nhà cung cấp" maxLength={255} />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    { required: true, message: "Vui lòng chọn ngành hàng" },
-                  ]}
-                  name="goods"
-                  label="Ngành hàng"
+                  {goods?.map((item) => (
+                    <Option key={item.value} value={item.value}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọ nhân viên phụ trách",
+                  },
+                ]}
+                name="person_in_charge"
+                label="Nhân viên phụ trách"
+              >
+                <Select
+                  placeholder="Chọn nhân viên phụ trách"
+                  className="selector"
+                  // defaultValue={personInCharge}
                 >
-                  <Select
-                    mode="multiple"
-                    className="selector"
-                    placeholder="Chọn ngành hàng"
-                    showArrow
-                    // defaultValue="fashion"
-                  >
-                    {goods?.map((item) => (
-                      <Option key={item.value} value={item.value}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọ nhân viên phụ trách",
-                    },
-                  ]}
-                  name="person_in_charge"
-                  label="Nhân viên phụ trách"
+                  {accounts.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.full_name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
+          </Row>
+          <Divider orientation="left">Thông tin khác</Divider>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item label="Quốc gia" name="country_id">
+                <Select disabled className="selector" placeholder="Chọn quốc gia">
+                  {countries?.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item name="contact_name" label="Người liên hệ">
+                <Input placeholder="Nhập người liên hệ" maxLength={255} />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item label="Khu vực" name="district_id">
+                <Select
+                  showSearch
+                  onSelect={onSelectDistrict}
+                  className="selector"
+                  placeholder="Chọn khu vực"
+                  optionFilterProp="children"
                 >
-                  <Select
-                    placeholder="Chọn nhân viên phụ trách"
-                    className="selector"
-                    // defaultValue={personInCharge}
-                  >
-                    {accounts.map((item) => (
-                      <Option key={item.code} value={item.code}>
-                        {item.full_name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-            </Row>
-            <Divider orientation="left">Thông tin khác</Divider>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item label="Quốc gia" name="country_id">
-                  <Select
-                    disabled
-                    className="selector"
-                    placeholder="Chọn quốc gia"
-                  >
-                    {countries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item name="contact_name" label="Người liên hệ">
-                  <Input placeholder="Nhập người liên hệ" maxLength={255} />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item label="Khu vực" name="district_id">
-                  <Select
-                    showSearch
-                    onSelect={onSelectDistrict}
-                    className="selector"
-                    placeholder="Chọn khu vực"
-                    optionFilterProp="children"
-                  >
-                    {listDistrict?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.city_name} - {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-                <Item hidden name="city_id">
-                  <Input />
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    { required: true, message: "Vui lòng nhập số điện thoại" },
-                    {
-                      pattern: RegUtil.PHONE,
-                      message: "Số điện thoại chưa đúng định dạng",
-                    },
-                  ]}
-                  name="phone"
-                  label="Số điện thoại"
-                >
-                  <Input placeholder="Nhập số điện thoại" />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item label="Địa chỉ" name="address">
-                  <Input placeholder="Nhập địa chỉ" maxLength={100} />
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  name="email"
-                  label="Nhập email"
-                  rules={[
-                    {
-                      pattern: RegUtil.EMAIL,
-                      message: "Email chưa đúng định dạng",
-                    },
-                  ]}
-                >
-                  <Input placeholder="Nhập email" />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  label="Website"
-                  name="website"
-                  rules={[
-                    {
-                      pattern: RegUtil.WEBSITE_URL,
-                      message: "Website chưa đúng định dạng",
-                    },
-                  ]}
-                >
-                  <Input placeholder="Nhập website" maxLength={255} />
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  name="tax_code"
-                  label="Mã số thuế"
-                  rules={[
-                    {
-                      pattern: RegUtil.NUMBERREG,
-                      message: "Mã số thuế chỉ được phép nhập số",
-                    },
-                  ]}
-                >
-                  <Input placeholder="Nhập mã số thuế" maxLength={13} />
-                </Item>
-              </Col>
-            </Row>
+                  {listDistrict?.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.city_name} - {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+              <Item hidden name="city_id">
+                <Input />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  {required: true, message: "Vui lòng nhập số điện thoại"},
+                  {
+                    pattern: RegUtil.PHONE,
+                    message: "Số điện thoại chưa đúng định dạng",
+                  },
+                ]}
+                name="phone"
+                label="Số điện thoại"
+              >
+                <Input placeholder="Nhập số điện thoại" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item label="Địa chỉ" name="address">
+                <Input placeholder="Nhập địa chỉ" maxLength={100} />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                name="email"
+                label="Nhập email"
+                rules={[
+                  {
+                    pattern: RegUtil.EMAIL,
+                    message: "Email chưa đúng định dạng",
+                  },
+                ]}
+              >
+                <Input placeholder="Nhập email" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                label="Website"
+                name="website"
+                rules={[
+                  {
+                    pattern: RegUtil.WEBSITE_URL,
+                    message: "Website chưa đúng định dạng",
+                  },
+                ]}
+              >
+                <Input placeholder="Nhập website" maxLength={255} />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                name="tax_code"
+                label="Mã số thuế"
+                rules={[
+                  {
+                    pattern: RegUtil.NUMBERREG,
+                    message: "Mã số thuế chỉ được phép nhập số",
+                  },
+                ]}
+              >
+                <Input placeholder="Nhập mã số thuế" maxLength={13} />
+              </Item>
+            </Col>
+          </Row>
         </Card>
         <Collapse
           defaultActiveKey="1"
@@ -443,10 +441,7 @@ const CreateSupplierScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item label="Phân cấp nhà cung cấp" name="scorecard">
-                    <Select
-                      className="selector"
-                      placeholder="Chọn phân cấp nhà cung cấp"
-                    >
+                    <Select className="selector" placeholder="Chọn phân cấp nhà cung cấp">
                       {scorecards?.map((item) => (
                         <Option key={item.value} value={item.value}>
                           {item.name}
@@ -467,7 +462,7 @@ const CreateSupplierScreen: React.FC = () => {
                         /> */}
                         <NumberInput
                           isFloat
-                          style={{ width: "70%" }}
+                          style={{width: "70%"}}
                           placeholder="Nhập thời gian công nợ"
                         />
                       </Item>
@@ -475,7 +470,7 @@ const CreateSupplierScreen: React.FC = () => {
                         <Select
                           className="selector-group"
                           defaultActiveFirstOption
-                          style={{ width: "30%" }}
+                          style={{width: "30%"}}
                         >
                           {date_unit?.map((item) => (
                             <Option key={item.value} value={item.value}>
@@ -495,8 +490,8 @@ const CreateSupplierScreen: React.FC = () => {
                     name="certifications"
                     help={
                       <div className="t-help">
-                        Tối đa 1 files (doc, pdf, png, jpeg, jpg) và dung lượng
-                        tối đa 3 MB
+                        Tối đa 1 files (doc, pdf, png, jpeg, jpg) và dung lượng tối đa 3
+                        MB
                       </div>
                     }
                   >
@@ -516,14 +511,11 @@ const CreateSupplierScreen: React.FC = () => {
                         <NumberInput
                           placeholder="Nhập số lượng"
                           isFloat
-                          style={{ width: "70%" }}
+                          style={{width: "70%"}}
                         />
                       </Item>
                       <Item name="moq_unit" noStyle>
-                        <Select
-                          className="selector-group"
-                          style={{ width: "30%" }}
-                        >
+                        <Select className="selector-group" style={{width: "30%"}}>
                           {moq_unit?.map((item) => (
                             <Option key={item.value} value={item.value}>
                               {item.name}
@@ -588,14 +580,16 @@ const CreateSupplierScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
+        <div className="margin-top-10" style={{textAlign: "right"}}>
           <Space size={12}>
             <Button type="default" onClick={onCancel}>
               Hủy
             </Button>
-            <Button htmlType="submit" type="primary">
-              Lưu
-            </Button>
+            {allowCreateSup ? (
+              <Button htmlType="submit" type="primary">
+                Lưu
+              </Button>
+            ) : null}
           </Space>
         </div>
       </Form>

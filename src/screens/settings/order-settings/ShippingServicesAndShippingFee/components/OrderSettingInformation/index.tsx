@@ -37,7 +37,7 @@ function OrderSettingInformation(props: PropType) {
 
   const disabledDate = (current: any) => {
     // Can not select days before today and today
-    return current && current < moment().endOf("day");
+    return current && current < moment().startOf("day");
   };
 
   const renderCardExtra = () => {

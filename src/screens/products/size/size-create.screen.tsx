@@ -107,6 +107,7 @@ const SizeCreateScreen: React.FC = () => {
                   mode="multiple"
                   placeholder="Chọn danh mục"
                   showArrow
+                  maxTagCount="responsive"
                 >
                   {categories.map((item) => (
                     <Option key={item.id} value={item.id}>

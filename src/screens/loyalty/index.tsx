@@ -20,13 +20,14 @@ import moment from 'moment'
 import { DATE_FORMAT } from 'utils/DateUtils'
 import { PlusOutlined } from '@ant-design/icons'
 import useAuthorization from 'hook/useAuthorization'
-import { LoyaltyPermissions } from 'config/permissions/loyalty.permission'
+import { LoyaltyPermission } from 'config/permissions/loyalty.permission'
 import NoPermission from 'screens/no-permission.screen'
 
 
-const configLoyaltyPermission = [LoyaltyPermissions.CONFIG_LOYALTY];
-const viewProgramListPermission = [LoyaltyPermissions.VIEW_PROGRAM_LIST];
-const updateProgramPermission = [LoyaltyPermissions.UPDATE_PROGRAM];
+const configLoyaltyPermission = [LoyaltyPermission.loyalties_config];
+const viewProgramListPermission = [LoyaltyPermission.programs_read];
+const createProgramPermission = [LoyaltyPermission.programs_create];
+const updateProgramPermission = [LoyaltyPermission.programs_update];
 
 const LoyaltyPage = () => {
 
@@ -37,6 +38,11 @@ const LoyaltyPage = () => {
 
   const [allowViewProgramList] = useAuthorization({
     acceptPermissions: viewProgramListPermission,
+    not: false,
+  });
+
+  const [allowCreateProgram] = useAuthorization({
+    acceptPermissions: createProgramPermission,
     not: false,
   });
 
@@ -399,11 +405,13 @@ const LoyaltyPage = () => {
                 <span className="tab-label">
                   Danh sách chương trình
                 </span>
-                <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`}>
-                  <div className="add-new-btn">
-                    <PlusOutlined /> Thêm mới
-                  </div>
-                </Link>
+                {allowCreateProgram &&
+                  <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`}>
+                    <div className="add-new-btn">
+                      <PlusOutlined /> Thêm mới
+                    </div>
+                  </Link>
+                }
               </div>
             }
           >

@@ -12,12 +12,13 @@ import { MenuAction } from "component/table/ActionButton";
 import { createRef, useCallback, useEffect,  useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { StoreQuery } from "model/core/store.model";
+import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
 import CustomFilter from "component/table/custom.filter";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { GroupResponse } from "model/content/group.model";
 import NumberInput from "component/custom/number-input.custom";
+import "assets/css/custom-filter.scss";
 
 type StoreFilterProps = {
   initValue: StoreQuery;
@@ -29,6 +30,7 @@ type StoreFilterProps = {
   storeStatusList?: Array<BaseBootstrapResponse>;
   storeRanks?: Array<StoreRankResponse>;
   groups?: Array<GroupResponse>;
+  type?: Array<StoreTypeRequest>;
 };
 
 const { Item } = Form;
@@ -42,7 +44,8 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     storeStatusList,
     storeRanks,
     groups,
-    initValue
+    initValue,
+    type,
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -81,7 +84,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   }, [formRef, visible]);
 
   return (
-    <div>
+    <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form
           className="form-search"
@@ -89,15 +92,14 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           initialValues={params}
           layout="inline"
         >
-          <Form.Item name="info">
+          <Form.Item name="info" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
               placeholder="Tên/Id cửa hàng"
             />
           </Form.Item>
           <Form.Item name="status">
-            <Select style={{ width: 200 }} placeholder="Trạng thái">
+            <Select style={{ width: 180 }} placeholder="Trạng thái">
               <Option value="">Trạng thái</Option>
               {storeStatusList?.map((item) => (
                 <Option key={item.value} value={item.value}>
@@ -135,6 +137,16 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               {storeRanks?.map((item) => (
                 <Option key={item.id} value={item.id}>
                   {item.code}
+                </Option>
+              ))}
+            </Select>
+          </Item>
+          <Item name="type" label="Phân loại">
+            <Select placeholder="Chọn loại cửa hàng">
+              <Option value="">Chọn tất cả</Option>
+              {type?.map((item, index) => (
+                <Option key={index} value={item.value}>
+                  {item.name}
                 </Option>
               ))}
             </Select>

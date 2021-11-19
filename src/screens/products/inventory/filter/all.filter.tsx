@@ -116,7 +116,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         layout="inline"
       >
         <FilterWrapper>
-          <Item name={InventoryQueryField.condition} className="search">
+          <Item name="info" className="search">
             <Input
               prefix={<img src={search} alt="" />}
               style={{width: "100%"}}

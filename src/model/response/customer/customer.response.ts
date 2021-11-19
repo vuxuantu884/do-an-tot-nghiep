@@ -36,7 +36,8 @@ export interface CustomerResponse extends BaseObject {
   district: string | null;
   city: string | null;
   district_id: number| null;
-  ward_id: number| null;
+  ward_id: number | null;
+  report: any;
 }
 
 export interface note extends BaseObject {

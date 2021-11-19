@@ -22,6 +22,7 @@ import {
 } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
   AccountCreateAction,
@@ -34,6 +35,7 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import {StoreGetListAction} from "domain/actions/core/store.action";
+import useAuthorization from "hook/useAuthorization";
 import {
   AccountJobReQuest,
   AccountJobResponse,
@@ -53,9 +55,9 @@ import {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {convertDistrict} from "utils/AppUtils";
+import {RegUtil} from "utils/RegUtils";
 import {showSuccess} from "utils/ToastUtils";
 import {PASSWORD_RULES} from "./account.rules";
-
 const {Item, List} = Form;
 const {Option, OptGroup} = Select;
 
@@ -102,6 +104,10 @@ const AccountCreateScreen: React.FC = () => {
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [isSelectAllStore, setIsSelectAllStore] = useState(false);
+
+  const allowCreateAcc = useAuthorization({
+    acceptPermissions: [AccountPermissions.CREATE],
+  });
   //EndState
   //Callback
 
@@ -121,7 +127,7 @@ const AccountCreateScreen: React.FC = () => {
 
   const onChangeDepartment = (e: any, key: number) => {
     let listJob = [...listaccountJob];
-    if(!listJob[key]){
+    if (!listJob[key]) {
       listJob[key] = {} as AccountJobReQuest;
     }
     listJob[key].department_id = e;
@@ -129,7 +135,7 @@ const AccountCreateScreen: React.FC = () => {
   };
   const onChangePosition = (e: any, key: number) => {
     let listJob = [...listaccountJob];
-    if(!listJob[key]){
+    if (!listJob[key]) {
       listJob[key] = {} as AccountJobReQuest;
     }
     listJob[key].position_id = e;
@@ -182,20 +188,20 @@ const AccountCreateScreen: React.FC = () => {
 
       listAccountSelected.forEach((el: AccountJobReQuest) => {
         if (el.department_id && el.position_id) {
-        const department_name = listDepartment?.find(
-          (item) => item.id === el.department_id
-        )?.name;
-        const position_name = listPosition?.find(
-          (item) => item.id === el.position_id
-        )?.name;
-        
-        accJobs.push({
-          department_id: el.department_id,
-          position_id: el.position_id,
-          department_name,
-          position_name
-        });
-      }
+          const department_name = listDepartment?.find(
+            (item) => item.id === el.department_id
+          )?.name;
+          const position_name = listPosition?.find(
+            (item) => item.id === el.position_id
+          )?.name;
+
+          accJobs.push({
+            department_id: el.department_id,
+            position_id: el.position_id,
+            department_name,
+            position_name,
+          });
+        }
       });
 
       let accountModel: AccountRequest = {
@@ -294,11 +300,22 @@ const AccountCreateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Tên đăng nhập"
-                  name="user_name"
-                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
+                  label="Mã nhân viên"
+                  name="code"
+                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  normalize={(value: string) => (value || "").toUpperCase()}
                 >
-                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
+                  <Input
+                    className="r-5"
+                    placeholder="VD: YD0000"
+                    size="large"
+                    onChange={(e) =>
+                      formRef.current?.setFieldsValue({
+                        user_name: e.target.value.toUpperCase(),
+                      })
+                    }
+                    autoComplete="new-password"
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -320,11 +337,16 @@ const AccountCreateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Mã nhân viên"
-                  name="code"
-                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  label="Tên đăng nhập"
+                  name="user_name"
+                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
                 >
-                  <Input className="r-5" placeholder="VD: YD0000" size="large" />
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập tên đăng nhập"
+                    size="large"
+                    disabled
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -387,7 +409,13 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[{required: true, message: "Vui lòng nhập số điện thoại"}]}
+                  rules={[
+                    {required: true, message: "Vui lòng nhập số điện thoại"},
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại không đúng định dạng",
+                    },
+                  ]}
                 >
                   <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
                 </Item>
@@ -452,8 +480,9 @@ const AccountCreateScreen: React.FC = () => {
                 >
                   <Select
                     placeholder="Chọn vị trí"
-                    showArrow
                     allowClear
+                    showArrow
+                    showSearch
                     optionFilterProp="children"
                   >
                     {listRole?.map((item) => (
@@ -481,6 +510,8 @@ const AccountCreateScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Khu vực" name="district_id">
                   <Select
+                    allowClear
+                    showArrow
                     showSearch
                     onSelect={onSelectDistrict}
                     placeholder="Chọn khu vực"
@@ -600,9 +631,11 @@ const AccountCreateScreen: React.FC = () => {
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
-              <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
-                Lưu
-              </Button>
+              {allowCreateAcc ? (
+                <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
+                  Lưu
+                </Button>
+              ) : null}
             </Space>
           </div>
         </Affix>

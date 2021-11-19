@@ -1,3 +1,4 @@
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -145,6 +146,8 @@ const TabProduct: React.FC = () => {
     [params]
   );
   const onFilter = useCallback((values) => {
+    let {info} = values;
+    values.info = info.trim();
     let newPrams = {...values, page: 1};
     setPrams(newPrams);
   }, []);
@@ -456,12 +459,14 @@ const TabProduct: React.FC = () => {
         columns={columnFinal}
         rowKey={(item: VariantResponse) => item.id}
       />
+      <AuthWrapper acceptPermissions={[ProductPermission.upload_image]}>
       <UploadImageModal
         onCancel={() => setUploadVisible(false)}
         variant={variant}
         visible={uploadVisible}
         onSave={onSave}
       />
+      </AuthWrapper>
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}

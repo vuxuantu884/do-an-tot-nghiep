@@ -16,7 +16,6 @@ import {
 } from "antd";
 // import _ from "lodash";
 import { RefSelectProps } from "antd/lib/select";
-import _ from "lodash";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
@@ -1093,7 +1092,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         extra={
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
-            <span>Chính sách giá:</span>
+            <span>Chính sách giá: 3</span>
             <Form.Item name="price_type">
               <Select style={{minWidth: 145, height: 38}} placeholder="Chính sách giá">
                 <Select.Option value="retail_price" color="#222222">

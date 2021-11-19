@@ -1,6 +1,9 @@
 import { RouteMenu } from "../../model/other";
 import UrlConfig from "../../config/url.config";
 import React from "react";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
+import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
 const DetailTicket = React.lazy(() => import("screens/inventory/DetailTicket/index"));
 const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
@@ -45,7 +48,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu24",
     isShow: true,
     header: null,
-    subMenu: []
+    subMenu: [],
   },
   {
     path: UrlConfig.PURCHASE_ORDER,
@@ -56,6 +59,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu22",
     isShow: true,
     header: null,
+    permissions: [PurchaseOrderPermission.read],
     subMenu: [
       {
         path: `${UrlConfig.PURCHASE_ORDER}/create`,
@@ -66,6 +70,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu221",
         isShow: true,
         header: null,
+        permissions: [PurchaseOrderPermission.create],
         subMenu: [],
       },
       {
@@ -77,6 +82,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu222",
         isShow: true,
         header: null,
+        permissions: [PurchaseOrderPermission.read, PurchaseOrderPermission.update],
         subMenu: [],
         pathIgnore: ["create"],
       },
@@ -89,6 +95,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu223",
         isShow: true,
         header: null,
+        permissions: [PurchaseOrderPermission.return],
         subMenu: [],
         pathIgnore: ["create"],
       },
@@ -103,6 +110,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu25",
     isShow: true,
     header: null,
+    permissions: [PurchaseOrderPermission.procurements_read],
     subMenu: [
       {
         path: `${UrlConfig.PROCUREMENT}/:id`,
@@ -113,12 +121,13 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu25",
         isShow: true,
         header: null,
+        permissions: [PurchaseOrderPermission.procurements_read],
         subMenu: [],
       },
     ],
   },
   {
-    path: UrlConfig.INVENTORY_TRANSFER,
+    path: UrlConfig.INVENTORY_TRANSFERS,
     exact: true,
     title: "Chuyển hàng",
     icon: "icon-dot",
@@ -126,9 +135,10 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu31",
     isShow: true,
     header: null,
+    permissions:[InventoryTransferPermission.read],
     subMenu: [
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/create`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/create`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -136,10 +146,11 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
+        permissions:[InventoryTransferPermission.create],
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/:id`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/:id`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -147,10 +158,11 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
+        permissions:[InventoryTransferPermission.read],
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/:id/update`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/:id/update`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -158,10 +170,11 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
+        permissions:[InventoryTransferPermission.update],
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/:id/update`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/:id/update`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -169,10 +182,11 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
+        permissions:[InventoryTransferPermission.clone],
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/createImport`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/createImport`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -180,10 +194,11 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
+        permissions:[InventoryTransferPermission.import, InventoryTransferPermission.create],
         subMenu: [],
       },
       {
-        path: `${UrlConfig.INVENTORY_TRANSFER}/import`,
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/import`,
         exact: true,
         title: "Chuyển hàng",
         icon: "icon-dot",
@@ -191,13 +206,13 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
+        permissions:[InventoryTransferPermission.import, InventoryTransferPermission.create],
         subMenu: [],
       },
-      
     ],
   },
   {
-    path: UrlConfig.INVENTORY_ADJUSTMENT,
+    path: UrlConfig.INVENTORY_ADJUSTMENTS,
     exact: true,
     title: "Kiểm kho",
     icon: "icon-dot",
@@ -205,9 +220,10 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu33",
     isShow: true,
     header: null,
+    permissions:[InventoryAdjustmentPermission.read],
     subMenu: [
       {
-        path: `${UrlConfig.INVENTORY_ADJUSTMENT}/create`,
+        path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/create`,
         exact: true,
         title: "Kiểm kho",
         icon: "icon-dot",
@@ -215,10 +231,11 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu33",
         isShow: true,
         header: null,
+        permissions:[InventoryAdjustmentPermission.create],
         subMenu: [],
-      }, 
+      },
       {
-        path: `${UrlConfig.INVENTORY_ADJUSTMENT}/:id`,
+        path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/:id`,
         exact: true,
         title: "Kiểm kho",
         icon: "icon-dot",
@@ -226,6 +243,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
+        permissions:[InventoryAdjustmentPermission.read],
         subMenu: [],
       },
     ],

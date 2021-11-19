@@ -5,18 +5,20 @@ import arrowLeft from "../../../assets/icon/arrow-left.svg";
 import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
 import {Button, Col, Form, Row} from "antd";
-import { useHistory } from "react-router-dom";
-import { showSuccess } from "../../../utils/ToastUtils";
-import { useDispatch } from "react-redux";
-import { PROMO_TYPE } from "utils/Constants";
-import { StoreResponse } from "model/core/store.model";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreGetListAction } from "../../../domain/actions/core/store.action";
-import { getListSourceRequest } from "../../../domain/actions/product/source.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
-import { getListChannelRequest } from "domain/actions/order/order.action";
-import { ChannelResponse } from "model/response/product/channel.response";
+import {useHistory} from "react-router-dom";
+import {showSuccess} from "../../../utils/ToastUtils";
+import {useDispatch} from "react-redux";
+import {PROMO_TYPE} from "utils/Constants";
+import {StoreResponse} from "model/core/store.model";
+import {SourceResponse} from "model/response/order/source.response";
+import {StoreGetListAction} from "../../../domain/actions/core/store.action";
+import {getListSourceRequest} from "../../../domain/actions/product/source.action";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
+import {addPriceRules} from "domain/actions/promotion/discount/discount.action";
+import {getListChannelRequest} from "domain/actions/order/order.action";
+import {ChannelResponse} from "model/response/product/channel.response";
+import useAuthorization from "hook/useAuthorization";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
 
 const CreatePromotionCodePage = () => {
   const dispatch = useDispatch();
@@ -26,13 +28,19 @@ const CreatePromotionCodePage = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
+  //phân quyền
+  const [allowCreatePromoCode] = useAuthorization({
+    acceptPermissions: [PromoPermistion.CREATE],
+  });
+
   const initialValues = {
     title: "",
     discount_code: "",
     sale_type: "SALE_CODE",
     product_type: "PRODUCT",
     value_type: "PERCENTAGE",
-    value: "1"
+    value: null,
+    usage_limit: "1",
   };
 
   useEffect(() => {
@@ -46,47 +54,84 @@ const CreatePromotionCodePage = () => {
     body.type = PROMO_TYPE.MANUAL;
     body.title = values.title;
     body.description = values.description;
-    body.discount_codes = values.discount_code?.length ? [{code: "PC" + values.discount_code}] : null;
+    body.discount_codes = values.discount_code?.length
+      ? [{code: "PC" + values.discount_code}]
+      : null;
     body.usage_limit = values.usage_limit ? values.usage_limit : null;
-    body.usage_limit_per_customer = values.usage_limit_per_customer  ? values.usage_limit_per_customer : null;
-    body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
-    body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
-    body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length ? values.prerequisite_order_source_ids : null;
+    body.usage_limit_per_customer = values.usage_limit_per_customer
+      ? values.usage_limit_per_customer
+      : null;
+    body.prerequisite_store_ids = values.prerequisite_store_ids?.length
+      ? values.prerequisite_store_ids
+      : null;
+    body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names
+      ?.length
+      ? values.prerequisite_sales_channel_names
+      : null;
+    body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length
+      ? values.prerequisite_order_source_ids
+      : null;
     body.starts_date = values.starts_date.format();
     body.ends_date = values.ends_date?.format() || null;
     body.entitled_method = "QUANTITY";
-    body.prerequisite_subtotal_range = {
-      greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
-      less_than_or_equal_to: null
+    body.prerequisite_subtotal_range = values.prerequisite_subtotal_range_min
+      ? {
+          greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
+          less_than_or_equal_to: null,
+        }
+      : null;
+    if (values.entitlements && values.entitlements.length > 0) {
+      body.entitlements = values.entitlements.map((entitlement: any) => {
+        return {
+          entitled_variant_ids: entitlement.entitled_variant_ids || null,
+          entitled_category_ids: null,
+          prerequisite_quantity_ranges: [
+            {
+              greater_than_or_equal_to:
+                entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to,
+              less_than_or_equal_to: null,
+              allocation_limit: null,
+              value_type: values.value_type,
+              value: values.value,
+            },
+          ],
+          prerequisite_subtotal_ranges: null,
+        };
+      });
+    } else {
+      body.entitlements = [
+        {
+          entitled_variant_ids: null,
+          entitled_category_ids: null,
+          prerequisite_quantity_ranges: [
+            {
+              greater_than_or_equal_to: null,
+              less_than_or_equal_to: null,
+              allocation_limit: null,
+              value_type: values.value_type,
+              value: values.value,
+            },
+          ],
+          prerequisite_subtotal_ranges: null,
+        },
+      ];
     }
-    body.entitlements = values.entitlements.map((entitlement: any) => {
-      return {
-        entitled_variant_ids: entitlement.entitled_variant_ids || null,
-        entitled_category_ids: null,
-        prerequisite_quantity_ranges: [
-          {
-            greater_than_or_equal_to: entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to,
-            less_than_or_equal_to: null,
-            allocation_limit: null,
-            value_type: values.value_type,
-            value: values.value,
-          },
-        ],
-        prerequisite_subtotal_ranges: null
-      }
-    });
+
     return body;
-  }
+  };
 
-  const createCallback = useCallback(() => {
-
-    setTimeout(() => {
-      showSuccess("Thêm thành công");
-      dispatch(hideLoading());
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)
-    }, 2000);
-
-  }, [dispatch, history]);
+  const createCallback = useCallback(
+    (data) => {
+      if (data) {
+        setTimeout(() => {
+          showSuccess("Thêm thành công");
+          history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${data.id}`);
+          dispatch(hideLoading());
+        }, 2000);
+      } else dispatch(hideLoading());
+    },
+    [dispatch, history]
+  );
 
   const onFinish = (values: any) => {
     // Action: Lưu và kích hoạt
@@ -94,7 +139,7 @@ const CreatePromotionCodePage = () => {
     body.activated = true;
     dispatch(showLoading());
     dispatch(addPriceRules(body, createCallback));
-  }
+  };
 
   const save = async () => {
     // Action: Lưu
@@ -103,7 +148,7 @@ const CreatePromotionCodePage = () => {
     body.activated = false;
     dispatch(showLoading());
     dispatch(addPriceRules(transformData(values), createCallback));
-  }
+  };
 
   const reload = React.useCallback(() => {
     promoCodeForm.resetFields();
@@ -136,7 +181,7 @@ const CreatePromotionCodePage = () => {
       >
         <Row gutter={24}>
           <Col span={24}>
-          <GeneralCreate
+            <GeneralCreate
               className="general-info"
               form={promoCodeForm}
               name="general_add"
@@ -147,33 +192,45 @@ const CreatePromotionCodePage = () => {
           </Col>
         </Row>
         <div className="customer-bottom-button">
-          <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
-            <img style={{ marginRight: "10px", transform: "rotate(180deg)"}} src={arrowLeft} alt="" />
-            Quay lại danh sách
+          <div onClick={() => history.goBack()} style={{cursor: "pointer"}}>
+            <img
+              style={{marginRight: "10px", transform: "rotate(180deg)"}}
+              src={arrowLeft}
+              alt=""
+            />
+            Quay lại danh sách đợt phát hành
           </div>
           <div>
             <Button
               onClick={() => reload()}
-              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
+              style={{marginLeft: ".75rem", marginRight: ".75rem"}}
               type="ghost"
             >
               Hủy
             </Button>
-            <Button
-              onClick={() => save()}
-              style={{ marginLeft: ".75rem", marginRight: ".75rem", borderColor: "#2a2a86" }}
-              type="ghost"
-            >
-              Lưu
-            </Button>
-            <Button type="primary" htmlType="submit">
-              Lưu và kích hoạt
-            </Button>
+            {allowCreatePromoCode ? (
+              <>
+                <Button
+                  onClick={() => save()}
+                  style={{
+                    marginLeft: ".75rem",
+                    marginRight: ".75rem",
+                    borderColor: "#2a2a86",
+                  }}
+                  type="ghost"
+                >
+                  Lưu
+                </Button>
+                <Button type="primary" htmlType="submit">
+                  Lưu và kích hoạt
+                </Button>
+              </>
+            ) : null}
           </div>
         </div>
       </Form>
     </ContentContainer>
-  )
-}
+  );
+};
 
 export default CreatePromotionCodePage;

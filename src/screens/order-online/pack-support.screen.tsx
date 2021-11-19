@@ -1,28 +1,35 @@
-import React, { useLayoutEffect } from "react";
-import { Card, Row, Tabs, Col } from "antd";
+import React, {useLayoutEffect} from "react";
+import {Card, Row, Tabs, Col} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/pack-info";
 import PackList from "./pack-support/pack-list";
 import ReportHandOver from "./pack-support/report-hand-over";
-import { DeliveryServicesGetList, getSourcesEcommerce, loadOrderPackAction } from "domain/actions/order/order.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useEffect, useState } from "react";
-import { DeliveryServiceResponse } from "model/response/order/order.response";
-import { useDispatch } from "react-redux";
-import { OrderPackContext } from "contexts/order-pack/order-pack-context";
-import { StoreResponse } from "model/core/store.model";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import PackReportHandOver from "./pack-support/pack-report-hand-over";
-import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
-import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
-import { SourceEcommerceResponse } from "model/response/order/source.response";
+import {
+  DeliveryServicesGetList,
+  getChannels,
+} from "domain/actions/order/order.action";
+import {PageResponse} from "model/base/base-metadata.response";
+import {useEffect, useState} from "react";
+import {
+  ChannelsResponse,
+  DeliveryServiceResponse,
+} from "model/response/order/order.response";
+import {useDispatch} from "react-redux";
+import {OrderPackContext} from "contexts/order-pack/order-pack-context";
+import {StoreResponse} from "model/core/store.model";
+import {StoreGetListAction} from "domain/actions/core/store.action";
+import {GoodsReceiptsTypeResponse} from "model/response/pack/pack.response";
+import {getGoodsReceiptsType} from "domain/actions/goods-receipts/goods-receipts.action";
+import PackReportHandOverCopy from "./pack-support/pack-report-hand-over-copy";
+import {useQuery} from "utils/useQuery";
+import "assets/css/_pack.scss";
 
-const { TabPane } = Tabs;
+const {TabPane} = Tabs;
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
-
+  const query = useQuery();
   //useState
 
   const [data, setData] = useState<PageResponse<any>>({
@@ -34,27 +41,33 @@ const PackSupportScreen: React.FC = () => {
     items: [],
   });
 
-  
-  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
-  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
-  const [listGoodsReceipts,setListGoodsReceipts] =useState<Array<GoodsReceiptsTypeResponse>>([]);
-  const [listSourcesEcommerce,setListSourcesEcommerce]= useState<Array<SourceEcommerceResponse>>([]);
+  const [activeTab, setActiveTab] = useState("1");
 
-  const packSupportContextData={
+  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
+    DeliveryServiceResponse[]
+  >([]);
+  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [listGoodsReceiptsType, setListGoodsReceiptsType] = useState<
+    Array<GoodsReceiptsTypeResponse>
+  >([]);
+  const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
+
+  const packSupportContextData = {
     listThirdPartyLogistics,
     setListThirdPartyLogistics,
     listStores,
     setListStores,
-    listGoodsReceipts,
-    setListGoodsReceipts,
-    listSourcesEcommerce,
-    setListSourcesEcommerce,
+    listGoodsReceiptsType,
+    setListGoodsReceiptsType,
+    listChannels,
+    setListChannels,
     data,
+    setData,
   };
 
-  useEffect(()=>{
-    dispatch(loadOrderPackAction(setData))
-  },[dispatch]);
+  // useEffect(() => {
+  //   dispatch(loadOrderPackAction(setData));
+  // }, [dispatch]);
 
   useEffect(() => {
     dispatch(
@@ -64,18 +77,25 @@ const PackSupportScreen: React.FC = () => {
     );
   }, [dispatch]);
 
-  useEffect(()=>{
-    dispatch(getGoodsReceiptsType(setListGoodsReceipts))
-  },[dispatch]);
+  useEffect(() => {
+    dispatch(getGoodsReceiptsType(setListGoodsReceiptsType));
+  }, [dispatch]);
 
-  useEffect(()=>{
-    dispatch(getSourcesEcommerce(setListSourcesEcommerce))
-  },[dispatch]);
-
+  useEffect(() => {
+    dispatch(
+      getChannels(2, (data: ChannelsResponse[]) => {
+        setListChannels(data);
+      })
+    );
+  }, [dispatch]);
 
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch, setListStores]);
+
+  const handleClickTab = (value: string) => {
+    setActiveTab(value);
+  };
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
@@ -97,8 +117,8 @@ const PackSupportScreen: React.FC = () => {
       >
         <Row gutter={24}>
           <Col xs={24}>
-            <Card>
-              <Tabs defaultActiveKey="1">
+            <Card className="pack-support-card">
+              <Tabs activeKey={activeTab} onChange={handleClickTab}>
                 <TabPane tab="Đóng gói" key="1">
                   <PackInfo
                     setFulfillmentsPackedItems={setData}
@@ -107,24 +127,27 @@ const PackSupportScreen: React.FC = () => {
                   ></PackInfo>
                 </TabPane>
                 <TabPane tab="Biên bản bàn giao" key="2">
-                  <PackReportHandOver/>
+                  <PackReportHandOverCopy query={query} />
                 </TabPane>
               </Tabs>
             </Card>
           </Col>
         </Row>
-        <Row gutter={24}>
-          <Col xs={24}>
-            <PackList data={data}/>
-          </Col>
-        </Row>
+        {activeTab === "1" && (
+          <div>
+            <Row gutter={24}>
+              <Col xs={24}>
+                <PackList data={data} />
+              </Col>
+            </Row>
 
-        <Row gutter={24}>
-          <Col xs={24}>
-            <ReportHandOver/>
-          </Col>
-        </Row>
-        
+            <Row gutter={24}>
+              <Col xs={24}>
+                <ReportHandOver />
+              </Col>
+            </Row>
+          </div>
+        )}
       </ContentContainer>
     </OrderPackContext.Provider>
   );

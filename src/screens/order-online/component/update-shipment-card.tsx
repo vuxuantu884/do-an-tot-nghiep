@@ -42,6 +42,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   OrderResponse,
+  ShipmentResponse,
   TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import moment from "moment";
@@ -563,9 +564,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
     if (
       props.OrderDetail?.status === "draft" &&
-      customerNeedToPayValue === props.totalPaid
+      totalAmountCustomerNeedToPay === props.totalPaid
     ) {
-      value.cod = customerNeedToPayValue;
+      value.cod = totalAmountCustomerNeedToPay;
     }
 
     FulFillmentRequest.shipment = value;
@@ -675,13 +676,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // const isShowTakeHelper = showTakeHelper();
   // khách cần trả
-  const customerNeedToPayValue =
-    (props.OrderDetail?.total_line_amount_after_line_discount
-      ? props.OrderDetail?.total_line_amount_after_line_discount
-      : 0) +
-    (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
-    (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0) -
-    (props.totalPaid ? props.totalPaid : 0);
+  const totalAmountCustomerNeedToPay =
+  (props.OrderDetail?.total
+    ? props.OrderDetail?.total
+    : 0) +
+  (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
+  (props.totalPaid ? props.totalPaid : 0);
   // totalAmountPaid() -
   // (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
 
@@ -845,8 +845,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   }, [updateShipment, cancelShipment, disabledActions]);
 
   // todo thai: update khi có logo các đối tác giao hàng
-  const renderDeliveryPartner = (shipment: any) => {
-    const delivery = deliveryServices?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
+  const renderDeliveryPartner = (shipment: ShipmentResponse) => {
+    const delivery = deliveryServices?.find(delivery => delivery.code === shipment.delivery_service_provider_code);
     if (delivery && delivery.logo) {
       return (
         <img
@@ -870,7 +870,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title={
           <Space>
             <div className="d-flex">
-              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG 55</span>
+              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
             </div>
             {props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
@@ -1465,15 +1465,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 );
               }}
             >
-              Đổi trả hàng 3
+              Đổi trả hàng
             </Button>
           ) : (
-            <>
-              {props.OrderDetail?.fulfillments &&
+            <React.Fragment>
+              {checkIfOrderHasReturnedAll(OrderDetail) ? null : 
+              props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
               props.OrderDetail?.fulfillments[0].shipment &&
               props.OrderDetail?.fulfillments[0].shipment
-                .delivery_service_provider_type === "pick_at_store" ? (
+                .delivery_service_provider_type === "pick_at_store" && !checkIfOrderHasReturnedAll(OrderDetail) ? (
                 <Button
                   onClick={cancelFullfilment}
                   loading={cancelShipment}
@@ -1506,7 +1507,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   </Button>
                 )
               )}
-            </>
+            </React.Fragment>
           )}
           {props.stepsStatusValue === OrderStatus.FINALIZED &&
             props.OrderDetail?.fulfillments &&
@@ -1655,7 +1656,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 customer={props.customerDetail}
                 items={OrderDetail?.items}
                 isCancelValidateDelivery={false}
-                totalAmountCustomerNeedToPay={customerNeedToPayValue}
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                 setShippingFeeInformedToCustomer={props.setShippingFeeInformedCustomer}
                 onSelectShipment={setShipmentMethod}
                 thirdPL={thirdPL}

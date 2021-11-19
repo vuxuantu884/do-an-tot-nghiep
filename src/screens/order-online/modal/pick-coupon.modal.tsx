@@ -18,6 +18,7 @@ function PickCouponModal(props: PropType){
   const formRef = createRef<FormInstance>();
   const onSubmit = () => {
     onOkCouponModal("", 0, 0, _coupon);
+    // setCoupon(_coupon);
   };
 
   const onchangeCoupon = (e: any) => {
@@ -28,10 +29,19 @@ function PickCouponModal(props: PropType){
       onSubmit();
     }
   };
+
+  // useEffect(() => {
+  //   return () => {
+  //     setCoupon("")
+  //   }
+  // }, [])
+
   return (
     <Modal
       title="Mã giảm giá"
-      onCancel={onCancelCouponModal}
+      onCancel={(e) => {
+        onCancelCouponModal(e)
+      }}
       centered
       visible={visible}
       className="modal-hide-header modal-pick-discount"

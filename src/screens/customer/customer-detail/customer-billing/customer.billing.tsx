@@ -28,6 +28,7 @@ type CustomerBillingInfoProps = {
     customerDetailState: string,
     modalAction: modalActionType ,
     isShowModalBilling: boolean,
+    allowUpdateCustomer: boolean,
     setModalAction: (value: modalActionType) => void,
     setIsShowModalBilling: (value: boolean) => void,
 }
@@ -39,6 +40,7 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
     setModalAction,
     modalAction,
     isShowModalBilling,
+    allowUpdateCustomer,
     setIsShowModalBilling,
   } = props;
   const dispatch = useDispatch();
@@ -78,28 +80,27 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
     },
     {
       title: "Họ tên người nhận",
+      dataIndex: "name",
       visible: true,
-      render: (value, row, index) => {
-        return <div style={{ width: 200 }}>{row.name}</div>;
-      },
+      width: "15%",
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       visible: true,
-      width: 150,
+      width: "10%",
     },
     {
       title: "Email",
       dataIndex: "email",
       visible: true,
-      width: 150,
+      width: "25%",
     },
     {
       title: "Mã số thuế",
       dataIndex: "tax_code",
       visible: true,
-      width: 150,
+      width: "10%",
     },
     {
       title: "Địa chỉ",
@@ -108,22 +109,14 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
       render: (value, row, index) => {
         return (
           <div>
-            <div
-              className="text"
-              title={row.code}
-              style={{ color: "#666666", width: 300 }}
-            >
+            <div style={{ color: "#666666" }}>
               {`${row.full_address ? row.full_address : ""}`}
             </div>
-            <span
-              className="text"
-              title={row.code}
-              style={{ color: "#222222", display: "block" }}
-            >
+            <div style={{ color: "#222222" }}>
               {`${row.ward ? row.ward : ""}${
                 row.district ? " - " + row.district : ""
               }${row.city ? " - " + row.city : ""}`}
-            </span>
+            </div>
           </div>
         );
       },
@@ -133,18 +126,20 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
       dataIndex: "default",
       align: "center",
       visible: true,
-      width: "10%",
-      render: (l: billingAddress, item: any, index: number) => {
+      width: "5%",
+      render: (l: any, item: any, index: number) => {
         return (
           <Checkbox
             checked={item.default}
             onClick={(value) => handleBillingDefault(value, item)}
+            disabled={!allowUpdateCustomer}
           />
         );
       },
     },
     actionColumn(handleBillingEdit, handleBillingDelete, customerDetailState),
   ];
+  
   const handleBillingDefault = (value: any, item: any) => {
     let _item = { ...item };
     if (_item.default === true) return showError("Không thể bỏ mặc định");
@@ -235,7 +230,7 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
     history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
   };
   return (
-    <Row style={{ marginTop: 16 }}>
+    <Row>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}
