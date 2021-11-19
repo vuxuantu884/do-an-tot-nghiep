@@ -1,12 +1,12 @@
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router";
 import AllTab from "./tab/all.tab";
 import DetailTab from "./tab/detail.tab";
 import HistoryTab from "./tab/history.tab";
@@ -14,27 +14,33 @@ import HistoryTab from "./tab/history.tab";
 const { TabPane } = Tabs;
 
 const InventoryScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>("1");
+  const [activeTab, setActiveTab] = useState<string>(InventoryTabUrl.ALL);
   const dispatch = useDispatch();
   const history = useHistory();
   const [loading, setLoading] = useState<boolean>(true);
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
+  const {path} = useRouteMatch();
+
   useEffect(() => {
-    if (history.location.hash) {
-      let hash = history.location.hash.split('?');
-      switch (hash[0]) {
-        case "#1":
-          setActiveTab("1");
+    let redirectUrl = path;
+    if (redirectUrl) {
+      switch (redirectUrl) {
+        case  InventoryTabUrl.ALL:
+          history.replace(redirectUrl);
+          setActiveTab(InventoryTabUrl.ALL);
           break;
-        case "#2":
-          setActiveTab("2");
+        case  InventoryTabUrl.DETAIL:
+          history.replace(redirectUrl);
+          setActiveTab(InventoryTabUrl.DETAIL);
           break;
-        case "#3":
-          setActiveTab("3");
+        case InventoryTabUrl.HISTORIES:
+          history.replace(redirectUrl);
+          setActiveTab(InventoryTabUrl.HISTORIES);
           break;
-      }
+      } 
     }
-  }, [history.location.hash]);
+  }, [history, path]); 
+
   useEffect(() => {
   
       dispatch(getListStoresSimpleAction((stores) => {
@@ -64,16 +70,16 @@ const InventoryScreen: React.FC = () => {
         <Tabs
           style={{ overflow: "initial" }}
           activeKey={activeTab}
-          onChange={(active) => history.replace(`${history.location.pathname}#${active}`)}
+          onChange={(active) => history.replace(active)}
           renderTabBar={RenderTabBar}
         >
-          <TabPane tab="Toàn hệ thống" key="1">
+          <TabPane tab="Toàn hệ thống" key={InventoryTabUrl.ALL}>
             <AllTab stores={stores} current={activeTab} />
           </TabPane>
-          <TabPane tab="Chi tiết" key="2">
+          <TabPane tab="Chi tiết" key={InventoryTabUrl.DETAIL}>
             <DetailTab stores={stores} current={activeTab} />
           </TabPane>
-          <TabPane tab="Lịch sử tồn kho" key="3">
+          <TabPane tab="Lịch sử tồn kho" key={InventoryTabUrl.HISTORIES}>
             <HistoryTab stores={stores} current={activeTab} />
           </TabPane>
         </Tabs>
