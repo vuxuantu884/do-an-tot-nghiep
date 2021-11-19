@@ -78,7 +78,7 @@ const InventoryTransferTab: React.FC = () => {
   const query = useQuery();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
 
-  const [tableLoading, setTableLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(true);
   const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
@@ -400,7 +400,7 @@ const InventoryTransferTab: React.FC = () => {
       setParams(newParams);
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
-      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#1?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}?${queryParam}`);
     },
     [history, params]
   );

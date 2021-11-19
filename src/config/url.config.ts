@@ -44,6 +44,11 @@ export const ProductTabUrl = {
   HISTORY_PRICES: UrlConfig.PRODUCT + "/history-prices",
 };
 
+export const InventoryTransferTabUrl = {
+  LIST: UrlConfig.INVENTORY_TRANSFERS,
+  HISTORIES: UrlConfig.INVENTORY_TRANSFERS + "/histories",
+};
+
 export const BASE_NAME_ROUTER = "/unicorn/admin";
 // export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/unicorn/admin`;
 export default UrlConfig;
