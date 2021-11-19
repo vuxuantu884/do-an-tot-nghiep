@@ -129,7 +129,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       }
       return item2 - item1;
     })
-    return stores;
+    return stores; 
   }, [columnsItem, dataSearchCanAccess, inventoryArray]);
 
   useEffect(() => {
