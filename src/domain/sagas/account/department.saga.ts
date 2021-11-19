@@ -89,6 +89,7 @@ function* updateSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
+        response.errors.forEach((e) => showError(e));
         onResult(false);
         break;
     }

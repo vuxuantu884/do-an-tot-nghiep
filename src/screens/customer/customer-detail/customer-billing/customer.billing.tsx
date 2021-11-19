@@ -230,7 +230,7 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
     history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
   };
   return (
-    <Row style={{ marginTop: 16 }}>
+    <Row>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}

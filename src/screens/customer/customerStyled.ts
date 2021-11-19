@@ -1,5 +1,13 @@
 import styled from "styled-components";
 
+
+export const StyledCustomer = styled.div`
+  .page-header {
+    height: auto;
+  }
+
+`;
+
 export const StyledCustomerFilter = styled.div`
   .inline-filter {
     width: 100%;
@@ -73,6 +81,14 @@ export const StyledCustomerExtraButton = styled.div`
 export const StyledCustomerInfo = styled.div`
   .page-header {
     height: auto;
+  }
+
+  .card-title {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    text-transform: uppercase;
+    padding-left: 0;
   }
 
   .customer-info {

@@ -30,6 +30,7 @@ import {HttpStatus} from "config/http-status.config";
 import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
+  getStoreSearchIdsAction,
   StoreGetListAction,
   StoreSearchListAction,
 } from "domain/actions/core/store.action";
@@ -209,11 +210,10 @@ function OrderCreateProduct(props: PropType) {
     setDiscountValue,
     setDiscountRate,
     setCoupon,
-    setPromotionId
   } = props;
   const dispatch = useDispatch();
   console.log("shippingFeeInformedToCustomer", shippingFeeInformedToCustomer);
-  const [loadingAutomaticDiscount, setLoadingAutomaticDiscount] = useState(false);
+  const [loadingAutomaticDiscount] = useState(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [isDisableOrderDiscount, setIsDisableOrderDiscount] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -256,6 +256,8 @@ function OrderCreateProduct(props: PropType) {
 
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
+
+  const [storeSearchIds,setStoreSearchIds]=useState<PageResponse<StoreResponse>>();
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -329,7 +331,7 @@ function OrderCreateProduct(props: PropType) {
     if(isAutomaticDiscount) {
       setIsDisableOrderDiscount(true)
     }
-  }, [isAutomaticDiscount])
+  }, [])
 
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
@@ -406,7 +408,7 @@ function OrderCreateProduct(props: PropType) {
       let _amount = totalAmount(_items);
       // setItems(_items);
       setAmount(_amount);
-      // calculateChangeMoney(_items, _amount, discountRate, discountValue);
+      calculateChangeMoney(_items, _amount, discountRate, discountValue);
     },
     [items]
   );
@@ -1015,7 +1017,7 @@ function OrderCreateProduct(props: PropType) {
             rate,
             value,
             amount: value,
-            reason: "",
+            reason: highestValueSuggestDiscount.title || null,
             promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
           };
           item.discount_items[0] = discountItem;
@@ -1109,12 +1111,6 @@ function OrderCreateProduct(props: PropType) {
                 const discount_code = applyDiscountResponse.code || undefined;
                 let couponType = applyDiscountResponse.value_type;
                 let listDiscountItem:any[] = [];
-                // xóa discount line item rồi mới apply 
-                _items?.forEach((item) => {
-                  removeDiscountItem(item)
-                  setItems(_items);
-                  handleChangeItems(_items)
-                })
                 response.data.line_items.forEach((single) => {
                   if( listDiscountItem.some((a) =>a.variant_id === single.variant_id)) {
                     return;
@@ -1203,7 +1199,7 @@ function OrderCreateProduct(props: PropType) {
                             rate: discount_rate
                               ? Math.round(discount_rate * 100) / 100
                               : 0,
-                            reason: "",
+                            reason: applyDiscountLineItem?.title || null,
                             discount_code,
                           },
                         ];
@@ -1333,6 +1329,13 @@ function OrderCreateProduct(props: PropType) {
   useEffect(() => {
     dispatch(StoreSearchListAction(resultSearchStore, setStoreArrayResponse));
   }, [resultSearchStore]);
+
+  useEffect(()=>{
+    let storeids=[104435,104436];
+    dispatch(getStoreSearchIdsAction(storeids, setStoreSearchIds));
+  },[]);
+
+  console.log("storeSearchIds",storeSearchIds)
 
   const handleInventoryCancel = useCallback(() => {
     setInventoryModalVisible(false);
