@@ -131,8 +131,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [updateShipment, setUpdateShipment] = useState(false);
   const [cancelShipment, setCancelShipment] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
-  console.log(setTakeMoneyHelper)
+  // console.log(setTakeMoneyHelper)
 
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
@@ -271,7 +272,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onReload && onReload();
   };
   const onError = (error: boolean) => {
-    console.log('error');
+    // console.log('error');
     setUpdateShipment(false);
     setCancelShipment(false);
     setIsvibleShippingConfirm(false);
@@ -741,10 +742,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   console.log(addressError)
   // end
 
-  const onPrint = () => {
-    onOkShippingConfirm();
-    setReload(true);
-  };
+  // const onPrint = () => {
+  //   onOkShippingConfirm();
+  //   setReload(true);
+  // };
 
   const renderPushingStatusWhenDeliverPartnerFailed = () => {
     if(!OrderDetail || !OrderDetail.fulfillments) {
@@ -930,7 +931,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           </Space>
         }
       >
-        {newFulfillments.map(
+        {newFulfillments.map(          
           (fulfillment) =>
             fulfillment.shipment && (
               <div
@@ -940,7 +941,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 <Collapse
                   className="saleorder_shipment_order_colapse payment_success"
                   defaultActiveKey={[
-                    fulfillment.status !== FulFillmentStatus.RETURNED ? "1" : "",
+                    fulfillment.status === FulFillmentStatus.RETURNED || fulfillment.status === FulFillmentStatus.CANCELLED ||
+                    fulfillment.status === FulFillmentStatus.RETURNING ? "0" : "1",
                   ]}
                   // onChange={(e) => console.log(e[0])}
                   expandIcon={({isActive}) => (
@@ -997,23 +999,50 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             />
                           </div>
                           <FulfillmentStatusTag fulfillment={fulfillment} />
-                          <PrintShippingLabel
-                            fulfillment={fulfillment}
-                            orderSettings={orderSettings}
-                            orderId={OrderDetail?.id}
-                            onPrint={onPrint}
-                          />
+                          {!(fulfillment.status === FulFillmentStatus.CANCELLED ||
+                            fulfillment.status === FulFillmentStatus.RETURNING ||
+                            fulfillment.status === FulFillmentStatus.RETURNED) &&
+                            <PrintShippingLabel
+                              fulfillment={fulfillment}
+                              orderSettings={orderSettings}
+                              orderId={OrderDetail?.id}
+                            />}
                         </div>
 
                         <div className="saleorder-header-content__date">
-                          <span style={{color: "#000000d9", marginRight: 6}}>
-                            Ngày tạo:
-                          </span>
-                          <span style={{color: "#000000d9"}}>
-                            {moment(fulfillment.shipment?.created_date).format(
-                              "DD/MM/YYYY"
-                            )}
-                          </span>
+                          {(fulfillment.status === FulFillmentStatus.CANCELLED ||
+                            fulfillment.status === FulFillmentStatus.RETURNING ||
+                            fulfillment.status === FulFillmentStatus.RETURNED) ?
+                            <span>
+                              <span
+                                style={{
+                                  color: "#000000d9",
+                                  marginRight: 6,
+                                }}
+                              >
+                                Ngày huỷ:
+                              </span>
+                              <span style={{color: "#000000d9"}}>
+                                {fulfillment.cancel_date ? moment(
+                                  fulfillment.cancel_date
+                                ).format("DD/MM/YYYY") : ''}
+                              </span>
+                            </span> : 
+                            <span>
+                              <span
+                                style={{
+                                  color: "#000000d9",
+                                  marginRight: 6,
+                                }}
+                              >
+                                Ngày tạo:
+                              </span>
+                              <span style={{color: "#000000d9"}}>
+                                {moment(
+                                  fulfillment.shipment?.created_date
+                                ).format("DD/MM/YYYY")}
+                              </span>
+                            </span>}
                         </div>
                       </div>
                     }
@@ -1664,6 +1693,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 form={form}
                 isShowButtonCreateShipment
                 handleCreateShipment={() => form.submit()}
+                creating={updateShipment}
                 handleCancelCreateShipment={() => setVisibleShipping(false)}
               />
             </Form>
