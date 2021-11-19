@@ -1,36 +1,36 @@
-import {Card, Button, Form, Input, Select} from "antd";
-import React, {useCallback, useEffect, useState} from "react";
-import moment from "moment";
-import actionColumn from "./actions/action.column";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import CustomFilter from "component/table/custom.filter";
-import search from "assets/img/search.svg";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import "./promo-code.scss";
 import {FilterOutlined, PlusOutlined} from "@ant-design/icons";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
-import {DATE_FORMAT} from "utils/DateUtils";
-import {PageResponse} from "model/base/base-metadata.response";
-import {getQueryParams, useQuery} from "../../../utils/useQuery";
+import {Button, Card, Form, Input, Select} from "antd";
+import search from "assets/img/search.svg";
+import ContentContainer from "component/container/content.container";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import {MenuAction} from "component/table/ActionButton";
+import CustomFilter from "component/table/custom.filter";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import UrlConfig from "config/url.config";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
-  deletePriceRulesById,
-  getListDiscount,
   bulkDeletePriceRules,
   bulkDisablePriceRules,
   bulkEnablePriceRules,
+  deletePriceRulesById,
+  getListDiscount,
 } from "domain/actions/promotion/discount/discount.action";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
-import {PROMO_TYPE} from "utils/Constants";
-import {showSuccess} from "utils/ToastUtils";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {ACTIONS_PROMO} from "../constant";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
+import {PageResponse} from "model/base/base-metadata.response";
+import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
+import moment from "moment";
+import React, {useCallback, useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {Link} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import {MenuAction} from "component/table/ActionButton";
+import {PROMO_TYPE} from "utils/Constants";
+import {DATE_FORMAT} from "utils/DateUtils";
+import {showSuccess} from "utils/ToastUtils";
+import {getQueryParams, useQuery} from "../../../utils/useQuery";
+import {ACTIONS_PROMO} from "../constant";
+import actionColumn from "./actions/action.column";
+import "./promo-code.scss";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -115,6 +115,25 @@ const PromotionCode = () => {
     setIsShowDeleteModal(true);
   };
 
+  const statuses = [
+    {
+      code: "ACTIVE",
+      value: "Đang áp dụng",
+    },
+    {
+      code: "DISABLED",
+      value: "Tạm ngưng",
+    },
+    {
+      code: "DRAFT",
+      value: "Chờ áp dụng",
+    },
+    {
+      code: "CANCELLED",
+      value: "Đã huỷ",
+    },
+  ];
+
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã",
@@ -188,35 +207,12 @@ const PromotionCode = () => {
       dataIndex: "state",
       align: "center",
       width: "15%",
-      // render: (value: any, item: any, index: number) => {
-      //   const status: any | null = STATUS_PROMO.find(e => e.code === item.state);
-      //   return (<div
-      //     style={status?.style}
-      //   >
-      //     {status?.value}
-      //   </div>)
-      // }
+      render: (value: string) => {
+        const status = statuses.find((e) => e.code === value);
+        return status ? status.value : "";
+      },
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
-  ];
-
-  const statuses = [
-    {
-      code: "ACTIVE",
-      value: "Đang áp dụng",
-    },
-    {
-      code: "DISABLED",
-      value: "Tạm ngưng",
-    },
-    {
-      code: "DRAFT",
-      value: "Chờ áp dụng",
-    },
-    {
-      code: "CANCELLED",
-      value: "Đã huỷ",
-    },
   ];
 
   const handleCallback = useCallback(
