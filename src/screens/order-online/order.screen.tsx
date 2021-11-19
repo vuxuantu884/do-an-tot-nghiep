@@ -528,6 +528,12 @@ export default function Order() {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
+        if( shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+          showError("Vui lòng nhập địa chỉ giao hàng!");
+          const element: any = document.getElementById("shippingAddress_update_full_address");
+          scrollAndFocusToDomElement(element);
+          return;
+        }
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (typeButton === OrderStatus.DRAFT) {
             setIsSaveDraft(true);
@@ -1049,7 +1055,7 @@ export default function Order() {
             name: "Tạo mới đơn hàng",
           },
         ]}
-        extra={<CreateBillStep status="draff" orderDetail={null} />}
+        extra={<CreateBillStep orderDetail={null} />}
       >
         <React.Fragment>
           <div className="orders">
