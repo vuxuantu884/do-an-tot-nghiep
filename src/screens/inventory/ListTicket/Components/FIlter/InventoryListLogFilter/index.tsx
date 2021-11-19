@@ -24,6 +24,8 @@ import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
 import { InventoryTransferLogSearchQuery, Store } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
+import ButtonSetting from "component/table/ButtonSetting";
+import "assets/css/custom-filter.scss";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -334,15 +336,15 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     
   return (
     <InventoryFiltersWrapper>
+      <div className="custom-filter"> 
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-          <Row gutter={20} className="row-filter">
-          <Col flex="200px">
             <Item
               name="from_store_id"
               className="select-item"
             >
               <Select
+                style={{width: '200px'}}
                 placeholder="Kho gửi"
                 showArrow
                 showSearch
@@ -361,13 +363,12 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                   ))}
               </Select>
             </Item>
-          </Col>
-          <Col flex="200px">
             <Item
               name="to_store_id"
               className="select-item"
             >
               <Select
+                style={{width: '180px'}}
                 placeholder="Kho nhận"
                 showArrow
                 showSearch
@@ -387,8 +388,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                   ))}
               </Select>
             </Item >
-          </Col>
-          <Col flex="auto">
             <Item name="condition" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
@@ -400,26 +399,18 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 }}
               />
             </Item>
-          </Col>
-          <Col flex="80px">
             <Item>
-              <Button type="primary" loading={loadingFilter} htmlType="submit">
+              <Button style={{width: '80px'}} type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
               </Button>
             </Item>
-          </Col>
-          <Col flex="180px">
             <Item>
-              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              <Button style={{width: '180px'}} icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
-          </Col>
-          <Col flex="60px">
-            <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
-          </Col>
-          </Row>
+            <ButtonSetting onClick={onShowColumnSetting} />
         </Form>
       </CustomFilter>
-
+      </div>
       <BaseFilter
         onClearFilter={onClearFilterClick}
         onFilter={onFilterClick}

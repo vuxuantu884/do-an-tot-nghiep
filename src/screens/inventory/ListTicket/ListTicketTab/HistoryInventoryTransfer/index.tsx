@@ -14,7 +14,7 @@ import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 import { Link } from "react-router-dom";
 
 const ACTIONS_INDEX = {
@@ -109,7 +109,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-  const [tableLoading, setTableLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(true);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   let dataQuery: InventoryTransferLogSearchQuery = {
     ...initQuery,
@@ -251,7 +251,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#2?${queryParam}`);
+      history.push(`${InventoryTransferTabUrl.HISTORIES}?${queryParam}`);
     },
     [history, params]
   );
