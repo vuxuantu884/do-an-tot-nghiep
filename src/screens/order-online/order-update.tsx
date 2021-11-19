@@ -84,6 +84,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
+  checkPaymentStatus,
   checkPaymentStatusToShow,
   CheckShipmentType,
   formatCurrency, getAmountPaymentRequest,
@@ -1321,17 +1322,17 @@ export default function Order(props: PropType) {
                             <div className="d-flex">
                               <span className="title-card">THANH TOÁN</span>
                             </div>
-                            {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                            {checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === -1 && (
                               <Tag className="orders-tag orders-tag-default">
                                 Chưa thanh toán
                               </Tag>
                             )}
-                            {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                            {checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === 0 && (
                               <Tag className="orders-tag orders-tag-warning">
                                 Thanh toán 1 phần
                               </Tag>
                             )}
-                            {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                            {checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === 1 && (
                               <Tag
                                 className="orders-tag orders-tag-success"
                                 style={{
