@@ -997,24 +997,6 @@ export default function Order(props: PropType) {
             response.fulfillments[0] &&
             response?.fulfillments[0]?.shipment?.delivery_service_provider_type
           ) {
-            if (!(response.fulfillments[0].status === 'cancelled' ||
-            response.fulfillments[0].status === 'returned' ||
-            response.fulfillments[0].status === 'returning')) {
-              switch (response.fulfillments[0].shipment?.delivery_service_provider_type) {
-                case ShipmentMethod.SHIPPER:
-                  newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
-                  break;
-                case ShipmentMethod.EXTERNAL_SERVICE:
-                  newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
-                  break;
-                case ShipmentMethod.PICK_AT_STORE:
-                  newShipmentMethod = ShipmentMethodOption.PICK_AT_STORE;
-                  break;
-                default:
-                  newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
-                  break;
-              }
-            }
             setShipmentMethod(newShipmentMethod);
             const newFulfillments = [...response.fulfillments];
             setFulfillments(newFulfillments.reverse());
