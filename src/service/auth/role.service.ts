@@ -20,3 +20,9 @@ export const createRoleApi = (
 ): Promise<BaseResponse<RoleAuthorize>> => {
   return BaseAxios.post(`${ApiConfig.AUTH}/roles`, role);
 };
+
+export const getRoleByIdApi = (
+  id : number
+): Promise<BaseResponse<RoleAuthorize>> => {
+  return BaseAxios.get(`${ApiConfig.AUTH}/roles/${id}`);
+};

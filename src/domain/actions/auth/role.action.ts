@@ -14,3 +14,7 @@ export const RoleSearchAction = (query: RoleSearchQuery, setData: (data: PageRes
 export const createRoleAction = (role: RoleAuthorize, setData: (data: RoleAuthorize) => void) => {
   return BaseAction(RoleType.CREATE_ROLES, {role,setData});
 }
+
+export const getRoleByIdAction = (id: number, setData: (data: RoleAuthorize) => void) => {
+  return BaseAction(RoleType.GET_ROLE_BY_ID, {id ,setData});
+}

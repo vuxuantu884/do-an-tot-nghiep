@@ -10,7 +10,8 @@ export const AuthType = {
   export const RoleType = {
     GET_LIST_ROLE_REQUEST:'GET_LIST_ROLE_REQUEST',
     SEARCH_LIST_ROLE_REQUEST:'SEARCH_LIST_ROLE_REQUEST',
-    CREATE_ROLES : 'CREATE_ROLES'
+    CREATE_ROLES : 'CREATE_ROLES',
+    GET_ROLE_BY_ID : 'GET_ROLE_BY_ID'
   }
 
   export const PermissionType = {
