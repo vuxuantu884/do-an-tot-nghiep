@@ -1,18 +1,18 @@
-import {Form} from "antd";
+import { Form } from "antd";
 import ContentContainer from "component/container/content.container";
-import {getAllModuleParam} from "config/module.config";
+import { getAllModuleParam } from "config/module.config";
 import UrlConfig from "config/url.config";
-import {getModuleAction} from "domain/actions/auth/module.action";
-import {createRoleAction, getRoleByIdAction} from "domain/actions/auth/role.action";
+import { getModuleAction } from "domain/actions/auth/module.action";
+import { getRoleByIdAction, updateRoleByIdction } from "domain/actions/auth/role.action";
 import _ from "lodash";
-import {ModuleAuthorize} from "model/auth/module.model";
-import {PermissionsAuthorize} from "model/auth/permission.model";
-import {RoleAuthorize, RoleAuthorizeRequest} from "model/auth/roles.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useHistory, useParams} from "react-router";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { ModuleAuthorize } from "model/auth/module.model";
+import { PermissionsAuthorize } from "model/auth/permission.model";
+import { RoleAuthorize, RoleAuthorizeRequest } from "model/auth/roles.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory, useParams } from "react-router";
+import { showError, showSuccess } from "utils/ToastUtils";
 import RoleForm from "../role.form";
 
 const RoleUpdateScreen: React.FC = () => {
@@ -28,11 +28,7 @@ const RoleUpdateScreen: React.FC = () => {
   const [activePanel, setActivePanel] = useState<string | string[]>([]);
   const [indeterminateModules, setIndeterminateModules] = useState<string[]>([]);
   const [checkedModules, setCheckedModules] = useState<string[]>([]);
-
-  const [permissionData, setPermissionData] = useState<Map<number, PermissionsAuthorize>>(
-    new Map([])
-  ); // Map<permissionId, PermissionsAuthorize>
-
+  const [roleData, setRoleData] = useState<RoleAuthorize>({} as RoleAuthorize);
   const onFinish = (values: any) => {
     const dataSubmit: RoleAuthorizeRequest = {} as RoleAuthorizeRequest;
     dataSubmit.name = values.name;
@@ -49,35 +45,29 @@ const RoleUpdateScreen: React.FC = () => {
       showError("Vui lòng chọn ít nhất 1 quyền");
       return;
     }
-    // setIsSubmitting(true);
+    setIsSubmitting(true);
+    dataSubmit.id = parseInt(id);
+    dataSubmit.version = roleData.version;
     console.log(dataSubmit);
-    
-    // dispatch(
-    //   createRoleAction(dataSubmit, (response: RoleAuthorize) => {
-    //     setIsSubmitting(false);
-    //     if (response) {
-    //       showSuccess("Thêm nhóm quyền thành công");
-    //       history.push(UrlConfig.ROLES);
-    //     }
-    //   })
-    // );
+    dispatch(
+      updateRoleByIdction(dataSubmit, (response: RoleAuthorize) => {
+        setIsSubmitting(false);
+        if (response) {
+          showSuccess("Chỉnh sửa nhóm quyền thành công");
+          history.push(UrlConfig.ROLES);
+        }
+      })
+    );
   };
 
   // handle checkbox
   const handleDefaultField = useCallback(
     (data: RoleAuthorize) => {
+      setRoleData(data);
       // get total permission of module
       const totalPermissionOfModules = new Map(
         moduleData?.items.map((item) => [item.code, item.permissions.length])
       );
-      // get permission of account
-      const permissionDataTemps = new Map<number, PermissionsAuthorize>();
-      moduleData?.items.forEach((item) => {
-        item.permissions.forEach((permission) => {
-          permissionDataTemps.set(permission.id, permission);
-        });
-      });
-      setPermissionData(permissionDataTemps);
 
       let defaultCheckedModules: string[] = [];
       let defaultIndeterminateModules: string[] = [];
