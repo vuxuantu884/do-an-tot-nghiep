@@ -54,23 +54,6 @@ export const StyledComponent = styled.div`
   }
 
   .ecommerce-order-list {
-    .ant-table.ant-table-middle .ant-table-tbody > tr > td {
-      border-right: 1px solid #e5e5e5;
-      padding: 10px 10px;
-    }
-
-    .ant-table.ant-table-middle .ant-table-tbody > tr > td:first-child {
-      border-left: 1px solid #e5e5e5;
-    }
-
-    .ant-table.ant-table-middle .ant-table-thead > tr > th {
-      border-right: 1px solid #e5e5e5;
-    }
-
-    .ant-table.ant-table-middle .ant-table-thead > tr > th:first-child {
-      border-left: 1px solid #e5e5e5;
-    }
-
     .cell-items {
       margin: 0 -10px;
       .item {
@@ -102,6 +85,7 @@ export const StyledComponent = styled.div`
 `;
 
 export const StyledOrderFilter = styled.div`
+  margin-bottom: 20px;
   .order-filter {
     overflow-x: scroll;
     .ant-form {
@@ -127,11 +111,13 @@ export const StyledOrderFilter = styled.div`
   .search-id-order-ecommerce {
     margin-right: 10px;
     min-width: 180px;
+    flex-grow: 1;
   }
 
   .search-term-input {
     margin-right: 10px;
     min-width: 180px;
+    flex-grow: 1;
   }
 
   .render-shop-list {
@@ -229,7 +215,7 @@ export const StyledEcommerceOrderBaseFilter = styled.div`
     .site-input-split {
       width: 10%;
       border: 0;
-      pointerevents: none;
+      pointer-events: none;
     }
   }
 `;

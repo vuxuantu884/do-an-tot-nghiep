@@ -293,6 +293,8 @@ const UpdateSupplierScreen: React.FC = () => {
                       placeholder="Chọn ngành hàng"
                       showArrow
                       defaultValue="fashion"
+                      optionFilterProp="children"
+                      showSearch
                     >
                       {goods?.map((item) => (
                         <Option key={item.value} value={item.value}>
@@ -313,10 +315,10 @@ const UpdateSupplierScreen: React.FC = () => {
                     name="person_in_charge"
                     label="Nhân viên phụ trách"
                   >
-                    <Select placeholder="Chọn nhân viên phụ trách" className="selector">
+                    <Select placeholder="Chọn nhân viên phụ trách" className="selector" showSearch  optionFilterProp="children">
                       {accounts.map((item) => (
                         <Option key={item.code} value={item.code}>
-                          {item.full_name}
+                          {item.code + " - "+item.full_name}
                         </Option>
                       ))}
                     </Select>
@@ -457,6 +459,8 @@ const UpdateSupplierScreen: React.FC = () => {
                       <Select
                         className="selector"
                         placeholder="Chọn phân cấp nhà cung cấp"
+                        showSearch  
+                        optionFilterProp="children"
                       >
                         {scorecards?.map((item) => (
                           <Option key={item.value} value={item.value}>

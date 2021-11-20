@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
 export const nameQuantityWidth = 280;
 const quantityWidth = 50;
+const priceWidth = 100;
 const nameWidth = nameQuantityWidth - quantityWidth;
 
 export const StyledComponent = styled.div`
@@ -12,8 +13,9 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantity {
-    padding: 0 !important;
+    padding: 0 15px !important;
   }
   td {
     position: relative;
@@ -27,6 +29,10 @@ export const StyledComponent = styled.div`
   }
   .quantityWidth {
     width: ${quantityWidth}px;
+    text-align: center;
+  }
+  .priceWidth {
+    width: ${priceWidth}px;
     text-align: center;
   }
   .item.custom-td {
@@ -45,11 +51,13 @@ export const StyledComponent = styled.div`
     p {
       margin-bottom: 0;
     }
-    .quantity {
+    .quantity,
+    .priceWidth {
       white-space: nowrap;
       display: flex;
       align-items: center;
       justify-content: center;
+      position:relative;
       &:before {
         content: "";
         display: block;
@@ -59,6 +67,23 @@ export const StyledComponent = styled.div`
         top: 0;
         bottom: 0;
         right: ${quantityWidth}px;
+        background-color: ${borderColor};
+      }
+    }
+    .price {
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:before {
+       // content: "";
+        display: block;
+        width: 1px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        bottom: 0;
+        right: ${priceWidth}px;
         background-color: ${borderColor};
       }
     }

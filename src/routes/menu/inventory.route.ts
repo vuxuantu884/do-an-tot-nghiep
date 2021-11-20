@@ -1,5 +1,5 @@
 import { RouteMenu } from "../../model/other";
-import UrlConfig from "../../config/url.config";
+import UrlConfig, { InventoryTabUrl } from "../../config/url.config";
 import React from "react";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
@@ -40,7 +40,7 @@ const InventoryScreen = React.lazy(
 
 export const inventory: Array<RouteMenu> = [
   {
-    path: `${UrlConfig.INVENTORY}`,
+    path: `${InventoryTabUrl.ALL}`,
     exact: true,
     title: "Danh sách tồn",
     icon: "icon-dot",
@@ -48,8 +48,29 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu24",
     isShow: true,
     header: null,
-    subMenu: [],
-  },
+    subMenu: [{
+      path: `${InventoryTabUrl.DETAIL}`,
+      exact: true,
+      title: "Danh sách tồn",
+      icon: "icon-dot",
+      component: InventoryScreen,
+      key: "submenu24",
+      isShow: true,
+      header: null,
+      subMenu: [],
+    },
+    {
+      path: `${InventoryTabUrl.HISTORIES}`,
+      exact: true,
+      title: "Danh sách tồn",
+      icon: "icon-dot",
+      component: InventoryScreen,
+      key: "submenu24",
+      isShow: true,
+      header: null,
+      subMenu: [],
+    },],
+  }, 
   {
     path: UrlConfig.PURCHASE_ORDERS,
     exact: true,
@@ -138,6 +159,18 @@ export const inventory: Array<RouteMenu> = [
     permissions:[InventoryTransferPermission.read],
     subMenu: [
       {
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/histories`,
+        exact: true,
+        title: "Lịch sử chuyển hàng",
+        icon: "icon-dot",
+        component: ListTicket,
+        key: "submenu31",
+        isShow: true,
+        header: null,
+        permissions:[InventoryTransferPermission.read],
+        subMenu: [],
+      },
+      {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/create`,
         exact: true,
         title: "Chuyển hàng",
@@ -148,7 +181,7 @@ export const inventory: Array<RouteMenu> = [
         header: null,
         permissions:[InventoryTransferPermission.create],
         subMenu: [],
-      },
+      },  
       {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/:id`,
         exact: true,

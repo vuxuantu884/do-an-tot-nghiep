@@ -6,7 +6,7 @@ const UrlConfig = {
   VARIANTS: `/variants`,
   CATEGORIES: `/products/categories`,
   PURCHASE_ORDERS: `/purchase-orders`,
-  INVENTORY: "/products/inventory",
+  INVENTORY: "/products/inventorys",
   MATERIALS: `/products/materials`,
   SIZES: `/products/sizes`,
   COLORS: `/products/colors`,
@@ -42,6 +42,16 @@ export const ProductTabUrl = {
   PRODUCTS: UrlConfig.PRODUCT,
   PRODUCT_HISTORIES: UrlConfig.PRODUCT + "/histories",
   HISTORY_PRICES: UrlConfig.PRODUCT + "/history-prices",
+};
+
+export const InventoryTransferTabUrl = {
+  LIST: UrlConfig.INVENTORY_TRANSFERS,
+  HISTORIES: UrlConfig.INVENTORY_TRANSFERS + "/histories",
+};
+export const InventoryTabUrl = {
+  ALL: UrlConfig.INVENTORY,
+  DETAIL: UrlConfig.INVENTORY+ "/details",
+  HISTORIES: UrlConfig.INVENTORY + "/histories",
 };
 
 export const BASE_NAME_ROUTER = "/unicorn/admin";

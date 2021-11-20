@@ -135,6 +135,7 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
+        console.log(result);
         setDataShipment(result.shipment);
       }
     },
@@ -930,7 +931,7 @@ const DetailTicket: FC = () => {
                             <CopyOutlined style={{color: "#71767B"}}
                               onClick={() => {
                                 showSuccess('Đã copy');
-                                copy(data.shipment.tracking_code);
+                                copy(data.shipment?.tracking_code);
                               }} 
                             />
                           </div>
@@ -960,7 +961,8 @@ const DetailTicket: FC = () => {
                       </>
                     }
                     {
-                      data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                      ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && data.shipment !==null) && (
                         <div className="inventory-transfer-action">
                           <AuthWrapper 
                             acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
@@ -973,7 +975,8 @@ const DetailTicket: FC = () => {
                             </Button>
                           </AuthWrapper>
                           {
-                            data.shipment.status === 'confirmed' && (
+                            (data.shipment?.status === 'confirmed' &&
+                            data.status ===  STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
                               <AuthWrapper 
                                 acceptPermissions={[ShipmentInventoryTransferPermission.export]}
                               >

@@ -1239,7 +1239,8 @@ function OrderCreateProduct(props: PropType) {
       }
       // setLoadingAutomaticDiscount(true);
       let newV = parseInt(v);
-      let _items = [...items].reverse();
+      // let _items = [...items].reverse();
+      let _items = [...items];
       let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
@@ -1247,7 +1248,8 @@ function OrderCreateProduct(props: PropType) {
       item.position = items.length + 1;
       if (r.id === newV) {
         if (splitLine || index === -1) {
-          _items.push(item);
+          // _items.push(item);
+          _items.unshift(item);
           setAmount(amount + (item.price - item.discount_items[0].amount));
           calculateChangeMoney(
             _items,
@@ -1258,6 +1260,7 @@ function OrderCreateProduct(props: PropType) {
         } else {
           let variantItems = _items.filter((item) => item.variant_id === newV);
           let lastIndex = variantItems.length - 1;
+          console.log('variantItems', variantItems)
           variantItems[lastIndex].quantity += 1;
           variantItems[lastIndex].line_amount_after_line_discount +=
             variantItems[lastIndex].price -
@@ -1548,7 +1551,7 @@ function OrderCreateProduct(props: PropType) {
     if (!isAutomaticDiscount && coupon && items && items?.length > 0) {
       handleApplyCouponWhenInsertCoupon(coupon, items);
     }
-  }, [items?.length]);
+  }, [customer?.id, storeId, orderSourceId, items?.length]);
 
   console.log("isAutomaticDiscount", isAutomaticDiscount);
 

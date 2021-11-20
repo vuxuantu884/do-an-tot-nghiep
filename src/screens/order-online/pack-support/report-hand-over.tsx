@@ -163,15 +163,29 @@ const ReportHandOver: React.FC = () => {
 
     goodsReceipts?.orders?.forEach(function(i){
       codes.push(i.code);
+      
     });
     data.items.forEach(function (i: any) {
       codes.push(i.code);
+      console.log("code",i.code)
     });
 
     let param: any = {
       ...goodsReceipts,
+      // store_id:goodsReceipts.store_id,
+      // store_name: goodsReceipts.store_name,
+      // ecommerce_id: goodsReceipts.ecommerce_id,
+      // ecommerce_name: goodsReceipts.ecommerce_name,
+      // receipt_type_id: goodsReceipts.receipt_type_id,
+      // receipt_type_name: goodsReceipts.receipt_type_name,
+      // delivery_service_id: goodsReceipts.delivery_service_id,
+      // delivery_service_name: goodsReceipts.delivery_service_name,
       codes: codes,
     };
+
+    // console.log("data",data);
+    // console.log("codes",codes)
+    // console.log("param",param);
 
     dispatch(
       updateGoodsReceipts(
@@ -194,7 +208,7 @@ const ReportHandOver: React.FC = () => {
         }
       )
     );
-  }, [dispatch, setData, data, goodsReceipts]);
+  }, [dispatch,setData, data, goodsReceipts]);
 
   useEffect(() => {
     const toDate = new Date();
