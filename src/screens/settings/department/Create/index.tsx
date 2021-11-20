@@ -15,6 +15,7 @@ import {useDispatch} from "react-redux";
 import {useHistory} from "react-router";
 import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import useAuthorization from "hook/useAuthorization";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 
 const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
@@ -29,6 +30,10 @@ const DepartmentCreateScreen: React.FC = () => {
     items: [],
   });
   const [loading, setLoading] = useState<boolean>(false);
+  
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
   //phân quyền
   const [allowCreateDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.CREATE],
@@ -39,7 +44,7 @@ const DepartmentCreateScreen: React.FC = () => {
       dispatch(
         AccountSearchAction({...query, limit: 20}, (result) => {
           if (result) {
-            setAccounts(result);
+            setAccounts(result); 
           }
         })
       );
@@ -57,6 +62,23 @@ const DepartmentCreateScreen: React.FC = () => {
       }
     }));
   }, [dispatch, history]);
+
+  
+  const backAction = useCallback(()=>{
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      });  
+  },[history])
 
   useEffect(() => {
     searchAccount({}, false);
@@ -172,17 +194,18 @@ const DepartmentCreateScreen: React.FC = () => {
         </Card>
         <BottomBarContainer
           back="Quay lại"
+          backAction={backAction}
           rightComponent={
             <Space>
-              {allowCreateDep ? (
-                <Button loading={loading} htmlType="submit" type="primary">
+              {allowCreateDep && <Button loading={loading} htmlType="submit" type="primary">
                   Tạo mới
-                </Button>
-              ) : null}
+                </Button>}
             </Space>
           }
         />
       </Form>
+      
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

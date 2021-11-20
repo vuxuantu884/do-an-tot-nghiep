@@ -7,7 +7,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom"; 
 import { generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -72,7 +72,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       setPrams({ ...params });
 
       history.replace(
-        `${UrlConfig.INVENTORY}#3?${queryParam}`
+        `${InventoryTabUrl.HISTORIES}?${queryParam}`
       );
     },
     [history, params]
