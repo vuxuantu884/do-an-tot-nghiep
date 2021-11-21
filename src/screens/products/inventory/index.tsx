@@ -6,12 +6,14 @@ import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useRouteMatch } from "react-router";
+import { useHistory, useRouteMatch} from "react-router";
+import { generateQuery } from "utils/AppUtils";
+import { getQueryParams } from "utils/useQuery";
 import AllTab from "./tab/all.tab";
 import DetailTab from "./tab/detail.tab";
-import HistoryTab from "./tab/history.tab";
+import HistoryTab from "./tab/history.tab"; 
 
-const { TabPane } = Tabs;
+const { TabPane } = Tabs; 
 
 const InventoryScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>(InventoryTabUrl.ALL);
@@ -19,12 +21,17 @@ const InventoryScreen: React.FC = () => {
   const history = useHistory();
   const [loading, setLoading] = useState<boolean>(true);
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
-  const {path} = useRouteMatch();
+  const {path} = useRouteMatch();  
 
   useEffect(() => {
     let redirectUrl = path;
-    if (redirectUrl) {
-      switch (redirectUrl) {
+    if (redirectUrl) { 
+      const search = new URLSearchParams(history.location.search);
+      const newPrams = {...getQueryParams(search)};
+      if (newPrams && newPrams !==null) 
+           redirectUrl += `?${generateQuery(newPrams)}`;
+
+      switch (path) {
         case  InventoryTabUrl.ALL:
           history.replace(redirectUrl);
           setActiveTab(InventoryTabUrl.ALL);
