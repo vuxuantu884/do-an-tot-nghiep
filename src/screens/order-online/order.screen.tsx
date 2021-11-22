@@ -988,12 +988,13 @@ export default function Order() {
   // }, [dispatch]);
 
   useEffect(() => {
-    if (items && items != null&& items.length) {
+    if (items && items != null) {
       let variant_id: Array<number> = [];
       items.forEach((element) => variant_id.push(element.variant_id));
       dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
     }
-  }, [dispatch, items]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, items?.length]);
 
   useEffect(() => {
     dispatch(
