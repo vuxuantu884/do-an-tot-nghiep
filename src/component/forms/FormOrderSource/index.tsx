@@ -1,5 +1,5 @@
 import {Checkbox, Col, Form, Input, Row, Select} from "antd";
-import {CheckboxChangeEvent} from "antd/lib/checkbox"; 
+import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import {CustomModalFormModel} from "model/modal/modal.model";
 import {useEffect, useState} from "react";
 import * as CONSTANTS from "utils/Constants";
@@ -10,8 +10,10 @@ type FormValuesType = {
   company_id: number;
   company: string;
   name: string;
+  code: string | null;
   department_id: string;
   department: string;
+  channel_id: number;
   is_active: boolean;
   is_default: boolean;
 };
@@ -30,18 +32,22 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
       ? {
+          channel_id: formItem.channel_id,
           company_id: formItem.company_id,
           company: DEFAULT_FORM_VALUE.company,
           name: formItem.name,
+          code: formItem.code,
           department_id: formItem.department_id,
           department: formItem.department,
           is_active: formItem.active,
           is_default: formItem.default,
         }
       : {
+          channel_id: undefined,
           company_id: DEFAULT_FORM_VALUE.company_id,
           company: DEFAULT_FORM_VALUE.company,
           name: "",
+          code: null,
           department_id: undefined,
           department: "",
           is_active: false,
@@ -91,7 +97,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
           <Input />
         </Form.Item>
         <Row gutter={30}>
-          <Col span={24}>
+        <Col span={modalAction === "create" ? 24 : 12}>
             <Form.Item
               name="name"
               label="Tên nguồn đơn hàng"
@@ -103,10 +109,33 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
               <Input placeholder="Nhập tên nguồn đơn hàng" style={{width: "100%"}} />
             </Form.Item>
           </Col>
+          <Col span={12} hidden={modalAction === "create"}>
+            <Form.Item
+              name="code"
+              label="Mã nguồn"
+              rules={[
+                () => ({
+                  validator(_, value) {
+                    if (RegUtil.ONLY_STRING.test(value)) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("Chỉ nhập kí tự chữ và in hoa!"));
+                  },
+                }),
+                {len: 4, message: "Nhập 4 ký tự!"},
+              ]}
+            >
+              <Input
+                type="text"
+                placeholder="Nhập mã nguồn"
+                style={{width: "100%", textTransform: "uppercase"}}
+              />
+            </Form.Item>
+          </Col>
         </Row>
 
         <Row gutter={30}>
-          <Col span={24}>
+          <Col span={modalAction === "create" ? 24 : 12}>
             <Form.Item
               name="department_id"
               label="Phòng ban"
@@ -137,14 +166,14 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                       <Select.Option value={single.id} key={single.id}>
                         <span
                           className="hideInSelect"
-                          style={{paddingLeft: +15 * single.level}}
+                          style={{paddingLeft: +18 * single.level}}
                         ></span>
                         {single?.parent?.name && (
                           <span className="hideInDropdown">
                             {single?.parent?.name} -{" "}
                           </span>
                         )}
-                        <span>{single.name}</span>
+                        <span  className={`${single.level === 0 && "itemParent"}`}>{single.name}</span>
                       </Select.Option>
                     );
                   })}
@@ -165,7 +194,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
         >
           <Checkbox>Đặt làm mặc định</Checkbox>
         </Form.Item>
-      </Form> 
+      </Form>
     </StyledComponent>
   );
 };

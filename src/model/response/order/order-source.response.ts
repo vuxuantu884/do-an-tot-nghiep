@@ -12,7 +12,7 @@ export interface OrderSourceModel {
   id: number;
   channel_id: number;
   is_default: boolean;
-  code: string;
+  code?: string|null;
   is_channel: boolean;
   channel_type: {
     id: number;
