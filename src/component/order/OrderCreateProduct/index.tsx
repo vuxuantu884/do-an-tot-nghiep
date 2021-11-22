@@ -1108,9 +1108,13 @@ function OrderCreateProduct(props: PropType) {
               console.log("applyDiscountResponse", applyDiscountResponse);
               if (applyDiscountResponse.invalid === true) {
                 showError(applyDiscountResponse.invalid_description);
-                _items?.forEach((item) => {
-                  removeDiscountItem(item)
-                })
+                if(applyDiscountResponse.invalid_description === "Mã khuyến mại không tồn tại.") {
+                    _items?.forEach((item) => {
+                      removeDiscountItem(item)
+                    })
+                  } else {
+                    setCoupon && setCoupon(coupon);
+                  }
                 setItems(_items);
                 handleChangeItems(_items)
               } else {

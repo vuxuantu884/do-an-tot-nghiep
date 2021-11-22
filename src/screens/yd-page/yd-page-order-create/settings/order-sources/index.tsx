@@ -334,7 +334,8 @@ function OrderSources(props: PropsType) {
   ): OrderSourceModel => {
     return {
       ...formValues,
-      code: formValues.code.toUpperCase(),
+      // code: formValues.code.toUpperCase(),
+      code: formValues.code? formValues.code: undefined,
     };
   };
 

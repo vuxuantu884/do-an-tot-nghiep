@@ -38,8 +38,6 @@ import {StyledComponent} from "./styles";
 import { SourcePermissions } from "config/permissions/setting.permisssion";  
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
-import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import * as CONSTANTS from "utils/Constants";
 
 type formValuesType = {
   name: string | undefined;
@@ -62,25 +60,9 @@ const actionsDefault: Array<MenuAction> = [
   },
 ];
 
-type FormValuesTypeCustom = {
-  company_id: number | undefined;
-  company: string;
-  name: string| undefined;
-  code: string;
-  department_id: string | undefined;
-  department: string | any;
-  channel_id: number | undefined;
-  is_active: boolean;
-  is_default: boolean;
-};
-
 function OrderSources(props: PropsType) {
-  const DEFAULT_FORM_VALUE = {
-    company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
-    company: CONSTANTS.DEFAULT_FORM_VALUE.company,
-  };
   const {location} = props;
-  const queryParamsParsed: any = queryString.parse(location.search); 
+  const queryParamsParsed: any = queryString.parse(location.search);
  
   const DEFAULT_PAGINATION = {
     page: 1,
@@ -99,11 +81,6 @@ function OrderSources(props: PropsType) {
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleOrderSource, setModalSingleOrderSource] =
     useState<OrderSourceModel | null>(null);
-    
-  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
-    visible: false,
-  }); 
-  const [dataOrigin, setDataOrigin] =  useState<FormValuesTypeCustom>();
 
   const [form] = Form.useForm();
 
@@ -385,7 +362,7 @@ function OrderSources(props: PropsType) {
   ): OrderSourceModel => {
     return {
       ...formValues,
-      code: formValues.code.toUpperCase(),
+      code: formValues.code? formValues.code: undefined,
     };
   };
 
@@ -431,26 +408,6 @@ function OrderSources(props: PropsType) {
     },
   };
 
-  const onCancel = (formValues: OrderSourceModel)=>{  
-    if (JSON.stringify(formValues) !== JSON.stringify(dataOrigin)) {
-      setModalConfirm({
-        visible: true,
-        onCancel: () => {
-          setModalConfirm({visible: false});
-        },
-        onOk: () => { 
-          setModalConfirm({visible: false});
-          setIsShowModalOrderSource(false)
-        },
-        title: "Bạn có muốn thoát?",
-        subTitle:
-          "Sau khi thoát thay đổi sẽ không được lưu.",
-      }); 
-    }else{
-      setIsShowModalOrderSource(false)
-    }
-  };
-
   useEffect(() => {
     if (queryParams) {
       setTableLoading(true);
@@ -465,7 +422,7 @@ function OrderSources(props: PropsType) {
         ? +queryParamsParsed.department_id
         : undefined,
     };
-    form.setFieldsValue(valuesFromParams); 
+    form.setFieldsValue(valuesFromParams);
   }, [form, queryParamsParsed.department_id, queryParamsParsed.name]);
 
   useEffect(() => {
@@ -605,29 +562,7 @@ function OrderSources(props: PropsType) {
                       return {
                         onClick: () => {
                           setModalAction("edit");
-                          setModalSingleOrderSource(record);  
-                          const recordCustom: FormValuesTypeCustom = modalAction && record ?  {
-                            channel_id: record.channel_id,
-                            company_id: record.company_id,
-                            company: DEFAULT_FORM_VALUE.company,
-                            department: record.department,
-                            name: record.name,
-                            code: record.code,
-                            department_id: record.department_id,
-                            is_active: record.active,
-                            is_default: record.default,
-                          } : {
-                            channel_id: undefined,
-                            company_id: DEFAULT_FORM_VALUE.company_id,
-                            company: DEFAULT_FORM_VALUE.company,
-                            department: "",
-                            name: "",
-                            code: "",
-                            department_id: undefined,
-                            is_active: false,
-                            is_default: false,
-                          }
-                          setDataOrigin(recordCustom);
+                          setModalSingleOrderSource(record);
                           setIsShowModalOrderSource(true);
                         },
                       };
@@ -652,7 +587,7 @@ function OrderSources(props: PropsType) {
               handleFormOrderSource.edit(formValues)
             }
             onDelete={() => handleFormOrderSource.delete()}
-            onCancel={onCancel} 
+            onCancel={() => setIsShowModalOrderSource(false)}
             modalAction={modalAction}
             componentForm={FormOrderSource}
             formItem={modalSingleOrderSource}
@@ -660,7 +595,6 @@ function OrderSources(props: PropsType) {
             modalTypeText="Nguồn đơn hàng"
             moreFormArguments={{listDepartments}}
           />
-         <ModalConfirm {...modalConfirm} />
         </ContentContainer>
       ) : (
         <NoPermission />
