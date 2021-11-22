@@ -85,7 +85,7 @@ export const getReturnApi = (
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
+  return BaseAxios.get(`${ApiConfig.CORE}/sources/listing`);
 };
 
 export const getPaymentMethod = (): Promise<BaseResponse<Array<PaymentMethodResponse>>> => {
