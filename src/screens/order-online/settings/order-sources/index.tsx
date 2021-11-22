@@ -432,7 +432,6 @@ function OrderSources(props: PropsType) {
   };
 
   const onCancel = (formValues: OrderSourceModel)=>{  
-    debugger
     if (JSON.stringify(formValues) !== JSON.stringify(dataOrigin)) {
       setModalConfirm({
         visible: true,
