@@ -96,7 +96,8 @@ import {
 import {
   FulFillmentStatus, OrderStatus,
   PaymentMethodCode,
-  PaymentMethodOption, ShipmentMethodOption,
+  PaymentMethodOption,
+  ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
