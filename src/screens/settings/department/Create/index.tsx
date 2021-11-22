@@ -76,7 +76,7 @@ const DepartmentCreateScreen: React.FC = () => {
         },
         title: "Bạn có muốn quay lại?",
         subTitle:
-          "Sau khi quay lại thay đổi sẽ không được lưu.",
+          "Sau khi quay lại phòng ban mới sẽ không được lưu.",
       });  
   },[history])
 

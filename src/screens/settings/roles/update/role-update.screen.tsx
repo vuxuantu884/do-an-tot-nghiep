@@ -1,5 +1,6 @@
 import { Form } from "antd";
 import ContentContainer from "component/container/content.container";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { getAllModuleParam } from "config/module.config";
 import UrlConfig from "config/url.config";
 import { getModuleAction } from "domain/actions/auth/module.action";
@@ -21,6 +22,9 @@ const RoleUpdateScreen: React.FC = () => {
 
   const history = useHistory();
   const [form] = Form.useForm();
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  }); 
 
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,9 +104,31 @@ const RoleUpdateScreen: React.FC = () => {
         name: data.name,
         description: data.description,
       });
+      setDataOrigin(form.getFieldsValue());
     },
     [form, moduleData]
   );
+
+  const [dataOrigin, setDataOrigin] = useState<RoleAuthorizeRequest | null>(null);
+  const backAction = ()=>{ 
+    if (JSON.stringify(form.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
 
   useEffect(() => {
     dispatch(
@@ -151,11 +177,13 @@ const RoleUpdateScreen: React.FC = () => {
           indeterminateModules={indeterminateModules}
           isSubmitting={isSubmitting}
           onFinish={onFinish}
+          backAction={backAction}
           setActivePanel={setActivePanel}
           setCheckedModules={setCheckedModules}
           setIndeterminateModules={setIndeterminateModules}
         />
       )}
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };
