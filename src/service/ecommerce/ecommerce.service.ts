@@ -136,6 +136,13 @@ const postEcommerceOrderApi = (
   return BaseAxios.post(link, requestBody);
 };
 
+// print ecommerce orders api
+const printEcommerceOrdersApi = (requestBody: any) => {
+  let url = `${ApiConfig.ECOMMERCE}/orders/print-forms`;
+  return BaseAxios.post(url, requestBody);
+};
+
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,
@@ -157,4 +164,5 @@ export {
   addFpagePhone,
   deleteFpagePhone,
   setFpageDefaultPhone,
+  printEcommerceOrdersApi,
 };

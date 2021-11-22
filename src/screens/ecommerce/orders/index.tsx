@@ -63,6 +63,11 @@ import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import {getToken} from "../../../utils/LocalStorageUtils";
+import axios from "axios";
+import {AppConfig} from "config/app.config";
+import {FulFillmentStatus} from "utils/Constants";
+import {showError, showSuccess} from "../../../utils/ToastUtils";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -180,7 +185,7 @@ const EcommerceOrders: React.FC = () => {
     OrderProcessingStatusModel[]
   >([]);
 
-  const [data, setData] = useState<PageResponse<OrderModel>>({
+  const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -211,25 +216,6 @@ const EcommerceOrders: React.FC = () => {
     { name: "Đã huỷ", value: "cancelled" },
     { name: "Đã hết hạn", value: "expired" },
   ];
-
-
-  const actionList = (
-    <Menu>
-      <Menu.Item key="1">
-        <div>
-          <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={() => onMenuClick(1)}>In phiếu giao hàng</span>
-        </div>
-      </Menu.Item>
-  
-      <Menu.Item key="2">
-        <div>
-          <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
-        </div>
-      </Menu.Item>
-    </Menu>
-  );
   
 
   const convertProgressStatus = (value: any) => {
@@ -602,7 +588,7 @@ const EcommerceOrders: React.FC = () => {
   ]);
 
   const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);
+    const selectedRowKeys = selectedRow.map((row: any) => row?.id);
     setSelectedRowKeys(selectedRowKeys);
   }, []);
 
@@ -628,19 +614,92 @@ const EcommerceOrders: React.FC = () => {
     setPrams(initQuery);
   }, []);
 
+  // handle action button
+
+  // const printElementRef = useRef(null);
+  // const Print = (data: any) => useReactToPrint({
+  //   content: () => data,
+  // });
+  const token = getToken();
+  const handlePrintDeliveryNote = useCallback(
+      () => {
+        setTableLoading(true);
+        if (selectedRowKeys?.length > 0) {
+          let order_list: any = [];
+          selectedRowKeys.forEach(idSelected => {
+            const orderMatched = data?.items.find(i => i.id === idSelected)
+            if(orderMatched){
+             const orderRequest = {
+                "order_sn": orderMatched.reference_code,
+                "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
+                "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
+                "ecommerce_id": 1,
+                "shop_id": orderMatched.ecommerce_shop_id
+              }
+              order_list.push(orderRequest)
+            }
+          })
+
+          let url = `${AppConfig.baseUrl}${AppConfig.ECOMMERCE_SERVICE}/orders/print-forms`;
+          axios.post(url,{order_list} ,
+              {
+                responseType: 'arraybuffer',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/pdf',
+                  'Authorization': `Bearer ${token}`
+                }
+              })
+              .then((response) => {
+                showSuccess("Tạo phiếu giao hàng thành công")
+                let blob = new Blob([response.data], { type: 'application/pdf' })
+                let fileURL = URL.createObjectURL(blob);
+                window.open(fileURL)
+                setTableLoading(false)
+              })
+              .catch(() => {
+                setTableLoading(false)
+                showError("Không thể tạo phiếu giao hàng")
+              });
+        }
+      },
+      [selectedRowKeys, token, data?.items]
+  );
+
   const onMenuClick = useCallback(
     (index: number) => {
-      let params = {
-        action: "print",
-        ids: selectedRowKeys,
-        "print-type": index === 1 ? "shipment" : "stock_export",
-        "print-dialog": true,
-      };
-      const queryParam = generateQuery(params);
-      history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
+      if (selectedRowKeys?.length > 0) {
+        let params = {
+          action: "print",
+          ids: selectedRowKeys,
+          "print-type": index === 1 ? "shipment" : "stock_export",
+          "print-dialog": true,
+        };
+        const queryParam = generateQuery(params);
+        history.push(`${UrlConfig.ECOMMERCE}/orders/print-preview?${queryParam}`);
+      }
     },
     [history, selectedRowKeys]
   );
+
+  const actionList = (
+    <Menu>
+      <Menu.Item key="1" disabled={selectedRowKeys?.length < 1}>
+        <div>
+          <PrinterOutlined style={{ marginRight: 5 }} />
+          <span onClick={handlePrintDeliveryNote}>In phiếu giao hàng</span>
+        </div>
+      </Menu.Item>
+  
+      <Menu.Item key="2" disabled={selectedRowKeys?.length < 1}>
+        <div>
+          <PrinterOutlined style={{ marginRight: 5 }} />
+          <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
+        </div>
+      </Menu.Item>
+    </Menu>
+  );
+  // end handle action button
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
@@ -766,7 +825,6 @@ const EcommerceOrders: React.FC = () => {
           {(allowed: boolean) => (allowed ?
             <Card>
               <EcommerceOrderFilter
-                onMenuClick={onMenuClick}
                 actions={actionList}
                 onFilter={onFilter}
                 isLoading={tableLoading}
