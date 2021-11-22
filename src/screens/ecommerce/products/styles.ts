@@ -58,7 +58,7 @@ export const StyledUpdateProductDataModal = styled.div`
 //common product style
 export const StyledProductFilter = styled.div`
   .filter {
-    overflow-x: scroll;
+    overflow-x: auto;
     .ant-form {
       display: flex;
     }
@@ -82,11 +82,13 @@ export const StyledProductFilter = styled.div`
   .shoppe-search {
     margin-right: 10px;
     min-width: 230px;
+    flex-grow: 1;
   }
 
   .yody-search {
     margin-right: 10px;
     min-width: 200px;
+    flex-grow: 1;
   }
 
   .render-shop-list {
