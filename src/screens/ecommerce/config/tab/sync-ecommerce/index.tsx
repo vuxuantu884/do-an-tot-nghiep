@@ -1,16 +1,17 @@
-import CustomTable from "component/table/CustomTable";
 import React, { useState } from "react";
-import actionColumn from "../../actions/action.column";
-import { StyledHeader, StyledComponent } from "./styles";
 import { Button } from "antd";
+import moment from "moment";
+import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import CustomTable from "component/table/CustomTable";
+import actionColumn from "screens/ecommerce/config/actions/action.column";
+
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 import { useHistory } from "react-router-dom";
-import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import successIcon from "assets/icon/success_2.svg";
-import moment from "moment";
+import { StyledHeader, StyledComponent } from "screens/ecommerce/config/tab/sync-ecommerce/styles";
 
 const iconMap: any = {
   shopee: shopeeIcon,
@@ -65,16 +66,6 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
         return <img src={iconMap[v.ecommerce]} alt=""></img>;
       },
     },
-    // {
-    //   title: "Shop ID | Tên shop",
-    //   visible: true,
-    //   render: (l: any, v: any, i: any) => {
-    //     return <div>
-    //       <span>{v.ecommerce_id}</span>
-    //       <span>{v.ecommerce}</span>
-    //     </div>;
-    //   },
-    // },
     {
       title: "Tên gian hàng",
       visible: true,
@@ -87,12 +78,6 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
       },
     },
     { title: "Cửa hàng", visible: true, dataIndex: "store" },
-    // {
-    //   title: "Đồng bộ sản phẩm",
-    //   visible: true,
-    //   align: "center",
-    //   dataIndex: "product_sync",
-    // },
     {
       title: "Nhân viên bán hàng",
       visible: true,
@@ -184,14 +169,6 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
           columns={columns}
           dataSource={configDataFiltered}
           pagination={false}
-          // pagination={{
-          //   pageSize: data.metadata.limit,
-          //   total: data.metadata.total,
-          //   current: data.metadata.page,
-          //   showSizeChanger: true,
-          //   onChange: onPageChange,
-          //   onShowSizeChange: onPageChange,
-          // }}
           rowKey={(data) => data.id}
         />
       </div>

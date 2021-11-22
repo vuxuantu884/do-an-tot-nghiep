@@ -1,13 +1,11 @@
-import { StyledConfig } from "./styles";
-import { Row, Col, Form, Select, Button } from "antd";
+
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { showSuccess } from "utils/ToastUtils";
+import { useHistory } from "react-router-dom";
 import CustomSelect from "component/custom/select.custom";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import disconnectIcon from "assets/icon/e-disconnect.svg";
-import saveIcon from "assets/icon/e-save-config.svg";
+import { Row, Col, Form, Select, Button } from "antd";
+
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -19,16 +17,22 @@ import {
   ecommerceConfigUpdateAction,
   ecommerceConfigCreateAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
-import { useDispatch } from "react-redux";
-import { showSuccess } from "utils/ToastUtils";
-import { useHistory } from "react-router-dom";
 import CustomInput from "screens/customer/common/customInput";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { SourceResponse } from "model/response/order/source.response";
+
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
+
+import shopeeIcon from "assets/icon/e-shopee.svg";
+import sendoIcon from "assets/icon/e-sendo.svg";
+import lazadaIcon from "assets/icon/e-lazada.svg";
+import tikiIcon from "assets/icon/e-tiki.svg";
+import disconnectIcon from "assets/icon/e-disconnect.svg";
+import saveIcon from "assets/icon/e-save-config.svg";
+import { StyledConfig } from "screens/ecommerce/config/tab/setting-config/styles";
 
 const iconMap: any = {
   shopee: shopeeIcon,
@@ -335,10 +339,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <span className="description-name">{`Thông tin của shop trên ${
                 convertToCapitalizedString() || "sàn"
               }`}</span>
-              {/* <span className="description">
-                Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
-                các gian hàng với nhau
-              </span> */}
             </Col>
             <Col span={12}>
               <div className="ecommerce-user-detail">
@@ -356,14 +356,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                     <span className="fw-500">: {configDetail?.id || "---"}</span>
                   </Col>
                 </Row>
-                {/* <Row>
-                  <Col span={5}>Username</Col>
-                  <Col span={19}>
-                    <span className="fw-500">
-                      : {configDetail?.assign_account || "---"}
-                    </span>
-                  </Col>
-                </Row> */}
               </div>
             </Col>
           </Row>
@@ -380,22 +372,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               </ul>
             </Col>
             <Col span={12}>
-              {/* <Form.Item
-                label={<span>Tên gian hàng</span>}
-                name="name"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn gian hàng",
-                  },
-                ]}
-              >
-                <Input
-                  maxLength={255}
-                  placeholder="Nhập tên gian hàng"
-                  disabled={configDetail ? false : true}
-                ></Input>
-              </Form.Item> */}
               <CustomInput
                 name="name"
                 label={<span>Tên gian hàng</span>}
@@ -416,20 +392,17 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <ul className="description">
                 <li>
                   <span>
-                    Chọn cửa hàng để ghi nhận doanh số và trừ tốn kho tại cửa
-                    hàng.{" "}
+                    Chọn cửa hàng để ghi nhận doanh số và trừ tốn kho tại cửa hàng.
                   </span>
                 </li>
                 <li>
                   <span>
-                    Chọn nhân viên bán hàng để ghi nhận doanh số và nhân viên phụ
-                    trách.
+                    Chọn nhân viên bán hàng để ghi nhận doanh số và nhân viên phụ trách.
                   </span>
                 </li>
                 <li>
                   <span>
-                    Chọn nguồn đơn hàng để ghi nhận nguồn cho đơn hàng khi tải đơn
-                    về.
+                    Chọn nguồn đơn hàng để ghi nhận nguồn cho đơn hàng khi tải đơn về.
                   </span>
                 </li>
               </ul>
@@ -469,12 +442,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Form.Item
                 label={<span>Nhân viên bán hàng</span>}
                 name="assign_account_code"
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn nhân viên bán hàng",
-                //   },
-                // ]}
               >
                 <Select
                   disabled={!configDetail || !allowShopsUpdate}
@@ -496,12 +463,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Form.Item
                 label={<span>Nguồn đơn hàng</span>}
                 name="source_id"
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn nguồn đơn hàng",
-                //   },
-                // ]}
               >
                 <Select
                   disabled={!configDetail || !allowShopsUpdate}
@@ -650,9 +611,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   placeholder="Chọn kiểu đồng bộ sản phẩm"
                   disabled={!configDetail || !allowShopsUpdate}
                 >
-                  {/* <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
-                    convertToCapitalizedString() || "sàn"
-                  } về`}</Option> */}
                   <Option value={"manual"}>
                     <span>Đợi ghép nối</span>
                   </Option>
@@ -660,12 +618,11 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               </Form.Item>
             </Col>
           </Row>
-          <div className="customer-bottom-button">
+          <div className="config-setting-footer">
             {(isConfigExist && allowShopsDelete) ?
               <Button
-                className="disconnect-btn"
+                className="delete-shop-btn"
                 icon={<img src={disconnectIcon} alt="" />}
-                style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
                 type="ghost"
                 onClick={() => handleDisconnectEcommerce()}
                 disabled={isLoading}
