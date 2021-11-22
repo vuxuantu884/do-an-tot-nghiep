@@ -6,7 +6,7 @@ import {
 import {Col, Input, Row, Space, Table} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import {Link} from "react-router-dom";
-import UrlConfig from "config/url.config";
+import { InventoryTabUrl } from "config/url.config";
 import {VariantResponse} from "model/product/product.model";
 import {useDispatch} from "react-redux";
 import _ from "lodash";
@@ -159,7 +159,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
+                to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
               >
                 {record.sku}
               </Link>

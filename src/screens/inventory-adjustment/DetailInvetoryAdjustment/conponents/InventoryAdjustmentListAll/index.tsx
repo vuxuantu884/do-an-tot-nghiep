@@ -7,7 +7,7 @@ import {Col, Input, Row, Space, Table} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import {PurchaseOrderLineItem} from "model/purchase-order/purchase-item.model";
 import {Link} from "react-router-dom";
-import UrlConfig from "config/url.config";
+import { InventoryTabUrl } from "config/url.config";
 import _ from "lodash";
 import {useDispatch} from "react-redux";
 import {updateItemOnlineInventoryAction} from "domain/actions/inventory/inventory-adjustment.action";
@@ -161,7 +161,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
+                to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
               >
                 {record.sku}
               </Link>

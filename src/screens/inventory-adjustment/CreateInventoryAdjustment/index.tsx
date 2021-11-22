@@ -1,6 +1,6 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useState} from "react";
 import {StyledWrapper} from "./styles";
-import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
+import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {Button, Card, Col, Form, Input, Row, Select, Space, Upload, Empty} from "antd";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
@@ -411,7 +411,7 @@ const CreateInventoryAdjustment: FC = () => {
               <div className="product-item-sku">
                 <Link
                   target="_blank"
-                  to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
+                  to={`${UrlConfig.PRODUCT}/${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
                 >
                   {record.sku}
                 </Link>
@@ -649,7 +649,7 @@ const CreateInventoryAdjustment: FC = () => {
               <div className="product-item-sku">
                 <Link
                   target="_blank"
-                  to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
+                  to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
                 >
                   {record.sku}
                 </Link>
