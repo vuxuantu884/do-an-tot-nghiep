@@ -49,7 +49,6 @@ type EcommerceOrderFilterProps = {
   listPaymentMethod: Array<PaymentMethodResponse>;
   subStatus: Array<OrderProcessingStatusModel>;
   isLoading?: boolean | undefined;
-  onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
