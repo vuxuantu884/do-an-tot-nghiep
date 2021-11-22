@@ -107,7 +107,7 @@ export interface HistoryInventoryResponse extends BaseObject{
 
 export interface HistoryInventoryQuery extends BaseQuery {
   condition?: string,
-  store_id?: number|Array<number>,
+  store_ids?: number|Array<number>,
   from_created_date?: string,
   to_created_date?: string,
   from_transaction_date?: string,

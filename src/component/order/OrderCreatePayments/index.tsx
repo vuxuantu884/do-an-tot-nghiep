@@ -92,6 +92,7 @@ function OrderCreatePayments(props: PropType): JSX.Element {
   }, [totalAmountOrder, totalAmountPayment]);
 
   console.log("levelOrder", levelOrder);
+  console.log("totalAmountOrder", totalAmountOrder);
 
   return (
     <StyledComponent>

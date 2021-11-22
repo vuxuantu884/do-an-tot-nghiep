@@ -165,7 +165,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       render: (value: string, i: PurchaseOrder) => {
         return (
           <> 
-            <Link to={`${UrlConfig.PURCHASE_ORDER}/${i.id}`} style={{fontWeight: 500}}>
+            <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{fontWeight: 500}}>
               {value}
             </Link>
             <br />
@@ -398,7 +398,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({...params});
-      history.replace(`${UrlConfig.PURCHASE_ORDER}?${queryParam}`);
+      history.replace(`${UrlConfig.PURCHASE_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
@@ -408,7 +408,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.PURCHASE_ORDER}?${queryParam}`);
+      history.push(`${UrlConfig.PURCHASE_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
@@ -493,7 +493,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           },
           {
             name: "Đặt hàng",
-            path: `${UrlConfig.PURCHASE_ORDER}`,
+            path: `${UrlConfig.PURCHASE_ORDERS}`,
           },
         ]}
         extra={
@@ -519,7 +519,7 @@ const PurchaseOrderListScreen: React.FC = () => {
                 Xuất file
               </Button>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
-              <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
+              <ButtonCreate path={`${UrlConfig.PURCHASE_ORDERS}/create`} />
               </AuthWrapper>
             </Space>
           </Row>

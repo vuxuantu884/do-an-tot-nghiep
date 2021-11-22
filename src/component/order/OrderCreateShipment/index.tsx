@@ -62,6 +62,7 @@ type PropType = {
   setShippingFeeInformedToCustomer: (value: number) => void;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   handleCreateShipment?: () => void;
+  creating?: boolean;
   handleCancelCreateShipment?: () => void;
 };
 
@@ -96,6 +97,8 @@ type PropType = {
  *
  * handleCreateShipment: xử lý khi click nút tạo đơn giao hàng trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  *
+ * creating: loading status create
+ * 
  * handleCancelCreateShipment: xử lý khi click nút hủy trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  */
 function OrderCreateShipment(props: PropType) {
@@ -115,6 +118,7 @@ function OrderCreateShipment(props: PropType) {
     onSelectShipment,
     setShippingFeeInformedToCustomer,
     handleCreateShipment,
+    creating,
     handleCancelCreateShipment,
   } = props;
   console.log('props', props)
@@ -219,6 +223,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
             onClick={() => {
               handleCreateShipment && handleCreateShipment();
             }}
+            loading={creating}
           >
             Tạo đơn giao hàng
           </Button>
@@ -228,6 +233,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
               handleCancelCreateShipment && handleCancelCreateShipment();
             }}
             style={{float: "right"}}
+            disabled={creating}
           >
             Hủy
           </Button>

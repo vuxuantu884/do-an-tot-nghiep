@@ -19,6 +19,8 @@ export interface OrderSourceModel {
     code: string;
     name: string;
   } | null;
+  active: boolean;
+  default: boolean;
 }
 
 export interface ChannelModel {

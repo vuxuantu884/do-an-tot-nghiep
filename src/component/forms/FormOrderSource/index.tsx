@@ -1,5 +1,5 @@
 import {Checkbox, Col, Form, Input, Row, Select} from "antd";
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
+import {CheckboxChangeEvent} from "antd/lib/checkbox"; 
 import {CustomModalFormModel} from "model/modal/modal.model";
 import {useEffect, useState} from "react";
 import * as CONSTANTS from "utils/Constants";
@@ -165,7 +165,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
         >
           <Checkbox>Đặt làm mặc định</Checkbox>
         </Form.Item>
-      </Form>
+      </Form> 
     </StyledComponent>
   );
 };

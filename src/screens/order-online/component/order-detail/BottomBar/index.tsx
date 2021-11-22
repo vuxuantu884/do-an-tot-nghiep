@@ -236,6 +236,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                   onClick={() => orderActionsClick && orderActionsClick("update")}
                   disabled={
+                    disabledBottomActions ||
                     stepsStatusValue === OrderStatus.CANCELLED ||
                     stepsStatusValue === FulFillmentStatus.SHIPPED ||
                     stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed

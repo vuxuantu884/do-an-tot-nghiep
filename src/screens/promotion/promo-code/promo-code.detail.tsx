@@ -748,7 +748,7 @@ const PromotionDetailScreen: React.FC = () => {
                 <Row>
                   <Col span={12}>
                     <span style={{fontWeight: 500}}>
-                      Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}
+                      Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}₫
                     </span>
                   </Col>
                   <Col span={12}>

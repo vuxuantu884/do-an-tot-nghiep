@@ -1,7 +1,7 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
+import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
 import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -436,7 +436,7 @@ const DetailInvetoryAdjustment: FC = () => {
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
+                to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
               >
                 {record.sku}
               </Link>

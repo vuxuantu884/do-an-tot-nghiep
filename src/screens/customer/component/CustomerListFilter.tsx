@@ -1,36 +1,35 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import {
-  Form,
-  Input,
-  Select,
-  AutoComplete,
-  Button,
-} from "antd";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
-
-import BaseFilter from "component/filter/base.filter";
+import {
+  AutoComplete,
+  Button, Form,
+  Input,
+  Select
+} from "antd";
 import { RefSelectProps } from "antd/lib/select";
-
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-
-import SelectAreaFilter from "screens/customer/component/SelectAreaFilter";
-import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
-
+import filterIcon from "assets/icon/filter.svg";
 import rightArrow from "assets/icon/right-arrow.svg";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
-import { StyledCustomerBaseFilter, StyledCustomerFilter } from "screens/customer/customerStyled";
+import BaseFilter from "component/filter/base.filter";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ChannelResponse } from "model/response/product/channel.response";
-import { RegUtil } from "utils/RegUtils";
 import moment from "moment";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import SelectAreaFilter from "screens/customer/component/SelectAreaFilter";
+import { StyledCustomerBaseFilter, StyledCustomerFilter } from "screens/customer/customerStyled";
+import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
+import { RegUtil } from "utils/RegUtils";
 
-import filterIcon from "assets/icon/filter.svg";
+
+
+
+
+
 
 
 type CustomerListFilterProps = {

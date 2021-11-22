@@ -19,7 +19,7 @@ import successIcon from "assets/icon/success_2.svg";
 import { StyledDownloadOrderData } from "screens/ecommerce/orders/orderStyles";
 
 
-type DownloadOrderDataModalType = {
+type GetOrderDataModalType = {
   visible: boolean;
   onOk: (data: any) => void;
   onCancel: () => void;
@@ -29,8 +29,8 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 
-const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
-  props: DownloadOrderDataModalType
+const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
+  props: GetOrderDataModalType
 ) => {
   const { visible, onOk, onCancel } = props;
   const dispatch = useDispatch();
@@ -290,4 +290,4 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
   );
 };
 
-export default DownloadOrderDataModal;
+export default GetOrderDataModal;

@@ -12,6 +12,7 @@ import {Link} from "react-router-dom";
 import emptyProduct from "assets/icon/empty_products.svg";
 import {getOrderConcernGoodsReceipts} from "domain/actions/goods-receipts/goods-receipts.action";
 import {OrderConcernGoodsReceiptsResponse} from "model/response/pack/pack.response";
+import { OrderResponse } from "model/response/order/order.response";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
@@ -215,7 +216,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                     <Input
                       style={{width: "100%"}}
                       prefix={<img src={search} alt="" />}
-                      placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, tên người nhận, sđt người nhận"
+                      placeholder="ID Đơn hàng"
                     />
                   </Item>
 
