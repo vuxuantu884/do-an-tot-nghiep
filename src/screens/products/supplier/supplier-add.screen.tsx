@@ -311,12 +311,14 @@ const CreateSupplierScreen: React.FC = () => {
               >
                 <Select
                   placeholder="Chọn nhân viên phụ trách"
-                  className="selector"
-                  // defaultValue={personInCharge}
+                  allowClear
+                  showSearch
+                  showArrow
+                  optionFilterProp="children"
                 >
                   {accounts.map((item) => (
                     <Option key={item.code} value={item.code}>
-                      {item.full_name}
+                      {`${item.code} - ${item.full_name}`}
                     </Option>
                   ))}
                 </Select>

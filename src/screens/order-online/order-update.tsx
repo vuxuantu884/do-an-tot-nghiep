@@ -97,7 +97,6 @@ import {
   FulFillmentStatus, OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
-  ShipmentMethod,
   ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
