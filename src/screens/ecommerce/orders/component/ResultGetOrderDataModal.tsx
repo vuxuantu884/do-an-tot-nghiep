@@ -7,7 +7,7 @@ import errorIcon from "assets/icon/error.svg";
 import CustomTable from "component/table/CustomTable";
 
 
-type ResultDownloadOrderDataModalType = {
+type ResultGetOrderDataModalType = {
   visible: boolean;
   onOk: () => void;
   onCancel: () => void;
@@ -15,8 +15,8 @@ type ResultDownloadOrderDataModalType = {
 };
 
 
-const ResultDownloadOrderDataModal: React.FC<ResultDownloadOrderDataModalType> = (
-  props: ResultDownloadOrderDataModalType
+const ResultGetOrderDataModal: React.FC<ResultGetOrderDataModalType> = (
+  props: ResultGetOrderDataModalType
 ) => {
   const { visible, onOk, onCancel, downloadOrderData } = props;
   
@@ -80,4 +80,4 @@ const ResultDownloadOrderDataModal: React.FC<ResultDownloadOrderDataModalType> =
   );
 };
 
-export default ResultDownloadOrderDataModal;
+export default ResultGetOrderDataModal;

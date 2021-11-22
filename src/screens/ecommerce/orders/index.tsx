@@ -36,24 +36,15 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import DownloadOrderDataModal from "screens/ecommerce/orders/component/DownloadOrderDataModal";
-import ResultDownloadOrderDataModal from "screens/ecommerce/orders/component/ResultDownloadOrderDataModal";
-import SOOrderFilter from "screens/ecommerce/orders/component/SOOrderFilter";
-
-// Update order filter as per SO
-// import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
+import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
+import ResultGetOrderDataModal from "screens/ecommerce/orders/component/ResultGetOrderDataModal";
+import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
 
 // todo thai: handle later
 // import UpdateConnectionModal from "./component/UpdateConnectionModal";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
-
-// thai todo: Thông tin hãng vận chuyển
-// import ImageGHTK from "assets/img/imageGHTK.svg";
-// import ImageGHN from "assets/img/imageGHN.png";
-// import ImageVTP from "assets/img/imageVTP.svg";
-// import ImageDHL from "assets/img/imageDHL.svg";
 
 import CircleEmptyIcon from "assets/icon/circle_empty.svg";
 import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
@@ -141,7 +132,7 @@ const ordersViewPermission = [EcommerceOrderPermission.orders_view];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
 
-const EcommerceOrderSync: React.FC = () => {
+const EcommerceOrders: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -201,13 +192,10 @@ const EcommerceOrderSync: React.FC = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
   
-  // thai todo: Thông tin hãng vận chuyển
-  // let delivery_services: Array<DeliveryServiceResponse> = []
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        // delivery_services = response
         setDeliveryServices(response)
       })
     );
@@ -224,35 +212,6 @@ const EcommerceOrderSync: React.FC = () => {
     { name: "Đã hết hạn", value: "expired" },
   ];
 
-  
-  // thai todo: Thông tin hãng vận chuyển
-
-  // const delivery_service = [
-  //   {
-  //     code: "ghtk",
-  //     id: 1,
-  //     logo: ImageGHTK,
-  //     name: "Giao hàng tiết kiệm",
-  //   },
-  //   {
-  //     code: "ghn",
-  //     id: 2,
-  //     logo: ImageGHN,
-  //     name: "Giao hàng nhanh",
-  //   },
-  //   {
-  //     code: "vtp",
-  //     id: 3,
-  //     logo: ImageVTP,
-  //     name: "Viettel Post",
-  //   },
-  //   {
-  //     code: "dhl",
-  //     id: 4,
-  //     logo: ImageDHL,
-  //     name: "DHL",
-  //   },
-  // ];
 
   const actionList = (
     <Menu>
@@ -806,7 +765,7 @@ const EcommerceOrderSync: React.FC = () => {
         <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
           {(allowed: boolean) => (allowed ?
             <Card>
-              <SOOrderFilter
+              <EcommerceOrderFilter
                 onMenuClick={onMenuClick}
                 actions={actionList}
                 onFilter={onFilter}
@@ -821,22 +780,6 @@ const EcommerceOrderSync: React.FC = () => {
                 onShowColumnSetting={() => setShowSettingColumn(true)}
                 onClearFilter={() => onClearFilter()}
               />
-
-              
-              {/* <EcommerceOrderFilter
-                tableLoading={tableLoading}
-                onMenuClick={onMenuClick}
-                actionList={actionList}
-                onFilter={onFilter}
-                onClearFilter={onClearFilter}
-                params={params}
-                initQuery={initQuery}
-                listStore={listStore}
-                accounts={accounts}
-                deliveryService={delivery_service}
-                subStatus={listOrderProcessingStatus}
-                onShowColumnSetting={() => setShowSettingColumn(true)}
-              /> */}
     
               <CustomTable
                 isRowSelection
@@ -868,7 +811,7 @@ const EcommerceOrderSync: React.FC = () => {
         </AuthWrapper>
 
         {isShowGetOrderModal && (
-          <DownloadOrderDataModal
+          <GetOrderDataModal
             visible={isShowGetOrderModal}
             onCancel={cancelGetOrderModal}
             onOk={updateOrderList}
@@ -876,7 +819,7 @@ const EcommerceOrderSync: React.FC = () => {
         )}
 
         {isShowResultGetOrderModal && (
-          <ResultDownloadOrderDataModal
+          <ResultGetOrderDataModal
             visible={isShowResultGetOrderModal}
             onCancel={closeResultGetOrderModal}
             onOk={closeResultGetOrderModal}
@@ -911,4 +854,4 @@ const EcommerceOrderSync: React.FC = () => {
   );
 };
 
-export default EcommerceOrderSync;
+export default EcommerceOrders;
