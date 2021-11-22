@@ -253,6 +253,8 @@ function OrderCreateProduct(props: PropType) {
   const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
 
   const lineItemQuantityInputTimeoutRef: MutableRefObject<any> = useRef();
+  const lineItemPriceInputTimeoutRef: MutableRefObject<any> = useRef();
+  const lineItemDiscountInputTimeoutRef: MutableRefObject<any> = useRef();
 
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
@@ -413,6 +415,30 @@ function OrderCreateProduct(props: PropType) {
     [items]
   );
 
+  const handleDelayApplyDiscountWhenChangeInput = (inputRef: React.MutableRefObject<any>, _items:OrderLineItemRequest[]) => {
+    // delay khi thay đổi số lượng
+    if (isAutomaticDiscount) {
+      if (inputRef.current) {
+        clearTimeout(inputRef.current);
+      }
+      inputRef.current = setTimeout(() => {
+        handleDiscountWhenActiveAutomaticDiscount();
+        return;
+      }, QUANTITY_DELAY_TIME);
+    } else {
+      if (inputRef.current) {
+        clearTimeout(inputRef.current);
+      }
+      inputRef.current = setTimeout(() => {
+        if(coupon && items && items?.length > 0) {
+          handleApplyCouponWhenInsertCoupon(coupon, _items);
+          return;
+        }
+      }, QUANTITY_DELAY_TIME);
+      
+    }
+  };
+
   const onChangeQuantity = (value: number | null, index: number) => {
     if (items) {
       let _items = [...items];
@@ -422,27 +448,7 @@ function OrderCreateProduct(props: PropType) {
       _items[index].quantity = Number(
         value == null ? "0" : value.toString().replace(".", "")
       );
-      // delay khi thay đổi số lượng
-      if (isAutomaticDiscount) {
-        if (lineItemQuantityInputTimeoutRef.current) {
-          clearTimeout(lineItemQuantityInputTimeoutRef.current);
-        }
-        lineItemQuantityInputTimeoutRef.current = setTimeout(() => {
-          handleDiscountWhenActiveAutomaticDiscount();
-          return;
-        }, QUANTITY_DELAY_TIME);
-      } else {
-        if (lineItemQuantityInputTimeoutRef.current) {
-          clearTimeout(lineItemQuantityInputTimeoutRef.current);
-        }
-        lineItemQuantityInputTimeoutRef.current = setTimeout(() => {
-          if(coupon && items && items?.length > 0) {
-            handleApplyCouponWhenInsertCoupon(coupon, _items);
-            return;
-          }
-        }, QUANTITY_DELAY_TIME);
-        
-      }
+      handleDelayApplyDiscountWhenChangeInput(lineItemQuantityInputTimeoutRef, _items)
       setItems(_items);
       handleChangeItems(_items);
     }
@@ -454,12 +460,14 @@ function OrderCreateProduct(props: PropType) {
       if (value !== null) {
         _items[index].price = value;
       }
+      handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items)
       setItems(_items);
       handleChangeItems(_items);
     }
   };
 
   const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
+    handleDelayApplyDiscountWhenChangeInput(lineItemDiscountInputTimeoutRef, _items)
     setItems(_items);
     handleChangeItems(_items);
   };
@@ -682,7 +690,7 @@ function OrderCreateProduct(props: PropType) {
     align: "center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
-        <div>
+        <div ref={lineItemPriceInputTimeoutRef}>
           <NumberInput
             format={(a: string) => formatCurrency(a)}
             replace={(a: string) => replaceFormatString(a)}
@@ -698,7 +706,7 @@ function OrderCreateProduct(props: PropType) {
             value={l.price}
             onChange={(value) => {
               onChangePrice(value, index);
-              handleApplyCouponWhenInsertCoupon(coupon);
+              // handleApplyCouponWhenInsertCoupon(coupon);
             }}
             disabled={levelOrder > 3 || isAutomaticDiscount}
           />
@@ -727,7 +735,7 @@ function OrderCreateProduct(props: PropType) {
             totalAmount={l.discount_items[0].amount}
             items={items}
             handleCardItems={onDiscountItem}
-            disabled={levelOrder > 3 || isAutomaticDiscount}
+            disabled={levelOrder > 3 || isAutomaticDiscount || coupon!==""}
           />
         </div>
       );
@@ -747,7 +755,7 @@ function OrderCreateProduct(props: PropType) {
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div className="yody-pos-varian-name">
-          {formatCurrency(Math.round(l.line_amount_after_line_discount))}
+          {formatCurrency(l.line_amount_after_line_discount)}
         </div>
       );
     },
@@ -1100,7 +1108,6 @@ function OrderCreateProduct(props: PropType) {
               console.log("applyDiscountResponse", applyDiscountResponse);
               if (applyDiscountResponse.invalid === true) {
                 showError(applyDiscountResponse.invalid_description);
-                setCoupon && setCoupon("");
                 _items?.forEach((item) => {
                   removeDiscountItem(item)
                 })
@@ -1813,7 +1820,7 @@ function OrderCreateProduct(props: PropType) {
                     textAlign: "right",
                   }}
                 >
-                  {formatCurrency(getTotalAmount(items))}
+                  {formatCurrency(Math.round(getTotalAmount(items)))}
                 </div>
 
                 <div
@@ -1823,7 +1830,7 @@ function OrderCreateProduct(props: PropType) {
                     textAlign: "right",
                   }}
                 >
-                  {formatCurrency(getTotalDiscount(items))}
+                  {formatCurrency(Math.round(getTotalDiscount(items)))}
                 </div>
 
                 <div
@@ -1835,7 +1842,7 @@ function OrderCreateProduct(props: PropType) {
                     fontWeight: 700,
                   }}
                 >
-                  {formatCurrency(getTotalAmountAfferDiscount(items))}
+                  {formatCurrency(Math.round(getTotalAmountAfferDiscount(items)))}
                 </div>
               </div>
             ) : (
