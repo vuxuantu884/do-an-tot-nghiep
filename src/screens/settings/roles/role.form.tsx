@@ -16,6 +16,7 @@ interface Props {
   setIndeterminateModules: (indeterminateModules: string[]) => void;
   setCheckedModules: (checkedModules: string[]) => void;
   moduleData: PageResponse<ModuleAuthorize>;
+  backAction?: ()=>void;
 }
 
 export default function RoleForm(props: Props): ReactElement {
@@ -30,6 +31,7 @@ export default function RoleForm(props: Props): ReactElement {
     setActivePanel,
     setCheckedModules,
     setIndeterminateModules,
+    backAction
   } = props;
   return (
     <Form
@@ -85,6 +87,7 @@ export default function RoleForm(props: Props): ReactElement {
       />
       <BottomBarContainer
         back="Quay lại danh sách"
+        backAction={backAction}
         rightComponent={
           <Button type="primary" htmlType="submit" loading={isSubmitting}>
             Lưu

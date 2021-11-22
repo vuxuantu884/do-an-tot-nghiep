@@ -1119,9 +1119,7 @@ const DetailTicket: FC = () => {
                     </Button>
                   </AuthWrapper>
                   {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-                      data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && 
-                    
+                    data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&  
                     <AuthWrapper 
                       acceptPermissions={[InventoryTransferPermission.cancel]}
                     >
