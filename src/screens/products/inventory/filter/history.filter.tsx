@@ -171,7 +171,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{width: "100%"}}
-                placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
+                placeholder="Tìm kiếm sản phẩm theo SKU"
               />
             </Item>
             <Item name={HistoryInventoryQueryField.store_ids} className="store">

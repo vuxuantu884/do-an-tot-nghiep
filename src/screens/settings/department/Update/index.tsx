@@ -249,7 +249,7 @@ const DepartmentUpdateScreen: React.FC = () => {
             rightComponent={
               <Space>
                 {allowUpdateDep && <Button loading={loading} htmlType="submit" type="primary">
-                    Cập nhật
+                    Lưu lại
                   </Button> }
               </Space>
             }

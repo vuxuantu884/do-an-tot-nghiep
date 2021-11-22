@@ -125,8 +125,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
           let data = {
             ...baseValues,
-            ...advanceValues,
-            store_id: baseValues.store_id,
+            ...advanceValues, 
             condition: baseValues.condition,
           };
           let created_date = data[InventoryQueryField.created_date],
@@ -232,10 +231,10 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{width: "100%"}}
-                placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
+                placeholder="Tìm kiếm sản phẩm theo SKU"
               />
             </Item>
-            <Item name={InventoryQueryField.store_id} className="store">
+            <Item name={InventoryQueryField.store_ids} className="store">
               <CustomSelect
                 showSearch
                 optionFilterProp="children"

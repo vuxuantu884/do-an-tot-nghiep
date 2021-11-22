@@ -62,12 +62,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       history.replace(`${InventoryTabUrl.DETAIL}?${queryParam}`);
     },
     [history, params]
-  );
-  useEffect(() => {
-    if (props.stores.length > 0 && params.store_id === undefined) {
-      setPrams({...params, store_id: props.stores[0].id});
-    }
-  }, [params, props]);
+  ); 
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<InventoryResponse>>>(
     []
