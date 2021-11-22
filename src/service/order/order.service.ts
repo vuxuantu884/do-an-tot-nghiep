@@ -228,7 +228,7 @@ export const getListSourcesCompaniesService = (): Promise<BaseResponse<SourceRes
 export const createOrderSourceService = (
   newOrderSource: OrderSourceModel,
 ): Promise<BaseResponse<OrderSourceCompanyModel>> => {
-  return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
+  return BaseAxios.post(`${ApiConfig.CORE}/sources`, newOrderSource);
 };
 
 export const editOrderSourceService = (
