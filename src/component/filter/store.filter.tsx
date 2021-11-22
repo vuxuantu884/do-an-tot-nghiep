@@ -95,7 +95,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Form.Item name="info" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              placeholder="Tên/Id cửa hàng"
+              placeholder="Tên/Mã cửa hàng"
             />
           </Form.Item>
           <Form.Item name="status">
