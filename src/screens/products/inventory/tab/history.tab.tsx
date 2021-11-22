@@ -195,7 +195,21 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   }, [selected])
   useEffect(() => {
     dispatch(inventoryGetHistoryAction(params, onResult));
-  }, [dispatch, onResult, params])
+  }, [dispatch, onResult, params]) 
+
+  useEffect(() => {
+    const search = new URLSearchParams(history.location.search);
+    if (search) {
+      const condition =  search.get('condition');
+      const store_ids =  search.get('store_ids');
+
+      if ((condition && condition !== null) || (store_ids && store_ids !== null)) {
+        setPrams({condition: condition ?? "", store_ids: parseInt(store_ids ?? "undefined") });
+      }
+    }
+
+  }, [history.location.search])
+
   return (
     <div>
       <HistoryInventoryFilter
