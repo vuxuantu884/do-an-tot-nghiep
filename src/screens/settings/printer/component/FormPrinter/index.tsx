@@ -311,14 +311,14 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         </Row>
         {isCanEditFormHeader && (
           <BottomBarContainer
-            back="Quay lại"
+            back="Quay lại danh sách"
             backAction={backAction}
             rightComponent={
               <Space>
                 {allowCreatePrint && <Button  onClick={() => {
                   handleSubmitForm();
                 }} type="primary">
-                  {isEdit ? "Lưu lại" : "Thêm mới"}
+                  {isEdit ? "Lưu lại" : "Tạo mẫu in"}
                   </Button> }
               </Space>
             }

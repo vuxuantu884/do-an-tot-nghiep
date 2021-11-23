@@ -230,27 +230,7 @@ const StoreUpdateScreen: React.FC = () => {
                     );
                   }}
                 </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
-                  label="Phân loại"
-                  name="type"
-                >
-                  <Select
-                    showSearch
-                    showArrow
-                    optionFilterProp="children"
-                    placeholder="Chọn phân loại"
-                  >
-                    {type?.map((item: StoreTypeRequest, index) => (
-                      <Option key={index} value={item.value}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
+              </Col> 
             </Row>
             <Row gutter={50}>
               <Col>
@@ -440,6 +420,26 @@ const StoreUpdateScreen: React.FC = () => {
                   <Input placeholder="Nhập diện tích cửa hàng" />
                 </Item>
               </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
+                  label="Phân loại"
+                  name="type"
+                >
+                  <Select
+                    showSearch
+                    showArrow
+                    optionFilterProp="children"
+                    placeholder="Chọn phân loại"
+                  >
+                    {type?.map((item: StoreTypeRequest, index) => (
+                      <Option key={index} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
             </Row>
           </Card>
           <Collapse
@@ -513,7 +513,7 @@ const StoreUpdateScreen: React.FC = () => {
             rightComponent={
               <Space>
                 <Button loading={loading} htmlType="submit" type="primary">
-                  Lưu
+                  Lưu lại
                 </Button>
               </Space>
             }
