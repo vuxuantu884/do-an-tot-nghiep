@@ -234,7 +234,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
       },
     };
     return (
-      <Row style={{ marginTop: 16 }}>
+      <Row>
         <Col span={24}>
           <CustomTable
             showColumnSetting={false}

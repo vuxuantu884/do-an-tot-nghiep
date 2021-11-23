@@ -15,7 +15,7 @@ export interface GoodsReceiptsResponse extends BaseObject{
     ecommerce_name:string;
     receipt_type_id:number;
     receipt_type_name:string;
-    delivery_service_code:string;
+    delivery_service_id:number;
     delivery_service_name:string;
     orders:Array<OrderResponse> | null;
 }

@@ -56,6 +56,8 @@ import ModalConfirm from "component/modal/ModalConfirm";
 import { actionFetchPrintFormByInventoryTransferIds } from "domain/actions/printer/printer.action";
 import { useReactToPrint } from "react-to-print";
 import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { InventoryTransferPermission, ShipmentInventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 
 export interface InventoryParams {
   id: string;
@@ -133,6 +135,7 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
+        console.log(result);
         setDataShipment(result.shipment);
       }
     },
@@ -864,22 +867,26 @@ const DetailTicket: FC = () => {
                       {
                         data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  data.shipment.status === 'transferring' && (
                           <div className="inventory-transfer-action">
-                            <Button
-                              type="default"
-                              className="button-draft"
-                              size="large"
-                              onClick={saveSessionStorage}
+                            <AuthWrapper 
+                              acceptPermissions={[InventoryTransferPermission.receive]}
                             >
-                              Lưu
-                            </Button>
-                            <Button
-                              type="primary"
-                              className="ant-btn-primary"
-                              size="large"
-                              onClick={() => setIsVisibleModalReceiveWarning(true)}
-                            >
-                              Nhận hàng
-                            </Button>
+                              <Button
+                                type="default"
+                                className="button-draft"
+                                size="large"
+                                onClick={saveSessionStorage}
+                              >
+                                Lưu
+                              </Button>
+                              <Button
+                                type="primary"
+                                className="ant-btn-primary"
+                                size="large"
+                                onClick={() => setIsVisibleModalReceiveWarning(true)}
+                              >
+                                Nhận hàng
+                              </Button>
+                            </AuthWrapper>
     
                           </div>
                         )
@@ -894,18 +901,23 @@ const DetailTicket: FC = () => {
                     title={"CHUYỂN HÀNG"}
                     extra={ 
                       data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&
-                        <Button
-                          className={"choses-shipper-button"}
-                          onClick={() => setIsVisibleInventoryShipment(true)}
+                        <AuthWrapper 
+                          acceptPermissions={[ShipmentInventoryTransferPermission.create]}
                         >
-                          Chọn hãng vận chuyển
-                        </Button>
+                          <Button
+                            className={"choses-shipper-button"}
+                            onClick={() => setIsVisibleInventoryShipment(true)}
+                          >
+                            Chọn hãng vận chuyển
+                          </Button>
+                        </AuthWrapper>
                     }
                   >
                     {
-                      (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
-                      || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
-                      || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && 
+                      ((data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
+                        || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+                        || data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status
+                        || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && data.shipment !==null ) && 
                       <>
                         <Row className="shipment">
                           <div className="shipment-logo">
@@ -919,7 +931,7 @@ const DetailTicket: FC = () => {
                             <CopyOutlined style={{color: "#71767B"}}
                               onClick={() => {
                                 showSuccess('Đã copy');
-                                copy(data.shipment.tracking_code);
+                                copy(data.shipment?.tracking_code);
                               }} 
                             />
                           </div>
@@ -949,26 +961,35 @@ const DetailTicket: FC = () => {
                       </>
                     }
                     {
-                      data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                      ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && data.shipment !==null) && (
                         <div className="inventory-transfer-action">
-                          
-                          <Button
-                            type="default"
-                            onClick={() => setIsVisibleModalWarning(true)}
+                          <AuthWrapper 
+                            acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
                           >
-                            Huỷ giao hàng
-                          </Button>
+                            <Button
+                              type="default"
+                              onClick={() => setIsVisibleModalWarning(true)}
+                            >
+                              Huỷ giao hàng
+                            </Button>
+                          </AuthWrapper>
                           {
-                            data.shipment.status === 'confirmed' && (
-                              <Button
-                                className="export-button"
-                                type="primary"
-                                onClick={() => {
-                                  if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, onResult));
-                                }}
+                            (data.shipment?.status === 'confirmed' &&
+                            data.status ===  STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
+                              <AuthWrapper 
+                                acceptPermissions={[ShipmentInventoryTransferPermission.export]}
                               >
-                                Xuất kho
-                              </Button>
+                                <Button
+                                  className="export-button"
+                                  type="primary"
+                                  onClick={() => {
+                                    if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, onResult));
+                                  }}
+                                >
+                                  Xuất kho
+                                </Button>
+                              </AuthWrapper>
                             )
                           }
                         </div>
@@ -1081,53 +1102,79 @@ const DetailTicket: FC = () => {
               }
               rightComponent={
                 <Space>
-                  <Button onClick={() => onPrintAction('inventory_transfer_bill')}>
-                    <PrinterOutlined />
-                    {" In vận đơn"}
-                  </Button>
-                  <Button onClick={() => onPrintAction('inventory_transfer')}>
-                    <PrinterOutlined /> 
-                    {" In phiếu chuyển"}
-                  </Button>
-                  {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-                      data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && 
-                    
-                    <Button danger onClick={() => setIsDeleteTicket(true)}>
-                      <CloseCircleOutlined style={{ color: '#E24343' }} /> Hủy phiếu
+                  <AuthWrapper 
+                    acceptPermissions={[InventoryTransferPermission.print]}
+                  >
+                    <Button onClick={() => onPrintAction('inventory_transfer_bill')}>
+                      <PrinterOutlined />
+                      {" In vận đơn"}
                     </Button>
+                  </AuthWrapper>
+                  <AuthWrapper 
+                    acceptPermissions={[InventoryTransferPermission.print]}
+                  >
+                    <Button onClick={() => onPrintAction('inventory_transfer')}>
+                      <PrinterOutlined /> 
+                      {" In phiếu chuyển"}
+                    </Button>
+                  </AuthWrapper>
+                  {
+                    data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&  
+                    <AuthWrapper 
+                      acceptPermissions={[InventoryTransferPermission.cancel]}
+                    >
+                      <Button danger onClick={() => setIsDeleteTicket(true)}>
+                        <CloseCircleOutlined style={{ color: '#E24343' }} /> Hủy phiếu
+                      </Button>
+                    </AuthWrapper>
                   }
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status ) && (
                       <>
-                      <Button onClick={() => {}}>
-                        Kiểm kho theo sản phẩm
-                      </Button>
-                      <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
-                        Cân bằng nhanh
-                      </Button>
+                        <AuthWrapper 
+                          acceptPermissions={[InventoryTransferPermission.balance]}
+                        >
+                          <Button onClick={() => {}}>
+                            Kiểm kho theo sản phẩm
+                          </Button>
+                        </AuthWrapper>
+                        <AuthWrapper 
+                          acceptPermissions={[InventoryTransferPermission.balance]}
+                        >
+                          <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
+                            Cân bằng nhanh
+                          </Button>
+                        </AuthWrapper>
                       </>
                     )
                   }
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && 
-                    <Button
-                      onClick={() => {
-                        history.push(
-                          `${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update`
-                        );
-                      }}
+                    <AuthWrapper 
+                      acceptPermissions={[InventoryTransferPermission.update]}
                     >
-                      <EditOutlined /> Sửa thông tin
-                    </Button>
+                      <Button
+                        onClick={() => {
+                          history.push(
+                            `${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update`
+                          );
+                        }}
+                      >
+                        <EditOutlined /> Sửa thông tin
+                      </Button>
+                    </AuthWrapper>
                   }
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && 
-                    <Button
-                      onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data.id}/update?cloneId=${data.id}`)}
+                    <AuthWrapper 
+                      acceptPermissions={[InventoryTransferPermission.clone]}
                     >
-                      Tạo bản sao
-                    </Button>
+                      <Button
+                        onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data.id}/update?cloneId=${data.id}`)}
+                      >
+                        Tạo bản sao
+                      </Button>
+                    </AuthWrapper>
                   }
                 </Space>
               }

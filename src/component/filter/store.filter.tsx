@@ -18,6 +18,7 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { GroupResponse } from "model/content/group.model";
 import NumberInput from "component/custom/number-input.custom";
+import "assets/css/custom-filter.scss";
 
 type StoreFilterProps = {
   initValue: StoreQuery;
@@ -83,7 +84,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   }, [formRef, visible]);
 
   return (
-    <div>
+    <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form
           className="form-search"
@@ -91,15 +92,14 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           initialValues={params}
           layout="inline"
         >
-          <Form.Item name="info">
+          <Form.Item name="info" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
-              placeholder="Tên/Id cửa hàng"
+              placeholder="Tên/Mã cửa hàng"
             />
           </Form.Item>
           <Form.Item name="status">
-            <Select style={{ width: 200 }} placeholder="Trạng thái">
+            <Select style={{ width: 180 }} placeholder="Trạng thái">
               <Option value="">Trạng thái</Option>
               {storeStatusList?.map((item) => (
                 <Option key={item.value} value={item.value}>

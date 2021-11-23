@@ -146,6 +146,8 @@ const TabProduct: React.FC = () => {
     [params]
   );
   const onFilter = useCallback((values) => {
+    let {info} = values;
+    values.info = info.trim();
     let newPrams = {...values, page: 1};
     setPrams(newPrams);
   }, []);

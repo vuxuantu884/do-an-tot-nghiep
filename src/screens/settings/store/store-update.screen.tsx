@@ -43,6 +43,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import {RegUtil} from "utils/RegUtils";
 import BottomBarContainer from "component/container/bottom-bar.container";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -77,7 +78,11 @@ const StoreUpdateScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
   const firstload = useRef(true);
- 
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  }); 
+  const [dataOrigin, setDataOrigin] = useState<StoreUpdateRequest | null>(null);
+
   //EndState
   const onSelectDistrict = useCallback(
     (value: number) => {
@@ -114,8 +119,30 @@ const StoreUpdateScreen: React.FC = () => {
       setError(false);
     } else {
       setData(data);
+      formMain.setFieldsValue(data);
+      setDataOrigin(formMain.getFieldsValue());
     }
-  }, []);
+  }, [formMain]);
+
+  const backAction = ()=>{ 
+    if (JSON.stringify(formMain.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
   useEffect(() => {
     if (firstload.current) {
       setLoadingData(true);
@@ -482,6 +509,7 @@ const StoreUpdateScreen: React.FC = () => {
           </Collapse>
           <BottomBarContainer
             back={"Quay lại"}
+            backAction={backAction}
             rightComponent={
               <Space>
                 <Button loading={loading} htmlType="submit" type="primary">
@@ -492,6 +520,7 @@ const StoreUpdateScreen: React.FC = () => {
           />
         </Form>
       )}
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

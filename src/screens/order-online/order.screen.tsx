@@ -11,6 +11,7 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
@@ -168,7 +169,7 @@ export default function Order() {
   };
 
   const [coupon, setCoupon] = useState<string>("");
-  // const [promotionId, setPromotionId] = useState<string>("");
+  const [promotionId, setPromotionId] = useState<number|null>(null);
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -406,8 +407,26 @@ export default function Order() {
     if (coupon) {
       listDiscountRequest.push({
         discount_code: coupon,
+          rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: null,
+        reason: "",
+        source: "",
+        order_id: null,
       });
-    } else if (discountRate === 0 && discountValue === 0) {
+    } else if(promotionId) {
+      listDiscountRequest.push({
+        discount_code: null,
+        rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: promotionId,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    }  else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
@@ -509,6 +528,12 @@ export default function Order() {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
+        if( shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+          showError("Vui lòng nhập địa chỉ giao hàng!");
+          const element: any = document.getElementById("shippingAddress_update_full_address");
+          scrollAndFocusToDomElement(element);
+          return;
+        }
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (typeButton === OrderStatus.DRAFT) {
             setIsSaveDraft(true);
@@ -549,7 +574,7 @@ export default function Order() {
               let isPointFocus = checkPointFocus(values);
               if (isPointFocus) {
                 (async () => {
-                  console.log('values', values)
+                  console.log('values', values);
                   try {
                     await dispatch(orderCreateAction(values, createOrderCallback));
                   } catch {
@@ -962,13 +987,14 @@ export default function Order() {
   //   );
   // }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (items && items != null&& items.length) {
-  //     let variant_id: Array<number> = [];
-  //     items.forEach((element) => variant_id.push(element.variant_id));
-  //     dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-  //   }
-  // }, [dispatch, items]);
+  useEffect(() => {
+    if (items && items != null) {
+      let variant_id: Array<number> = [];
+      items.forEach((element) => variant_id.push(element.variant_id));
+      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, items?.length]);
 
   useEffect(() => {
     dispatch(
@@ -1030,7 +1056,7 @@ export default function Order() {
             name: "Tạo mới đơn hàng",
           },
         ]}
-        extra={<CreateBillStep status="draff" orderDetail={null} />}
+        extra={<CreateBillStep orderDetail={null} />}
       >
         <React.Fragment>
           <div className="orders">
@@ -1097,6 +1123,7 @@ export default function Order() {
                       coupon={coupon}
                       setCoupon={setCoupon}
                       setDiscountValue={setDiscountValue}
+                      setPromotionId={setPromotionId}
                       inventoryResponse={inventoryResponse}
                       customer={customer}
                       setInventoryResponse={setInventoryResponse}

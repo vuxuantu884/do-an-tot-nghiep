@@ -1,7 +1,7 @@
 import { Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, handleDisplayCoupon } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -33,6 +33,7 @@ type PropType = {
   handleRemoveAllDiscount: () => void;
 };
 
+
 function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
@@ -55,18 +56,9 @@ function CardProductBottom(props: PropType) {
     setCoupon,
     handleRemoveAllDiscount,
   } = props;
-
-  const numberCouponCharactersShowedBeforeAndAfter = 2;
-
-  const handleDisplayCoupon = (coupon: string) => {
-    if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
-      const firstCharacters = coupon.substring(0,numberCouponCharactersShowedBeforeAndAfter);
-      const lastCharacters = coupon.substring(coupon.length - numberCouponCharactersShowedBeforeAndAfter,coupon.length);
-      return `${firstCharacters}***${lastCharacters}`;
-    } else {
-      return `${coupon}***${coupon}`;
-    }
-  };
+  
+console.log('coupon33', coupon)
+console.log('discountRate', discountRate);
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -113,6 +105,7 @@ function CardProductBottom(props: PropType) {
                   className="orders-tag orders-tag-danger"
                   closable
                   onClose={() => {
+                    setCoupon && setCoupon("");
                     calculateChangeMoney(items, amount, 0, 0);
                   }}
                 >

@@ -13,7 +13,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { PoPaymentMethod } from "utils/Constants";
+import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import moment from "moment";
 import { POCreatePaymentModalStyled } from "./styles";
 import {
@@ -71,7 +71,8 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
       amount: formPayment.getFieldValue("amount"),
       reference: formPayment.getFieldValue("reference"),
       note: formPayment.getFieldValue("note"),
-      is_refund: formPayment.getFieldValue("is_refund")
+      is_refund: formPayment.getFieldValue("is_refund"), 
+      status: PoPaymentStatus.DRAFT,
     };
     let old_payments: any = formMain.getFieldValue("payments");
     if(!old_payments  || old_payments === null) {

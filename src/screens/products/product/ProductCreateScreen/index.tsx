@@ -1075,8 +1075,8 @@ const ProductCreateScreen: React.FC = () => {
                               </Col>
                               <Col md={3}>
                                 <Item
-                                  name={[name, "whole_sale_price"]}
-                                  fieldKey={[fieldKey, "whole_sale_price"]}
+                                  name={[name, "wholesale_price"]}
+                                  fieldKey={[fieldKey, "wholesale_price"]}
                                   label="Giá buôn"
                                   tooltip={{
                                     title: () => (
@@ -1124,8 +1124,8 @@ const ProductCreateScreen: React.FC = () => {
                               </Col>
                               <Col md={3}>
                                 <Item
-                                  name={[name, "wholesale_price"]}
-                                  fieldKey={[fieldKey, "wholesale_price"]}
+                                  name={[name, "cost_price"]}
+                                  fieldKey={[fieldKey, "cost_price"]}
                                   label="Giá vốn"
                                   tooltip={{
                                     title: () => (

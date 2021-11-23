@@ -50,6 +50,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   useEffect(() => {
+    if(!orderDetail) {
+      return;
+    }
     switch (props.status) {
       case "draff":
         setCurrentStep(0);
@@ -63,7 +66,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             (orderDetail.fulfillments && orderDetail.fulfillments?.length > 0)
           ) {
             setCurrentStep(1);
-          }
+          } 
+
+          // setCurrentStep(1);
         }
         break;
       case "picked":
@@ -76,6 +81,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         setCurrentStep(3);
         break;
       case "shipped":
+      case "finished":
       case "cancelled":
         setCurrentStep(4);
         break;

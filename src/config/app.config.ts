@@ -14,7 +14,7 @@ export const AppConfig = {
   import_price: "import_price",
   channel_id: 1,
   DEFAULT_PAYMENT: 1,
-  WIN_DEPARTMENT: 4,
+  WIN_DEPARTMENT: 213,
   RD_DEPARTMENT: 15,
   CONTENT_SERVICE: process.env.REACT_APP_CONTENT_SERVICE,
   PRODUCT_SERVICE: process.env.REACT_APP_PRODUCT_SERVICE,

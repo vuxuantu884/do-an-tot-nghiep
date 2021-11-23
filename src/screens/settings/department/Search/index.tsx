@@ -78,7 +78,7 @@ const DepartmentSearchScreen: React.FC = () => {
                   },
                 },
                 {
-                  title: "Tên phhòng ban/Bộ phận",
+                  title: "Tên bộ phận",
                   dataIndex: "name",
                   render: (value: string, item: DepartmentView) => (
                     <div

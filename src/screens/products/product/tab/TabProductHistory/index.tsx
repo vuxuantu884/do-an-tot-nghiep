@@ -27,7 +27,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
         return UrlConfig.ORDERS_RETURN;
       case DocumentType.PURCHASE_ORDER:
       case DocumentType.RETURN_PO:
-        return UrlConfig.PURCHASE_ORDER;
+        return UrlConfig.PURCHASE_ORDERS;
       default:
         return type;
     }

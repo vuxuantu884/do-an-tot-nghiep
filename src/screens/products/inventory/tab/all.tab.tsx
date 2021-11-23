@@ -1,7 +1,7 @@
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {AppConfig} from "config/app.config";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
 import {searchVariantsRequestAction} from "domain/actions/product/products.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
@@ -65,7 +65,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.INVENTORY}#1?${queryParam}`);
+      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     },
     [history, params]
   );

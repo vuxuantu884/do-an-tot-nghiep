@@ -1,10 +1,11 @@
 import { Button, Dropdown, Menu } from "antd";
+import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
+import useAuthorization from "hook/useAuthorization";
+
 import threeDot from "assets/icon/three-dot.svg";
 import editIcon from "assets/icon/edit.svg";
 import lockIcon from "assets/icon/lock.svg";
-import { StyledMenu } from "./styles";
-import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
-import useAuthorization from "hook/useAuthorization";
+import { StyledMenu } from "screens/ecommerce/config/actions/styles";
 
 
 const shopsUpdatePermission = [EcommerceConfigPermission.shops_update];

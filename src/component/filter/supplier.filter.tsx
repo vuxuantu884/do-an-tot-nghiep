@@ -5,7 +5,6 @@ import {
   Input,
   Row,
   Select,
-  Tooltip,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { SupplierQuery } from "model/core/supplier.model";
@@ -14,9 +13,9 @@ import {  useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
-import { StarOutlined } from "@ant-design/icons";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { DistrictResponse } from "model/content/district.model";
+import "assets/css/custom-filter.scss";
 
 type SupplierFilterProps = {
   initValue: SupplierQuery;
@@ -94,20 +93,19 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
   }, [formAdvance, listDistrict, params.district_id, visible]);
 
   return (
-    <div>
+    <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} initialValues={params} layout="inline">
-          <Form.Item name="info">
+          <Form.Item name="info" style={{flex: 1}}>
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
               placeholder="Tên/Mã nhà cung cấp"
             />
           </Form.Item>
           <Form.Item name="goods">
             <Select
               style={{
-                width: 200,
+                width: 150,
               }}
             >
               <Select.Option value="">Ngành hàng</Select.Option>
@@ -139,11 +137,6 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
             <Button type="primary" htmlType="submit">
               Lọc
             </Button>
-          </Form.Item>
-          <Form.Item>
-            <Tooltip overlay="Lưu bộ lọc" placement="top">
-              <Button icon={<StarOutlined />} />
-            </Tooltip>
           </Form.Item>
           <Form.Item>
             <Button onClick={openFilter}>Thêm bộ lọc</Button>

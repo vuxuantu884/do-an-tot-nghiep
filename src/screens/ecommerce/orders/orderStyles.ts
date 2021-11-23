@@ -54,23 +54,6 @@ export const StyledComponent = styled.div`
   }
 
   .ecommerce-order-list {
-    .ant-table.ant-table-middle .ant-table-tbody > tr > td {
-      border-right: 1px solid #e5e5e5;
-      padding: 10px 10px;
-    }
-
-    .ant-table.ant-table-middle .ant-table-tbody > tr > td:first-child {
-      border-left: 1px solid #e5e5e5;
-    }
-
-    .ant-table.ant-table-middle .ant-table-thead > tr > th {
-      border-right: 1px solid #e5e5e5;
-    }
-
-    .ant-table.ant-table-middle .ant-table-thead > tr > th:first-child {
-      border-left: 1px solid #e5e5e5;
-    }
-
     .cell-items {
       margin: 0 -10px;
       .item {
@@ -88,50 +71,44 @@ export const StyledComponent = styled.div`
       }
     }
   }
-
-  .ecommerce-order-filter {
-    .order-filter-tags {
-      .tag {
-        padding: 10px 10px;
-        margin-bottom: 20px;
-        background: rgba(42, 42, 134, 0.05);
-        border-radius: 50px;
-      }
-    }
-  }
 `;
 
 export const StyledOrderFilter = styled.div`
   .order-filter {
-    overflow-x: scroll;
+    overflow-x: auto;
+    div:not(:last-child) {
+      margin-right: 15px;
+    }
     .ant-form {
       display: flex;
+      .ant-form-item {
+        margin-bottom: 20px;
+      }
     }
   }
 
-  .filter-item {
-    margin-right: 10px;
+  .order-filter-tags .tag {
+    margin-bottom: 15px;
+    padding: 6px 10px;
   }
 
   .ecommerce-dropdown {
-    margin-right: 10px;
     width: 150px;
     min-width: 150px;
   }
 
   .select-store-dropdown {
-    margin-right: 10px;
     min-width: 180px;
   }
 
   .search-id-order-ecommerce {
-    margin-right: 10px;
     min-width: 180px;
+    flex-grow: 1;
   }
 
   .search-term-input {
-    margin-right: 10px;
     min-width: 180px;
+    flex-grow: 1;
   }
 
   .render-shop-list {
@@ -229,7 +206,7 @@ export const StyledEcommerceOrderBaseFilter = styled.div`
     .site-input-split {
       width: 10%;
       border: 0;
-      pointerevents: none;
+      pointer-events: none;
     }
   }
 `;

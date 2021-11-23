@@ -84,6 +84,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
+  checkPaymentStatus,
   checkPaymentStatusToShow,
   CheckShipmentType,
   formatCurrency, getAmountPaymentRequest,
@@ -96,7 +97,6 @@ import {
   FulFillmentStatus, OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
-  ShipmentMethod,
   ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
@@ -184,6 +184,10 @@ export default function Order(props: PropType) {
   const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
     []
   );
+
+  const [coupon, setCoupon] = useState<string>("");
+  const [promotionId, setPromotionId] = useState<number|null>(null);
+
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
     amount: number,
@@ -345,8 +349,6 @@ export default function Order(props: PropType) {
   const getImageDeliveryService = useCallback(
     (service_code) => {
       const service = deliveryServices.find((item) => item.code === service_code);
-      console.log("deliveryServices", deliveryServices);
-      console.log("service", service);
       return service?.logo;
     },
     [deliveryServices]
@@ -566,6 +568,7 @@ export default function Order(props: PropType) {
       );
     }
   }, [dispatch, OrderDetail]); //logne
+
   const createDiscountRequest = () => {
     let objDiscount: OrderDiscountRequest = {
       rate: discountRate,
@@ -574,13 +577,38 @@ export default function Order(props: PropType) {
       promotion_id: null,
       reason: "",
       source: "",
+      discount_code: coupon,
+      order_id: null,
     };
     let listDiscountRequest = [];
-    if (discountRate === 0 && discountValue === 0) {
+    if (coupon) {
+      listDiscountRequest.push({
+        discount_code: coupon,
+          rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: null,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    } else if(promotionId) {
+      listDiscountRequest.push({
+        discount_code: null,
+        rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: promotionId,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    }  else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
     }
+    
     return listDiscountRequest;
   };
 
@@ -960,6 +988,7 @@ export default function Order(props: PropType) {
             tags: response.tags,
             marketer_code: response.marketer_code,
             coordinator_code: response.coordinator_code,
+            sub_status_code: response.sub_status_code,
           });
           let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
           if (
@@ -967,20 +996,6 @@ export default function Order(props: PropType) {
             response.fulfillments[0] &&
             response?.fulfillments[0]?.shipment?.delivery_service_provider_type
           ) {
-            switch (response.fulfillments[0].shipment?.delivery_service_provider_type) {
-              case ShipmentMethod.SHIPPER:
-                newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
-                break;
-              case ShipmentMethod.EXTERNAL_SERVICE:
-                newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
-                break;
-              case ShipmentMethod.PICK_AT_STORE:
-                newShipmentMethod = ShipmentMethodOption.PICK_AT_STORE;
-                break;
-              default:
-                newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
-                break;
-            }
             setShipmentMethod(newShipmentMethod);
             const newFulfillments = [...response.fulfillments];
             setFulfillments(newFulfillments.reverse());
@@ -1008,6 +1023,9 @@ export default function Order(props: PropType) {
             }
           }
           setIsLoadForm(true);
+          if(response.discounts && response.discounts[0].discount_code) {
+            setCoupon(response.discounts[0].discount_code)
+          }
         }
       })
     );
@@ -1170,7 +1188,7 @@ export default function Order(props: PropType) {
             name: `Sửa đơn hàng ${id}`,
           },
         ]}
-        extra={<CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />}
+        extra={<CreateBillStep  orderDetail={OrderDetail} status={stepsStatusValue} />}
       >
         <div className="orders">
           {isLoadForm && (
@@ -1272,6 +1290,9 @@ export default function Order(props: PropType) {
                     orderConfig={null}
                     orderSourceId={orderSourceId}
                     levelOrder={levelOrder}
+                    coupon={coupon}
+                    setCoupon={setCoupon}
+                    setPromotionId={setPromotionId}
                   />
 
                   {OrderDetail !== null &&
@@ -1284,17 +1305,17 @@ export default function Order(props: PropType) {
                             <div className="d-flex">
                               <span className="title-card">THANH TOÁN</span>
                             </div>
-                            {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                            {checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === -1 && (
                               <Tag className="orders-tag orders-tag-default">
                                 Chưa thanh toán
                               </Tag>
                             )}
-                            {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                            {checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === 0 && (
                               <Tag className="orders-tag orders-tag-warning">
                                 Thanh toán 1 phần
                               </Tag>
                             )}
-                            {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                            {checkPaymentStatus(OrderDetail.payments, totalAmountOrder) === 1 && (
                               <Tag
                                 className="orders-tag orders-tag-success"
                                 style={{
@@ -1318,17 +1339,13 @@ export default function Order(props: PropType) {
                                 {(OrderDetail?.fulfillments &&
                                   OrderDetail?.fulfillments.length > 0 &&
                                   OrderDetail?.fulfillments[0].status === "shipped" &&
-                                  formatCurrency(orderAmount)) ||
+                                  formatCurrency(totalAmountCustomerNeedToPay)) ||
                                   formatCurrency(getAmountPayment(OrderDetail.payments))}
                               </b>
                             </Col>
                             <Col span={12}>
                               <span className="text-field margin-right-40">
-                                {orderAmount -
-                                  (OrderDetail?.total_paid
-                                    ? OrderDetail?.total_paid
-                                    : 0) >=
-                                0
+                                {totalAmountCustomerNeedToPay >= 0
                                   ? `Còn phải trả:`
                                   : `Hoàn tiền cho khách:`}
                               </span>
@@ -1339,12 +1356,7 @@ export default function Order(props: PropType) {
                                 OrderDetail?.fulfillments[0].shipment?.cod
                                   ? 0
                                   : formatCurrency(
-                                      Math.abs(
-                                        orderAmount -
-                                          (OrderDetail?.total_paid
-                                            ? OrderDetail?.total_paid
-                                            : 0)
-                                      )
+                                      Math.abs(totalAmountCustomerNeedToPay)
                                     )}
                               </b>
                             </Col>
@@ -1499,7 +1511,10 @@ export default function Order(props: PropType) {
                     OrderDetail.fulfillments &&
                     OrderDetail.fulfillments.length > 0 &&
                     OrderDetail.fulfillments[0].shipment &&
-                    OrderDetail.fulfillments[0].status !== "returned" &&
+                    // OrderDetail.fulfillments[0].status !== "cancelled" &&
+                    !(OrderDetail.fulfillments[0].status === "cancelled" ||
+                    OrderDetail.fulfillments[0].status === "returning" ||
+                    OrderDetail.fulfillments[0].status === "returned") &&
                     OrderDetail.fulfillments[0].shipment?.cod ===
                       (OrderDetail?.fulfillments[0].shipment
                         .shipping_fee_informed_to_customer
@@ -1656,9 +1671,7 @@ export default function Order(props: PropType) {
                           setPayments={setPayments}
                           paymentMethod={paymentMethod}
                           shipmentMethod={shipmentMethod}
-                          totalAmountOrder={orderAmount +
-                            (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-                            discountValue}
+                          totalAmountOrder={totalAmountCustomerNeedToPay}
                           loyaltyRate={loyaltyRate}
                           isDisablePostPayment={isDisablePostPayment}
                           listPaymentMethod={listPaymentMethod}
@@ -1801,9 +1814,8 @@ export default function Order(props: PropType) {
                                 <Collapse
                                   className="saleorder_shipment_order_colapse payment_success"
                                   defaultActiveKey={[
-                                    fulfillment.status !== FulFillmentStatus.RETURNED
-                                      ? "1"
-                                      : "",
+                                    fulfillment.status === FulFillmentStatus.RETURNED || fulfillment.status === FulFillmentStatus.CANCELLED ||
+                                    fulfillment.status === FulFillmentStatus.RETURNING ? "0" : "1",
                                   ]}
                                   onChange={(e) => console.log(e[0])}
                                   expandIcon={({isActive}) => (
@@ -1868,27 +1880,50 @@ export default function Order(props: PropType) {
                                           <FulfillmentStatusTag
                                             fulfillment={fulfillment}
                                           />
-                                          <PrintShippingLabel
-                                            fulfillment={fulfillment}
-                                            orderSettings={orderSettings}
-                                            orderId={OrderDetail?.id}
-                                          />
+                                          {!(fulfillment.status === FulFillmentStatus.CANCELLED ||
+                                            fulfillment.status === FulFillmentStatus.RETURNING ||
+                                            fulfillment.status === FulFillmentStatus.RETURNED) &&
+                                            <PrintShippingLabel
+                                              fulfillment={fulfillment}
+                                              orderSettings={orderSettings}
+                                              orderId={OrderDetail?.id}
+                                            />}
                                         </div>
 
                                         <div className="saleorder-header-content__date">
-                                          <span
-                                            style={{
-                                              color: "#000000d9",
-                                              marginRight: 6,
-                                            }}
-                                          >
-                                            Ngày tạo:
-                                          </span>
-                                          <span style={{color: "#000000d9"}}>
-                                            {moment(
-                                              fulfillment.shipment?.created_date
-                                            ).format("DD/MM/YYYY")}
-                                          </span>
+                                          {(fulfillment.status === FulFillmentStatus.CANCELLED ||
+                                            fulfillment.status === FulFillmentStatus.RETURNING ||
+                                            fulfillment.status === FulFillmentStatus.RETURNED) ?
+                                            <span>
+                                              <span
+                                                style={{
+                                                  color: "#000000d9",
+                                                  marginRight: 6,
+                                                }}
+                                              >
+                                                Ngày huỷ:
+                                              </span>
+                                              <span style={{color: "#000000d9"}}>
+                                                {fulfillment.cancel_date ? moment(
+                                                  fulfillment.cancel_date
+                                                ).format("DD/MM/YYYY") : ''}
+                                              </span>
+                                            </span> : 
+                                            <span>
+                                              <span
+                                                style={{
+                                                  color: "#000000d9",
+                                                  marginRight: 6,
+                                                }}
+                                              >
+                                                Ngày tạo:
+                                              </span>
+                                              <span style={{color: "#000000d9"}}>
+                                                {moment(
+                                                  fulfillment.shipment?.created_date
+                                                ).format("DD/MM/YYYY")}
+                                              </span>
+                                            </span>}
                                         </div>
                                       </div>
                                     }

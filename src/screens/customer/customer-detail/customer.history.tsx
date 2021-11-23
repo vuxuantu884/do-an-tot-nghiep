@@ -601,7 +601,7 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
     );
 
   return (
-    <Row style={{ marginTop: 16 }} className="customer-history-table">
+    <Row className="customer-history-table">
       <Col span={24} style={{ marginBottom: 10 }}>
         <CustomTable
           isLoading={tableLoading}
