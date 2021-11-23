@@ -1,5 +1,5 @@
 import { RouteMenu } from "../../model/other";
-import UrlConfig, { InventoryTabUrl } from "../../config/url.config";
+import UrlConfig, { InventoryTabUrl, ProcurementTabUrl } from "../../config/url.config";
 import React from "react";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
@@ -123,7 +123,7 @@ export const inventory: Array<RouteMenu> = [
     ],
   },
   {
-    path: `${UrlConfig.PROCUREMENT}/`,
+    path: `${ProcurementTabUrl.TODAY}`,
     exact: true,
     title: "Phiếu nhập kho",
     icon: "icon-dot",
@@ -134,7 +134,19 @@ export const inventory: Array<RouteMenu> = [
     permissions: [PurchaseOrderPermission.procurements_read],
     subMenu: [
       {
-        path: `${UrlConfig.PROCUREMENT}/:id`,
+        path: `${ProcurementTabUrl.ALL}`,
+        exact: true,
+        title: "Phiếu nhập kho",
+        icon: "icon-dot",
+        component: ProcurementScreen,
+        key: "submenu25",
+        isShow: true,
+        header: null,
+        permissions: [PurchaseOrderPermission.procurements_read],
+        subMenu: [],
+      },
+      {
+        path: `${ProcurementTabUrl.TODAY}`,
         exact: true,
         title: "Phiếu nhập kho",
         icon: "icon-dot",

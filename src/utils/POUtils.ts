@@ -34,7 +34,7 @@ const POUtils = {
         variant: variant.name,
         product_type: variant.product.product_type,
         quantity: 1,
-        price: price,
+        price: price ?? 0,
         amount: price,
         note: "",
         type: Type.NORMAL,
