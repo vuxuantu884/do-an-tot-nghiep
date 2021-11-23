@@ -127,7 +127,7 @@ const RoleListScreen = () => {
           path: `${UrlConfig.ROLES}`,
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.ROLES}/create`} />}
+      extra={<ButtonCreate child="Thêm nhóm quyền" path={`${UrlConfig.ROLES}/create`} />}
     >
       <RoleListStyled>
         <Card>

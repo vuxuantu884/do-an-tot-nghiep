@@ -16,7 +16,6 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
-import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
@@ -84,10 +83,7 @@ const StoreCreateScreen: React.FC = () => {
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
-  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
-  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
-    visible: false,
-  });
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]); 
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
@@ -154,22 +150,6 @@ const StoreCreateScreen: React.FC = () => {
     },
     [dispatch, onCreateSuccess]
   );
-
-  const backAction = useCallback(()=>{
-      setModalConfirm({
-        visible: true,
-        onCancel: () => {
-          setModalConfirm({visible: false});
-        },
-        onOk: () => { 
-          setModalConfirm({visible: false});
-          history.goBack();
-        },
-        title: "Bạn có muốn quay lại?",
-        subTitle:
-          "Sau khi quay lại cửa hàng mới sẽ không được lưu.",
-      });  
-  },[history])
 
   useEffect(() => {
     if (firstload.current) {
@@ -252,27 +232,7 @@ const StoreCreateScreen: React.FC = () => {
                   );
                 }}
               </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
-                label="Phân loại"
-                name="type"
-              >
-                <Select
-                  showSearch
-                  showArrow
-                  optionFilterProp="children"
-                  placeholder="Chọn phân loại"
-                >
-                  {type?.map((item: StoreTypeRequest, index) => (
-                    <Option key={index} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-            </Col>
+            </Col> 
           </Row>
           <Row gutter={50}>
             <Col>
@@ -440,6 +400,26 @@ const StoreCreateScreen: React.FC = () => {
                 <NumberInput placeholder="Nhập diện tích cửa hàng" />
               </Item>
             </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
+                label="Phân loại"
+                name="type"
+              >
+                <Select
+                  showSearch
+                  showArrow
+                  optionFilterProp="children"
+                  placeholder="Chọn phân loại"
+                >
+                  {type?.map((item: StoreTypeRequest, index) => (
+                    <Option key={index} value={item.value}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
           </Row>
         </Card>
         <Collapse
@@ -526,18 +506,16 @@ const StoreCreateScreen: React.FC = () => {
           </Panel>
         </Collapse>
         <BottomBarContainer
-          back={"Quay lại"}
-          backAction={backAction}
+          back={"Quay lại danh sách"}
           rightComponent={
             <Space> 
               <Button htmlType="submit" type="primary">
-                Lưu
+                Tạo cửa hàng
               </Button>
             </Space>
           }
         />
       </Form>
-      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

@@ -158,4 +158,12 @@
       cursor: pointer;
     }
   }
+  .tr-hover{
+    tr {
+      cursor: pointer;
+      &:hover {
+        color: #2a2a86;
+      }
+    }
+  }
 }

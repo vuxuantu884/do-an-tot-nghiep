@@ -2,10 +2,12 @@ import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { ModuleAuthorize } from "model/auth/module.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 import { AuthorizeDetailCard } from "./card-authorize-detail";
+import { ACTION_FORM_CONSTANTS } from "./constants";
 
 interface Props {
+  formType: string;
   form: FormInstance;
   onFinish: (values: any) => void;
   isSubmitting: boolean;
@@ -21,6 +23,7 @@ interface Props {
 
 export default function RoleForm(props: Props): ReactElement {
   const {
+    formType,
     form,
     onFinish,
     isSubmitting,
@@ -90,7 +93,7 @@ export default function RoleForm(props: Props): ReactElement {
         backAction={backAction}
         rightComponent={
           <Button type="primary" htmlType="submit" loading={isSubmitting}>
-            Lưu
+           {formType === ACTION_FORM_CONSTANTS.UPDATE ? 'Lưu lại' : 'Tạo nhóm quyền'}
           </Button>
         }
       />

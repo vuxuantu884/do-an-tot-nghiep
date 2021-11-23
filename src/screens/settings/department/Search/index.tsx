@@ -58,7 +58,7 @@ const DepartmentSearchScreen: React.FC = () => {
           ]}
           extra={
             allowCreateDep ? (
-              <ButtonCreate path={`${UrlConfig.DEPARTMENT}/create`} />
+              <ButtonCreate child="Thêm bộ phận" path={`${UrlConfig.DEPARTMENT}/create`} />
             ) : null
           }
         >

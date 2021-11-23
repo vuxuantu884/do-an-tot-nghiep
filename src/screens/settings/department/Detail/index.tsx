@@ -113,7 +113,7 @@ const DepartmentCreateScreen: React.FC = () => {
         </React.Fragment>
       )}
       <BottomBarContainer
-        back="Quay lại"
+        back="Quay lại danh sách"
         rightComponent={
           <React.Fragment>
             {allowUpdateDep ? (
@@ -123,7 +123,7 @@ const DepartmentCreateScreen: React.FC = () => {
                 }}
                 type="primary"
               >
-                Sửa
+                Sửa bộ phận
               </Button>
             ) : (
               <></>

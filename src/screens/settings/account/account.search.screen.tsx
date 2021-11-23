@@ -291,7 +291,7 @@ const ListAccountScreen: React.FC = () => {
           ]}
           extra={
             !allowCreateAcc ? null : (
-              <ButtonCreate path={`${UrlConfig.ACCOUNTS}/create`} />
+              <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
             ) 
           }
         >
