@@ -1,33 +1,29 @@
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
-import UrlConfig from "config/url.config";
+import UrlConfig, { ProcurementTabUrl } from "config/url.config";
 import { useEffect, useState } from "react";
-import { RouteComponentProps, useParams } from "react-router";
+import { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router-dom";
 import TabCurrent from "./tabs/TabCurrent";
 import TabList from "./tabs/TabList/index";
- 
-type PORouteProps = {
-  id: string;
-};
 
-const TAB = ["1", "2"];
-
-const { TabPane } = Tabs;
-const ProcurementScreen: React.FC<RouteComponentProps<PORouteProps>> = (props) => {
+const {TabPane} = Tabs;
+const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
   const history = useHistory();
-  const [activeTab, setActiveTab] = useState<string>("1");
+  const path = history.location.pathname;
+  console.log(path, history);
 
-  const { id: idTab } = useParams<PORouteProps>();
+  const [activeTab, setActiveTab] = useState<string>(ProcurementTabUrl.ALL);
 
   useEffect(() => {
-    if (TAB.includes(idTab)) {
-      setActiveTab(idTab);
+    if (Object.values(ProcurementTabUrl).includes(path)) {
+      setActiveTab(path);
     } else {
-      setActiveTab("1");
+      history.push(ProcurementTabUrl.TODAY);
+      setActiveTab(ProcurementTabUrl.TODAY);
     }
-  }, [idTab]);
+  }, [history, path]);
 
   return (
     <ContentContainer
@@ -44,15 +40,18 @@ const ProcurementScreen: React.FC<RouteComponentProps<PORouteProps>> = (props) =
     >
       <Card className="card-tab">
         <Tabs
-          style={{ overflow: "initial" }}
+          style={{overflow: "initial"}}
           activeKey={activeTab}
-          onChange={(active) => history.replace(`${UrlConfig.PROCUREMENT}/${active}`)}
+          onChange={(active) => {
+            setActiveTab(active);
+            history.push(active);
+          }}
           renderTabBar={RenderTabBar}
         >
-          <TabPane tab="Hàng về hôm nay" key="1">
+          <TabPane tab="Hàng về hôm nay" key={ProcurementTabUrl.TODAY}>
             <TabCurrent />
           </TabPane>
-          <TabPane tab="Danh sách đơn nhập kho" key="2">
+          <TabPane tab="Danh sách đơn nhập kho" key={ProcurementTabUrl.ALL}>
             <TabList />
           </TabPane>
         </Tabs>

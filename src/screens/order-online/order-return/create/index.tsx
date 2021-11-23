@@ -6,7 +6,7 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
@@ -1062,7 +1062,7 @@ const ScreenReturnCreate = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomer));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomer));
     }
   }, [dispatch, OrderDetail]);
 

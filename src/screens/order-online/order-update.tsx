@@ -31,7 +31,7 @@ import {
   ShipperGetListAction
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
@@ -899,7 +899,7 @@ export default function Order(props: PropType) {
         setOrderDetail(response);
         if (customer_id) {
           dispatch(
-            CustomerDetail(customer_id, (responseCustomer) => {
+            getCustomerDetailAction(customer_id, (responseCustomer) => {
               setCustomer(responseCustomer);
             })
           );
@@ -1649,21 +1649,6 @@ export default function Order(props: PropType) {
                       fulfillments[0].status === FulFillmentStatus.CANCELLED ||
                       fulfillments[0].status === FulFillmentStatus.RETURNING ||
                       fulfillments[0].status === FulFillmentStatus.RETURNED) && (
-                      // <CardPayments
-                      //   setSelectedPaymentMethod={setPaymentMethod}
-                      //   payments={payments}
-                      //   setPayments={onPayments}
-                      //   paymentMethod={paymentMethod}
-                      //   shipmentMethod={shipmentMethod}
-                      //   amount={
-                      //     orderAmount +
-                      //     (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-                      //     discountValue
-                      //   }
-                      //   isCloneOrder={false}
-                      //   loyaltyRate={loyaltyRate}
-                      //   isDisablePostPayment={isDisablePostPayment}
-                      // />
                       <Card title="THANH TOÁN">
                         <OrderCreatePayments
                           setPaymentMethod={setPaymentMethod}
@@ -1679,40 +1664,7 @@ export default function Order(props: PropType) {
                       </Card>
                     )}
                   {!fulfillments.length && (
-                    // <CardShipment
-                    //   setShipmentMethodProps={onShipmentSelect}
-                    //   shipmentMethod={shipmentMethod}
-                    //   storeDetail={storeDetail}
-                    //   setShippingFeeInformedCustomer={setShippingFeeCustomer}
-                    //   setShippingFeeInformedCustomerHVC={setShippingFeeCustomerHVC}
-                    //   amount={orderAmount}
-                    //   totalPaid={
-                    //     OrderDetail?.total_paid
-                    //       ? OrderDetail?.total_paid
-                    //       : paymentMethod === 2
-                    //         ? totalPaid
-                    //         : 0
-                    //   }
-                    //   setPaymentMethod={setPaymentMethod}
-                    //   paymentMethod={paymentMethod}
-                    //   shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-                    //   shippingFeeInformedToCustomerHVC={shippingFeeInformedToCustomerHVC}
-                    //   customerInfo={customer}
-                    //   items={items}
-                    //   discountValue={discountValue}
-                    //   setOfficeTime={setOfficeTime}
-                    //   officeTime={officeTime}
-                    //   setServiceType={setServiceType}
-                    //   setServiceName={setServiceName}
-                    //   setHVC={setHvc}
-                    //   setFee={setFee}
-                    //   deliveryServices={deliveryServices}
-                    //   payments={payments}
-                    //   onPayments={onPayments}
-                    //   fulfillments={fulfillments}
-                    //   isCloneOrder={false}
-                    // />
-                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 255">
+                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                       <OrderCreateShipment
                         shipmentMethod={shipmentMethod}
                         orderPrice={orderAmount}

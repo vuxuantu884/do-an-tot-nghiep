@@ -124,8 +124,9 @@ const UpdateTicket: FC = () => {
         return;
       } else {
         form.setFieldsValue(result);
-        setInitDataForm(result);
+        setInitDataForm(result); 
         setDataTable(result.line_items);
+        console.log(result.line_items);
         const listFile: any = result.attached_files?.map((item: string ) => {
           return {
             name: item,
@@ -174,7 +175,7 @@ const UpdateTicket: FC = () => {
       
       if (stateImport) {
         form.setFieldsValue(stateImport);
-        setInitDataForm(stateImport);
+        setInitDataForm(stateImport); 
         setDataTable(stateImport.line_items);
       }
     } else {
@@ -394,6 +395,34 @@ const UpdateTicket: FC = () => {
     [history]
   );  
 
+  const onResultGetDetailVariantIds = useCallback( result => {    
+    if (result) {
+      setIsLoadingTable(false);
+      const newDataTable = dataTable.map((itemOld: VariantResponse) => {
+        let newAvailable, newOnHand;
+        debugger
+        result?.forEach((itemNew: InventoryResponse) => {
+          if (itemNew.variant_id === itemOld.variant_id) {
+            newAvailable = itemNew.available;
+            newOnHand = itemNew.on_hand;
+          }
+        });
+        return {  
+          ...itemOld,
+          available: newAvailable,
+          on_hand: newOnHand,
+        };
+      });
+      
+      setDataTable(newDataTable);
+    } else {
+      setIsLoadingTable(false);
+      setDataTable([]); 
+      form.setFieldsValue({ [VARIANTS_FIELD]: [] });
+    }
+    setModalConfirm({ visible: false });
+  }, [dataTable, form])
+
   const onChangeFromStore = useCallback(
     (storeData: Store) => {
       setModalConfirm({
@@ -408,44 +437,18 @@ const UpdateTicket: FC = () => {
         },
         onOk: () => {
           setFormStoreData(storeData);
-          const variants_id = dataTable?.map((item: VariantResponse) => {
-            return item.id ? item.id : item.variant_id;
-          });
-      
+          const variants_id = dataTable?.map((item: VariantResponse) => item.variant_id);
           if (variants_id?.length > 0) {
-            setIsLoadingTable(true);
+            setIsLoadingTable(true); 
             dispatch(
-              inventoryGetDetailVariantIdsAction(variants_id, storeData.id, (result: Array<InventoryResponse> | null) => {
-                if (result && result.length > 0) {
-                  
-                  setModalConfirm({ visible: false });
-                  setIsLoadingTable(false);
-                  const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-                    let newAvailable;
-                    result?.forEach((itemNew) => {
-                      if (itemNew.variant_id === itemOld.id) {
-                        newAvailable = itemNew.available;
-                      }
-                    });
-                    return {
-                      ...itemOld,
-                      available: newAvailable,
-                    };
-                  });
-                  setDataTable(newDataTable);
-                } else {
-                  setModalConfirm({ visible: false });
-                  setIsLoadingTable(false);
-                  setDataTable([]);
-                }
-              })
+              inventoryGetDetailVariantIdsAction(variants_id, storeData.id, onResultGetDetailVariantIds)
             );
           } else {
             setModalConfirm({ visible: false })
           }
         },
       });
-    }, [dataTable, dispatch, form, fromStoreData, initDataForm]
+    }, [dataTable, dispatch, form, fromStoreData, initDataForm, onResultGetDetailVariantIds]
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
@@ -663,7 +666,7 @@ const UpdateTicket: FC = () => {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataTable, hasError]);
+  }, [dataTable]);
 
   const columns: ColumnsType<any> = [
     {

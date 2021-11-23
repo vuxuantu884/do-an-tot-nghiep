@@ -92,7 +92,7 @@ import {
 } from "utils/AppUtils";
 import {MoneyType} from "utils/Constants";
 import {DISCOUNT_VALUE_TYPE} from "utils/Order.constants";
-import {showError, showSuccess} from "utils/ToastUtils";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import {StyledComponent} from "./styles";
 
@@ -1337,7 +1337,7 @@ function OrderCreateProduct(props: PropType) {
 
   const showInventoryModal = useCallback(() => {
     if (items !== null && items?.length) setInventoryModalVisible(true);
-    else showError("Vui lòng chọn sản phẩm vào đơn hàng");
+    else showWarning("Vui lòng chọn sản phẩm vào đơn hàng!");
   }, [dispatch, items]);
 
   useEffect(() => {

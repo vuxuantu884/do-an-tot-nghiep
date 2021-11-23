@@ -7,6 +7,7 @@ export interface DepartmentResponse extends BaseObject {
   mobile: string,
   address: string,
   parent_id: number,
+  department_id: number,
   parent: string,
   children: Array<DepartmentResponse>,
 }

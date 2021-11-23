@@ -10,7 +10,7 @@ import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
@@ -646,7 +646,7 @@ export default function Order() {
 
             if (customer_id) {
               dispatch(
-                CustomerDetail(customer_id, (responseCustomer) => {
+                getCustomerDetailAction(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
 
                   responseCustomer.shipping_addresses.forEach((item) => {
@@ -988,7 +988,7 @@ export default function Order() {
   // }, [dispatch]);
 
   useEffect(() => {
-    if (items && items != null) {
+    if (items && items != null && items?.length > 0) {
       let variant_id: Array<number> = [];
       items.forEach((element) => variant_id.push(element.variant_id));
       dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
