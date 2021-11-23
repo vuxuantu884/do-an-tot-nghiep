@@ -320,7 +320,8 @@ const CreateTicket: FC = () => {
     if (result) {
       setIsLoadingTable(false);
       const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable, newOnHand;
+        let newAvailable, newOnHand; 
+        debugger
         result?.forEach((itemNew: InventoryResponse) => {
           if (itemNew.variant_id === itemOld.id) {
             newAvailable = itemNew.available;
@@ -347,7 +348,7 @@ const CreateTicket: FC = () => {
     const variants_id = dataTable?.map((item: VariantResponse) => item.id);
 
     if (variants_id?.length > 0) {
-      setIsLoadingTable(true);      
+      setIsLoadingTable(true);     
       dispatch(
         inventoryGetDetailVariantIdsAction(variants_id, storeId, onResultGetDetailVariantIds)
       );

@@ -64,6 +64,7 @@ export const inventoryTransferGetDetailVariantIdsApi = (
   if (store_id) queryString += `store_id=${store_id}`;
   if (variant_id)
     variant_id.forEach((element) => (queryString += `&variant_id=${element}`));
+    debugger
   let link = `${ApiConfig.INVENTORY}/inventories/detail?is_pageable=false&${queryString}`;
   return BaseAxios.get(link);
 };
