@@ -577,6 +577,7 @@ const AccountCreateScreen: React.FC = () => {
                                 onChange={(value) => onChangeDepartment(value, index)}
                                 allowClear
                                 showSearch
+                                treeNodeFilterProp='title'
                               >
                                 {listDepartmentTree?.map((item, index) => (
                                   <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
