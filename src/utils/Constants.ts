@@ -181,3 +181,6 @@ export const PROMO_TYPE = {
   AUTOMATIC: "AUTOMATIC",
 };
 
+export const POS = {
+  source_code: "POS"
+};
