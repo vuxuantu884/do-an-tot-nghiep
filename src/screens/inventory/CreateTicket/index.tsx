@@ -61,7 +61,7 @@ import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { Link } from "react-router-dom";
-import { InventoryResponse } from "model/inventory";
+import { InventoryResponse } from "model/inventory"; 
 
 const { Option } = Select;
 
@@ -321,7 +321,6 @@ const CreateTicket: FC = () => {
       setIsLoadingTable(false);
       const newDataTable = dataTable.map((itemOld: VariantResponse) => {
         let newAvailable, newOnHand; 
-        debugger
         result?.forEach((itemNew: InventoryResponse) => {
           if (itemNew.variant_id === itemOld.id) {
             newAvailable = itemNew.available;
@@ -898,6 +897,6 @@ const CreateTicket: FC = () => {
       </ContentContainer>
     </StyledWrapper>
   );
-};
+}; 
 
 export default CreateTicket;
