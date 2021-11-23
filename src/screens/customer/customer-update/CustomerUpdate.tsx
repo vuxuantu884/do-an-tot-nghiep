@@ -25,7 +25,7 @@ import {
 } from "domain/actions/content/content.action";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
-  CustomerDetail,
+  getCustomerDetailAction,
   CustomerGroups,
   CustomerTypes,
   UpdateCustomer,
@@ -123,7 +123,7 @@ const CustomerUpdate = (props: any) => {
   }, [dispatch]);
 
   React.useEffect(() => {
-    dispatch(CustomerDetail(params.id, setCustomer));
+    dispatch(getCustomerDetailAction(params.id, setCustomer));
   }, [dispatch, params]);
 
   React.useEffect(() => {

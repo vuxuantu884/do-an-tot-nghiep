@@ -6,7 +6,7 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
@@ -424,7 +424,7 @@ const OrderDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomerDetail));
     }
   }, [dispatch, OrderDetail]);
 

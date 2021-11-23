@@ -7,7 +7,7 @@ import {
 } from "domain/actions/content/content.action";
 import {
   CreateShippingAddress,
-  CustomerDetail,
+  getCustomerDetailAction,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
 import {CustomerShippingAddress} from "model/request/customer.request";
@@ -148,7 +148,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
               (data: ShippingAddress) => {
                 if (data) {
                   dispatch(
-                    CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                    getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                       handleChangeCustomer(datas);
                     })
                   );
@@ -168,7 +168,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
             CreateShippingAddress(customer.id, value, (data: CustomerShippingAddress) => {
               if (data) {
                 dispatch(
-                  CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                  getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                     handleChangeCustomer(datas);
                   })
                 );
