@@ -1,11 +1,12 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
-export const nameQuantityWidth = 280;
-const quantityWidth = 70;
-const nameWidth = nameQuantityWidth - quantityWidth;
+export const nameQuantityWidth = 400;
+const quantityWidth = 60;
+const priceWidth = 100;
+const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponent = styled.div`
-  .ant-table-cell.product-and-quantity {
+  .product-and-quantity {
     padding: 0 !important;
   }
 
@@ -13,15 +14,19 @@ export const StyledComponent = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     .product-name {
       width: ${nameWidth}px;
       text-align: center;
+    }
+
+    .item-price {
+      align-items: center;
     }
   }
 
   .item-custom-td {
     height: 100%;
+    /* width: ${nameQuantityWidth}px; */
     display: flex;
     justify-content: space-between;
     &:not(:last-child) {
@@ -48,7 +53,27 @@ export const StyledComponent = styled.div`
       z-index: 1;
       top: 0;
       bottom: 0;
-      right: ${quantityWidth}px;
+      right: ${quantityWidth+priceWidth}px;
+      background-color: ${borderColor};
+    }
+  }
+
+  .item-price {
+    width: ${priceWidth}px;
+    padding: 10px;
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    &:before {
+      content: "";
+      display: block;
+      width: 1px;
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      bottom: 0;
+      right: ${priceWidth}px;
       background-color: ${borderColor};
     }
   }
