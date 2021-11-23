@@ -85,6 +85,7 @@ function CustomerCareHistory(props: any) {
 
   return (
     <CustomTable
+      bordered
       pagination={false}
       dataSource={adjustPoint?.data}
       columns={columns}

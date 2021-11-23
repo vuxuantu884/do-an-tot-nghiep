@@ -28,7 +28,7 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import {
-  CustomerDetail,
+  getCustomerDetailAction,
   CustomerGroups,
   CustomerSearch,
   DeleteShippingAddress,
@@ -412,7 +412,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             customer.id,
             (data: ShippingAddress) => {
               dispatch(
-                CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                   handleChangeCustomer(datas);
                 })
               );

@@ -12,7 +12,7 @@ import React from "react";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
 import {
-  CustomerDetail,
+  getCustomerDetailAction,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
 
@@ -41,7 +41,7 @@ function CustomerShippingAddressOrder(props: any) {
             //history.replace(`${UrlConfig.ORDER}/create`);
             if (data) {
               dispatch(
-                CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                   handleChangeCustomer(datas);
                 })
               );

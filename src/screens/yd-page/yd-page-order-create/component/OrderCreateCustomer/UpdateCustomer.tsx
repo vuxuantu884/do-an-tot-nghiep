@@ -17,7 +17,7 @@ import {
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
     CreateShippingAddress,
-    CustomerDetail,
+    getCustomerDetailAction,
     UpdateShippingAddress
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
@@ -203,7 +203,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   (data: any) => {
                       if (data) {
                           dispatch(
-                              CustomerDetail(customerItem.id, (datas: CustomerResponse) => {
+                              getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
                                   handleChangeCustomer(datas);
                               })
                           );
@@ -227,7 +227,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   (data: ShippingAddress) => {
                       if (data) {
                           dispatch(
-                              CustomerDetail(customerItem.id, (datas: CustomerResponse) => {
+                              getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
                                   handleChangeCustomer(datas);
                               })
                           );
