@@ -110,13 +110,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           moment(fulfillments[0].created_date).format(formatDate)
         }
         className={
-          !(
-            props.orderDetail &&
-            fulfillments &&
-            fulfillments.length > 0
-          )
-            ? "inactive"
-            : ""
+          props.status === 'draff'
+          ? "inactive"
+          : ""
         }
       />
       <Steps.Step
@@ -128,7 +124,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             fulfillments &&
             fulfillments.length > 0 &&
             fulfillments[0].packed_on &&
-            fulfillments[0].status !== "returned"
+            fulfillments[0].status !== "returned" &&
+            fulfillments[0].status !== "cancelled" &&
+            fulfillments[0].status !== "returning"
           ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""
@@ -142,7 +140,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             props.orderDetail &&
             fulfillments &&
             fulfillments.length > 0 &&
-            fulfillments[0].export_on
+            fulfillments[0].export_on &&
+            fulfillments[0].status !== "returned" &&
+            fulfillments[0].status !== "cancelled" &&
+            fulfillments[0].status !== "returning"
           ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""
