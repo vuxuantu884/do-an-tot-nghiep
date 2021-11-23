@@ -21,15 +21,17 @@ import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
-import TotalItemActionColumn from "./TotalItemActionColumn";
+import TotalItemActionColumn from "screens/ecommerce/products/tab/total-items-ecommerce/TotalItemActionColumn";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   getShopEcommerceList,
   deleteEcommerceItem,
   disconnectEcommerceItem,
   postSyncStockEcommerceProduct,
+  getProductEcommerceList,
 } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -47,19 +49,12 @@ import {
 import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
 
 
-type TotalItemsEcommerceProps = {
-  variantData: any;
-  getProductUpdated: any;
-  tableLoading: any;
-};
-
-const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
-  props: TotalItemsEcommerceProps
-) => {
-  const { variantData, getProductUpdated, tableLoading } = props;
+const TotalItemsEcommerce: React.FC = () => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
+  
+  const [isLoading, setIsLoading] = useState(false);
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
@@ -70,6 +65,15 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
+
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
 
   const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
@@ -101,9 +105,22 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   });
 
 
+  const updateVariantData = useCallback((result: PageResponse<any> | false) => {
+    setIsLoading(false);
+    if (!!result) {
+      setVariantData(result);
+    }
+  }, []);
+
+  const getProductUpdated = useCallback((queryRequest: any) => {
+    setIsLoading(true);
+    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+  }, [dispatch, updateVariantData]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    getProductUpdated(query);
+  }, [getProductUpdated, query]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -641,7 +658,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   placeholder="Chọn sàn"
                   allowClear
                   onSelect={(value) => handleSelectEcommerce(value)}
@@ -667,7 +684,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
                 {isEcommerceSelected && (
                   <Select
                     showSearch
-                    disabled={tableLoading || !isEcommerceSelected}
+                    disabled={isLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(false)}
@@ -691,7 +708,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
               <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
                 <Input
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="SKU, tên sản phẩm sàn"
                 />
@@ -699,20 +716,20 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
               <Form.Item name="sku_or_name_core" className="yody-search">
                 <Input
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="SKU, Sản phẩm Yody"
                 />
               </Form.Item>
 
               <Form.Item className="filter-item">
-                <Button type="primary" htmlType="submit" disabled={tableLoading}>
+                <Button type="primary" htmlType="submit" disabled={isLoading}>
                   Lọc
                 </Button>
               </Form.Item>
 
               <Form.Item className="filter-item">
-                <Button onClick={openFilter} disabled={tableLoading}>
+                <Button onClick={openFilter} disabled={isLoading}>
                   <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
                   <span>Thêm bộ lọc</span>
                 </Button>
@@ -722,7 +739,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
         </StyledProductFilter>
 
         <CustomTable
-          isLoading={tableLoading}
+          bordered
+          isLoading={isLoading}
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 1500 }}
@@ -782,7 +800,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               {isEcommerceSelected && (
                 <Select
                   showSearch
-                  disabled={tableLoading || !isEcommerceSelected}
+                  disabled={isLoading || !isEcommerceSelected}
                   placeholder={getPlaceholderSelectShop()}
                   allowClear={shopIdSelected && shopIdSelected.length > 0}
                   dropdownRender={() => renderShopList(true)}

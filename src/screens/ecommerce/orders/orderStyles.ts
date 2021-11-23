@@ -71,51 +71,42 @@ export const StyledComponent = styled.div`
       }
     }
   }
-
-  .ecommerce-order-filter {
-    .order-filter-tags {
-      .tag {
-        padding: 10px 10px;
-        margin-bottom: 20px;
-        background: rgba(42, 42, 134, 0.05);
-        border-radius: 50px;
-      }
-    }
-  }
 `;
 
 export const StyledOrderFilter = styled.div`
-  margin-bottom: 20px;
   .order-filter {
-    overflow-x: scroll;
+    overflow-x: auto;
+    div:not(:last-child) {
+      margin-right: 15px;
+    }
     .ant-form {
       display: flex;
+      .ant-form-item {
+        margin-bottom: 20px;
+      }
     }
   }
 
-  .filter-item {
-    margin-right: 10px;
+  .order-filter-tags .tag {
+    margin-bottom: 15px;
+    padding: 6px 10px;
   }
 
   .ecommerce-dropdown {
-    margin-right: 10px;
     width: 150px;
     min-width: 150px;
   }
 
   .select-store-dropdown {
-    margin-right: 10px;
     min-width: 180px;
   }
 
   .search-id-order-ecommerce {
-    margin-right: 10px;
     min-width: 180px;
     flex-grow: 1;
   }
 
   .search-term-input {
-    margin-right: 10px;
     min-width: 180px;
     flex-grow: 1;
   }

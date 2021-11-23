@@ -38,7 +38,7 @@ import {
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 
-import ConfirmConnectProductModal from "./ConfirmConnectProductModal";
+import ConfirmConnectProductModal from "screens/ecommerce/products/tab/not-connected-items/ConfirmConnectProductModal";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
 import ResultConnectProductModal from "screens/ecommerce/products/tab/not-connected-items/ResultConnectProductModal";
@@ -1090,6 +1090,7 @@ const NotConnectedItems: React.FC = () => {
         </StyledProductFilter>
 
         <CustomTable
+          bordered
           isRowSelection={allowProductsConnect}
           isLoading={isLoading}
           onSelectedChange={onSelectTable}

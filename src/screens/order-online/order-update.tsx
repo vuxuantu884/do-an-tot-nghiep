@@ -97,7 +97,6 @@ import {
   FulFillmentStatus, OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
-  ShipmentMethod,
   ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
@@ -1189,7 +1188,7 @@ export default function Order(props: PropType) {
             name: `Sửa đơn hàng ${id}`,
           },
         ]}
-        extra={<CreateBillStep  orderDetail={OrderDetail} />}
+        extra={<CreateBillStep  orderDetail={OrderDetail} status={stepsStatusValue} />}
       >
         <div className="orders">
           {isLoadForm && (

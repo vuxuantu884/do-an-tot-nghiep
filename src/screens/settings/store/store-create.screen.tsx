@@ -16,6 +16,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
@@ -84,6 +85,9 @@ const StoreCreateScreen: React.FC = () => {
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
   const [type, setType] = useState<Array<StoreTypeRequest>>([]);
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
@@ -150,6 +154,23 @@ const StoreCreateScreen: React.FC = () => {
     },
     [dispatch, onCreateSuccess]
   );
+
+  const backAction = useCallback(()=>{
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại cửa hàng mới sẽ không được lưu.",
+      });  
+  },[history])
+
   useEffect(() => {
     if (firstload.current) {
       dispatch(CountryGetAllAction(setCountries));
@@ -506,6 +527,7 @@ const StoreCreateScreen: React.FC = () => {
         </Collapse>
         <BottomBarContainer
           back={"Quay lại"}
+          backAction={backAction}
           rightComponent={
             <Space> 
               <Button htmlType="submit" type="primary">
@@ -515,6 +537,7 @@ const StoreCreateScreen: React.FC = () => {
           }
         />
       </Form>
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

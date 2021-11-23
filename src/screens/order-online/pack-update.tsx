@@ -22,7 +22,7 @@ import {
 import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
 import React, {createRef, useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {useParams} from "react-router";
+import {useParams} from "react-router-dom";
 import search from "assets/img/search.svg";
 import moment from "moment";
 import "assets/css/_pack.scss";

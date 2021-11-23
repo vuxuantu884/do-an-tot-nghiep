@@ -571,6 +571,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
       ]}
       extra={
         <CreateBillStep
+          status={stepsStatusValue}
           orderDetail={OrderDetailAllFullfilment}
         />
       }
@@ -1074,9 +1075,12 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                     // setTotalPaid={setTotalPaid}
                     isVisibleUpdatePayment={isVisibleUpdatePayment}
                     setVisibleUpdatePayment={setVisibleUpdatePayment}
+                    // đơn POS vẫn cho thanh toán tiếp khi chưa thanh toán đủ
                     disabled={
-                      stepsStatusValue === OrderStatus.CANCELLED ||
-                      stepsStatusValue === FulFillmentStatus.SHIPPED
+                      OrderDetail.source_code !== "POS" &&
+                     (stepsStatusValue === OrderStatus.CANCELLED ||
+                      stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                      disabledBottomActions)
                     }
                     reload={() => {
                       setReload(true);

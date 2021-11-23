@@ -36,24 +36,15 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import DownloadOrderDataModal from "screens/ecommerce/orders/component/DownloadOrderDataModal";
-import ResultDownloadOrderDataModal from "screens/ecommerce/orders/component/ResultDownloadOrderDataModal";
-import SOOrderFilter from "screens/ecommerce/orders/component/SOOrderFilter";
-
-// Update order filter as per SO
-// import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
+import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
+import ResultGetOrderDataModal from "screens/ecommerce/orders/component/ResultGetOrderDataModal";
+import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
 
 // todo thai: handle later
 // import UpdateConnectionModal from "./component/UpdateConnectionModal";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
-
-// thai todo: Thông tin hãng vận chuyển
-// import ImageGHTK from "assets/img/imageGHTK.svg";
-// import ImageGHN from "assets/img/imageGHN.png";
-// import ImageVTP from "assets/img/imageVTP.svg";
-// import ImageDHL from "assets/img/imageDHL.svg";
 
 import CircleEmptyIcon from "assets/icon/circle_empty.svg";
 import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
@@ -72,6 +63,11 @@ import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import {getToken} from "../../../utils/LocalStorageUtils";
+import axios from "axios";
+import {AppConfig} from "config/app.config";
+import {FulFillmentStatus} from "utils/Constants";
+import {showError, showSuccess} from "../../../utils/ToastUtils";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -141,7 +137,7 @@ const ordersViewPermission = [EcommerceOrderPermission.orders_view];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
 
-const EcommerceOrderSync: React.FC = () => {
+const EcommerceOrders: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -189,7 +185,7 @@ const EcommerceOrderSync: React.FC = () => {
     OrderProcessingStatusModel[]
   >([]);
 
-  const [data, setData] = useState<PageResponse<OrderModel>>({
+  const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -201,13 +197,10 @@ const EcommerceOrderSync: React.FC = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
   
-  // thai todo: Thông tin hãng vận chuyển
-  // let delivery_services: Array<DeliveryServiceResponse> = []
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        // delivery_services = response
         setDeliveryServices(response)
       })
     );
@@ -223,54 +216,6 @@ const EcommerceOrderSync: React.FC = () => {
     { name: "Đã huỷ", value: "cancelled" },
     { name: "Đã hết hạn", value: "expired" },
   ];
-
-  
-  // thai todo: Thông tin hãng vận chuyển
-
-  // const delivery_service = [
-  //   {
-  //     code: "ghtk",
-  //     id: 1,
-  //     logo: ImageGHTK,
-  //     name: "Giao hàng tiết kiệm",
-  //   },
-  //   {
-  //     code: "ghn",
-  //     id: 2,
-  //     logo: ImageGHN,
-  //     name: "Giao hàng nhanh",
-  //   },
-  //   {
-  //     code: "vtp",
-  //     id: 3,
-  //     logo: ImageVTP,
-  //     name: "Viettel Post",
-  //   },
-  //   {
-  //     code: "dhl",
-  //     id: 4,
-  //     logo: ImageDHL,
-  //     name: "DHL",
-  //   },
-  // ];
-
-  const actionList = (
-    <Menu>
-      <Menu.Item key="1">
-        <div>
-          <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={() => onMenuClick(1)}>In phiếu giao hàng</span>
-        </div>
-      </Menu.Item>
-  
-      <Menu.Item key="2">
-        <div>
-          <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
-        </div>
-      </Menu.Item>
-    </Menu>
-  );
   
 
   const convertProgressStatus = (value: any) => {
@@ -643,7 +588,7 @@ const EcommerceOrderSync: React.FC = () => {
   ]);
 
   const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);
+    const selectedRowKeys = selectedRow.map((row: any) => row?.id);
     setSelectedRowKeys(selectedRowKeys);
   }, []);
 
@@ -669,19 +614,92 @@ const EcommerceOrderSync: React.FC = () => {
     setPrams(initQuery);
   }, []);
 
+  // handle action button
+
+  // const printElementRef = useRef(null);
+  // const Print = (data: any) => useReactToPrint({
+  //   content: () => data,
+  // });
+  const token = getToken();
+  const handlePrintDeliveryNote = useCallback(
+      () => {
+        setTableLoading(true);
+        if (selectedRowKeys?.length > 0) {
+          let order_list: any = [];
+          selectedRowKeys.forEach(idSelected => {
+            const orderMatched = data?.items.find(i => i.id === idSelected)
+            if(orderMatched){
+             const orderRequest = {
+                "order_sn": orderMatched.reference_code,
+                "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
+                "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
+                "ecommerce_id": 1,
+                "shop_id": orderMatched.ecommerce_shop_id
+              }
+              order_list.push(orderRequest)
+            }
+          })
+
+          let url = `${AppConfig.baseUrl}${AppConfig.ECOMMERCE_SERVICE}/orders/print-forms`;
+          axios.post(url,{order_list} ,
+              {
+                responseType: 'arraybuffer',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/pdf',
+                  'Authorization': `Bearer ${token}`
+                }
+              })
+              .then((response) => {
+                showSuccess("Tạo phiếu giao hàng thành công")
+                let blob = new Blob([response.data], { type: 'application/pdf' })
+                let fileURL = URL.createObjectURL(blob);
+                window.open(fileURL)
+                setTableLoading(false)
+              })
+              .catch(() => {
+                setTableLoading(false)
+                showError("Không thể tạo phiếu giao hàng")
+              });
+        }
+      },
+      [selectedRowKeys, token, data?.items]
+  );
+
   const onMenuClick = useCallback(
     (index: number) => {
-      let params = {
-        action: "print",
-        ids: selectedRowKeys,
-        "print-type": index === 1 ? "shipment" : "stock_export",
-        "print-dialog": true,
-      };
-      const queryParam = generateQuery(params);
-      history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
+      if (selectedRowKeys?.length > 0) {
+        let params = {
+          action: "print",
+          ids: selectedRowKeys,
+          "print-type": index === 1 ? "shipment" : "stock_export",
+          "print-dialog": true,
+        };
+        const queryParam = generateQuery(params);
+        history.push(`${UrlConfig.ECOMMERCE}/orders/print-preview?${queryParam}`);
+      }
     },
     [history, selectedRowKeys]
   );
+
+  const actionList = (
+    <Menu>
+      <Menu.Item key="1" disabled={selectedRowKeys?.length < 1}>
+        <div>
+          <PrinterOutlined style={{ marginRight: 5 }} />
+          <span onClick={handlePrintDeliveryNote}>In phiếu giao hàng</span>
+        </div>
+      </Menu.Item>
+  
+      <Menu.Item key="2" disabled={selectedRowKeys?.length < 1}>
+        <div>
+          <PrinterOutlined style={{ marginRight: 5 }} />
+          <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
+        </div>
+      </Menu.Item>
+    </Menu>
+  );
+  // end handle action button
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
@@ -806,8 +824,7 @@ const EcommerceOrderSync: React.FC = () => {
         <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
           {(allowed: boolean) => (allowed ?
             <Card>
-              <SOOrderFilter
-                onMenuClick={onMenuClick}
+              <EcommerceOrderFilter
                 actions={actionList}
                 onFilter={onFilter}
                 isLoading={tableLoading}
@@ -821,22 +838,6 @@ const EcommerceOrderSync: React.FC = () => {
                 onShowColumnSetting={() => setShowSettingColumn(true)}
                 onClearFilter={() => onClearFilter()}
               />
-
-              
-              {/* <EcommerceOrderFilter
-                tableLoading={tableLoading}
-                onMenuClick={onMenuClick}
-                actionList={actionList}
-                onFilter={onFilter}
-                onClearFilter={onClearFilter}
-                params={params}
-                initQuery={initQuery}
-                listStore={listStore}
-                accounts={accounts}
-                deliveryService={delivery_service}
-                subStatus={listOrderProcessingStatus}
-                onShowColumnSetting={() => setShowSettingColumn(true)}
-              /> */}
     
               <CustomTable
                 isRowSelection
@@ -868,7 +869,7 @@ const EcommerceOrderSync: React.FC = () => {
         </AuthWrapper>
 
         {isShowGetOrderModal && (
-          <DownloadOrderDataModal
+          <GetOrderDataModal
             visible={isShowGetOrderModal}
             onCancel={cancelGetOrderModal}
             onOk={updateOrderList}
@@ -876,7 +877,7 @@ const EcommerceOrderSync: React.FC = () => {
         )}
 
         {isShowResultGetOrderModal && (
-          <ResultDownloadOrderDataModal
+          <ResultGetOrderDataModal
             visible={isShowResultGetOrderModal}
             onCancel={closeResultGetOrderModal}
             onOk={closeResultGetOrderModal}
@@ -911,4 +912,4 @@ const EcommerceOrderSync: React.FC = () => {
   );
 };
 
-export default EcommerceOrderSync;
+export default EcommerceOrders;

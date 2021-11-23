@@ -85,7 +85,7 @@ export interface AccountJobReQuest {
 export interface AccountView extends AccountBaseModel {  
   account_jobs?: Array<AccountJobReQuest>;
   account_stores: Array<number>;
-  permissions : {
+  permissions? : {
     modules: Array<ModuleAuthorize>,
   }
 }

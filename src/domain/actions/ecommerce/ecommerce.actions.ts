@@ -183,3 +183,11 @@ export const getOrderMappingListAction = (
     setData,
   });
 };
+
+// print ecommerce orders actions
+export const printEcommerceOrdersAction = (
+  query: any,
+  callBack: (data: any) => void
+) => {
+  return BaseAction(EcommerceType.PRINT_ECOMMERCE_ORDERS, { query, callBack });
+};

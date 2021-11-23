@@ -60,7 +60,7 @@ const ListStatus: Array<BaseBootstrapResponse> = [
   },
   {
     value: "on_way",
-    name: "Đang trên đường",
+    name: "Đang chuyển đi",
   },
   {
     value: "on_hold",

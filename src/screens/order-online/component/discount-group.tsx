@@ -33,7 +33,11 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
         return;
       }
       if (v < 0) v = -v;
-      v= Math.round(v);
+      if(selected === MoneyType.PERCENT) {
+        v =Math.round(v*100) / 100;
+      } else {
+        v= Math.round(v);
+      }
       let _items = [...items];
       let _item = _items[props.index].discount_items[0];
       let _price = _items[props.index].price;
@@ -74,7 +78,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
           value={
             selected === MoneyType.PERCENT
               ? props.discountRate
-              : formatCurrency(props.discountValue)
+              : formatCurrency(Math.round(props.discountValue))
           }
           max={selected === MoneyType.PERCENT ? 100 : props.price}
           onChange={ChangeValueDiscount}

@@ -1,6 +1,5 @@
 const InventoryQueryField = {
-  condition: 'condition',
-  store_id: 'store_id',
+  condition: 'condition', 
   store_ids: 'store_ids',
   is_remain: 'is_remain',
   created_date: 'created_date',

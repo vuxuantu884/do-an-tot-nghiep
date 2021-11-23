@@ -3,7 +3,7 @@ import { RouteMenu } from "model/other";
 import React from "react";
 
 const Config = React.lazy(() => import("screens/ecommerce/config"));
-const Orders = React.lazy(() => import("screens/ecommerce/orders"));
+const EcommerceOrders = React.lazy(() => import("screens/ecommerce/orders"));
 const OrdersMapping = React.lazy(() => import("screens/ecommerce/orders-mapping"));
 const Products = React.lazy(() => import("screens/ecommerce/products"));
 
@@ -17,7 +17,7 @@ const ecommerce: Array<RouteMenu> = [
     exact: true,
     title: "Đơn hàng",
     icon: "icon-dot",
-    component: Orders,
+    component: EcommerceOrders,
     key: "submenu400",
     isShow: true,
     header: null,

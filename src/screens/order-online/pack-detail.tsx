@@ -57,7 +57,7 @@ const PackDetail: React.FC = () => {
 
   const [isError, setError] = useState<boolean>(false);
   const [packDetail, setPackDetail] = useState<GoodsReceiptsResponse>();
-  const [packFile, setPackFile] = useState<GoodsReceiptsFileModel[]>([
+  const [packFile] = useState<GoodsReceiptsFileModel[]>([
     {
       file_name: "Nhanh.vn_Shipping_Hanover_1124699_20210927_134025.xlsx",
       create_name: "le van long",

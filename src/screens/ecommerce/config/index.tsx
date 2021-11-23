@@ -1,15 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Card, Tabs, Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
 
-import { useState } from "react";
-import { useHistory } from "react-router-dom";
-import SyncEcommerce from "./tab/sync-ecommerce";
-import SettingConfig from "./tab/setting-config";
-import { StyledComponent } from "./styles";
-import { useDispatch } from "react-redux";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import {
@@ -22,18 +18,24 @@ import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import { ecommerceConfigGetAction } from "domain/actions/ecommerce/ecommerce.actions";
 import { useQuery } from "utils/useQuery";
 import { EcommerceSearchQuery } from "model/request/ecommerce.request";
-import { PlusOutlined } from "@ant-design/icons";
 import {
   ecommerceConnectAction,
   ecommerceConfigInfoAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import EcommerceModal from "screens/ecommerce/common/ecommerce-custom-modal";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { showSuccess } from "utils/ToastUtils";
-import {ecommerceConfigDeleteAction} from "domain/actions/ecommerce/ecommerce.actions"
+import { ecommerceConfigDeleteAction } from "domain/actions/ecommerce/ecommerce.actions"
+
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import useAuthorization from "hook/useAuthorization";
+
+import SyncEcommerce from "screens/ecommerce/config/tab/sync-ecommerce"
+import SettingConfig from "screens/ecommerce/config/tab/setting-config";
+
+import { PlusOutlined } from "@ant-design/icons";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import { StyledComponent } from "screens/ecommerce/config/styles";
 
 const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
@@ -94,10 +96,7 @@ const EcommerceConfig: React.FC = () => {
   },[deleteCallback, dispatch, modalShopInfo])
 
 
-  const storeChangeSearch = React.useCallback(() => {
-    
-  },[])
-
+  const storeChangeSearch = React.useCallback(() => { }, []);
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -109,12 +108,14 @@ const EcommerceConfig: React.FC = () => {
     },
     []
   );
+
   // link to ecommerce
   const redirectCallback = React.useCallback((value: any) => {
     if (value) {
       window.open(`${value}`, "_self");
     }
   }, []);
+
   const handleConnectEcommerce = React.useCallback(() => {
     dispatch(ecommerceConnectAction(redirectCallback));
   }, [dispatch, redirectCallback]);
@@ -134,6 +135,7 @@ const EcommerceConfig: React.FC = () => {
       dispatch(ecommerceConfigInfoAction(initQueryConnect, configInfoCallback));
     }
   }, [initQueryConnect, configInfoCallback, dispatch]);
+  
   // get all ecommerce
   React.useEffect(() => {
     dispatch(ecommerceConfigGetAction(setConfigData));

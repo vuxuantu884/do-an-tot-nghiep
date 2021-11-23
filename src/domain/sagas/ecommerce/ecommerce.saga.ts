@@ -27,6 +27,7 @@ import {
   addFpagePhone,
   deleteFpagePhone,
   setFpageDefaultPhone,
+  printEcommerceOrdersApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -537,6 +538,39 @@ function* postEcommerceOrderSaga(action: YodyAction) {
   }
 }
 
+// print ecommerce ordesr saga
+function* printEcommerceOrdersSaga(action: YodyAction) {
+  let { query, callBack } = action.payload;
+
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      printEcommerceOrdersApi,
+      query
+    );
+
+    if (typeof response === "string") {
+      callBack(response);
+    } else {
+      switch (response.code) {
+        case HttpStatus.SUCCESS:
+          callBack(response.data);
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
+        default:
+          response.errors.forEach((e) => showError(response.message?.toString()));
+          callBack(false);
+          break;
+      }
+    }
+  } catch (error) {
+    callBack(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
@@ -594,4 +628,8 @@ export function* ecommerceSaga() {
 
   //ecommerce order takeLatest
   yield takeLatest(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, postEcommerceOrderSaga);
+
+  // print ecommerce orders saga
+  yield takeLatest(EcommerceType.PRINT_ECOMMERCE_ORDERS, printEcommerceOrdersSaga);
+
 }
