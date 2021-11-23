@@ -28,6 +28,7 @@ import useAuthorization from "hook/useAuthorization";
 import {StorePermissions} from "config/permissions/setting.permisssion";
 import NoPermission from "screens/no-permission.screen";
 
+
 const ACTIONS_INDEX = {
   UPDATE: 1,
 };
@@ -361,7 +362,7 @@ const StoreListScreen: React.FC = () => {
             },
           ]}
           extra={
-            allowCreateStore ? <ButtonCreate path={`${UrlConfig.STORE}/create`} /> : null
+            allowCreateStore && <ButtonCreate child="Thêm cửa hàng" path={`${UrlConfig.STORE}/create`} /> 
           }
         >
           <Card>
@@ -377,6 +378,7 @@ const StoreListScreen: React.FC = () => {
               type={type}
             />
             <CustomTable
+              className="tr-hover"
               selectedRowKey={rowKey}
               onChangeRowKey={(rowKey) => setRowKey(rowKey)}
               isRowSelection
@@ -396,6 +398,13 @@ const StoreListScreen: React.FC = () => {
               dataSource={data.items}
               columns={columnFinal}
               rowKey={(item: StoreResponse) => item.id}
+              onRow={(record: StoreResponse) => {
+                return {
+                  onClick: (event) => {
+                    history.push(`${UrlConfig.STORE}/${record.id}`);
+                  }, 
+                };
+              }}
             />
             <ModalSettingColumn
               visible={showSettingColumn}
