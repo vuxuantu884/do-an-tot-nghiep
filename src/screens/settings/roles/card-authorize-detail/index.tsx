@@ -1,11 +1,12 @@
 import {Card, Checkbox, Collapse, Form} from "antd";
 import {FormInstance} from "antd/es/form/Form";
 import {CheckboxChangeEvent} from "antd/lib/checkbox";
+import {ADMIN_MODULE} from "config/permissions/admin.permission";
 import _ from "lodash";
 import {ModuleAuthorize} from "model/auth/module.model";
 import {PermissionsAuthorize} from "model/auth/permission.model";
 import {PageResponse} from "model/base/base-metadata.response";
-import {Fragment, useCallback} from "react";
+import {Fragment, useCallback, useMemo} from "react";
 import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
 import {
   handleCheckedModule,
@@ -47,7 +48,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
     onChangeCheckboxModule,
     onChangeCheckboxPermission,
     isShowTitle,
-    disabled
+    disabled,
   } = props;
 
   const handleChangeModule = (e: CheckboxChangeEvent, module: ModuleAuthorize) => {
@@ -91,9 +92,19 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
       return 1;
     }
 
-    // names must be equal
+    // names is equal
     return 0;
   }, []);
+
+  const finalModule = useMemo(() => {
+    if (Array.isArray(moduleData?.items)) {
+      return _.filter(moduleData?.items, function (item) {
+        return item.code !== ADMIN_MODULE;
+      });
+    }
+    return [];
+  }, [moduleData]);
+
   return (
     <RoleStyled>
       <Card title={isShowTitle ? "PHÂN QUYỀN CHI TIẾT" : ""}>
@@ -106,7 +117,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
           expandIcon={() => <Fragment />}
           className="site-collapse-custom-collapse"
         >
-          {moduleData?.items.map((module: ModuleAuthorize) => {
+          {finalModule.map((module: ModuleAuthorize) => {
             const isIndeterminate = indeterminateModules.includes(module.code);
             const isChecked = checkedModules.includes(module.code);
 
