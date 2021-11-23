@@ -326,6 +326,7 @@ const AccountUpdateScreen: React.FC = () => {
                allowClear
                showSearch
                 defaultValue={item.department_id || undefined}
+                treeNodeFilterProp='title'
              >
                {listDepartmentTree?.map((item, index) => (
                  <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>

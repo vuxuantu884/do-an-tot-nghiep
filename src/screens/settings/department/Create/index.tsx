@@ -171,7 +171,8 @@ const DepartmentCreateScreen: React.FC = () => {
                   className="selector"
                   allowClear
                   showSearch
-                >
+                  treeNodeFilterProp='title'
+                  >
                   {departments.map((item, index) => (
                     <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
                   ))}
