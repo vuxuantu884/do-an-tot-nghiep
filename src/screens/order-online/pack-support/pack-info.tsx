@@ -681,6 +681,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 };
 
 export default PackInfo;
-function e(e: any): any {
-  throw new Error("Function not implemented.");
-}
+// function e(e: any): any {
+//   throw new Error("Function not implemented.");
+// }
