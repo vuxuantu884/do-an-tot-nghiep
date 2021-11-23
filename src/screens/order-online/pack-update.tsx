@@ -22,7 +22,7 @@ import {
 import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
 import React, {createRef, useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {useHistory, useParams} from "react-router";
+import {useParams} from "react-router";
 import search from "assets/img/search.svg";
 import moment from "moment";
 import "assets/css/_pack.scss";
@@ -128,7 +128,7 @@ const PackUpdate: React.FC = () => {
       console.log(index);
       switch (index) {
         case 1: //xóa
-          if(selectedRowKeys.length===0) {
+          if (selectedRowKeys.length === 0) {
             showWarning("Vui lòng chọn đơn hàng cần xóa");
             break;
           }
@@ -142,15 +142,15 @@ const PackUpdate: React.FC = () => {
 
             if (success === true) _newItem.push(data.code);
           });
-          
+
           let param: any = {
             ...packDetail,
             codes: _newItem,
           };
-  
+
           dispatch(
             updateGoodsReceipts(PackId, param, (data: GoodsReceiptsResponse) => {
-              if(data){
+              if (data) {
                 showSuccess("Cập nhập biên bản thành công");
                 setPackDetail(data);
                 console.log(data);
@@ -160,7 +160,7 @@ const PackUpdate: React.FC = () => {
           break;
       }
     },
-    [dispatch,selectedRowKeys, packDetail,PackId]
+    [dispatch, selectedRowKeys, packDetail, PackId]
   );
 
   const rowSelection = {
@@ -194,7 +194,7 @@ const PackUpdate: React.FC = () => {
         dispatch(
           updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
             console.log(data);
-            if(data)showSuccess("Thêm đơn hàng vào biên bản thành công")
+            if (data) showSuccess("Thêm đơn hàng vào biên bản thành công");
           })
         );
         searchOrderForm.resetFields();

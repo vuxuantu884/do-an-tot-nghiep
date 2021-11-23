@@ -94,7 +94,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       render: (value: string, i: GoodsReceiptsTotalProductModel) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.ORDER}/${i.barcode}`}>
+            <Link target="_blank"   to={`#`}>
               {value}
             </Link>
           </React.Fragment>
@@ -110,7 +110,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
         return (
           <React.Fragment>
             <div style={{padding: "5px 0"}}>
-              <Link target="_blank" to={`${UrlConfig.ORDER}/${i.product_sku}`}>
+              <Link target="_blank"  to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.variant_id}`}>
                 {value}
               </Link>
               <div style={{fontSize: "0.86em"}}>{i.product_name}</div>

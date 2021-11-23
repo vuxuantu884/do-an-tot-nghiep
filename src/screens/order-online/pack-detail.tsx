@@ -70,43 +70,7 @@ const PackDetail: React.FC = () => {
     },
   ]);
 
-  const [packProductQuantity, setPackProductQuantity] = useState<
-    GoodsReceiptsTotalProductModel[]
-  >([
-    {
-      key: 0,
-      barcode: "12332443535",
-      product_id: 1,
-      product_sku: "APN3340 - XXA - XL",
-      product_name: "Áo Polo mắt chim nam",
-      inventory: 132,
-      price: 500000,
-      total_quantity: 4,
-      total_incomplate: 6,
-    },
-    {
-      key: 1,
-      barcode: "12332443535",
-      product_id: 1,
-      product_sku: "APN3340 - XXA - XL",
-      product_name: "Áo Polo mắt chim nam",
-      inventory: 132,
-      price: 500000,
-      total_quantity: 4,
-      total_incomplate: 6,
-    },
-    {
-      key: 2,
-      barcode: "12332443535",
-      product_id: 1,
-      product_sku: "APN3340 - XXA - XL",
-      product_name: "Áo Polo mắt chim nam",
-      inventory: 132,
-      price: 500000,
-      total_quantity: 4,
-      total_incomplate: 6,
-    },
-  ]);
+  const [packProductQuantity, setPackProductQuantity] = useState<GoodsReceiptsTotalProductModel[]>([]);
 
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
@@ -133,6 +97,7 @@ const PackDetail: React.FC = () => {
                   product_id: itemProduct.product_id,
                   product_sku: itemProduct.sku,
                   product_name: itemProduct.product,
+                  variant_id:itemProduct.variant_id,
                   inventory: itemProduct.available ? itemProduct.available : 0,
                   price: itemProduct.price,
                   total_quantity: itemProduct.quantity,
