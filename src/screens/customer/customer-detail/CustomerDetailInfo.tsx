@@ -19,7 +19,7 @@ const genreEnum: any = {
 
 const updateCustomerPermission = [CustomerListPermission.customers_update];
 
-type CustomerInfoProps = {
+type CustomerDetailInfoProps = {
   customer: CustomerResponse | undefined;
   loyaltyCard: any;
 };
@@ -36,8 +36,8 @@ type detailMapping = {
   isWebsite?: boolean;
 };
 
-const CustomerInfo: React.FC<CustomerInfoProps> = (
-  props: CustomerInfoProps
+const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
+  props: CustomerDetailInfoProps
 ) => {
   const { customer, loyaltyCard } = props;
 
@@ -311,4 +311,4 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
   );
 };
 
-export default CustomerInfo;
+export default CustomerDetailInfo;

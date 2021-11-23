@@ -12,6 +12,7 @@ export interface PackItemOrderModel{
   receiver:string|null;
   product:string;
   sku:string|null;
+  variant_id:number|null;
   price:number;
   quantity:number;
   postage:number;
@@ -85,6 +86,7 @@ export interface GoodsReceiptsTotalProductModel{
   product_id:number;
   product_sku:string;
   product_name:string;
+  variant_id:number;
   inventory:number;
   price:number;
   total_quantity:number;

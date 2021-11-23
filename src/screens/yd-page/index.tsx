@@ -8,7 +8,7 @@ import { useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import { FpageCustomerSearchQuery } from "model/query/customer.query";
 import {
-  CustomerDetail,
+  getCustomerDetailAction,
   CustomerSearchByPhone
 } from "domain/actions/customer/customer.action";
 import "./index.scss";
@@ -196,7 +196,7 @@ function YDPageCRM() {
   }, []);
 
   const handleCustomerById = React.useCallback((id: number | null) => {
-    dispatch(CustomerDetail(id, searchByPhoneCallback));
+    dispatch(getCustomerDetailAction(id, searchByPhoneCallback));
   }, [dispatch])
 
   return (

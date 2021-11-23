@@ -31,7 +31,7 @@ import {
   ShipperGetListAction
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
@@ -278,6 +278,8 @@ export default function Order(props: PropType) {
         } else {
           if (
             OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED
+            || OrderDetail.fulfillments[0].status === FulFillmentStatus.CANCELLED
+            || OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNING
             // || OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
           ) {
             // return 1
@@ -899,7 +901,7 @@ export default function Order(props: PropType) {
         setOrderDetail(response);
         if (customer_id) {
           dispatch(
-            CustomerDetail(customer_id, (responseCustomer) => {
+            getCustomerDetailAction(customer_id, (responseCustomer) => {
               setCustomer(responseCustomer);
             })
           );

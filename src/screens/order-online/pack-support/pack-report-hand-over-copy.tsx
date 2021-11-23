@@ -70,12 +70,6 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   const {query} = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  //   const [listGoodsReceiptsSearch, setListGoodsReceiptsSearch] = useState<
-  //     GoodsReceiptsResponse[]
-  //   >([]);
-  //   const [goodsReceiptsSearh, setGoodsReceiptsSearh] = useState<GoodsReceiptsSearhModel[]>(
-  //     []
-  //   );
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   // const [tableLoading] = useState(true);
 

@@ -7,16 +7,18 @@ import { useParams, useHistory } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import CustomerInfo from "./customer.info";
+
+import CustomerDetailInfo from "screens/customer/customer-detail/CustomerDetailInfo";
 import CustomerContactInfo from "./customer-contact/customer.contact";
 import CustomerShippingAddressInfo from "./customer-shipping/customer.shipping";
 import CustomerShippingInfo from "./customer-billing/customer.billing";
 import CustomerNoteInfo from "./customer-note/customer.note";
-import CustomerHistoryInfo from "./customer.history";
-import CustomerCareHistory from "./customer-care-history";
+import PurchaseHistory from "screens/customer/customer-detail/PurchaseHistory";
+import CustomerCareHistory from "screens/customer/customer-detail/CustomerCareHistory";
+
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { GetListOrderCustomerAction } from "domain/actions/order/order.action";
 import {
   getLoyaltyPoint,
@@ -45,7 +47,7 @@ const { TabPane } = Tabs;
 const viewCustomerDetailPermission = [CustomerListPermission.customers_read];
 const updateCustomerPermission = [CustomerListPermission.customers_update];
 
-const CustomerDetailIndex = () => {
+const CustomerDetail = () => {
 
   const [allowViewCustomerDetail] = useAuthorization({
     acceptPermissions: viewCustomerDetailPermission,
@@ -318,7 +320,7 @@ const CustomerDetailIndex = () => {
       return;
     }
     
-    dispatch(CustomerDetail(params.id, setCustomer));
+    dispatch(getCustomerDetailAction(params.id, setCustomer));
   }, [allowViewCustomerDetail, dispatch, params, setCustomer]);
 
   const handleChangeTab = (active: string) => {
@@ -422,7 +424,7 @@ const CustomerDetailIndex = () => {
           {(allowed: boolean) => (allowed ?
             <>
               <div className="customer-info">
-                <CustomerInfo
+                <CustomerDetailInfo
                   customer={customer}
                   loyaltyCard={loyaltyCard}
                 />
@@ -476,7 +478,7 @@ const CustomerDetailIndex = () => {
                   className="tabs-list"
                 >
                   <TabPane tab="Lịch sử mua hàng" key="history">
-                    <CustomerHistoryInfo
+                    <PurchaseHistory
                       orderData={orderHistory}
                       onPageChange={onPageChange}
                       tableLoading={tableLoading}
@@ -556,4 +558,4 @@ const CustomerDetailIndex = () => {
   );
 };
 
-export default CustomerDetailIndex;
+export default CustomerDetail;

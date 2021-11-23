@@ -18,7 +18,7 @@ import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   CreateShippingAddress,
   CustomerCreateAction,
-  CustomerDetail,
+  getCustomerDetailAction,
   UpdateShippingAddress
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
@@ -190,7 +190,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       (data: any) => {
                         if (data) {
                           dispatch(
-                            CustomerDetail(
+                            getCustomerDetailAction(
                               result.id,
                               (data_i: CustomerResponse) => {
                                 handleChangeCustomer(data_i);

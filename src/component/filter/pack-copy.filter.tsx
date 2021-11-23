@@ -164,7 +164,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
     let list = [];
 
     if (initialValues.store_id) {
-      let textStores = initialValues.store_id
+      let textStores =listStores.find((x)=>x.id===Number(initialValues.store_id))?.name;
       list.push({
         key: 'store',
         name: 'Cửa hàng',
@@ -173,38 +173,29 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
     }
 
     if (initialValues.delivery_service_id) {
-      let textStores = initialValues.delivery_service_id
+      let textDeliveryService = listThirdPartyLogistics.find((x)=>x.id===Number(initialValues.delivery_service_id))?.name;
       list.push({
         key: 'delivery_service_id',
         name: 'Hãng vận chuyển',
-        value: textStores
+        value: textDeliveryService
       })
     }
 
     if (initialValues.ecommerce_id) {
-      let textStores = initialValues.ecommerce_id
+      let text=listChannels.find((x)=>x.id===Number(initialValues.ecommerce_id))?.name;
       list.push({
         key: 'ecommerce_id',
         name: 'Biên bản sàn',
-        value: textStores
+        value: text
       })
     }
 
     if (initialValues.good_receipt_type_id) {
-      let textStores = initialValues.good_receipt_type_id
+      let text = listGoodsReceiptsType.find((x)=>x.id===Number(initialValues.good_receipt_type_id))?.name;
       list.push({
         key: 'good_receipt_type_id',
         name: 'Loại biên bản',
-        value: textStores
-      })
-    }
-
-    if (initialValues.good_receipt_type_id) {
-      let textStores = initialValues.good_receipt_type_id
-      list.push({
-        key: 'good_receipt_type_id',
-        name: 'Loại biên bản',
-        value: textStores
+        value: text
       })
     }
 
@@ -228,6 +219,10 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
     initialValues.good_receipt_type_id,
     initialValues.from_date,
     initialValues.to_date,
+    listStores,
+    listChannels,
+    listGoodsReceiptsType,
+    listThirdPartyLogistics
   ]);
 
   const widthScreen = () => {

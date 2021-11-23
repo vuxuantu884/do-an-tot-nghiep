@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { ACTION_FORM_CONSTANTS } from "../constants";
 import RoleForm from "../role.form";
 
 const RoleUpdateScreen: React.FC = () => {
@@ -170,6 +171,7 @@ const RoleUpdateScreen: React.FC = () => {
     >
       {moduleData && (
         <RoleForm
+        formType={ACTION_FORM_CONSTANTS.UPDATE}
           form={form}
           moduleData={moduleData}
           activePanel={activePanel}

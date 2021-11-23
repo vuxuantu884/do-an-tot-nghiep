@@ -79,7 +79,7 @@ export const actionAddCustomerGroup = (
     };
   };
 
-export const CustomerDetail = (id: number|null, setData: (data: CustomerResponse) => void) => {
+export const getCustomerDetailAction = (id: number|null, setData: (data: CustomerResponse) => void) => {
     return BaseAction(CustomerType.CUSTOMER_DETAIL, { id, setData });
 }
 

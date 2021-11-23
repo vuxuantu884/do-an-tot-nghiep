@@ -2,7 +2,7 @@ import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import {
   getLoyaltyPoint,
   getLoyaltyUsage,
@@ -202,7 +202,7 @@ const ScreenReturnDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomerDetail));
     }
   }, [dispatch, OrderDetail]);
 

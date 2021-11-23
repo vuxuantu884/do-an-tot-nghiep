@@ -107,10 +107,7 @@ const StoreDetailScreen: React.FC = () => {
                 >
                   Cho phép bán
                 </Checkbox>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Phân loại" value={data.type_name} />
-              </Col>
+              </Col> 
             </Row>
             <Row style={{marginTop: 20}} gutter={50}>
               <Col>
@@ -161,6 +158,9 @@ const StoreDetailScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <RowDetail title="Diện tích cửa hàng (m²)" value={data.square + ""} />
               </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <RowDetail title="Phân loại" value={data.type_name} />
+              </Col>
             </Row>
           </Card>
           <Collapse
@@ -191,20 +191,17 @@ const StoreDetailScreen: React.FC = () => {
             </Panel>
           </Collapse>
           <BottomBarContainer
-            back={"Quay lại"}
+            back={"Quay lại danh sách"}
             rightComponent={
-              <Space>
-                {allowUpdateStore ? (
-                  <Button
-                    onClick={() => {
-                      history.push(`${UrlConfig.STORE}/${idNumber}/update`);
-                    }}
-                    type="primary"
-                  >
-                    Sửa thông tin
-                  </Button>
-                ) : null}
-              </Space>
+              allowUpdateStore && 
+                <Button
+                  onClick={() => {
+                    history.push(`${UrlConfig.STORE}/${idNumber}/update`);
+                  }}
+                  type="primary"
+                >
+                  Sửa cửa hàng
+                </Button>
             }
           />
         </Form>

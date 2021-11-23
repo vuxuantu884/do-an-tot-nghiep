@@ -14,6 +14,7 @@ import {
   Space,
   Switch,
   Table,
+  TreeSelect
 } from "antd";
 import deleteIcon from "assets/icon/delete.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -43,7 +44,7 @@ import {
   AccountStoreResponse,
   AccountView,
 } from "model/account/account.model";
-import {DepartmentResponse} from "model/account/department.model";
+import {DepartmentResponse, DepartmentView} from "model/account/department.model";
 import {PositionResponse} from "model/account/position.model";
 import {RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
 import {CountryResponse} from "model/content/country.model";
@@ -52,11 +53,11 @@ import {StoreResponse} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import moment from "moment";
 import {RuleObject} from "rc-field-form/lib/interface";
-import {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {useParams} from "react-router-dom";
-import {convertDistrict} from "utils/AppUtils";
+import {convertDepartment, convertDistrict} from "utils/AppUtils";
 import { CompareObject } from "utils/CompareObject";
 import {RegUtil} from "utils/RegUtils";
 import {PASSWORD_RULES} from "./account.rules";
@@ -98,10 +99,11 @@ const AccountUpdateScreen: React.FC = () => {
   const [status, setStatus] = useState<string>("active");
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listRole, setRole] = useState<Array<RoleResponse>>();
-  const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [accountDetail, setAccountDetail] = useState<AccountView>();
   const [isSelectAllStore, setIsSelectAllStore] = useState(false); 
+  const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
+  const [listDepartment, setDepartment] = useState<Array<DepartmentView>>();
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
@@ -315,23 +317,21 @@ const AccountUpdateScreen: React.FC = () => {
       render: (text: string, item: AccountJobReQuest, index: number) => {
         return (
           <div>
-            <Select
-              placeholder="Chọn bộ phận"
-              className="selector"
-              allowClear
-              showArrow
-              showSearch
-              optionFilterProp="children"
-              onChange={(value) => onChangeDepartment(value, index, item.id)}
+            <TreeSelect
               style={{width: "100%"}}
-              defaultValue={item.department_id || undefined}
-            >
-              {listDepartment?.map((item) => (
-                <Option key={item.id} value={item.id}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
+               placeholder="Chọn bộ phận"
+               treeDefaultExpandAll
+               className="selector"
+               onChange={(value) => onChangeDepartment(value, index)}
+               allowClear
+               showSearch
+                defaultValue={item.department_id || undefined}
+                treeNodeFilterProp='title'
+             >
+               {listDepartmentTree?.map((item, index) => (
+                 <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+               ))}
+             </TreeSelect>  
           </div>
         );
       },
@@ -407,7 +407,15 @@ const AccountUpdateScreen: React.FC = () => {
   }, [accountDetail, listStore]);
 
   useEffect(() => {
-    dispatch(DepartmentGetListAction(setDepartment));
+    dispatch(
+      DepartmentGetListAction((result) => {
+        if (result) {
+          setDepartmentTree(result);
+          let array: Array<DepartmentView> = convertDepartment(result);
+          setDepartment(array);
+        }
+      })
+    ); 
     dispatch(PositionGetListAction(setPosition));
     dispatch(RoleGetListAction(initRoleQuery, setRole));
     dispatch(StoreGetListAction(setStore));
@@ -775,6 +783,20 @@ const AccountUpdateScreen: React.FC = () => {
       </Form>
       <ModalConfirm {...modalConfirm} />
     </ContentContainer>
+  );
+};
+
+const TreeDepartment = (item: DepartmentResponse) => {
+  return (
+    <TreeSelect.TreeNode value={item.id} title={item.name}>
+      {item.children.length > 0 && (
+        <React.Fragment>
+          {item.children.map((item, index) => (
+            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+          ))}
+        </React.Fragment>
+      )}
+    </TreeSelect.TreeNode>
   );
 };
 
