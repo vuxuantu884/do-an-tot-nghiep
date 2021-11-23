@@ -706,6 +706,7 @@ function* getFulfillmentsSaga(action: YodyAction) {
 
 function* putFulfillmentsSagaPack(action: YodyAction) {
   const { request, setData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(putFulfillmentsPackApi, request);
     switch (response.code) {
@@ -721,6 +722,9 @@ function* putFulfillmentsSagaPack(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  }
+  finally{
+    yield put(hideLoading());
   }
 }
 
