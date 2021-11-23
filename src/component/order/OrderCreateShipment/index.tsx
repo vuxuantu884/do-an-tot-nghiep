@@ -253,7 +253,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
       getShippingAddressDefault(customer)?.full_address
     ) {
       if (!((storeDetail.city_id || storeDetail.district_id) &&
-          storeDetail.ward_id && storeDetail.full_address)) {
+          storeDetail.ward_id && storeDetail.address)) {
         setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
         return;
       }
