@@ -385,13 +385,11 @@ const ScreenReturnCreate = (props: PropType) => {
         order_returns: [],
       };
       console.log('orderDetailResult', orderDetailResult)
-      dispatch(showLoading());
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
         })
-        );
-      dispatch(hideLoading());
+      );
     }
   };
 
