@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
 import { Button, Card, Menu } from "antd";
@@ -7,7 +7,6 @@ import { DownloadOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { generateQuery } from "utils/AppUtils";
 // todo thai: handle later
 // import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -63,11 +62,11 @@ import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {getToken} from "../../../utils/LocalStorageUtils";
+import {getToken} from "utils/LocalStorageUtils";
 import axios from "axios";
 import {AppConfig} from "config/app.config";
 import {FulFillmentStatus} from "utils/Constants";
-import {showError, showSuccess} from "../../../utils/ToastUtils";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -139,7 +138,6 @@ const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
 const EcommerceOrders: React.FC = () => {
   const query = useQuery();
-  const history = useHistory();
   const dispatch = useDispatch();
 
   const [allowOrdersView] = useAuthorization({
@@ -615,72 +613,54 @@ const EcommerceOrders: React.FC = () => {
   }, []);
 
   // handle action button
-
-  // const printElementRef = useRef(null);
-  // const Print = (data: any) => useReactToPrint({
-  //   content: () => data,
-  // });
   const token = getToken();
-  const handlePrintDeliveryNote = useCallback(
-      () => {
-        setTableLoading(true);
-        if (selectedRowKeys?.length > 0) {
-          let order_list: any = [];
-          selectedRowKeys.forEach(idSelected => {
-            const orderMatched = data?.items.find(i => i.id === idSelected)
-            if(orderMatched){
-             const orderRequest = {
-                "order_sn": orderMatched.reference_code,
-                "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
-                "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
-                "ecommerce_id": 1,
-                "shop_id": orderMatched.ecommerce_shop_id
-              }
-              order_list.push(orderRequest)
-            }
-          })
-
-          let url = `${AppConfig.baseUrl}${AppConfig.ECOMMERCE_SERVICE}/orders/print-forms`;
-          axios.post(url,{order_list} ,
-              {
-                responseType: 'arraybuffer',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/pdf',
-                  'Authorization': `Bearer ${token}`
-                }
-              })
-              .then((response) => {
-                showSuccess("Tạo phiếu giao hàng thành công")
-                let blob = new Blob([response.data], { type: 'application/pdf' })
-                let fileURL = URL.createObjectURL(blob);
-                window.open(fileURL)
-                setTableLoading(false)
-              })
-              .catch(() => {
-                setTableLoading(false)
-                showError("Không thể tạo phiếu giao hàng")
-              });
+  const handlePrintDeliveryNote = useCallback(() => {
+    if (selectedRowKeys?.length > 0) {
+      setTableLoading(true);
+      let order_list: any = [];
+      selectedRowKeys.forEach(idSelected => {
+        const orderMatched = data?.items.find(i => i.id === idSelected)
+        if(orderMatched){
+          const orderRequest = {
+            "order_sn": orderMatched.reference_code,
+            "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
+            "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
+            "ecommerce_id": 1,
+            "shop_id": orderMatched.ecommerce_shop_id
+          }
+          order_list.push(orderRequest)
         }
-      },
-      [selectedRowKeys, token, data?.items]
-  );
+      })
 
-  const onMenuClick = useCallback(
-    (index: number) => {
-      if (selectedRowKeys?.length > 0) {
-        let params = {
-          action: "print",
-          ids: selectedRowKeys,
-          "print-type": index === 1 ? "shipment" : "stock_export",
-          "print-dialog": true,
-        };
-        const queryParam = generateQuery(params);
-        history.push(`${UrlConfig.ECOMMERCE}/orders/print-preview?${queryParam}`);
-      }
-    },
-    [history, selectedRowKeys]
-  );
+      let url = `${AppConfig.baseUrl}${AppConfig.ECOMMERCE_SERVICE}/orders/print-forms`;
+      axios.post(url,{order_list} ,
+        {
+          responseType: 'arraybuffer',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/pdf',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then((response) => {
+          showSuccess("Tạo phiếu giao hàng thành công")
+          let blob = new Blob([response.data], { type: 'application/pdf' })
+          let fileURL = URL.createObjectURL(blob);
+          window.open(fileURL)
+          setTableLoading(false)
+        })
+        .catch(() => {
+          setTableLoading(false)
+          showError("Không thể tạo phiếu giao hàng")
+        });
+    }
+  }, [selectedRowKeys, token, data?.items]);
+
+  const handlePrintStockExport = useCallback(() => {
+    if (selectedRowKeys?.length > 0) {
+      showWarning("Sẽ làm chức năng này sau bạn nhé")
+    }
+  }, [selectedRowKeys]);
 
   const actionList = (
     <Menu>
@@ -694,7 +674,7 @@ const EcommerceOrders: React.FC = () => {
       <Menu.Item key="2" disabled={selectedRowKeys?.length < 1}>
         <div>
           <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
+          <span onClick={handlePrintStockExport}>In phiếu xuất kho</span>
         </div>
       </Menu.Item>
     </Menu>
