@@ -40,17 +40,17 @@ const FixedPriceSelection = (props: any) => {
     const entitlements = Object.assign([], _.uniqBy(entitlementsResponse, "variant_id"));
     const importedResult = customGroupBy(entitlements, ["discount_value", "discount_type", "min_quantity", "limit"]);
     const formEntitlements = form.getFieldValue("entitlements");
-    importedResult.forEach((i: any) => {
-      // let existedIndex = -1;
+    importedResult.forEach((item: any) => {
+
       const formEntitlement = {
-        variants: i.variants,
-        "prerequisite_quantity_ranges.allocation_limit": i.limit,
-        "prerequisite_quantity_ranges.greater_than_or_equal_to": i.min_quantity,
-        "prerequisite_quantity_ranges.value_type": form.getFieldValue("entitled_method") === "FIXED_PRICE" ? "FIXED_AMOUNT" : i.discount_type,
-        "prerequisite_quantity_ranges.value": i.discount_value,
+        variants: item.variants,
+        "prerequisite_quantity_ranges.allocation_limit": item.limit,
+        "prerequisite_quantity_ranges.greater_than_or_equal_to": item.min_quantity,
+        "prerequisite_quantity_ranges.value_type": form.getFieldValue("entitled_method") === "FIXED_PRICE" ? "FIXED_AMOUNT" : item.discount_type,
+        "prerequisite_quantity_ranges.value": item.discount_value,
       };
       formEntitlements.push(formEntitlement);
-      // }
+      
     });
 
     setUploadStatus(undefined);
