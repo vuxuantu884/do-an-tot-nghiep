@@ -1,6 +1,8 @@
 import { Card, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
+import SidebarOrderDetailExtraInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailInformation";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
@@ -68,9 +70,7 @@ import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardReturnProductContainer from "../components/containers/CardReturnProductContainer";
 import ReturnBottomBar from "../components/ReturnBottomBar";
-import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
-import OrderShortDetails from "../components/Sidebar/OrderShortDetails";
 
 type PropType = {
   id?: string;
@@ -387,7 +387,6 @@ const ScreenReturnCreate = (props: PropType) => {
       console.log('orderDetailResult', orderDetailResult)
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
-          dispatch(hideLoading());
           history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
         })
       );
@@ -450,6 +449,16 @@ const ScreenReturnCreate = (props: PropType) => {
         const offsetY = element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
         window.scrollTo({top: offsetY, behavior: "smooth"});
       });
+  };
+
+  const handleDispatchReturnAndExchange = (orderDetailResult: ReturnRequest) => {
+    return new Promise((resolve, reject) => {
+      dispatch(
+        actionCreateOrderReturn(orderDetailResult, (response) => {
+          resolve(response)
+        })
+      );
+    })
   };
 
   const onReturnAndExchange = async () => {
@@ -534,9 +543,8 @@ const ScreenReturnCreate = (props: PropType) => {
                 showError("Đã tạo đơn đổi hàng không thành công!");
                 return;
               }
-              dispatch(
-                actionCreateOrderReturn(orderDetailResult, (response) => {
-                  valuesResult.order_return_id = response.id;
+              handleDispatchReturnAndExchange(orderDetailResult).then((response:any) => {
+                valuesResult.order_return_id = response.id;
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
@@ -548,8 +556,7 @@ const ScreenReturnCreate = (props: PropType) => {
                       }
                     )
                   );
-                })
-              );
+              })
             };
             if (!values.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -602,6 +609,8 @@ const ScreenReturnCreate = (props: PropType) => {
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(listExchangeProducts);
 
+   
+
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     if (totalAmountCustomerNeedToPay > 0) {
@@ -636,7 +645,13 @@ const ScreenReturnCreate = (props: PropType) => {
     values.store_id = OrderDetail ? OrderDetail.store_id : null;
     values.source_id = OrderDetail ? OrderDetail.source_id : null;
     values.order_return_id = order_return_id;
-
+    values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
+    values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
+    values.url = OrderDetail ? OrderDetail.url : null;
+    values.reference_code = OrderDetail ? OrderDetail.reference_code : null;
+    values.note = OrderDetail ? OrderDetail.note : null;
+    values.customer_note = OrderDetail ? OrderDetail.customer_note : null;
+    
     return values;
   };
 
@@ -942,37 +957,6 @@ const ScreenReturnCreate = (props: PropType) => {
                     setReturnMoneyType={setReturnMoneyType}
                   />
                 )}
-                {/* {isExchange && isStepExchange && (
-                  <CardShipment
-                    setShipmentMethodProps={setShipmentMethod}
-                    shipmentMethod={shipmentMethod}
-                    storeDetail={storeDetail}
-                    setShippingFeeInformedCustomer={setShippingFeeCustomer}
-                    setShippingFeeInformedCustomerHVC={setShippingFeeInformedCustomerHVC}
-                    amount={totalAmountExchange}
-                    setPaymentMethod={setPaymentMethod}
-                    paymentMethod={paymentMethod}
-                    shippingFeeCustomer={shippingFeeCustomer}
-                    shippingFeeCustomerHVC={shippingFeeInformedCustomerHVC}
-                    customerInfo={customer}
-                    items={listExchangeProducts}
-                    discountValue={discountValue}
-                    setOfficeTime={setOfficeTime}
-                    officeTime={officeTime}
-                    setServiceType={setServiceType}
-                    setServiceName={setServiceName}
-                    setHVC={setHvc}
-                    setHvcName={setHvcName}
-                    setHvcCode={setHvcCode}
-                    setFee={setFee}
-                    deliveryServices={deliveryServices}
-                    payments={payments}
-                    onPayments={setPayments}
-                    fulfillments={fulfillments}
-                    isCloneOrder={false}
-                    totalAmountReturnProducts={totalAmountReturnProducts}
-                  />
-                )} */}
                 {isExchange && isStepExchange && (
                   <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                     <OrderCreateShipment
@@ -999,9 +983,9 @@ const ScreenReturnCreate = (props: PropType) => {
               </Col>
 
               <Col md={6}>
-                <OrderShortDetails OrderDetail={OrderDetail} />
+                <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
                 <OrderReturnReason listOrderReturnReason={listOrderReturnReason} form={form} />
-                <OrderMoreDetails OrderDetail={OrderDetail} />
+                <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
               </Col>
             </Row>
           </Form>
