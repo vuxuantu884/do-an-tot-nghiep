@@ -384,7 +384,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Số lượng đã bán",
-          value: "---",
+          value: data?.async_allocation_count,
           position: "right",
           key: "5",
         },
