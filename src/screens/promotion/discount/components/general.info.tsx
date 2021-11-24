@@ -104,13 +104,14 @@ const GeneralInfo = (props: any) => {
                   <Form.Item
                     label={<b>Số lượng áp dụng:</b>}
                     name="usage_limit"
-                    rules={[{required: !unlimitedUsage, message: "Vui lòng nhập số lượng áp dụng"}]}
+                    rules={[{required: !unlimitedUsage, message: "Vui lòng nhập số lượng áp dụng"}]}                
                   >
                     <InputNumber
                       disabled={unlimitedUsage}
                       style={{borderRadius: "5px"}}
                       placeholder="Nhập số lượng khuyến mại"
                       min={0}
+                      maxLength={6}
                     />
                   </Form.Item>
                 </Col>

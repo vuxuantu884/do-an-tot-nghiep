@@ -84,6 +84,7 @@ const ListCode = () => {
   const {id} = useParams() as any;
   const priceRuleId = id;
   const query = useQuery();
+  const [form] = Form.useForm();
   let dataQuery: any = {
     ...{
       code: "",
@@ -447,11 +448,12 @@ const ListCode = () => {
           <Card>
             <div className="discount-code__search">
               <CustomFilter onMenuClick={onMenuClick} menu={actionsPromoCode}>
-                <Form onFinish={onFilter} initialValues={params} layout="inline">
+                <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
                   <Item name="code" className="search">
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="Tìm kiếm theo mã, tên chương trình"
+                      onBlur={(e) => {form.setFieldsValue({code: e.target.value?.trim()})}}
                     />
                   </Item>
                   <Item name="state">
@@ -768,7 +770,7 @@ const ListCode = () => {
                           <strong style={{color: "#2A2A86"}}>
                             {successCount} / {importTotal}
                           </strong>{" "}
-                          sản phẩm thành công
+                         mã giảm giá thành công
                         </h2>
                       </Row>
                       {codeErrorsResponse.length > 0 ? (
