@@ -35,6 +35,9 @@ export const StyledYodyProductColumn = styled.div`
     color: #737373;
   }
 
+  .yody-product-info {
+    padding-left: 20px;
+  }
 `;
 
 export const StyledProductListDropdown = styled.div`
@@ -54,7 +57,7 @@ export const StyledProductListDropdown = styled.div`
       .name-and-price {
         display: flex;
         justify-content: space-between;
-        alight-item: center;
+        align-items: center;
 
         .item-name {
           line-height: 16px;
