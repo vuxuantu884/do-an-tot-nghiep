@@ -49,6 +49,7 @@ import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
 import CustomerIcon from "assets/icon/customer-icon.svg";
 import DeliveryrIcon from "assets/icon/gray-delivery.svg";
+import DollarCircleIcon from "assets/icon/dollar-circle.svg";
 
 // // todo thai: handle later
 // import ConnectIcon from "assets/icon/connect.svg";
@@ -258,7 +259,7 @@ const EcommerceOrders: React.FC = () => {
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: 180,
+      width: 160,
       render: (data: any, item: OrderModel) => (
         <div>
           <Link to={`${UrlConfig.ORDER}/${item.id}`}><strong>{data.code}</strong></Link>
@@ -273,7 +274,7 @@ const EcommerceOrders: React.FC = () => {
       title: "Khách hàng",
       key: "customer",
       visible: true,
-      width: 300,
+      width: 180,
       render: (record) =>
         record.shipping_address ? (
           <div className="customer custom-td">
@@ -362,20 +363,19 @@ const EcommerceOrders: React.FC = () => {
       key: "customer_amount_money",
       visible: true,
       align: "right",
-      width: 100,
+      width: 110,
       render: (record: any) => (
         <>
-          <span>
+          <div>
+            <img src={DollarCircleIcon} alt="" style={{ marginRight: 3, height: 13 }} />
             <NumberFormat
               value={record.total_line_amount_after_line_discount}
               className="foo"
               displayType={"text"}
               thousandSeparator={true}
             />
-          </span>
-          <br />
-          <span style={{ color: "#EF5B5B" }}>
-            {" "}
+          </div>
+          <div style={{ color: "#EF5B5B" }}>
             -
             <NumberFormat
               value={record.total_discount}
@@ -383,7 +383,7 @@ const EcommerceOrders: React.FC = () => {
               displayType={"text"}
               thousandSeparator={true}
             />
-          </span>
+          </div>
         </>
       ),
     },
@@ -391,7 +391,7 @@ const EcommerceOrders: React.FC = () => {
       title: "Vận chuyển",
       key: "",
       visible: true,
-      width: 150,
+      width: 130,
       align: "center",
       render: (item: any) => {
         const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
@@ -439,7 +439,7 @@ const EcommerceOrders: React.FC = () => {
       dataIndex: "sub_status",
       key: "sub_status",
       visible: true,
-      width: 200,
+      width: 140,
       align: "center",
       render: (sub_status: string) => {
         return (
@@ -829,7 +829,7 @@ const EcommerceOrders: React.FC = () => {
                 bordered
                 isLoading={tableLoading}
                 showColumnSetting={true}
-                scroll={{ x: 2650 }}
+                scroll={{ x: 2350 }}
                 sticky={{ offsetScroll: 10, offsetHeader: 55 }}
                 pagination={
                   tableLoading
