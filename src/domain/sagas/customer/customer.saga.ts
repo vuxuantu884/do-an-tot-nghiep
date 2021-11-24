@@ -70,9 +70,11 @@ function* getCustomerList(action: YodyAction) {
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        setData(false);
         break;
     }
   } catch (error) {
+    setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
