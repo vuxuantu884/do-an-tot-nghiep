@@ -123,10 +123,8 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         title="Xác nhận"
         description={
           props.orderDetail &&
-          fulfillments &&
-          fulfillments.length > 0 &&
-          fulfillments[0].created_date &&
-          moment(fulfillments[0].created_date).format(formatDate)
+          props.orderDetail.finalized_on &&
+          moment(props.orderDetail.finalized_on).format(formatDate)
         }
         className={
           props.status === 'draff'
