@@ -44,6 +44,12 @@ import UrlConfig from "config/url.config";
 import {RegUtil} from "utils/RegUtils";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import CustomSelect from "component/custom/select.custom";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AppConfig } from "config/app.config";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -63,6 +69,7 @@ const StoreUpdateScreen: React.FC = () => {
   const history = useHistory();
   //end hook
   //State
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [formMain] = Form.useForm();
   const [data, setData] = useState<StoreResponse | null>(null);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
@@ -143,6 +150,12 @@ const StoreUpdateScreen: React.FC = () => {
       history.goBack();
     }
   };
+
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (data) 
+        setAccounts(data.items);
+    }, [] );
   useEffect(() => {
     if (firstload.current) {
       setLoadingData(true);
@@ -154,9 +167,15 @@ const StoreUpdateScreen: React.FC = () => {
       if (!Number.isNaN(idNumber)) {
         dispatch(StoreDetailAction(idNumber, setResult));
       }
+      dispatch(
+        AccountSearchAction(
+          { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+          setDataAccounts
+        )
+      );
     }
     firstload.current = true;
-  }, [dispatch, idNumber, setResult]);
+  }, [dispatch, idNumber, setResult, setDataAccounts]);
   useEffect(() => {
     if (data !== null) {
       dispatch(WardGetByDistrictAction(data.district_id, setWards));
@@ -183,77 +202,11 @@ const StoreUpdateScreen: React.FC = () => {
     >
       {data !== null && (
         <Form form={formMain} layout="vertical" initialValues={data} onFinish={onFinish}>
+          <Row gutter={20}>
+          <Col span={18}>
           <Card
-            title="Thông tin cửa hàng"
-            extra={
-              <div className="v-extra d-flex align-items-center">
-                <Space key="a" size={15}>
-                  <label className="text-default">Trạng thái</label>
-                  <Item name="status" noStyle>
-                    <Select
-                      onChange={(value) => {
-                        if (value === "inactive") {
-                          console.log(formMain.getFieldsValue(true));
-                          formMain.setFieldsValue({
-                            is_saleable: false,
-                          });
-                        }
-                      }}
-                      style={{width: 180}}
-                    >
-                      {storeStatusList?.map((item) => (
-                        <Option key={item.value} value={item.value}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                </Space>
-              </div>
-            }
+            title="Thông tin cửa hàng" 
           >
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  noStyle
-                  shouldUpdate={(prev, current) =>
-                    prev.is_saleable !== current.is_saleable ||
-                    prev.status !== current.status
-                  }
-                >
-                  {({getFieldValue}) => {
-                    let status = getFieldValue("status");
-                    return (
-                      <Item valuePropName="checked" name="is_saleable">
-                        <Checkbox disabled={status === "inactive"}>Cho phép bán</Checkbox>
-                      </Item>
-                    );
-                  }}
-                </Item>
-              </Col> 
-            </Row>
-            <Row gutter={50}>
-              <Col>
-                <Item
-                  noStyle
-                  shouldUpdate={(prev, current) =>
-                    prev.is_saleable !== current.is_saleable ||
-                    prev.status !== current.status
-                  }
-                >
-                  {({getFieldValue}) => {
-                    let status = getFieldValue("status");
-                    return (
-                      <Item valuePropName="checked" name="is_stocktaking">
-                        <Checkbox disabled={status === "inactive"}>
-                          Đang kiểm kho
-                        </Checkbox>
-                      </Item>
-                    );
-                  }}
-                </Item>
-              </Col>
-            </Row>
             <Row gutter={50}>
               <Item hidden noStyle name="version">
                 <Input />
@@ -304,7 +257,7 @@ const StoreUpdateScreen: React.FC = () => {
                       message: "Vui lòng nhập số điện thoại",
                     },
                     {
-                      pattern: RegUtil.PHONE,
+                      pattern: RegUtil.PHONE_HOTLINE,
                       message: "Số điện thoại chưa đúng định dạng",
                     },
                   ]}
@@ -312,6 +265,20 @@ const StoreUpdateScreen: React.FC = () => {
                   name="hotline"
                 >
                   <Input placeholder="Nhập số điện thoại" />
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[
+                    {
+                      pattern: RegUtil.EMAIL,
+                      message: "Vui lòng nhập đúng định dạng email",
+                    },
+                  ]}
+                  name="mail"
+                  label="Email"
+                >
+                  <Input placeholder="Nhập địa chỉ email" />
                 </Item>
               </Col>
             </Row>
@@ -351,8 +318,6 @@ const StoreUpdateScreen: React.FC = () => {
                   <Input />
                 </Item>
               </Col>
-            </Row>
-            <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   label="Phường/xã"
@@ -369,7 +334,9 @@ const StoreUpdateScreen: React.FC = () => {
                   </Select>
                 </Item>
               </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
+            </Row>
+            <Row gutter={50}> 
+              <Col flex="auto">
                 <Item
                   label="Địa chỉ"
                   name="address"
@@ -383,28 +350,12 @@ const StoreUpdateScreen: React.FC = () => {
                   <Input placeholder="Nhập địa chỉ" />
                 </Item>
               </Col>
-            </Row>
-            <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Mã bưu điện" name="zip_code">
                   <Input placeholder="Nhập mã bưu điện" />
                 </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    {
-                      pattern: RegUtil.EMAIL,
-                      message: "Vui lòng nhập đúng định dạng email",
-                    },
-                  ]}
-                  name="mail"
-                  label="Email"
-                >
-                  <Input placeholder="Nhập địa chỉ email" />
-                </Item>
-              </Col>
-            </Row>
+              </Col> 
+            </Row> 
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
@@ -442,6 +393,75 @@ const StoreUpdateScreen: React.FC = () => {
               </Col>
             </Row>
           </Card>
+          </Col>
+          <Col span={6}>
+            <Card title="Thông tin tình trạng">
+              <Row>
+              <Space key="a" size={15}> 
+                <Item name="status" label="Trạng thái">
+                  <Select
+                    onChange={(value) => {
+                      if (value === "inactive") {
+                        console.log(formMain.getFieldsValue(true));
+                        formMain.setFieldsValue({
+                          is_saleable: false,
+                        });
+                      }
+                    }}
+                    style={{width: 180}}
+                  >
+                    {storeStatusList?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Space>
+              </Row>
+              <Row>
+              <Item
+                noStyle
+                shouldUpdate={(prev, current) =>
+                  prev.is_saleable !== current.is_saleable ||
+                  prev.status !== current.status
+                }
+              >
+                {({getFieldValue}) => {
+                  let status = getFieldValue("status");
+                  return (
+                    <Item valuePropName="checked" name="is_saleable">
+                      <Checkbox disabled={status === "inactive"}>
+                        Cho phép bán
+                      </Checkbox>
+                    </Item>
+                  );
+                }}
+              </Item>
+              </Row>
+              <Row>
+              <Item
+                noStyle
+                shouldUpdate={(prev, current) =>
+                  prev.is_saleable !== current.is_saleable ||
+                  prev.status !== current.status
+                }
+              >
+                {({getFieldValue}) => {
+                  let status = getFieldValue("status");
+                  return (
+                    <Item valuePropName="checked" name="is_stocktaking">
+                      <Checkbox disabled={status === "inactive"}>
+                        Đang kiểm kho
+                      </Checkbox>
+                    </Item>
+                  );
+                }}
+              </Item>
+              </Row>
+            </Card>
+          </Col>
+          </Row> 
           <Collapse
             style={{marginBottom: 50}}
             defaultActiveKey="1"
@@ -503,6 +523,29 @@ const StoreUpdateScreen: React.FC = () => {
                       />
                     </Item>
                   </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    label="VM phụ trách"
+                    name="merchendiser_code"
+                    tooltip={{
+                      title: "Visual Merchandiser phụ trách",
+                      icon: <InfoCircleOutlined />,
+                    }}
+                  >
+                    <CustomSelect
+                      optionFilterProp="children"
+                      showSearch
+                      showArrow
+                      placeholder="Chọn VM phụ trách"
+                    >
+                      {accounts.map((item) => (
+                        <CustomSelect.Option key={item.code} value={item.code}>
+                          {`${item.code} - ${item.full_name}`}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Col>
                 </Row>
               </div>
             </Panel>

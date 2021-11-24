@@ -374,6 +374,8 @@ export interface StoreCustomResponse extends BaseObject {
   is_stocktaking: boolean;
   type: string,
   type_name: string,
+  merchandiser_code:string,
+  merchandiser:string,
 }
 
 export interface OrderSubStatusResponse {
