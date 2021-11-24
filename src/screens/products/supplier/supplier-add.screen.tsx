@@ -35,6 +35,7 @@ import NumberInput from "component/custom/number-input.custom";
 import {VietNamId} from "utils/Constants";
 import useAuthorization from "hook/useAuthorization";
 import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import BottomBarContainer from "component/container/bottom-bar.container";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -163,7 +164,6 @@ const CreateSupplierScreen: React.FC = () => {
     },
     [dispatch, onCreateSuccess]
   );
-  const onCancel = useCallback(() => history.goBack(), [history]);
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -582,18 +582,15 @@ const CreateSupplierScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-        <div className="margin-top-10" style={{textAlign: "right"}}>
-          <Space size={12}>
-            <Button type="default" onClick={onCancel}>
-              Hủy
-            </Button>
-            {allowCreateSup ? (
-              <Button htmlType="submit" type="primary">
-                Lưu
-              </Button>
-            ) : null}
-          </Space>
-        </div>
+        <BottomBarContainer
+            back="Quay lại danh sách"
+            rightComponent={
+              allowCreateSup && 
+                <Button htmlType="submit" type="primary">
+                  Tạo nhà cung cấp
+                </Button>
+            }
+          /> 
       </Form>
     </ContentContainer>
   );

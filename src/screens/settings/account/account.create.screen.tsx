@@ -5,7 +5,6 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import {
-  Affix,
   Button,
   Card,
   Col,
@@ -21,6 +20,7 @@ import {
   Switch,
   TreeSelect
 } from "antd";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import {AccountPermissions} from "config/permissions/account.permisssion";
@@ -227,8 +227,7 @@ const AccountCreateScreen: React.FC = () => {
       setLoadingSaveButton(true);
     },
     [dispatch, listaccountJob, onCreateSuccess, listStore, listDepartment, listPosition]
-  );
-  const onCancel = useCallback(() => history.goBack(), [history]);
+  ); 
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -633,20 +632,15 @@ const AccountCreateScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-        <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{textAlign: "right"}}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
-              {allowCreateAcc ? (
-                <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
-                  Lưu
-                </Button>
-              ) : null}
-            </Space>
-          </div>
-        </Affix>
+        <BottomBarContainer
+          back="Quay lại"
+          rightComponent={
+            allowCreateAcc && 
+            <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
+              Tạo người dùng
+            </Button>
+          }
+        />         
       </Form>
     </ContentContainer>
   );

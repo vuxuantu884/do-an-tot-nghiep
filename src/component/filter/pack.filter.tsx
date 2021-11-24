@@ -266,7 +266,7 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
                   <Item name="order_id" style={{width: "30%"}}>
                     <Input
                       prefix={<img src={search} alt="" />}
-                      placeholder="ID Đơn hàng"
+                      placeholder="Mã đơn hàng"
                       onBlur={(e) => {
                         formSearchRef?.current?.setFieldsValue({
                           search_term: e.target.value.trim(),

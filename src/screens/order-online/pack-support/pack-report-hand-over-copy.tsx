@@ -70,12 +70,6 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   const {query} = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  //   const [listGoodsReceiptsSearch, setListGoodsReceiptsSearch] = useState<
-  //     GoodsReceiptsResponse[]
-  //   >([]);
-  //   const [goodsReceiptsSearh, setGoodsReceiptsSearh] = useState<GoodsReceiptsSearhModel[]>(
-  //     []
-  //   );
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   // const [tableLoading] = useState(true);
 
@@ -374,6 +368,15 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     [history, params]
   );
 
+  const onClearFilter = useCallback(
+    () => {
+      setPrams(initQueryGoodsReceipts);
+      let queryParam = generateQuery(initQueryGoodsReceipts);
+      history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
+    },
+    [history]
+  );
+
   const onSelectedChange = useCallback((selectedRow) => {
     const selectedRowKeys = selectedRow.map((row: any) => row.id_handover_record);
     setSelectedRowKeys(selectedRowKeys);
@@ -471,6 +474,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
           onMenuClick={onMenuClick}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           onFilter={onFilter}
+          onClearFilter={onClearFilter}
         />
       </div>
       <div style={{padding: "0px 24px 0 24px"}}>

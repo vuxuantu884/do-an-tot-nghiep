@@ -210,7 +210,7 @@ const setting: Array<RouteMenu> = [
       {
         path: `${UrlConfig.STORE}/:id`,
         exact: true,
-        title: "Sửa cửa hàng",
+        title: "Chi tiết cửa hàng",
         icon: "icon-dot",
         component: StoreDetailScreen,
         key: "subMenu922",

@@ -7,7 +7,6 @@ import {
   Input,
   Row,
   Select,
-  Space,
 } from "antd";
 import { ColorResponse, ColorUpdateRequest } from "model/product/color.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -25,6 +24,10 @@ import ColorUpload from "./color-upload.component";
 import { RegUtil } from "utils/RegUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import { CompareObject } from "utils/CompareObject";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { showSuccess } from "utils/ToastUtils";
 
 const { Option } = Select;
 type ColorParams = {
@@ -47,18 +50,22 @@ const ColorUpdateScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  }); 
+
   const onSuccess = useCallback(() => {
     history.push(UrlConfig.COLORS);
+    showSuccess('Sửa màu sắc thành công');
   }, [history]);
+
   const onFinish = useCallback(
     (values: ColorUpdateRequest) => {
       dispatch(colorUpdateAction(idNumber, values, onSuccess));
     },
     [dispatch, idNumber, onSuccess]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
+
   const getColorCallback = useCallback((result: ColorResponse | false) => {
     // setLoadingData(false);
 
@@ -68,6 +75,27 @@ const ColorUpdateScreen: React.FC = () => {
       setColor(result);
     }
   }, []);
+
+  const backAction = ()=>{ 
+    if (!CompareObject(formRef.current?.getFieldsValue(),color)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
+
   useEffect(() => {
     dispatch(getColorAction({ is_main_color: 1 }, setSelector));
     let idNumber = parseInt(id);
@@ -190,21 +218,21 @@ const ColorUpdateScreen: React.FC = () => {
                 </Row>
               </Col>
             </Row>
-          </Card>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
-              <AuthWrapper acceptPermissions={[ProductPermission.colors_update]}> 
-              <Button htmlType="submit" type="primary">
-                Lưu
-              </Button>
-              </AuthWrapper>
-            </Space>
-          </div>
+          </Card> 
+          <BottomBarContainer
+            back={"Quay lại danh sách"}
+            backAction={backAction}
+            rightComponent={
+              <AuthWrapper acceptPermissions={[ProductPermission.colors_update]}>
+                <Button htmlType="submit" type="primary">
+                  Lưu lại
+                </Button>
+            </AuthWrapper>
+            }
+          />    
         </Form>
       )}
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

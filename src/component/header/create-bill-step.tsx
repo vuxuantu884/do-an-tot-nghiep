@@ -28,9 +28,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     let result = undefined;
     if (fulfillments && fulfillments?.length > 0) {
       if (orderDetail?.status !== OrderStatus.CANCELLED) {
-        if (fulfillments[0].status !== FulFillmentStatus.CANCELLED &&
-          fulfillments[0].status !== FulFillmentStatus.RETURNING &&
-          fulfillments[0].status !== FulFillmentStatus.RETURNED) {
+        if (!(fulfillments[0].status === FulFillmentStatus.CANCELLED ||
+          fulfillments[0].status === FulFillmentStatus.RETURNING ||
+          fulfillments[0].status === FulFillmentStatus.RETURNED)) {
             result = fulfillments[0].packed_on ? moment(fulfillments[0].packed_on).format(formatDate) : undefined;
           }
       }
@@ -45,9 +45,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     let result = undefined;
     if (fulfillments && fulfillments?.length > 0) {
       if (orderDetail?.status !== OrderStatus.CANCELLED) {
-        if (fulfillments[0].status !== FulFillmentStatus.CANCELLED &&
-          fulfillments[0].status !== FulFillmentStatus.RETURNING &&
-          fulfillments[0].status !== FulFillmentStatus.RETURNED) {
+        if (!(fulfillments[0].status === FulFillmentStatus.CANCELLED ||
+          fulfillments[0].status === FulFillmentStatus.RETURNING ||
+          fulfillments[0].status === FulFillmentStatus.RETURNED)) {
             result = fulfillments[0].export_on ? moment(fulfillments[0].export_on).format(formatDate) : undefined;
           }
       }
@@ -79,15 +79,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       case "finalized":
         // const confirmDraftOrderSubStatusId = 1;
         if (orderDetail) {
-          if (
-            // orderDetail.sub_status_id === confirmDraftOrderSubStatusId ||
-            (orderDetail.payments && orderDetail.payments?.length > 0) ||
-            (orderDetail.fulfillments && orderDetail.fulfillments?.length > 0)
-          ) {
-            setCurrentStep(1);
-          } 
-
-          // setCurrentStep(1);
+          setCurrentStep(1);
         }
         break;
       case "picked":
@@ -131,19 +123,13 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         title="Xác nhận"
         description={
           props.orderDetail &&
-          fulfillments &&
-          fulfillments.length > 0 &&
-          fulfillments[0].created_date &&
-          moment(fulfillments[0].created_date).format(formatDate)
+          props.orderDetail.finalized_on &&
+          moment(props.orderDetail.finalized_on).format(formatDate)
         }
         className={
-          !(
-            props.orderDetail &&
-            fulfillments &&
-            fulfillments.length > 0
-          )
-            ? "inactive"
-            : ""
+          props.status === 'draff'
+          ? "inactive"
+          : ""
         }
       />
       <Steps.Step
@@ -155,7 +141,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             fulfillments &&
             fulfillments.length > 0 &&
             fulfillments[0].packed_on &&
-            fulfillments[0].status !== "returned"
+            fulfillments[0].status !== "returned" &&
+            fulfillments[0].status !== "cancelled" &&
+            fulfillments[0].status !== "returning"
           ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""
@@ -169,7 +157,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             props.orderDetail &&
             fulfillments &&
             fulfillments.length > 0 &&
-            fulfillments[0].export_on
+            fulfillments[0].export_on &&
+            fulfillments[0].status !== "returned" &&
+            fulfillments[0].status !== "cancelled" &&
+            fulfillments[0].status !== "returning"
           ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""

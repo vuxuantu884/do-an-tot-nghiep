@@ -138,7 +138,7 @@ const ListProductScreen: React.FC = () => {
             </Button>
             <AuthWrapper acceptPermissions={[ProductPermission.create]}>
               {" "}
-              <ButtonCreate path={`${UrlConfig.PRODUCT}/create`} />{" "}
+              <ButtonCreate child="Thêm sản phẩm" path={`${UrlConfig.PRODUCT}/create`} />{" "}
             </AuthWrapper>
           </Space>
         </Row>

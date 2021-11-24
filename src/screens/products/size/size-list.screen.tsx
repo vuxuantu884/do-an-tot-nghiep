@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Select, Tag, Tooltip } from "antd";
+import { Button, Card, Form, Input, Select, Tag } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import search from "assets/img/search.svg";
 import CustomTable from "component/table/CustomTable";
@@ -23,13 +23,14 @@ import { CategoryResponse, CategoryView } from "model/product/category.model";
 import UrlConfig from "config/url.config";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import useAuthorization from "hook/useAuthorization";
 import { ProductPermission } from "config/permissions/product.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
+import "assets/css/custom-filter.scss";
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -248,40 +249,39 @@ const SizeListScreen: React.FC = () => {
           path: `${UrlConfig.SIZES}`,
         },
       ]}
-      extra={<AuthWrapper acceptPermissions={[ProductPermission.sizes_create]}><ButtonCreate path={`${UrlConfig.SIZES}/create`} /></AuthWrapper>}
+      extra={
+        <AuthWrapper acceptPermissions={[ProductPermission.sizes_create]}>
+              <ButtonCreate child="Thêm kích cỡ" path={`${UrlConfig.SIZES}/create`} />
+        </AuthWrapper>}
     >
       <Card>
-        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-          <Form layout="inline" initialValues={params} onFinish={onFinish}>
-            <Form.Item name="code">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Kích cỡ"
-              />
-            </Form.Item>
-            <Form.Item name="category_id">
-              <Select style={{ width: 200 }}>
-                <Option value="">Chọn danh mục</Option>
-                {categories.map((item) => (
-                  <Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Form.Item>
-            <Form.Item>
-              <Tooltip overlay="Lưu bộ lọc" placement="top">
-                <Button icon={<StarOutlined />} />
-              </Tooltip>
-            </Form.Item>
-          </Form>
-        </CustomFilter>
+        <div className="custom-filter">
+          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+            <Form layout="inline" initialValues={params} onFinish={onFinish}>
+              <Form.Item name="code" className="input-search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Kích cỡ"
+                />
+              </Form.Item>
+              <Form.Item name="category_id">
+                <Select style={{ width: 200 }}>
+                  <Option value="">Chọn danh mục</Option>
+                  {categories.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Form.Item> 
+            </Form>
+          </CustomFilter>
+        </div>
         <CustomTable
           isRowSelection
           pagination={{

@@ -416,7 +416,7 @@ const PackUpdate: React.FC = () => {
                         <Select
                           showSearch
                           allowClear
-                          placeholder="ID Đơn hàng"
+                          placeholder="Mã đơn hàng"
                           filterOption={(input, option: any) =>
                             option.children.toLowerCase().indexOf(input.toLowerCase()) >=
                             0
@@ -433,7 +433,7 @@ const PackUpdate: React.FC = () => {
                       <Item name="card_order_id" style={{width: "calc(96% - 381px)"}}>
                         <Input
                           prefix={<img src={search} alt="" />}
-                          placeholder="ID đặt hàng"
+                          placeholder="Mã FF"
                         />
                       </Item>
                       <Item>

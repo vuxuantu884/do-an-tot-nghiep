@@ -19,6 +19,9 @@ import { StoreRankResponse } from "model/core/store-rank.model";
 import { GroupResponse } from "model/content/group.model";
 import NumberInput from "component/custom/number-input.custom";
 import "assets/css/custom-filter.scss";
+import { DepartmentResponse } from "model/account/department.model";
+import ButtonSetting from "component/table/ButtonSetting";
+import CustomSelect from "component/custom/select.custom";
 
 type StoreFilterProps = {
   initValue: StoreQuery;
@@ -31,6 +34,8 @@ type StoreFilterProps = {
   storeRanks?: Array<StoreRankResponse>;
   groups?: Array<GroupResponse>;
   type?: Array<StoreTypeRequest>;
+  listDepartment?: Array<DepartmentResponse>;
+  onClickOpen?: () => void;
 };
 
 const { Item } = Form;
@@ -46,6 +51,8 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     groups,
     initValue,
     type,
+    listDepartment,
+    onClickOpen
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -95,18 +102,40 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Form.Item name="info" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              placeholder="Tên/Mã cửa hàng"
+              placeholder="Tên/ Mã cửa hàng/ Sđt/ Hotline"
             />
+          </Form.Item> 
+          <Form.Item name="department_ids">
+            <CustomSelect
+              showSearch
+              allowClear
+              showArrow 
+              placeholder="Chọn bộ phận"
+              style={{
+                minWidth: 200,
+                width: "100%",
+              }}
+              optionFilterProp="children"
+            >
+              {listDepartment?.map((item) => (
+                <Select.Option key={item.id} value={item.id}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </CustomSelect>
           </Form.Item>
           <Form.Item name="status">
-            <Select style={{ width: 180 }} placeholder="Trạng thái">
-              <Option value="">Trạng thái</Option>
+            <CustomSelect  
+            allowClear 
+            showArrow 
+            style={{ width: 180 }} 
+            placeholder="Chọn trạng thái">
               {storeStatusList?.map((item) => (
                 <Option key={item.value} value={item.value}>
                   {item.name}
                 </Option>
               ))}
-            </Select>
+            </CustomSelect>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
@@ -116,6 +145,9 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Form.Item>
             <Button onClick={openFilter}>Thêm bộ lọc</Button>
           </Form.Item>
+          <Item>
+              <ButtonSetting onClick={onClickOpen} />
+            </Item>
         </Form>
       </CustomFilter>
       <BaseFilter

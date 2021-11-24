@@ -1,4 +1,4 @@
-import {Button, Card, Checkbox, Col, Collapse, Form, Row, Space} from "antd";
+import {Button, Card, Checkbox, Col, Collapse, Form, Row} from "antd";
 import {StoreDetailAction} from "domain/actions/core/store.action";
 import {StoreResponse} from "model/core/store.model";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
@@ -88,81 +88,85 @@ const StoreDetailScreen: React.FC = () => {
     >
       {data !== null && (
         <Form form={formMain} layout="vertical" initialValues={data}>
-          <Card
-            title="Thông tin cửa hàng"
-            extra={
-              <div className="v-extra d-flex align-items-center">
-                <Space key="a" size={15}>
-                  <label className="text-default">Trạng thái:</label>
-                  {status}
-                </Space>
-              </div>
-            }
-          >
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Checkbox
-                  checked={data.is_saleable}
-                  disabled={data.status === "inactive"}
-                >
-                  Cho phép bán
-                </Checkbox>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Phân loại" value={data.type_name} />
-              </Col>
-            </Row>
-            <Row style={{marginTop: 20}} gutter={50}>
-              <Col>
-                <Checkbox
-                  checked={data.is_stocktaking}
-                  disabled={data.status === "inactive"}
-                >
-                  Đang kiểm kho
-                </Checkbox>
-              </Col>
-            </Row>
-            <Row style={{marginTop: 20}} gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Tên cửa hàng" value={data.name} />
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Số điện thoại" value={data.hotline} />
-              </Col>
-            </Row>
-            <Row style={{marginTop: 10}} gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Quốc gia" value={data.country_name} />
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail
-                  title="Khu vực"
-                  value={data.city_name + " - " + data.district_name}
-                />
-              </Col>
-            </Row>
-            <Row style={{marginTop: 10}} gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Phường/xã" value={data.ward_name} />
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Địa chỉ" value={data.address} />
-              </Col>
-            </Row>
-            <Row style={{marginTop: 10}} gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Mã bưu điện" value={data.zip_code} />
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Email" value={data.mail} />
-              </Col>
-            </Row>
-            <Row style={{marginTop: 10}} gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <RowDetail title="Diện tích cửa hàng (m²)" value={data.square + ""} />
-              </Col>
-            </Row>
-          </Card>
+          <Row gutter={20}>
+             <Col span={18}>
+                <Card
+                  title="Thông tin cửa hàng"> 
+                <Row style={{marginTop: 20}} gutter={50}>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Tên cửa hàng" value={data.name} />
+                  </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Số điện thoại" value={data.hotline} />
+                  </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Trạng thái" value={status} />
+                  </Col>
+                </Row>
+                <Row style={{marginTop: 10}} gutter={50}>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Quốc gia" value={data.country_name} />
+                  </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail
+                      title="Khu vực"
+                      value={data.city_name + " - " + data.district_name}
+                    />
+                  </Col>
+                </Row>
+                <Row style={{marginTop: 10}} gutter={50}>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Phường/xã" value={data.ward_name} />
+                  </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Địa chỉ" value={data.address} />
+                  </Col>
+                </Row>
+                <Row style={{marginTop: 10}} gutter={50}>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Mã bưu điện" value={data.zip_code} />
+                  </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Email" value={data.mail} />
+                  </Col>
+                </Row>
+                <Row style={{marginTop: 10}} gutter={50}>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Diện tích cửa hàng (m²)" value={data.square + ""} />
+                  </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail title="Phân loại" value={data.type_name} />
+                  </Col>
+                </Row>
+              </Card>
+             </Col>
+             <Col span={6}>
+                <Card title="Thông tin tình trạng">
+                  <RowDetail title="Trạng thái" value={status} />
+                  <Row style={{marginTop: 20}}>
+                    <Col>
+                      <Checkbox
+                        checked={data.is_saleable}
+                        disabled={data.status === "inactive"}
+                      >
+                        Cho phép bán
+                      </Checkbox>
+                    </Col> 
+                  </Row>
+                  <Row style={{marginTop: 20}}>
+                    <Col>
+                      <Checkbox
+                        checked={data.is_stocktaking}
+                        disabled={data.status === "inactive"}
+                      >
+                        Đang kiểm kho
+                      </Checkbox>
+                    </Col>
+                  </Row> 
+                </Card>
+             </Col>
+          </Row> 
+          
           <Collapse
             style={{marginBottom: 50}}
             defaultActiveKey="1"
@@ -186,25 +190,28 @@ const StoreDetailScreen: React.FC = () => {
                       value={ConvertUtcToLocalDate(data.begin_date)}
                     />
                   </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <RowDetail
+                      title="VM trực thuộc"
+                      value={data.merchandiser}
+                    />
+                  </Col>
                 </Row>
               </div>
             </Panel>
           </Collapse>
           <BottomBarContainer
-            back={"Quay lại"}
+            back={"Quay lại danh sách"}
             rightComponent={
-              <Space>
-                {allowUpdateStore ? (
-                  <Button
-                    onClick={() => {
-                      history.push(`${UrlConfig.STORE}/${idNumber}/update`);
-                    }}
-                    type="primary"
-                  >
-                    Sửa thông tin
-                  </Button>
-                ) : null}
-              </Space>
+              allowUpdateStore && 
+                <Button
+                  onClick={() => {
+                    history.push(`${UrlConfig.STORE}/${idNumber}/update`);
+                  }}
+                  type="primary"
+                >
+                  Sửa cửa hàng
+                </Button>
             }
           />
         </Form>

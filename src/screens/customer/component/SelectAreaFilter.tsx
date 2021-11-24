@@ -184,7 +184,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   return (
     <>
       <Form.Item
-        name="city"
+        name="city_id"
         label={<b>Tỉnh/Thành phố</b>}
       >
         <CustomSelect
@@ -210,7 +210,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
       </Form.Item>
 
       <Form.Item
-        name="district"
+        name="district_id"
         label={<b>Quận/Huyện</b>}
       >
         <CustomSelect
@@ -236,7 +236,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
       </Form.Item>
       
       <Form.Item
-        name="ward"
+        name="ward_id"
         label={<b>Phường/Xã</b>}
       >
         <CustomSelect

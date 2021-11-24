@@ -278,6 +278,8 @@ export default function Order(props: PropType) {
         } else {
           if (
             OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED
+            || OrderDetail.fulfillments[0].status === FulFillmentStatus.CANCELLED
+            || OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNING
             // || OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
           ) {
             // return 1
@@ -1293,6 +1295,7 @@ export default function Order(props: PropType) {
                     coupon={coupon}
                     setCoupon={setCoupon}
                     setPromotionId={setPromotionId}
+                    configOrder={configOrder}
                   />
 
                   {OrderDetail !== null &&
