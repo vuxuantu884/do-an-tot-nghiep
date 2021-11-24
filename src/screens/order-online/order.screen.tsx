@@ -68,7 +68,7 @@ import {
   TaxTreatment
 } from "utils/Constants";
 import { DEFAULT_CHANNEL_ID } from "utils/Order.constants";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
@@ -966,7 +966,7 @@ export default function Order() {
         let available = value.available === null ? 0 : value.available;
         if (available <= 0 && configOrder?.sellable_inventory !== true) {
           status = false;
-          showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
+          showWarning(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
           setCreating(false);
         }
       });
@@ -1130,6 +1130,7 @@ export default function Order() {
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
                       orderSourceId={orderSourceId}
+                      configOrder={configOrder}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments

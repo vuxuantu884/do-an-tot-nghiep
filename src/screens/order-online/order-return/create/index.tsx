@@ -16,7 +16,7 @@ import {
   actionCreateOrderReturn,
   actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import { OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { configOrderSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -34,6 +34,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  OrderConfig,
   OrderLineItemResponse,
   OrderResponse,
   OrderReturnReasonModel,
@@ -167,6 +168,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
+  const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -934,6 +936,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     returnOrderInformation={{
                       totalAmountReturn: totalAmountReturnProducts,
                     }}
+                    configOrder={configOrder}
                   />
                 )}
                 {!isExchange && (
@@ -1086,6 +1089,17 @@ const ScreenReturnCreate = (props: PropType) => {
     //     setDeliveryServices(response);
     //   })
     // );
+  }, [dispatch]);
+
+   /**
+   * lấy cấu hình bán tồn kho
+   */
+  useEffect(() => {
+    dispatch(
+      configOrderSaga((data: OrderConfig) => {
+        setConfigOrder(data);
+      })
+    );
   }, [dispatch]);
 
   /**

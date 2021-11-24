@@ -1295,6 +1295,7 @@ export default function Order(props: PropType) {
                     coupon={coupon}
                     setCoupon={setCoupon}
                     setPromotionId={setPromotionId}
+                    configOrder={configOrder}
                   />
 
                   {OrderDetail !== null &&
