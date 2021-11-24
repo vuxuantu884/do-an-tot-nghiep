@@ -447,7 +447,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
           <Col md={8} style={{paddingLeft: 32, paddingRight: 40}}>
             <Form.Item
-              label="ID đơn hàng:"
+              label="Mã đơn hàng:"
               name="order_request"
               rules={[
                 {
@@ -459,7 +459,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             >
               <Input
                 className="select-with-search"
-                placeholder="ID đơn hàng/ Mã đơn giao"
+                placeholder="Mã đơn hàng/ Mã đơn giao"
                 // addonAfter={<ScanOutlined />}
                 addonAfter={<img src={barcodeIcon} alt="" />}
                 onPressEnter={(e: any) => {
