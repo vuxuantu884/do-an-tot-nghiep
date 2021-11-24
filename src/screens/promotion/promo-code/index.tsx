@@ -214,16 +214,16 @@ const PromotionCode = () => {
         const status = statuses.find((e) => e.code === value)?.value || "";
         let type = TagStatusType.nomarl;
         switch (value) {
-          case "ACTIVE":
+          case statuses[0].code:
             type = TagStatusType.primary;
             break;
-          case "DISABLED":
+          case statuses[1].code:
             type = TagStatusType.warning;
             break;
-          case "DRAFT":
+          case statuses[2].code:
             type = TagStatusType.nomarl;
             break;
-          case "CANCELLED":
+          case statuses[3].code:
             type = TagStatusType.danger;
             break;
           default:
