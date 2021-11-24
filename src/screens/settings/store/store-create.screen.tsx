@@ -339,8 +339,7 @@ const StoreCreateScreen: React.FC = () => {
                 name="ward_id"
                 rules={[{required: true, message: "Vui lòng chọn phường/xã"}]}
               >
-                <Select showSearch>
-                  <Option value="">Chọn phường xã</Option>
+                <Select placeholder="Chọn phường/xã" showSearch optionFilterProp="children">
                   {wards.map((item) => (
                     <Option key={item.id} value={item.id}>
                       {item.name}

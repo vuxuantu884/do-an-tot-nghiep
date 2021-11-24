@@ -10,7 +10,6 @@ import {PageResponse} from "model/base/base-metadata.response";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
-import {Link} from "react-router-dom";
 import {generateQuery} from "utils/AppUtils";
 import {getQueryParams, useQuery} from "utils/useQuery";
 import {RootReducerType} from "model/reducers/RootReducerType";
@@ -27,6 +26,8 @@ import {EditOutlined} from "@ant-design/icons";
 import useAuthorization from "hook/useAuthorization";
 import {StorePermissions} from "config/permissions/setting.permisssion";
 import NoPermission from "screens/no-permission.screen";
+import { DepartmentResponse } from "model/account/department.model";
+import { DepartmentGetListAction } from "domain/actions/account/account.action";
 
 
 const ACTIONS_INDEX = {
@@ -81,6 +82,7 @@ const StoreListScreen: React.FC = () => {
     items: [],
   });
   const [selected, setSelected] = useState<Array<StoreResponse>>([]);
+  const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
 
   //phân quyền
   const [allowReadStore] = useAuthorization({
@@ -121,11 +123,6 @@ const StoreListScreen: React.FC = () => {
       title: "Mã cửa hàng",
       width: 120,
       dataIndex: "code",
-      render: (value, item) => {
-        return (
-          <Link to={`${UrlConfig.STORE}/${item.id}`}>{value}</Link>
-        );
-      },
       visible: true,
     },
     {
@@ -339,6 +336,7 @@ const StoreListScreen: React.FC = () => {
   }, []);
   useEffect(() => {
     if (isFirstLoad.current) {
+      dispatch(DepartmentGetListAction(setDepartment));
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
       dispatch(StoreGetTypeAction(setType));
@@ -367,6 +365,7 @@ const StoreListScreen: React.FC = () => {
         >
           <Card>
             <StoreFilter
+              listDepartment={listDepartment}
               initValue={initQuery}
               storeStatusList={storeStatusList}
               onMenuClick={onMenuClick}

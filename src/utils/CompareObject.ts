@@ -15,13 +15,15 @@ export const CompareObject = (objOne: any, objecTwo: any): boolean => {
 
     if (objOne[p] === objecTwo[p]) continue;
 
-    if (typeof objOne[p] !== "object") return false;
+    if (typeof objOne[p] !== "object") {
+      return false
+    };
 
     if (!CompareObject(objOne[p], objecTwo[p])) return false;
   }
 
-  for (p in objecTwo)
-    if (objecTwo.hasOwnProperty(p) && !objOne.hasOwnProperty(p)) return false;
+  // for (p in objecTwo)
+  //   if (objecTwo.hasOwnProperty(p) && !objOne.hasOwnProperty(p)) return false;
 
   return true;
 };
