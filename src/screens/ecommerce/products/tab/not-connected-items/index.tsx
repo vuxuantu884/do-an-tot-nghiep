@@ -480,7 +480,7 @@ const NotConnectedItems: React.FC = () => {
         )}
 
         {productSelected && productSelected.id && (
-          <div>
+          <div className="yody-product-info">
             <ul>
               <li>
                 <b>Tên sản phẩm: </b>
