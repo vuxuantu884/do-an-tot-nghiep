@@ -146,10 +146,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                 allowClear
                 style={{width: "100%"}}
                 placeholder="Chọn phòng ban"
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                  option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
+                optionFilterProp="title"
                 notFoundContent="Không tìm thấy phòng ban"
                 onChange={(value, option: any) => {
                   let selectedDepartment = listDepartments.find((single: any) => {
@@ -163,7 +160,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                 {listDepartments &&
                   listDepartments.map((single: any) => {
                     return (
-                      <Select.Option value={single.id} key={single.id}>
+                      <Select.Option value={single.id} key={single.id} title={single.name}>
                         <span
                           className="hideInSelect"
                           style={{paddingLeft: +18 * single.level}}
