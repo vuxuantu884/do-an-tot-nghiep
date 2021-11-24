@@ -16,13 +16,14 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { delivery_service } from "../common/delivery-service";
 import { PageResponse } from "model/base/base-metadata.response";
 
-type CustomerHistoryInfoProps = {
+
+type PurchaseHistoryProps = {
   orderData: PageResponse<OrderModel>;
   onPageChange: (page: number | undefined, limit: number | undefined) => void;
   tableLoading: boolean;
 };
 
-function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
+function PurchaseHistory(props: PurchaseHistoryProps) {
   const { orderData, onPageChange, tableLoading } = props;
   const orderPointSpend = (order: any) => {
     if (order && order.payments.length > 0) {
@@ -145,7 +146,7 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
           title: (
             <div className="product-and-quantity-header">
               <span className="product-name">Sản phẩm</span>
-              <span className="quantity">Số lượng</span>
+              <span style={{margin: "0 auto"}}>Số lượng</span>
             </div>
           ),
           dataIndex: "items",
@@ -601,7 +602,7 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
     );
 
   return (
-    <Row style={{ marginTop: 16 }} className="customer-history-table">
+    <Row className="customer-history-table">
       <Col span={24} style={{ marginBottom: 10 }}>
         <CustomTable
           isLoading={tableLoading}
@@ -616,8 +617,6 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          // onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-          // onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={orderData.items}
           columns={columnsOrderHistory}
           rowKey={(item: OrderModel) => item.id}
@@ -628,4 +627,4 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
   );
 }
 
-export default CustomerHistoryInfo;
+export default PurchaseHistory;

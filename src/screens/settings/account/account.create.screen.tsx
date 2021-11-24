@@ -5,7 +5,6 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import {
-  Affix,
   Button,
   Card,
   Col,
@@ -19,7 +18,9 @@ import {
   Select,
   Space,
   Switch,
+  TreeSelect
 } from "antd";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import {AccountPermissions} from "config/permissions/account.permisssion";
@@ -28,7 +29,7 @@ import {
   AccountCreateAction,
   DepartmentGetListAction,
   PositionGetListAction,
-} from "domain/actions/account/account.action";
+} from "domain/actions/account/account.action"; 
 import {RoleGetListAction} from "domain/actions/auth/role.action";
 import {
   CountryGetAllAction,
@@ -44,17 +45,17 @@ import {
   AccountStoreResponse,
   AccountView,
 } from "model/account/account.model";
-import {DepartmentResponse} from "model/account/department.model";
+import {DepartmentResponse, DepartmentView} from "model/account/department.model";
 import {PositionResponse} from "model/account/position.model";
 import {RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
 import {CountryResponse} from "model/content/country.model";
 import {CityView, DistrictResponse} from "model/content/district.model";
 import {StoreResponse} from "model/core/store.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {createRef, useCallback, useEffect, useMemo, useState} from "react";
+import {RootReducerType} from "model/reducers/RootReducerType"; 
+import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
-import {convertDistrict} from "utils/AppUtils";
+import {convertDepartment, convertDistrict} from "utils/AppUtils";
 import {RegUtil} from "utils/RegUtils";
 import {showSuccess} from "utils/ToastUtils";
 import {PASSWORD_RULES} from "./account.rules";
@@ -101,7 +102,8 @@ const AccountCreateScreen: React.FC = () => {
   const [status, setStatus] = useState<string>(initRequest.status);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listRole, setRole] = useState<Array<RoleResponse>>();
-  const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
+  const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
+  const [listDepartment, setDepartment] = useState<Array<DepartmentView>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [isSelectAllStore, setIsSelectAllStore] = useState(false);
 
@@ -185,7 +187,7 @@ const AccountCreateScreen: React.FC = () => {
           });
         }
       });
-
+      
       listAccountSelected.forEach((el: AccountJobReQuest) => {
         if (el.department_id && el.position_id) {
           const department_name = listDepartment?.find(
@@ -225,8 +227,7 @@ const AccountCreateScreen: React.FC = () => {
       setLoadingSaveButton(true);
     },
     [dispatch, listaccountJob, onCreateSuccess, listStore, listDepartment, listPosition]
-  );
-  const onCancel = useCallback(() => history.goBack(), [history]);
+  ); 
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -246,7 +247,15 @@ const AccountCreateScreen: React.FC = () => {
   //end memo
 
   useEffect(() => {
-    dispatch(DepartmentGetListAction(setDepartment));
+    dispatch(
+      DepartmentGetListAction((result) => {
+        if (result) {
+          setDepartmentTree(result);
+          let array: Array<DepartmentView> = convertDepartment(result);
+          setDepartment(array);
+        }
+      })
+    );
     dispatch(PositionGetListAction(setPosition));
     dispatch(RoleGetListAction(initRoleQuery, setRole));
     dispatch(StoreGetListAction(setStore));
@@ -560,21 +569,19 @@ const AccountCreateScreen: React.FC = () => {
                             name={[name, "department_id"]}
                             fieldKey={[fieldKey, "department_id"]}
                           >
-                            <Select
-                              placeholder="Chọn bộ phận"
-                              allowClear
-                              showArrow
-                              showSearch
-                              optionFilterProp="children"
-                              onChange={(value) => onChangeDepartment(value, index)}
-                              style={{width: "100%"}}
-                            >
-                              {listDepartment?.map((item) => (
-                                <Option key={item.id} value={item.id}>
-                                  {item.name}
-                                </Option>
-                              ))}
-                            </Select>
+                              <TreeSelect
+                                placeholder="Chọn bộ phận"
+                                treeDefaultExpandAll
+                                className="selector"
+                                onChange={(value) => onChangeDepartment(value, index)}
+                                allowClear
+                                showSearch
+                                treeNodeFilterProp='title'
+                              >
+                                {listDepartmentTree?.map((item, index) => (
+                                  <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+                                ))}
+                              </TreeSelect> 
                           </Item>
                         </Col>
                         <Col md={8}>
@@ -625,22 +632,31 @@ const AccountCreateScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-        <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{textAlign: "right"}}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
-              {allowCreateAcc ? (
-                <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
-                  Lưu
-                </Button>
-              ) : null}
-            </Space>
-          </div>
-        </Affix>
+        <BottomBarContainer
+          back="Quay lại"
+          rightComponent={
+            allowCreateAcc && 
+            <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
+              Tạo người dùng
+            </Button>
+          }
+        />         
       </Form>
     </ContentContainer>
+  );
+};
+
+const TreeDepartment = (item: DepartmentResponse) => {
+  return (
+    <TreeSelect.TreeNode value={item.id} title={item.name}>
+      {item.children.length > 0 && (
+        <React.Fragment>
+          {item.children.map((item, index) => (
+            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+          ))}
+        </React.Fragment>
+      )}
+    </TreeSelect.TreeNode>
   );
 };
 

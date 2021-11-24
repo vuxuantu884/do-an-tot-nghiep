@@ -83,15 +83,17 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="department_ids">
+          <Form.Item name="department_id">
             <Select
+              showSearch
               allowClear
               showArrow
-              placeholder="Bộ phận"
+              placeholder="Chọn bộ phận"
               style={{
                 minWidth: 200,
                 width: "100%",
               }}
+              optionFilterProp="children"
             >
               {listDepartment?.map((item) => (
                 <Select.Option key={item.id} value={item.id}>

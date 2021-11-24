@@ -748,7 +748,7 @@ const PromotionDetailScreen: React.FC = () => {
                 <Row>
                   <Col span={12}>
                     <span style={{fontWeight: 500}}>
-                      Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}
+                      Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}₫
                     </span>
                   </Col>
                   <Col span={12}>
@@ -1177,7 +1177,7 @@ const PromotionDetailScreen: React.FC = () => {
                       <strong style={{color: "#2A2A86"}}>
                         {successCount} / {importTotal}
                       </strong>{" "}
-                      sản phẩm thành công
+                      mã giảm giá thành công
                     </h2>
                   </Row>
                   <Divider />

@@ -21,6 +21,9 @@ const RoleListScreen = React.lazy(
 const RoleCreateScreen = React.lazy(
   () => import("screens/settings/roles/role-create.screen")
 );
+const RoleUpdateScreen = React.lazy(
+  () => import("screens/settings/roles/update/role-update.screen")
+);
 const AccountCreateScreen = React.lazy(
   () => import("screens/settings/account/account.create.screen")
 );
@@ -288,6 +291,17 @@ const setting: Array<RouteMenu> = [
         icon: "icon-dot",
         component: RoleCreateScreen,
         key: "subMenu941",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ROLES}/:id/update`,
+        exact: true,
+        title: "Chỉnh sửa nhóm quyền",
+        icon: "icon-dot",
+        component: RoleUpdateScreen,
+        key: "subMenu942",
         isShow: true,
         header: null,
         subMenu: [],

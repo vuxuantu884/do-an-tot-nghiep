@@ -44,6 +44,9 @@ import {RegUtil} from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
 import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
 import useAuthorization from "hook/useAuthorization";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import { CompareObject } from "utils/CompareObject";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -87,6 +90,9 @@ const UpdateSupplierScreen: React.FC = () => {
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [status, setStatus] = useState<string>();
   const [supplier, setSupplier] = useState<SupplierDetail | null>(null);
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
 
   //phân quyền
   const [allowUpdateSup] = useAuthorization({
@@ -139,8 +145,7 @@ const UpdateSupplierScreen: React.FC = () => {
       dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
     },
     [dispatch, idNumber, onUpdateSuccess]
-  );
-  const onCancel = useCallback(() => history.goBack(), [history]);
+  ); 
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -163,6 +168,26 @@ const UpdateSupplierScreen: React.FC = () => {
       setSupplier(detail);
     }
   }, []);
+
+  const backAction = ()=>{    
+    if (!CompareObject(formRef.current?.getFieldsValue(),supplier)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
 
   //end memo
   useEffect(() => {
@@ -293,6 +318,8 @@ const UpdateSupplierScreen: React.FC = () => {
                       placeholder="Chọn ngành hàng"
                       showArrow
                       defaultValue="fashion"
+                      optionFilterProp="children"
+                      showSearch
                     >
                       {goods?.map((item) => (
                         <Option key={item.value} value={item.value}>
@@ -313,10 +340,10 @@ const UpdateSupplierScreen: React.FC = () => {
                     name="person_in_charge"
                     label="Nhân viên phụ trách"
                   >
-                    <Select placeholder="Chọn nhân viên phụ trách" className="selector">
+                    <Select placeholder="Chọn nhân viên phụ trách" className="selector" showSearch  optionFilterProp="children">
                       {accounts.map((item) => (
                         <Option key={item.code} value={item.code}>
-                          {item.full_name}
+                          {item.code + " - "+item.full_name}
                         </Option>
                       ))}
                     </Select>
@@ -457,6 +484,8 @@ const UpdateSupplierScreen: React.FC = () => {
                       <Select
                         className="selector"
                         placeholder="Chọn phân cấp nhà cung cấp"
+                        showSearch  
+                        optionFilterProp="children"
                       >
                         {scorecards?.map((item) => (
                           <Option key={item.value} value={item.value}>
@@ -601,20 +630,20 @@ const UpdateSupplierScreen: React.FC = () => {
               </div>
             </Collapse.Panel>
           </Collapse>
-          <div className="margin-top-10" style={{textAlign: "right"}}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
-              {allowUpdateSup ? (
+          <BottomBarContainer
+            back="Quay lại danh sách"
+            backAction={backAction}
+            rightComponent={
+              allowUpdateSup &&  
                 <Button loading={loading} htmlType="submit" type="primary">
-                  Lưu
+                  Lưu lại
                 </Button>
-              ) : null}
-            </Space>
-          </div>
+            }
+          /> 
         </Form>
       )}
+      
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

@@ -4,18 +4,15 @@ import { useDispatch } from "react-redux";
 import { Tabs, Button, Modal } from "antd";
 import { DownloadOutlined } from "@ant-design/icons"
 
-import { PageResponse } from "model/base/base-metadata.response";
-import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import TotalItemsEcommerce from "./tab/total-items-ecommerce";
-import ConnectedItems from "./tab/connected-items";
-import NotConnectedItems from "./tab/not-connected-items";
-import UpdateProductDataModal from "./component/UpdateProductDataModal";
+import TotalItemsEcommerce from "screens/ecommerce/products/tab/total-items-ecommerce";
+import ConnectedItems from "screens/ecommerce/products/tab/connected-items";
+import NotConnectedItems from "screens/ecommerce/products/tab/not-connected-items";
+import UpdateProductDataModal from "screens/ecommerce/products/component/UpdateProductDataModal";
 
 import {
   postProductEcommerceList,
-  getProductEcommerceList
 } from "domain/actions/ecommerce/ecommerce.actions";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
@@ -24,7 +21,7 @@ import useAuthorization from "hook/useAuthorization";
 
 import checkCircleIcon from "assets/icon/check-circle.svg";
 
-import { StyledComponent } from "./styles";
+import { StyledComponent } from "screens/ecommerce/products/styles";
 
 const { TabPane } = Tabs;
 
@@ -64,61 +61,22 @@ const Products: React.FC = () => {
   const [itemsUpdated, setItemsUpdated] = useState(0);
   const [itemsNotConnected, setItemsNotConnected] = useState(0);
 
-  const [tableLoading, setTableLoading] = useState(false);
-  const [variantData, setVariantData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-
-  const [query,] = useState<ProductEcommerceQuery>({
-    page: 1,
-    limit: 30,
-    ecommerce_id: null,
-    shop_ids: [],
-    connect_status: null,
-    update_stock_status: null,
-    sku_or_name_core: "",
-    sku_or_name_ecommerce: "",
-    connected_date_from: null,
-    connected_date_to: null,
-  });
-
-  const updateVariantData = useCallback((result: PageResponse<any> | false) => {
-    setTableLoading(false);
-    if (!!result) {
-      setVariantData(result);
-    }
-  }, []);
-
-  const getProductUpdated = useCallback((queryRequest: any) => {
-    setTableLoading(true);
-    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
-  }, [dispatch, updateVariantData]);
 
   useEffect(() => {
-    const requestQuery = { ...query };
     switch (history.location.hash) {
       case "#total-item":
-        requestQuery.connect_status = null;
         setActiveTab(PRODUCT_TAB.total.key);
         break;
       case "#connected-item":
-        requestQuery.connect_status = "connected";
         setActiveTab(PRODUCT_TAB.connected.key);
         break;
       case "#not-connected-item":
-        requestQuery.connect_status = "waiting";
         setActiveTab(PRODUCT_TAB.notConnected.key);
         break;
       default: break;
     }
 
-    getProductUpdated(requestQuery);
-  }, [getProductUpdated, history.location.hash, query]);
+  }, [history.location.hash]);
 
   // handle get product from ecommerce
   const handleGetProductsFromEcommerce = () => {
@@ -200,19 +158,11 @@ const Products: React.FC = () => {
               </Tabs>
               
               {activeTab === PRODUCT_TAB.total.key &&
-                <TotalItemsEcommerce
-                  tableLoading={tableLoading}
-                  variantData={variantData}
-                  getProductUpdated={getProductUpdated}
-                />
+                <TotalItemsEcommerce />
               }
               
               {activeTab === PRODUCT_TAB.connected.key &&
-                <ConnectedItems
-                  tableLoading={tableLoading}
-                  variantData={variantData}
-                  getProductUpdated={getProductUpdated}
-                />
+                <ConnectedItems />
               }
               
               {activeTab === PRODUCT_TAB.notConnected.key &&

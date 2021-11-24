@@ -1,6 +1,6 @@
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryGetDetailAction} from "domain/actions/inventory/inventory.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -49,7 +49,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       let queryParam = generateQuery(params);
       setPrams({...params});
 
-      history.replace(`${UrlConfig.INVENTORY}#2?${queryParam}`);
+      history.replace(`${InventoryTabUrl.DETAIL}?${queryParam}`);
     },
     [history, params]
   );
@@ -59,15 +59,10 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.replace(`${UrlConfig.INVENTORY}#2?${queryParam}`);
+      history.replace(`${InventoryTabUrl.DETAIL}?${queryParam}`);
     },
     [history, params]
-  );
-  useEffect(() => {
-    if (props.stores.length > 0 && params.store_id === undefined) {
-      setPrams({...params, store_id: props.stores[0].id});
-    }
-  }, [params, props]);
+  ); 
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<InventoryResponse>>>(
     []

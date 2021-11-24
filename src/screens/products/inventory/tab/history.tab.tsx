@@ -1,13 +1,13 @@
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { inventoryGetHistoryAction } from "domain/actions/inventory/inventory.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom"; 
 import { generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -50,7 +50,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.replace(
-        `${UrlConfig.INVENTORY}#3?${queryParam}`
+        `${InventoryTabUrl.HISTORIES}?${queryParam}`
       );
     },
     [history, params]
@@ -72,7 +72,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       setPrams({ ...params });
 
       history.replace(
-        `${UrlConfig.INVENTORY}#3?${queryParam}`
+        `${InventoryTabUrl.HISTORIES}?${queryParam}`
       );
     },
     [history, params]
@@ -86,7 +86,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         return UrlConfig.ORDERS_RETURN;
       case DocumentType.PURCHASE_ORDER:
       case DocumentType.RETURN_PO:
-        return UrlConfig.PURCHASE_ORDER;
+        return UrlConfig.PURCHASE_ORDERS;
       default:
         return type;
     }
@@ -195,7 +195,21 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   }, [selected])
   useEffect(() => {
     dispatch(inventoryGetHistoryAction(params, onResult));
-  }, [dispatch, onResult, params])
+  }, [dispatch, onResult, params]) 
+
+  useEffect(() => {
+    const search = new URLSearchParams(history.location.search);
+    if (search) {
+      const condition =  search.get('condition');
+      const store_ids =  search.get('store_ids');
+
+      if ((condition && condition !== null) || (store_ids && store_ids !== null)) {
+        setPrams({condition: condition ?? "", store_ids: parseInt(store_ids ?? "undefined") });
+      }
+    }
+
+  }, [history.location.search])
+
   return (
     <div>
       <HistoryInventoryFilter

@@ -83,7 +83,7 @@ const StoreCreateScreen: React.FC = () => {
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
-  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]); 
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
@@ -150,6 +150,7 @@ const StoreCreateScreen: React.FC = () => {
     },
     [dispatch, onCreateSuccess]
   );
+
   useEffect(() => {
     if (firstload.current) {
       dispatch(CountryGetAllAction(setCountries));
@@ -231,27 +232,7 @@ const StoreCreateScreen: React.FC = () => {
                   );
                 }}
               </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
-                label="Phân loại"
-                name="type"
-              >
-                <Select
-                  showSearch
-                  showArrow
-                  optionFilterProp="children"
-                  placeholder="Chọn phân loại"
-                >
-                  {type?.map((item: StoreTypeRequest, index) => (
-                    <Option key={index} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-            </Col>
+            </Col> 
           </Row>
           <Row gutter={50}>
             <Col>
@@ -358,8 +339,7 @@ const StoreCreateScreen: React.FC = () => {
                 name="ward_id"
                 rules={[{required: true, message: "Vui lòng chọn phường/xã"}]}
               >
-                <Select showSearch>
-                  <Option value="">Chọn phường xã</Option>
+                <Select placeholder="Chọn phường/xã" showSearch optionFilterProp="children">
                   {wards.map((item) => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
@@ -417,6 +397,26 @@ const StoreCreateScreen: React.FC = () => {
                 name="square"
               >
                 <NumberInput placeholder="Nhập diện tích cửa hàng" />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
+                label="Phân loại"
+                name="type"
+              >
+                <Select
+                  showSearch
+                  showArrow
+                  optionFilterProp="children"
+                  placeholder="Chọn phân loại"
+                >
+                  {type?.map((item: StoreTypeRequest, index) => (
+                    <Option key={index} value={item.value}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
               </Item>
             </Col>
           </Row>
@@ -505,11 +505,11 @@ const StoreCreateScreen: React.FC = () => {
           </Panel>
         </Collapse>
         <BottomBarContainer
-          back={"Quay lại"}
+          back={"Quay lại danh sách"}
           rightComponent={
             <Space> 
               <Button htmlType="submit" type="primary">
-                Lưu
+                Tạo cửa hàng
               </Button>
             </Space>
           }

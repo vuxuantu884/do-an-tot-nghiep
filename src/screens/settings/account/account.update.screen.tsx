@@ -1,6 +1,5 @@
 import {EyeInvisibleOutlined, EyeTwoTone, PlusOutlined} from "@ant-design/icons";
 import {
-  Affix,
   Button,
   Card,
   Col,
@@ -15,10 +14,13 @@ import {
   Space,
   Switch,
   Table,
+  TreeSelect
 } from "antd";
 import deleteIcon from "assets/icon/delete.svg";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
@@ -42,7 +44,7 @@ import {
   AccountStoreResponse,
   AccountView,
 } from "model/account/account.model";
-import {DepartmentResponse} from "model/account/department.model";
+import {DepartmentResponse, DepartmentView} from "model/account/department.model";
 import {PositionResponse} from "model/account/position.model";
 import {RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
 import {CountryResponse} from "model/content/country.model";
@@ -51,11 +53,12 @@ import {StoreResponse} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import moment from "moment";
 import {RuleObject} from "rc-field-form/lib/interface";
-import {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {useParams} from "react-router-dom";
-import {convertDistrict} from "utils/AppUtils";
+import {convertDepartment, convertDistrict} from "utils/AppUtils";
+import { CompareObject } from "utils/CompareObject";
 import {RegUtil} from "utils/RegUtils";
 import {PASSWORD_RULES} from "./account.rules";
 
@@ -96,10 +99,14 @@ const AccountUpdateScreen: React.FC = () => {
   const [status, setStatus] = useState<string>("active");
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listRole, setRole] = useState<Array<RoleResponse>>();
-  const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
-  const [accountDetail, setAccountDetail] = useState<AccountView | null>(null);
-  const [isSelectAllStore, setIsSelectAllStore] = useState(false);
+  const [accountDetail, setAccountDetail] = useState<AccountView>();
+  const [isSelectAllStore, setIsSelectAllStore] = useState(false); 
+  const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
+  const [listDepartment, setDepartment] = useState<Array<DepartmentView>>();
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
   //EndState
 
   const allowUpdateAcc = useAuthorization({
@@ -241,7 +248,6 @@ const AccountUpdateScreen: React.FC = () => {
       listPosition,
     ]
   );
-  const onCancel = useCallback(() => history.goBack(), [history]);
   const setAccount = useCallback((data: AccountResponse) => {
     let storeIds: Array<number> = [];
     listStoreRoot.current = data.account_stores;
@@ -311,23 +317,21 @@ const AccountUpdateScreen: React.FC = () => {
       render: (text: string, item: AccountJobReQuest, index: number) => {
         return (
           <div>
-            <Select
-              placeholder="Chọn bộ phận"
-              className="selector"
-              allowClear
-              showArrow
-              showSearch
-              optionFilterProp="children"
-              onChange={(value) => onChangeDepartment(value, index, item.id)}
+            <TreeSelect
               style={{width: "100%"}}
-              defaultValue={item.department_id || undefined}
-            >
-              {listDepartment?.map((item) => (
-                <Option key={item.id} value={item.id}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
+               placeholder="Chọn bộ phận"
+               treeDefaultExpandAll
+               className="selector"
+               onChange={(value) => onChangeDepartment(value, index)}
+               allowClear
+               showSearch
+                defaultValue={item.department_id || undefined}
+                treeNodeFilterProp='title'
+             >
+               {listDepartmentTree?.map((item, index) => (
+                 <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+               ))}
+             </TreeSelect>  
           </div>
         );
       },
@@ -376,12 +380,42 @@ const AccountUpdateScreen: React.FC = () => {
     },
   ];
 
+  const backAction = ()=>{    
+    delete accountDetail?.permissions;
+    
+    if (!CompareObject(formRef.current?.getFieldsValue(),accountDetail)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
+
   useEffect(() => {
     setIsSelectAllStore(listStore?.length === accountDetail?.account_stores.length);
   }, [accountDetail, listStore]);
 
   useEffect(() => {
-    dispatch(DepartmentGetListAction(setDepartment));
+    dispatch(
+      DepartmentGetListAction((result) => {
+        if (result) {
+          setDepartmentTree(result);
+          let array: Array<DepartmentView> = convertDepartment(result);
+          setDepartment(array);
+        }
+      })
+    ); 
     dispatch(PositionGetListAction(setPosition));
     dispatch(RoleGetListAction(initRoleQuery, setRole));
     dispatch(StoreGetListAction(setStore));
@@ -733,22 +767,36 @@ const AccountUpdateScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-        <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{textAlign: "right"}}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
-              {allowUpdateAcc ? (
+        <BottomBarContainer
+            back="Quay lại"
+            backAction={backAction}
+            rightComponent={
+              <Space>
+                  {allowUpdateAcc ? (
                 <Button htmlType="submit" type="primary">
-                  Lưu
+                  Lưu lại
                 </Button>
               ) : null}
-            </Space>
-          </div>
-        </Affix>
+              </Space>
+            }
+          /> 
       </Form>
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
+  );
+};
+
+const TreeDepartment = (item: DepartmentResponse) => {
+  return (
+    <TreeSelect.TreeNode value={item.id} title={item.name}>
+      {item.children.length > 0 && (
+        <React.Fragment>
+          {item.children.map((item, index) => (
+            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+          ))}
+        </React.Fragment>
+      )}
+    </TreeSelect.TreeNode>
   );
 };
 

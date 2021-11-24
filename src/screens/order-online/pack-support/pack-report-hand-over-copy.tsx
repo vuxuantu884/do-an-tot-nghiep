@@ -2,7 +2,7 @@ import {Button, Dropdown, Menu} from "antd";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {PageResponse} from "model/base/base-metadata.response";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
@@ -10,7 +10,10 @@ import IconPack from "assets/icon/Pack.svg";
 import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
 import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
 import {useDispatch} from "react-redux";
-import {getGoodsReceiptsSerch} from "domain/actions/goods-receipts/goods-receipts.action";
+import {
+  deleteGoodsReceipts,
+  getGoodsReceiptsSerch,
+} from "domain/actions/goods-receipts/goods-receipts.action";
 import {GoodsReceiptsSearhModel} from "model/pack/pack.model";
 import {FulFillmentStatus} from "utils/Constants";
 import {getQueryParams} from "utils/useQuery";
@@ -20,6 +23,8 @@ import UrlConfig from "config/url.config";
 import PackCopyFilter from "component/filter/pack-copy.filter";
 import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
 import {MenuAction} from "component/table/ActionButton";
+import {Link} from "react-router-dom";
+import {showError, showSuccess} from "utils/ToastUtils";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -51,7 +56,7 @@ const actions: Array<MenuAction> = [
     id: 3,
     name: "Xóa",
     icon: <DeleteOutlined />,
-    color:"#E24343"
+    color: "#E24343",
   },
 ];
 
@@ -65,12 +70,6 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   const {query} = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  //   const [listGoodsReceiptsSearch, setListGoodsReceiptsSearch] = useState<
-  //     GoodsReceiptsResponse[]
-  //   >([]);
-  //   const [goodsReceiptsSearh, setGoodsReceiptsSearh] = useState<GoodsReceiptsSearhModel[]>(
-  //     []
-  //   );
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   // const [tableLoading] = useState(true);
 
@@ -80,6 +79,8 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   };
 
   let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(dataQuery);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [tableLoading, setTableLoading] = useState(true);
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -90,15 +91,47 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     items: [],
   });
 
-  const onMenuClick = useCallback((index: number) => {
-    console.log(index);
-  }, []);
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case 1:
+          break;
+        case 2:
+          break;
+        case 3:
+          selectedRowKeys.forEach(function (item) {
+            setTimeout(() => {
+              dispatch(
+                deleteGoodsReceipts(item, (_item: boolean) => {
+                  if (!_item) {
+                    let index = data.items.findIndex((p) => p.id_handover_record === item);
+                    data.items.splice(index,1);
+                    setData({...data})
+                    showError(`Xóa biên bản bàn giao thất bại`);
+                  } else {
+                    showSuccess(`Đã xóa biên bản bàn giao`);
+                  }
+                })
+              );
+            }, 500);
+          });
+          
+          break;
+      }
+    },
+    [dispatch, selectedRowKeys,data]
+  );
 
   const handlePrint = () => {};
 
   const handleExportHVC = () => {};
 
-  const handleAddPack = () => {};
+  const handleAddPack = (item: any) => {
+    console.log("ok", item.id_handover_record);
+    history.push(
+      `${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${item.id_handover_record}`
+    );
+  };
 
   const actionColumn = (handlePrint: any, handleExportHVC: any, handleAddPack: any) => {
     const _actionColumn = {
@@ -152,7 +185,9 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
                   background: "transparent",
                   border: "none",
                 }}
-                onClick={handleAddPack}
+                onClick={() => {
+                  handleAddPack(item);
+                }}
               >
                 Thêm đơn hàng vào biên bản
               </Button>
@@ -188,14 +223,25 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     return _actionColumn;
   };
 
-  const [columns, setColumn] = useState<Array<ICustomTableColumType<GoodsReceiptsSearhModel>>>([
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
+  >([
     {
       title: "ID biên bản bàn giao ",
       dataIndex: "id_handover_record",
       key: "id_handover_record",
       visible: true,
       align: "center",
-      fixed:"left",
+      fixed: "left",
+      render: (value: number) => {
+        return (
+          <React.Fragment>
+            <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value}`}>
+              {value}
+            </Link>
+          </React.Fragment>
+        );
+      },
     },
     {
       title: "Tên cửa hàng",
@@ -292,7 +338,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
     },
-    actionColumn(handlePrint, handleExportHVC, handleAddPack)
+    actionColumn(handlePrint, handleExportHVC, handleAddPack),
   ]);
 
   const columnFinal = useMemo(
@@ -305,7 +351,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+      setPrams({...params});
       history.replace(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
     },
     [history, params]
@@ -321,6 +367,20 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     },
     [history, params]
   );
+
+  const onClearFilter = useCallback(
+    () => {
+      setPrams(initQueryGoodsReceipts);
+      let queryParam = generateQuery(initQueryGoodsReceipts);
+      history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
+    },
+    [history]
+  );
+
+  const onSelectedChange = useCallback((selectedRow) => {
+    const selectedRowKeys = selectedRow.map((row: any) => row.id_handover_record);
+    setSelectedRowKeys(selectedRowKeys);
+  }, []);
 
   useEffect(() => {
     dispatch(
@@ -384,6 +444,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
           };
 
           dataResult.push(_result);
+          setTableLoading(false);
         });
 
         /////
@@ -399,7 +460,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     );
   }, [dispatch, params]);
 
-  // console.log("GoodsReceipts", data);
+  console.log("GoodsReceipts", data);
   // console.log("newQuery", query);
   // console.log("newPrams", params);
 
@@ -413,14 +474,16 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
           onMenuClick={onMenuClick}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           onFilter={onFilter}
+          onClearFilter={onClearFilter}
         />
       </div>
       <div style={{padding: "0px 24px 0 24px"}}>
-        <CustomTable
+        {data.items&&(
+          <CustomTable
           isRowSelection
-          //isLoading={tableLoading}
+          isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 3630, y: 600 }}
+          scroll={{x: 3630, y: 600}}
           sticky={{offsetScroll: 10, offsetHeader: 55}}
           pagination={{
             pageSize: data.metadata.limit,
@@ -430,18 +493,26 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          // onSelectedChange={(selectedRows) =>
-          //   onSelectedChange(selectedRows)
-          // }
+          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
           // expandable={{
           //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
           // }}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
-          //rowKey={(item: ReturnModel) => item.id}
+          rowKey={(item: GoodsReceiptsSearhModel) => item.id_handover_record}
           className="order-list"
+          //key={Math.random()}
+          // onRow={(record: GoodsReceiptsSearhModel) => {
+          //   return {
+          //     onClick: () => {
+          //       console.log("record",record);
+          //     }, // click row
+          //   };
+          // }}
         />
+        )}
+        
       </div>
 
       {showSettingColumn && (

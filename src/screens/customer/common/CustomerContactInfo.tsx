@@ -49,7 +49,7 @@ function CustomerContactInfo(props: any) {
       >
         <Panel
           header={
-            <span className="title-card">THÔNG TIN LIÊN HỆ</span>
+            <span className="card-title">THÔNG TIN LIÊN HỆ</span>
           }
           key="1"
         >

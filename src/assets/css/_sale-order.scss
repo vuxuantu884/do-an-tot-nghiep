@@ -1321,9 +1321,14 @@
       }
     }
     .orders-timeline-custom.order-shipment-dot-cancelled {
-      &::before {
-        background-color: #e24343;
-      }
+      // &::before {
+        .saleorder-header-content {
+          .text-field {
+            color: #e24343 !important;
+          }
+        }
+        // background-color: #e24343;
+      // }
     }
     .ant-collapse-header {
       display: flex;

@@ -62,6 +62,7 @@ type PropType = {
   setShippingFeeInformedToCustomer: (value: number) => void;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   handleCreateShipment?: () => void;
+  creating?: boolean;
   handleCancelCreateShipment?: () => void;
 };
 
@@ -96,6 +97,8 @@ type PropType = {
  *
  * handleCreateShipment: xử lý khi click nút tạo đơn giao hàng trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  *
+ * creating: loading status create
+ * 
  * handleCancelCreateShipment: xử lý khi click nút hủy trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  */
 function OrderCreateShipment(props: PropType) {
@@ -115,6 +118,7 @@ function OrderCreateShipment(props: PropType) {
     onSelectShipment,
     setShippingFeeInformedToCustomer,
     handleCreateShipment,
+    creating,
     handleCancelCreateShipment,
   } = props;
   console.log('props', props)
@@ -219,6 +223,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
             onClick={() => {
               handleCreateShipment && handleCreateShipment();
             }}
+            loading={creating}
           >
             Tạo đơn giao hàng
           </Button>
@@ -228,6 +233,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
               handleCancelCreateShipment && handleCancelCreateShipment();
             }}
             style={{float: "right"}}
+            disabled={creating}
           >
             Hủy
           </Button>
@@ -238,10 +244,6 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
   };
 
   useEffect(() => {
-    if (!storeDetail) {
-      setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
-      return;
-    }
     if (
       customer &&
       storeDetail &&
@@ -250,6 +252,11 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
       getShippingAddressDefault(customer)?.ward_id &&
       getShippingAddressDefault(customer)?.full_address
     ) {
+      if (!((storeDetail.city_id || storeDetail.district_id) &&
+          storeDetail.ward_id && storeDetail.address)) {
+        setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
+        return;
+      }
       let request = {
         from_city_id: storeDetail?.city_id,
         from_city: storeDetail?.city_name,

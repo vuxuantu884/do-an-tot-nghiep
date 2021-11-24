@@ -1,36 +1,37 @@
-import {Card, Button, Form, Input, Select} from "antd";
-import React, {useCallback, useEffect, useState} from "react";
-import moment from "moment";
-import actionColumn from "./actions/action.column";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import CustomFilter from "component/table/custom.filter";
-import search from "assets/img/search.svg";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import "./promo-code.scss";
 import {FilterOutlined, PlusOutlined} from "@ant-design/icons";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
-import {DATE_FORMAT} from "utils/DateUtils";
-import {PageResponse} from "model/base/base-metadata.response";
-import {getQueryParams, useQuery} from "../../../utils/useQuery";
+import {Button, Card, Form, Input, Select} from "antd";
+import search from "assets/img/search.svg";
+import ContentContainer from "component/container/content.container";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import {MenuAction} from "component/table/ActionButton";
+import CustomFilter from "component/table/custom.filter";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import TagStatus, {TagStatusType} from "component/tag/tag-status";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import UrlConfig from "config/url.config";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
-  deletePriceRulesById,
-  getListDiscount,
   bulkDeletePriceRules,
   bulkDisablePriceRules,
   bulkEnablePriceRules,
+  deletePriceRulesById,
+  getListDiscount,
 } from "domain/actions/promotion/discount/discount.action";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
-import {PROMO_TYPE} from "utils/Constants";
-import {showSuccess} from "utils/ToastUtils";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {ACTIONS_PROMO} from "../constant";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
+import {PageResponse} from "model/base/base-metadata.response";
+import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
+import moment from "moment";
+import React, {useCallback, useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {Link} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import {MenuAction} from "component/table/ActionButton";
+import {OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE} from "utils/Constants";
+import {DATE_FORMAT} from "utils/DateUtils";
+import {showSuccess} from "utils/ToastUtils";
+import {getQueryParams, useQuery} from "../../../utils/useQuery";
+import {ACTIONS_PROMO} from "../constant";
+import actionColumn from "./actions/action.column";
+import "./promo-code.scss";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -39,7 +40,7 @@ const PromotionCode = () => {
     ...{
       type: PROMO_TYPE.MANUAL,
       request: "",
-      state: "",
+      state: null,
     },
     ...getQueryParams(query),
   };
@@ -52,6 +53,8 @@ const PromotionCode = () => {
     },
     items: [],
   });
+  const [form] = Form.useForm();
+
   const [params, setParams] = useState<any>(dataQuery);
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [modalInfo, setModalInfo] = React.useState<any>();
@@ -114,6 +117,25 @@ const PromotionCode = () => {
     setModalInfo(item);
     setIsShowDeleteModal(true);
   };
+
+  const statuses = [
+    {
+      code: "ACTIVE",
+      value: "Đang áp dụng",
+    },
+    {
+      code: "DISABLED",
+      value: "Tạm ngưng",
+    },
+    {
+      code: "DRAFT",
+      value: "Chờ áp dụng",
+    },
+    {
+      code: "CANCELLED",
+      value: "Đã huỷ",
+    },
+  ];
 
   const columns: Array<ICustomTableColumType<any>> = [
     {
@@ -188,35 +210,29 @@ const PromotionCode = () => {
       dataIndex: "state",
       align: "center",
       width: "15%",
-      // render: (value: any, item: any, index: number) => {
-      //   const status: any | null = STATUS_PROMO.find(e => e.code === item.state);
-      //   return (<div
-      //     style={status?.style}
-      //   >
-      //     {status?.value}
-      //   </div>)
-      // }
+      render: (value: string) => {
+        const status = statuses.find((e) => e.code === value)?.value || "";
+        let type = TagStatusType.nomarl;
+        switch (value) {
+          case statuses[0].code:
+            type = TagStatusType.primary;
+            break;
+          case statuses[1].code:
+            type = TagStatusType.warning;
+            break;
+          case statuses[2].code:
+            type = TagStatusType.nomarl;
+            break;
+          case statuses[3].code:
+            type = TagStatusType.danger;
+            break;
+          default:
+            break;
+        }
+        return <TagStatus type={type}>{status}</TagStatus>;
+      },
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
-  ];
-
-  const statuses = [
-    {
-      code: "ACTIVE",
-      value: "Đang áp dụng",
-    },
-    {
-      code: "DISABLED",
-      value: "Tạm ngưng",
-    },
-    {
-      code: "DRAFT",
-      value: "Chờ áp dụng",
-    },
-    {
-      code: "CANCELLED",
-      value: "Đã huỷ",
-    },
   ];
 
   const handleCallback = useCallback(
@@ -297,11 +313,19 @@ const PromotionCode = () => {
           <Card>
             <div className="promotion-code__search">
               <CustomFilter onMenuClick={onMenuClick} menu={actionsPromo}>
-                <Form onFinish={onFilter} initialValues={params} layout="inline">
+                <Form
+                  onFinish={onFilter}
+                  initialValues={params}
+                  layout="inline"
+                  form={form}
+                >
                   <Item name="query" className="search">
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="Tìm kiếm theo mã, tên chương trình"
+                      onBlur={(e) => {
+                        form.setFieldsValue({query: e.target.value?.trim()});
+                      }}
                     />
                   </Item>
                   <Item name="state">
@@ -333,7 +357,6 @@ const PromotionCode = () => {
                 </Form>
               </CustomFilter>
 
-              {/* <Card style={{ position: "relative" }}> */}
               <CustomTable
                 selectedRowKey={selectedRowKey}
                 onChangeRowKey={(rowKey) => {
@@ -341,7 +364,7 @@ const PromotionCode = () => {
                 }}
                 isRowSelection
                 isLoading={tableLoading}
-                sticky={{offsetScroll: 5}}
+                sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
                 pagination={{
                   pageSize: dataSource?.metadata.limit || 0,
                   total: dataSource?.metadata.total || 0,

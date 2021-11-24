@@ -1,6 +1,7 @@
 import {Button, Card, Col, Form, Input, Row, Space, Select, TreeSelect} from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {AccountSearchAction} from "domain/actions/account/account.action";
@@ -39,6 +40,11 @@ const DepartmentUpdateScreen: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<DepartmentResponse | null>(null);
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
+  const [form] = Form.useForm();
+  const [dataOrigin, setDataOrigin] = useState<DepartmentRequest | null>(null);
 
   //phân quyền
   const [allowUpdateDep] = useAuthorization({
@@ -75,16 +81,38 @@ const DepartmentUpdateScreen: React.FC = () => {
     [dispatch, history, idNumber]
   );
 
+  const backAction = ()=>{ 
+    if (JSON.stringify(form.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
+
   useEffect(() => {
     searchAccount({}, false);
     dispatch(
       searchDepartmentAction((result) => {
         if (result) {
-          setDepartment(result);
+          setDepartment(result); 
+          form.setFieldsValue(result);
+          setDataOrigin(form.getFieldsValue());
         }
       })
     );
-  }, [dispatch, searchAccount]);
+  }, [form, dispatch, searchAccount]);
   useEffect(() => {
     setIsLoading(true);
     dispatch(
@@ -128,6 +156,7 @@ const DepartmentUpdateScreen: React.FC = () => {
             parent_id: data.parent_id === -1 ? null : data.parent_id,
           }}
           onFinish={onFinish}
+          form={form}
           layout="vertical"
         >
           <Card title="Thông tin bộ phận">
@@ -193,6 +222,7 @@ const DepartmentUpdateScreen: React.FC = () => {
                     className="selector"
                     allowClear
                     showSearch
+                    treeNodeFilterProp='title'
                   >
                     {departments.map((item, index) => (
                       <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
@@ -216,18 +246,18 @@ const DepartmentUpdateScreen: React.FC = () => {
           </Card>
           <BottomBarContainer
             back="Quay lại"
+            backAction={backAction}
             rightComponent={
               <Space>
-                {allowUpdateDep ? (
-                  <Button loading={loading} htmlType="submit" type="primary">
-                    Cập nhật
-                  </Button>
-                ) : null}
+                {allowUpdateDep && <Button loading={loading} htmlType="submit" type="primary">
+                    Lưu lại
+                  </Button> }
               </Space>
             }
           />
         </Form>
       )}
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

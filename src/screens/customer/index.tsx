@@ -1,3 +1,6 @@
+import React, { useMemo, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   Card,
   Button,
@@ -6,22 +9,16 @@ import {
   Space,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import "./customer.scss";
-import { RootReducerType } from "model/reducers/RootReducerType";
-
-import ContentContainer from "component/container/content.container";
-import React, { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
 
 import UrlConfig from "config/url.config";
-import { useDispatch } from "react-redux";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import ContentContainer from "component/container/content.container";
 import { getCustomerListAction } from "domain/actions/customer/customer.action";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import { Link } from "react-router-dom";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 
@@ -30,20 +27,24 @@ import {
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import { getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
-import CustomerListFilter from "./component/CustomerListFilter";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import NoPermission from "screens/no-permission.screen";
-import { CustomerListPermission } from "config/permissions/customer.permission";
-import useAuthorization from "hook/useAuthorization";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { ChannelResponse } from "model/response/product/channel.response";
+import { getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import CustomerListFilter from "screens/customer/component/CustomerListFilter";
 
-import importIcon from "assets/icon/import.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { CustomerListPermission } from "config/permissions/customer.permission";
+import useAuthorization from "hook/useAuthorization";
+
+import "screens/customer/customer.scss";
+
+// Thêm nhập file sau
+// import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
-import { StyledCustomerExtraButton } from "screens/customer/customerStyled";
+import { StyledCustomer, StyledCustomerExtraButton } from "screens/customer/customerStyled";
 import { showWarning } from "utils/ToastUtils";
 
 
@@ -53,7 +54,6 @@ const exportCustomerPermission = [CustomerListPermission.customers_export];
 
 const Customer = () => {
   const dispatch = useDispatch();
-  // const history = useHistory();
 
   const [allowCreateCustomer] = useAuthorization({
     acceptPermissions: createCustomerPermission,
@@ -114,46 +114,34 @@ const Customer = () => {
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<any>>
   >([
-    // {
-    //   title: "STT",
-    //   key: "index",
-    //   render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
-    //   align: "center",
-    //   visible: true,
-    //   width: "3%",
-    // },
     {
       title: "Mã khách hàng",
       dataIndex: "code",
-      // align: "center",
       visible: true,
       fixed: "left",
-      render: (value: string, i: any) => (
-        <Link to={`/customers/${i.id}`}>{value}</Link>
+      render: (value: string, item: any) => (
+        <Link to={`/customers/${item.id}`}>{value}</Link>
       ),
       width: 150,
     },
     {
       title: "Tên khách hàng",
       dataIndex: "full_name",
-      // align: "left",
       visible: true,
       width: 150,
-      render: (value: string, i: any) => (
-        <span className="customer-name-textoverflow">{i.full_name}</span>
+      render: (value: string, item: any) => (
+        <span className="customer-name-textoverflow">{item.full_name}</span>
       ),
     },
     {
       title: "SĐT",
       dataIndex: "phone",
-      // align: "center",
       visible: true,
       width: 150,
     },
     {
       title: "Giới tính",
       dataIndex: "gender",
-      // align: "center",
       render: (value: any, item: any) => (
         <div>
           {LIST_GENDER &&
@@ -166,22 +154,18 @@ const Customer = () => {
     {
       title: "Nhóm khách hàng",
       dataIndex: "customer_group",
-      // align: "center",
       visible: true,
       width: 150,
     },
     {
       title: "Email",
       dataIndex: "email",
-      // align: "center",
       visible: true,
       width: 150,
     },
-
     {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
-      // align: "center",
       visible: true,
       width: 150,
     },
@@ -194,30 +178,12 @@ const Customer = () => {
     {
       title: "Hạng thẻ",
       dataIndex: "customer_level",
-      // align: "center",
       visible: true,
       width: 150,
     },
-
-    // {
-    //   title: "Người tạo",
-    //   dataIndex: "created_by",
-    //   // align: "center",
-    //   visible: false,
-    //   // width: "15%",
-    // },
-    // {
-    //   title: "Ngày tạo",
-    //   dataIndex: "created_date",
-    //   // align: "center",
-    //   visible: false,
-    //   // width: "15%",
-    //   render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    // },
     {
       title: "Ngày sinh",
       dataIndex: "birthday",
-      // align: "center",
       visible: true,
       width: 150,
       render: (value: string) => (
@@ -226,8 +192,7 @@ const Customer = () => {
     },
     {
       title: "Ngày cưới",
-      // dataIndex: "wedding_date",
-      // align: "center",
+      dataIndex: "wedding_date",
       visible: true,
       width: 150,
       render: (value: string) => (
@@ -237,42 +202,36 @@ const Customer = () => {
     {
       title: "website/facebook",
       dataIndex: "website",
-      // align: "center",
       visible: false,
       width: 150,
     },
     {
       title: "Ngày kích hoạt thẻ",
       dataIndex: "",
-      // align: "center",
       visible: false,
       width: 150,
     },
     {
       title: "Ngày hết hạn thẻ",
       dataIndex: "",
-      // align: "center",
       visible: false,
       width: 150,
     },
     {
       title: "Cửa hàng kích hoạt",
       dataIndex: "",
-      // align: "center",
       visible: false,
       width: 150,
     },
     {
       title: "Mã số thẻ",
       dataIndex: "",
-      // align: "center",
       visible: false,
       width: 150,
     },
     {
       title: "Đơn vị",
       dataIndex: "company",
-      // align: "center",
       visible: false,
       width: 150,
     },
@@ -364,134 +323,128 @@ const Customer = () => {
   }
   // end handle export file
   
+  // Thêm nhập file sau
   // handle import file
-  const handleImportFile = () => {
-    showWarning("Sẽ làm chức năng này sau bạn nhé!");
-  }
+  // const handleImportFile = () => {
+  //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
+  // }
   // end handle import file
   
 
 
   return (
-    <ContentContainer
-      title="Danh sách khách hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Danh sách khách hàng",
-          path: `/customers`,
-        },
-      ]}
-      extra={
-        <StyledCustomerExtraButton>
-          <Button
-            className="import-file-button"
-            disabled={isLoading}
-            size="large"
-            icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-            onClick={handleImportFile}
-          >
-            Nhập file
-          </Button>
-
-          {allowExportCustomer &&
-            <Button
-              className="export-file-button"
+    <StyledCustomer>
+      <ContentContainer
+        title="Danh sách khách hàng"
+        extra={
+          <StyledCustomerExtraButton>
+            {/* Thêm nhập file sau */}
+            {/* <Button
+              className="import-file-button"
               disabled={isLoading}
               size="large"
-              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={handleExportFile}
+              icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={handleImportFile}
             >
-              Xuất file
-            </Button>
-          }
+              Nhập file
+            </Button> */}
 
-          {allowCreateCustomer &&
-            <Link to={`${UrlConfig.CUSTOMER}/create`}>
+            {allowExportCustomer &&
               <Button
+                className="export-file-button"
                 disabled={isLoading}
-                className="ant-btn-outline ant-btn-primary"
                 size="large"
-                icon={<PlusOutlined />}
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={handleExportFile}
               >
-                Thêm khách hàng mới
+                Xuất file
               </Button>
-            </Link>
-          }
-        </StyledCustomerExtraButton>
-      }
-    >
-      <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
-        {(allowed: boolean) => (allowed ?
-          <Card>
-            <CustomerListFilter
-              onClearFilter={onClearFilterAdvanceClick}
-              onFilter={onFilterClick}
-              isLoading={isLoading}
-              params={query}
-              initQuery={params}
-              groups={groups}
-              types={types}
-              setShowSettingColumn={() => setShowSettingColumn(true)}
-              loyaltyUsageRules={loyaltyUsageRules}
-              listStore={listStore}
-              listChannel={listChannel}
-            />
-            
-            <CustomTable
-              isRowSelection
-              isLoading={isLoading}
-              bordered
-              scroll={{ x: 2000 }}
-              sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-              pagination={{
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              dataSource={data.items}
-              columns={columnFinal}
-              rowKey={(item: any) => item.id}
-            />
-          </Card>
-          : <NoPermission />)}
-      </AuthWrapper>
+            }
 
-      <Modal
-        width="600px"
-        visible={isVisibleExportModal}
-        title="Xuất excel dữ liệu khách hàng"
-        okText="Xuất dữ liệu"
-        cancelText="Đóng"
-        onCancel={cancelExportModal}
-        onOk={okExportModal}
+            {allowCreateCustomer &&
+              <Link to={`${UrlConfig.CUSTOMER}/create`}>
+                <Button
+                  disabled={isLoading}
+                  className="ant-btn-outline ant-btn-primary"
+                  size="large"
+                  icon={<PlusOutlined />}
+                >
+                  Thêm khách hàng mới
+                </Button>
+              </Link>
+            }
+          </StyledCustomerExtraButton>
+        }
       >
-        <Radio.Group onChange={onChangeExportOption} value={exportAll}>
-          <Space direction="vertical">
-            <Radio value={false}>Tải trang hiện tại</Radio>
-            <Radio value={true}>Tải tất cả các trang</Radio>
-          </Space>
-        </Radio.Group>
-      </Modal>
+        <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <Card>
+              <CustomerListFilter
+                onClearFilter={onClearFilterAdvanceClick}
+                onFilter={onFilterClick}
+                isLoading={isLoading}
+                params={query}
+                initQuery={params}
+                groups={groups}
+                types={types}
+                setShowSettingColumn={() => setShowSettingColumn(true)}
+                loyaltyUsageRules={loyaltyUsageRules}
+                listStore={listStore}
+                listChannel={listChannel}
+              />
+              
+              <CustomTable
+                isRowSelection
+                bordered
+                isLoading={isLoading}
+                scroll={{ x: 2000 }}
+                sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                pagination={{
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                dataSource={data.items}
+                columns={columnFinal}
+                rowKey={(item: any) => item.id}
+              />
+            </Card>
+            : <NoPermission />)}
+        </AuthWrapper>
 
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => {
-          setShowSettingColumn(false);
-        }}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
-    </ContentContainer>
+        <Modal
+          width="600px"
+          visible={isVisibleExportModal}
+          title="Xuất excel dữ liệu khách hàng"
+          okText="Xuất dữ liệu"
+          cancelText="Đóng"
+          onCancel={cancelExportModal}
+          onOk={okExportModal}
+        >
+          <Radio.Group onChange={onChangeExportOption} value={exportAll}>
+            <Space direction="vertical">
+              <Radio value={false}>Tải trang hiện tại</Radio>
+              <Radio value={true}>Tải tất cả các trang</Radio>
+            </Space>
+          </Radio.Group>
+        </Modal>
+
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => {
+            setShowSettingColumn(false);
+          }}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
+        />
+      </ContentContainer>
+    </StyledCustomer>
   );
 };
 

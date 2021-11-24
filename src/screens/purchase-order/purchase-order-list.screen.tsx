@@ -17,7 +17,6 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { PODeleteAction, PoSearchAction } from "domain/actions/po/po.action";
-import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -151,21 +150,14 @@ const PurchaseOrderListScreen: React.FC = () => {
     });
   }, [canDeletePO]);
 
-  const ActionComponent = useChangeHeaderToAction(
-    "ID đơn hàng",
-    selected?.length > 0,
-    onMenuClick,
-    actions
-  );
-
   const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = [
     {
-      title: <ActionComponent />,
+      title: "ID đơn hàng",
       dataIndex: "code",
       render: (value: string, i: PurchaseOrder) => {
         return (
           <> 
-            <Link to={`${UrlConfig.PURCHASE_ORDER}/${i.id}`} style={{fontWeight: 500}}>
+            <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{fontWeight: 500}}>
               {value}
             </Link>
             <br />
@@ -387,18 +379,13 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<PurchaseOrder>>>(defaultColumns);
 
-  useEffect(() => {
-    setColumn(defaultColumns);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
-
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({...params});
-      history.replace(`${UrlConfig.PURCHASE_ORDER}?${queryParam}`);
+      history.replace(`${UrlConfig.PURCHASE_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
@@ -408,7 +395,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.PURCHASE_ORDER}?${queryParam}`);
+      history.push(`${UrlConfig.PURCHASE_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
@@ -493,7 +480,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           },
           {
             name: "Đặt hàng",
-            path: `${UrlConfig.PURCHASE_ORDER}`,
+            path: `${UrlConfig.PURCHASE_ORDERS}`,
           },
         ]}
         extra={
@@ -519,7 +506,7 @@ const PurchaseOrderListScreen: React.FC = () => {
                 Xuất file
               </Button>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
-              <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
+              <ButtonCreate path={`${UrlConfig.PURCHASE_ORDERS}/create`} />
               </AuthWrapper>
             </Space>
           </Row>

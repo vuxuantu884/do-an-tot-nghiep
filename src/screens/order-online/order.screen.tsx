@@ -10,7 +10,8 @@ import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
@@ -527,6 +528,12 @@ export default function Order() {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
+        if( shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+          showError("Vui lòng nhập địa chỉ giao hàng!");
+          const element: any = document.getElementById("shippingAddress_update_full_address");
+          scrollAndFocusToDomElement(element);
+          return;
+        }
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (typeButton === OrderStatus.DRAFT) {
             setIsSaveDraft(true);
@@ -639,7 +646,7 @@ export default function Order() {
 
             if (customer_id) {
               dispatch(
-                CustomerDetail(customer_id, (responseCustomer) => {
+                getCustomerDetailAction(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
 
                   responseCustomer.shipping_addresses.forEach((item) => {
@@ -980,13 +987,14 @@ export default function Order() {
   //   );
   // }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (items && items != null&& items.length) {
-  //     let variant_id: Array<number> = [];
-  //     items.forEach((element) => variant_id.push(element.variant_id));
-  //     dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-  //   }
-  // }, [dispatch, items]);
+  useEffect(() => {
+    if (items && items != null && items?.length > 0) {
+      let variant_id: Array<number> = [];
+      items.forEach((element) => variant_id.push(element.variant_id));
+      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, items?.length]);
 
   useEffect(() => {
     dispatch(
@@ -1048,7 +1056,7 @@ export default function Order() {
             name: "Tạo mới đơn hàng",
           },
         ]}
-        extra={<CreateBillStep status="draff" orderDetail={null} />}
+        extra={<CreateBillStep orderDetail={null} />}
       >
         <React.Fragment>
           <div className="orders">

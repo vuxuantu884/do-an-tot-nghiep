@@ -238,12 +238,12 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
               <Form.Item
                 label="Mô tả:"
                 name="description"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập mô tả",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng nhập mô tả",
+                //   },
+                // ]}
               >
                 <TextArea
                   rows={4}

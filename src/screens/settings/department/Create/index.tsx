@@ -28,7 +28,7 @@ const DepartmentCreateScreen: React.FC = () => {
     },
     items: [],
   });
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false); 
   //phân quyền
   const [allowCreateDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.CREATE],
@@ -39,7 +39,7 @@ const DepartmentCreateScreen: React.FC = () => {
       dispatch(
         AccountSearchAction({...query, limit: 20}, (result) => {
           if (result) {
-            setAccounts(result);
+            setAccounts(result); 
           }
         })
       );
@@ -149,7 +149,8 @@ const DepartmentCreateScreen: React.FC = () => {
                   className="selector"
                   allowClear
                   showSearch
-                >
+                  treeNodeFilterProp='title'
+                  >
                   {departments.map((item, index) => (
                     <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
                   ))}
@@ -174,11 +175,9 @@ const DepartmentCreateScreen: React.FC = () => {
           back="Quay lại"
           rightComponent={
             <Space>
-              {allowCreateDep ? (
-                <Button loading={loading} htmlType="submit" type="primary">
-                  Tạo mới
-                </Button>
-              ) : null}
+              {allowCreateDep && <Button loading={loading} htmlType="submit" type="primary">
+                  Tạo bộ phận
+                </Button>}
             </Space>
           }
         />

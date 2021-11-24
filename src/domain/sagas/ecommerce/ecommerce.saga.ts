@@ -537,6 +537,7 @@ function* postEcommerceOrderSaga(action: YodyAction) {
   }
 }
 
+
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
@@ -594,4 +595,5 @@ export function* ecommerceSaga() {
 
   //ecommerce order takeLatest
   yield takeLatest(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, postEcommerceOrderSaga);
+
 }

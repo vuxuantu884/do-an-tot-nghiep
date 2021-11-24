@@ -1,110 +1,11 @@
 import styled from "styled-components";
 
 export const InventoryFiltersWrapper = styled.div`
-  .ant-form-inline .ant-form-item {
-    margin-right: 0px;
-  }
-
-  .page-filter-left {
-    width: 12%;
-    min-width: 100px;
-    margin-right: 20px;
-
-    button {
-      justify-content: space-between;
-      width: 100%;
-    }
-  }
-
-  .ant-form-item-control-input-content {
-    display: flex;
-  }
-
+.custom-filter {
   .page-filter {
-    &-right {
-      width: 100%;
-      .ant-space {
-        width: 100%;
-        &-item {
-          width: 100%;
-          .ant-form {
-            display: flex;
-            width: 100%;
-            &-item {
-              button.ant-btn.ant-btn-primary {
-                width: 100%;
-              }
-            }
-            .search {
-              flex: 3;
-            }
-            .store {
-              flex: 1;
-            }
-            .ant-form-item-control-input-content {
-              button.ant-btn {
-                width: 100%;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    .select-item {
-      width: 10%;
-      min-width: 150px;
-    }
+    padding-top: 20px;
   }
-
-  .order-options {
-    border-bottom: 1px solid #5252;
-    .ant-radio-group {
-      .ant-radio-button-wrapper {
-        border-style: none;
-        border-width: 0;
-        box-shadow: none;
-        height: 40px;
-      }
-      .ant-radio-button-wrapper:first-child {
-        border-left: none;
-        border-radius: none;
-      }
-      .ant-radio-button-wrapper:not(:first-child):before {
-        width: 0;
-      }
-      .ant-radio-button-wrapper-checked {
-        color: #2a2a86;
-        border-bottom: 2px solid #2a2a86;
-      }
-    }
-  }
-
-  .row-filter {
-    width: 100%;
-    & > .ant-col {
-      & > .ant-form-item {
-        width: 100%;
-      }
-    }
-  }
-  .order-filter-tags {
-    .tag {
-      padding: 10px 10px;
-      margin-bottom: 20px;
-      background: rgba(42, 42, 134, 0.05);
-      border-radius: 50px;
-    }
-  }
-
-  .ant-form-item.input-search {
-    width: 100%;
-  }
-
-  .header-filter {
-    font-weight: 500;
-    color: #222222;
-  }
+}
 `;
 
 export const BaseFilterWrapper = styled.div`

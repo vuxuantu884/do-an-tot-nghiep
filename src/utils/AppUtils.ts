@@ -726,6 +726,28 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
   }
 };
 
+export const checkPaymentStatus = (payments: any, orderAmount: number) => {
+  let value = 0;
+  if (payments !== null) {
+    if (payments !== null) {
+      if (payments.length > 0) {
+        payments.forEach((a: any) => (value = value + a.paid_amount));
+      }
+    }
+  }
+  if (
+    value >= orderAmount
+  ) {
+    return 1; //đã thanh toán
+  } else {
+    if (value === 0) {
+      return -1; //chưa thanh toán
+    } else {
+      return 0; //thanh toán 1 phần
+    }
+  }
+};
+
 export const SumCOD = (items: OrderResponse) => {
   let cod = 0;
   if (items !== null) {
@@ -996,15 +1018,21 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
   console.log('orderReturnItems', orderReturnItems)
   // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về false
   if( orderReturnItems.length > 0) {
-    let checkIfNotReturnAll = OrderDetail.items.some((singleItem) => {
+    let checkIfNotReturnAll = false;
+    for (const singleItem of OrderDetail.items) {
       console.log('singleItem', singleItem)
-      let selectedItem = orderReturnItems.find((item) => item.product_id === singleItem.product_id);
+      let selectedItem = orderReturnItems.find((item) => item.variant_id === singleItem.variant_id);
       console.log('selectedItem', selectedItem)
       if(!selectedItem) {
-        return true
+        checkIfNotReturnAll = true;
+        break;
       }
-      return (singleItem.quantity > selectedItem.quantity)
-    })
+      if(selectedItem.quantity < singleItem.quantity) {
+        checkIfNotReturnAll = true;
+        break;
+      }
+      checkIfNotReturnAll = false;
+    }
     console.log('checkIfNotReturnAll', checkIfNotReturnAll)
     result = !checkIfNotReturnAll;
   }

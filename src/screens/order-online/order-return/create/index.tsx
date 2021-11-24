@@ -6,8 +6,8 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { hideLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   actionCreateOrderExchange,
@@ -387,6 +387,7 @@ const ScreenReturnCreate = (props: PropType) => {
       console.log('orderDetailResult', orderDetailResult)
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
+          dispatch(hideLoading());
           history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
         })
       );
@@ -459,7 +460,7 @@ const ScreenReturnCreate = (props: PropType) => {
           return single.quantity > 0;
         });
         if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
-          showError("Vui lòng chọn ít nhất 1 sản phẩm mua");
+          showError("Vui lòng chọn ít nhất 1 sản phẩm mua!");
           const element: any = document.getElementById("search_product");
           const offsetY =
             element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
@@ -536,7 +537,6 @@ const ScreenReturnCreate = (props: PropType) => {
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
-                  showLoading();
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
@@ -544,12 +544,12 @@ const ScreenReturnCreate = (props: PropType) => {
                       (error) => {
                         console.log("error", error);
                         setIsErrorExchange(true);
+                        dispatch(hideLoading())
                       }
                     )
                   );
                 })
               );
-              hideLoading();
             };
             if (!values.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -669,9 +669,10 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
+      dispatch(hideLoading());
       history.push(`${UrlConfig.ORDER}/${value.id}`);
     },
-    [history]
+    [dispatch, history]
   );
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -1062,7 +1063,7 @@ const ScreenReturnCreate = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomer));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomer));
     }
   }, [dispatch, OrderDetail]);
 

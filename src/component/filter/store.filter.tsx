@@ -18,6 +18,8 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { GroupResponse } from "model/content/group.model";
 import NumberInput from "component/custom/number-input.custom";
+import "assets/css/custom-filter.scss";
+import { DepartmentResponse } from "model/account/department.model";
 
 type StoreFilterProps = {
   initValue: StoreQuery;
@@ -30,6 +32,7 @@ type StoreFilterProps = {
   storeRanks?: Array<StoreRankResponse>;
   groups?: Array<GroupResponse>;
   type?: Array<StoreTypeRequest>;
+  listDepartment?: Array<DepartmentResponse>;
 };
 
 const { Item } = Form;
@@ -45,6 +48,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     groups,
     initValue,
     type,
+    listDepartment
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -83,7 +87,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   }, [formRef, visible]);
 
   return (
-    <div>
+    <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form
           className="form-search"
@@ -91,15 +95,33 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           initialValues={params}
           layout="inline"
         >
-          <Form.Item name="info">
+          <Form.Item name="info" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
-              placeholder="Tên/Id cửa hàng"
+              placeholder="Tên/ Mã cửa hàng/ Sđt/ Hotline"
             />
+          </Form.Item> 
+          <Form.Item name="department_ids">
+            <Select
+              showSearch
+              allowClear
+              showArrow 
+              placeholder="Chọn bộ phận"
+              style={{
+                minWidth: 200,
+                width: "100%",
+              }}
+              optionFilterProp="children"
+            >
+              {listDepartment?.map((item) => (
+                <Select.Option key={item.id} value={item.id}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item name="status">
-            <Select style={{ width: 200 }} placeholder="Trạng thái">
+            <Select style={{ width: 180 }} placeholder="Trạng thái">
               <Option value="">Trạng thái</Option>
               {storeStatusList?.map((item) => (
                 <Option key={item.value} value={item.value}>
