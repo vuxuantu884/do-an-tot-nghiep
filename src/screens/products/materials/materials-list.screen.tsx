@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Tooltip } from "antd";
+import { Button, Card, Form, Input } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
@@ -17,12 +17,13 @@ import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
+import "assets/css/custom-filter.scss";
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -205,44 +206,42 @@ const ListMaterial: React.FC = () => {
           name: "Chất liệu",
         },
       ]}
-      extra={<AuthWrapper acceptPermissions={[ProductPermission.materials_create]}><ButtonCreate path={`${UrlConfig.MATERIALS}/create`} /></AuthWrapper>}
+      extra={<AuthWrapper acceptPermissions={[ProductPermission.materials_create]}>
+        <ButtonCreate child="Thêm chất liệu" path={`${UrlConfig.MATERIALS}/create`} />
+        </AuthWrapper>}
     >
       <Card>
-        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-          <Form onFinish={onFinish} initialValues={params} layout="inline">
-            <Item name="info">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Tên/Mã/ID nhân viên"
-              />
-            </Item>
-            <Item name="component">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Thành phần"
-              />
-            </Item>
-            <Item name="description">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Ghi chú"
-              />
-            </Item>
-            <Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Item>
-            <Item>
-              <Tooltip overlay="Lưu bộ lọc" placement="top">
-                <Button icon={<StarOutlined />} />
-              </Tooltip>
-            </Item>
-          </Form>
-        </CustomFilter>
+        <div className="custom-filter">
+          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+            <Form onFinish={onFinish} initialValues={params} layout="inline">
+              <Item name="info" className="input-search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Tên/Mã/ID nhân viên"
+                />
+              </Item>
+              <Item name="component">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 200 }}
+                  placeholder="Thành phần"
+                />
+              </Item>
+              <Item name="description">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 200 }}
+                  placeholder="Ghi chú"
+                />
+              </Item>
+              <Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Item> 
+            </Form>
+          </CustomFilter>
+        </div>
         <CustomTable
           isRowSelection
           isLoading={loading}
