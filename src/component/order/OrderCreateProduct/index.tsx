@@ -1312,6 +1312,9 @@ function OrderCreateProduct(props: PropType) {
     [resultSearchVariant, items, splitLine, isAutomaticDiscount]
   );
 
+  /**
+   * kiểm tra Sản phẩm thêm ăn theo cấu hình cài đặt của tồn kho bán
+   */
   const checkInventory = (item: OrderLineItemRequest) => {
     if(!item) return true;
 
