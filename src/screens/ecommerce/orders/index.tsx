@@ -259,7 +259,7 @@ const EcommerceOrders: React.FC = () => {
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: 160,
+      width: 155,
       render: (data: any, item: OrderModel) => (
         <div>
           <Link to={`${UrlConfig.ORDER}/${item.id}`}><strong>{data.code}</strong></Link>
@@ -274,7 +274,7 @@ const EcommerceOrders: React.FC = () => {
       title: "Khách hàng",
       key: "customer",
       visible: true,
-      width: 180,
+      width: 170,
       render: (record) =>
         record.shipping_address ? (
           <div className="customer custom-td">
@@ -363,7 +363,7 @@ const EcommerceOrders: React.FC = () => {
       key: "customer_amount_money",
       visible: true,
       align: "right",
-      width: 110,
+      width: 105,
       render: (record: any) => (
         <>
           <div>
@@ -439,7 +439,7 @@ const EcommerceOrders: React.FC = () => {
       dataIndex: "sub_status",
       key: "sub_status",
       visible: true,
-      width: 140,
+      width: 130,
       align: "center",
       render: (sub_status: string) => {
         return (
