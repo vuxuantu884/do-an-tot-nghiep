@@ -505,16 +505,16 @@ function OrderSources(props: PropsType) {
                     allowClear
                     style={{width: "100%"}}
                     placeholder="Phòng ban"
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
+                    optionFilterProp="title"
+                    // filterOption={(input, option) =>
+                    //   option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    // }
                     notFoundContent="Không tìm thấy phòng ban"
                   >
                     {listDepartments &&
                       listDepartments.map((single) => {
                         return (
-                          <Select.Option value={single.id} key={single.id}>
+                          <Select.Option value={single.id} key={single.id} title={single.name}>
                             <span
                               className="hideInSelect"
                               style={{paddingLeft: +18 * single.level}}
