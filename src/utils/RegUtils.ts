@@ -14,4 +14,5 @@ export const RegUtil = {
   PHONE_HOTLINE: /^\+?[0-9]{8,14}$/,
   WEBSITE_URL_2: /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\\.-]+)+[\w\-\\._~:/?#[\]@!\\$&'\\(\\)\\*\\+,;=.]+$/gm,
   ONLY_STRING: /^[a-zA-Z\b]+$/,
+  BOTH_NUMBER_AND_STRING: /(?=.*[A-Z])(?=.*[0-9])/,
 }

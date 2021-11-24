@@ -2,8 +2,9 @@ import {PlusOutlined} from "@ant-design/icons";
 import {Button, Col, Form, Input, Modal, Row} from "antd";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useLayoutEffect} from "react";
 import {checkPromoCode} from "service/promotion/promo-code/promo-code.service";
+import { RegUtil } from "utils/RegUtils";
 import "./../promo-code.scss";
 
 type ModalProps = {
@@ -32,8 +33,13 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
     form.submit();
   }, [form]);
 
-  useEffect(() => {
-    if (visible) form.resetFields();
+  useLayoutEffect(() => {
+    if (visible && form) {
+      form.resetFields();
+      setTimeout(() => {
+        form.setFieldsValue({listCode: [""]});
+      }, 300);
+    }
   }, [form, visible]);
 
   function onFinish(value: any) {
@@ -83,7 +89,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                 rules={[
                   {required: true, message: "Cần nhập mã giảm giá"},
                   {
-                    pattern: /^(?![0-9]*$)[a-zA-Z0-9]+$/,
+                    pattern: RegUtil.BOTH_NUMBER_AND_STRING,
                     message: "Không đúng định dạng CHỮ HOA và SỐ",
                   },
                   () => ({
@@ -119,7 +125,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
               name="discount_add"
               onFinish={onFinish}
               layout="vertical"
-              initialValues={{listCode: [""]}}
+              initialValues={{listCode: []}}
             >
               <Form.List name="listCode">
                 {(fields, {add, remove}, {errors}) => {
@@ -135,7 +141,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                             rules={[
                               {required: true, message: "Cần nhập mã giảm giá"},
                               {
-                                pattern: /(?=.*[A-Z])(?=.*[0-9])/,
+                                pattern: RegUtil.BOTH_NUMBER_AND_STRING,
                                 message: "Không đúng định dạng CHỮ HOA và SỐ",
                               },
                               ({getFieldValue}) => ({
@@ -199,7 +205,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                 count: null,
                 prefix: "",
                 length: null,
-                suffix: ""
+                suffix: "",
               }}
             >
               <Row gutter={24}>
@@ -243,11 +249,13 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                       () => ({
                         validator(rule, value) {
                           if (!value) return Promise.resolve();
-                          if (Number(value) < 6) return Promise.reject(new Error("Số ký tự phải lớn hơn 6"));
-                          if (Number(value) > 20) return Promise.reject(new Error("Số ký tự phải nhỏ hơn 20"));
+                          if (Number(value) < 6)
+                            return Promise.reject(new Error("Số ký tự phải lớn hơn 6"));
+                          if (Number(value) > 20)
+                            return Promise.reject(new Error("Số ký tự phải nhỏ hơn 20"));
                           return Promise.resolve();
-                        }
-                      })
+                        },
+                      }),
                     ]}
                   >
                     <NumberInput
