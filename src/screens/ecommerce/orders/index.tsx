@@ -13,7 +13,6 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
 import {
-  OrderItemModel,
   OrderModel,
   EcommerceOrderSearchQuery,
 } from "model/order/order.model";
@@ -48,6 +47,9 @@ import { EcommerceOrderPermission } from "config/permissions/ecommerce.permissio
 import CircleEmptyIcon from "assets/icon/circle_empty.svg";
 import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
+import CustomerIcon from "assets/icon/customer-icon.svg";
+import DeliveryrIcon from "assets/icon/gray-delivery.svg";
+
 // // todo thai: handle later
 // import ConnectIcon from "assets/icon/connect.svg";
 // import SuccessIcon from "assets/icon/success.svg";
@@ -67,6 +69,7 @@ import axios from "axios";
 import {AppConfig} from "config/app.config";
 import {FulFillmentStatus} from "utils/Constants";
 import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -205,17 +208,16 @@ const EcommerceOrders: React.FC = () => {
   }, [dispatch]);
 
   const status_order = [
-    { name: "Nháp", value: "draft" },
-    { name: "Đóng gói", value: "packed" },
-    { name: "Xuất kho", value: "shipping" },
-    { name: "Đã xác nhận", value: "finalized" },
-    { name: "Hoàn thành", value: "completed" },
-    { name: "Kết thúc", value: "finished" },
-    { name: "Đã huỷ", value: "cancelled" },
-    { name: "Đã hết hạn", value: "expired" },
+    { name: "Nháp", value: "draft", className: "blue-status" },
+    { name: "Đóng gói", value: "packed", className: "blue-status" },
+    { name: "Xuất kho", value: "shipping", className: "blue-status" },
+    { name: "Đã xác nhận", value: "finalized", className: "yellow-status" },
+    { name: "Hoàn thành", value: "completed", className: "green-status" },
+    { name: "Kết thúc", value: "finished", className: "green-status" },
+    { name: "Đã huỷ", value: "cancelled", className: "red-status" },
+    { name: "Đã hết hạn", value: "expired", className: "red-status" },
   ];
   
-
   const convertProgressStatus = (value: any) => {
     switch (value) {
       case "partial_paid":
@@ -227,10 +229,6 @@ const EcommerceOrders: React.FC = () => {
     }
   };
 
-  const convertDateTimeFormat = (dateTimeData: any) => {
-    const formatDateTime = "DD/MM/YYYY HH:mm";
-    return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
-  };
 
   // // todo thai: handle later
   // const handleUpdateProductConnection = (data: any) => {
@@ -255,17 +253,19 @@ const EcommerceOrders: React.FC = () => {
     Array<ICustomTableColumType<OrderModel>>
   >([
     {
-      title: "ID đơn hàng",
+      title: "ID",
       key: "order_id",
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: "4.5%",
-      render: (data: any, i: OrderModel) => (
+      width: 180,
+      render: (data: any, item: OrderModel) => (
         <div>
-          <Link to={`${UrlConfig.ORDER}/${i.id}`}>{data.code}</Link>
-          <div>({data.reference_code})</div>
-          <div>{data.ecommerce_shop_name}</div>
+          <Link to={`${UrlConfig.ORDER}/${item.id}`}><strong>{data.code}</strong></Link>
+          <div>{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
+          <div><span style={{ color: "#666666" }}>Kho: </span><span style={{ color: "#2A2A86" }}>{data.store}</span></div>
+          <div><span style={{ color: "#666666" }}>GH: </span><span style={{ color: "#2A2A86" }}>{data.ecommerce_shop_name}</span></div>
+          <div style={{ color: "#2A2A86" }}>({data.reference_code})</div>
         </div>
       ),
     },
@@ -273,7 +273,7 @@ const EcommerceOrders: React.FC = () => {
       title: "Khách hàng",
       key: "customer",
       visible: true,
-      width: "5%",
+      width: 300,
       render: (record) =>
         record.shipping_address ? (
           <div className="customer custom-td">
@@ -302,18 +302,19 @@ const EcommerceOrders: React.FC = () => {
       title: (
         <div className="product-and-quantity-header">
           <span className="product-name">Sản phẩm</span>
-          <span className="quantity">Số lượng</span>
+          <span className="quantity">SL</span>
+          <span className="item-price">Giá</span>
         </div>
       ),
       dataIndex: "items",
       key: "items.name11",
       className: "product-and-quantity",
-      render: (items: Array<OrderItemModel>) => {
+      render: (items: any) => {
         return (
-          <div className="items">
-            {items.map((item, i) => {
+          <>
+            {items.map((item: any, index: number) => {
               return (
-                <div className="item-custom-td" key={i}>
+                <div className="item-custom-td" key={index}>
                   <div className="product">
                     <Link
                       target="_blank"
@@ -323,22 +324,45 @@ const EcommerceOrders: React.FC = () => {
                     </Link>
                   </div>
                   <div className="quantity">{item.quantity}</div>
+                  <div className="item-price">
+                    <div>
+                      <NumberFormat
+                        value={item.price}
+                        className="foo"
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                    {item.discount_items.map((discount: any, index: number) => {
+                      return (
+                        <div style={{ color: "#EF5B5B" }} key={index}>
+                        -
+                        <NumberFormat
+                          value={discount.amount || 0}
+                          className="foo"
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                      </div>
+                      )
+                    })}
+                  </div>
                 </div>
               );
             })}
-          </div>
+          </>
         );
       },
       visible: true,
-      align: "left",
+      align: "center",
       width: nameQuantityWidth,
     },
     {
-      title: "Khách phải trả",
+      title: "Doanh thu",
       key: "customer_amount_money",
       visible: true,
       align: "right",
-      width: "3.5%",
+      width: 100,
       render: (record: any) => (
         <>
           <span>
@@ -364,11 +388,58 @@ const EcommerceOrders: React.FC = () => {
       ),
     },
     {
-      title: "Trạng thái xử lý",
+      title: "Vận chuyển",
+      key: "",
+      visible: true,
+      width: 150,
+      align: "center",
+      render: (item: any) => {
+        const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
+        return (
+          <>
+            {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
+              <>
+                <strong>{shipment?.delivery_service_provider_name}</strong>
+                <div>
+                  <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
+                  <NumberFormat
+                    value={shipment?.shipping_fee_informed_to_customer}
+                    className="foo"
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />
+                </div>
+                <div>
+                  <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
+                  <NumberFormat
+                    value={shipment?.shipping_fee_paid_to_three_pls}
+                    className="foo"
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />
+                </div>
+              </>
+            }
+            {shipment && shipment.delivery_service_provider_type === "pick_at_store" &&
+              <>
+                <strong>Nhận tại cửa hàng</strong>
+              </>
+            }
+            {shipment && shipment.delivery_service_provider_type === "Shipper" &&
+              <>
+                <strong>Tự giao hàng</strong>
+              </>
+            }
+          </>
+        );
+      },
+    },
+    {
+      title: "TT Xử lý",
       dataIndex: "sub_status",
       key: "sub_status",
       visible: true,
-      width: "5%",
+      width: 200,
       align: "center",
       render: (sub_status: string) => {
         return (
@@ -388,31 +459,29 @@ const EcommerceOrders: React.FC = () => {
       },
     },
     {
-      title: "Trạng thái đơn",
+      title: "TT Đơn hàng",
       dataIndex: "status",
       key: "order_status",
       visible: true,
       align: "center",
-      width: "4%",
+      width: 150,
       render: (status_value: string) => {
         const status = status_order.find(
           (status) => status.value === status_value
         );
         return (
-          <div
-            style={{
-              background: "rgba(42, 42, 134, 0.1)",
-              borderRadius: "100px",
-              color: "#2A2A86",
-              width: "fit-content",
-              padding: "5px 10px",
-              margin: "0 auto",
-            }}
-          >
-            {status?.name}
-          </div>
+          <StyledStatus>
+            <span className={status?.className}>{status?.name}</span>
+          </StyledStatus>
         );
       },
+    },
+    {
+      title: "Ghi chú nội bộ",
+      dataIndex: "note",
+      key: "note",
+      visible: true,
+      width: 200,
     },
     {
       title: "Đóng gói",
@@ -420,7 +489,7 @@ const EcommerceOrders: React.FC = () => {
       key: "packed_status",
       visible: true,
       align: "center",
-      width: 120,
+      width: 100,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
         return <img src={processIcon} alt="" />;
@@ -432,7 +501,7 @@ const EcommerceOrders: React.FC = () => {
       key: "received_status",
       visible: true,
       align: "center",
-      width: 120,
+      width: 100,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
         return <img src={processIcon} alt="" />;
@@ -444,7 +513,7 @@ const EcommerceOrders: React.FC = () => {
       key: "payment_status",
       visible: true,
       align: "center",
-      width: 120,
+      width: 100,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
         return <img src={processIcon} alt="" />;
@@ -456,102 +525,38 @@ const EcommerceOrders: React.FC = () => {
       key: "return_status",
       visible: true,
       align: "center",
-      width: 120,
+      width: 100,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
         return <img src={processIcon} alt="" />;
       },
     },
     {
-      title: "Tổng SL sản phẩm",
-      dataIndex: "items",
-      key: "item_quantity_total",
-      visible: true,
-      align: "center",
-      render: (items) => {
-        return items.reduce(
-          (total: number, item: any) => total + item.quantity,
-          0
-        );
-      },
-    },
-    {
-      title: "Địa chỉ",
-      dataIndex: "shipping_address",
-      key: "area",
-      visible: true,
-      width: "300px",
-      render: (shipping_address: any) => {
-        const ward = shipping_address?.ward ? shipping_address.ward + "," : "";
-        const district = shipping_address?.district
-          ? shipping_address.district + ","
-          : "";
-        const city = shipping_address?.city ? shipping_address.city + "," : "";
-        return (
-          shipping_address && (
-            <div className="name">{`${ward} ${district} ${city}`}</div>
-          )
-        );
-      },
-    },
-    {
-      title: "Gian hàng",
-      dataIndex: "store",
-      key: "store",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "order_source",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Nhân viên bán hàng",
+      title: "NV bán hàng",
       key: "assignee",
       visible: true,
       align: "center",
-      width: "200px",
+      width: 200,
       render: (data) => <div>{`${data.assignee_code} - ${data.assignee}`}</div>,
     },
     {
-      title: "Ngày nhận đơn",
-      dataIndex: "created_date",
-      key: "created_date",
-      visible: true,
-      align: "center",
-      width: "200px",
-      render: (created_date) => (
-        <div>{convertDateTimeFormat(created_date)}</div>
-      ),
-    },
-    {
-      title: "Ngày hoàn tất đơn",
+      title: "Ngày hoàn tất",
       dataIndex: "completed_on",
       key: "completed_on",
       visible: true,
       align: "center",
-      width: "200px",
-      render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on)}</div>,
+      width: 150,
+      render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on, "DD/MM/YYYY")}</div>,
     },
     {
-      title: "Ngày huỷ đơn",
+      title: "Ngày huỷ",
       dataIndex: "cancelled_on",
       key: "cancelled_on",
       visible: true,
       align: "center",
-      width: "200px",
       render: (cancelled_on) => (
-        <div>{convertDateTimeFormat(cancelled_on)}</div>
+        <div>{ConvertUtcToLocalDate(cancelled_on, "DD/MM/YYYY")}</div>
       ),
-    },
-    {
-      title: "Ghi chú của khách",
-      dataIndex: "customer_note",
-      key: "customer_note",
-      visible: true,
     },
     // //todo thai: handle later
     // {
@@ -824,7 +829,7 @@ const EcommerceOrders: React.FC = () => {
                 bordered
                 isLoading={tableLoading}
                 showColumnSetting={true}
-                scroll={{ x: 3630 }}
+                scroll={{ x: 2650 }}
                 sticky={{ offsetScroll: 10, offsetHeader: 55 }}
                 pagination={
                   tableLoading

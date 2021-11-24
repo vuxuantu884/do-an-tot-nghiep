@@ -67,6 +67,7 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
       console.log("3333");
+      console.log('transportType', transportType)
       const customerShippingAddress = customer?.shipping_addresses.find(
         (single) => single.default
       );
@@ -93,7 +94,7 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
       ) => {
         let result = false;
         let checkCondition = listServices.some((single) => {
-          return single.code === singleService;
+          return single.code.toLowerCase() === singleService.toLowerCase();
         });
         if (checkCondition) {
           result = true;
@@ -119,6 +120,8 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
       // filter thời gian, active
       const filteredShippingServiceConfig = shippingServiceConfig.filter((single) => {
+        console.log('single', single)
+        console.log('transportType', transportType)
         return (
           checkIfIsInTimePeriod(single.start_date, single.end_date) &&
           single.status === ORDER_SETTINGS_STATUS.active &&
@@ -129,6 +132,8 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
           )
         );
       });
+      console.log('shippingServiceConfig', shippingServiceConfig)
+      console.log('filteredShippingServiceConfig', filteredShippingServiceConfig)
 
       // filter city
       let listCheckedShippingFeeConfig = [];
@@ -137,6 +142,7 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
         for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
           const checkedShippingFeeConfig =
             singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
+              console.log('checkIfSameCity(single.city_id, customerShippingAddressCityId)', checkIfSameCity(single.city_id, customerShippingAddressCityId))
               return (
                 checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
                 checkIfPrice(orderPrice, single.from_price, single.to_price)
@@ -145,6 +151,8 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
           listCheckedShippingFeeConfig.push(checkedShippingFeeConfig);
         }
       }
+
+      console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
 
       //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
       const flattenArray = (arr: any) => {
@@ -158,6 +166,8 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
       const listCheckedShippingFeeConfigFlatten = flattenArray(
         listCheckedShippingFeeConfig
       );
+
+      console.log('listCheckedShippingFeeConfigFlatten', listCheckedShippingFeeConfigFlatten)
 
       // lấy số nhỏ nhất
       if (

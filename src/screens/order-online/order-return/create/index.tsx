@@ -7,7 +7,7 @@ import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { hideLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   actionCreateOrderExchange,
@@ -385,13 +385,12 @@ const ScreenReturnCreate = (props: PropType) => {
         order_returns: [],
       };
       console.log('orderDetailResult', orderDetailResult)
-      dispatch(showLoading());
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
+          dispatch(hideLoading());
           history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
         })
-        );
-      dispatch(hideLoading());
+      );
     }
   };
 
@@ -545,6 +544,7 @@ const ScreenReturnCreate = (props: PropType) => {
                       (error) => {
                         console.log("error", error);
                         setIsErrorExchange(true);
+                        dispatch(hideLoading())
                       }
                     )
                   );
@@ -669,9 +669,10 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
+      dispatch(hideLoading());
       history.push(`${UrlConfig.ORDER}/${value.id}`);
     },
-    [history]
+    [dispatch, history]
   );
 
   const createShipmentRequest = (value: OrderRequest) => {

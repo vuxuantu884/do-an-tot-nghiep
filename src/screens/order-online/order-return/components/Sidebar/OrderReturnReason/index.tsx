@@ -43,7 +43,7 @@ function OrderReturnReason(props: PropType): React.ReactElement {
 
   const renderSubReason = () => {
     if (!reasonID) {
-      return <p>Vui lòng chọn lý do hủy đơn!</p>;
+      return <div>Vui lòng chọn lý do hủy đơn!</div>;
     } else if (reasonSubs.length > 0) {
       return (
         <Form.Item label="Chọn lý do chi tiết" name="sub_reason_id">
@@ -87,7 +87,15 @@ function OrderReturnReason(props: PropType): React.ReactElement {
 
   return (
     <StyledComponent>
-      <Card title="Lý do đổi/trả hàng">
+      <Card 
+        title={
+          <React.Fragment>
+            Lý do đổi/trả hàng
+            <span> </span>
+            <span className="text-error">*</span>
+          </React.Fragment>
+        }
+      >
         <Form.Item
           name="reason_id"
           rules={[{required: true, message: "Vui lòng chọn lý do đổi trả hàng!"}]}
