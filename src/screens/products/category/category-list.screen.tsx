@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Select, Tooltip } from "antd";
+import { Button, Card, Form, Input, Select } from "antd";
 import { Link, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +16,7 @@ import { convertCategory, generateQuery } from "utils/AppUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess, showWarning } from "utils/ToastUtils";
@@ -25,6 +25,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
+import "assets/css/custom-filter.scss";
 
 const actions: Array<MenuAction> = [
   {
@@ -212,46 +213,42 @@ const Category = () => {
       ]}
       extra={
         <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
-          <ButtonCreate path={`${UrlConfig.CATEGORIES}/create`} />
+          <ButtonCreate child="Thêm danh mục" path={`${UrlConfig.CATEGORIES}/create`} />
         </AuthWrapper>
       }
     >
       <Card>
-        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-          <Form onFinish={onFinish} layout="inline" initialValues={params}>
-            <Item name="query">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{width: 200}}
-                placeholder="Tên/Mã danh mục"
-              />
-            </Item>
-            <Item name="goods">
-              <Select
-                style={{
-                  width: 200,
-                }}
-              >
-                <Select.Option value="">Ngành hàng</Select.Option>
-                {goods.map((item, index) => (
-                  <Select.Option key={index} value={item.value}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Item>
-            <Item>
-              <Button htmlType="submit" type="primary">
-                Lọc
-              </Button>
-            </Item>
-            <Item>
-              <Tooltip overlay="Lưu bộ lọc" placement="top">
-                <Button icon={<StarOutlined />} />
-              </Tooltip>
-            </Item>
-          </Form>
-        </CustomFilter>
+        <div className="custom-filter">
+          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+            <Form onFinish={onFinish} layout="inline" initialValues={params}>
+              <Item name="query" className="input-search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Tên/Mã danh mục"
+                />
+              </Item>
+              <Item name="goods">
+                <Select
+                  style={{
+                    width: 200,
+                  }}
+                >
+                  <Select.Option value="">Ngành hàng</Select.Option>
+                  {goods.map((item, index) => (
+                    <Select.Option key={index} value={item.value}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Item>
+              <Item>
+                <Button htmlType="submit" type="primary">
+                  Lọc
+                </Button>
+              </Item> 
+            </Form>
+          </CustomFilter>
+        </div> 
         <CustomTable
           isRowSelection
           isLoading={loading}

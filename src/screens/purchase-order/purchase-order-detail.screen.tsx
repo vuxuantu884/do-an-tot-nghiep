@@ -355,7 +355,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
                   }
                 }}
               >
-                {isEditDetail ? "Lưu nháp" : "Sửa"}
+                {isEditDetail ? "Lưu nháp" : "Sửa đặt hàng"}
               </Button>
             </AuthWrapper>
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
@@ -388,7 +388,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
                 }
               }}
             >
-              {isEditDetail ? "Lưu" : "Sửa"}
+              {isEditDetail ? "Lưu lại" : "Sửa"}
             </Button>
           </AuthWrapper>
         );
