@@ -1047,7 +1047,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   let orderReturnItems = getListReturnedOrders(OrderDetail);
   console.log('orderReturnItems', orderReturnItems)
   for (const singleOrder of OrderDetail.items) {
-    let duplicatedItem = orderReturnItems.find(single=>single.product_id === singleOrder.product_id);
+    let duplicatedItem = orderReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
     if(duplicatedItem) {
       let clone = {...duplicatedItem}
       if(singleOrder.quantity - duplicatedItem.quantity > 0) {
