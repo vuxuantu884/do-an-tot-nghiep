@@ -33,16 +33,25 @@ type AllOrdersMappingFilterProps = {
 const { Item } = Form;
 const { Option } = Select;
 
-const CONNECT_STATUS = [
+const CONNECTED_STATUS = [
   {
     title: "Thành công",
-    value: "success",
+    value: "connected",
   },
   {
     title: "Thất bại",
-    value: "fail",
+    value: "waiting",
   },
-]
+];
+
+const ECOMMERCE_ORDER_STATUS = [
+  { name: "Chờ xác nhận", value: "UNPAID" },
+  { name: "Chờ lấy hàng (chưa xử lý)", value: "READY_TO_SHIP" },
+  { name: "Chờ lấy hàng (đã xử lý)", value: "PROCESSED" },
+  { name: "Đang giao", value: "SHIPPED" },
+  { name: "Đã giao", value: "TO_CONFIRM_RECEIVE" },
+  { name: "Đã huỷ", value: "CANCELLED" },
+];
 
 const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   props: AllOrdersMappingFilterProps
@@ -87,19 +96,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     </Menu>
   );
 
-  const status = useMemo(
-    () => [
-      { name: "Nháp", value: "draft" },
-      { name: "Đóng gói", value: "packed" },
-      { name: "Xuất kho", value: "shipping" },
-      { name: "Đã xác nhận", value: "finalized" },
-      { name: "Hoàn thành", value: "completed" },
-      { name: "Kết thúc", value: "finished" },
-      { name: "Đã huỷ", value: "cancelled" },
-      { name: "Đã hết hạn", value: "expired" },
-    ],
-    []
-  );
 
   // handle filter action
   const onFilterClick = useCallback(() => {
@@ -117,9 +113,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   //clear base filter
   const onClearCreatedDate = () => {
-    setIssuedClick("");
-    setIssuedOnMin(null);
-    setIssuedOnMax(null);
+    setCreatedDateClick("");
+    setCreatedDateFrom(null);
+    setCreatedDateTo(null);
   };
 
   const onClearBaseFilter = useCallback(() => {
@@ -132,15 +128,15 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   // end handle filter action
 
   // handle select date
-  const [issuedClick, setIssuedClick] = useState("");
+  const [createdDateClick, setCreatedDateClick] = useState("");
 
-  const [issuedOnMin, setIssuedOnMin] = useState(
+  const [createdDateFrom, setCreatedDateFrom] = useState(
     initialValues.created_date_from
       ? moment(initialValues.created_date_from, "DD-MM-YYYY")
       : null
   );
 
-  const [issuedOnMax, setIssuedOnMax] = useState(
+  const [createdDateTo, setCreatedDateTo] = useState(
     initialValues.created_date_to
       ? moment(initialValues.created_date_to, "DD-MM-YYYY")
       : null
@@ -199,30 +195,30 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       }
 
       switch (type) {
-        case "issued":
-          if (issuedClick === value) {
-            setIssuedClick("");
-            setIssuedOnMin(null);
-            setIssuedOnMax(null);
+        case "created_date":
+          if (createdDateClick === value) {
+            setCreatedDateClick("");
+            setCreatedDateFrom(null);
+            setCreatedDateTo(null);
           } else {
-            setIssuedClick(value);
-            setIssuedOnMin(moment(minValue, "DD-MM-YYYY"));
-            setIssuedOnMax(moment(maxValue, "DD-MM-YYYY"));
+            setCreatedDateClick(value);
+            setCreatedDateFrom(moment(minValue, "DD-MM-YYYY"));
+            setCreatedDateTo(moment(maxValue, "DD-MM-YYYY"));
           }
           break;
         default:
           break;
       }
     },
-    [issuedClick]
+    [createdDateClick]
   );
 
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
     switch (type) {
-      case "issued":
-        setIssuedClick("");
-        setIssuedOnMin(dateString[0]);
-        setIssuedOnMax(dateString[1]);
+      case "created_date":
+        setCreatedDateClick("");
+        setCreatedDateFrom(dateString[0]);
+        setCreatedDateTo(dateString[1]);
         break;
       default:
         break;
@@ -234,17 +230,17 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     (values) => {
       const formValues = {
         ...values,
-        created_date_from: issuedOnMin
-          ? moment(issuedOnMin, "DD-MM-YYYY")?.format("DD-MM-YYYY")
+        created_date_from: createdDateFrom
+          ? moment(createdDateFrom, "DD-MM-YYYY")?.format("DD-MM-YYYY")
           : null,
-        created_date_to: issuedOnMax
-          ? moment(issuedOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
+        created_date_to: createdDateTo
+          ? moment(createdDateTo, "DD-MM-YYYY").format("DD-MM-YYYY")
           : null,
       };
       
       onFilter && onFilter(formValues);
     },
-    [issuedOnMax, issuedOnMin, onFilter]
+    [createdDateTo, createdDateFrom, onFilter]
   );
 
   // handle tag filter
@@ -252,8 +248,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     let list = [];
 
     if (initialValues.connected_status) {
-      const connectStatus = CONNECT_STATUS.find((item) => item.value === initialValues.connected_status);
-      
+      const connectStatus = CONNECTED_STATUS.find((item) => item.value === initialValues.connected_status);
       list.push({
         key: "connected_status",
         name: "Trạng thái liên kết",
@@ -267,7 +262,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         " ~ " +
         (initialValues.created_date_to ? initialValues.created_date_to : "??");
       list.push({
-        key: "issued",
+        key: "created_date",
         name: "Ngày tạo đơn",
         value: textOrderCreateDate,
       });
@@ -276,7 +271,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     if (initialValues.ecommerce_order_status.length) {
       let textStatus = "";
       initialValues.ecommerce_order_status.forEach((i) => {
-        const findStatus = status?.find((item) => item.value === i);
+        const findStatus = ECOMMERCE_ORDER_STATUS?.find((item) => item.value === i);
         textStatus = findStatus
           ? textStatus + findStatus.name + ";"
           : textStatus;
@@ -289,7 +284,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     }
 
     return list;
-  }, [initialValues.connected_status, initialValues.created_date_to, initialValues.created_date_from, initialValues.ecommerce_order_status, status]);
+  }, [initialValues.connected_status, initialValues.created_date_to, initialValues.created_date_from, initialValues.ecommerce_order_status]);
 
   // close tag filter
   const onCloseTag = useCallback(
@@ -300,10 +295,10 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           onFilter && onFilter({ ...params, connected_status: null });
           formFilter?.setFieldsValue({ connected_status: null });
           break;
-        case "issued":
-          setIssuedClick("");
-          setIssuedOnMin(null);
-          setIssuedOnMax(null);
+        case "created_date":
+          setCreatedDateClick("");
+          setCreatedDateFrom(null);
+          setCreatedDateTo(null);
           onFilter && onFilter({ ...params, created_date_from: null, created_date_to: null });
           break;
         case "ecommerce_order_status":
@@ -340,14 +335,14 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             </Dropdown>
           </Form.Item>
 
-          <Item name="search_term" className="search-term-input">
+          <Item name="ecommerce_order_code" className="search-input">
             <Input
               disabled={isLoading}
               prefix={<img src={search} alt="" />}
               placeholder="Tìm kiếm đơn hàng"
               onBlur={(e) => {
                 formFilter?.setFieldsValue({
-                  search_term: e.target.value.trim(),
+                  ecommerce_order_code: e.target.value.trim(),
                 });
               }}
             />
@@ -356,7 +351,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           <Item className="filter-item">
             <Button
               type="primary"
-              // onClick={onBasicFilter}
               htmlType="submit" 
               disabled={isLoading}
             >
@@ -394,7 +388,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                   placeholder="Chọn trạng thái"
                   allowClear
                 >
-                  {CONNECT_STATUS.map((item: any) => (
+                  {CONNECTED_STATUS.map((item: any) => (
                     <Option key={item.value} value={item.value}>
                       {item.title}
                     </Option>
@@ -406,10 +400,10 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                 <SelectDateFilter
                   clickOptionDate={clickOptionDate}
                   onChangeRangeDate={onChangeRangeDate}
-                  dateType="issued"
-                  dateSelected={issuedClick}
-                  startDate={issuedOnMin}
-                  endDate={issuedOnMax}
+                  dateType="created_date"
+                  dateSelected={createdDateClick}
+                  startDate={createdDateFrom}
+                  endDate={createdDateTo}
                 />
               </Form.Item>
 
@@ -426,7 +420,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                   optionFilterProp="children"
                   getPopupContainer={(trigger) => trigger.parentNode}
                 >
-                  {status?.map((item, index) => (
+                  {ECOMMERCE_ORDER_STATUS?.map((item, index) => (
                     <Option key={item.value} value={item.value.toString()}>
                       {item.name}
                     </Option>
