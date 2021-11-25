@@ -69,9 +69,10 @@ import {getToken} from "utils/LocalStorageUtils";
 import axios from "axios";
 import {AppConfig} from "config/app.config";
 import {FulFillmentStatus} from "utils/Constants";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import { generateQuery } from "utils/AppUtils";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -650,12 +651,21 @@ const EcommerceOrders: React.FC = () => {
         });
     }
   }, [selectedRowKeys, token, data?.items]);
-
-  const handlePrintStockExport = useCallback(() => {
-    if (selectedRowKeys?.length > 0) {
-      showWarning("Sẽ làm chức năng này sau bạn nhé")
-    }
-  }, [selectedRowKeys]);
+  
+  const onMenuClick = useCallback(
+    (printType: string) => {
+      let params = {
+        action: "print",
+        ids: selectedRowKeys,
+        "print-type": printType,
+        "print-dialog": true,
+      };
+      const queryParam = generateQuery(params);
+      const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+      window.open(printPreviewUrl);
+    },
+    [selectedRowKeys]
+  );
 
   const actionList = (
     <Menu>
@@ -669,7 +679,7 @@ const EcommerceOrders: React.FC = () => {
       <Menu.Item key="2" disabled={selectedRowKeys?.length < 1}>
         <div>
           <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={handlePrintStockExport}>In phiếu xuất kho</span>
+          <span onClick={() => onMenuClick("stock_export")}>In phiếu xuất kho</span>
         </div>
       </Menu.Item>
     </Menu>
