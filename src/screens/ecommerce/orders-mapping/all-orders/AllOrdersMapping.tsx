@@ -5,7 +5,6 @@ import { Card, Tooltip } from "antd";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
 
 import {
   OrderModel,
@@ -39,35 +38,38 @@ import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 const initQuery: GetOrdersMappingQuery = {
   page: 1,
   limit: 30,
-  search_term: null,
-  connect_status: null,
-  issued_on_min: null,
-  issued_on_max: null,
-  order_status: [],
-  //remove late 
-  channel_id: undefined,
-  source_ids: [],
+  ecommerce_order_code: null,
+  core_order_code: null,
+  connected_status: null,
+  created_date_from: null,
+  created_date_to: null,
+  ecommerce_order_status: [],
 };
 
-// todo thai need update
-const ECOMMERCE_SOURCE = {
-  shopee: 16,
-  lazada: 19,
-  sendo: 20,
-  tiki: 100
-}
-const ALL_ECOMMERCE_SOURCE_ID = [
-  ECOMMERCE_SOURCE.shopee,
-  ECOMMERCE_SOURCE.lazada,
-  ECOMMERCE_SOURCE.sendo,
-  ECOMMERCE_SOURCE.tiki
+const CORE_ORDER_STATUS = [
+  { name: "Nháp", value: "draft" },
+  { name: "Đóng gói", value: "packed" },
+  { name: "Xuất kho", value: "shipping" },
+  { name: "Đã xác nhận", value: "finalized" },
+  { name: "Hoàn thành", value: "completed" },
+  { name: "Kết thúc", value: "finished" },
+  { name: "Đã huỷ", value: "cancelled" },
+  { name: "Đã hết hạn", value: "expired" },
+];
+
+const ECOMMERCE_ORDER_STATUS = [
+  { name: "Chờ xác nhận", value: "UNPAID" },
+  { name: "Chờ lấy hàng (chưa xử lý)", value: "READY_TO_SHIP" },
+  { name: "Chờ lấy hàng (đã xử lý)", value: "PROCESSED" },
+  { name: "Đang giao", value: "SHIPPED" },
+  { name: "Đã giao", value: "TO_CONFIRM_RECEIVE" },
+  { name: "Đã huỷ", value: "CANCELLED" },
 ];
 
 const ordersViewPermission = [EcommerceOrderPermission.orders_view];
 
 
 const EcommerceOrderSync: React.FC = () => {
-  const query = useQuery();
   const dispatch = useDispatch();
 
   const [allowOrdersView] = useAuthorization({
@@ -76,14 +78,9 @@ const EcommerceOrderSync: React.FC = () => {
   });
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [tableLoading, setTableLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   useState<Array<AccountResponse>>();
-  let dataQuery: GetOrdersMappingQuery = {
-    ...initQuery,
-    channel_id: 3,
-    ...getQueryParams(query),
-  };
-  let [params, setPrams] = useState<GetOrdersMappingQuery>(dataQuery);
+  const [params, setPrams] = useState<GetOrdersMappingQuery>(initQuery);
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
@@ -93,17 +90,6 @@ const EcommerceOrderSync: React.FC = () => {
     },
     items: [],
   });
-
-  const status_order = [
-    { name: "Nháp", value: "draft" },
-    { name: "Đóng gói", value: "packed" },
-    { name: "Xuất kho", value: "shipping" },
-    { name: "Đã xác nhận", value: "finalized" },
-    { name: "Hoàn thành", value: "completed" },
-    { name: "Kết thúc", value: "finished" },
-    { name: "Đã huỷ", value: "cancelled" },
-    { name: "Đã hết hạn", value: "expired" },
-  ];
 
   const convertDateTimeFormat = (dateTimeData: any) => {
     const formatDateTime = "HH:mm:ss DD/MM/YYYY";
@@ -131,14 +117,15 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Mã đơn trên sàn",
       key: "order_id",
-      width: "12%",
+      width: "13%",
       render: (item: any, row: any) => (
-        <Link to={`${UrlConfig.ORDER}/${item.id}`}><b>{item.code}</b></Link>
+        <Link to={`${UrlConfig.ORDER}/${item.id}`}><b>{item.ecommerce_order_code}</b></Link>
       ),
     },
     {
       title: "Gian hàng",
       key: "shop",
+      width: "15%",
       render: (item) => (
         <div>
           <img
@@ -146,45 +133,42 @@ const EcommerceOrderSync: React.FC = () => {
             alt={item.id}
             style={{ marginRight: "5px", height: "16px" }}
           />
-
-          <Tooltip title={item.ecommerce_shop_name} color="#1890ff" placement="top">
-            <span className="name">{item.ecommerce_shop_name}</span>
-          </Tooltip>
+          <span className="name">{item.shop}</span>
         </div>
       )
     },
     {
       title: "Trạng thái trên sàn",
-      dataIndex: "status",
-      key: "ecommerce_status",
-      width: "12%",
+      dataIndex: "ecommerce_order_status",
+      key: "ecommerce_order_status",
+      width: "15%",
       render: (status_value: string) => {
-        const status = status_order.find(
+        const ecommerceStatus = ECOMMERCE_ORDER_STATUS.find(
           (status) => status.value === status_value
         );
         return (
           <div>
-            {status?.name || "--"}
+            {ecommerceStatus?.name || "--"}
           </div>
         );
       },
     },
     {
       title: "Mã đơn trên Yody",
-      key: "sub_status",
-      width: "12%",
+      key: "core_order_code",
+      width: "13%",
       render: (item: any, row: any) => (
-        <Link to={`${UrlConfig.ORDER}/${item.id}`}><b>{item.code}</b></Link>
+        <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank"><b>{item.core_order_code}</b></Link>
       ),
     },
     {
       title: "Trạng thái trên Yody",
-      dataIndex: "status",
-      key: "order_status",
+      dataIndex: "core_order_status",
+      key: "core_order_status",
       align: "center",
-      width: "12%",
+      width: "13%",
       render: (status_value: string) => {
-        const status = status_order.find(
+        const status = CORE_ORDER_STATUS.find(
           (status) => status.value === status_value
         );
         return (
@@ -205,16 +189,16 @@ const EcommerceOrderSync: React.FC = () => {
     },
     {
       title: "	Trạng thái liên kết ",
-      dataIndex: "packed_status",
-      key: "packed_status",
+      dataIndex: "connected_status",
+      key: "connected_status",
       align: "center",
-      width: "12%",
+      width: "13%",
       render: (value: any, item: any, index: any) => {
         return (
           <div>
-            {value && <span style={{ color: "#27AE60" }}>Thành công</span>}
+            {value === "connected" && <span style={{ color: "#27AE60" }}>Thành công</span>}
 
-            {!value &&
+            {value !== "connected" &&
               <Tooltip title="Sẽ hiển thị lỗi liên kết thất bại ở đây">
                 <span style={{ color: "#E24343" }}>Thất bại</span>
               </Tooltip>
@@ -228,7 +212,6 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "created_date",
       key: "received_status",
       align: "center",
-      width: "12%",
       render: (created_date) => (
         <div>{convertDateTimeFormat(created_date)}</div>
       ),
@@ -252,8 +235,8 @@ const EcommerceOrderSync: React.FC = () => {
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
-      setPrams(newPrams);
+      const filterParams = { ...params, ...values, page: 1 };
+      setPrams(filterParams);
     },
     [params]
   );
@@ -262,11 +245,9 @@ const EcommerceOrderSync: React.FC = () => {
     setPrams(initQuery);
   }, []);
 
-  
-
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
-      setTableLoading(false);
+      setIsLoading(false);
       if (!!result) {
         setData(result);
       }
@@ -274,16 +255,10 @@ const EcommerceOrderSync: React.FC = () => {
     []
   );
 
-
-  const getEcommerceOrderList = useCallback(() => {
-    const requestParams = { ...params };
-    if (!requestParams.source_ids?.length) {
-      requestParams.source_ids = ALL_ECOMMERCE_SOURCE_ID;
-    }
-    
-    setTableLoading(true);
-    dispatch(getOrderMappingListAction(requestParams, (result) => {
-      setTableLoading(false);
+  const getOrderMappingList = useCallback(() => {
+    setIsLoading(true);
+    dispatch(getOrderMappingListAction(params, (result) => {
+      setIsLoading(false);
       setSearchResult(result);
     }));
   }, [dispatch, params, setSearchResult]);
@@ -291,9 +266,9 @@ const EcommerceOrderSync: React.FC = () => {
 
   useEffect(() => {
     if (allowOrdersView) {
-      getEcommerceOrderList();
+      getOrderMappingList();
     }
-  }, [allowOrdersView, getEcommerceOrderList]);
+  }, [allowOrdersView, getOrderMappingList]);
 
 
   return (
@@ -302,7 +277,7 @@ const EcommerceOrderSync: React.FC = () => {
         {(allowed: boolean) => (allowed ?
           <Card>
             <AllOrdersMappingFilter
-              tableLoading={tableLoading}
+              isLoading={isLoading}
               params={params}
               selectedRowKeys={selectedRowKeys}
               initQuery={initQuery}
@@ -313,10 +288,10 @@ const EcommerceOrderSync: React.FC = () => {
             <CustomTable
               isRowSelection
               bordered
-              isLoading={tableLoading}
+              isLoading={isLoading}
               showColumnSetting={true}
               pagination={
-                tableLoading
+                isLoading
                   ? false
                   : {
                       pageSize: data.metadata.limit,
@@ -331,7 +306,6 @@ const EcommerceOrderSync: React.FC = () => {
               dataSource={data.items}
               columns={columns}
               rowKey={(item: OrderModel) => item.id}
-              // className="ecommerce-order-list"
             />
           </Card>
           : <NoPermission />)}
