@@ -80,10 +80,6 @@ const CustomerCreate = (props: any) => {
     customerForm.resetFields();
   }, [customerForm]);
 
-  const goBack = () => {
-    history.goBack();
-  }
-
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -205,7 +201,7 @@ const CustomerCreate = (props: any) => {
           <div className="customer-info-footer">
             <Button
               disabled={isLoading}
-              onClick={() => goBack()}
+              onClick={() => history.replace("/customers")}
               type="text"
               className="go-back-button"
             >
