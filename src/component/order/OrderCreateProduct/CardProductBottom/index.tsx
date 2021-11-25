@@ -57,8 +57,8 @@ function CardProductBottom(props: PropType) {
     handleRemoveAllDiscount,
   } = props;
   
-console.log('coupon33', coupon)
-console.log('discountRate', discountRate);
+// console.log('coupon33', coupon)
+// console.log('discountRate', discountRate);
   return (
     <StyledComponent>
       <Row gutter={24}>
