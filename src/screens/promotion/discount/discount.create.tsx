@@ -105,10 +105,11 @@ const CreateDiscountPage = () => {
     }
   };
 
+  let activeDiscout = true;
   const handleSubmit = async (values: any) => {
     try {
       const body = transformData(values);
-      body.activated = true;
+      body.activated = activeDiscout;
       const createResponse = await createPriceRule(body);
       handleCreateSuccess(createResponse);
     } catch (error: any) {
@@ -117,15 +118,8 @@ const CreateDiscountPage = () => {
   };
 
   const save = async () => {
-    try {
-      const values = await discountForm.validateFields();
-      const body = transformData(values);
-      body.activated = false;
-      const createResponse = await createPriceRule(body);
-      handleCreateSuccess(createResponse);
-    } catch (error: any) {
-      showError(error.message);
-    }
+    activeDiscout = false;
+    discountForm.submit();
   };
 
   const handleSubmitFail = (errorFields: any) => {
@@ -161,7 +155,7 @@ const CreateDiscountPage = () => {
       <Form
         form={discountForm}
         name="discount_add"
-        onFinish={handleSubmit}
+        onFinish={(values: any)=>handleSubmit(values)}
         onFinishFailed={({errorFields}) => handleSubmitFail(errorFields)}
         layout="vertical"
         scrollToFirstError
