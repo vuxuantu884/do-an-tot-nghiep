@@ -326,15 +326,15 @@ const PromotionDetailScreen: React.FC = () => {
 
     switch (valueType) {
       case "FIXED_PRICE":
-        result = formatCurrency(Math.round(value / 1000) * 1000);
+        result = formatCurrency(Math.round(value ));
         break;
       case "FIXED_AMOUNT":
         if (!cost) result = "";
-        else result = `${formatCurrency(Math.round((cost - value)/1000)*1000)}`;
+        else result = `${formatCurrency(Math.round((cost - value)))}`;
         break;
       case "PERCENTAGE":
         if (!cost) result = "";
-        else result = `${formatCurrency(Math.round((cost - ((cost * value) / 100)) / 1000)*1000)}`;
+        else result = `${formatCurrency(Math.round((cost - ((cost * value) / 100))))}`;
         break;
     }
     return result;

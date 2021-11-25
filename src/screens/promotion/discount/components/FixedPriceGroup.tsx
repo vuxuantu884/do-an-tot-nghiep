@@ -227,7 +227,7 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         <Col span={9}>
-          <Input.Group compact style={{display: "flex", alignItems: "flex-end"}}>
+          <Input.Group compact style={{display: "flex", alignItems: "stretch"}}>
             <Form.Item
               name={[name, "prerequisite_quantity_ranges.value"]}
               label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}

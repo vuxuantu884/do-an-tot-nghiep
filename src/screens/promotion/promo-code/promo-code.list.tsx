@@ -696,6 +696,7 @@ const ListCode = () => {
                           setSuccessCount(response.data.success_count);
                           setUploadStatus(status);
                           dispatch(getListPromoCode(priceRuleId, params, fetchData));
+                          setCodeErrorsResponse([]);
                         } else {
                           setUploadStatus("error");
                           setUploadError(response.errors);

@@ -89,7 +89,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   // useState
   // const [visible, setVisible] = useState(false);
   let [advanceFilters,] = useState<any>({});
-
+  const [form] = Form.useForm();
 
   // useCallback
   const onFinish = useCallback((values: DiscountSearchQuery) => {
@@ -117,11 +117,12 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     <StyledComponent>
       <div className="discount-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onFinish} initialValues={params} layout="inline">
+          <Form onFinish={onFinish} initialValues={params} layout="inline" form={form}>
             <Item name="query" className="search">
               <Input
                 prefix={<img src={search} alt=""/>}
                 placeholder="Tìm kiếm theo mã, tên chương trình"
+                onBlur={(e) => {form.setFieldsValue({query: e.target.value?.trim() || ''})}}
               />
             </Item>
             <Item name="state" >
