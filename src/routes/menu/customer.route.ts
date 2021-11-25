@@ -4,10 +4,10 @@ import React from "react";
 
 const customer = React.lazy(() => import ("screens/customer/index"))
 const customergroup = React.lazy(() => import ("screens/customer/customer-group"))
-const loyaltyCard = React.lazy(() => import ("screens/loyalty-card"))
-const uploadLoyaltyCard = React.lazy(() => import ("screens/loyalty-card/upload"))
-const rank = React.lazy(() => import ("screens/ranking/index"))
-const createRank = React.lazy(() => import ("screens/ranking/component/create/index"))
+const loyaltyCard = React.lazy(() => import ("screens/customer/loyalty-card"))
+const uploadLoyaltyCard = React.lazy(() => import ("screens/customer/loyalty-card/upload"))
+const rank = React.lazy(() => import ("screens/customer/ranking/index"))
+const createRank = React.lazy(() => import ("screens/customer/ranking/component/create/index"))
 const pointAdjustment = React.lazy(() => import ("screens/customer/point-adjustment/index"))
 
 const customers: Array<RouteMenu> = [

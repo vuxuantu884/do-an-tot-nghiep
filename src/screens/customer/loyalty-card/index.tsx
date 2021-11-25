@@ -6,7 +6,7 @@ import UrlConfig from 'config/url.config';
 import useAuthorization from 'hook/useAuthorization';
 import { useState } from 'react';
 import LoyaltyCards from './list';
-import LoyaltyCardRelease from './release';
+import LoyaltyCardRelease from 'screens/customer/loyalty-card/release';
 
 
 const { TabPane } = Tabs;
