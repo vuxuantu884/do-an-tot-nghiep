@@ -1,6 +1,7 @@
 import { Card, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
+import SidebarOrderDetailExtraInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailExtraInformation";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
@@ -59,7 +60,7 @@ import {
   TaxTreatment
 } from "utils/Constants";
 import { DEFAULT_CHANNEL_ID, RETURN_MONEY_TYPE } from "utils/Order.constants";
-import { showError } from "utils/ToastUtils";
+import { showError, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageCreate from "../components/CardReturnMoney/CardReturnMoneyPageCreate";
@@ -68,7 +69,6 @@ import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardReturnProductContainer from "../components/containers/CardReturnProductContainer";
 import ReturnBottomBar from "../components/ReturnBottomBar";
-import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
 import OrderShortDetails from "../components/Sidebar/OrderShortDetails";
 
@@ -86,6 +86,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
   const [isErrorExchange, setIsErrorExchange] = useState(false);
+  const [orderReturnId, setOrderReturnId] = useState<number>(0);
   const [isCanExchange, setIsCanExchange] = useState(false);
   const [isStepExchange, setIsStepExchange] = useState(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -527,22 +528,32 @@ const ScreenReturnCreate = (props: PropType) => {
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
           valuesResult.channel_id = DEFAULT_CHANNEL_ID;
-          console.log("valuesResult", valuesResult);
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
+              valuesResult.order_return_id = orderReturnId;
               if (isErrorExchange) {
-                showError("Đã tạo đơn đổi hàng không thành công!");
+                // showWarning("Đã tạo đơn đổi hàng không thành công!");
+                dispatch(
+                  actionCreateOrderExchange(
+                    valuesResult,
+                    createOrderExchangeCallback,
+                    () => {
+                      setIsErrorExchange(true);
+                      dispatch(hideLoading())
+                    }
+                  )
+                );
                 return;
               }
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
+                  setOrderReturnId(response.id)
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
                       createOrderExchangeCallback,
-                      (error) => {
-                        console.log("error", error);
+                      () => {
                         setIsErrorExchange(true);
                         dispatch(hideLoading())
                       }
@@ -552,7 +563,7 @@ const ScreenReturnCreate = (props: PropType) => {
               );
             };
             if (!values.customer_id) {
-              showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
+              showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
               const element: any = document.getElementById("search_customer");
               element?.focus();
             } else {
@@ -563,7 +574,7 @@ const ScreenReturnCreate = (props: PropType) => {
               } else {
                 if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
                   if (valuesResult.delivery_service_provider_id === null) {
-                    showError("Vui lòng chọn đối tác giao hàng");
+                    showError("Vui lòng chọn đối tác giao hàng!");
                   } else {
                     handleCreateOrderExchangeByValue(valuesResult);
                   }
@@ -572,7 +583,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
                     !thirdPL.service
                   ) {
-                    showError("Vui lòng chọn đơn vị vận chuyển");
+                    showError("Vui lòng chọn đơn vị vận chuyển!");
                   } else {
                     handleCreateOrderExchangeByValue(valuesResult);
                   }
@@ -891,15 +902,6 @@ const ScreenReturnCreate = (props: PropType) => {
                   orderId={orderId}
                 />
                 {isExchange && isStepExchange && (
-                  // <CardExchangeProducts
-                  //   orderSettings={orderSettings}
-                  //   form={form}
-                  //   items={listExchangeProducts}
-                  //   handleCardItems={handleListExchangeProducts}
-                  //   shippingFeeCustomer={shippingFeeCustomer}
-                  //   amountReturn={totalAmountReturnProducts}
-                  //   totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                  // />
                   <OrderCreateProduct
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
@@ -942,37 +944,6 @@ const ScreenReturnCreate = (props: PropType) => {
                     setReturnMoneyType={setReturnMoneyType}
                   />
                 )}
-                {/* {isExchange && isStepExchange && (
-                  <CardShipment
-                    setShipmentMethodProps={setShipmentMethod}
-                    shipmentMethod={shipmentMethod}
-                    storeDetail={storeDetail}
-                    setShippingFeeInformedCustomer={setShippingFeeCustomer}
-                    setShippingFeeInformedCustomerHVC={setShippingFeeInformedCustomerHVC}
-                    amount={totalAmountExchange}
-                    setPaymentMethod={setPaymentMethod}
-                    paymentMethod={paymentMethod}
-                    shippingFeeCustomer={shippingFeeCustomer}
-                    shippingFeeCustomerHVC={shippingFeeInformedCustomerHVC}
-                    customerInfo={customer}
-                    items={listExchangeProducts}
-                    discountValue={discountValue}
-                    setOfficeTime={setOfficeTime}
-                    officeTime={officeTime}
-                    setServiceType={setServiceType}
-                    setServiceName={setServiceName}
-                    setHVC={setHvc}
-                    setHvcName={setHvcName}
-                    setHvcCode={setHvcCode}
-                    setFee={setFee}
-                    deliveryServices={deliveryServices}
-                    payments={payments}
-                    onPayments={setPayments}
-                    fulfillments={fulfillments}
-                    isCloneOrder={false}
-                    totalAmountReturnProducts={totalAmountReturnProducts}
-                  />
-                )} */}
                 {isExchange && isStepExchange && (
                   <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                     <OrderCreateShipment
@@ -1001,7 +972,7 @@ const ScreenReturnCreate = (props: PropType) => {
               <Col md={6}>
                 <OrderShortDetails OrderDetail={OrderDetail} />
                 <OrderReturnReason listOrderReturnReason={listOrderReturnReason} form={form} />
-                <OrderMoreDetails OrderDetail={OrderDetail} />
+                <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
               </Col>
             </Row>
           </Form>
