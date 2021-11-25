@@ -174,14 +174,16 @@ function* createOrderExchangeSaga(action: YodyAction) {
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+        handleError();
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        handleError();
         break;
     }
   } catch (error) {
     console.log("error", error);
-    handleError(error);
+    handleError();
     showError("Có lỗi khi tạo đơn đổi hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());

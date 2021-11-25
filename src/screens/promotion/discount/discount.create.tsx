@@ -116,8 +116,11 @@ const CreateDiscountPage = () => {
       showError(error.message);
     }
   };
-
-  const save = async () => {
+  const handleSaveAndActive = () => {
+    activeDiscout = true;
+    discountForm.submit();
+  };
+  const save = () => {
     activeDiscout = false;
     discountForm.submit();
   };
@@ -195,7 +198,7 @@ const CreateDiscountPage = () => {
                 >
                   Lưu
                 </Button>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" onClick={() => handleSaveAndActive()}>
                   Lưu và kích hoạt
                 </Button>
               </>
