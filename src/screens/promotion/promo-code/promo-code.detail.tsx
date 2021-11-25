@@ -1177,7 +1177,7 @@ const PromotionDetailScreen: React.FC = () => {
                       <strong style={{color: "#2A2A86"}}>
                         {successCount} / {importTotal}
                       </strong>{" "}
-                      sản phẩm thành công
+                      mã giảm giá thành công
                     </h2>
                   </Row>
                   <Divider />

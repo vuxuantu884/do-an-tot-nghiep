@@ -38,7 +38,7 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
 
   .detail-info {
     display: flex;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     color: #222222;
 
     .title {
@@ -93,7 +93,7 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
   .purchase-info {
     .item-info {
       display: flex;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       padding-right: 20px;
       color: #222222;
     }
@@ -106,7 +106,8 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
     .tabs-list {
       overflow: initial;
       .ant-tabs-nav {
-        margin-bottom: 16px;
+        margin-bottom: 20px;
+        padding: 0;
       }
     }
   }

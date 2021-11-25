@@ -384,7 +384,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Số lượng đã bán",
-          value: "---",
+          value: data?.async_allocation_count,
           position: "right",
           key: "5",
         },
@@ -820,7 +820,7 @@ const PromotionDetailScreen: React.FC = () => {
                         {listChannel &&
                           data.prerequisite_sales_channel_names.map((code) => (
                             <li>
-                              {listChannel.find((channel) => channel.code === code)?.name}
+                              {listChannel.find((channel) => channel.code.toLowerCase() === code.toLowerCase())?.name}
                             </li>
                           ))}
                       </ul>

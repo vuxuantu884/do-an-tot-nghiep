@@ -190,25 +190,26 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   }, []);
   
   useLayoutEffect(() => {
-    setColumn(defaultColumns);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected])
-  useEffect(() => {
-    dispatch(inventoryGetHistoryAction(params, onResult));
-  }, [dispatch, onResult, params]) 
-
-  useEffect(() => {
-    const search = new URLSearchParams(history.location.search);
+    setColumn(defaultColumns); 
+    const search = new URLSearchParams(history.location.search); 
     if (search) {
-      const condition =  search.get('condition');
+      let condition =  search.get('condition');
+      condition = condition && condition.trim();
       const store_ids =  search.get('store_ids');
-
-      if ((condition && condition !== null) || (store_ids && store_ids !== null)) {
-        setPrams({condition: condition ?? "", store_ids: parseInt(store_ids ?? "undefined") });
+      if ((condition && condition !== null)) { 
+        setPrams({...params, condition: condition ?? ""});
+      }
+      if ((store_ids && store_ids !== null)) {
+        setPrams({...params,condition: condition ?? "", store_ids:  parseInt(store_ids ?? "")});
       }
     }
-
-  }, [history.location.search])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, history.location.search])
+  useEffect(() => {
+    setLoading(true);
+    dispatch(inventoryGetHistoryAction(params, onResult));
+  }, [dispatch, onResult, params]) 
+ 
 
   return (
     <div>

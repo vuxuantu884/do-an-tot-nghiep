@@ -45,9 +45,6 @@ function* getOrderReturnDetailsSaga(action: YodyAction) {
   }
 }
 
-/**
-* hàm chỉ có showLoading, hide loading bằng tay cho trường hợp đổi trả
-*/
 function* createOrderReturnSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
   try {
@@ -73,7 +70,7 @@ function* createOrderReturnSaga(action: YodyAction) {
     console.log("error", error);
     showError("Có lỗi khi tạo đơn trả hàng! Vui lòng thử lại sau!");
   } finally {
-    // yield put(hideLoading());
+    yield put(hideLoading());
   }
 }
 

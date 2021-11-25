@@ -1379,7 +1379,7 @@ const ProductCreateScreen: React.FC = () => {
                   loading={loadingSaveButton}
                   type="primary"
                 >
-                  Thêm sản phẩm
+                  Tạo sản phẩm
                 </Button>
               </Space>
             }

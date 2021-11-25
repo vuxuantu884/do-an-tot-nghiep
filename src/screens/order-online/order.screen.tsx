@@ -1130,6 +1130,7 @@ export default function Order() {
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
                       orderSourceId={orderSourceId}
+                      configOrder={configOrder}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments

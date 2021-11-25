@@ -32,6 +32,7 @@ import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/url.config';
 import {RegUtil} from 'utils/RegUtils';
 import { showSuccess } from 'utils/ToastUtils';
+import BottomBarContainer from 'component/container/bottom-bar.container';
 
 let initialRequest: CategoryCreateRequest = {
   code: '',
@@ -68,10 +69,8 @@ const AddCategory: React.FC = () => {
       dispatch(createCategoryAction(values, onSuccess));
     },
     [dispatch, onSuccess]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
+
   useLayoutEffect(() => {
     dispatch(getCategoryRequestAction({}, setCategories));
   }, [dispatch]);
@@ -171,16 +170,16 @@ const AddCategory: React.FC = () => {
               </Col>
             </Row>
         </Card>
-        <div className="margin-top-10" style={{textAlign: 'right'}}>
-          <Space size={12}>
-            <Button type="default" onClick={onCancel}>
-              Hủy
-            </Button>
-            <Button loading={loading} htmlType="submit" type="primary">
-              Lưu
-            </Button>
-          </Space>
-        </div>
+        <BottomBarContainer
+          back={"Quay lại danh sách"}
+          rightComponent={
+            <Space>
+              <Button loading={loading} htmlType="submit" type="primary">
+                Tạo danh mục
+              </Button>
+            </Space>
+          }
+        /> 
       </Form>
     </ContentContainer>
   );

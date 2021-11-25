@@ -227,7 +227,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                       <Input
                         style={{width: "100%"}}
                         prefix={<img src={search} alt="" />}
-                        placeholder="ID Đơn hàng"
+                        placeholder="Mã đơn hàng"
                       />
                     </Item>
 

@@ -16,7 +16,10 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
+import CustomSelect from "component/custom/select.custom";
+import {AppConfig} from "config/app.config";
 import UrlConfig from "config/url.config";
+import {AccountSearchAction} from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
@@ -29,6 +32,8 @@ import {
   StoreRankAction,
   StoreValidateAction,
 } from "domain/actions/core/store.action";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
 import {CountryResponse} from "model/content/country.model";
 import {DistrictResponse} from "model/content/district.model";
 import {GroupResponse} from "model/content/group.model";
@@ -56,7 +61,7 @@ const initRequest: StoreCreateRequest = {
   country_id: DefaultCountry,
   city_id: null,
   district_id: null,
-  ward_id: "",
+  ward_id: null,
   address: "",
   zip_code: null,
   email: null,
@@ -70,6 +75,7 @@ const initRequest: StoreCreateRequest = {
   is_saleable: true,
   is_stocktaking: false,
   type: null,
+  merchendiser_code: null,
 };
 
 const StoreCreateScreen: React.FC = () => {
@@ -78,18 +84,19 @@ const StoreCreateScreen: React.FC = () => {
   const history = useHistory();
   //end hook
   //State
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<DistrictResponse>>([]);
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
-  const [type, setType] = useState<Array<StoreTypeRequest>>([]); 
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
   const [formMain] = Form.useForm();
 
-  //EndState 
+  //EndState
 
   //ref
   const firstload = useRef(true);
@@ -120,7 +127,7 @@ const StoreCreateScreen: React.FC = () => {
       history.push(`${UrlConfig.STORE}/${data.id}`);
     },
     [history]
-  ); 
+  );
 
   const checkDuplicateStoreName = (
     rule: RuleObject,
@@ -151,6 +158,10 @@ const StoreCreateScreen: React.FC = () => {
     [dispatch, onCreateSuccess]
   );
 
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (data) setAccounts(data.items);
+  }, []);
+
   useEffect(() => {
     if (firstload.current) {
       dispatch(CountryGetAllAction(setCountries));
@@ -158,9 +169,15 @@ const StoreCreateScreen: React.FC = () => {
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
       dispatch(StoreGetTypeAction(setType));
+      dispatch(
+        AccountSearchAction(
+          {department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"},
+          setDataAccounts
+        )
+      );
     }
     firstload.current = true;
-  }, [dispatch]);
+  }, [dispatch, setDataAccounts]);
 
   return (
     <ContentContainer
@@ -185,13 +202,186 @@ const StoreCreateScreen: React.FC = () => {
         onFinish={onFinish}
         initialValues={initRequest}
       >
-        <Card
-          title="Thông tin cửa hàng"
-          extra={
-            <div className="v-extra d-flex align-items-center">
-              <Space key="a" size={15}>
-                <label className="text-default">Trạng thái</label>
-                <Item name="status" noStyle>
+        <Row gutter={20}>
+          <Col span={18}>
+            <Card
+              title="Thông tin cửa hàng" 
+            >  
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    rules={[
+                      {required: true, message: "Vui lòng nhập tên danh mục"},
+                      {max: 255, message: "Tên danh mục không quá 255 kí tự"},
+                      {
+                        pattern: RegUtil.STRINGUTF8,
+                        message: "Tên danh mục không gồm kí tự đặc biệt",
+                      },
+                      {
+                        validator: (rule, value, callback) => {
+                          checkDuplicateStoreName(rule, value, callback);
+                        },
+                      },
+                    ]}
+                    label="Tên cửa hàng"
+                    name="name"
+                  >
+                    <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
+                  </Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập số điện thoại",
+                      },
+                      {
+                        pattern: RegUtil.PHONE_HOTLINE,
+                        message: "Số điện thoại chưa đúng định dạng",
+                      },
+                    ]}
+                    name="hotline"
+                    label="Số điện thoại"
+                  >
+                    <Input placeholder="Nhập số điện thoại" />
+                  </Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    rules={[
+                      {
+                        pattern: RegUtil.EMAIL,
+                        message: "Vui lòng nhập đúng định dạng email",
+                      },
+                    ]}
+                    name="mail"
+                    label="Email"
+                  >
+                    <Input placeholder="Nhập địa chỉ email" />
+                  </Item>
+                </Col>
+              </Row>
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item rules={[{required: true}]} label="Quốc gia" name="country_id">
+                    <Select disabled placeholder="Chọn quốc gia">
+                      {countries?.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    rules={[{required: true, message: "Vui lòng chọn khu vực"}]}
+                    label="Khu vực"
+                    name="district_id"
+                  >
+                    <Select
+                      showSearch
+                      showArrow
+                      optionFilterProp="children"
+                      onSelect={onSelectDistrict}
+                      placeholder="Chọn khu vực"
+                    >
+                      {cityViews?.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.city_name} - {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Item>
+                  <Item hidden name="city_id">
+                    <Input />
+                  </Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    label="Phường/xã"
+                    name="ward_id"
+                    rules={[{required: true, message: "Vui lòng chọn phường/xã"}]}
+                  >
+                    <Select
+                      placeholder="Chọn phường/xã"
+                      showSearch
+                      optionFilterProp="children"
+                    >
+                      {wards.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Item>
+                </Col>
+              </Row>
+              <Row gutter={50}> 
+                <Col flex="auto">
+                  <Item
+                    label="Địa chỉ"
+                    name="address"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập địa chỉ",
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Nhập địa chỉ" />
+                  </Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item label="Mã bưu điện" name="zip_code">
+                    <Input placeholder="Nhập mã bưu điện" />
+                  </Item>
+                </Col> 
+              </Row> 
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập diện tích cửa hàng",
+                      },
+                    ]}
+                    label="Diện tích cửa hàng (m²)"
+                    name="square"
+                  >
+                    <NumberInput placeholder="Nhập diện tích cửa hàng" />
+                  </Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
+                    label="Phân loại"
+                    name="type"
+                  >
+                    <Select
+                      showSearch
+                      showArrow
+                      optionFilterProp="children"
+                      placeholder="Chọn phân loại"
+                    >
+                      {type?.map((item: StoreTypeRequest, index) => (
+                        <Option key={index} value={item.value}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Item>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card title="Thông tin tình trạng">
+              <Row>
+              <Space key="a" size={15}> 
+                <Item name="status" label="Trạng thái">
                   <Select
                     onChange={(value) => {
                       if (value === "inactive") {
@@ -211,11 +401,8 @@ const StoreCreateScreen: React.FC = () => {
                   </Select>
                 </Item>
               </Space>
-            </div>
-          }
-        >
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
+              </Row>
+              <Row>
               <Item
                 noStyle
                 shouldUpdate={(prev, current) =>
@@ -227,15 +414,15 @@ const StoreCreateScreen: React.FC = () => {
                   let status = getFieldValue("status");
                   return (
                     <Item valuePropName="checked" name="is_saleable">
-                      <Checkbox disabled={status === "inactive"}>Cho phép bán</Checkbox>
+                      <Checkbox disabled={status === "inactive"}>
+                        Cho phép bán
+                      </Checkbox>
                     </Item>
                   );
                 }}
               </Item>
-            </Col> 
-          </Row>
-          <Row gutter={50}>
-            <Col>
+              </Row>
+              <Row>
               <Item
                 noStyle
                 shouldUpdate={(prev, current) =>
@@ -247,181 +434,18 @@ const StoreCreateScreen: React.FC = () => {
                   let status = getFieldValue("status");
                   return (
                     <Item valuePropName="checked" name="is_stocktaking">
-                      <Checkbox disabled={status === "inactive"}>Đang kiểm kho</Checkbox>
+                      <Checkbox disabled={status === "inactive"}>
+                        Đang kiểm kho
+                      </Checkbox>
                     </Item>
                   );
                 }}
               </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[
-                  {required: true, message: "Vui lòng nhập tên danh mục"},
-                  {max: 255, message: "Tên danh mục không quá 255 kí tự"},
-                  {
-                    pattern: RegUtil.STRINGUTF8,
-                    message: "Tên danh mục không gồm kí tự đặc biệt",
-                  },
-                  {
-                    validator: (rule, value, callback) => {
-                      checkDuplicateStoreName(rule, value, callback);
-                    },
-                  },
-                ]}
-                label="Tên cửa hàng"
-                name="name"
-              >
-                <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập số điện thoại",
-                  },
-                  {
-                    pattern: RegUtil.PHONE,
-                    message: "Số điện thoại chưa đúng định dạng",
-                  },
-                ]}
-                name="hotline"
-                label="Số điện thoại"
-              >
-                <Input placeholder="Nhập số điện thoại" />
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item rules={[{required: true}]} label="Quốc gia" name="country_id">
-                <Select disabled placeholder="Chọn quốc gia">
-                  {countries?.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[{required: true, message: "Vui lòng chọn khu vực"}]}
-                label="Khu vực"
-                name="district_id"
-              >
-                <Select
-                  showSearch
-                  showArrow
-                  optionFilterProp="children"
-                  onSelect={onSelectDistrict}
-                  placeholder="Chọn khu vực"
-                >
-                  {cityViews?.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.city_name} - {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-              <Item hidden name="city_id">
-                <Input />
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                label="Phường/xã"
-                name="ward_id"
-                rules={[{required: true, message: "Vui lòng chọn phường/xã"}]}
-              >
-                <Select showSearch>
-                  <Option value="">Chọn phường xã</Option>
-                  {wards.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                label="Địa chỉ"
-                name="address"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập địa chỉ",
-                  },
-                ]}
-              >
-                <Input placeholder="Nhập địa chỉ" />
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item label="Mã bưu điện" name="zip_code">
-                <Input placeholder="Nhập mã bưu điện" />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[
-                  {
-                    pattern: RegUtil.EMAIL,
-                    message: "Vui lòng nhập đúng định dạng email",
-                  },
-                ]}
-                name="mail"
-                label="Email"
-              >
-                <Input placeholder="Nhập địa chỉ email" />
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập diện tích cửa hàng",
-                  },
-                ]}
-                label="Diện tích cửa hàng (m²)"
-                name="square"
-              >
-                <NumberInput placeholder="Nhập diện tích cửa hàng" />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
-                label="Phân loại"
-                name="type"
-              >
-                <Select
-                  showSearch
-                  showArrow
-                  optionFilterProp="children"
-                  placeholder="Chọn phân loại"
-                >
-                  {type?.map((item: StoreTypeRequest, index) => (
-                    <Option key={index} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-            </Col>
-          </Row>
-        </Card>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+
         <Collapse
           style={{marginBottom: 50}}
           defaultActiveKey="1"
@@ -501,6 +525,29 @@ const StoreCreateScreen: React.FC = () => {
                     />
                   </Item>
                 </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    label="VM phụ trách"
+                    name="merchendiser_code"
+                    tooltip={{
+                      title: "Visual Merchandiser phụ trách",
+                      icon: <InfoCircleOutlined />,
+                    }}
+                  >
+                    <CustomSelect
+                      optionFilterProp="children"
+                      showSearch
+                      showArrow
+                      placeholder="Chọn VM phụ trách"
+                    >
+                      {accounts.map((item) => (
+                        <CustomSelect.Option key={item.code} value={item.code}>
+                          {`${item.code} - ${item.full_name}`}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Col>
               </Row>
             </div>
           </Panel>
@@ -508,7 +555,7 @@ const StoreCreateScreen: React.FC = () => {
         <BottomBarContainer
           back={"Quay lại danh sách"}
           rightComponent={
-            <Space> 
+            <Space>
               <Button htmlType="submit" type="primary">
                 Tạo cửa hàng
               </Button>

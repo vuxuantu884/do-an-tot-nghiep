@@ -35,6 +35,7 @@ import {convertDepartment, generateQuery} from "utils/AppUtils";
 import {showError, showSuccess} from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import {StyledComponent} from "./styles";
+import { primaryColor } from "utils/global-styles/variables";
 import { SourcePermissions } from "config/permissions/setting.permisssion";  
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
@@ -149,7 +150,7 @@ function OrderSources(props: PropsType) {
       render: (value, record, index) => {
         if (value) {
           return (
-            <span title={value} className="title">
+            <span title={value} className="title" style={{color: primaryColor, fontWeight: 500}}>
               {value}
             </span>
           );
@@ -504,16 +505,16 @@ function OrderSources(props: PropsType) {
                     allowClear
                     style={{width: "100%"}}
                     placeholder="Phòng ban"
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
+                    optionFilterProp="title"
+                    // filterOption={(input, option) =>
+                    //   option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    // }
                     notFoundContent="Không tìm thấy phòng ban"
                   >
                     {listDepartments &&
                       listDepartments.map((single) => {
                         return (
-                          <Select.Option value={single.id} key={single.id}>
+                          <Select.Option value={single.id} key={single.id} title={single.name}>
                             <span
                               className="hideInSelect"
                               style={{paddingLeft: +18 * single.level}}

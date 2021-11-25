@@ -126,7 +126,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
           let data = {
             ...baseValues,
             ...advanceValues, 
-            condition: baseValues.condition,
+            condition: baseValues.condition, 
           };
           let created_date = data[InventoryQueryField.created_date],
             transaction_date = data[InventoryQueryField.transaction_date],
@@ -211,7 +211,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
             from_import_price,
             to_import_price,
             from_retail_price,
-            to_retail_price,
+            to_retail_price, 
           };
           formBaseFilter.setFieldsValue({...data});
           formAdvanceFilter?.setFieldsValue({
@@ -234,7 +234,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
                 placeholder="Tìm kiếm sản phẩm theo SKU"
               />
             </Item>
-            <Item name={InventoryQueryField.store_ids} className="store">
+            <Item name={InventoryQueryField.store_ids} className="store_ids">
               <CustomSelect
                 showSearch
                 optionFilterProp="children"

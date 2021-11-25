@@ -6,6 +6,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {MenuAction} from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import TagStatus, {TagStatusType} from "component/tag/tag-status";
 import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import {hideLoading, showLoading} from "domain/actions/loading.action";
@@ -24,7 +25,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {Link} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import {PROMO_TYPE} from "utils/Constants";
+import {OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE} from "utils/Constants";
 import {DATE_FORMAT} from "utils/DateUtils";
 import {showSuccess} from "utils/ToastUtils";
 import {getQueryParams, useQuery} from "../../../utils/useQuery";
@@ -39,7 +40,7 @@ const PromotionCode = () => {
     ...{
       type: PROMO_TYPE.MANUAL,
       request: "",
-      state: "",
+      state: null,
     },
     ...getQueryParams(query),
   };
@@ -52,6 +53,8 @@ const PromotionCode = () => {
     },
     items: [],
   });
+  const [form] = Form.useForm();
+
   const [params, setParams] = useState<any>(dataQuery);
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [modalInfo, setModalInfo] = React.useState<any>();
@@ -208,8 +211,25 @@ const PromotionCode = () => {
       align: "center",
       width: "15%",
       render: (value: string) => {
-        const status = statuses.find((e) => e.code === value);
-        return status ? status.value : "";
+        const status = statuses.find((e) => e.code === value)?.value || "";
+        let type = TagStatusType.nomarl;
+        switch (value) {
+          case statuses[0].code:
+            type = TagStatusType.primary;
+            break;
+          case statuses[1].code:
+            type = TagStatusType.warning;
+            break;
+          case statuses[2].code:
+            type = TagStatusType.nomarl;
+            break;
+          case statuses[3].code:
+            type = TagStatusType.danger;
+            break;
+          default:
+            break;
+        }
+        return <TagStatus type={type}>{status}</TagStatus>;
       },
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
@@ -293,11 +313,19 @@ const PromotionCode = () => {
           <Card>
             <div className="promotion-code__search">
               <CustomFilter onMenuClick={onMenuClick} menu={actionsPromo}>
-                <Form onFinish={onFilter} initialValues={params} layout="inline">
+                <Form
+                  onFinish={onFilter}
+                  initialValues={params}
+                  layout="inline"
+                  form={form}
+                >
                   <Item name="query" className="search">
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="Tìm kiếm theo mã, tên chương trình"
+                      onBlur={(e) => {
+                        form.setFieldsValue({query: e.target.value?.trim()});
+                      }}
                     />
                   </Item>
                   <Item name="state">
@@ -329,7 +357,6 @@ const PromotionCode = () => {
                 </Form>
               </CustomFilter>
 
-              {/* <Card style={{ position: "relative" }}> */}
               <CustomTable
                 selectedRowKey={selectedRowKey}
                 onChangeRowKey={(rowKey) => {
@@ -337,7 +364,7 @@ const PromotionCode = () => {
                 }}
                 isRowSelection
                 isLoading={tableLoading}
-                sticky={{offsetScroll: 5}}
+                sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
                 pagination={{
                   pageSize: dataSource?.metadata.limit || 0,
                   total: dataSource?.metadata.total || 0,

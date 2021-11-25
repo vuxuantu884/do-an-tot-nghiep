@@ -64,20 +64,21 @@ const FixedPriceGroup = (props: any) => {
     }
   }, [discountType, form, name])
 
-
   useEffect(() => {
     const formEntitlements = form.getFieldValue("entitlements");
     const initVariants = formEntitlements[name]?.variants;
     if (formEntitlements[name]?.["prerequisite_quantity_ranges.value_type"])
       setDiscountType(formEntitlements[name]?.["prerequisite_quantity_ranges.value_type"]);
     if (initVariants && initVariants.length > 0) {
+      let temps: Array<any> = [];
       initVariants.forEach((variant: any) => {
         const product = transformVariant(variant);
-        selectedProduct.push(product);
-        setSelectedProduct([...selectedProduct]);
+        temps.push(product);         
       });
-    }
-  }, [form, name, selectedProduct]);
+      setSelectedProduct([...selectedProduct, ...temps]);
+    }    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, name]);
 
 
 
@@ -226,7 +227,7 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         <Col span={9}>
-          <Input.Group compact style={{display: "flex"}}>
+          <Input.Group compact style={{display: "flex", alignItems: "flex-end"}}>
             <Form.Item
               name={[name, "prerequisite_quantity_ranges.value"]}
               label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
