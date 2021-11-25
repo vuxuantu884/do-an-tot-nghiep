@@ -119,7 +119,7 @@ const EcommerceOrderSync: React.FC = () => {
       key: "order_id",
       width: "13%",
       render: (item: any, row: any) => (
-        <Link to={`${UrlConfig.ORDER}/${item.id}`}><b>{item.ecommerce_order_code}</b></Link>
+        <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank"><b>{item.ecommerce_order_code}</b></Link>
       ),
     },
     {
