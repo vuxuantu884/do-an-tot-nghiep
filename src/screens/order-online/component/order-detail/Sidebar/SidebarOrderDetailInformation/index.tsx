@@ -143,16 +143,6 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10}>Đường dẫn:</Col>
-          <Col span={14} style={{wordWrap: "break-word"}}>
-            {OrderDetail?.url ? (
-              <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
-            ) : (
-              <span className="text-focus">-</span>
-            )}
-          </Col>
-        </Row>
-        <Row gutter={5}>
           <Col span={10}>Tham chiếu:</Col>
           <Col span={14} style={{wordWrap: "break-word"}}>
             {OrderDetail?.url ? (

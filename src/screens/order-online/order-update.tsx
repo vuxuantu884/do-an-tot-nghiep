@@ -1148,14 +1148,15 @@ export default function Order(props: PropType) {
   }, [dispatch, items]);
 
   const checkIfOrderCanBeSplit = useMemo(() => {
-    if (OrderDetail?.linked_order_code) {
+    // có tách đơn, có shipment trong fulfillments, trường hợp giao hàng sau vẫn có fulfillment mà ko có shipment
+    if (OrderDetail?.linked_order_code || (OrderDetail?.fulfillments && OrderDetail.fulfillments.find((single) => single.shipment))) {
       return false;
     }
     if (OrderDetail?.items.length === 1 && OrderDetail.items[0].quantity === 1) {
       return false;
     }
     return true;
-  }, [OrderDetail?.items, OrderDetail?.linked_order_code]);
+  }, [OrderDetail?.fulfillments, OrderDetail?.items, OrderDetail?.linked_order_code]);
 
   // console.log(inventoryResponse)
 
@@ -1295,6 +1296,7 @@ export default function Order(props: PropType) {
                     coupon={coupon}
                     setCoupon={setCoupon}
                     setPromotionId={setPromotionId}
+                    orderDetail={OrderDetail}
                   />
 
                   {OrderDetail !== null &&
