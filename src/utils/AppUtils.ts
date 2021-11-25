@@ -992,7 +992,7 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
   for (const singleReturn of OrderDetail.order_returns) {
      //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
      for (const singleReturnItem of singleReturn.items) {
-       let index = orderReturnItems.findIndex((item) => item.product_id === singleReturnItem.product_id);
+       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id);
 
        if(index > -1) {
          let duplicatedItem = {...orderReturnItems[index]};
