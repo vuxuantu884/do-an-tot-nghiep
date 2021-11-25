@@ -101,7 +101,7 @@ import {
   TaxTreatment
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
@@ -194,7 +194,7 @@ export default function Order(props: PropType) {
     discount_rate: number,
     discount_value: number
   ) => {
-    console.log("itemmm", _items);
+    // console.log("itemmm", _items);
 
     setItems(_items);
     setDiscountRate(discount_rate);
@@ -255,7 +255,7 @@ export default function Order(props: PropType) {
   let stepsStatusValue = stepsStatus();
 
   const setLevelOrder = useCallback(() => {
-    console.log("OrderDetail 111", OrderDetail);
+    // console.log("OrderDetail 111", OrderDetail);
     switch (OrderDetail?.status) {
       case OrderStatus.DRAFT:
         return 1;
@@ -296,7 +296,7 @@ export default function Order(props: PropType) {
     }
   }, [OrderDetail]);
   let levelOrder = setLevelOrder();
-  console.log("levelOrder", levelOrder);
+  // console.log("levelOrder", levelOrder);
 
   let initialRequest: OrderRequest = {
     action: "", //finalized
@@ -677,7 +677,7 @@ export default function Order(props: PropType) {
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.channel_id = OrderDetail.channel_id;
-    console.log("onFinish onFinish", values);
+    // console.log("onFinish onFinish", values);
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -845,7 +845,7 @@ export default function Order(props: PropType) {
   }, [history, id]);
 
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-  console.log("storeDetail", storeDetail);
+  // console.log("storeDetail", storeDetail);
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
     formRef.current?.setFieldsValue({shipping_fee_informed_to_customer: value});
@@ -1025,7 +1025,7 @@ export default function Order(props: PropType) {
             }
           }
           setIsLoadForm(true);
-          if(response.discounts && response.discounts[0].discount_code) {
+          if(response?.discounts && response.discounts[0]?.discount_code) {
             setCoupon(response.discounts[0].discount_code)
           }
         }
@@ -1127,10 +1127,12 @@ export default function Order(props: PropType) {
           configOrder?.sellable_inventory !== true
         ) {
           status = false;
-          showError(`${value.name} không còn đủ số lượng tồn trong kho`);
+          //showError(`${value.name} không còn đủ số lượng tồn trong kho`);
         }
       });
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
     }
+    
     return status;
   };
 
@@ -1148,14 +1150,15 @@ export default function Order(props: PropType) {
   }, [dispatch, items]);
 
   const checkIfOrderCanBeSplit = useMemo(() => {
-    if (OrderDetail?.linked_order_code) {
+    // có tách đơn, có shipment trong fulfillments, trường hợp giao hàng sau vẫn có fulfillment mà ko có shipment
+    if (OrderDetail?.linked_order_code || (OrderDetail?.fulfillments && OrderDetail.fulfillments.find((single) => single.shipment))) {
       return false;
     }
     if (OrderDetail?.items.length === 1 && OrderDetail.items[0].quantity === 1) {
       return false;
     }
     return true;
-  }, [OrderDetail?.items, OrderDetail?.linked_order_code]);
+  }, [OrderDetail?.fulfillments, OrderDetail?.items, OrderDetail?.linked_order_code]);
 
   // console.log(inventoryResponse)
 
@@ -1295,6 +1298,8 @@ export default function Order(props: PropType) {
                     coupon={coupon}
                     setCoupon={setCoupon}
                     setPromotionId={setPromotionId}
+                    orderDetail={OrderDetail}
+                    configOrder={configOrder}
                   />
 
                   {OrderDetail !== null &&
@@ -1771,7 +1776,7 @@ export default function Order(props: PropType) {
                                     fulfillment.status === FulFillmentStatus.RETURNED || fulfillment.status === FulFillmentStatus.CANCELLED ||
                                     fulfillment.status === FulFillmentStatus.RETURNING ? "0" : "1",
                                   ]}
-                                  onChange={(e) => console.log(e[0])}
+                                  onChange={(e) => {}}
                                   expandIcon={({isActive}) => (
                                     <div className="saleorder-header-arrow">
                                       <img

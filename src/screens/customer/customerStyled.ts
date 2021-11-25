@@ -124,7 +124,7 @@ export const StyledCustomerInfo = styled.div`
       height: fit-content;
       .other-info-body {
         .ant-form-item {
-          margin-bottom: 20px;
+          margin-bottom: 16px;
           &:last-child {
               margin-bottom: 0;
           }

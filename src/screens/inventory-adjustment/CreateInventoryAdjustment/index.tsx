@@ -989,7 +989,7 @@ const CreateInventoryAdjustment: FC = () => {
                         key={index.toString()}
                         value={item.code.toString()}
                       >
-                        {`${item.full_name}`}
+                        {`${item.code} - ${item.full_name}`}
                       </Option>
                     ))}
                   </CustomSelect>

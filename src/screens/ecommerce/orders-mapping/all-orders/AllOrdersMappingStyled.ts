@@ -9,7 +9,7 @@ export const AllOrdersMappingFilterStyled = styled.div`
   .default-filter {
     display: flex;
 
-    .search-term-input {
+    .search-input {
       flex-grow: 1;
     }
 

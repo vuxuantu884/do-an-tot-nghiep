@@ -44,7 +44,7 @@ const actionsDefault: Array<MenuAction> = [
 
 const initQuery: StoreQuery = {
   info: "",
-  status: "",
+  status: null,
   rank: "",
   hotline: "",
   group_id: "",
@@ -127,29 +127,32 @@ const StoreListScreen: React.FC = () => {
     },
     {
       title: "Tên cửa hàng",
-      dataIndex: "name",
-      sorter: true,
+      dataIndex: "name", 
       visible: true,
     },
     {
       title: "Loại",
       dataIndex: "type_name",
       visible: true,
+      width: 120,
     },
     {
       title: "Số điện thoại",
       dataIndex: "hotline",
       visible: true,
+      width: 120,
     },
     {
       title: "Thành phố",
       dataIndex: "city_name",
       visible: true,
+      width: 120,
     },
     {
       title: "Địa chỉ",
       dataIndex: "address",
       visible: true,
+      width: 150,
     },
     {
       title: "Phân cấp",
@@ -157,6 +160,7 @@ const StoreListScreen: React.FC = () => {
       width: 100,
       align: "center",
       visible: true,
+      sorter: true,
     },
     {
       title: "Người tạo",
@@ -375,6 +379,7 @@ const StoreListScreen: React.FC = () => {
               storeRanks={storeRanks}
               groups={groups}
               type={type}
+              onClickOpen={() => setShowSettingColumn(true)}
             />
             <CustomTable
               className="tr-hover"
@@ -383,6 +388,7 @@ const StoreListScreen: React.FC = () => {
               isRowSelection
               showColumnSetting={true}
               isLoading={loading}
+              scroll={{x: 1300}}
               pagination={{
                 pageSize: data.metadata.limit,
                 total: data.metadata.total,
@@ -392,7 +398,7 @@ const StoreListScreen: React.FC = () => {
                 onShowSizeChange: onPageChange,
               }}
               onSelectedChange={onSelect}
-              scroll={{x: 1080}}
+              // scroll={{x: 1080}}
               sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
               dataSource={data.items}
               columns={columnFinal}

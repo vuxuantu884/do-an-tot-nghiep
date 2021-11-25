@@ -1,6 +1,6 @@
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig, { InventoryTabUrl } from "config/url.config";
+import UrlConfig, {InventoryTabUrl} from "config/url.config";
 import {inventoryGetDetailAction} from "domain/actions/inventory/inventory.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -54,15 +54,15 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     [history, params]
   );
   const onFilter = useCallback(
-    (values) => {
-      console.log(values);
-      let newPrams = {...params, ...values, page: 1};
+    (values: InventoryQuery) => {
+      const newQuery: InventoryQuery = {...values, condition: values.condition?.trim()};
+      const newPrams = {...params, ...newQuery, page: 1};
       setPrams(newPrams);
-      let queryParam = generateQuery(newPrams);
+      const queryParam = generateQuery(newPrams);
       history.replace(`${InventoryTabUrl.DETAIL}?${queryParam}`);
     },
     [history, params]
-  ); 
+  );
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<InventoryResponse>>>(
     []
@@ -168,11 +168,10 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     },
     {
       align: "center",
-      title: "Ngày khởi tạo",
+      title: "Kho hàng",
       visible: true,
-      dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value),
-    },
+      dataIndex: "store",
+    }, 
     {
       align: "center",
       title: "Ngày cập nhật",

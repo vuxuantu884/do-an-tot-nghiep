@@ -440,10 +440,10 @@ export default function Order() {
       setIsSaveDraft(false);
       setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
-        showSuccess("Đơn được lưu và duyệt thành công");
+        showSuccess("Đơn được lưu và duyệt thành công!");
         history.push(`${UrlConfig.ORDER}/${value.id}`);
       } else {
-        showSuccess("Đơn được lưu nháp thành công");
+        showSuccess("Đơn được lưu nháp thành công!");
         history.push(`${UrlConfig.ORDER}/${value.id}`);
       }
     },
@@ -493,7 +493,7 @@ export default function Order() {
       values.total = orderAmount;
       values.shipping_fee_informed_to_customer = 0;
     } else {
-      //Nếu là đơn lưu và duyệt
+      //Nếu là đơn lưu và xác nhận
       values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
@@ -959,18 +959,19 @@ export default function Order() {
   );
 
   const checkInventory = () => {
-    let status = true;
+    let status:boolean = true;
 
     if (items && items != null) {
       items.forEach(function (value) {
         let available = value.available === null ? 0 : value.available;
         if (available <= 0 && configOrder?.sellable_inventory !== true) {
           status = false;
-          showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
-          setCreating(false);
+          //setCreating(false);
         }
       });
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
     }
+    
     return status;
   };
 
@@ -1130,6 +1131,7 @@ export default function Order() {
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
                       orderSourceId={orderSourceId}
+                      configOrder={configOrder}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments

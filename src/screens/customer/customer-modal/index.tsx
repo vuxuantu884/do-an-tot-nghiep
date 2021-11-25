@@ -7,7 +7,7 @@ import { FormInstance } from "antd";
 import { CustomerGroupPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 
-export type modalActionType = "create" | "edit" | "delete";
+export type modalActionType = "create" | "edit" | "delete" | "onlyedit";
 
 export interface CustomModalFormModel {
   visible: boolean;

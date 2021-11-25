@@ -1,25 +1,25 @@
-import React, {useEffect, useState} from "react";
-import "./discount.scss";
-import {useHistory} from "react-router-dom";
-import ContentContainer from "../../../component/container/content.container";
-import UrlConfig from "../../../config/url.config";
 import {Button, Col, Form, Row} from "antd";
-import {showError, showSuccess} from "../../../utils/ToastUtils";
-import GeneralInfo from "./components/general.info";
-import arrowLeft from "../../../assets/icon/arrow-left.svg";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import {getListChannelRequest} from "domain/actions/order/order.action";
+import useAuthorization from "hook/useAuthorization";
+import {ChannelResponse} from "model/response/product/channel.response";
+import React, {useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {useHistory} from "react-router-dom";
+import {PROMO_TYPE} from "utils/Constants";
+import ContentContainer from "../../../component/container/content.container";
+import {HttpStatus} from "../../../config/http-status.config";
+import UrlConfig from "../../../config/url.config";
+import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
 import {StoreGetListAction} from "../../../domain/actions/core/store.action";
 import {getListSourceRequest} from "../../../domain/actions/product/source.action";
-import {useDispatch} from "react-redux";
 import {StoreResponse} from "../../../model/core/store.model";
 import {SourceResponse} from "../../../model/response/order/source.response";
 import {createPriceRule} from "../../../service/promotion/discount/discount.service";
-import {PROMO_TYPE} from "utils/Constants";
-import {getListChannelRequest} from "domain/actions/order/order.action";
-import {ChannelResponse} from "model/response/product/channel.response";
-import {HttpStatus} from "../../../config/http-status.config";
-import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
-import useAuthorization from "hook/useAuthorization";
+import {showError, showSuccess} from "../../../utils/ToastUtils";
+import GeneralInfo from "./components/general.info";
+import "./discount.scss";
 
 const CreateDiscountPage = () => {
   const dispatch = useDispatch();
@@ -105,28 +105,24 @@ const CreateDiscountPage = () => {
     }
   };
 
+  let activeDiscout = true;
   const handleSubmit = async (values: any) => {
     try {
       const body = transformData(values);
-      body.activated = true;
+      body.activated = activeDiscout;
       const createResponse = await createPriceRule(body);
       handleCreateSuccess(createResponse);
-    }  catch(error:any) {
-      showError(error.message)
+    } catch (error: any) {
+      showError(error.message);
     }
-
   };
-
-  const save = async () => {
-    try {
-      const values = await discountForm.validateFields();
-      const body = transformData(values);
-      body.activated = false;
-      const createResponse = await createPriceRule(body);
-      handleCreateSuccess(createResponse);
-    } catch(error:any) {
-       showError(error.message)
-    }
+  const handleSaveAndActive = () => {
+    activeDiscout = true;
+    discountForm.submit();
+  };
+  const save = () => {
+    activeDiscout = false;
+    discountForm.submit();
   };
 
   const handleSubmitFail = (errorFields: any) => {
@@ -162,7 +158,7 @@ const CreateDiscountPage = () => {
       <Form
         form={discountForm}
         name="discount_add"
-        onFinish={handleSubmit}
+        onFinish={(values: any)=>handleSubmit(values)}
         onFinishFailed={({errorFields}) => handleSubmitFail(errorFields)}
         layout="vertical"
         scrollToFirstError
@@ -185,24 +181,11 @@ const CreateDiscountPage = () => {
             />
           </Col>
         </Row>
-        <div className="customer-bottom-button">
-          <div onClick={() => history.goBack()} style={{cursor: "pointer"}}>
-            <img
-              style={{marginRight: "10px", transform: "rotate(180deg)"}}
-              src={arrowLeft}
-              alt=""
-            />
-            Quay lại danh sách chiết khấu
-          </div>
-          <div>
-            <Button
-              // onClick={() => reload()}
-              style={{marginLeft: ".75rem", marginRight: ".75rem"}}
-              type="ghost"
-            >
-              Hủy
-            </Button>
-            {allowCreatePromoCode ? (
+
+        <BottomBarContainer
+          back="Quay lại danh sách chiết khấu"
+          rightComponent={
+            allowCreatePromoCode && (
               <>
                 <Button
                   onClick={() => save()}
@@ -215,13 +198,13 @@ const CreateDiscountPage = () => {
                 >
                   Lưu
                 </Button>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" onClick={() => handleSaveAndActive()}>
                   Lưu và kích hoạt
                 </Button>
               </>
-            ) : null}
-          </div>
-        </div>
+            )
+          }
+        />
       </Form>
     </ContentContainer>
   );

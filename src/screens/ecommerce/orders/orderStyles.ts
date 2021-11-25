@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
-export const nameQuantityWidth = 400;
-const quantityWidth = 60;
-const priceWidth = 100;
+export const nameQuantityWidth = 300;
+const quantityWidth = 50;
+const priceWidth = 85;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponent = styled.div`

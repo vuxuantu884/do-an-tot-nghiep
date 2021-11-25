@@ -1,6 +1,6 @@
 import { FormInstance } from "antd";
 
-export type modalActionType = "create" | "edit" | "delete";
+export type modalActionType = "create" | "edit" | "delete" | "onlyedit";
 
 export interface CustomModalFormModel {
   visible: boolean;
@@ -26,4 +26,6 @@ export interface CustomModalType {
   componentForm: React.FC<CustomModalFormModel>;
   formItem: any;
   moreFormArguments?: any; 
+  createText?: string;
+  updateText?: string
 }

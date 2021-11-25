@@ -45,7 +45,7 @@ function LayoutEditAndDetail(props: PropType) {
 
   const checkIfSettingHasSameValue = (arr: any[]) => {
     let cloneArr = [...arr];
-    return _.uniq(cloneArr).length === cloneArr.length; 
+    return _.uniqWith(cloneArr, _.isEqual).length !== arr.length; 
   };
 
   const handleSubmitForm = (action: string) => {

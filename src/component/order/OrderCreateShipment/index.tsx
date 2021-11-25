@@ -121,7 +121,7 @@ function OrderCreateShipment(props: PropType) {
     creating,
     handleCancelCreateShipment,
   } = props;
-  console.log('props', props)
+  // console.log('props', props)
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
@@ -133,7 +133,7 @@ function OrderCreateShipment(props: PropType) {
   >([]);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
-console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
+// console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
@@ -284,7 +284,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
         coupon: "",
         cod: 0,
       };
-      console.log("request", request);
+      // console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
@@ -356,8 +356,8 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
           </Col>
 
           <Col md={6}>
-            <Form.Item name="office_time">
-              <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+            <Form.Item name="office_time" valuePropName="checked">
+              <Checkbox  style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
             </Form.Item>
           </Col>
           <Col md={9}>

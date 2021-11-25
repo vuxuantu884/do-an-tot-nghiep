@@ -168,31 +168,31 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                 <thead>
                   <tr>
                     <th className="condition">Sản phẩm</th>
-                    {columnsItem?.map((data) => (
-                      <th className="condition">{data.variant}</th>
+                    {columnsItem?.map((data, index) => (
+                      <th className="condition" key={index}>{data.variant}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td className="condition">Khách đặt</td>
-                    {columnsItem?.map((data) => (
-                      <td className="condition">{data.quantity}</td>
+                    {columnsItem?.map((data, index) => (
+                      <td className="condition" key={index}>{data.quantity}</td>
                     ))}
                   </tr>
                 </tbody>
                 <thead>
                   <tr>
                     <th className="condition">Tổng có thế bán</th>
-                    {columnsItem?.map((data) => (
-                      <th className="condition">{setAllAvailable(data.variant_id)}</th>
+                    {columnsItem?.map((data, index) => (
+                      <th className="condition" key={index}>{setAllAvailable(data.variant_id)}</th>
                     ))}
                   </tr>
                 </thead>
 
                 <tbody>
                   {data?.map((item, index) => (
-                    <tr>
+                    <tr key={index}>
                       <th className="condition" key={index}>
                         {/* <Checkbox
                                   defaultChecked={false}
@@ -201,7 +201,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                         <Radio value={item.id}>{item.name}</Radio>
                       </th>
                       {Object.keys(item.data).map((key: any) => (
-                        <td className="condition">
+                        <td className="condition" key={key}>
                           {item.data[key]}
                         </td>
                       ))}
