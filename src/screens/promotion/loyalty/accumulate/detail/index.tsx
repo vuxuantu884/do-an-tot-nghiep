@@ -14,7 +14,7 @@ import { CustomerGroups, CustomerTypes } from 'domain/actions/customer/customer.
 import { LoyaltyRankSearch } from 'domain/actions/loyalty/rank/loyalty-rank.action';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank.response';
-import LoyaltyProgramProducts from 'screens/loyalty/component/loyalty-program-products/LoyaltyProgramProducts';
+import LoyaltyProgramProducts from 'screens/promotion/loyalty/component/loyalty-program-products/LoyaltyProgramProducts';
 import { ConvertUtcToLocalDate, DATE_FORMAT } from 'utils/DateUtils';
 import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
 import AuthWrapper from 'component/authorization/AuthWrapper';
