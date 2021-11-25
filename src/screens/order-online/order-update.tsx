@@ -101,7 +101,7 @@ import {
   TaxTreatment
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
@@ -1127,10 +1127,12 @@ export default function Order(props: PropType) {
           configOrder?.sellable_inventory !== true
         ) {
           status = false;
-          showError(`${value.name} không còn đủ số lượng tồn trong kho`);
+          //showError(`${value.name} không còn đủ số lượng tồn trong kho`);
         }
       });
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
     }
+    
     return status;
   };
 
