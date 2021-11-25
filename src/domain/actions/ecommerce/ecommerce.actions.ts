@@ -10,7 +10,6 @@ import {
   GetOrdersMappingQuery,
 } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderType } from "domain/types/order.type";
 
 export const addFpagePhone = (
   userId: string,
@@ -178,7 +177,7 @@ export const getOrderMappingListAction = (
   query: GetOrdersMappingQuery,
   setData: (data: PageResponse<any> | false) => void
 ) => {
-  return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+  return BaseAction(EcommerceType.GET_ORDER_MAPPING_LIST_REQUEST, {
     query,
     setData,
   });
