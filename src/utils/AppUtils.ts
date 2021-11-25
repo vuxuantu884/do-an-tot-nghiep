@@ -258,8 +258,7 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     updated_name: size.updated_name,
     updated_date: size.updated_date,
     version: size.version,
-    code: size.code,
-    category_ids: ids,
+    code: size.code, 
   };
   return sizeConvert;
 };
