@@ -168,11 +168,10 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     },
     {
       align: "center",
-      title: "Ngày khởi tạo",
+      title: "Kho hàng",
       visible: true,
-      dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value),
-    },
+      dataIndex: "store",
+    }, 
     {
       align: "center",
       title: "Ngày cập nhật",
