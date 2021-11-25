@@ -300,7 +300,7 @@ const POCreateScreen: React.FC = () => {
                   formMain.submit();
                 }}
               >
-                Lưu nháp
+                Tạo nháp
               </Button>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
               <Button
@@ -313,7 +313,7 @@ const POCreateScreen: React.FC = () => {
                   formMain.submit();
                 }}
               >
-                Lưu và duyệt
+                Tạo và xác nhận
               </Button>
               </AuthWrapper>
             </React.Fragment>
