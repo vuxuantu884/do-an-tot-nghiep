@@ -719,19 +719,19 @@ const ConnectedItems: React.FC = () => {
           endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week"));
+          startDateValue = ConvertDateToUtc(moment().startOf("week").add(7, 'h'));
           endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks"));
+          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, 'h'));
           endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
           break;
         case "thismonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month"));
+          startDateValue = ConvertDateToUtc(moment().startOf("month").add(7, 'h'));
           endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months"));
+          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, 'h'));
           endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
           break;
         default:
@@ -1032,7 +1032,7 @@ const ConnectedItems: React.FC = () => {
 
                 <div style={{ margin: "10px 0" }}>
                   <SettingOutlined style={{ marginRight: "5px" }} />
-                  <span>Tuỳ chọn khoảng thời gian tạo:</span>
+                  <span>Tùy chọn khoảng thời gian tạo:</span>
                 </div>
 
                 <DatePicker.RangePicker
