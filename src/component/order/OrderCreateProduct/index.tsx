@@ -931,8 +931,13 @@ function OrderCreateProduct(props: PropType) {
     let _amount = amount - _items[index].line_amount_after_line_discount;
     setAmount(_amount);
     _items.splice(index, 1);
-    setItems(_items);
-    calculateChangeMoney(_items, _amount, discountRate, discountValue);
+		if(isAutomaticDiscount && _items.length > 0) {
+			handleApplyDiscount(_items);
+		}else {
+			setItems(_items);
+			calculateChangeMoney(_items, _amount, discountRate, discountValue);
+
+		}
   };
 
   // const handleSplitLineItem = (items: OrderLineItemRequest[], lineItem: OrderLineItemRequest, quantity: 1, position:number) => {
