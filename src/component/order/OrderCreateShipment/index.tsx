@@ -33,7 +33,7 @@ import moment from "moment";
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {getShippingAddressDefault, SumWeight} from "utils/AppUtils";
-import {ShipmentMethodOption} from "utils/Constants";
+import {ShipmentMethodOption, SHIPPING_REQUIREMENT} from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -305,14 +305,18 @@ function OrderCreateShipment(props: PropType) {
    * Chọn yêu cầu xem hàng
    */
   useEffect(() => {
-    if (orderConfig) {
+    if (orderConfig && !form.getFieldValue('requirements')) {
       if (orderConfig.for_all_order) {
         form?.setFieldsValue({
           requirements: orderConfig.order_config_action,
         });
-      }
+      } else {
+				form?.setFieldsValue({
+          requirements: shipping_requirements?.find(requirement => requirement.value === SHIPPING_REQUIREMENT.default)?.value,
+        });
+			}
     }
-  }, [form, orderConfig]);
+  }, [form, orderConfig, shipping_requirements]);
 
   useEffect(() => {
     dispatch(

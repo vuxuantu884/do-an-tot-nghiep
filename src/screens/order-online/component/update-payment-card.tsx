@@ -1,18 +1,18 @@
-import { Button, Card, Col, FormInstance, Row } from "antd";
+import {Button, Card, Col, FormInstance, Row} from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import OrderPayments from "component/order/OrderPayments";
-import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
-import { UpdatePaymentAction } from "domain/actions/order/order.action";
-import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/order.request";
-import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { OrderResponse } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { OrderStatus } from "utils/Constants";
-import { showSuccess } from "utils/ToastUtils";
+import OrderCreatePayments from "component/order/OrderCreatePayments";
+import {getLoyaltyRate} from "domain/actions/loyalty/loyalty.action";
+import {UpdatePaymentAction} from "domain/actions/order/order.action";
+import {OrderPaymentRequest, UpdateFulFillmentRequest} from "model/request/order.request";
+import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import {OrderResponse} from "model/response/order/order.response";
+import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import {useCallback, useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethod} from "utils/Constants";
+import {showSuccess} from "utils/ToastUtils";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import { StyledComponent } from "./update-payment-card.styles";
+import {StyledComponent} from "./update-payment-card.styles";
 
 type PropType = {
   listPaymentMethods: PaymentMethodResponse[];
@@ -24,6 +24,7 @@ type PropType = {
   isVisibleUpdatePayment: boolean;
   amount: any;
   disabled?: boolean;
+  isDisablePostPayment?: boolean;
   form: FormInstance<any>;
   setPaymentMethod: (paymentType: number) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
@@ -35,11 +36,21 @@ type PropType = {
 };
 
 function UpdatePaymentCard(props: PropType) {
-  const {disabledActions, listPaymentMethods, amount, isVisibleUpdatePayment, setShowPaymentPartialPayment, form, setPaymentMethod} =
-    props;
-    console.log('isVisibleUpdatePayment', isVisibleUpdatePayment);
-    console.log('form', form);
-    console.log('setPaymentMethod', setPaymentMethod);
+  const {
+    disabledActions,
+    listPaymentMethods,
+    amount,
+    isVisibleUpdatePayment,
+    setShowPaymentPartialPayment,
+    form,
+    setPaymentMethod,
+    paymentMethod,
+    shipmentMethod,
+    isDisablePostPayment,
+  } = props;
+  console.log("isVisibleUpdatePayment", isVisibleUpdatePayment);
+  console.log("form", form);
+  console.log("setPaymentMethod", setPaymentMethod);
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
@@ -143,44 +154,50 @@ function UpdatePaymentCard(props: PropType) {
   const renderPaymentMethod = () => {
     return (
       <div className="create-order-payment 222">
-        <OrderPayments
+        <OrderCreatePayments
+          setPaymentMethod={setPaymentMethod}
           payments={paymentData}
           setPayments={setPaymentData}
+          paymentMethod={paymentMethod}
+          shipmentMethod={shipmentMethod}
           totalAmountOrder={amount}
-          listPaymentMethod={listPaymentMethods}
           loyaltyRate={loyaltyRate}
+          listPaymentMethod={listPaymentMethods}
+          isDisablePostPayment={isDisablePostPayment}
         />
-        <Row gutter={24} style={{marginTop: "20px"}}>
-          <Col xs={24} lg={24}>
-            <div>
-              <Button
-                type="primary"
-                className="ant-btn-outline fixed-button text-right"
-                style={{float: "right", padding: "0 25px"}}
-                htmlType="submit"
-                onClick={ShowConfirmPayment}
-                loading={createPayment}
-              >
-                Tạo thanh toán
-              </Button>
-              <Button
-                type="default"
-                className={`ant-btn-outline fixed-button text-right ${
-                  createPayment ? "disabled-cancel" : ""
-                }`}
-                style={{
-                  float: "right",
-                  marginRight: "10px",
-                  padding: "0 25px",
-                }}
-                onClick={cancelPayment}
-                disabled={createPayment}
-              >
-                Hủy
-              </Button>
-            </div>
-          </Col>
-        </Row>
+				{paymentMethod === PaymentMethodOption.PREPAYMENT && (
+					<Row gutter={24} style={{marginTop: "20px"}}>
+						<Col xs={24} lg={24}>
+							<div>
+								<Button
+									type="primary"
+									className="ant-btn-outline fixed-button text-right"
+									style={{float: "right", padding: "0 25px"}}
+									htmlType="submit"
+									onClick={ShowConfirmPayment}
+									loading={createPayment}
+								>
+									Tạo thanh toán
+								</Button>
+								<Button
+									type="default"
+									className={`ant-btn-outline fixed-button text-right ${
+										createPayment ? "disabled-cancel" : ""
+									}`}
+									style={{
+										float: "right",
+										marginRight: "10px",
+										padding: "0 25px",
+									}}
+									onClick={cancelPayment}
+									disabled={createPayment}
+								>
+									Hủy
+								</Button>
+							</div>
+						</Col>
+					</Row>
+				)}
       </div>
     );
   };
@@ -226,8 +243,7 @@ function UpdatePaymentCard(props: PropType) {
             </div>
           }
         >
-          {props.isVisibleUpdatePayment === true && renderPaymentMethod()
-          }
+          {props.isVisibleUpdatePayment === true && renderPaymentMethod()}
 
           {props.isVisibleUpdatePayment === false && (
             <div>
