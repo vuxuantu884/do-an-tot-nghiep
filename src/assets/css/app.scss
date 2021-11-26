@@ -501,6 +501,10 @@ label {
   background-color: #fff;
   z-index: 1000;
   padding: 0 280px 0 32px;
+  @media screen and (max-width: 1439px) {
+    padding: 0 240px 0 32px;
+  
+  }
   &.collapse {
     margin-left:-23px;
   }
