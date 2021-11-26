@@ -946,15 +946,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   ]}
                   // onChange={(e) => console.log(e[0])}
                   expandIcon={({isActive}) => (
-                    <div className="saleorder-header-arrow">
-                      <img
-                        alt=""
-                        src={doubleArrow}
-                        style={{
-                          transform: `${!isActive ? "rotate(270deg)" : "rotate(0deg)"}`,
-                        }}
-                      />
-                    </div>
+										<React.Fragment>
+											<div className="saleorder-header-arrow 22">
+												<img
+													alt=""
+													src={doubleArrow}
+													style={{
+														transform: `${!isActive ? "rotate(270deg)" : "rotate(0deg)"}`,
+													}}
+												/>
+											</div>
+										</React.Fragment>
                   )}
                   ghost
                 >
