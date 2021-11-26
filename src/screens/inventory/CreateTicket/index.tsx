@@ -872,7 +872,7 @@ const CreateTicket: FC = () => {
           {visibleManyProduct && (
             <PickManyProductModal
               storeID={form.getFieldValue("from_store_id")}
-              selected={[]}
+              selected={dataTable}
               isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}

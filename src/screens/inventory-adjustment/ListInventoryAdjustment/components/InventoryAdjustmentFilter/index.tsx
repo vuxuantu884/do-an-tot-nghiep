@@ -269,7 +269,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
             onFilter({...params, from_total_amount: null, to_total_amount: null});
           break;
         case "created_name":
-          onFilter && onFilter({...params, created_name: null});
+          onFilter && onFilter({...params, created_name: []});
           break;
         case "created_date":
           setCreateDateClick("");
@@ -421,32 +421,25 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         value: textTotalQuantity,
       });
     }
-    if (initialValues?.created_name?.length) {
-      let textAccount = "";
-
+    if (initialValues.created_name.length) {
+      let textAccount = ""
       if (initialValues.created_name.length > 1) {
-
         initialValues.created_name.forEach((i) => {
-          const findAccount = accounts?.find((item) => item.code === i);
-          textAccount = findAccount
-            ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
-            : textAccount;
-        });
-  
+          const findAccount = accounts?.find(item => item.code === i)
+            textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
       } else if (initialValues.created_name.length === 1) {
-        
+      
         initialValues.created_name.forEach((i) => {
-          const findAccount = accounts?.find((item) => item.code === i);
-          textAccount = findAccount
-            ? textAccount + findAccount.full_name + " - " + findAccount.code
-            : textAccount;
-        });
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
+        })
       }
       list.push({
-        key: "create_name",
-        name: "Người tạo",
-        value: textAccount,
-      });
+        key: 'created_name',
+        name: 'Người tạo',
+        value: textAccount
+      })
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
       let textCreatedDate =
@@ -517,6 +510,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               showArrow
               showSearch
               optionFilterProp="children"
+              onClear={() => formSearchRef?.current?.submit()}
             >
               {Array.isArray(stores) &&
                 stores.length > 0 &&

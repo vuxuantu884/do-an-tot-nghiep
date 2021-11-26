@@ -170,6 +170,18 @@ const HistoryInventoryTransferTab: React.FC = () => {
       dataIndex: "updated_by",
       visible: true,
       align: "center",
+      render: (value: string, item: InventoryTransferLog, index: number) => {
+        return (
+          <>
+          <div>
+            <b>{item.created_by ?? ""}</b>
+          </div>
+          <div>
+            {item.created_name ?? ""}
+          </div>
+        </>
+        );
+      },
     },
     {
       title: "Log ID",

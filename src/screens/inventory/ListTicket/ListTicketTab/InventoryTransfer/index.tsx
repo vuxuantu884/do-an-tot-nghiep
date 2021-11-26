@@ -350,6 +350,18 @@ const InventoryTransferTab: React.FC = () => {
       visible: true,
       align: "center",
       width: "150px",
+      render: (value: string, item: InventoryTransferDetailItem, index: number) => {
+        return (
+          <>
+          <div>
+            <b>{item.created_by ?? ""}</b>
+          </div>
+          <div>
+            {item.created_name ?? ""}
+          </div>
+        </>
+        );
+      },
     },
     {
       title: "Ngày tạo",
