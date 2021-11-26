@@ -56,3 +56,15 @@ export const getPositionAllApi = (): Promise<BaseResponse<PositionResponse>> => 
 export const searchShipperApi = (): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?is_shipper=1`);
 }
+
+export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/power-bi/groups/${params.group_id}/reports/${params.report_id}/generate-token`,
+  {
+    access_level: 'View',
+    allow_save_as: 'false'
+  },{
+    headers: {
+      'token-power-bi': `Bearer ${params.token_power_bi}`
+    }
+  });
+}

@@ -1,13 +1,51 @@
-/* eslint-disable jsx-a11y/iframe-has-title */
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import { models, Embed } from 'powerbi-client';
+import { PowerBIEmbed } from 'powerbi-client-react';
+import { useDispatch } from 'react-redux';
+import { powerBIEmbededAction } from 'domain/actions/account/account.action';
+import './reports.scss'
+// import 'powerbi-report-authoring';
 
-export default function Report() {
-  const width = '100%'
-  const height = '100%'
-
-  return (
-    <React.Fragment>
-      <iframe width={width} height={height} src="https://app.powerbi.com/reportEmbed?reportId=295ffa71-71fe-430f-8414-0bb5dac6a42a&autoAuth=true&ctid=e15d8dde-143a-41f2-aca7-e5243ef2638c&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXNvdXRoLWVhc3QtYXNpYS1iLXByaW1hcnktcmVkaXJlY3QuYW5hbHlzaXMud2luZG93cy5uZXQvIn0%3D" frameBorder="0" allowFullScreen></iframe>
-    </React.Fragment>
-  );
+const config = {
+  // embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=61281888-f6ed-4379-a326-e23b581df0dc&groupId=38195b18-39f2-4667-8633-b09b0d339e72&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVNPVVRILUVBU1QtQVNJQS1CLVBSSU1BUlktcmVkaXJlY3QuYW5hbHlzaXMud2luZG93cy5uZXQiLCJlbWJlZEZlYXR1cmVzIjp7Im1vZGVybkVtYmVkIjp0cnVlLCJjZXJ0aWZpZWRUZWxlbWV0cnlFbWJlZCI6dHJ1ZSwidXNhZ2VNZXRyaWNzVk5leHQiOnRydWV9fQ%3d%3d',
+  group_id: '38195b18-39f2-4667-8633-b09b0d339e72',
+  report_id: '61281888-f6ed-4379-a326-e23b581df0dc'
 }
+
+function ReportYody (): JSX.Element {
+  const dispatch = useDispatch();
+	const [sampleReportConfig, setReportConfig] = useState<models.IReportEmbedConfiguration>({
+		type: 'report',
+		embedUrl: '',
+		tokenType: models.TokenType.Embed,
+		accessToken: '',
+		settings: undefined,
+	});
+	
+  useEffect(() => {
+    const params = {
+      group_id: config.group_id,
+      report_id: config.report_id
+    }
+    dispatch(powerBIEmbededAction(params, (data: any) => setReportConfig({
+      // ...sampleReportConfig,
+      type: 'report',
+      tokenType: models.TokenType.Embed,
+      settings: undefined,
+      embedUrl: data.embedUrl,
+      accessToken: data.accessToken
+    })));
+  }, [dispatch]);
+
+	return (
+    <PowerBIEmbed
+      embedConfig={sampleReportConfig}
+      cssClassName={"report-style-class"}
+      getEmbeddedComponent = {(embedObject:Embed) => {
+        console.log(`Embedded object of type "${ embedObject.embedtype }" received`);
+      }}
+    />
+	);
+}
+
+export default ReportYody;

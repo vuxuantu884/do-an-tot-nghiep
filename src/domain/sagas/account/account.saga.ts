@@ -16,6 +16,7 @@ import {
   AccountGetByIdService,
   AccountUpdateService,
   AccountDeleteService,
+  powerBIEmbededApi,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
@@ -221,6 +222,25 @@ function* ShipperSearchSaga(action: YodyAction) {
   } catch (error) {}
 }
 
+function* powerBIEmbededSaga(action: YodyAction) {
+  let { params, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
+      powerBIEmbededApi, params
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
 export function* accountSaga() {
   yield takeEvery(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
@@ -234,4 +254,5 @@ export function* accountSaga() {
   yield takeLatest(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
   yield takeLatest(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
   yield takeLatest(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
+  yield takeLatest(AccountType.POWER_BI_EMBEDED_REQUEST, powerBIEmbededSaga);
 }
