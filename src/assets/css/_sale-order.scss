@@ -191,7 +191,8 @@
 
 .btn-payment-method {
   button {
-    font-size: 17px;
+    // font-size: 17px;
+    align-items: center;
   }
   .ant-btn-primary {
     background: #2a2a86;
@@ -406,7 +407,7 @@
       .ant-collapse-header {
         position: unset !important;
         display: inline-flex;
-        flex-direction: row-reverse;
+        // flex-direction: row-reverse;
         align-items: center;
         width: auto;
         color: $primary-color !important;
