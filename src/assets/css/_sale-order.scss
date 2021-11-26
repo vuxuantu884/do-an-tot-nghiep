@@ -1309,9 +1309,20 @@
       //   left: -4px;
       //   border-radius: 50%;
       // }
-			&.finished {
+			&.currentTimeline {
 				&:after {
 					background-color: $green !important;
+				}
+				b, i, span {
+					color: $green !important;
+				}
+				&.hasError {
+					&:after {
+						background-color: $red !important;
+					}
+					b, i, span {
+						color: $red !important;
+					}
 				}
 			}
     }

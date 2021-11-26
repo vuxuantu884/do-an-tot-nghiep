@@ -1356,7 +1356,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 >
                                   {trackingLogFulfillment?.map((item, index) => (
                                     <Panel
-                                      className={`orders-timeline-custom orders-dot-status ${item.status === "completed" ? "finished" : ""}`}
+                                      className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline" : ""} ${item.status === "failed" ? "hasError" : ""}`}
                                       header={
                                         <div>
                                           <b
@@ -1365,7 +1365,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                               color: "#222222",
                                             }}
                                           >
-                                            {item.shipping_status}
+                                            {item.shipping_status ? item.shipping_status : item.partner_note}
                                           </b>
                                           <i
                                             className="icon-dot"
@@ -1373,6 +1373,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                               fontSize: "4px",
                                               margin: "10px 10px 10px 10px",
                                               color: "#737373",
+																							position: "relative",
+																							top: -2,
                                             }}
                                           ></i>{" "}
                                           <span style={{color: "#737373"}}>
