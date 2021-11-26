@@ -541,7 +541,7 @@ const ScreenReturnCreate = (props: PropType) => {
           valuesResult.channel_id = DEFAULT_CHANNEL_ID;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
-              valuesResult.order_return_id = orderReturnId;
+							valuesResult.order_return_id = orderReturnId;
               if (isErrorExchange) {
                 // showWarning("Đã tạo đơn đổi hàng không thành công!");
                 dispatch(
@@ -655,7 +655,6 @@ const ScreenReturnCreate = (props: PropType) => {
     values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
-    values.store_id = OrderDetail ? OrderDetail.store_id : null;
     values.source_id = OrderDetail ? OrderDetail.source_id : null;
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
