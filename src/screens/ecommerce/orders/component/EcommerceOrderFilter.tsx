@@ -8,13 +8,13 @@ import {
   Input,
   Row,
   Tag,
-  InputNumber,
+  // InputNumber,
   Select,
   Checkbox,
   Tooltip,
   Dropdown,
 } from "antd";
-import { SettingOutlined, FilterOutlined, SwapRightOutlined, DownOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined, DownOutlined } from "@ant-design/icons";
 
 import BaseFilter from "component/filter/base.filter";
 import DebounceSelect from "component/filter/component/debounce-select";
@@ -224,10 +224,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           setCancelledClick('')
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
-        case 'expected':
-          setExpectedClick('')
-          onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
-          break;  
+        // case 'expected':
+        //   setExpectedClick('')
+        //   onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
+        //   break;  
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
           break;
@@ -289,7 +289,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const [finalizedClick, setFinalizedClick] = useState('');
   const [completedClick, setCompletedClick] = useState('');
   const [cancelledClick, setCancelledClick] = useState('');
-  const [expectedClick, setExpectedClick] = useState('');
+  // const [expectedClick, setExpectedClick] = useState('');
 
   
   const listSources = useMemo(() => {
@@ -622,7 +622,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     setIssuedClick('')
     setCompletedClick('')
     setCancelledClick('')
-    setExpectedClick('')
+    // setExpectedClick('')
     setFinalizedClick('')
   
     setVisible(false);
@@ -1099,7 +1099,21 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     ))}
                   </CustomSelect>
                 </Item>
-                <p>Thanh toán</p>
+
+                <p>Sản phẩm</p>
+                <Item name="variant_ids">
+                  <DebounceSelect
+                    mode="multiple" showArrow maxTagCount='responsive'
+                    placeholder="Tìm kiếm sản phẩm" allowClear
+                    fetchOptions={searchVariants}
+                    optionsVariant={optionsVariant}
+                    style={{
+                      width: '100%',
+                    }}
+                  />
+                </Item>
+
+                {/* <p>Thanh toán</p>
                 <Item name="payment_status">
                   <CustomSelect
                     mode="multiple" showArrow allowClear
@@ -1119,7 +1133,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                       </CustomSelect.Option>
                     ))}
                   </CustomSelect>
-                </Item>
+                </Item> */}
               </Col>
               <Col span={8} xxl={6}>
                 <p>Trả hàng</p>
@@ -1162,7 +1176,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   </CustomSelect>
                 </Item>
               </Col>
-              <Col span={8} xxl={6}>
+              {/* <Col span={8} xxl={6}>
                 <p>Nhân viên tạo đơn</p>
                 <Item name="account_codes">
                   <CustomSelect
@@ -1207,8 +1221,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     />
                   </Item>
                 </div>
-              </Col>
-              <Col span={8} xxl={6}>
+              </Col> */}
+              
+              {/* <Col span={8} xxl={6}>
                 <p>Phương thức thanh toán</p>
                 <Item name="payment_method_ids">
                   <CustomSelect
@@ -1247,8 +1262,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     ))}
                   </CustomSelect>
                 </Item>
-              </Col>
-              <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
+              </Col> */}
+
+              {/* <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày dự kiến nhận hàng</p>
                 
                 <CustomRangeDatePicker
@@ -1259,9 +1275,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   format="DD-MM-YYYY"
                   formRef={formRef}
                 />
-              </Col>
+              </Col> */}
+
               <Col span={8} xxl={6}>
-                <p>Hình thức vận chuyển</p>
+                {/* <p>Hình thức vận chuyển</p>
                 <Item name="delivery_types">
                   <CustomSelect
                     mode="multiple" allowClear
@@ -1271,14 +1288,14 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     getPopupContainer={trigger => trigger.parentNode}
                     maxTagCount='responsive'
                   >
-                    {/* <Option value="">Hình thức vận chuyển</Option> */}
                     {serviceType?.map((item) => (
                       <CustomSelect.Option key={item.value} value={item.value}>
                         {item.name}
                       </CustomSelect.Option>
                     ))}
                   </CustomSelect>
-                </Item>
+                </Item> */}
+
                 <p>Đơn vị vận chuyển</p>
                 <Item name="delivery_provider_ids">
                 <CustomSelect
@@ -1297,7 +1314,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 </CustomSelect>
                 </Item>
               </Col>
-              <Col span={8} xxl={6}>
+
+              {/* <Col span={8} xxl={6}>
                 <p>Sản phẩm</p>
                 <Item name="variant_ids">
                   <DebounceSelect
@@ -1311,8 +1329,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   />
                 </Item>
                 
-              </Col>
-              <Col span={8} xxl={6}>
+              </Col> */}
+
+              {/* <Col span={8} xxl={6}>
                 <p>Tags</p>
                 <Item name="tags">
                 <CustomSelect
@@ -1325,7 +1344,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 </CustomSelect>
                 </Item>
                 
-              </Col>
+              </Col> */}
               <Col span={8} xxl={6}>
                 <p>Ghi chú nội bộ</p>
                 <Item name="note">
