@@ -1356,9 +1356,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 >
                                   {trackingLogFulfillment?.map((item, index) => (
                                     <Panel
-																		className="orders-timeline-custom orders-dot-status"
+                                      className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline" : ""} ${item.status === "failed" ? "hasError" : ""}`}
                                       header={
-                                        <div>
+                                        <React.Fragment>
                                           <b
                                             style={{
                                               paddingLeft: "14px",
@@ -1382,7 +1382,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                               "DD/MM/YYYY HH:mm"
                                             )}
                                           </span>
-                                        </div>
+                                        </React.Fragment>
                                       }
                                       key={index}
                                       showArrow={false}
