@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Card, Tooltip } from "antd";
+import { Card } from "antd";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -116,11 +116,9 @@ const EcommerceOrderSync: React.FC = () => {
   >([
     {
       title: "Mã đơn trên sàn",
+      dataIndex: "ecommerce_order_code",
       key: "order_id",
       width: "13%",
-      render: (item: any, row: any) => (
-        <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank"><b>{item.ecommerce_order_code}</b></Link>
-      ),
     },
     {
       title: "Gian hàng",
@@ -199,9 +197,10 @@ const EcommerceOrderSync: React.FC = () => {
             {value === "connected" && <span style={{ color: "#27AE60" }}>Thành công</span>}
 
             {value !== "connected" &&
-              <Tooltip title="Sẽ hiển thị lỗi liên kết thất bại ở đây">
-                <span style={{ color: "#E24343" }}>Thất bại</span>
-              </Tooltip>
+              <span style={{ color: "#E24343" }}>Thất bại</span>
+              // <Tooltip title="Sẽ hiển thị lỗi liên kết thất bại ở đây">
+              //   <span style={{ color: "#E24343" }}>Thất bại</span>
+              // </Tooltip>
             }
           </div>
         );
