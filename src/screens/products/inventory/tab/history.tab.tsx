@@ -147,7 +147,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       align: "center",
       title: "Thời gian",
       visible: true,
-      dataIndex: "created_date",
+      dataIndex: "transaction_date",
       render: (value) => ConvertUtcToLocalDate(value),
     },
     {
@@ -164,16 +164,25 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       dataIndex: "on_hand",
     },
     {
-      align: "center",
       title: "Kho hàng",
       visible: true,
       dataIndex: "store",
     },
     {
-      align: "center",
       title: "Người sửa",
       visible: true,
-      dataIndex: "updated_name",
+      render: (item: HistoryInventoryResponse)=>{
+        return (
+          <>
+            <div>
+              <b>{item.account_code ?? ""}</b>
+            </div>
+            <div>
+              {item.account ?? ""}
+            </div>
+          </>
+        );
+      }
     },
   ];
   const columnFinal = useMemo(

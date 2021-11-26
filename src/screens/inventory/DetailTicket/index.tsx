@@ -135,7 +135,6 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
-        console.log(result);
         setDataShipment(result.shipment);
       }
     },
@@ -608,8 +607,12 @@ const DetailTicket: FC = () => {
     }
   }
 
+  const onReload = useCallback(()=>{
+    dispatch(getDetailInventoryTransferAction(idNumber, onResult)); 
+  },[dispatch,idNumber,onResult])
+
   useEffect(() => {
-    if (!stores && !data) return;
+    if (!stores || !data) return;
     else {
       const fromStoreData = stores.find(item => item.id === data?.from_store_id);
       const toStoreData = stores.find(item => item.id === data?.to_store_id);
@@ -922,12 +925,12 @@ const DetailTicket: FC = () => {
                         <Row className="shipment">
                           <div className="shipment-logo">
                             <img
-                              src={(deliveryService as any)[data?.shipment?.delivery_service_code]?.logo}
+                              src={(deliveryService as any)[dataShipment?.delivery_service_code ?? "yody"].logo}
                               alt=""
                             />
                           </div>
                           <div className="shipment-detail">
-                            Mã vận đơn: <span>{data?.shipment?.tracking_code}</span>
+                            Mã vận đơn: <span>{dataShipment?.tracking_code}</span>
                             <CopyOutlined style={{color: "#71767B"}}
                               onClick={() => {
                                 showSuccess('Đã copy');
@@ -969,9 +972,9 @@ const DetailTicket: FC = () => {
                           >
                             <Button
                               type="default"
-                              onClick={() => setIsVisibleModalWarning(true)}
+                              onClick={() =>setIsVisibleModalWarning(true)}
                             >
-                              Huỷ giao hàng
+                              Hủy giao hàng
                             </Button>
                           </AuthWrapper>
                           {
@@ -984,7 +987,9 @@ const DetailTicket: FC = () => {
                                   className="export-button"
                                   type="primary"
                                   onClick={() => {
-                                    if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, onResult));
+                                    if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, 
+                                      onReload
+                                      ));
                                   }}
                                 >
                                   Xuất kho
@@ -1199,7 +1204,7 @@ const DetailTicket: FC = () => {
             onOk={() => {
               if (data) {
                 setIsVisibleModalWarning(false);
-                dispatch(cancelShipmentInventoryTransferAction(data?.id, data?.shipment.id, onResult));
+                dispatch(cancelShipmentInventoryTransferAction(data?.id, data?.shipment.id, onReload));
               }
             }}
             okText="Đồng ý"
@@ -1273,12 +1278,9 @@ const DetailTicket: FC = () => {
             dataTicket={data}
             onCancel={() => setIsVisibleInventoryShipment(false)}
             onOk={item => {
-              if (item) {
-                setDataTable(item?.line_items);
-                setData(item);
-                setDataShipment(item?.shipment)
+              if (item){
+                onReload()
               }
-              setIsVisibleInventoryShipment(false);
             }}
             infoFees={infoFees}
           />

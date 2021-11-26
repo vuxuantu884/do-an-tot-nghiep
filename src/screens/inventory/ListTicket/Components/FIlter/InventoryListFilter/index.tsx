@@ -28,6 +28,7 @@ import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
 import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/ListTicket/constants";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
+import { FormatTextMonney } from "utils/FormatMonney";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -352,7 +353,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_total_amount || initialValues.to_total_amount) {
-      let textTotalAmount = (initialValues.from_total_amount ? initialValues.from_total_amount : " ?? ") + " ~ " + (initialValues.to_total_amount ? initialValues.to_total_amount : " ?? ")
+      let textTotalAmount = (initialValues.from_total_amount ? FormatTextMonney(initialValues.from_total_amount) : " 0 ") + " ~ " + (initialValues.to_total_amount ? FormatTextMonney(initialValues.to_total_amount) : " 0 ")
       list.push({
         key: 'total_amount',
         name: 'Thành tiền',
@@ -600,6 +601,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                         <InputNumber
                           className="price_min"
                           placeholder="Từ"
+                          formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
                           min="0"
                           max="100000000"
                         />
@@ -611,6 +613,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                         <InputNumber
                           className="site-input-right price_max"
                           placeholder="Đến"
+                          formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
                           min="0"
                           max="1000000000"
                         />
