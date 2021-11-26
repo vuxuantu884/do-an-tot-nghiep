@@ -5,7 +5,7 @@ import UrlConfig from 'config/url.config';
 import React, { createRef, useCallback, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom';
 import './create-ranking.scss'
-import IconBack from "../../../settings/third-party-logistics-integration/component/BottomBar/images/iconBack.svg";
+import IconBack from "assets/icon/arrow-back.svg";
 import { useDispatch } from 'react-redux';
 import { CreateLoyaltyRank, GetLoyaltyRankDetail, UpdateLoyaltyRank } from 'domain/actions/loyalty/rank/loyalty-rank.action';
 import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank.response';

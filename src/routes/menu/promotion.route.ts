@@ -3,9 +3,9 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
-const accumulate = React.lazy(() => import ("screens/loyalty/accumulate/index"))
-const loyaltyPage = React.lazy(() => import ("screens/loyalty/index"))
-const loyaltyAccumulateDetail = React.lazy(() => import ("screens/loyalty/accumulate/detail"))
+const accumulate = React.lazy(() => import ("screens/promotion/loyalty/accumulate/index"))
+const loyaltyPage = React.lazy(() => import ("screens/promotion/loyalty/index"))
+const loyaltyAccumulateDetail = React.lazy(() => import ("screens/promotion/loyalty/accumulate/detail"))
 const discountPage = React.lazy(() => import("screens/promotion/discount"))
 const priceRulesPage = React.lazy(() => import("screens/promotion/promo-code"))
 const createDiscountPage = React.lazy(() => import("screens/promotion/discount/discount.create"))

@@ -26,13 +26,10 @@ export interface PostEcommerceOrderQuery {
 }
 
 export interface GetOrdersMappingQuery extends BaseQuery {
-  search_term: string | null;
-  connect_status: string | null;
-  issued_on_min: number | null;
-  issued_on_max: number | null;
-  order_status: Array<any> | null;
-
-  //remove later
-  channel_id: number | undefined;
-  source_ids: Array<any> | null;
+  ecommerce_order_code: string | null;
+  core_order_code: string | null;
+  connected_status: string | null;
+  created_date_from: number | null;
+  created_date_to: number | null;
+  ecommerce_order_status: Array<any> | null;
 }

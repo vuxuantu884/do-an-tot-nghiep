@@ -213,14 +213,14 @@ const ProductCreateScreen: React.FC = () => {
 
   const onCategoryChange = useCallback(
     (value: number) => {
-      let categoryIndex = listCategory.findIndex((item) => item.id === value);
-      if (categoryIndex !== -1) {
-        form.setFieldsValue({
-          code: listCategory[categoryIndex].code,
-        });
-      }
+      // let categoryIndex = listCategory.findIndex((item) => item.id === value);
+      // if (categoryIndex !== -1) {
+      //   form.setFieldsValue({
+      //     code: listCategory[categoryIndex].code,
+      //   });
+      // }
     },
-    [form, listCategory]
+    []
   );
 
   const listVariantsFilter = useCallback(

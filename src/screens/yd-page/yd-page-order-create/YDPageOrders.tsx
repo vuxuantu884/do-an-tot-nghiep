@@ -975,10 +975,11 @@ export default function Order(props: OrdersCreatePermissionProps) {
         let available = value.available === null ? 0 : value.available;
         if (available <= 0 && configOrder?.sellable_inventory !== true) {
           status = false;
-          showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
+          // showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
           setCreating(false);
         }
       });
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
     }
     return status;
   };

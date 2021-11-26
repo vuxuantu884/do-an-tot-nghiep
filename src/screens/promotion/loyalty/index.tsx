@@ -285,12 +285,10 @@ const LoyaltyPage = () => {
       <div className="loyalty-programs-wrapper">
         {allowConfigLoyalty &&
           <Card
-            className="global-config"
+            className="general-setting"
             title={
-              <div className="d-flex">
-                <span className="config-title">
-                  CÀI ĐẶT CHUNG
-                </span>
+              <div className="card-header">
+                <span>CÀI ĐẶT CHUNG</span>
                 <div className="status">
                   Trạng thái
                   <Switch
@@ -304,7 +302,7 @@ const LoyaltyPage = () => {
               </div>
             }
           >
-            <div className="global-config__body">
+            <div className="general-setting__body">
               <Row className="conversion-rate">
                 <Col span={10}>
                   <div className="row-label">Tỷ lệ tích điểm</div>
@@ -415,7 +413,7 @@ const LoyaltyPage = () => {
               </div>
             }
           >
-            <div className="loyalty-programs padding-30">
+            <div className="loyalty-programs">
               <CustomTable
                 isLoading={tableLoading}
                 sticky={{ offsetScroll: 5 }}

@@ -959,18 +959,19 @@ export default function Order() {
   );
 
   const checkInventory = () => {
-    let status = true;
+    let status:boolean = true;
 
     if (items && items != null) {
       items.forEach(function (value) {
         let available = value.available === null ? 0 : value.available;
         if (available <= 0 && configOrder?.sellable_inventory !== true) {
           status = false;
-          showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
-          setCreating(false);
+          //setCreating(false);
         }
       });
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
     }
+    
     return status;
   };
 

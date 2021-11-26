@@ -69,8 +69,10 @@ import {getToken} from "utils/LocalStorageUtils";
 import axios from "axios";
 import {AppConfig} from "config/app.config";
 import {FulFillmentStatus} from "utils/Constants";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import { generateQuery } from "utils/AppUtils";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -122,19 +124,6 @@ const initQuery: EcommerceOrderSearchQuery = {
   reference_code: null,
 };
 
-// todo thai need update
-const ECOMMERCE_SOURCE = {
-  shopee: 16,
-  lazada: 19,
-  sendo: 20,
-  tiki: 100
-}
-const ALL_ECOMMERCE_SOURCE_ID = [
-  ECOMMERCE_SOURCE.shopee,
-  ECOMMERCE_SOURCE.lazada,
-  ECOMMERCE_SOURCE.sendo,
-  ECOMMERCE_SOURCE.tiki
-];
 
 const ordersViewPermission = [EcommerceOrderPermission.orders_view];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
@@ -177,7 +166,6 @@ const EcommerceOrders: React.FC = () => {
   useState<Array<AccountResponse>>();
   let dataQuery: EcommerceOrderSearchQuery = {
     ...initQuery,
-    channel_id: 3,
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<EcommerceOrderSearchQuery>(dataQuery);
@@ -200,6 +188,9 @@ const EcommerceOrders: React.FC = () => {
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
   
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
+  
+  const [allShopIds, setAllShopIds] = useState([]);
+
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
@@ -660,12 +651,21 @@ const EcommerceOrders: React.FC = () => {
         });
     }
   }, [selectedRowKeys, token, data?.items]);
-
-  const handlePrintStockExport = useCallback(() => {
-    if (selectedRowKeys?.length > 0) {
-      showWarning("Sẽ làm chức năng này sau bạn nhé")
-    }
-  }, [selectedRowKeys]);
+  
+  const onMenuClick = useCallback(
+    (printType: string) => {
+      let params = {
+        action: "print",
+        ids: selectedRowKeys,
+        "print-type": printType,
+        "print-dialog": true,
+      };
+      const queryParam = generateQuery(params);
+      const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+      window.open(printPreviewUrl);
+    },
+    [selectedRowKeys]
+  );
 
   const actionList = (
     <Menu>
@@ -679,7 +679,7 @@ const EcommerceOrders: React.FC = () => {
       <Menu.Item key="2" disabled={selectedRowKeys?.length < 1}>
         <div>
           <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={handlePrintStockExport}>In phiếu xuất kho</span>
+          <span onClick={() => onMenuClick("stock_export")}>In phiếu xuất kho</span>
         </div>
       </Menu.Item>
     </Menu>
@@ -728,8 +728,8 @@ const EcommerceOrders: React.FC = () => {
 
   const getEcommerceOrderList = useCallback(() => {
     const requestParams = { ...params };
-    if (!requestParams.source_ids?.length) {
-      requestParams.source_ids = ALL_ECOMMERCE_SOURCE_ID;
+    if (!requestParams.ecommerce_shop_ids.length) {
+      requestParams.ecommerce_shop_ids = allShopIds;
     }
     
     setTableLoading(true);
@@ -737,7 +737,7 @@ const EcommerceOrders: React.FC = () => {
       setTableLoading(false);
       setSearchResult(result);
     }));
-  }, [dispatch, params, setSearchResult]);
+  }, [allShopIds, dispatch, params, setSearchResult]);
 
   const reloadPage = () => {
     if (allowOrdersView) {
@@ -750,14 +750,28 @@ const EcommerceOrders: React.FC = () => {
     reloadPage();
   };
 
+// handle Select Ecommerce
+  const setAllShopListId = useCallback((result) => {
+    let shopIds: any = [];
+    if (result && result.length > 0) {
+      result.forEach((item: any) => {
+        shopIds.push(item.id);
+      });
+    }
+
+    setAllShopIds(shopIds);
+  }, []);
+
+
   useEffect(() => {
-    if (allowOrdersView) {
+    if (allowOrdersView && allShopIds.length) {
       getEcommerceOrderList();
     }
-  }, [allowOrdersView, getEcommerceOrderList]);
+  }, [allShopIds, allowOrdersView, getEcommerceOrderList]);
 
   useEffect(() => {
     if (allowOrdersView) {
+      dispatch(getShopEcommerceList({}, setAllShopListId));
       dispatch(AccountSearchAction({}, setDataAccounts));
       dispatch(getListSourceRequest(setListSource));
       dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -771,7 +785,7 @@ const EcommerceOrders: React.FC = () => {
         )
       );
     }
-  }, [allowOrdersView, dispatch, setDataAccounts]);
+  }, [allowOrdersView, dispatch, setAllShopListId, setDataAccounts]);
 
   return (
     <StyledComponent>

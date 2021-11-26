@@ -11,7 +11,6 @@ import { DATE_FORMAT } from 'utils/DateUtils';
 import ErrorLogs from '../component/error-logs/ErrorLogs';
 import infoIcon from "assets/icon/info.svg";
 import threeDot from "assets/icon/three-dot.svg";
-import './loyalty-cards-release.scss';
 import AuthWrapper from 'component/authorization/AuthWrapper';
 import NoPermission from 'screens/no-permission.screen';
 import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
