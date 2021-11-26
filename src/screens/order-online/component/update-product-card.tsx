@@ -1,23 +1,21 @@
 //#region Import
 import {
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Divider,
-  Row,
-  Space,
-  Table,
-  Tag,
-  Tooltip,
+	Button,
+	Card, Col,
+	Divider,
+	Row,
+	Space,
+	Table,
+	Tag,
+	Tooltip
 } from "antd";
 import giftIcon from "assets/icon/gift.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-  OrderLineItemResponse,
-  OrderResponse,
+	OrderLineItemResponse,
+	OrderResponse
 } from "model/response/order/order.response";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -314,9 +312,9 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           style={{ paddingTop: 20, paddingRight: "15px" }}
         >
           <Col xs={24} lg={12}>
-            <div className="payment-row">
+            {/* <div className="payment-row">
               <Checkbox className="margin-bottom-15">Bỏ chiết khấu tự động</Checkbox>
-            </div>
+            </div> */}
           </Col>
           <Col xs={24} lg={12}>
             <Row className="payment-row" justify="space-between">

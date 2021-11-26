@@ -1,17 +1,17 @@
 import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Collapse,
-  Divider,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Space,
-  Tag,
-  Typography
+	Badge,
+	Button,
+	Card,
+	Col,
+	Collapse,
+	Divider,
+	Form,
+	FormInstance,
+	Input,
+	Row,
+	Space,
+	Tag,
+	Typography
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
@@ -27,25 +27,25 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-  AccountSearchAction,
-  ShipperGetListAction
+	AccountSearchAction,
+	ShipperGetListAction
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
-  getLoyaltyPoint,
-  getLoyaltyRate,
-  getLoyaltyUsage
+	getLoyaltyPoint,
+	getLoyaltyRate,
+	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-  configOrderSaga,
-  DeliveryServicesGetList,
-  getListSubStatusAction,
-  getTrackingLogFulfillmentAction,
-  OrderDetailAction,
-  orderUpdateAction,
-  PaymentMethodGetList
+	configOrderSaga,
+	DeliveryServicesGetList,
+	getListSubStatusAction,
+	getTrackingLogFulfillmentAction,
+	OrderDetailAction,
+	orderUpdateAction,
+	PaymentMethodGetList
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -55,27 +55,27 @@ import { thirdPLModel } from "model/order/shipment.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  BillingAddress,
-  FulFillmentRequest,
-  OrderDiscountRequest,
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-  OrderRequest,
-  ShipmentRequest
+	BillingAddress,
+	FulFillmentRequest,
+	OrderDiscountRequest,
+	OrderLineItemRequest,
+	OrderPaymentRequest,
+	OrderRequest,
+	ShipmentRequest
 } from "model/request/order.request";
 import {
-  CustomerResponse,
-  ShippingAddress
+	CustomerResponse,
+	ShippingAddress
 } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  DeliveryServiceResponse,
-  FulFillmentResponse, OrderResponse,
-  OrderSubStatusResponse,
-  StoreCustomResponse,
-  TrackingLogFulfillmentResponse
+	DeliveryServiceResponse,
+	FulFillmentResponse, OrderResponse,
+	OrderSubStatusResponse,
+	StoreCustomResponse,
+	TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
@@ -84,24 +84,24 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
-  checkPaymentStatus,
-  checkPaymentStatusToShow,
-  CheckShipmentType,
-  formatCurrency, getAmountPaymentRequest,
-  getTotalAmountAfferDiscount,
-  SumCOD,
-  SumWeightResponse,
-  TrackingCode
+	checkPaymentStatus,
+	checkPaymentStatusToShow,
+	CheckShipmentType,
+	formatCurrency, getAmountPaymentRequest,
+	getTotalAmountAfferDiscount,
+	SumCOD,
+	SumWeightResponse,
+	TrackingCode
 } from "utils/AppUtils";
 import {
-  FulFillmentStatus, OrderStatus,
-  PaymentMethodCode,
-  PaymentMethodOption,
-  ShipmentMethodOption,
-  TaxTreatment
+	FulFillmentStatus, OrderStatus,
+	PaymentMethodCode,
+	PaymentMethodOption,
+	ShipmentMethodOption,
+	TaxTreatment
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";

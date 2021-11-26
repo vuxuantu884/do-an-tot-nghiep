@@ -1,18 +1,18 @@
-import {Button, Card, Col, FormInstance, Row} from "antd";
+import { Button, Card, Col, FormInstance, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
-import {getLoyaltyRate} from "domain/actions/loyalty/loyalty.action";
-import {UpdatePaymentAction} from "domain/actions/order/order.action";
-import {OrderPaymentRequest, UpdateFulFillmentRequest} from "model/request/order.request";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {OrderResponse} from "model/response/order/order.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethod} from "utils/Constants";
-import {showSuccess} from "utils/ToastUtils";
+import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
+import { UpdatePaymentAction } from "domain/actions/order/order.action";
+import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/order.request";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { OrderResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { OrderStatus, PaymentMethodOption } from "utils/Constants";
+import { showSuccess } from "utils/ToastUtils";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import {StyledComponent} from "./update-payment-card.styles";
+import { StyledComponent } from "./update-payment-card.styles";
 
 type PropType = {
   listPaymentMethods: PaymentMethodResponse[];
