@@ -1291,7 +1291,7 @@ export default function Order(props: PropType) {
                     inventoryResponse={inventoryResponse}
                     customer={customer}
                     setInventoryResponse={setInventoryResponse}
-                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    totalAmountCustomerNeedToPay={totalAmountOrder}
                     orderConfig={null}
                     orderSourceId={orderSourceId}
                     levelOrder={levelOrder}
@@ -1663,7 +1663,7 @@ export default function Order(props: PropType) {
                           setPayments={setPayments}
                           paymentMethod={paymentMethod}
                           shipmentMethod={shipmentMethod}
-                          totalAmountOrder={totalAmountCustomerNeedToPay}
+                          totalAmountOrder={totalAmountOrder}
                           loyaltyRate={loyaltyRate}
                           isDisablePostPayment={isDisablePostPayment}
                           listPaymentMethod={listPaymentMethod}

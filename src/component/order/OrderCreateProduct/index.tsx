@@ -1000,37 +1000,32 @@ function OrderCreateProduct(props: PropType) {
       removeDiscountItem(item);
       return [item];
     }
-    for (let i = 0; i < suggested_discounts.length; i++) {
-      const suggest = suggested_discounts[i];
-      console.log('suggest', suggest)
-      if(suggest.allocation_count ===0) {
-        result = [item]; // trong pos chưa test
-        continue;
-      } else
-      if (item.quantity <= suggest.allocation_count || !suggest.allocation_count) {
-        result = calculateDiscount(item, suggest);
-        break;
-      } else if (item.quantity > suggest.allocation_count) {
+    const suggest = suggested_discounts[0];
+    console.log('suggest', suggest)
+    if(suggest.allocation_count ===0 || !suggest.allocation_count) {
+      removeDiscountItem(item);
+      result = [item]; // trong pos chưa test
+    } else if (item.quantity <= suggest.allocation_count) {
+      result = calculateDiscount(item, suggest);
+    } else if (item.quantity > suggest.allocation_count) {
 
-        let itemResult: OrderLineItemRequest = {
-          ...item,
-          quantity: suggest.allocation_count,
-        };
-        let result1 = calculateDiscount(itemResult, suggest);
-        console.log('result1', result1)
-        console.log('suggested_discounts', suggested_discounts);
-        let suggestLeft = suggested_discounts;
-        suggestLeft.splice(0, 1);
-        console.log('suggestLeft', suggestLeft);
-        let newItem = {
-          ...item,
-          quantity: item.quantity - suggest.allocation_count,
-        }
-        console.log('newItem', newItem)
-        let result2 = getDiscountMulti(suggestLeft, newItem)
-        result = [...result, ...result1, ...result2];
-        break;
+      let itemResult: OrderLineItemRequest = {
+        ...item,
+        quantity: suggest.allocation_count,
+      };
+      let result1 = calculateDiscount(itemResult, suggest);
+      console.log('result1', result1)
+      console.log('suggested_discounts', suggested_discounts);
+      let suggestLeft = suggested_discounts;
+      suggestLeft.splice(0, 1);
+      console.log('suggestLeft', suggestLeft);
+      let newItem = {
+        ...item,
+        quantity: item.quantity - suggest.allocation_count,
       }
+      console.log('newItem', newItem)
+      let result2 = getDiscountMulti(suggestLeft, newItem)
+      result = [...result, ...result1, ...result2];
     }
     return result;
   };
