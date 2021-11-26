@@ -10,6 +10,7 @@ import {
 } from "antd";
 import { FilterOutlined, DownOutlined } from "@ant-design/icons";
 import moment from "moment";
+import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 
 import BaseFilter from "component/filter/base.filter";
 import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
@@ -130,65 +131,39 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   // handle select date
   const [createdDateClick, setCreatedDateClick] = useState("");
 
-  const [createdDateFrom, setCreatedDateFrom] = useState(
-    initialValues.created_date_from
-      ? moment(initialValues.created_date_from, "DD-MM-YYYY")
-      : null
-  );
+  const [createdDateFrom, setCreatedDateFrom] = useState<any>(initialValues.created_date_from);
 
-  const [createdDateTo, setCreatedDateTo] = useState(
-    initialValues.created_date_to
-      ? moment(initialValues.created_date_to, "DD-MM-YYYY")
-      : null
-  );
+  const [createdDateTo, setCreatedDateTo] = useState<any>(initialValues.created_date_to);
 
   const clickOptionDate = useCallback(
     (type, value) => {
-      let minValue = null;
-      let maxValue = null;
+      let startDateValue = null;
+      let endDateValue = null;
 
       switch (value) {
         case "today":
-          minValue = moment().startOf("day").format("DD-MM-YYYY");
-          maxValue = moment().endOf("day").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment());
+          endDateValue = ConvertDateToUtc(moment());
           break;
         case "yesterday":
-          minValue = moment()
-            .startOf("day")
-            .subtract(1, "days")
-            .format("DD-MM-YYYY");
-          maxValue = moment()
-            .endOf("day")
-            .subtract(1, "days")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
+          endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          minValue = moment().startOf("week").format("DD-MM-YYYY");
-          maxValue = moment().endOf("week").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("week").add(7, 'h'));
+          endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
-          minValue = moment()
-            .startOf("week")
-            .subtract(1, "weeks")
-            .format("DD-MM-YYYY");
-          maxValue = moment()
-            .endOf("week")
-            .subtract(1, "weeks")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, 'h'));
+          endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
           break;
         case "thismonth":
-          minValue = moment().startOf("month").format("DD-MM-YYYY");
-          maxValue = moment().endOf("month").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("month").add(7, 'h'));
+          endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
-          minValue = moment()
-            .startOf("month")
-            .subtract(1, "months")
-            .format("DD-MM-YYYY");
-          maxValue = moment()
-            .endOf("month")
-            .subtract(1, "months")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, 'h'));
+          endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
           break;
         default:
           break;
@@ -202,8 +177,8 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             setCreatedDateTo(null);
           } else {
             setCreatedDateClick(value);
-            setCreatedDateFrom(moment(minValue, "DD-MM-YYYY"));
-            setCreatedDateTo(moment(maxValue, "DD-MM-YYYY"));
+            setCreatedDateFrom(startDateValue);
+            setCreatedDateTo(endDateValue);
           }
           break;
         default:
@@ -217,8 +192,10 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     switch (type) {
       case "created_date":
         setCreatedDateClick("");
-        setCreatedDateFrom(dateString[0]);
-        setCreatedDateTo(dateString[1]);
+        const startDateUtc = dates[0].utc().format();
+        const endDateUtc = dates[1].utc().format();
+        setCreatedDateFrom(startDateUtc);
+        setCreatedDateTo(endDateUtc);
         break;
       default:
         break;
@@ -230,12 +207,8 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     (values) => {
       const formValues = {
         ...values,
-        created_date_from: createdDateFrom
-          ? moment(createdDateFrom, "DD-MM-YYYY")?.format("DD-MM-YYYY")
-          : null,
-        created_date_to: createdDateTo
-          ? moment(createdDateTo, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
+        created_date_from: createdDateFrom,
+        created_date_to: createdDateTo,
       };
       
       onFilter && onFilter(formValues);
@@ -258,9 +231,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
     if (initialValues.created_date_from || initialValues.created_date_to) {
       let textOrderCreateDate =
-        (initialValues.created_date_from ? initialValues.created_date_from : "??") +
+        (initialValues.created_date_from ? ConvertUtcToLocalDate(initialValues.created_date_from, "DD/MM/YYYY") : "??") +
         " ~ " +
-        (initialValues.created_date_to ? initialValues.created_date_to : "??");
+        (initialValues.created_date_to ? ConvertUtcToLocalDate(initialValues.created_date_to, "DD/MM/YYYY") : "??");
       list.push({
         key: "created_date",
         name: "Ngày tạo đơn",
@@ -339,10 +312,23 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             <Input
               disabled={isLoading}
               prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm đơn hàng"
+              placeholder="Tìm kiếm đơn hàng sàn"
               onBlur={(e) => {
                 formFilter?.setFieldsValue({
                   ecommerce_order_code: e.target.value.trim(),
+                });
+              }}
+            />
+          </Item>
+
+          <Item name="core_order_code" className="search-input">
+            <Input
+              disabled={isLoading}
+              prefix={<img src={search} alt="" />}
+              placeholder="Tìm kiếm đơn hàng Yody"
+              onBlur={(e) => {
+                formFilter?.setFieldsValue({
+                  core_order_code: e.target.value.trim(),
                 });
               }}
             />
@@ -404,6 +390,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                   dateSelected={createdDateClick}
                   startDate={createdDateFrom}
                   endDate={createdDateTo}
+                  isUTC={true}
                 />
               </Form.Item>
 

@@ -401,6 +401,7 @@ export interface TrackingLogFulfillmentResponse extends BaseObject {
   action_date: string;
   deleted: boolean;
   shipping_status: string;
+  status: string;
 }
 
 export interface ErrorLogResponse extends BaseObject {

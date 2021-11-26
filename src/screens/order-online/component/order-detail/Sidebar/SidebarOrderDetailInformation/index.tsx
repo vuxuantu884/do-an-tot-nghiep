@@ -64,6 +64,22 @@ function SidebarOrderDetailInformation(props: PropType) {
             </span>
           </Col>
         </Row>
+				{OrderDetail?.order_return_origin?.order_id && (
+					<Row className="rowDetail" gutter={5}>
+						<Col span={10}>Mã đơn đổi hàng:</Col>
+						<Col span={14}>
+							<span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
+								{OrderDetail?.order_return_origin?.order_id ? (
+									<Link to={`${UrlConfig.ORDER}/${OrderDetail?.order_return_origin?.order_id}`} target="_blank">
+										{OrderDetail?.order_return_origin?.order_code}
+									</Link>
+								) : (
+									"-"
+								)}
+							</span>
+						</Col>
+					</Row>
+				)}
         {OrderDetail?.ecommerce_shop_name && (
           <Row gutter={5}>
             <Col span={10}>Gian hàng TMĐT:</Col>
