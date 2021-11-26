@@ -963,7 +963,7 @@
     & > div {
       &:first-child {
         & > div {
-          width: 220px;
+          // width: 220px;
           display: flex;
           align-items: center;
           & > div {
@@ -1309,9 +1309,20 @@
       //   left: -4px;
       //   border-radius: 50%;
       // }
-			&.finished {
+			&.currentTimeline {
 				&:after {
 					background-color: $green !important;
+				}
+				b, i, span {
+					color: $green !important;
+				}
+				&.hasError {
+					&:after {
+						background-color: $red !important;
+					}
+					b, i, span {
+						color: $red !important;
+					}
 				}
 			}
     }
@@ -1338,14 +1349,15 @@
     .ant-collapse-header {
       display: flex;
       flex-direction: row;
+      align-items: center;
       .saleorder-header-arrow {
         width: 30px;
         margin: 0;
       }
       div {
-        display: flex;
-        width: 100%;
-        padding: 0;
+        // display: flex;
+        // width: 100%;
+        // padding: 0;
         & > div {
           &:first-child {
           }

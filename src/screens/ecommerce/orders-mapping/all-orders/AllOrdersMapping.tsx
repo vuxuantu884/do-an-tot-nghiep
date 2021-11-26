@@ -11,7 +11,7 @@ import {
 } from "model/order/order.model";
 import { AccountResponse } from "model/account/account.model";
 
-import { getOrderMappingListAction } from "domain/actions/ecommerce/ecommerce.actions";
+import { getOrderMappingListAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
 
 
 import { PageResponse } from "model/base/base-metadata.response";
@@ -43,7 +43,8 @@ const initQuery: GetOrdersMappingQuery = {
   connected_status: null,
   created_date_from: null,
   created_date_to: null,
-  ecommerce_order_status: [],
+  ecommerce_order_statuses: [],
+  shop_id: [],
 };
 
 const CORE_ORDER_STATUS = [
@@ -81,7 +82,8 @@ const EcommerceOrderSync: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   useState<Array<AccountResponse>>();
   const [params, setPrams] = useState<GetOrdersMappingQuery>(initQuery);
-
+  const [allShopList, setAllShopList] = useState<Array<any>>([]);
+  
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -269,6 +271,29 @@ const EcommerceOrderSync: React.FC = () => {
     }
   }, [allowOrdersView, getOrderMappingList]);
 
+  // handle get all shop list
+  const updateAllShopList = useCallback((result) => {
+    const shopList: any[] = [];
+    if (result && result.length > 0) {
+      result.forEach((item: any) => {
+        shopList.push({
+          id: item.id,
+          name: item.name,
+          isSelected: false,
+          ecommerce: item.ecommerce,
+        });
+      });
+    }
+
+    setAllShopList(shopList);
+  }, []);
+
+  useEffect(() => {
+    if (allowOrdersView) {
+      dispatch(getShopEcommerceList({}, updateAllShopList));
+    }
+  }, [allowOrdersView, dispatch, updateAllShopList]);
+
 
   return (
     <StyledComponent>
@@ -282,10 +307,11 @@ const EcommerceOrderSync: React.FC = () => {
               initQuery={initQuery}
               onClearFilter={onClearFilter}
               onFilter={onFilter}
+              shopList={allShopList}
             />
   
             <CustomTable
-              isRowSelection
+              // isRowSelection
               bordered
               isLoading={isLoading}
               showColumnSetting={true}

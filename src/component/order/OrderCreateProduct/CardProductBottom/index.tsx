@@ -1,3 +1,4 @@
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
@@ -16,6 +17,7 @@ type PropType = {
   changeMoney: number;
   amount: number;
   isDisableOrderDiscount?: boolean;
+  isCouponValid?: boolean;
   showDiscountModal: () => void;
   showCouponModal: () => void;
   setDiscountRate?: (value: number) => void;
@@ -48,6 +50,7 @@ function CardProductBottom(props: PropType) {
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
     isDisableOrderDiscount,
+    isCouponValid,
     showDiscountModal,
     showCouponModal,
     setDiscountRate,
@@ -152,6 +155,20 @@ function CardProductBottom(props: PropType) {
                     setCoupon && setCoupon("");
                   }}
                 >
+                   {coupon ? isCouponValid ?
+                                  <CheckCircleOutlined
+                                      style={{
+                                          color: '#27AE60',
+                                          marginRight: 5
+                                      }}
+                                  />:
+                                  <CloseCircleOutlined
+                                      style={{
+                                          color: "#E24343",
+                                          marginRight: 5
+                                      }}
+                                  />: undefined
+                              }
                   {handleDisplayCoupon(coupon)}
                 </Tag>
               )}

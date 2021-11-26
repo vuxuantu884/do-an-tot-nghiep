@@ -946,7 +946,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   ]}
                   // onChange={(e) => console.log(e[0])}
                   expandIcon={({isActive}) => (
-                    <div className="saleorder-header-arrow">
+                    <div className="saleorder-header-arrow 2" style={{justifyContent: "flex-start"}}>
                       <img
                         alt=""
                         src={doubleArrow}
@@ -970,8 +970,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     }
                     showArrow={true}
                     header={
-                      <div className="saleorder-header-content">
-                        <div className="saleorder-header-content__info">
+                      <div className="saleorder-header-content" style={{display: "flex", width: "100%", padding: 0}}>
+                        <div className="saleorder-header-content__info" style={{display: "flex", width: "100%"}}>
                           <span
                             className="text-field"
                             style={{
@@ -1009,7 +1009,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             />}
                         </div>
 
-                        <div className="saleorder-header-content__date">
+                        <div className="saleorder-header-content__date" style={{display: "flex", width: "100%", alignItems: "center"}}>
                           {(fulfillment.status === FulFillmentStatus.CANCELLED ||
                             fulfillment.status === FulFillmentStatus.RETURNING ||
                             fulfillment.status === FulFillmentStatus.RETURNED) ?
@@ -1286,7 +1286,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <Panel
                                 header={
                                   <Row>
-                                    <Col style={{alignItems: "center"}}>
+                                    <Col style={{display: "flex", width: "100%", alignItems: "center"}}>
                                       <span
                                         style={{
                                           marginRight: "10px",
@@ -1356,16 +1356,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 >
                                   {trackingLogFulfillment?.map((item, index) => (
                                     <Panel
-                                      className={`orders-timeline-custom orders-dot-status ${item.status === "completed" ? "finished" : ""}`}
+                                      className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline" : ""} ${item.status === "failed" ? "hasError" : ""}`}
                                       header={
-                                        <div>
+                                        <React.Fragment>
                                           <b
                                             style={{
                                               paddingLeft: "14px",
                                               color: "#222222",
                                             }}
                                           >
-                                            {item.shipping_status}
+                                            {item.shipping_status ? item.shipping_status : item.partner_note}
                                           </b>
                                           <i
                                             className="icon-dot"
@@ -1373,6 +1373,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                               fontSize: "4px",
                                               margin: "10px 10px 10px 10px",
                                               color: "#737373",
+																							position: "relative",
+																							top: -2,
                                             }}
                                           ></i>{" "}
                                           <span style={{color: "#737373"}}>
@@ -1380,7 +1382,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                               "DD/MM/YYYY HH:mm"
                                             )}
                                           </span>
-                                        </div>
+                                        </React.Fragment>
                                       }
                                       key={index}
                                       showArrow={false}

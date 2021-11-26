@@ -68,6 +68,11 @@
       left: 0;
       padding-top: 60px;
       background-color: $sider-color;
+      @media screen and (max-width: 1439px) {
+        max-width: 200px !important;
+        min-width: 200px !important;
+        width: 200px !important;
+      }
       &-children {
         .ant {
           &-menu {
