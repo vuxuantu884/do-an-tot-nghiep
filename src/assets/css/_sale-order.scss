@@ -1309,6 +1309,22 @@
       //   left: -4px;
       //   border-radius: 50%;
       // }
+			&.currentTimeline {
+				&:after {
+					background-color: $green !important;
+				}
+				b, i, span {
+					color: $green !important;
+				}
+				&.hasError {
+					&:after {
+						background-color: $red !important;
+					}
+					b, i, span {
+						color: $red !important;
+					}
+				}
+			}
     }
     .orders-timeline-custom.order-shipment-dot-default {
       &::before {
@@ -1317,7 +1333,7 @@
     }
     .orders-timeline-custom.order-shipment-dot-active {
       &::before {
-        background-color: #27ae60;
+        background-color: $green;
       }
     }
     .orders-timeline-custom.order-shipment-dot-cancelled {

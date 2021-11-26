@@ -77,3 +77,10 @@ export const AccountDeleteAction = (
     deleteCallback,
   });
 };
+
+export const powerBIEmbededAction = (
+  params: any,
+  setData: (data: any) => void
+) => {
+  return BaseAction(AccountType.POWER_BI_EMBEDED_REQUEST, { params, setData });
+};

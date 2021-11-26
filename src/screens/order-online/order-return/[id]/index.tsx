@@ -1,7 +1,6 @@
 import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import SidebarOrderDetailExtraInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailExtraInformation";
-import SidebarOrderDetailInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailInformation";
 import UrlConfig from "config/url.config";
 import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
@@ -34,6 +33,7 @@ import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnM
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "../components/CardShowReturnProducts";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
+import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
 
 type PropType = {};
 type OrderParam = {
@@ -288,7 +288,7 @@ const ScreenReturnDetail = (props: PropType) => {
               </Form>
             </Col>
             <Col md={6}>
-              <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
+              <OrderShortDetailsReturn OrderDetail={OrderDetail} />
               <OrderReturnActionHistory
                 orderId={id}
                 countChangeSubStatus={countChangeSubStatus}
