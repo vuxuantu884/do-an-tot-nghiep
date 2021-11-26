@@ -252,6 +252,7 @@ function OrderCreateProduct(props: PropType) {
   //tách đơn
   const [splitOrderNumber, setSplitOrderNumber] = useState(0);
   const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
+  const [isCouponValid, setIsCouponValid] = useState(false);
 
   const lineItemQuantityInputTimeoutRef: MutableRefObject<any> = useRef();
   const lineItemPriceInputTimeoutRef: MutableRefObject<any> = useRef();
@@ -1122,10 +1123,12 @@ function OrderCreateProduct(props: PropType) {
                 } else {
                   setCoupon && setCoupon(coupon);
                 }
+                setIsCouponValid(false);
                 setItems(_items);
                 handleChangeItems(_items);
               } else {
                 setCoupon && setCoupon(coupon);
+                setIsCouponValid(true);
                 const discount_code = applyDiscountResponse.code || undefined;
                 let couponType = applyDiscountResponse.value_type;
                 let listDiscountItem: any[] = [];
@@ -1895,6 +1898,7 @@ function OrderCreateProduct(props: PropType) {
             returnOrderInformation={returnOrderInformation}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
             isDisableOrderDiscount={isDisableOrderDiscount}
+            isCouponValid={isCouponValid}
             handleRemoveAllDiscount={handleRemoveAllDiscount}
           />
         )}
