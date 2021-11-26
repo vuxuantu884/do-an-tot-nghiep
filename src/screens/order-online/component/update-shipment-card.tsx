@@ -945,17 +945,19 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     fulfillment.status === FulFillmentStatus.RETURNING ? "0" : "1",
                   ]}
                   // onChange={(e) => console.log(e[0])}
-                  expandIcon={({isActive}) => (
-                    <div className="saleorder-header-arrow 99">
-                      <img
-                        alt=""
-                        src={doubleArrow}
-                        style={{
-                          transform: `${!isActive ? "rotate(270deg)" : "rotate(0deg)"}`
-                        }}
-                      />
-                    </div>
-                  )}
+                  expandIcon={({isActive}) => {
+										return (
+											<div className="saleorder-header-arrow 6">
+												<img
+													alt=""
+													src={doubleArrow}
+													style={{
+														transform: `${!isActive ? "rotate(270deg)" : "rotate(0deg)"}`,
+													}}
+												/>
+											</div>
+										)
+									}}
                   ghost
                 >
                   <Panel
