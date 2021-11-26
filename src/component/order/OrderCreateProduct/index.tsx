@@ -1376,7 +1376,7 @@ function OrderCreateProduct(props: PropType) {
   //   dispatch(getStoreSearchIdsAction(storeids, setStoreSearchIds));
   // }, []);
 
-  console.log("storeSearchIds", storeSearchIds);
+  // console.log("storeSearchIds", storeSearchIds);
 
   const handleInventoryCancel = useCallback(() => {
     setInventoryModalVisible(false);
