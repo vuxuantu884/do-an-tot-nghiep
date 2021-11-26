@@ -979,7 +979,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
           setCreating(false);
         }
       });
-      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
     }
     return status;
   };
