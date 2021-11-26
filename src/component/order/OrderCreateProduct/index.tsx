@@ -1042,7 +1042,7 @@ function OrderCreateProduct(props: PropType) {
       orderSourceId: orderSourceId,
     };
     dispatch(showLoading());
-    const checkingDiscountResponse = await applyDiscount(items, orderInfo).finally(() => {
+    const checkingDiscountResponse = await applyDiscount(items, orderInfo, orderDetail?.id).finally(() => {
       dispatch(hideLoading());
     });
     // console.log("checkingDiscountResponse", checkingDiscountResponse);
@@ -1086,7 +1086,7 @@ function OrderCreateProduct(props: PropType) {
     });
     if (!isAutomaticDiscount) {
       let params: CouponRequestModel = {
-        order_id: null,
+        order_id: orderDetail?.id || null,
         customer_id: customer?.id || null,
         store_id: form.getFieldValue("store_id"),
         sales_channel_name: "Admin",
