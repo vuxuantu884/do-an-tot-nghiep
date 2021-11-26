@@ -3,7 +3,8 @@ import {
   AutoComplete,
   Button, Form,
   Input,
-  Select
+  Select,
+  Tag
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import filterIcon from "assets/icon/filter.svg";
@@ -89,6 +90,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     }),
     []
   );
+
+  const initialValues = useMemo(() => {
+    return {
+      ...params,
+    };
+  }, [params]);
 
   const AccountConvertResultSearch = React.useMemo(() => {
     let options: any[] = [];
@@ -456,6 +463,139 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }, []);
   // end handle select date
 
+  // handle tag filter
+  let filters = useMemo(() => {
+    let list = [];
+
+    if (initialValues.gender) {
+      const gender = LIST_GENDER?.find((item) => item.value.toString() === initialValues.gender.toString());
+      list.push({
+        key: "gender",
+        name: "Giới tính",
+        value: gender?.name,
+      });
+    }
+
+    if (initialValues.customer_group_id) {
+      const group = groups?.find((item: any) => item.id.toString() === initialValues.customer_group_id.toString());
+      list.push({
+        key: "customer_group_id",
+        name: "Nhóm khách hàng",
+        value: group?.name,
+      });
+    }
+
+    if (initialValues.customer_level_id) {
+      const loyaltyUsageRule = loyaltyUsageRules?.find((item: any) => item.rank_id.toString() === initialValues.customer_level_id.toString());
+      list.push({
+        key: "customer_level_id",
+        name: "Hạng thẻ",
+        value: loyaltyUsageRule?.rank_name,
+      });
+    }
+
+    if (initialValues.responsible_staff_code) {
+      const staff = AccountConvertResultSearch?.find((item: any) => item.value.split(" - ")[0] === initialValues.responsible_staff_code);
+      list.push({
+        key: "responsible_staff_code",
+        name: "Nhân viên phụ trách",
+        value: staff?.label,
+      });
+    }
+
+    if (initialValues.customer_type_id) {
+      const customer_type = types?.find((item: any) => item.id.toString() === initialValues.customer_type_id.toString());
+      list.push({
+        key: "customer_type_id",
+        name: "Loại khách hàng",
+        value: customer_type?.name,
+      });
+    }
+
+    if (initialValues.card_issuer) {
+      const store = listStore?.find((item: any) => item.id.toString() === initialValues.card_issuer.toString());
+      list.push({
+        key: "card_issuer",
+        name: "Cửa hàng cấp thẻ",
+        value: store?.name,
+      });
+    }
+
+    if (initialValues.store_ids?.length) {
+      let stores = "";
+      initialValues.store_ids.forEach((store_id: any) => {
+        const findStatus = listStore?.find((item) => item.id.toString() === store_id.toString());
+        stores = findStatus ? (stores + findStatus.name + "; ") : stores;
+      });
+      list.push({
+        key: "store_ids",
+        name: "Cửa hàng",
+        value: stores,
+      });
+    }
+
+    if (initialValues.day_of_birth_from || initialValues.day_of_birth_to) {
+      let textDayOfBirth =
+        (initialValues.day_of_birth_from ? initialValues.day_of_birth_from : "??") +
+        " ~ " +
+        (initialValues.day_of_birth_to ? initialValues.day_of_birth_to : "??");
+      list.push({
+        key: "day_of_birth",
+        name: "Ngày sinh",
+        value: textDayOfBirth,
+      });
+    }
+    
+
+    return list;
+  },
+    [initialValues.gender, initialValues.customer_group_id, initialValues.customer_level_id, initialValues.responsible_staff_code, initialValues.customer_type_id, initialValues.card_issuer, initialValues.store_ids, initialValues.day_of_birth_from, initialValues.day_of_birth_to, LIST_GENDER, groups, loyaltyUsageRules, AccountConvertResultSearch, types, listStore]);
+    
+  // close tag filter
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      e.preventDefault();
+      switch (tag.key) {
+        case "gender":
+          onFilter && onFilter({ ...params, gender: null });
+          formCustomerFilter?.setFieldsValue({ gender: null });
+          break;
+        case "customer_group_id":
+          onFilter && onFilter({ ...params, customer_group_id: null });
+          formCustomerFilter?.setFieldsValue({ customer_group_id: null });
+          break;
+        case "customer_level_id":
+          onFilter && onFilter({ ...params, customer_level_id: null });
+          formCustomerFilter?.setFieldsValue({ customer_level_id: null });
+          break;
+        case "responsible_staff_code":
+          onFilter && onFilter({ ...params, responsible_staff_code: null });
+          formCustomerFilter?.setFieldsValue({ responsible_staff_code: null });
+          break;
+        case "customer_type_id":
+          onFilter && onFilter({ ...params, customer_type_id: null });
+          formCustomerFilter?.setFieldsValue({ customer_type_id: null });
+          break;
+        case "card_issuer":
+          onFilter && onFilter({ ...params, card_issuer: null });
+          formCustomerFilter?.setFieldsValue({ card_issuer: null });
+          break;
+        case "store_ids":
+          onFilter && onFilter({ ...params, store_ids: [] });
+          formCustomerFilter?.setFieldsValue({ store_ids: [] });
+          break;
+        case "day_of_birth":
+          onFilter && onFilter({ ...params, day_of_birth_from: null, day_of_birth_to: null });
+          formCustomerFilter?.setFieldsValue({ day_of_birth_from: null, day_of_birth_to: null });
+          break;
+        
+        default:
+          break;
+      }
+    },
+    [formCustomerFilter, onFilter, params]
+  );
+  // end handle tag filter
 
   // handle filter action
   const openBaseFilter = useCallback(() => {
@@ -597,7 +737,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   className="center-filter"
                 >
                   <Select
-                    mode="multiple"
+                    // mode="multiple"
                     maxTagCount="responsive"
                     showSearch
                     showArrow
@@ -619,7 +759,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   className="right-filter"
                 >
                   <Select
-                    mode="multiple"
+                    // mode="multiple"
                     showSearch
                     showArrow
                     allowClear
@@ -667,10 +807,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   className="center-filter"
                 >
                   <Select
-                    mode="multiple"
+                    // mode="multiple"
                     maxTagCount="responsive"
                     showSearch
-                    placeholder="Loại khách hàng"
+                    placeholder="Chọn loại khách hàng"
                     allowClear
                     optionFilterProp="children"
                   >
@@ -688,7 +828,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   className="right-filter"
                 >
                   <Select
-                    mode="multiple"
+                    // mode="multiple"
                     showSearch
                     showArrow
                     allowClear
@@ -708,7 +848,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
               <div className="base-filter-row">
                 <Form.Item
-                  name="store_id"
+                  name="store_ids"
                   label={<b>Cửa hàng</b>}
                   className="left-filter"
                 >
@@ -811,7 +951,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
               <div className="base-filter-row">
                 <Form.Item
-                  name="channel_id"
+                  name="channel_ids"
                   label={<b>Kênh mua hàng</b>}
                   className="left-filter"
                 >
@@ -1255,6 +1395,21 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           </Form>
         </StyledCustomerBaseFilter>
       </BaseFilter>
+
+      <div className="filter-tags">
+        {filters?.map((filter: any, index) => {
+          return (
+            <Tag
+              key={filter.key}
+              className="tag"
+              closable={!isLoading}
+              onClose={(e) => onCloseTag(e, filter)}
+            >
+              {filter.name}: {filter.value}
+            </Tag>
+          );
+        })}
+      </div>
     </StyledCustomerFilter>
   );
 };
