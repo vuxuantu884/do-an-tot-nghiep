@@ -8,8 +8,9 @@ export const AllOrdersMappingStyled = styled.div`
 export const AllOrdersMappingFilterStyled = styled.div`
   .default-filter {
     display: flex;
-
+    overflow-x: auto;
     .search-input {
+      min-width: 250px;
       flex-grow: 1;
     }
 
@@ -39,6 +40,13 @@ export const AllOrdersMappingFilterStyled = styled.div`
     margin-bottom: 20px;
   }
 
+  .ant-tag {
+    margin-top: 0;
+  }
+
+  .select-shop-dropdown {
+    min-width: 250px;
+  }
 `;
 
 export const StyledBaseFilter = styled.div`
@@ -68,4 +76,25 @@ export const StyledBaseFilter = styled.div`
     }
 
   }
+`;
+
+export const StyledRenderShopList = styled.div`
+  .shop-list {
+    padding: 0 10px;
+    .shop-name {
+      padding: 5px 10px;
+      white-space: nowrap;
+      &:hover {
+        background-color: #f4f4f7;
+      }
+      .check-box-name {
+        display: flex;
+        .name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+
 `;
