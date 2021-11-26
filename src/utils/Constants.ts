@@ -184,3 +184,7 @@ export const PROMO_TYPE = {
 export const POS = {
   source_code: "POS"
 };
+
+export const SHIPPING_REQUIREMENT = {
+  default: "open_try"
+};

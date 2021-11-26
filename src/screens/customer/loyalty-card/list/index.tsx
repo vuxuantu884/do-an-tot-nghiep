@@ -1,6 +1,5 @@
 import { Button, Dropdown, Menu } from 'antd';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
-import './loyalty-cards.scss';
 import lockIcon from "assets/icon/lock.svg";
 import assignIcon from "assets/icon/assign.svg";
 import threeDot from "assets/icon/three-dot.svg";
@@ -218,7 +217,7 @@ const LoyaltyCards = () => {
   }, [dispatch, fetchData, query]);
 
   return (
-    <div className="loyalty-cards">
+    <div className="loyalty-cards-list">
       <AuthWrapper acceptPermissions={viewCardListPermission} passThrough>
         {(allowed: boolean) => (allowed ?
           <CustomTable

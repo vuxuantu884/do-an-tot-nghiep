@@ -60,9 +60,8 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = {...params, ...values, page: 1};
-      console.log(newPrams);
-
+      const newValues = {...values,info: values.info?.trim()}
+      const newPrams = {...params, ...newValues, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);

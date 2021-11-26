@@ -342,6 +342,7 @@ function* orderDetailSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    console.log('error', error)
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

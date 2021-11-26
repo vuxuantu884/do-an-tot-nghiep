@@ -258,8 +258,7 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     updated_name: size.updated_name,
     updated_date: size.updated_date,
     version: size.version,
-    code: size.code,
-    category_ids: ids,
+    code: size.code, 
   };
   return sizeConvert;
 };
@@ -670,7 +669,7 @@ export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
 
 export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
-  console.log('getTotalDiscount =============+> ', items);
+  // console.log('getTotalDiscount =============+> ', items);
   items.forEach((a) => (total = total + a.discount_amount * a.quantity));
   return total;
 };
@@ -993,7 +992,7 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
   for (const singleReturn of OrderDetail.order_returns) {
      //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
      for (const singleReturnItem of singleReturn.items) {
-       let index = orderReturnItems.findIndex((item) => item.product_id === singleReturnItem.product_id);
+       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id);
 
        if(index > -1) {
          let duplicatedItem = {...orderReturnItems[index]};
@@ -1048,7 +1047,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   let orderReturnItems = getListReturnedOrders(OrderDetail);
   console.log('orderReturnItems', orderReturnItems)
   for (const singleOrder of OrderDetail.items) {
-    let duplicatedItem = orderReturnItems.find(single=>single.product_id === singleOrder.product_id);
+    let duplicatedItem = orderReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
     if(duplicatedItem) {
       let clone = {...duplicatedItem}
       if(singleOrder.quantity - duplicatedItem.quantity > 0) {

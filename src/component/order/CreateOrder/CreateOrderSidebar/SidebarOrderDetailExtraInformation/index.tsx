@@ -11,7 +11,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
   return (
     <StyledComponent>
       <Card title="THÔNG TIN BỔ SUNG">
-      <Row className="" gutter={5} style={{ flexDirection: "column" }}>
+      <Row gutter={5} style={{ flexDirection: "column" }}>
           <Col span={24} style={{ marginBottom: 6 }}>
             <b>Ghi chú của khách:</b>
           </Col>
@@ -24,7 +24,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
           </Col>
         </Row>
 
-        <Row className="" gutter={5} style={{ flexDirection: "column" }}>
+        <Row gutter={5} style={{ flexDirection: "column" }}>
           <Col span={24} style={{ marginBottom: 6 }}>
             <b>Ghi chú nội bộ:</b>
           </Col>
@@ -38,7 +38,6 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
         </Row>
 
         <Row
-          className="margin-top-10"
           gutter={5}
           style={{ flexDirection: "column" }}
         >

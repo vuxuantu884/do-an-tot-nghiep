@@ -788,14 +788,12 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     setShopIdSelected([]);
     const ecommerceId = getEcommerceId(sourceId);
     getEcommerceShopList(ecommerceId);
-    formSearchRef?.current?.setFieldsValue({ source_ids: [sourceId] });
   };
 
   const handleRemoveEcommerce = useCallback(() => {
     setIsEcommerceSelected(false);
     setShopIdSelected([]);
-    formSearchRef?.current?.setFieldsValue({ source_ids: [] });
-  },[formSearchRef]);
+  },[]);
    // end handle Select Ecommerce
   
 
@@ -820,7 +818,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             </Dropdown>
           </Form.Item>
           
-          <Item name="source_ids" className="ecommerce-dropdown">
+          <Item className="ecommerce-dropdown">
             <Select
               showSearch
               disabled={isLoading}
@@ -1348,7 +1346,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       <div className="order-filter-tags">
         {filters && filters.map((filter: any, index) => {
           return (
-            <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+            <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
           )
         })}
       </div>
