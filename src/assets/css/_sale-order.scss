@@ -1633,6 +1633,7 @@
     .orderPaymentItem {
       display: flex;
       justify-content: space-between;
+      width: 100%;
       .amount {
         font-weight: 500;
       }
