@@ -32,8 +32,8 @@ function ReportYody (): JSX.Element {
       type: 'report',
       tokenType: models.TokenType.Embed,
       settings: undefined,
-      embedUrl: data.embedUrl,
-      accessToken: data.accessToken
+      embedUrl: data.embed_url,
+      accessToken: data.token
     })));
   }, [dispatch]);
 

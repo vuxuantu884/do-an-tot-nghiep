@@ -58,13 +58,9 @@ export const searchShipperApi = (): Promise<BaseResponse<PageResponse<AccountRes
 }
 
 export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/power-bi/groups/${params.group_id}/reports/${params.report_id}/generate-token`,
+  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/power-bi/groups/${params.group_id}/reports/${params.report_id}`,
   {
     access_level: 'View',
     allow_save_as: 'false'
-  },{
-    headers: {
-      'token-power-bi': `Bearer ${params.token_power_bi}`
-    }
   });
 }
