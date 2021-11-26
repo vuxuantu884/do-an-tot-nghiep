@@ -730,7 +730,7 @@ function OrderCreateProduct(props: PropType) {
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
-        <div className="site-input-group-wrapper saleorder-input-group-wrapper">
+        <div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup">
           <DiscountGroup
             price={l.price}
             index={index}

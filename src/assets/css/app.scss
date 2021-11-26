@@ -95,6 +95,9 @@
 .container {
   margin-left: 240px;
   transition: all 0.1s;
+  @media screen and (max-width: 1439px) {
+    margin-left: 200px;
+  }
   &.collapsed {
     margin-left: 55px;
   }
