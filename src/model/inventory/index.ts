@@ -99,6 +99,8 @@ export interface HistoryInventoryResponse extends BaseObject{
   document_type: string;
   transaction_date: string;
   account_id: number;
+  account: string|null;
+  account_code: string|null;
   import_price: number;
   retail_price: number;
   total: number;
