@@ -1130,7 +1130,7 @@ export default function Order(props: PropType) {
           //showError(`${value.name} không còn đủ số lượng tồn trong kho`);
         }
       });
-      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
     }
     
     return status;
