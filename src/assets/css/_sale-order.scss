@@ -1309,6 +1309,11 @@
       //   left: -4px;
       //   border-radius: 50%;
       // }
+			&.finished {
+				&:after {
+					background-color: $green !important;
+				}
+			}
     }
     .orders-timeline-custom.order-shipment-dot-default {
       &::before {
@@ -1317,7 +1322,7 @@
     }
     .orders-timeline-custom.order-shipment-dot-active {
       &::before {
-        background-color: #27ae60;
+        background-color: $green;
       }
     }
     .orders-timeline-custom.order-shipment-dot-cancelled {

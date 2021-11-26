@@ -84,6 +84,9 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                 </i>
               </div>
             ))}
+					{l.note && (
+						<div style={{fontStyle: "italic", fontSize: "0.93em", marginTop: 5}}>{l.note}</div>
+					)}
         </div>
       );
     },
