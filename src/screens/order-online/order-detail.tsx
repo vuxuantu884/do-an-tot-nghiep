@@ -815,6 +815,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                                     disabledActions={disabledActions}
                                     listPaymentMethods={listPaymentMethods}
                                     form={form}
+                                    isDisablePostPayment={isDisablePostPayment}
                                   />
                                 )}
                               </Panel>
