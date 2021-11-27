@@ -253,17 +253,6 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       width: 200,
     },
-		{
-      title: "Địa chỉ vận chuyển",
-      render: (record: OrderResponse) =>
-				<div className="customer custom-td">
-					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
-        </div>
-        ,
-      key: "customer",
-      visible: true,
-      width: 200,
-    },
     {
       title: (
         <div className="productNameQuantityHeader">
@@ -339,7 +328,7 @@ const ListOrderScreen: React.FC = () => {
       key: "customer.amount_money",
       visible: true,
       align: "right",
-      width: "150px",
+      width: "120px",
     },
     {
       title: "HT Vận chuyển",
@@ -572,22 +561,16 @@ const ListOrderScreen: React.FC = () => {
       align: "center",
       width: 100,
     },
-    {
-      title: "Khu vực",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) => {
-        const ward = shipping_address?.ward ? shipping_address.ward + "," : "";
-        const district = shipping_address?.district
-          ? shipping_address.district + ","
-          : "";
-        const city = shipping_address?.city ? shipping_address.city + "," : "";
-        return (
-          shipping_address && <div className="name">{`${ward} ${district} ${city}`}</div>
-        );
-      },
-      key: "area",
+		{
+      title: "Địa chỉ giao hàng",
+      render: (record: OrderResponse) =>
+				<div className="customer custom-td">
+					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
+        </div>
+        ,
+      key: "shipping_address",
       visible: true,
-      width: "200px",
+      width: 200,
     },
     {
       title: "Kho cửa hàng",
