@@ -32,6 +32,10 @@ export interface OrderResponse extends BaseObject {
   customer: string | null;
   customer_phone_number: string | null;
   customer_email: string | null;
+  customer_address: string | null;
+  customer_ward: string | null;
+  customer_district: string | null;
+  customer_city: string | null;
   fulfillment_status: string | null;
   packed_status: string | null;
   received_status: string | null;

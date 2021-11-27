@@ -15,7 +15,7 @@ export const StyledComponent = styled.div`
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantity {
-    padding: 0 15px !important;
+    padding: 0 !important;
   }
   td {
     position: relative;
@@ -64,8 +64,8 @@ export const StyledComponent = styled.div`
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: 0;
-        bottom: 0;
+        top: -999px;
+        bottom: -999px;
         right: ${quantityWidth}px;
         background-color: ${borderColor};
       }
@@ -87,5 +87,12 @@ export const StyledComponent = styled.div`
         background-color: ${borderColor};
       }
     }
+		.productNameText {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+		}
   }
 `;

@@ -169,6 +169,34 @@ const ListOrderScreen: React.FC = () => {
     { name: "Đã hết hạn", value: "expired" },
   ];
 
+	const renderCustomerAddress = (orderDetail: OrderResponse) => {
+		let html = orderDetail.customer_address;
+		if(orderDetail.customer_ward) {
+			html += ` - ${orderDetail.customer_ward}`;
+		}
+		if(orderDetail.customer_district) {
+			html += ` - ${orderDetail.customer_district}`;
+		}
+		if(orderDetail.customer_city) {
+			html += ` - ${orderDetail.customer_city}`;
+		}
+		return html;
+	};
+
+	const renderCustomerShippingAddress = (orderDetail: OrderResponse) => {
+		let html = orderDetail.shipping_address?.full_address;
+		if(orderDetail?.shipping_address?.ward) {
+			html += ` - ${orderDetail.shipping_address?.ward}`;
+		}
+		if(orderDetail?.shipping_address?.district) {
+			html += ` - ${orderDetail.shipping_address.district}`;
+		}
+		if(orderDetail?.shipping_address?.city) {
+			html += ` - ${orderDetail.shipping_address.city}`;
+		}
+		return html;
+	};
+
   const [columns, setColumn] = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID đơn hàng",
@@ -198,7 +226,7 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Khách hàng",
-      render: (record) =>
+      render: (record: OrderResponse) =>
         record.shipping_address ? (
           <div className="customer custom-td">
             <div className="name p-b-3" style={{ color: "#2A2A86" }}>
@@ -208,11 +236,19 @@ const ListOrderScreen: React.FC = () => {
                 className="primary"
                 style={{ fontSize: "16px" }}
               >
-                {record.shipping_address.name}
+                {record.customer}
               </Link>{" "}
             </div>
-            <div className="p-b-3">{record.shipping_address.phone}</div>
-            <div className="p-b-3">{record.shipping_address.full_address}</div>
+            {/* <div className="p-b-3">{record.shipping_address.phone}</div>
+            <div className="p-b-3">{record.shipping_address.full_address}</div> */}
+						{record.customer_phone_number && (
+							<div className="p-b-3">
+								<a href={`tel:${record.customer_phone_number}`}>
+									{record.customer_phone_number}
+								</a>
+							</div>
+						)}
+            <div className="p-b-3">{renderCustomerAddress(record)}</div>
           </div>
         ) : (
           <div className="customer custom-td">
@@ -222,6 +258,17 @@ const ListOrderScreen: React.FC = () => {
             <div className="p-b-3">{record.customer_phone_number}</div>
           </div>
         ),
+      key: "customer",
+      visible: true,
+      width: 200,
+    },
+		{
+      title: "Địa chỉ vận chuyển",
+      render: (record: OrderResponse) =>
+				<div className="customer custom-td">
+					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
+        </div>
+        ,
       key: "customer",
       visible: true,
       width: 200,
@@ -244,14 +291,19 @@ const ListOrderScreen: React.FC = () => {
             {items.map((item, i) => {
               return (
                 <div className="item custom-td">
-                  <div className="product productNameWidth">
-                    <Link
-                      target="_blank"
-                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                    >
-                      {item.sku} 
-                      <br/>{item.variant}
-                    </Link>
+                  <div className="product productNameWidth 2">
+										<div className="inner">
+											<Link
+												target="_blank"
+												to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+											>
+												{item.sku} 
+											</Link>
+											<br/>
+											<div className="productNameText" title={item.variant}>
+												{item.variant}
+											</div>
+										</div>
                     
                   </div>
                   <div className="quantity quantityWidth">
