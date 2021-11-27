@@ -934,9 +934,16 @@
   //Checkbox
   &-checkbox {
     &-checked {
-      &::after {
+      &:after {
         border-color: $primary-color;
       }
+			&.ant-checkbox-disabled {
+				.ant-checkbox-inner {
+					&:after {
+						border-color: white;
+					}
+				}
+			}
       .ant-checkbox-inner {
         background-color: $primary-color;
         border-color: $primary-color;
