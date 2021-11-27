@@ -244,14 +244,19 @@ const ListOrderScreen: React.FC = () => {
             {items.map((item, i) => {
               return (
                 <div className="item custom-td">
-                  <div className="product productNameWidth">
-                    <Link
-                      target="_blank"
-                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                    >
-                      {item.sku} 
-                      <br/>{item.variant}
-                    </Link>
+                  <div className="product productNameWidth 2">
+										<div className="inner">
+											<Link
+												target="_blank"
+												to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+											>
+												{item.sku} 
+											</Link>
+											<br/>
+											<div className="productNameText" title={item.variant}>
+												{item.variant}
+											</div>
+										</div>
                     
                   </div>
                   <div className="quantity quantityWidth">
