@@ -544,6 +544,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                   placeholder="Chọn trạng thái đơn hàng"
                   notFoundContent="Không tìm thấy kết quả"
                   optionFilterProp="children"
+                  maxTagCount='responsive'
                   getPopupContainer={(trigger) => trigger.parentNode}
                 >
                   {ECOMMERCE_ORDER_STATUS?.map((item, index) => (
