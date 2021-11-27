@@ -517,6 +517,9 @@ export default function Order() {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
+    values.customer_ward = customer?.ward;
+    values.customer_district = customer?.district;
+    values.customer_city = customer?.city;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -969,7 +972,7 @@ export default function Order() {
           //setCreating(false);
         }
       });
-      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
     }
     
     return status;

@@ -44,7 +44,7 @@ const initQuery: GetOrdersMappingQuery = {
   created_date_from: null,
   created_date_to: null,
   ecommerce_order_statuses: [],
-  shop_id: [],
+  shop_ids: [],
 };
 
 const CORE_ORDER_STATUS = [
@@ -210,11 +210,11 @@ const EcommerceOrderSync: React.FC = () => {
     },
     {
       title: "Ngày tạo",
-      dataIndex: "created_date",
+      dataIndex: "ecommerce_created_date",
       key: "received_status",
       align: "center",
-      render: (created_date) => (
-        <div>{convertDateTimeFormat(created_date)}</div>
+      render: (ecommerce_created_date) => (
+        <div>{convertDateTimeFormat(ecommerce_created_date)}</div>
       ),
     }
   ]);

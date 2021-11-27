@@ -14,6 +14,10 @@ export interface OrderRequest {
   marketer_code?: string | null;
   coordinator_code?: string | null;
   customer_id?: number | null;
+  customer_address?: string | null;
+  customer_ward?: string | null;
+  customer_district?: string | null;
+  customer_city?: string | null;
   reference_code: string | null;
   url: string | null;
   total_line_amount_after_line_discount: number | null;

@@ -1,20 +1,22 @@
 export interface AppliedDiscountResponseModel {
+  allocation_count: number | null;
   allocation_limit: number | null;
-    invalid: boolean;
-    invalid_description: string;
-    price_rule_id: number | null;
-    title: string | null;
-    value: number | null;
-    value_type: string | null;
-    code: string| null;
+  invalid: boolean;
+  invalid_description: string;
+  price_rule_id: number | null;
+  title: string | null;
+  value: number | null;
+  value_type: string | null;
+  code: string | null;
 }
 
 export interface SuggestDiscountResponseModel {
+  allocation_count: number | null;
   allocation_limit: number | null;
-price_rule_id: number | null;
-title: string | null;
-value: number | null;
-value_type: string | null;
+  price_rule_id: number | null;
+  title: string | null;
+  value: number | null;
+  value_type: string | null;
 }
 
 export interface ApplyDiscountLineItemResponseModel {
