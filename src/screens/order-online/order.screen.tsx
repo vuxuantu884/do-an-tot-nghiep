@@ -115,7 +115,7 @@ export default function Order() {
     service: "",
     shipping_fee_paid_to_three_pls: null,
   });
-  console.log("thirdPL", thirdPL);
+  console.log("items333", items);
   const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
@@ -685,6 +685,7 @@ export default function Order() {
                     show_note: item.show_note,
                     variant_barcode: item.variant_barcode,
                     product_id: item.product_id,
+                    product_code: item.product_code,
                     product_type: item.product_type,
                     quantity: item.quantity,
                     price: item.price,

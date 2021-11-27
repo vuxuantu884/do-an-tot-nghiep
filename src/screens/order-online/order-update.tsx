@@ -927,6 +927,7 @@ export default function Order(props: PropType) {
                 variant_barcode: item.variant_barcode,
                 product_id: item.product_id,
                 product_type: item.product_type,
+                product_code: item.product_code,
                 quantity: item.quantity,
                 price: item.price,
                 amount: item.amount,

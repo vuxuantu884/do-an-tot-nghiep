@@ -57,6 +57,7 @@ export interface ProductResponse extends BaseObject {
   unit:string,
   unit_name:string,
   product_type:string,
+  code:string,
   product_collections: Array<ProductCollectionsResponse>,
   specifications: string,
   variants: Array<VariantResponse>
