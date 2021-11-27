@@ -93,6 +93,7 @@ export interface OrderLineItemResponse {
   show_note: boolean;
   variant_barcode: string;
   product_type: string;
+  product_code?: string;
   quantity: number;
   price: number;
   amount: number;
