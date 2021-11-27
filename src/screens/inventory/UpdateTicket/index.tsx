@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { StyledWrapper } from "./index.style";
+import './index.scss';
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
@@ -762,8 +762,7 @@ const UpdateTicket: FC = () => {
   ];
 
   return (
-    <StyledWrapper>
-      <ContentContainer
+     <ContentContainer
         title={ (CopyId || stateImport) ? 'Thêm mới Phiếu chuyển hàng' : `Sửa phiếu chuyển hàng ${initDataForm? initDataForm.code : ''}`}
         breadcrumb={(CopyId || stateImport) ? [] : [
           {
@@ -1091,8 +1090,7 @@ const UpdateTicket: FC = () => {
             visible={isVisibleModalWarning}
           />
         }
-      </ContentContainer>
-    </StyledWrapper>
+     </ContentContainer>
   );
 };
 
