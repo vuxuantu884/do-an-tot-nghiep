@@ -80,7 +80,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
+  const [shopIdsSelected, setShopIdsSelected] = useState<Array<any>>([]);
 
   useEffect(() => {
     setEcommerceShopList(shopList || []);
@@ -92,9 +92,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       ecommerce_order_statuses: Array.isArray(params.ecommerce_order_statuses)
         ? params.ecommerce_order_statuses
         : [params.ecommerce_order_statuses],
-      shop_id: Array.isArray(params.shop_id)
-        ? params.shop_id
-        : [params.shop_id],
+      shop_ids: Array.isArray(params.shop_ids)
+        ? params.shop_ids
+        : [params.shop_ids],
       
     };
   }, [params]);
@@ -197,27 +197,27 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     });
 
     setEcommerceShopList(copyEcommerceShopList);
-    setShopIdSelected([]);
+    setShopIdsSelected([]);
   }, [ecommerceShopList]);
 
   const onSelectShopChange = (shop: any, e: any) => {
     if (e.target.checked) {
       shop.isSelected = true;
-      const shopSelected = [...shopIdSelected];
-      shopSelected.push(shop.id);
-      setShopIdSelected(shopSelected);
+      const shopsSelected = [...shopIdsSelected];
+      shopsSelected.push(shop.id);
+      setShopIdsSelected(shopsSelected);
     } else {
       shop.isSelected = false;
-      const shopSelected = shopIdSelected?.filter((item: any) => {
+      const shopsSelected = shopIdsSelected?.filter((item: any) => {
         return item !== shop.id;
       });
-      setShopIdSelected(shopSelected);
+      setShopIdsSelected(shopsSelected);
     }
   };
 
   const getPlaceholderSelectShop = () => {
-    if (shopIdSelected && shopIdSelected.length > 0) {
-      return `Đã chọn: ${shopIdSelected.length} gian hàng`;
+    if (shopIdsSelected && shopIdsSelected.length > 0) {
+      return `Đã chọn: ${shopIdsSelected.length} gian hàng`;
     } else {
       return "Chọn gian hàng";
     }
@@ -285,16 +285,16 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   let filters = useMemo(() => {
     let list = [];
 
-    if (initialValues.shop_id.length) {
+    if (initialValues.shop_ids.length) {
       let shopNameList = "";
-      initialValues.shop_id.forEach((shopId) => {
+      initialValues.shop_ids.forEach((shopId: any) => {
         const findStatus = ecommerceShopList?.find((item) => item.id === shopId);
         shopNameList = findStatus
           ? shopNameList + findStatus.name + "; "
           : shopNameList;
       });
       list.push({
-        key: "shop_id",
+        key: "shop_ids",
         name: "Gian hàng",
         value: shopNameList,
       });
@@ -337,16 +337,16 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     }
 
     return list;
-  }, [initialValues.shop_id, initialValues.connected_status, initialValues.created_date_from, initialValues.created_date_to, initialValues.ecommerce_order_statuses, ecommerceShopList]);
+  }, [initialValues.shop_ids, initialValues.connected_status, initialValues.created_date_from, initialValues.created_date_to, initialValues.ecommerce_order_statuses, ecommerceShopList]);
 
   // close tag filter
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
       switch (tag.key) {
-        case "shop_id":
-          onFilter && onFilter({ ...params, shop_id: [] });
-          formFilter?.setFieldsValue({ shop_id: [] });
+        case "shop_ids":
+          onFilter && onFilter({ ...params, shop_ids: [] });
+          formFilter?.setFieldsValue({ shop_ids: [] });
           onClearSelectedShop();
           break;
         case "connected_status":
@@ -406,14 +406,14 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     (values) => {
       const formValues = {
         ...values,
-        shop_id: shopIdSelected,
+        shop_ids: shopIdsSelected,
         created_date_from: createdDateFrom,
         created_date_to: createdDateTo,
       };
       
       onFilter && onFilter(formValues);
     },
-    [shopIdSelected, createdDateFrom, createdDateTo, onFilter]
+    [shopIdsSelected, createdDateFrom, createdDateTo, onFilter]
   );
 
 
