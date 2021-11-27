@@ -228,37 +228,27 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Khách hàng",
       render: (record: OrderResponse) =>
-        record.shipping_address ? (
-          <div className="customer custom-td">
-            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              <Link
-                target="_blank"
-                to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
-                className="primary"
-                style={{ fontSize: "16px" }}
-              >
-                {record.customer}
-              </Link>{" "}
-            </div>
-            {/* <div className="p-b-3">{record.shipping_address.phone}</div>
-            <div className="p-b-3">{record.shipping_address.full_address}</div> */}
-						{record.customer_phone_number && (
-							<div className="p-b-3">
-								<a href={`tel:${record.customer_phone_number}`}>
-									{record.customer_phone_number}
-								</a>
-							</div>
-						)}
-            <div className="p-b-3">{renderCustomerAddress(record)}</div>
-          </div>
-        ) : (
-          <div className="customer custom-td">
-            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {record.customer}
-            </div>
-            <div className="p-b-3">{record.customer_phone_number}</div>
-          </div>
-        ),
+				<div className="customer custom-td">
+					<div className="name p-b-3" style={{ color: "#2A2A86" }}>
+						<Link
+							target="_blank"
+							to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+							className="primary"
+						>
+							{record.customer}
+						</Link>{" "}
+					</div>
+					{/* <div className="p-b-3">{record.shipping_address.phone}</div>
+					<div className="p-b-3">{record.shipping_address.full_address}</div> */}
+					{record.customer_phone_number && (
+						<div className="p-b-3">
+							<a href={`tel:${record.customer_phone_number}`}>
+								{record.customer_phone_number}
+							</a>
+						</div>
+					)}
+					<div className="p-b-3">{renderCustomerAddress(record)}</div>
+				</div>,
       key: "customer",
       visible: true,
       width: 200,
