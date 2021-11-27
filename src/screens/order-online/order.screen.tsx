@@ -552,7 +552,11 @@ export default function Order() {
           } else {
             (async () => {
               try {
-                await dispatch(orderCreateAction(values, createOrderCallback));
+                await dispatch(orderCreateAction(values, createOrderCallback, () => {
+                  // on error
+                  setCreating(false);
+                  setIsSaveDraft(false);
+                }));
               } catch {
                 setCreating(false);
                 setIsSaveDraft(false);
@@ -579,7 +583,11 @@ export default function Order() {
                 (async () => {
                   console.log('values', values);
                   try {
-                    await dispatch(orderCreateAction(values, createOrderCallback));
+                    await dispatch(orderCreateAction(values, createOrderCallback, () => {
+                      // on error
+                      setCreating(false);
+                      setIsSaveDraft(false);
+                    }));
                   } catch {
                     setCreating(false);
                     setIsSaveDraft(false);

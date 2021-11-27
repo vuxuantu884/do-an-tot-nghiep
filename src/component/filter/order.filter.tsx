@@ -293,7 +293,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
       if (!error) {
         setVisible(false);
-        if (values?.price_min > values?.price_max) {
+        if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
           values = {
             ...values,
             price_min: values?.price_max,
