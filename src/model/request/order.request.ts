@@ -250,6 +250,7 @@ export interface OrderLineItemRequest {
   show_note: boolean;
   variant_barcode: string;
   product_id: number;
+  product_code?: string;
   product_type: string;
   quantity: number;
   price: number;

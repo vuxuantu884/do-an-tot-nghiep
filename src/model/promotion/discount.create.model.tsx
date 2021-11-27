@@ -1,3 +1,8 @@
+export enum DiscountMethod {
+  FIXED_PRICE = "FIXED_PRICE",
+  PERCENTAGE = "PERCENTAGE",
+  QUANTITY = "QUANTITY",
+}
 export interface DiscountCreateModel {
   title: string;
   description: string | null;
@@ -44,4 +49,29 @@ export interface Entitlement {
 export interface EntitleRange {
   greater_than_or_equal_to: number | null;
   less_than_or_equal_to: number | null;
+  allocation_limit?: number;
+  value_type?: string;
+  value?: number;
+}
+
+export interface VariantEntitlementsResponse {
+  discount_type: DiscountMethod;
+  discount_value: number;
+  index: number;
+  limit: number;
+  min_quantity: number;
+  price: number;
+  quantity: number;
+  sku: string;
+  variant_id: number;
+  variant_title: number;
+}
+
+export interface DiscountFormModel {
+  variants: Array<VariantEntitlementsResponse>;
+  entitled_variant_ids: Array<number>;
+  "prerequisite_quantity_ranges.allocation_limit": number,
+        "prerequisite_quantity_ranges.greater_than_or_equal_to": number,
+        "prerequisite_quantity_ranges.value_type":  "FIXED_PRICE" | "FIXED_AMOUNT" |  string,
+        "prerequisite_quantity_ranges.value": number,
 }

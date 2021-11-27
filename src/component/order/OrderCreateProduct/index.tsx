@@ -856,6 +856,7 @@ function OrderCreateProduct(props: PropType) {
 
   const autoCompleteRef = createRef<RefSelectProps>();
   const createItem = (variant: VariantResponse) => {
+    console.log('variant', variant)
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
@@ -868,6 +869,7 @@ function OrderCreateProduct(props: PropType) {
       variant: variant.name,
       variant_barcode: variant.barcode,
       product_type: variant.product.product_type,
+      product_code: variant.product.code,
       quantity: 1,
       price: price,
       amount: price,
