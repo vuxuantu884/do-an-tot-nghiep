@@ -1,24 +1,24 @@
-import React, {useCallback, useEffect, useState} from "react";
-import ContentContainer from "../../../component/container/content.container";
-import UrlConfig from "../../../config/url.config";
-import arrowLeft from "../../../assets/icon/arrow-left.svg";
-import GeneralCreate from "./components/general.create";
-import "./promo-code.scss";
 import {Button, Col, Form, Row} from "antd";
-import {useHistory} from "react-router-dom";
-import {showSuccess} from "../../../utils/ToastUtils";
-import {useDispatch} from "react-redux";
-import {PROMO_TYPE} from "utils/Constants";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
+import {getListChannelRequest} from "domain/actions/order/order.action";
+import {addPriceRules} from "domain/actions/promotion/discount/discount.action";
+import useAuthorization from "hook/useAuthorization";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
+import {ChannelResponse} from "model/response/product/channel.response";
+import React, {useCallback, useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {useHistory} from "react-router-dom";
+import {PROMO_TYPE} from "utils/Constants";
+import ContentContainer from "../../../component/container/content.container";
+import UrlConfig from "../../../config/url.config";
 import {StoreGetListAction} from "../../../domain/actions/core/store.action";
 import {getListSourceRequest} from "../../../domain/actions/product/source.action";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {addPriceRules} from "domain/actions/promotion/discount/discount.action";
-import {getListChannelRequest} from "domain/actions/order/order.action";
-import {ChannelResponse} from "model/response/product/channel.response";
-import useAuthorization from "hook/useAuthorization";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import {showSuccess} from "../../../utils/ToastUtils";
+import GeneralCreate from "./components/general.create";
+import "./promo-code.scss";
 
 const CreatePromotionCodePage = () => {
   const dispatch = useDispatch();
@@ -191,43 +191,38 @@ const CreatePromotionCodePage = () => {
             />
           </Col>
         </Row>
-        <div className="customer-bottom-button">
-          <div onClick={() => history.goBack()} style={{cursor: "pointer"}}>
-            <img
-              style={{marginRight: "10px", transform: "rotate(180deg)"}}
-              src={arrowLeft}
-              alt=""
-            />
-            Quay lại danh sách đợt phát hành
-          </div>
-          <div>
-            <Button
-              onClick={() => reload()}
-              style={{marginLeft: ".75rem", marginRight: ".75rem"}}
-              type="ghost"
-            >
-              Hủy
-            </Button>
-            {allowCreatePromoCode ? (
-              <>
-                <Button
-                  onClick={() => save()}
-                  style={{
-                    marginLeft: ".75rem",
-                    marginRight: ".75rem",
-                    borderColor: "#2a2a86",
-                  }}
-                  type="ghost"
-                >
-                  Lưu
-                </Button>
-                <Button type="primary" htmlType="submit">
-                  Lưu và kích hoạt
-                </Button>
-              </>
-            ) : null}
-          </div>
-        </div>
+        <BottomBarContainer
+          back="Quay lại danh sách đợt phát hành"
+          rightComponent={
+            <div>
+              <Button
+                onClick={() => reload()}
+                style={{marginLeft: ".75rem", marginRight: ".75rem"}}
+                type="ghost"
+              >
+                Hủy
+              </Button>
+              {allowCreatePromoCode && (
+                <>
+                  <Button
+                    onClick={() => save()}
+                    style={{
+                      marginLeft: ".75rem",
+                      marginRight: ".75rem",
+                      borderColor: "#2a2a86",
+                    }}
+                    type="ghost"
+                  >
+                    Lưu
+                  </Button>
+                  <Button type="primary" htmlType="submit">
+                    Lưu và kích hoạt
+                  </Button>
+                </>
+              )}
+            </div>
+          }
+        />
       </Form>
     </ContentContainer>
   );
