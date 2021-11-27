@@ -210,11 +210,11 @@ const EcommerceOrderSync: React.FC = () => {
     },
     {
       title: "Ngày tạo",
-      dataIndex: "ecommerce_create_date",
+      dataIndex: "ecommerce_created_date",
       key: "received_status",
       align: "center",
-      render: (ecommerce_create_date) => (
-        <div>{convertDateTimeFormat(ecommerce_create_date)}</div>
+      render: (ecommerce_created_date) => (
+        <div>{convertDateTimeFormat(ecommerce_created_date)}</div>
       ),
     }
   ]);
