@@ -675,6 +675,9 @@ export default function Order(props: PropType) {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
+		values.customer_ward = customer?.ward;
+    values.customer_district = customer?.district;
+    values.customer_city = customer?.city;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.channel_id = OrderDetail.channel_id;
     // console.log("onFinish onFinish", values);
