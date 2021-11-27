@@ -49,6 +49,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ShipmentMethod } from "utils/Constants";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const actions: Array<MenuAction> = [
@@ -358,21 +359,21 @@ const ListOrderScreen: React.FC = () => {
           const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
           if (newFulfillments[0].shipment) {
             switch (newFulfillments[0].shipment.delivery_service_provider_type) {
-              case "external_service":
-                const service_id = newFulfillments[0].shipment.delivery_service_provider_id;
-                const service = delivery_services.find((service) => service.id === service_id);
+              case ShipmentMethod.EXTERNAL_SERVICE:
+                const service_code = newFulfillments[0].shipment.delivery_service_provider_code;
+                const service = delivery_services.find((service) => service.external_service_code === service_code);
                 return (
                   service && (
                     <img
                       src={service.logo ? service.logo : ""}
                       alt=""
-                      style={{ width: "100%" }}
+                      style={{ maxWidth: "100%" }}
                     />
                   )
                 );
-              case "Shipper":
+              case ShipmentMethod.SHIPPER:
                 return `Đối tác - ${newFulfillments[0].shipment.shipper_code} - ${newFulfillments[0].shipment.shipper_name}`;
-              case "pick_at_store":
+              case ShipmentMethod.PICK_AT_STORE:
                 return `Nhận tại - ${record.store}`;
               default: return ""
             }
@@ -381,7 +382,7 @@ const ListOrderScreen: React.FC = () => {
         return ""
       },
       visible: true,
-      width: 200,
+      width: 150,
       align: "center",
     },
     {
@@ -391,7 +392,7 @@ const ListOrderScreen: React.FC = () => {
       render: (sub_status) => (
         <div
           style={{
-            background: "rgba(42, 42, 134, 0.1)",
+            // background: "rgba(42, 42, 134, 0.1)",
             borderRadius: "100px",
             color: "#2A2A86",
             padding: sub_status ? "5px 10px" : "0",
@@ -402,7 +403,7 @@ const ListOrderScreen: React.FC = () => {
       ),
       visible: true,
       align: "center",
-      width: 200,
+      width: 150,
     },
     {
       title: "Ghi chú nội bộ",
