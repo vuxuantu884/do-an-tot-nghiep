@@ -691,12 +691,13 @@ const ListCode = () => {
                               "index"
                             ).sort((a: any, b: any) => a.index - b.index);
                             setCodeErrorsResponse([...errors]);
+                          }else{
+                            setCodeErrorsResponse([]);
                           }
                           setImportTotal(response.data.total);
                           setSuccessCount(response.data.success_count);
                           setUploadStatus(status);
                           dispatch(getListPromoCode(priceRuleId, params, fetchData));
-                          setCodeErrorsResponse([]);
                         } else {
                           setUploadStatus("error");
                           setUploadError(response.errors);

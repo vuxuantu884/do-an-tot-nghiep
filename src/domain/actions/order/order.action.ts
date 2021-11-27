@@ -44,9 +44,10 @@ import { OrderType } from "../../types/order.type";
 
 export const orderCreateAction = (
   request: OrderRequest,
-  setData: (data: OrderResponse) => void
+  setData: (data: OrderResponse) => void,
+  onError: () => void
 ) => {
-  return BaseAction(OrderType.CREATE_ORDER_REQUEST, { request, setData });
+  return BaseAction(OrderType.CREATE_ORDER_REQUEST, { request, setData, onError });
 };
 
 export const orderUpdateAction = (

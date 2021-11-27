@@ -18,6 +18,18 @@ export const StyledCustomerFilter = styled.div`
     }
   }
 
+  .filter-tags {
+    .ant-tag {
+      margin-top: 0;
+    }
+    .tag {
+      padding: 10px 10px;
+      margin-bottom: 20px;
+      background: rgba(42, 42, 134, 0.05);
+      border-radius: 50px;
+    }
+  }
+
 `;
 
 export const StyledCustomerBaseFilter = styled.div`

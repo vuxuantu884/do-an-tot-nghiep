@@ -369,7 +369,7 @@ const OrderDetail = (props: PropType) => {
           console.log("response", response);
           // handleReload();
           setReload(true);
-        })
+        },)
       );
     }
   };

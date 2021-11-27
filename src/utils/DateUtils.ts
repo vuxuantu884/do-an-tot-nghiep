@@ -2,7 +2,8 @@ import moment, { Moment } from "moment";
 
 export const DATE_FORMAT = {
   DDMMYYY: "DD/MM/YYYY",
-  DDMMYY_HHmm: "DD/MM/YYYY HH:mm"
+  DDMMYY_HHmm: "DD/MM/YYYY HH:mm",
+  DDMM: "DD/MM",
 };
 
 export const ConvertUtcToLocalDate = (

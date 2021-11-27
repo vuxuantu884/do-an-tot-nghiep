@@ -49,6 +49,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ShipmentMethod } from "utils/Constants";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const actions: Array<MenuAction> = [
@@ -169,6 +170,34 @@ const ListOrderScreen: React.FC = () => {
     { name: "Đã hết hạn", value: "expired" },
   ];
 
+	const renderCustomerAddress = (orderDetail: OrderResponse) => {
+		let html = orderDetail.customer_address;
+		if(orderDetail.customer_ward) {
+			html += ` - ${orderDetail.customer_ward}`;
+		}
+		if(orderDetail.customer_district) {
+			html += ` - ${orderDetail.customer_district}`;
+		}
+		if(orderDetail.customer_city) {
+			html += ` - ${orderDetail.customer_city}`;
+		}
+		return html;
+	};
+
+	const renderCustomerShippingAddress = (orderDetail: OrderResponse) => {
+		let html = orderDetail.shipping_address?.full_address;
+		if(orderDetail?.shipping_address?.ward) {
+			html += ` - ${orderDetail.shipping_address?.ward}`;
+		}
+		if(orderDetail?.shipping_address?.district) {
+			html += ` - ${orderDetail.shipping_address.district}`;
+		}
+		if(orderDetail?.shipping_address?.city) {
+			html += ` - ${orderDetail.shipping_address.city}`;
+		}
+		return html;
+	};
+
   const [columns, setColumn] = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID đơn hàng",
@@ -198,30 +227,28 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Khách hàng",
-      render: (record) =>
-        record.shipping_address ? (
-          <div className="customer custom-td">
-            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              <Link
-                target="_blank"
-                to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
-                className="primary"
-                style={{ fontSize: "16px" }}
-              >
-                {record.shipping_address.name}
-              </Link>{" "}
-            </div>
-            <div className="p-b-3">{record.shipping_address.phone}</div>
-            <div className="p-b-3">{record.shipping_address.full_address}</div>
-          </div>
-        ) : (
-          <div className="customer custom-td">
-            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {record.customer}
-            </div>
-            <div className="p-b-3">{record.customer_phone_number}</div>
-          </div>
-        ),
+      render: (record: OrderResponse) =>
+				<div className="customer custom-td">
+					<div className="name p-b-3" style={{ color: "#2A2A86" }}>
+						<Link
+							target="_blank"
+							to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+							className="primary"
+						>
+							{record.customer}
+						</Link>{" "}
+					</div>
+					{/* <div className="p-b-3">{record.shipping_address.phone}</div>
+					<div className="p-b-3">{record.shipping_address.full_address}</div> */}
+					{record.customer_phone_number && (
+						<div className="p-b-3">
+							<a href={`tel:${record.customer_phone_number}`}>
+								{record.customer_phone_number}
+							</a>
+						</div>
+					)}
+					<div className="p-b-3">{renderCustomerAddress(record)}</div>
+				</div>,
       key: "customer",
       visible: true,
       width: 200,
@@ -244,14 +271,19 @@ const ListOrderScreen: React.FC = () => {
             {items.map((item, i) => {
               return (
                 <div className="item custom-td">
-                  <div className="product productNameWidth">
-                    <Link
-                      target="_blank"
-                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                    >
-                      {item.sku} 
-                      <br/>{item.variant}
-                    </Link>
+                  <div className="product productNameWidth 2">
+										<div className="inner">
+											<Link
+												target="_blank"
+												to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+											>
+												{item.sku} 
+											</Link>
+											<br/>
+											<div className="productNameText" title={item.variant}>
+												{item.variant}
+											</div>
+										</div>
                     
                   </div>
                   <div className="quantity quantityWidth">
@@ -296,7 +328,7 @@ const ListOrderScreen: React.FC = () => {
       key: "customer.amount_money",
       visible: true,
       align: "right",
-      width: "150px",
+      width: "120px",
     },
     {
       title: "HT Vận chuyển",
@@ -306,21 +338,21 @@ const ListOrderScreen: React.FC = () => {
           const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
           if (newFulfillments[0].shipment) {
             switch (newFulfillments[0].shipment.delivery_service_provider_type) {
-              case "external_service":
-                const service_id = newFulfillments[0].shipment.delivery_service_provider_id;
-                const service = delivery_services.find((service) => service.id === service_id);
+              case ShipmentMethod.EXTERNAL_SERVICE:
+                const service_code = newFulfillments[0].shipment.delivery_service_provider_code;
+                const service = delivery_services.find((service) => service.external_service_code === service_code);
                 return (
                   service && (
                     <img
                       src={service.logo ? service.logo : ""}
                       alt=""
-                      style={{ width: "100%" }}
+                      style={{ maxWidth: "100%" }}
                     />
                   )
                 );
-              case "Shipper":
+              case ShipmentMethod.SHIPPER:
                 return `Đối tác - ${newFulfillments[0].shipment.shipper_code} - ${newFulfillments[0].shipment.shipper_name}`;
-              case "pick_at_store":
+              case ShipmentMethod.PICK_AT_STORE:
                 return `Nhận tại - ${record.store}`;
               default: return ""
             }
@@ -329,7 +361,7 @@ const ListOrderScreen: React.FC = () => {
         return ""
       },
       visible: true,
-      width: 200,
+      width: 150,
       align: "center",
     },
     {
@@ -339,7 +371,7 @@ const ListOrderScreen: React.FC = () => {
       render: (sub_status) => (
         <div
           style={{
-            background: "rgba(42, 42, 134, 0.1)",
+            // background: "rgba(42, 42, 134, 0.1)",
             borderRadius: "100px",
             color: "#2A2A86",
             padding: sub_status ? "5px 10px" : "0",
@@ -350,7 +382,7 @@ const ListOrderScreen: React.FC = () => {
       ),
       visible: true,
       align: "center",
-      width: 200,
+      width: 150,
     },
     {
       title: "Ghi chú nội bộ",
@@ -529,22 +561,16 @@ const ListOrderScreen: React.FC = () => {
       align: "center",
       width: 100,
     },
-    {
-      title: "Khu vực",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) => {
-        const ward = shipping_address?.ward ? shipping_address.ward + "," : "";
-        const district = shipping_address?.district
-          ? shipping_address.district + ","
-          : "";
-        const city = shipping_address?.city ? shipping_address.city + "," : "";
-        return (
-          shipping_address && <div className="name">{`${ward} ${district} ${city}`}</div>
-        );
-      },
-      key: "area",
+		{
+      title: "Địa chỉ giao hàng",
+      render: (record: OrderResponse) =>
+				<div className="customer custom-td">
+					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
+        </div>
+        ,
+      key: "shipping_address",
       visible: true,
-      width: "200px",
+      width: 200,
     },
     {
       title: "Kho cửa hàng",
