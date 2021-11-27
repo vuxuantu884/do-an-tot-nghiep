@@ -54,7 +54,7 @@ import {
 import { CouponRequestModel, LineItemRequestModel } from "model/request/promotion.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { OrderConfig, OrderResponse } from "model/response/order/order.response";
-import { AppliedDiscountResponseModel, ApplyCouponResponseModel, SuggestDiscountResponseModel } from "model/response/order/promotion.response";
+import { ApplyCouponResponseModel, SuggestDiscountResponseModel } from "model/response/order/promotion.response";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, {
 	createRef,
