@@ -11,9 +11,12 @@ export const StyledComponent = styled.div`
 `;
 
 export const StyledYodyProductColumn = styled.div`
-  .button {
+  .yody-product-button {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: flex-start;
+    .save-button {
+      margin-right: 15px;
+    }
   }
 
   .link {

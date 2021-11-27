@@ -512,11 +512,12 @@ const NotConnectedItems: React.FC = () => {
             </ul>
 
             {allowProductsConnect &&
-              <div className="button">
+              <div className="yody-product-button">
                 <Button
                   type="primary"
                   onClick={handleSaveConnectYodyProduct}
                   loading={!isVisibleConfirmConnectModal && isSaving}
+                  className="save-button"
                 >
                   Lưu
                 </Button>
