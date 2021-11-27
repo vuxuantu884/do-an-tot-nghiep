@@ -205,7 +205,12 @@ const CustomerDetail = () => {
       },
       {
         name: "Số đơn trả",
-        value: purchaseIfo?.total_returned_order,
+        value:
+          <NumberFormat
+            value={purchaseIfo?.total_returned_order}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
       },
       {
         name: "Tiền tích luỹ",
