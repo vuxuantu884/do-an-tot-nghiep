@@ -541,6 +541,7 @@ const ScreenReturnCreate = (props: PropType) => {
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
           valuesResult.channel_id = DEFAULT_CHANNEL_ID;
+          values.company_id = DEFAULT_COMPANY.company_id;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
 							valuesResult.order_return_id = orderReturnId;
