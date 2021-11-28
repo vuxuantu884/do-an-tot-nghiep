@@ -682,6 +682,7 @@ export default function Order(props: PropType) {
     values.customer_city = customer?.city;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.channel_id = OrderDetail.channel_id;
+    values.company_id = DEFAULT_COMPANY.company_id;
     // console.log("onFinish onFinish", values);
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");

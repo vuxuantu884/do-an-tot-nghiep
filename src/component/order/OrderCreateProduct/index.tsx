@@ -733,9 +733,9 @@ function OrderCreateProduct(props: PropType) {
           <DiscountGroup
             price={l.price}
             index={index}
-            discountRate={l.discount_items[0].rate}
-            discountValue={l.discount_items[0].value}
-            totalAmount={l.discount_items[0].amount}
+            discountRate={l.discount_items[0]?.rate ? l.discount_items[0]?.rate : 0}
+            discountValue={l.discount_items[0]?.value ? l.discount_items[0]?.value : 0}
+            totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
             items={items}
             handleCardItems={onDiscountItem}
             disabled={levelOrder > 3 || isAutomaticDiscount || coupon !== ""}
