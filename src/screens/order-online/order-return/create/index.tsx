@@ -54,6 +54,7 @@ import {
   scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
+  DEFAULT_COMPANY,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
@@ -174,6 +175,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const initialForm: OrderRequest = {
     action: "", //finalized
     store_id: null,
+    company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,

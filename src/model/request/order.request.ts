@@ -3,6 +3,7 @@ import { Moment } from "moment";
 export interface OrderRequest {
   action: string | null;
   store_id: number | null;
+  company_id: number | null;
   price_type: string | null;
   tax_treatment: string | null;
   source_id: number | null;

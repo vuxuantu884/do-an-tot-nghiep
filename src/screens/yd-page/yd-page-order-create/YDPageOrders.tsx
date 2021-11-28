@@ -44,6 +44,7 @@ import {
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import {
+  DEFAULT_COMPANY,
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
@@ -232,6 +233,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   let initialRequest: OrderRequest = {
     action: "", //finalized
     store_id: null,
+    company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
