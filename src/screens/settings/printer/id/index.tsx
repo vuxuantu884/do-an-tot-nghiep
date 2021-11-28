@@ -8,7 +8,7 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { DEFAULT_FORM_VALUE } from "utils/Constants";
+import { DEFAULT_COMPANY } from "utils/Constants";
 import { useQuery } from "utils/useQuery";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
@@ -19,8 +19,8 @@ function SinglePrinter() {
   const editAction: FormPrinterModel = "edit";
   const [singlePrinterContent, setSinglePrinterContent] =
     useState<BasePrinterModel>({
-      company: DEFAULT_FORM_VALUE.company,
-      company_id: DEFAULT_FORM_VALUE.company_id,
+      company: DEFAULT_COMPANY.company,
+      company_id: DEFAULT_COMPANY.company_id,
       store_id: 0,
       id: 0,
       name: "",

@@ -30,9 +30,9 @@ type FormValuesType = {
 };
 
 function ModalCreateOrderSource(props: PropType) {
-  const DEFAULT_FORM_VALUE = {
-    company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
-    company: CONSTANTS.DEFAULT_FORM_VALUE.company,
+  const DEFAULT_COMPANY = {
+    company_id: CONSTANTS.DEFAULT_COMPANY.company_id,
+    company: CONSTANTS.DEFAULT_COMPANY.company,
   };
 
   const {form, visible, listChannels, listDepartments, onCreate,onCancel } = props;
@@ -43,8 +43,8 @@ function ModalCreateOrderSource(props: PropType) {
   const initialFormValues: FormValuesType =
   {
     channel_id: undefined,
-    company_id: DEFAULT_FORM_VALUE.company_id,
-    company: DEFAULT_FORM_VALUE.company,
+    company_id: DEFAULT_COMPANY.company_id,
+    company: DEFAULT_COMPANY.company,
     name: "",
     code: "",
     department_id: undefined,

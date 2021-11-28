@@ -19,7 +19,7 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch} from "react-redux";
 import {Prompt} from "react-router";
 import {useHistory} from "react-router-dom";
-import {DEFAULT_FORM_VALUE} from "utils/Constants";
+import {DEFAULT_COMPANY} from "utils/Constants";
 import FormFilter from "../FormFilter";
 import Preview from "../preview";
 import {StyledComponent} from "./styles";
@@ -141,8 +141,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           }
         : {
             name: null,
-            company: DEFAULT_FORM_VALUE.company,
-            company_id: DEFAULT_FORM_VALUE.company_id,
+            company: DEFAULT_COMPANY.company,
+            company_id: DEFAULT_COMPANY.company_id,
             is_default: false,
             print_size: null,
             store: null,

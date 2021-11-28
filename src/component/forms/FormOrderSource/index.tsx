@@ -19,9 +19,9 @@ type FormValuesType = {
 };
 
 const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
-  const DEFAULT_FORM_VALUE = {
-    company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
-    company: CONSTANTS.DEFAULT_FORM_VALUE.company,
+  const DEFAULT_COMPANY = {
+    company_id: CONSTANTS.DEFAULT_COMPANY.company_id,
+    company: CONSTANTS.DEFAULT_COMPANY.company,
   };
 
   const {modalAction, formItem, form, visible, moreFormArguments} = props;
@@ -34,7 +34,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
       ? {
           channel_id: formItem.channel_id,
           company_id: formItem.company_id,
-          company: DEFAULT_FORM_VALUE.company,
+          company: DEFAULT_COMPANY.company,
           name: formItem.name,
           code: formItem.code,
           department_id: formItem.department_id,
@@ -44,8 +44,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
         }
       : {
           channel_id: undefined,
-          company_id: DEFAULT_FORM_VALUE.company_id,
-          company: DEFAULT_FORM_VALUE.company,
+          company_id: DEFAULT_COMPANY.company_id,
+          company: DEFAULT_COMPANY.company,
           name: "",
           code: null,
           department_id: undefined,
