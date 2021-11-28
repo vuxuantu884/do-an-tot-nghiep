@@ -4,7 +4,7 @@ import { Modal } from "antd";
 import checkCircleIcon from "assets/icon/check-circle.svg";
 import checkCircleBlueIcon from "assets/icon/check-circle-blue.svg";
 import errorIcon from "assets/icon/error.svg";
-import CustomTable from "component/table/CustomTable";
+import CustomTable from "screens/ecommerce/table/CustomTable";
 
 
 type ResultGetOrderDataModalType = {
@@ -31,9 +31,17 @@ const ResultGetOrderDataModal: React.FC<ResultGetOrderDataModalType> = (
       },
     },
     {
-      title: "Nội dung đơn hàng tải thất bại",
+      title: "ĐH tải thất bại",
       render: (value: any, row: any, index: any) => {
-        return <div>Đơn hàng <strong>{value}</strong> tải thất bại</div>
+        return <div><strong>{value}</strong></div>
+      },
+    },
+    {
+      title: "Nội dung",
+      render: (value: any, row: any, index: any) => {
+        return <div>
+          {downloadOrderData?.error_list.find((item: any) => item.order_sn === value)?.error_message.join(", ")}
+        </div>
       },
     },
   ]);
@@ -70,7 +78,7 @@ const ResultGetOrderDataModal: React.FC<ResultGetOrderDataModalType> = (
         {downloadOrderData?.error_total > 0 &&
           <CustomTable
             columns={columns}
-            dataSource={downloadOrderData?.error_list}
+            dataSource={downloadOrderData?.error_list.map((item: any) => item.order_sn)}
             pagination={false}
             rowKey={(data) => data.id}
           />
