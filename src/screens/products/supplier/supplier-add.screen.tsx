@@ -2,40 +2,40 @@ import {
   Button,
   Card,
   Col,
-  Space,
+  Collapse,
+  Divider,
   Form,
   Input,
   Radio,
   Row,
   Select,
+  Space,
   Switch,
-  Divider,
-  Collapse,
 } from "antd";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import ContentContainer from "component/container/content.container";
+import NumberInput from "component/custom/number-input.custom";
+import AccountSearchSelect from "component/custom/select-search/account-select";
+import {AppConfig} from "config/app.config";
+import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import {SupplierCreateAction} from "domain/actions/core/supplier.action";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {SupplierCreateRequest} from "model/core/supplier.model";
+import useAuthorization from "hook/useAuthorization";
 import {AccountResponse} from "model/account/account.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import {CountryResponse} from "model/content/country.model";
 import {DistrictResponse} from "model/content/district.model";
+import {SupplierCreateRequest} from "model/core/supplier.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
-import {AppConfig} from "config/app.config";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import {RegUtil} from "utils/RegUtils";
-import NumberInput from "component/custom/number-input.custom";
 import {VietNamId} from "utils/Constants";
-import useAuthorization from "hook/useAuthorization";
-import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
-import BottomBarContainer from "component/container/bottom-bar.container";
+import {RegUtil} from "utils/RegUtils";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -107,22 +107,22 @@ const CreateSupplierScreen: React.FC = () => {
   //EndState
 
   //Callback
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return false;
-      }
-      let listWinAccount = data.items;
-      setAccounts(listWinAccount);
-      let checkUser = listWinAccount.findIndex((val) => val.code === currentUserCode);
-      if (checkUser !== -1 && currentUserCode !== undefined) {
-        formSupplier.setFieldsValue({
-          person_in_charge: currentUserCode,
-        });
-      }
-    },
-    [currentUserCode, formSupplier]
-  );
+  // const setDataAccounts = useCallback(
+  //   (data: PageResponse<AccountResponse> | false) => {
+  //     if (!data) {
+  //       return false;
+  //     }
+  //     let listWinAccount = data.items;
+  //     setAccounts(listWinAccount);
+  //     let checkUser = listWinAccount.findIndex((val) => val.code === currentUserCode);
+  //     if (checkUser !== -1 && currentUserCode !== undefined) {
+  //       formSupplier.setFieldsValue({
+  //         person_in_charge: currentUserCode,
+  //       });
+  //     }
+  //   },
+  //   [currentUserCode, formSupplier]
+  // );
 
   const onChangeStatus = useCallback(
     (checked: boolean) => {
@@ -178,15 +178,9 @@ const CreateSupplierScreen: React.FC = () => {
   }, [status, supplier_status]);
   //end memo
   useEffect(() => {
-    dispatch(
-      AccountSearchAction(
-        {department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"},
-        setDataAccounts
-      )
-    );
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
-  }, [dispatch, setDataAccounts, setListDistrict]);
+  }, [dispatch, setListDistrict]);
   return (
     <ContentContainer
       title="Quản lý nhà cung cấp"
@@ -299,7 +293,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Item
+              <AccountSearchSelect
                 rules={[
                   {
                     required: true,
@@ -308,21 +302,13 @@ const CreateSupplierScreen: React.FC = () => {
                 ]}
                 name="person_in_charge"
                 label="Nhân viên phụ trách"
-              >
-                <Select
-                  placeholder="Chọn nhân viên phụ trách"
-                  allowClear
-                  showSearch
-                  showArrow
-                  optionFilterProp="children"
-                >
-                  {accounts.map((item) => (
-                    <Option key={item.code} value={item.code}>
-                      {`${item.code} - ${item.full_name}`}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
+                placeholder="Chọn nhân viên phụ trách"
+                queryAccount={{
+                  department_ids: [AppConfig.WIN_DEPARTMENT],
+                  status: "active",
+                }}
+                defaultValue={currentUserCode}
+              />
             </Col>
           </Row>
           <Divider orientation="left">Thông tin khác</Divider>
@@ -583,14 +569,15 @@ const CreateSupplierScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <BottomBarContainer
-            back="Quay lại danh sách"
-            rightComponent={
-              allowCreateSup && 
-                <Button htmlType="submit" type="primary">
-                  Tạo nhà cung cấp
-                </Button>
-            }
-          /> 
+          back="Quay lại danh sách"
+          rightComponent={
+            allowCreateSup && (
+              <Button htmlType="submit" type="primary">
+                Tạo nhà cung cấp
+              </Button>
+            )
+          }
+        />
       </Form>
     </ContentContainer>
   );
