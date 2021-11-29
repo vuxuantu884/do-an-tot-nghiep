@@ -136,10 +136,10 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
             store_ids: baseValues.store_ids,
             condition: baseValues.condition,
           };
-          let created_date = data[AvdHistoryInventoryFilter.created_date];
+          let transaction_date = data[AvdHistoryInventoryFilter.transaction_date];
 
-          const [from_created_date, to_created_date] = created_date
-            ? created_date
+          const [from_transaction_date, to_transaction_date] = transaction_date
+            ? transaction_date
             : [undefined, undefined];
 
           for (let key in data) {
@@ -149,8 +149,8 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
           }
           data = {
             ...data,
-            from_created_date,
-            to_created_date,
+            from_transaction_date,
+            to_transaction_date,
             //quantity change
           };
           formBaseFilter.setFieldsValue({...data});
@@ -238,7 +238,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                       }
                     >
                       <Item name={field}>
-                        {field === AvdHistoryInventoryFilter.created_date ? (
+                        {field === AvdHistoryInventoryFilter.transaction_date ? (
                           <CustomRangepicker />
                         ) : (
                           <QuantityChange form={formAdvanceFilter} />
@@ -263,10 +263,14 @@ const FilterList = ({filters, resetField}: any) => {
     <div>
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
-        if (!value) return null;
-        if (!HistoryInventoryMappingField[filterKey]) return null;
+        
+        if (!value && filterKey === AvdHistoryInventoryFilter.transaction_date) return null;
+        
+        if (!HistoryInventoryMappingField[filterKey] && (['to_quantity','from_quantity'].indexOf(filterKey) === -1) ) 
+          return null;
+        
         switch (filterKey) {
-          case AvdHistoryInventoryFilter.created_date:
+          case AvdHistoryInventoryFilter.transaction_date:
             let [from, to] = value;
             let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
               formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
@@ -275,6 +279,18 @@ const FilterList = ({filters, resetField}: any) => {
               renderTxt = `${HistoryInventoryMappingField[filterKey]} : ${fixedDate}`;
             else
               renderTxt = `${HistoryInventoryMappingField[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+            break;
+          case HistoryInventoryQueryField.to_quantity:
+            if (value === null) {
+              return null;
+            }
+            renderTxt = `${HistoryInventoryMappingField[AvdHistoryInventoryFilter.quantity_change]}: Trừ`;
+            break;
+          case HistoryInventoryQueryField.from_quantity:
+            if (value === null) {
+              return null;
+            }
+            renderTxt = `${HistoryInventoryMappingField[AvdHistoryInventoryFilter.quantity_change]}: Cộng`;
             break;
         }
         return (
