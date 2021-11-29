@@ -340,7 +340,7 @@ const OrderDetail = (props: PropType) => {
         case "clone":
           // history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
           const newTab = window.open(
-            `/unicorn/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
+            `/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
             "_blank"
           );
           newTab?.focus();

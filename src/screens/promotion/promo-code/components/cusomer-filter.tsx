@@ -219,7 +219,7 @@ export default function CustomerFilter(props: Props): ReactElement {
               </Form.Item>
            
               <AccountSearchSelect
-                lable="Nhân viên phụ trách"
+                label="Nhân viên phụ trách"
                 placeholder="Chọn nhân viên phụ trách"
                 name={CustomerFilterField.staff}
               />

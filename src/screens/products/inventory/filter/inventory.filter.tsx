@@ -128,8 +128,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
             ...advanceValues, 
             condition: baseValues.condition, 
           };
-          let created_date = data[InventoryQueryField.created_date],
-            transaction_date = data[InventoryQueryField.transaction_date],
+          let transaction_date = data[InventoryQueryField.transaction_date],
             total_stock = data[InventoryQueryField.total_stock],
             on_hand = data[InventoryQueryField.on_hand],
             committed = data[InventoryQueryField.committed],
@@ -144,10 +143,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
             import_price = data[InventoryQueryField.import_price],
             retail_price = data[InventoryQueryField.retail_price];
 
-          const [from_created_date, to_created_date] = created_date
-              ? created_date
-              : [undefined, undefined],
-            [from_transaction_date, to_transaction_date] = transaction_date
+          const [from_transaction_date, to_transaction_date] = transaction_date
               ? transaction_date
               : [undefined, undefined],
             [from_total_stock, to_total_stock] = total_stock
@@ -182,8 +178,6 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
           }
           data = {
             ...data,
-            from_created_date,
-            to_created_date,
             from_transaction_date,
             to_transaction_date,
             from_total_stock,
@@ -244,7 +238,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
                 allowClear
                 tagRender={tagRender}
                 style={{
-                  width: "100%",
+                  width: 150,
                 }}
                 notFoundContent="Không tìm thấy kết quả"
                 maxTagCount="responsive"
@@ -289,7 +283,6 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
               {Object.keys(AvdInventoryFilter).map((field) => {
                 let component: any = null;
                 switch (field) {
-                  case AvdInventoryFilter.created_date:
                   case AvdInventoryFilter.transaction_date:
                     component = <CustomRangepicker />;
                     break;
@@ -336,7 +329,6 @@ const FilterList = ({filters, resetField}: any) => {
         if (!value) return null;
         if (!InventoryMappingField[filterKey]) return null;
         switch (filterKey) {
-          case AvdInventoryFilter.created_date:
           case AvdInventoryFilter.transaction_date:
             let [from, to] = value;
             let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),

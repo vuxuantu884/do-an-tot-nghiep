@@ -169,6 +169,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
     setVisibleCustomer(true);
+    setKeySearchCustomer("");
   };
   const OkConfirmCustomerEdit = () => {
     setModalAction("edit");
@@ -640,6 +641,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 handleChangeCustomer={handleChangeCustomer}
                 ShippingAddressChange={props.ShippingAddressChange}
                 keySearchCustomer={keySearchCustomer}
+                CustomerDeleteInfo={CustomerDeleteInfo}
               />
             )}
 
