@@ -57,7 +57,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {convertDepartment, convertDistrict} from "utils/AppUtils";
 import {RegUtil} from "utils/RegUtils";
-import {showSuccess} from "utils/ToastUtils";
+import {showSuccess, showWarning} from "utils/ToastUtils";
 import {PASSWORD_RULES} from "./account.rules";
 const {Item, List} = Form;
 const {Option, OptGroup} = Select;
@@ -127,22 +127,58 @@ const AccountCreateScreen: React.FC = () => {
     [formRef]
   ); 
 
+  const validateDuplicationJob = function(item: AccountJobReQuest, lstJob: Array<AccountJobReQuest>): boolean {
+    const job = lstJob.filter(e=> (e.department_id && e.department_id === item.department_id )
+                            && (e.position_id && e.position_id === item.position_id) );
+                            
+    if (lstJob && job && job.length > 0) {
+      showWarning("Trùng bộ phận và vị trí trước đó.");
+      return false;
+    }
+    return true;
+  }
+
+
   const onChangeDepartment = (e: any, key: number) => {
     let listJob = [...listaccountJob];
     if (!listJob[key]) {
       listJob[key] = {} as AccountJobReQuest;
     }
-    listJob[key].department_id = e;
-    setAccountJob(listJob);
+    const obj = { ...listJob[key] };
+    obj.department_id = e;
+    
+    if (validateDuplicationJob(obj, listaccountJob)) {
+      listJob[key].department_id = e;
+      setAccountJob(listJob); 
+    }else{
+      let account_jobs = [...formRef.current?.getFieldValue("account_jobs")];
+      account_jobs[key].department_id = null;
+
+      formRef.current?.setFieldsValue({
+        account_jobs: account_jobs,
+      });
+    }
   };
+
   const onChangePosition = (e: any, key: number) => {
     let listJob = [...listaccountJob];
     if (!listJob[key]) {
       listJob[key] = {} as AccountJobReQuest;
     }
-    listJob[key].position_id = e; 
-    setAccountJob(listJob); 
-  }; 
+    const obj = { ...listJob[key] };
+    obj.position_id = e;
+    if (validateDuplicationJob(obj,listaccountJob)) {
+      listJob[key].position_id = e;  
+      setAccountJob(listJob); 
+    }else{
+      let account_jobs = [...formRef.current?.getFieldValue("account_jobs")];
+      account_jobs[key].position_id = null;
+
+      formRef.current?.setFieldsValue({
+        account_jobs: account_jobs,
+      });
+    }
+  };  
 
   const onSelectDistrict = useCallback(
     (value: number) => {
