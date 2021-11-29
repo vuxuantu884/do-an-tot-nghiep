@@ -460,12 +460,12 @@ function OrderCreateProduct(props: PropType) {
   const onChangePrice = (value: number | null, index: number) => {
     if (items) {
       let _items = [...items];
-      if (value !== null) {
+      if (value !== null && value!==_items[index].price) {
         _items[index].price = value;
+        handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
+        setItems(_items);
+        handleChangeItems(_items);
       }
-      handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
-      setItems(_items);
-      handleChangeItems(_items);
     }
   };
 
@@ -709,7 +709,6 @@ function OrderCreateProduct(props: PropType) {
             value={l.price}
             onChange={(value) => {
               onChangePrice(value, index);
-              // handleApplyCouponWhenInsertCoupon(coupon);
             }}
             disabled={levelOrder > 3 || isAutomaticDiscount}
           />
@@ -935,10 +934,11 @@ function OrderCreateProduct(props: PropType) {
     _items.splice(index, 1);
 		if(isAutomaticDiscount && _items.length > 0) {
 			handleApplyDiscount(_items);
-		}else {
+		} else if(coupon  && _items.length > 0) {
+      handleApplyCouponWhenInsertCoupon(coupon, _items)
+    } else {
 			setItems(_items);
 			calculateChangeMoney(_items, _amount, discountRate, discountValue);
-
 		}
   };
 
@@ -1142,7 +1142,7 @@ function OrderCreateProduct(props: PropType) {
               } else {
                 setCoupon && setCoupon(coupon);
                 setIsCouponValid(true);
-                const discount_code = applyDiscountResponse.code || undefined;
+                // const discount_code = applyDiscountResponse.code || undefined;
                 let couponType = applyDiscountResponse.value_type;
                 let listDiscountItem: any[] = [];
                 response.data.line_items.forEach((single) => {
@@ -1238,7 +1238,7 @@ function OrderCreateProduct(props: PropType) {
                               ? Math.round(discount_rate * 100) / 100
                               : 0,
                             reason: applyDiscountLineItem?.title || null,
-                            discount_code,
+                            // discount_code,
                           },
                         ];
                         singleItem.discount_rate = discount_rate;
@@ -1317,9 +1317,11 @@ function OrderCreateProduct(props: PropType) {
         }
       }
 			console.log('333')
-			if(isAutomaticDiscount) {
+			if(isAutomaticDiscount && _items.length > 0) {
 				handleApplyDiscount(_items);
-			}
+			} else if(coupon && _items.length > 0) {
+        handleApplyCouponWhenInsertCoupon(coupon, _items)
+      }
       autoCompleteRef.current?.blur();
       setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
