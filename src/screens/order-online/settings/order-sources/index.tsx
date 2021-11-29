@@ -39,6 +39,7 @@ import { primaryColor } from "utils/global-styles/variables";
 import { SourcePermissions } from "config/permissions/setting.permisssion";  
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
+import "assets/css/custom-filter.scss";
 
 type formValuesType = {
   name: string | undefined;
@@ -486,29 +487,26 @@ function OrderSources(props: PropsType) {
           extra={renderCardExtraHtml()}
         >
           <Card>
-            <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+            <div className="custom-filter">
+            <CustomFilter onMenuClick={onMenuClick} menu={actions} >
               <Form
                 onFinish={onFilterFormFinish}
                 initialValues={initFilterParams}
                 layout="inline"
                 form={form}
               >
-                <Form.Item name="name" style={{width: 245, maxWidth: "100%"}}>
+                <Form.Item name="name" className="input-search">
                   <Input
                     prefix={<img src={search} alt="" />}
                     placeholder="Nguồn đơn hàng"
                   />
                 </Form.Item>
-                <Form.Item name="department_id" style={{width: 305, maxWidth: "100%"}}>
+                <Form.Item name="department_id" style={{width: 305}}>
                   <Select
                     showSearch
-                    allowClear
-                    style={{width: "100%"}}
+                    allowClear 
                     placeholder="Phòng ban"
                     optionFilterProp="title"
-                    // filterOption={(input, option) =>
-                    //   option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    // }
                     notFoundContent="Không tìm thấy phòng ban"
                   >
                     {listDepartments &&
@@ -537,6 +535,7 @@ function OrderSources(props: PropsType) {
                 </Form.Item>
               </Form>
             </CustomFilter>
+            </div>
             <CustomTable
               isLoading={tableLoading}
               isRowSelection
