@@ -337,6 +337,13 @@ function OrderCreateProduct(props: PropType) {
     }
   }, []);
 
+  useEffect(() => {
+    if (orderDetail && orderDetail?.discounts && orderDetail?.discounts[0]?.discount_code) {
+      // setCoupon && setCoupon(orderDetail?.discounts[0]?.discount_code)
+      setCouponInputText(orderDetail?.discounts[0]?.discount_code)
+    }
+  }, [orderDetail]);
+
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
       if (!items) {
@@ -394,6 +401,8 @@ function OrderCreateProduct(props: PropType) {
     },
     [items]
   );
+
+  
   const onChangeNote = (e: any, index: number) => {
     let value = e.target.value;
     if (items) {
