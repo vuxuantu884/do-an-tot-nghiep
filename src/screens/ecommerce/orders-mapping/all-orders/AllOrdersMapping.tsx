@@ -28,12 +28,10 @@ import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 
-import {
-  StyledComponent,
-} from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 
 
 const initQuery: GetOrdersMappingQuery = {
@@ -46,8 +44,6 @@ const initQuery: GetOrdersMappingQuery = {
   created_date_to: null,
   ecommerce_order_statuses: [],
   shop_ids: [],
-  // sort_column: "ecommerce_created_date",
-  // sort_type: "DESC"
 };
 
 const CORE_ORDER_STATUS = [
@@ -128,7 +124,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Gian hàng",
       key: "shop",
-      width: "15%",
+      width: "18%",
       render: (item) => (
         <div>
           <img
@@ -144,7 +140,7 @@ const EcommerceOrderSync: React.FC = () => {
       title: "Trạng thái trên sàn",
       dataIndex: "ecommerce_order_status",
       key: "ecommerce_order_status",
-      width: "15%",
+      width: "16%",
       render: (status_value: string) => {
         const ecommerceStatus = ECOMMERCE_ORDER_STATUS.find(
           (status) => status.value === status_value
@@ -159,7 +155,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Mã đơn trên Yody",
       key: "core_order_code",
-      width: "13%",
+      width: "11%",
       render: (item: any, row: any) => (
         <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank"><b>{item.core_order_code}</b></Link>
       ),
@@ -175,20 +171,8 @@ const EcommerceOrderSync: React.FC = () => {
           (status) => status.value === status_value
         );
         return (
-          // <div
-          //   style={{
-          //     background: "rgba(42, 42, 134, 0.1)",
-          //     borderRadius: "100px",
-          //     color: "#2A2A86",
-          //     width: "fit-content",
-          //     padding: "5px 10px",
-          //     margin: "0 auto",
-          //   }}
-          // >
-          //   {status?.name}
-          // </div>
           <StyledStatus>
-            <span className={status?.className}>{status?.name}</span>
+            <div className={status?.className}>{status?.name}</div>
           </StyledStatus>
         );
       },
@@ -302,7 +286,7 @@ const EcommerceOrderSync: React.FC = () => {
 
 
   return (
-    <StyledComponent>
+    <AllOrdersMappingStyled>
       <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
         {(allowed: boolean) => (allowed ?
           <Card>
@@ -341,7 +325,7 @@ const EcommerceOrderSync: React.FC = () => {
           </Card>
           : <NoPermission />)}
       </AuthWrapper>
-    </StyledComponent>
+    </AllOrdersMappingStyled>
   );
 };
 
