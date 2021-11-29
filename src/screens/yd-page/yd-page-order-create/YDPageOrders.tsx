@@ -44,6 +44,7 @@ import {
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import {
+  DEFAULT_COMPANY,
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
@@ -232,6 +233,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   let initialRequest: OrderRequest = {
     action: "", //finalized
     store_id: null,
+    company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
@@ -968,19 +970,19 @@ export default function Order(props: OrdersCreatePermissionProps) {
   );
 
   const checkInventory = () => {
-    let status = true;
+    let status:boolean = true;
 
     if (items) {
       items.forEach(function (value) {
         let available = value.available === null ? 0 : value.available;
         if (available <= 0 && configOrder?.sellable_inventory !== true) {
           status = false;
-          // showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
-          setCreating(false);
+          //setCreating(false);
         }
       });
       if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
     }
+
     return status;
   };
 
@@ -1120,6 +1122,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     coupon={coupon}
                     setCoupon={setCoupon}
                     setPromotionId={setPromotionId}
+                    configOrder={configOrder}
                   />
                   <Card>
                     <OrderCreatePayments

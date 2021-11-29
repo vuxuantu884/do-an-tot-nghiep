@@ -1,7 +1,8 @@
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Col, Divider, Row, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, handleDisplayCoupon } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -16,6 +17,7 @@ type PropType = {
   changeMoney: number;
   amount: number;
   isDisableOrderDiscount?: boolean;
+  isCouponValid?: boolean;
   showDiscountModal: () => void;
   showCouponModal: () => void;
   setDiscountRate?: (value: number) => void;
@@ -33,6 +35,7 @@ type PropType = {
   handleRemoveAllDiscount: () => void;
 };
 
+
 function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
@@ -47,6 +50,7 @@ function CardProductBottom(props: PropType) {
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
     isDisableOrderDiscount,
+    isCouponValid,
     showDiscountModal,
     showCouponModal,
     setDiscountRate,
@@ -56,14 +60,8 @@ function CardProductBottom(props: PropType) {
     handleRemoveAllDiscount,
   } = props;
 
-  const handleDisplay = (coupon: string) => {
-    let numberCharacterShow = 2;
-    if(coupon.length > numberCharacterShow) {
-      return `${coupon.substring(0,numberCharacterShow)}...`;
-    }
-
-    return coupon;
-  };
+// console.log('coupon33', coupon)
+// console.log('discountRate', discountRate);
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -108,6 +106,7 @@ function CardProductBottom(props: PropType) {
                   className="orders-tag orders-tag-danger"
                   closable
                   onClose={() => {
+                    setCoupon && setCoupon("");
                     calculateChangeMoney(items, amount, 0, 0);
                   }}
                 >
@@ -154,7 +153,21 @@ function CardProductBottom(props: PropType) {
                     setCoupon && setCoupon("");
                   }}
                 >
-                  {handleDisplay(coupon)}
+                   {coupon ? isCouponValid ?
+                                  <CheckCircleOutlined
+                                      style={{
+                                          color: '#27AE60',
+                                          marginRight: 5
+                                      }}
+                                  />:
+                                  <CloseCircleOutlined
+                                      style={{
+                                          color: "#E24343",
+                                          marginRight: 5
+                                      }}
+                                  />: undefined
+                              }
+                  {handleDisplayCoupon(coupon)}
                 </Tag>
               )}
             </div>

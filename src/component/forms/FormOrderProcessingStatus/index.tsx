@@ -24,8 +24,8 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
       ? {
-          company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
-          company: CONSTANTS.DEFAULT_FORM_VALUE.company,
+          company_id: CONSTANTS.DEFAULT_COMPANY.company_id,
+          company: CONSTANTS.DEFAULT_COMPANY.company,
           sub_status: formItem?.sub_status,
           code: formItem?.code,
           status: formItem?.status,
@@ -33,8 +33,8 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           note: formItem?.note,
         }
       : {
-          company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
-          company: CONSTANTS.DEFAULT_FORM_VALUE.company,
+          company_id: CONSTANTS.DEFAULT_COMPANY.company_id,
+          company: CONSTANTS.DEFAULT_COMPANY.company,
           sub_status: "",
           code: "",
           status: undefined,

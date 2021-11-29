@@ -125,7 +125,7 @@ const AccountCreateScreen: React.FC = () => {
       });
     },
     [formRef]
-  );
+  ); 
 
   const onChangeDepartment = (e: any, key: number) => {
     let listJob = [...listaccountJob];
@@ -140,9 +140,9 @@ const AccountCreateScreen: React.FC = () => {
     if (!listJob[key]) {
       listJob[key] = {} as AccountJobReQuest;
     }
-    listJob[key].position_id = e;
-    setAccountJob(listJob);
-  };
+    listJob[key].position_id = e; 
+    setAccountJob(listJob); 
+  }; 
 
   const onSelectDistrict = useCallback(
     (value: number) => {

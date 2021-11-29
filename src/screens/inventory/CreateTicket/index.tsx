@@ -777,7 +777,7 @@ const CreateTicket: FC = () => {
                       onSelect={onSelectProduct}
                       options={renderResult}
                       onClickAddNew={() => {
-                        window.open(`/unicorn/admin${UrlConfig.PRODUCT}/create`, "_blank");
+                        window.open(`/admin${UrlConfig.PRODUCT}/create`, "_blank");
                       }}
                       ref={productSearchRef}
                     />
