@@ -133,7 +133,7 @@ const menu: Array<RouteMenu> = [
     subMenu: setting,
   },
   {
-    path: "/unicorn/pos",
+    path: "/pos",
     exact: true,
     title: "Bán hàng tại quầy",
     icon: 'icon-sale',
