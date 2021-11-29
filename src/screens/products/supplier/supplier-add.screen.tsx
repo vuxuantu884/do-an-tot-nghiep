@@ -25,8 +25,6 @@ import {
 } from "domain/actions/content/content.action";
 import {SupplierCreateAction} from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
 import {CountryResponse} from "model/content/country.model";
 import {DistrictResponse} from "model/content/district.model";
 import {SupplierCreateRequest} from "model/core/supplier.model";
@@ -95,7 +93,6 @@ const CreateSupplierScreen: React.FC = () => {
   );
 
   //State
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [status, setStatus] = useState<string>(initRequest.status);
