@@ -1,6 +1,6 @@
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SizeCreateRequest, SizeQuery, SizeResponse, SizeUpdateRequest } from "model/product/size.model";
 import { generateQuery } from "utils/AppUtils";
@@ -9,7 +9,8 @@ export const getAllSizeApi = (): Promise<BaseResponse<PageResponse<SizeResponse>
   return BaseAxios.get(`${ApiConfig.PRODUCT}/sizes`);
 };
 
-export const getAllSize = (query: SizeQuery): Promise<BaseResponse<PageResponse<SizeResponse>>> => {
+export const getSearchSize = (query: SizeQuery): Promise<BaseResponse<PageResponse<SizeResponse>>> => {
+  
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/sizes?${params}`);
 };

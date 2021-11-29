@@ -1,8 +1,8 @@
 import { BaseQuery } from 'model/base/base.query';
 import {BaseObject} from 'model/base/base.response'
-import { Moment } from "moment";
 
 export interface StoreResponse extends BaseObject {
+  id: number,
   name: string,
   rank: number,
   rank_name: string,
@@ -29,30 +29,36 @@ export interface StoreResponse extends BaseObject {
   mail: string,
   begin_date: string,
   number_of_account: number,
-  accounts: Array<any>
+  accounts: Array<any>,
+  is_saleable: boolean,
+  is_stocktaking: boolean,
+  type: string,
+  type_name: string, 
+  merchandiser_code:string,
+  merchandiser:string,
 }
 
 export interface StoreQuery extends BaseQuery {
     city_id?: number
-    code?: string,
+    info?: string,
     country_id?: number,
     district_id?: number,
     zip_code?: string,
     ward_id?: string,
     vm_code?: string,
     finder_code?: string,
-    from_begin_date?: Moment
-    from_square?: number,
-    group_id?: number,
-    hotline?: number,
+    from_begin_date?: Date|'',
+    from_square?: number|'',
+    group_id?: string,
+    hotline?: number|'',
     simple?: boolean,
     mail?: string,
     manager_code?: string,
-    name?: string,
     rank?: string,
-    status?: string,
-    to_begin_date?: Moment,
-    to_square?: number,
+    status?: string|null,
+    to_begin_date?: Date|'',
+    to_square?: number|'',
+    type: string|'',
   }
 
   export interface BaseStoreRequest {
@@ -61,7 +67,7 @@ export interface StoreQuery extends BaseQuery {
     country_id: number
     city_id: number|null
     district_id: number|null
-    ward_id: number|''
+    ward_id: number|null
     address: string
     zip_code: string|null
     email: string|null
@@ -71,7 +77,11 @@ export interface StoreQuery extends BaseQuery {
     begin_date: string|null
     latitude: number|null
     longtitude: number|null
-    group_id: number|null
+    group_id: number|null,
+    is_saleable: boolean,
+    is_stocktaking: boolean,
+    type: string|null,
+    merchendiser_code: string|null
   }
   
   export interface StoreCreateRequest extends BaseStoreRequest {
@@ -79,4 +89,14 @@ export interface StoreQuery extends BaseQuery {
   
   export interface StoreUpdateRequest extends BaseStoreRequest {
     version: number,
+  }
+
+  export interface StoreValidateRequest {
+    name?: string,
+    id?: number,
+  }
+
+  export interface StoreTypeRequest{
+    name: string,
+    value: string,
   }

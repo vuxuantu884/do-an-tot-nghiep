@@ -1,5 +1,5 @@
 import { SizeType } from 'domain/types/product.type';
-import BaseAction from "base/BaseAction"
+import BaseAction from "base/base.action"
 import { PageResponse } from 'model/base/base-metadata.response';
 import { SizeQuery, SizeResponse, SizeCreateRequest, SizeUpdateRequest} from 'model/product/size.model';
 
@@ -19,7 +19,7 @@ export const sizeUpdateAction = (id: number, request: SizeUpdateRequest, onUpdat
   return BaseAction(SizeType.UPDATE_SIZE_REQUEST, {id, request, onUpdateSuccess});
 }
 
-export const sizeDetailAction = (id: number, setData: (data: SizeResponse) => void) => {
+export const sizeDetailAction = (id: number, setData: (data: SizeResponse|false) => void) => {
   return BaseAction(SizeType.DETAIL_SIZE_REQUEST, {id, setData});
 }
 

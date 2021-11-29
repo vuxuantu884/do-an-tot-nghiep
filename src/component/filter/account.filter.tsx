@@ -1,24 +1,15 @@
-import {
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-} from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useLayoutEffect, useState } from "react";
-import BaseFilter from "./base.filter";
+import {FilterOutlined} from "@ant-design/icons";
+import {Button, Col, DatePicker, Form, FormInstance, Input, Row, Select} from "antd";
 import search from "assets/img/search.svg";
-import { DepartmentResponse } from "model/account/department.model";
-import { PositionResponse } from "model/account/position.model";
-import { AccountSearchQuery } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import CustomFilter from "component/table/custom.filter";
+import {FilterWrapper} from "component/container/filter.container";
+import {MenuAction} from "component/table/ActionButton";
+import {AccountSearchQuery} from "model/account/account.model";
+import {DepartmentResponse} from "model/account/department.model";
+import {PositionResponse} from "model/account/position.model";
+import {BaseBootstrapResponse} from "model/content/bootstrap.model";
+import {StoreResponse} from "model/core/store.model";
+import {createRef, useCallback, useLayoutEffect, useState} from "react";
+import BaseFilter from "./base.filter";
 
 type AccountFilterProps = {
   params: AccountSearchQuery;
@@ -32,17 +23,13 @@ type AccountFilterProps = {
   onClearFilter?: () => void;
 };
 
-const AccountFilter: React.FC<AccountFilterProps> = (
-  props: AccountFilterProps
-) => {
+const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) => {
   const {
     params,
     listDepartment,
     listPosition,
     listStatus,
     listStore,
-    actions,
-    onMenuClick,
     onClearFilter,
     onFilter,
   } = props;
@@ -65,12 +52,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+
   useLayoutEffect(() => {
     if (visible) {
       formRef.current?.resetFields();
@@ -78,15 +60,11 @@ const AccountFilter: React.FC<AccountFilterProps> = (
   }, [formRef, visible]);
 
   return (
-    <Card bordered={false}>
-      <CustomFilter onMenuClick={onActionClick} menu={actions}>
-        <Form onFinish={onFinish} initialValues={params} layout="inline">
-          <Form.Item name="info">
-            <Input
-              prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
-              placeholder="Tên/Mã nhân viên"
-            />
+    <div>
+      <Form onFinish={onFinish} initialValues={params} layout="inline">
+        <FilterWrapper>
+          <Form.Item name="info" className="search" style={{minWidth: 200}}>
+            <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã nhân viên" />
           </Form.Item>
           <Form.Item name="store_ids">
             <Select
@@ -94,7 +72,8 @@ const AccountFilter: React.FC<AccountFilterProps> = (
               allowClear
               placeholder="Cửa hàng"
               style={{
-                width: 200,
+                minWidth: 200,
+                width: "100%",
               }}
             >
               {listStore?.map((item) => (
@@ -104,14 +83,17 @@ const AccountFilter: React.FC<AccountFilterProps> = (
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="department_ids">
+          <Form.Item name="department_id">
             <Select
+              showSearch
               allowClear
               showArrow
-              placeholder="Bộ phận"
+              placeholder="Chọn bộ phận"
               style={{
-                width: 200,
+                minWidth: 200,
+                width: "100%",
               }}
+              optionFilterProp="children"
             >
               {listDepartment?.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
@@ -126,22 +108,20 @@ const AccountFilter: React.FC<AccountFilterProps> = (
             </Button>
           </Form.Item>
           <Form.Item>
-            <Button onClick={openFilter}>Thêm bộ lọc</Button>
+            <Button onClick={openFilter} icon={<FilterOutlined />}>
+              Thêm bộ lọc
+            </Button>
           </Form.Item>
-        </Form>
-      </CustomFilter>
+        </FilterWrapper>
+      </Form>
       <BaseFilter
         onClearFilter={onClearFilter}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
+        width={396}
       >
-        <Form
-          onFinish={onFinish}
-          ref={formRef}
-          initialValues={params}
-          layout="vertical"
-        >
+        <Form onFinish={onFinish} ref={formRef} initialValues={params} layout="vertical">
           <Row gutter={50}>
             <Col span={12}>
               <Form.Item name="from_date" label="Thời gian tạo từ">
@@ -189,7 +169,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
           </Row>
         </Form>
       </BaseFilter>
-    </Card>
+    </div>
   );
 };
 

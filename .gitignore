@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+.vscode
+
 # testing
 /coverage
 
@@ -23,3 +25,11 @@ yarn-debug.log*
 yarn-error.log*
 /.vs/slnx.sqlite
 /.vs/slnx.sqlite-journal
+/.vs/app-admin/v16/.suo
+/.vs/VSWorkspaceState.json
+/package-lock.json
+.vscode/settings.json
+.idea/
+
+# .env
+/build

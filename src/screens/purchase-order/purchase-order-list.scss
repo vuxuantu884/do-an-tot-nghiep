@@ -1,0 +1,76 @@
+@import "assets/css/variable";
+.purchase-order-list {
+  .txt-muted {
+    color: $text-muted;
+  }
+  .icon {
+    @mixin round {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border-color: $green;
+      border-width: 1px;
+      border-style: solid;
+    }
+
+    &-full {
+      @include round;
+      background-color: $green;
+    }
+    &-partial {
+      @include round;
+      background-image: linear-gradient(to right, $green 50%, $white 50%);
+    }
+    &-blank {
+      @include round;
+      background-color: $white;
+    }
+  }
+  .tag-custom {
+    width: 120px;
+    text-align: center;
+    white-space: unset;
+  }
+}
+
+.base-filter {
+  padding-bottom: 20px;
+  .page-filter {
+    width: 100%;
+    .ant-form-item {
+      flex: auto;
+    }
+    .ant-form-item:last-child {
+      margin-right: 0;
+    }
+    .page-filter-left {
+      margin-right: 20px;
+    }
+    .page-filter-right {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      .ant-space {
+        width: 100%;
+        gap: 0 !important;
+        &-item{
+          margin-right: 20px;
+        }
+        &-item:first-child{
+          width: 100%;
+        }
+        &-item:last-child{
+          margin-right: 0 !important;
+        }
+        
+      }
+    }
+    .search {
+      width: 100%;
+      min-width: 250px;
+    }
+  }
+}
+
+

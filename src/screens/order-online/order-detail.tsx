@@ -1,180 +1,441 @@
-//#region Import
-import {
-  Button,
-  Card,
-  Row,
-  Col,
-  Form,
-  Space,
-  Typography,
-  Popover,
-  Divider,
-  Checkbox,
-  Tooltip,
-  Table,
-  Avatar,
-  Tag,
-  Collapse,
-  Radio,
-  DatePicker,
-  Input,
-  FormInstance,
-} from "antd";
-import documentIcon from "../../assets/img/document.svg";
-import UpdatePaymentCard from "./update-payment-card";
-import {
-  useState,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useEffect,
-  createRef,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  OrderPaymentRequest,
-  UpdateFulFillmentStatusRequest,
-  UpdateShipmentRequest,
-} from "model/request/order.request";
-import { AccountResponse } from "model/account/account.model";
-import { useHistory } from "react-router";
-import {
-  AccountSearchAction,
-  ShipperGetListAction,
-} from "domain/actions/account/account.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import {
-  OrderDetailAction,
-  UpdateFulFillmentStatusAction,
-  UpdateShipmentAction,
-} from "domain/actions/order/order.action";
-import {
-  CreditCardOutlined,
-  ProfileOutlined,
-  EyeOutlined,
-  CalendarOutlined,
-  CaretRightOutlined,
-  ShopOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import "assets/css/v2/_sale-order.scss";
-import AddAddressModal from "./modal/addAddressModal";
-import EditCustomerModal from "./modal/editCustomerModal";
-import peopleIcon2 from "assets/img/people.svg";
-import bithdayIcon from "assets/img/bithday.svg";
-import editBlueIcon from "assets/img/editBlue.svg";
-import pointIcon from "assets/img/point.svg";
-import callIcon from "assets/img/call.svg";
-import locationIcon from "assets/img/location.svg";
-import deleteIcon from "assets/icon/delete.svg";
-import giftIcon from "assets/icon/gift.svg";
-import productIcon from "../../assets/img/cube.svg";
-import storeBluecon from "../../assets/img/storeBlue.svg";
-import { useParams } from "react-router-dom";
+import { Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { Link } from "react-router-dom";
-import {
-  OrderLineItemResponse,
-  OrderResponse,
-} from "model/response/order/order.response";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import moment from "moment";
-import { formatCurrency } from "utils/AppUtils";
-import { showSuccess } from "utils/ToastUtils";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import OrderCreateShipment from "component/order/OrderCreateShipment";
+import UrlConfig from "config/url.config";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
-import { Select } from "component/common/select";
-
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
+import {
+  cancelOrderRequest,
+  confirmDraftOrderAction,
+  getListReasonRequest,
+  OrderDetailAction,
+  PaymentMethodGetList,
+  UpdatePaymentAction
+} from "domain/actions/order/order.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { thirdPLModel } from "model/order/shipment.model";
+import { OrderSettingsModel } from "model/other/order/order-model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import {
+  OrderPaymentRequest,
+  UpdateOrderPaymentRequest
+} from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
+import {
+  checkPaymentAll,
+  checkPaymentStatusToShow,
+  formatCurrency,
+  getAmountPayment,
+  SumCOD
+} from "utils/AppUtils";
+import { FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
+import OrderDetailBottomBar from "./component/order-detail/BottomBar";
+import CardReturnMoney from "./component/order-detail/CardReturnMoney";
+import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
+import SidebarOrderDetailExtraInformation from "./component/order-detail/Sidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "./component/order-detail/Sidebar/SidebarOrderDetailInformation";
+import SidebarOrderHistory from "./component/order-detail/Sidebar/SidebarOrderHistory";
+import UpdateCustomerCard from "./component/update-customer-card";
+import UpdatePaymentCard from "./component/update-payment-card";
+import UpdateProductCard from "./component/update-product-card";
+import UpdateShipmentCard from "./component/update-shipment-card";
+import CancelOrderModal from "./modal/cancel-order.modal";
+import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
+import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 const { Panel } = Collapse;
-//#endregion
 
+type PropType = {
+  id?: string;
+};
 type OrderParam = {
   id: string;
 };
 
-const OrderDetail = () => {
-  const { id } = useParams<OrderParam>();
-  let OrderId = id;
-  //#region state
-  const dispatch = useDispatch();
+const OrderDetail = (props: PropType) => {
+  let {id} = useParams<OrderParam>();
   const history = useHistory();
-  const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [paymentType, setPaymentType] = useState<number>(3);
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
-  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleShipping, setVisibleShipping] = useState(false);
-  const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
-  const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
-  const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
-  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
-  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
-  const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-  const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
-    null
-  );
-  const [amount, setAmount] = useState<number>(0);
-  //#endregion
-
+  if (!id && props.id) {
+    id = props.id;
+  }
+  let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
-  //#region Orther
-  const handleVisibleBillingAddressChange = (value: boolean) => {
-    setVisibleBillingAddress(value);
+  const dispatch = useDispatch();
+  const [form] = Form.useForm();
+
+  const [paymentMethod, setPaymentMethod] = useState<number>(3);
+  const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
+
+  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
+  const [isVisibleShipping, setVisibleShipping] = useState(false);
+  const [reload, setReload] = useState(false);
+  const [isError, setError] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
+  const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
+  const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
+    useState<OrderResponse | null>(null);
+  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+  const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
+  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
+    useState<number>(0);
+  // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
+  const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [listPaymentMethods, setListPaymentMethods] = useState<
+    Array<PaymentMethodResponse>
+  >([]);
+  const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
+  const [reasons, setReasons] = useState<Array<{ id: number; name: string, sub_reasons: any[] }>>([]);
+  // đổi hàng
+  // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
+  //   useState<number>(0);
+  const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
+  // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
+  const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
+
+  //loyalty
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
+  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
+  console.log('isDisablePostPayment', isDisablePostPayment)
+
+  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
+    delivery_service_provider_code: "",
+    delivery_service_provider_id: null,
+    insurance_fee: null,
+    delivery_service_provider_name: "",
+    delivery_transport_type: "",
+    service: "",
+    shipping_fee_paid_to_three_pls: null,
+  });
+  // xác nhận đơn
+  const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
+  const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
+
+  const onPaymentSelect = (paymentMethod: number) => {
+    if (paymentMethod === 1) {
+      setVisibleShipping(true);
+    }
+    setPaymentMethod(paymentMethod);
   };
 
-  const ShowShipping = () => {
-    setVisibleShipping(true);
+  const onUpdateSuccess = useCallback((value: OrderResponse) => {
+    showSuccess("Thanh toán thành công!");
+    window.location.reload();
+  }, []);
+
+  const handleReturnMoney = () => {
+    form.validateFields().then(() => {
+      let fulfillment = OrderDetail?.fulfillments;
+      let formValue = form.getFieldsValue();
+      let payments: UpdateOrderPaymentRequest[] = [];
+      const formReturnMoney = formValue.returnMoneyField[0];
+      let returnMoneyMethod = listPaymentMethods.find((single) => {
+        return single.id === formReturnMoney.returnMoneyMethod;
+      });
+      if (returnMoneyMethod) {
+        payments = [
+          {
+            payment_method_id: returnMoneyMethod.id,
+            payment_method: returnMoneyMethod.name,
+            amount: -Math.abs(
+              customerNeedToPayValue -
+              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+            ),
+            reference: "",
+            source: "",
+            paid_amount: -Math.abs(
+              customerNeedToPayValue -
+              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+            ),
+            return_amount: 0.0,
+            status: "paid",
+            type: "",
+            note: formReturnMoney.returnMoneyNote || "",
+            code: "",
+            order_id: OrderDetail?.id ? OrderDetail?.id : null,
+            customer_id: customerDetail?.id || null,
+          },
+        ];
+      }
+
+      let request = {
+        payments: payments,
+        fulfillments: fulfillment,
+      };
+      // console.log("request", request);
+      if (OrderDetail?.id) {
+        dispatch(UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess));
+      }
+    });
   };
-
-  const onPaymentSelect = (paymentType: number) => {
-    setPaymentType(paymentType);
-  };
-
-  const CancleConfirmAddress = useCallback(() => {
-    setVisibleAddress(false);
-  }, []);
-
-  const OkConfirmAddress = useCallback(() => {
-    setVisibleAddress(false);
-  }, []);
-
-  const CancleConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
-
-  const OkConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
 
   const onPayments = (value: Array<OrderPaymentRequest>) => {
-    setPayments(value);
+    // setPayments(value);
   };
 
-  const ShowBillingAddress = () => {
-    setVisibleBilling(!isVisibleBilling);
+  const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
+
+  const stepsStatus = () => {
+    if (OrderDetail?.status === OrderStatus.DRAFT) {
+      return OrderStatus.DRAFT;
+    }
+
+    if (OrderDetail?.status === OrderStatus.CANCELLED) {
+      return OrderStatus.CANCELLED;
+    }
+    if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
+    }
+    if (OrderDetail?.status === OrderStatus.FINALIZED) {
+      if (
+        OrderDetail.fulfillments === undefined ||
+        OrderDetail.fulfillments === null ||
+        OrderDetail.fulfillments.length === 0
+      ) {
+        return OrderStatus.FINALIZED;
+      } else {
+        if (
+          OrderDetail.fulfillments !== undefined &&
+          OrderDetail.fulfillments !== null &&
+          OrderDetail.fulfillments.length > 0
+        ) {
+          if (OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED) {
+            return OrderStatus.FINALIZED;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PICKED) {
+            return FulFillmentStatus.PICKED;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
+            return FulFillmentStatus.PACKED;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING) {
+            return FulFillmentStatus.SHIPPING;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED) {
+            return FulFillmentStatus.SHIPPED;
+          }
+        }
+      }
+    } else if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
+    }
+    return "";
   };
-  //#endregion
 
-  // const onChangeTag = (value: []) => {
-  //   let strTag = "";
-  //   value.forEach((element) => {
-  //     strTag = strTag + element + ",";
-  //   });
+  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+    chonCuaHangTruocMoiChonSanPham: false,
+    cauHinhInNhieuLienHoaDon: 1,
+  });
 
-  //   setTag(strTag);
+  // const handleReload = () => {
+  //   window.location.reload();
   // };
-  const formRef = createRef<FormInstance>();
 
-  const ShowAddressModal = () => {
-    setVisibleAddress(true);
-    setVisibleShippingAddress(false);
-    setVisibleBillingAddress(false);
+  const handleReceivedReturnProducts = () => {
+    setIsReceivedReturnProducts(true);
+    if (OrderDetail?.order_return_origin?.id) {
+      dispatch(
+        actionSetIsReceivedOrderReturn(OrderDetail?.order_return_origin?.id, () => {
+          dispatch(OrderDetailAction(id, onGetDetailSuccess));
+        })
+      );
+    }
   };
+
+  let stepsStatusValue = stepsStatus();
+
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    // setAccounts(data.items);
+  }, []);
+  const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
+    setLoadingData(false);
+    if (!data) {
+      setError(true);
+    } else {
+      let _data = {
+        ...data,
+        fulfillments: data.fulfillments?.sort((a, b) => b.id - a.id),
+      };
+      _data.fulfillments = _data.fulfillments?.filter(
+        (f) =>
+          f.status !== FulFillmentStatus.CANCELLED &&
+          f.status !== FulFillmentStatus.RETURNED &&
+          f.status !== FulFillmentStatus.RETURNING
+      );
+
+      setOrderDetail(_data);
+      setOrderDetailAllFullfilment(data);
+      setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
+      if (_data.sub_status_code) {
+        setSubStatusCode(_data.sub_status_code);
+      }
+      if (
+        _data.status === OrderStatus.DRAFT &&
+        // _data.fulfillments?.length === 0 &&
+        _data.payments?.length === 0
+      ) {
+        setIsShowConfirmOrderButton(true);
+      } else {
+        setIsShowConfirmOrderButton(false);
+      }
+      if(_data.order_return_origin?.total_amount) {
+        setTotalAmountReturnProducts(_data.order_return_origin?.total_amount)
+
+      }
+    }
+  }, []);
+
+  const handleUpdateSubStatus = () => {
+    setCountChangeSubStatus(countChangeSubStatus + 1);
+  };
+
+  const onSuccessCancel = () => {
+    setReload(true);
+    setVisibleCancelModal(false)
+  };
+
+  const onError = () => {
+    // setReload(true)
+    setVisibleCancelModal(false)
+  };
+
+  const handleCancelOrder = useCallback(
+    (reason_id: string, sub_reason_id: string, reason: string) => {
+      dispatch(cancelOrderRequest(OrderId, Number(reason_id), Number(sub_reason_id), reason, onSuccessCancel, onError));
+    },
+    [OrderId, dispatch]
+  );
+
+  const orderActionsClick = useCallback(
+    (type) => {
+      switch (type) {
+        case "cancel":
+          setVisibleCancelModal(true);
+          break;
+        case "update":
+          history.push(`${UrlConfig.ORDER}/${id}/update`);
+          break;
+        case "clone":
+          // history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
+          const newTab = window.open(
+            `/unicorn/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
+            "_blank"
+          );
+          newTab?.focus();
+          break;
+        default:
+          break;
+      }
+    },
+    [history, id]
+  );
+
+  /**
+   * xác nhận đơn
+   */
+  const onConfirmOrder = () => {
+    if (!OrderDetail?.id) {
+      return;
+    }
+    if (userReducer.account?.full_name && userReducer.account?.user_name) {
+      const params = {
+        updated_by: userReducer.account.full_name,
+        updated_name: userReducer.account.user_name,
+      };
+      dispatch(
+        confirmDraftOrderAction(OrderDetail.id, params, (response) => {
+          console.log("response", response);
+          // handleReload();
+          setReload(true);
+        },)
+      );
+    }
+  };
+
+  const [disabledBottomActions, setDisabledBottomActions] = useState(false);
+
+  const disabledActions = useCallback(
+    (type: string) => {
+      console.log("disabledActions", type);
+      console.log("setShowPaymentPartialPayment", isShowPaymentPartialPayment);
+      switch (type) {
+        case "shipment":
+          setShowPaymentPartialPayment(false);
+          setDisabledBottomActions(true);
+          break;
+        case "payment":
+          setVisibleShipping(false);
+          setDisabledBottomActions(true);
+          break;
+        case "none":
+          setDisabledBottomActions(false);
+          break;
+        default:
+          break;
+      }
+    },
+    [isShowPaymentPartialPayment]
+  );
+
+  useEffect(() => {
+    if (isFirstLoad.current || reload) {
+      // if (!Number.isNaN(OrderId)) {
+      if (id) {
+        setShipmentMethod(4);
+        setShippingFeeInformedCustomer(0);
+        dispatch(OrderDetailAction(id, onGetDetailSuccess));
+      } else {
+        setError(true);
+      }
+    }
+    isFirstLoad.current = false;
+    setReload(false);
+    setVisibleShipping(false);
+    setShowPaymentPartialPayment(false);
+    setPaymentMethod(2);
+  }, [dispatch, onGetDetailSuccess, reload, OrderDetail, id]);
+
+  useLayoutEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(getListReasonRequest(setReasons));
+  }, [dispatch, setDataAccounts]);
+
+  useEffect(() => {
+    if (OrderDetail != null) {
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomerDetail));
+    }
+  }, [dispatch, OrderDetail]);
+
+  useEffect(() => {
+    if (customerDetail != null) {
+      dispatch(getLoyaltyPoint(customerDetail.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch, customerDetail]);
 
   useEffect(() => {
     if (OrderDetail?.store_id != null) {
@@ -182,1386 +443,753 @@ const OrderDetail = () => {
     }
   }, [dispatch, OrderDetail?.store_id]);
 
-  const shipping_requirements = useSelector(
-    (state: RootReducerType) =>
-      state.bootstrapReducer.data?.shipping_requirement
-  );
-
   useEffect(() => {
-    if (isFirstLoad.current) {
-      if (!Number.isNaN(OrderId)) {
-        dispatch(OrderDetailAction(OrderId, setOrderDetail));
-      }
-    }
-    isFirstLoad.current = false;
-  }, [dispatch, OrderId]);
-
-  useEffect(() => {
-    if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
-    }
-  }, [dispatch, OrderDetail]);
-
-  //#region Product
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
-    setAccounts(data.items);
+    setOrderSettings({
+      chonCuaHangTruocMoiChonSanPham: true,
+      cauHinhInNhieuLienHoaDon: 3,
+    });
   }, []);
 
-  const ShipMethodOnChange = (value: number) => {
+  // khách cần trả
+  const customerNeedToPay: any = () => {
+    if (
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+    ) {
+      return (
+        OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
+      );
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
+      );
+    }
+  };
+
+  const customerNeedToPayValue = customerNeedToPay();
+  // end
+  const scroll = useCallback(() => {
+    if (window.pageYOffset > 100) {
+      // setIsShowBillStep(true);
+    } else {
+      // setIsShowBillStep(false);
+    }
+  }, []);
+
+  const initialFormValue = {
+    returnMoneyField: [{returnMoneyMethod: undefined, returnMoneyNote: undefined}],
+  };
+
+  const totalAmountCustomerNeedToPay = (OrderDetail?.total_line_amount_after_line_discount || 0) +
+  shippingFeeInformedCustomer;
+console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
+
+  const onSelectShipment = (value: number) => {
+    console.log('value', value)
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      setIsDisablePostPayment(true);
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    } else {
+      setIsDisablePostPayment(false);
+    }
     setShipmentMethod(value);
   };
 
-  const onDeleteItem = (index: number) => {
-    if (OrderDetail != null) {
-      let _items = OrderDetail;
-      let _amount =
-        amount - _items.items[index].line_amount_after_line_discount;
-      setAmount(_amount);
-      _items.items.splice(index, 1);
-      setOrderDetail(_items);
+  const renderShipment = () => {
+    if (true) {
+      return (
+        <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
+          <OrderCreateShipment
+            shipmentMethod={shipmentMethod}
+            orderPrice={OrderDetail?.total_line_amount_after_line_discount}
+            storeDetail={storeDetail}
+            customer={customerDetail}
+            items={OrderDetail?.items}
+            isCancelValidateDelivery={false}
+            totalAmountCustomerNeedToPay={10000}
+            setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
+            onSelectShipment={onSelectShipment}
+            thirdPL={thirdPL}
+            setThirdPL={setThirdPL}
+            form={form}
+          />
+        </Card>
+      );
     }
   };
+  console.log(renderShipment)
 
-  useLayoutEffect(() => {
-    dispatch(ShipperGetListAction(setShipper));
+  useEffect(() => {
+    window.addEventListener("scroll", scroll);
+    return () => {
+      window.removeEventListener("scroll", scroll);
+    };
+  }, [scroll]);
+
+  useEffect(() => {
+    dispatch(
+      PaymentMethodGetList((response) => {
+        let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
+        setListPaymentMethods(result);
+      })
+    );
   }, [dispatch]);
 
-  useLayoutEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
-
-  const ProductColumn = {
-    title: "Sản phẩm",
-    width: 245,
-    className: "yody-pos-name",
-    render: (l: OrderLineItemResponse, item: any, index: number) => {
-      return (
-        <div className="w-100" style={{ overflow: "hidden" }}>
-          <div className="d-flex align-items-center">
-            <Button
-              type="text"
-              className="p-0 ant-btn-custom"
-              onClick={() => onDeleteItem(index)}
-              style={{ float: "left", marginRight: "13px" }}
-            >
-              <img src={deleteIcon} alt="" />
-            </Button>
-            <div style={{ width: "calc(100% - 32px)", marginLeft: "15px" }}>
-              <div className="yody-pos-sku">
-                <Typography.Link>{l.sku}</Typography.Link>
-              </div>
-              <div className="yody-pos-varian">
-                <Tooltip title={l.variant} className="yody-pos-varian-name">
-                  <span>{l.variant}</span>
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-          {l.gifts?.map((a, index1) => (
-            <div key={index1} className="yody-pos-addition yody-pos-gift">
-              <div>
-                <img src={giftIcon} alt="" /> {a.variant}{" "}
-                <span>({a.quantity})</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    },
-  };
-
-  const AmountColumnt = {
-    title: () => (
-      <div className="text-center">
-        <div>Số lượng</div>
-        <span style={{ color: "#0080FF" }}></span>
-      </div>
-    ),
-    className: "yody-pos-quantity text-center",
-    width: 125,
-    render: (l: OrderLineItemResponse, item: any, index: number) => {
-      return <div className="yody-pos-qtt">{l.quantity}</div>;
-    },
-  };
-
-  const PriceColumnt = {
-    title: "Đơn giá",
-    className: "yody-pos-price text-right",
-    //width: 100,
-    render: (l: OrderLineItemResponse, item: any, index: number) => {
-      return <div className="yody-pos-price">{formatCurrency(l.price)}</div>;
-    },
-  };
-
-  const DiscountColumnt = {
-    title: "Chiết khấu",
-    align: "center",
-    width: 165,
-    className: "yody-table-discount text-right",
-    render: (l: OrderLineItemResponse, item: any, index: number) => {
-      return (
-        <div className="site-input-group-wrapper">
-          {l.discount_rate !== null
-            ? l.discount_rate
-            : l.discount_value !== null
-            ? formatCurrency(l.discount_value)
-            : 0}
-        </div>
-      );
-    },
-  };
-
-  const TotalPriceColumn = {
-    title: "Tổng tiền",
-    className: "yody-table-total-money text-right",
-    // width: 100,
-    render: (l: OrderLineItemResponse, item: any, index: number) => {
-      return <div>{formatCurrency(l.amount)}</div>;
-    },
-  };
-
-  const columns = [
-    ProductColumn,
-    AmountColumnt,
-    PriceColumnt,
-    DiscountColumnt,
-    TotalPriceColumn,
-  ];
-  //#endregion
-  let customerBirthday = moment(customerDetail?.birthday).format("DD/MM/YYYY");
-
-  //#region Update Fulfillment Status
-  const onUpdateSuccess = useCallback(
-    (value: OrderResponse) => {
-      showSuccess("Xuất kho thành công");
-      history.push(`/order-online/detail/${value.id}`);
-    },
-    [history]
-  );
-
-  const PackOrder = () => {
-    let value: UpdateFulFillmentStatusRequest = {
-      order_id: "",
-      fulfillment_id: null,
-      status: "",
-    };
-    value.order_id = OrderDetail?.id;
-    let fulfillment_id =
-      OrderDetail?.fulfillments !== null && OrderDetail?.fulfillments !== undefined ? OrderDetail?.fulfillments[0].id : null;
-    value.fulfillment_id = fulfillment_id;
-    value.status = "shipping";
-    dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
-  };
-  //#endregion
-
-  //#region
-  let initialFormUpdateShipment: UpdateShipmentRequest = {
-    order_id: "",
-    code: "",
-    delivery_service_provider_id: null, //id người shipper
-    delivery_service_provider_type: "", //shipper
-    handover_id: null,
-    service: null,
-    fee_type: "",
-    fee_base_on: "",
-    delivery_fee: null,
-    shipping_fee_paid_to_3pls: null,
-    expected_received_date: "",
-    reference_status: "",
-    shipping_fee_informed_to_customer: null,
-    reference_status_explanation: "",
-    cancel_reason: "",
-    tracking_code: "",
-    tracking_url: "",
-    received_date: "",
-    sender_address_id: null,
-    note_to_shipper: "",
-    requirements: "",
-    fulfillment_id: "",
-  };
-
-  const onFinishUpdateShipment = (value: UpdateShipmentRequest) => {
-    value.expected_received_date = value.dating_ship?.utc().format();
-    if (OrderDetail?.fulfillments !== undefined && OrderDetail?.fulfillments) {
-      value.code = OrderDetail.fulfillments[0].shipment?.code;
-      value.fulfillment_id =
-        OrderDetail.fulfillments[0].shipment?.fulfillment_id;
-    }
-
-    dispatch(UpdateShipmentAction(value, onUpdateSuccess));
-  };
-
-  //#endregion
   return (
     <ContentContainer
-      title="Quản lý chất liệu"
+      isLoading={loadingData}
+      isError={isError}
+      title="Đơn hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
-          path: "/",
+          path: `${UrlConfig.HOME}`,
         },
         {
           name: "Đơn hàng",
         },
         {
-          name: "Đơn hàng " + id,
+          name: `Đơn hàng ${OrderDetail?.code}`,
         },
       ]}
-      extra={<CreateBillStep status={OrderDetail?.status} />}
+      extra={
+        <CreateBillStep
+          status={stepsStatusValue}
+          orderDetail={OrderDetailAllFullfilment}
+        />
+      }
     >
       <div className="orders">
-        <Row gutter={24}>
-          <Col xs={24} lg={18}>
-            {/*--- customer ---*/}
-            <Card
-              className="card-block card-block-customer"
-              title={
-                <div className="d-flex">
-                  <img src={peopleIcon2} alt="" /> Khách hàng
-                </div>
-              }
-              extra={
-                <div className="d-flex align-items-center form-group-with-search">
-                  <span
-                    style={{
-                      float: "left",
-                      lineHeight: "40px",
-                      marginRight: "10px",
-                    }}
-                  >
-                    Nguồn:
-                    <span className="text-error">
-                      <span style={{ color: "red" }}>
-                        {OrderDetail?.source}
-                      </span>
-                    </span>
-                  </span>
-                </div>
-              }
-            >
-              <div>
-                <Row
-                  align="middle"
-                  justify="space-between"
-                  className="row-customer-detail padding-custom"
-                >
-                  <Space>
-                    <Avatar size={32}>A</Avatar>
-                    <Link to="#">{customerDetail?.full_name}</Link>
-                    <Tag className="orders-tag orders-tag-vip">
-                      <b>{customerDetail?.customer_level}</b>
-                    </Tag>
-                  </Space>
-                  <Space className="customer-detail-phone">
-                    <span className="customer-detail-icon">
-                      <img src={callIcon} alt="" />
-                    </span>
-                    <span className="customer-detail-text">
-                      {customerDetail?.phone}
-                    </span>
-                  </Space>
-
-                  <Space className="customer-detail-point">
-                    <span className="customer-detail-icon">
-                      <img src={pointIcon} alt="" />
-                    </span>
-                    <span className="customer-detail-text">
-                      Tổng điểm{" "}
-                      <Typography.Text
-                        type="success"
-                        style={{ color: "#0080FF" }}
-                        strong
-                      >
-                        {customerDetail?.loyalty === undefined
-                          ? "0"
-                          : customerDetail?.loyalty}
-                      </Typography.Text>
-                    </span>
-                  </Space>
-
-                  <Space className="customer-detail-birthday">
-                    <span className="customer-detail-icon">
-                      <img src={bithdayIcon} alt="" />
-                    </span>
-                    <span className="customer-detail-text">
-                      {customerBirthday}
-                    </span>
-                  </Space>
-                </Row>
-                <Divider />
-                <div className="customer-info padding-custom">
-                  <Row gutter={24}>
-                    <Col
-                      xs={24}
-                      lg={12}
-                      className="font-weight-500 customer-info-left"
-                    >
-                      <div className="title-address">Địa chỉ giao hàng</div>
-                      <Row className="customer-row-info">
-                        <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>
-                          {OrderDetail?.shipping_address?.name}
-                        </span>
-                      </Row>
-                      <Row className="customer-row-info">
-                        <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>
-                          {OrderDetail?.shipping_address?.phone}
-                        </span>
-                      </Row>
-                      <Row className="customer-row-info">
-                        <img src={locationIcon} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>
-                          {OrderDetail?.shipping_address?.full_address}
-                        </span>
-                      </Row>
-                      <Row>
-                        <Popover
-                          placement="bottomLeft"
-                          title={
-                            <Row
-                              justify="space-between"
-                              align="middle"
-                              className="change-shipping-address-title"
-                            >
-                              <div style={{ color: "#4F687D" }}>
-                                Thay đổi địa chỉ
-                              </div>
-                              <Button type="link" onClick={ShowAddressModal}>
-                                Thêm địa chỉ mới
-                              </Button>
-                            </Row>
-                          }
-                          content={
-                            <div className="change-shipping-address-content">
-                              <div className="shipping-address-row">
-                                <div className="shipping-address-name">
-                                  Địa chỉ 1{" "}
-                                  <Button
-                                    type="text"
-                                    onClick={ShowAddressModal}
-                                    className="p-0"
-                                  >
-                                    <img src={editBlueIcon} alt="" />
-                                  </Button>
-                                </div>
-                                <div className="shipping-customer-name">
-                                  Do Van A
-                                </div>
-                                <div className="shipping-customer-mobile">
-                                  0987654321
-                                </div>
-                                <div className="shipping-customer-address">
-                                  Ha Noi
-                                </div>
-                              </div>
-                            </div>
-                          }
-                          trigger="click"
-                          visible={visibleShippingAddress}
-                          onVisibleChange={handleVisibleBillingAddressChange}
-                          className="change-shipping-address"
-                        >
-                          <Button type="link" className="btn-style">
-                            Thay đổi địa chỉ giao hàng
-                          </Button>
-                        </Popover>
-                      </Row>
-                    </Col>
-                    <Col xs={24} lg={12} className="font-weight-500">
-                      <div className="form-group form-group-with-search">
-                        <div>
-                          <label htmlFor="" className="">
-                            Ghi chú của khách hàng
-                          </label>
-                        </div>
-                        <span>{OrderDetail?.customer_note}</span>
-                      </div>
-                    </Col>
-                  </Row>
-                  <Divider />
-
-                  <div className="send-order-box">
-                    <Row style={{ marginBottom: 15 }}>
-                      <Checkbox
-                        className="checkbox-style"
-                        onChange={ShowBillingAddress}
-                      >
-                        Gửi hoá đơn
-                      </Checkbox>
-                    </Row>
-
-                    <Row gutter={24} hidden={isVisibleBilling}>
-                      <Col
-                        xs={24}
-                        lg={12}
-                        className="font-weight-500 customer-info-left"
-                      >
-                        <div className="title-address">Địa chỉ giao hàng</div>
-                        <Row className="customer-row-info">
-                          <img src={peopleIcon2} alt="" style={{ width: 19 }} />
-                          <span style={{ marginLeft: 9 }}>
-                            {OrderDetail?.billing_address?.name}
-                          </span>
-                        </Row>
-                        <Row className="customer-row-info">
-                          <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
-                          <span style={{ marginLeft: 9 }}>
-                            {OrderDetail?.billing_address?.phone}
-                          </span>
-                        </Row>
-                        <Row className="customer-row-info">
-                          <img
-                            src={locationIcon}
-                            alt=""
-                            style={{ width: 19 }}
-                          />{" "}
-                          <span style={{ marginLeft: 9 }}>
-                            {OrderDetail?.billing_address?.full_address}
-                          </span>
-                        </Row>
-                        <Row>
-                          <Popover
-                            placement="bottomLeft"
-                            title={
-                              <Row
-                                justify="space-between"
-                                align="middle"
-                                className="change-shipping-address-title"
-                              >
-                                <div style={{ color: "#4F687D" }}>
-                                  Thay đổi địa chỉ
-                                </div>
-                                <Button type="link" onClick={ShowAddressModal}>
-                                  Thêm địa chỉ mới
-                                </Button>
-                              </Row>
-                            }
-                            content={
-                              <div className="change-shipping-address-content">
-                                <div className="shipping-address-row">
-                                  <div className="shipping-address-name">
-                                    Địa chỉ 1{" "}
-                                    <Button
-                                      type="text"
-                                      onClick={ShowAddressModal}
-                                      className="p-0"
-                                    >
-                                      <img src={editBlueIcon} alt="" />
-                                    </Button>
-                                  </div>
-                                  <div className="shipping-customer-name">
-                                    Do Van A
-                                  </div>
-                                  <div className="shipping-customer-mobile">
-                                    0987654321
-                                  </div>
-                                  <div className="shipping-customer-address">
-                                    Ha Noi
-                                  </div>
-                                </div>
-                              </div>
-                            }
-                            trigger="click"
-                            visible={visibleBillingAddress}
-                            onVisibleChange={handleVisibleBillingAddressChange}
-                            className="change-shipping-address"
-                          >
-                            <Button type="link" className="btn-style">
-                              Thay đổi địa chỉ gửi hóa đơn
-                            </Button>
-                          </Popover>
-                        </Row>
-                      </Col>
-                      <Col xs={24} lg={12} className="font-weight-500">
-                        <div className="form-group form-group-with-search">
-                          <div>
-                            <label htmlFor="" className="">
-                              Email hoá đơn đến
-                            </label>
-                          </div>
-                          <span>{OrderDetail?.billing_address?.email}</span>
-                        </div>
-                      </Col>
-                    </Row>
-                  </div>
-                </div>
-              </div>
-
-              <AddAddressModal
-                visible={isVisibleAddress}
-                onCancel={CancleConfirmAddress}
-                onOk={OkConfirmAddress}
+        <Form layout="vertical" initialValues={initialFormValue} form={form}>
+          <Row gutter={24} style={{marginBottom: "70px"}}>
+            <Col md={18}>
+              {/*--- customer ---*/}
+              <UpdateCustomerCard
+                OrderDetail={OrderDetail}
+                customerDetail={customerDetail}
+                loyaltyPoint={loyaltyPoint}
+                loyaltyUsageRules={loyaltyUsageRules}
               />
-              <EditCustomerModal
-                visible={isVisibleCustomer}
-                onCancel={CancleConfirmCustomer}
-                onOk={OkConfirmCustomer}
+              {/*--- end customer ---*/}
+
+              {OrderDetail?.order_return_origin?.items && (
+                <CardShowReturnProducts
+                  listReturnProducts={OrderDetail?.order_return_origin?.items}
+                  pointUsing={OrderDetail.order_return_origin.point_refund}
+                  totalAmountReturnToCustomer={
+                    OrderDetail?.order_return_origin.total_amount
+                  }
+                />
+              )}
+
+              {/*--- product ---*/}
+              <UpdateProductCard
+                OrderDetail={OrderDetail}
+                shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                // shippingFeeInformedCustomer={form.getFieldValue("shipping_fee_informed_to_customer")}
+                customerNeedToPayValue={customerNeedToPayValue}
+                totalAmountReturnProducts={totalAmountReturnProducts}
               />
-            </Card>
-            {/*--- end customer ---*/}
+              {/*--- end product ---*/}
 
-            {/*--- product ---*/}
-            <Card
-              className="margin-top-20"
-              title={
-                <div className="d-flex">
-                  <img src={productIcon} alt="" /> Sản phẩm
-                </div>
-              }
-              extra={
-                <Row>
-                  <Space>
-                    <div className="view-inventory-box">
-                      <Button type="link" className="p-0">
-                        <Space>
-                          <img src={storeBluecon} alt="" />
-                          Xem tồn
-                        </Space>
-                      </Button>
-                    </div>
-                  </Space>
-                </Row>
-              }
-            >
-              <div className="padding-20">
-                <Row className="sale-product-box">
-                  <Table
-                    locale={{
-                      emptyText: (
-                        <Button
-                          type="text"
-                          className="font-weight-500"
-                          style={{
-                            color: "#2A2A86",
-                            background: "rgba(42,42,134,0.05)",
-                            borderRadius: 5,
-                            padding: 8,
-                            height: "auto",
-                            marginTop: 15,
-                            marginBottom: 15,
-                          }}
-                        >
-                          Thêm sản phẩm ngay (F3)
-                        </Button>
-                      ),
-                    }}
-                    rowKey={(record) => record.id}
-                    columns={columns}
-                    dataSource={OrderDetail?.items}
-                    className="sale-product-box-table w-100"
-                    tableLayout="fixed"
-                    pagination={false}
-                  />
-                </Row>
-
-                <Row
-                  className="sale-product-box-payment"
-                  gutter={24}
-                  style={{ paddingTop: "30px" }}
-                >
-                  <Col xs={24} lg={12}>
-                    <div className="payment-row">
-                      <Checkbox
-                        className="margin-bottom-15"
-                        onChange={() => console.log(1)}
-                      >
-                        Bỏ chiết khấu tự động
-                      </Checkbox>
-                    </div>
-                    <div className="payment-row">
-                      <Checkbox
-                        className="margin-bottom-15"
-                        onChange={() => console.log(1)}
-                      >
-                        Không tính thuế VAT
-                      </Checkbox>
-                    </div>
-                    <div className="payment-row">
-                      <Checkbox
-                        className="margin-bottom-15"
-                        onChange={() => console.log(1)}
-                      >
-                        Bỏ tích điểm tự động
-                      </Checkbox>
-                    </div>
-                  </Col>
-                  <Col xs={24} lg={12}>
-                    <Row className="payment-row" justify="space-between">
-                      <strong className="font-size-text">Tổng tiền</strong>
-                      <strong className="font-size-text">
-                        {OrderDetail?.total !== undefined &&
-                          OrderDetail?.total !== null &&
-                          formatCurrency(OrderDetail?.total)}
-                      </strong>
-                    </Row>
-
-                    <Row
-                      className="payment-row"
-                      justify="space-between"
-                      align="middle"
-                      style={{ marginTop: "5px" }}
-                    >
-                      <Space align="center">
-                        <Typography.Link
-                          className="font-weight-500"
-                          style={{ borderBottom: "1px dashed #0080FF" }}
-                        >
-                          Chiết khấu
-                        </Typography.Link>
-                        {OrderDetail?.order_discount_rate !== 0
-                          ? OrderDetail?.order_discount_rate
-                          : 0}
-                        %{" "}
-                      </Space>
-                      <div className="font-weight-500 ">
-                        {OrderDetail?.order_discount_value}
-                      </div>
-                    </Row>
-
-                    <Row
-                      className="payment-row"
-                      justify="space-between"
-                      align="middle"
-                      style={{ marginTop: "5px" }}
-                    >
-                      <div className="font-weight-500 ">0</div>
-                    </Row>
-
-                    <Row
-                      className="payment-row padding-top-10"
-                      justify="space-between"
-                    >
-                      <div className="font-weight-500">Phí ship báo khách</div>
-                      <div className="font-weight-500 payment-row-money">0</div>
-                    </Row>
-                    <Divider className="margin-top-5 margin-bottom-5" />
-                    <Row className="payment-row" justify="space-between">
-                      <strong className="font-size-text">Khách cần trả</strong>
-                      <strong className="text-success font-size-text">
-                        {OrderDetail?.total !== undefined &&
-                          OrderDetail?.total !== null &&
-                          formatCurrency(OrderDetail?.total)}
-                      </strong>
-                    </Row>
-                  </Col>
-                </Row>
-              </div>
-            </Card>
-            {/*--- end product ---*/}
-
-            {/*--- shipment ---*/}
-            {(OrderDetail?.fulfillments?.length !== 0) ? (
-              <Card
-                className="margin-top-20"
-                title={
-                  <Space>
-                    <ProfileOutlined />
-                    Đóng gói và giao hàng
-                    <Tag className="orders-tag text-menu">
-                      {OrderDetail?.fulfillment_status !== null
-                        ? OrderDetail?.fulfillment_status
-                        : "Chưa giao hàng"}
-                    </Tag>
-                  </Space>
-                }
-                extra={
-                  <Space size={26}>
-                    <div className="text-menu">
-                      <EyeOutlined />
-                      <span>
-                        {OrderDetail?.fulfillments !== null &&
-                          OrderDetail?.fulfillments !== undefined &&
-                          OrderDetail?.fulfillments.map(
-                            (item, index) => item.shipment?.requirements
-                          )}
-                      </span>
-                    </div>
-                    <div className="text-menu">
-                      <CalendarOutlined />{" "}
-                      <span>
-                        {OrderDetail?.fulfillments !== null &&
-                          OrderDetail?.fulfillments !== undefined &&
-                          OrderDetail?.fulfillments.map((item, index) =>
-                            moment(item.shipment?.created_date).format(
-                              "DD/MM/YYYY HH:MM a"
-                            )
-                          )}
-                      </span>
-                    </div>
-                  </Space>
-                }
-              >
-                <div className="padding-20">
-                  <Collapse
-                    className="orders-timeline"
-                    defaultActiveKey={["1"]}
-                    expandIcon={({ isActive }) => (
-                      <CaretRightOutlined
-                        style={{
-                          float: "right",
-                          paddingTop: "5px",
-                          marginLeft: "120px",
-                        }}
-                        rotate={isActive ? 90 : 0}
-                      />
+              {OrderDetail?.order_return_origin?.items &&
+                customerNeedToPayValue -
+                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                0 && (
+                  <CardReturnMoney
+                    listPaymentMethods={listPaymentMethods}
+                    payments={[]}
+                    returnMoneyAmount={Math.abs(
+                      customerNeedToPayValue -
+                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
                     )}
-                    ghost
-                  >
-                    <Panel
-                      className="orders-timeline-custom"
-                      header={
-                        <Row gutter={24}>
-                          <Col span={18}>
-                            <p className="text-field">Mã vận đơn</p>
-                          </Col>
-                          <Col span={6}>
-                            <p
-                              className="text-field"
-                              style={{ color: "#2A2A86", fontWeight: 500 }}
-                            >
-                              {OrderDetail?.fulfillments !== null &&
-                                OrderDetail?.fulfillments !== undefined &&
-                                OrderDetail?.fulfillments.map(
-                                  (item, index) => item.id
-                                )}
-                            </p>
-                          </Col>
-                        </Row>
-                      }
-                      key="1"
-                    >
-                      <Row gutter={24}>
-                        <Col span={6}>
-                          <p className="text-field">Đối tác giao hàng:</p>
-                        </Col>
-                        <Col span={6}>
-                          <p className="text-field">Viettel Post</p>
-                        </Col>
-                        <Col span={7}>
-                          <p className="text-field">
-                            Phí vận chuyển báo khách:
-                          </p>
-                        </Col>
-                        <Col span={5}>
-                          <p className="text-field">
-                            {OrderDetail?.fulfillments !== null &&
-                              OrderDetail?.fulfillments !== undefined &&
-                              OrderDetail?.fulfillments.map(
-                                (item, index) =>
-                                  item.shipment
-                                    ?.shipping_fee_informed_to_customer !==
-                                    undefined &&
-                                  item.shipment
-                                    ?.shipping_fee_informed_to_customer !==
-                                    null &&
-                                  formatCurrency(
-                                    item.shipment
-                                      ?.shipping_fee_informed_to_customer
-                                  )
-                              )}
-                          </p>
-                        </Col>
-                      </Row>
-                      <Row gutter={24}>
-                        <Col span={6}>
-                          <p className="text-field">Trọng lượng:</p>
-                        </Col>
-                        <Col span={6}>
-                          <p className="text-field">200g</p>
-                        </Col>
-                        <Col span={7}>
-                          <p className="text-field">
-                            Phí vận chuyển trả đối tác:
-                          </p>
-                        </Col>
-                        <Col span={5}>
-                          <p className="text-field">
-                            {OrderDetail?.fulfillments !== null &&
-                              OrderDetail?.fulfillments !== undefined &&
-                              OrderDetail?.fulfillments.map((item, index) =>
-                                item.shipment?.shipping_fee_paid_to_3pls !==
-                                  undefined &&
-                                item.shipment?.shipping_fee_paid_to_3pls !==
-                                  null
-                                  ? item.shipment?.shipping_fee_paid_to_3pls
-                                  : 0
-                              )}
-                          </p>
-                        </Col>
-                      </Row>
-                      {/* <Row className="margin-top-20">
-                          <Col span={12}>
-                            <i className="text-field">
-                              Ngày hẹn giao đơn hàng
-                              {OrderDetail?.fulfillment.map((item, index) =>
-                                moment(
-                                  item.shipment?.expected_received_date
-                                ).format("DD/MM/YYYY HH:MM a")
-                              )}
-                            </i>
-                          </Col>
-                        </Row> */}
-                    </Panel>
-                  </Collapse>
-                </div>
-                <Divider style={{ margin: "0px" }} />
-                <div className="padding-20 text-right">
-                  <Button
-                    type="default"
-                    className="ant-btn-outline fixed-button"
-                    style={{ color: "#737373", border: "1px solid #E5E5E5" }}
-                  >
-                    Hủy đơn giao
-                  </Button>
-                  <Button
-                    type="primary"
-                    className="ant-btn-outline fixed-button"
-                    style={{ marginLeft: "10px" }}
-                    onClick={PackOrder}
-                  >
-                    Xuất kho
-                  </Button>
-                </div>
-              </Card>
-            ) : (
-              <Card
-                className="margin-top-20"
-                title={
-                  <Space>
-                    <ProfileOutlined />
-                    Đóng gói và giao hàng
-                    <Tag className="orders-tag text-menu">
-                      {OrderDetail?.fulfillment_status !== null
-                        ? OrderDetail?.fulfillment_status
-                        : "Chưa giao hàng"}
-                    </Tag>
-                  </Space>
-                }
-              >
-                {isVisibleShipping === true && (
-                  <div className="padding-20">
-                    <Row gutter={20}>
-                      <Col md={12}>
-                        <Form.Item
-                          label={
-                            <i style={{ marginBottom: "15px" }}>
-                              Lựa chọn 1 trong hình thức giao hàng
-                            </i>
-                          }
-                          required
-                        >
-                          <Radio.Group
-                            value={shipmentMethod}
-                            onChange={(e) => ShipMethodOnChange(e.target.value)}
-                          >
-                            <Space direction="vertical" size={15}>
-                              <Radio value={1}>Chuyển đối tác giao hàng</Radio>
-                              <Radio value={2}>Tự giao hàng</Radio>
-                              <Radio value={3}>Nhận tại cửa hàng</Radio>
-                              <Radio value={4}>Giao hàng sau</Radio>
-                            </Space>
-                          </Radio.Group>
-                        </Form.Item>
-                      </Col>
-                      <Col md={12}>
-                        <Form.Item label="Hẹn giao" name="dating_ship">
-                          <DatePicker
-                            format="DD/MM/YYYY"
-                            style={{ width: "100%" }}
-                            className="r-5 w-100 ip-search"
-                            placeholder="Ngày hẹn giao"
-                          />
-                        </Form.Item>
-                        <Form.Item label="Yêu cầu" name="requirements">
-                          <Select
-                            className="select-with-search"
-                            showSearch
-                            showArrow
-                            style={{ width: "100%" }}
-                            placeholder="Chọn yêu cầu"
-                            filterOption={(input, option) => {
-                              if (option) {
-                                return (
-                                  option.children
-                                    .toLowerCase()
-                                    .indexOf(input.toLowerCase()) >= 0
-                                );
-                              }
-                              return false;
+                    isShowPaymentMethod={true}
+                    setIsShowPaymentMethod={() => { }}
+                    handleReturnMoney={handleReturnMoney}
+                  />
+                )}
+
+              {/*--- payment ---*/}
+              {OrderDetail !== null &&
+                OrderDetail?.payments &&
+                OrderDetail?.payments?.length > 0 && (
+                  <Card
+                    title={
+                      <Space>
+                        <div className="d-flex">
+                          <span className="title-card">THANH TOÁN</span>
+                        </div>
+                        {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                          <Tag className="orders-tag orders-tag-default">
+                            Chưa thanh toán
+                          </Tag>
+                        )}
+                        {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                          <Tag className="orders-tag orders-tag-warning">
+                            Thanh toán 1 phần
+                          </Tag>
+                        )}
+                        {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                          <Tag
+                            className="orders-tag orders-tag-success"
+                            style={{
+                              backgroundColor: "rgba(39, 174, 96, 0.1)",
+                              color: "#27AE60",
                             }}
                           >
-                            {shipping_requirements?.map((item, index) => (
-                              <Select.Option
-                                style={{ width: "100%" }}
-                                key={index.toString()}
-                                value={item.value}
-                              >
-                                {item.name}
-                              </Select.Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Divider />
-                    <Row gutter={20} hidden={shipmentMethod !== 2}>
-                      <Form
-                        initialValues={initialFormUpdateShipment}
-                        ref={formRef}
-                        onFinish={onFinishUpdateShipment}
-                        layout="vertical"
-                      >
-                        <Row gutter={24} style={{padding:"10px"}}>
-                          <Col md={12}>
-                            <Form.Item
-                              label="Đối tác giao hàng"
-                              name="delivery_service_provider_id"
-                            >
-                              <Select
-                                className="select-with-search"
-                                showSearch
-                                style={{ width: "100%" }}
-                                placeholder="Chọn đối tác giao hàng"
-                                suffix={
-                                  <Button
-                                    style={{ width: 36, height: 36 }}
-                                    icon={<PlusOutlined />}
-                                  />
-                                }
-                                filterOption={(input, option) => {
-                                  if (option) {
-                                    return (
-                                      option.children
-                                        .toLowerCase()
-                                        .indexOf(input.toLowerCase()) >= 0
-                                    );
-                                  }
-                                  return false;
-                                }}
-                              >
-                                {shipper?.map((item, index) => (
-                                  <Select.Option
-                                    style={{ width: "100%" }}
-                                    key={index.toString()}
-                                    value={item.id}
-                                  >
-                                    {item.full_name}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            </Form.Item>
-                            <Form.Item
-                              name="shipping_fee_paid_to_3pls"
-                              label="Phí ship trả đối tác giao hàng"
-                            >
-                              <Input placeholder="Phí ship trả đối tác giao hàng" />
-                            </Form.Item>
-                          </Col>
-                          <Col md={12}>
-                            <Form.Item
-                              name="shipping_fee_informed_to_customer"
-                              label="Phí ship báo khách"
-                            >
-                              <Input placeholder="Phí ship báo khách" />
-                            </Form.Item>
-                          </Col>
-
-                          <Col md={24}>
-                            <div>
-                              <Button
-                                type="primary"
-                                className="ant-btn-outline fixed-button text-right"
-                                style={{ float: "right" }}
-                                htmlType="submit"
-                              >
-                                Tạo đơn giao hàng
-                              </Button>
-                            </div>
-                          </Col>
-                        </Row>
-                      </Form>
-                    </Row>
-
-                    {/*--- Nhận tại cửa hàng ----*/}
-                    <div
-                      className="receive-at-store"
-                      hidden={shipmentMethod !== 3}
-                    >
-                      <Row style={{ marginBottom: "10px" }}>
-                        Nhận tại cửa hàng
-                      </Row>
-                      <Row className="row-info">
-                        <Space>
-                          <div className="row-info-icon">
-                            <img src={storeBluecon} alt="" width="20px" />
-                          </div>
-                          <div className="row-info-title">Cửa hàng</div>
-                          <div className="row-info-content">
-                            <Typography.Link>
-                              {storeDetail?.name}
-                            </Typography.Link>
-                          </div>
-                        </Space>
-                      </Row>
-                      <Row className="row-info">
-                        <Space>
-                          <div className="row-info-icon">
-                            <img src={callIcon} alt="" width="18px" />
-                          </div>
-                          <div className="row-info-title">Điện thoại</div>
-                          <div className="row-info-content">
-                            {storeDetail?.hotline}
-                          </div>
-                        </Space>
-                      </Row>
-                      <Row className="row-info">
-                        <Space>
-                          <div className="row-info-icon">
-                            <img src={locationIcon} alt="" width="18px" />
-                          </div>
-                          <div className="row-info-title">Địa chỉ</div>
-                          <div className="row-info-content">
-                            {storeDetail?.address}
-                          </div>
-                        </Space>
+                            Đã thanh toán
+                          </Tag>
+                        )}
+                      </Space>
+                    }
+                  >
+                    <div style={{marginBottom: 20}}>
+                      <Row>
+                        <Col span={12}>
+                          <span className="text-field margin-right-40">
+                            Đã thanh toán:
+                          </span>
+                          <b>
+                            {(OrderDetail?.fulfillments &&
+                              OrderDetail?.fulfillments.length > 0 &&
+                              OrderDetail?.fulfillments[0].status === "shipped" &&
+                              formatCurrency(customerNeedToPayValue)) ||
+                              formatCurrency(getAmountPayment(OrderDetail.payments))}
+                          </b>
+                        </Col>
+                        <Col span={12}>
+                          <span className="text-field margin-right-40">
+                            {customerNeedToPayValue -
+                              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) >=
+                              0
+                              ? `Còn phải trả:`
+                              : `Hoàn tiền cho khách:`}
+                          </span>
+                          <b style={{color: "red"}}>
+                            {OrderDetail?.fulfillments &&
+                              OrderDetail?.fulfillments.length > 0 &&
+                              OrderDetail?.fulfillments[0].shipment?.cod
+                              ? 0
+                              : formatCurrency(
+                                Math.abs(
+                                  customerNeedToPayValue -
+                                  (OrderDetail?.total_paid
+                                    ? OrderDetail?.total_paid
+                                    : 0)
+                                )
+                              )}
+                          </b>
+                        </Col>
                       </Row>
                     </div>
 
-                    {/*--- Giao hàng sau ----*/}
-                    <Row
-                      className="ship-later-box"
-                      hidden={shipmentMethod !== 4}
-                    ></Row>
-                  </div>
+                    {OrderDetail?.payments && (
+                      <div>
+                        <div style={{padding: "0 24px"}}>
+                          <Collapse
+                            className="orders-timeline"
+                            defaultActiveKey={["100"]}
+                            ghost
+                          >
+                            {OrderDetail.total === SumCOD(OrderDetail) &&
+                              OrderDetail.total === OrderDetail.total_paid ? (
+                              ""
+                            ) : (
+                              <>
+                                {OrderDetail?.payments
+                                  .filter((payment) => {
+                                    // nếu là đơn trả thì tính cả cod
+                                    if (OrderDetail.order_return_origin) {
+                                      return true;
+                                    }
+                                    return (
+                                      payment.payment_method !== "cod" && payment.amount
+                                    );
+                                  })
+                                  .map((payment: any, index: number) => (
+                                    <Panel
+                                      showArrow={false}
+                                      className="orders-timeline-custom success-collapse"
+                                      header={
+                                        <div className="orderPaymentItem">
+                                          <div className="orderPaymentItem__left">
+                                            <div>
+                                              {/* <b>{payment.payment_method}</b> */}
+                                              {/* trường hợp số tiền âm là hoàn lại tiền */}
+                                              <b>
+                                                {payment.paid_amount < 0
+                                                  ? "Hoàn tiền cho khách"
+                                                  : payment.payment_method}
+                                              </b>
+                                              <span style={{marginLeft: 12}}>{payment.reference}</span>
+                                              {payment.payment_method_id === 5 && (
+                                                <span style={{marginLeft: 10}}>
+                                                  {payment.amount / 1000} điểm
+                                                </span>
+                                              )}
+                                            </div>
+                                            <span className="amount">
+                                              {formatCurrency(
+                                                Math.abs(payment.paid_amount)
+                                              )}
+                                            </span>
+                                          </div>
+                                          <div className="orderPaymentItem__right">
+                                            <span className="date">
+                                              {ConvertUtcToLocalDate(
+                                                payment.created_date,
+                                                "DD/MM/YYYY HH:mm"
+                                              )}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      }
+                                      key={index}
+                                    ></Panel>
+                                  ))}
+                              </>
+                            )}
+                            {isShowPaymentPartialPayment && OrderDetail !== null && (
+                              <Panel
+                                className="orders-timeline-custom orders-dot-status"
+                                showArrow={false}
+                                header={
+                                  <b
+                                    style={{
+                                      paddingLeft: "14px",
+                                      color: "#222222",
+                                      textTransform: "uppercase",
+                                    }}
+                                  >
+                                    Lựa chọn 1 hoặc nhiều phương thức thanh toán
+                                  </b>
+                                }
+                                key="100"
+                              >
+                                {isShowPaymentPartialPayment && OrderDetail !== null && (
+                                  <UpdatePaymentCard
+                                    setPaymentMethod={onPaymentSelect}
+                                    setVisibleUpdatePayment={setVisibleUpdatePayment}
+                                    setShowPaymentPartialPayment={setShowPaymentPartialPayment}
+                                    setPayments={onPayments}
+                                    // setTotalPaid={setTotalPaid}
+                                    orderDetail={OrderDetail}
+                                    paymentMethod={paymentMethod}
+                                    shipmentMethod={shipmentMethod}
+                                    order_id={OrderDetail.id}
+                                    showPartialPayment={true}
+                                    isVisibleUpdatePayment={isVisibleUpdatePayment}
+                                    amount={
+                                      OrderDetail.total_line_amount_after_line_discount -
+                                      getAmountPayment(OrderDetail.payments) -
+                                      (OrderDetail?.discounts &&
+                                        OrderDetail?.discounts.length > 0 &&
+                                        OrderDetail?.discounts[0].amount
+                                        ? OrderDetail?.discounts[0].amount
+                                        : 0)
+                                    }
+                                    disabled={
+                                      stepsStatusValue === OrderStatus.CANCELLED ||
+                                      stepsStatusValue === FulFillmentStatus.SHIPPED
+                                    }
+                                    reload={() => {
+                                      setReload(true);
+                                    }}
+                                    disabledActions={disabledActions}
+                                    listPaymentMethods={listPaymentMethods}
+                                    form={form}
+                                    isDisablePostPayment={isDisablePostPayment}
+                                  />
+                                )}
+                              </Panel>
+                            )}
+                            {OrderDetail?.fulfillments &&
+                              OrderDetail?.fulfillments.length > 0 &&
+                              OrderDetail?.fulfillments[0].shipment &&
+                              OrderDetail?.fulfillments[0].shipment.cod && (
+                                <Panel
+                                  className={
+                                    OrderDetail?.fulfillments[0].status !== "shipped"
+                                      ? "orders-timeline-custom orders-dot-status"
+                                      : "orders-timeline-custom "
+                                  }
+                                  showArrow={false}
+                                  header={
+                                    <>
+                                      <div className="orderPaymentItem">
+                                        <div className="orderPaymentItem__left">
+                                          <b>
+                                            COD
+                                            {OrderDetail.fulfillments[0].status !==
+                                              "shipped" ? (
+                                              <Tag
+                                                className="orders-tag orders-tag-warning"
+                                                style={{marginLeft: 10}}
+                                              >
+                                                Đang chờ thu
+                                              </Tag>
+                                            ) : (
+                                              <Tag
+                                                className="orders-tag orders-tag-success"
+                                                style={{
+                                                  backgroundColor:
+                                                    "rgba(39, 174, 96, 0.1)",
+                                                  color: "#27AE60",
+                                                  marginLeft: 10,
+                                                }}
+                                              >
+                                                Đã thu COD
+                                              </Tag>
+                                            )}
+                                          </b>
+                                          <span className="amount">
+                                            {OrderDetail !== null &&
+                                              OrderDetail?.fulfillments
+                                              ? formatCurrency(
+                                                OrderDetail.fulfillments[0].shipment
+                                                  ?.cod
+                                              )
+                                              : 0}
+                                          </span>
+                                        </div>
+                                        <div className="orderPaymentItem__right">
+                                          {OrderDetail?.fulfillments[0].status ===
+                                            "shipped" && (
+                                              <div>
+                                                <span className="date">
+                                                  {ConvertUtcToLocalDate(
+                                                    OrderDetail?.updated_date,
+                                                    "DD/MM/YYYY HH:mm"
+                                                  )}
+                                                </span>
+                                              </div>
+                                            )}
+                                        </div>
+                                      </div>
+                                    </>
+                                  }
+                                  key="100"
+                                ></Panel>
+                              )}
+                          </Collapse>
+                        </div>{" "}
+                      </div>
+                    )}
+
+                    {(OrderDetail?.fulfillments &&
+                      OrderDetail?.fulfillments.length > 0 &&
+                      OrderDetail?.fulfillments[0].shipment &&
+                      OrderDetail?.fulfillments[0].shipment.cod !== null) ||
+                      (checkPaymentAll(OrderDetail) !== 1 &&
+                        isShowPaymentPartialPayment === false &&
+                        checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                          <div className="text-right">
+                            <Divider style={{margin: "10px 0"}} />
+                            <Button
+                              type="primary"
+                              className="ant-btn-outline fixed-button"
+                              onClick={() => setShowPaymentPartialPayment(true)}
+                              style={{marginTop: 10}}
+                              // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
+                              disabled={
+                                OrderDetail.source_code !== "POS" &&
+                               ( stepsStatusValue === OrderStatus.CANCELLED ||
+                                stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                                disabledBottomActions)
+                              }
+                            >
+                              Thanh toán
+                            </Button>
+                          </div>
+                        ))}
+                  </Card>
                 )}
 
-                {isVisibleShipping === false && (
-                  <div
-                    className="padding-lef-right"
-                    style={{ paddingTop: "20px" }}
+              {/* COD toàn phần */}
+              {OrderDetail &&
+                OrderDetail.fulfillments &&
+                OrderDetail.fulfillments.length > 0 &&
+                OrderDetail.fulfillments[0].shipment &&
+                OrderDetail.fulfillments[0].shipment?.cod ===
+                (OrderDetail?.fulfillments[0].shipment
+                  .shipping_fee_informed_to_customer
+                  ? OrderDetail?.fulfillments[0].shipment
+                    .shipping_fee_informed_to_customer
+                  : 0) +
+                OrderDetail?.total_line_amount_after_line_discount -
+                (OrderDetail?.discounts &&
+                  OrderDetail?.discounts.length > 0 &&
+                  OrderDetail?.discounts[0].amount
+                  ? OrderDetail?.discounts[0].amount
+                  : 0) &&
+                checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                  <Card
+                    title={
+                      <Space>
+                        <div className="d-flex">
+                          <span className="title-card">THANH TOÁN</span>
+                        </div>
+                        {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                          <Tag
+                            className="orders-tag orders-tag-success"
+                            style={{
+                              backgroundColor: "rgba(39, 174, 96, 0.1)",
+                              color: "#27AE60",
+                            }}
+                          >
+                            Đã thanh toán
+                          </Tag>
+                        )}
+                      </Space>
+                    }
                   >
-                    <label
-                      className="text-left"
-                      style={{ marginTop: "20px", lineHeight: "40px" }}
-                    >
-                      <i>Chưa tạo đơn giao hàng</i>{" "}
-                    </label>
-                    <Button
-                      type="primary"
-                      className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right", marginBottom: "20px" }}
-                      onClick={ShowShipping}
-                    >
-                      Giao hàng
-                    </Button>
-                  </div>
-                )}
-              </Card>
-            )}
-
-            {/*--- end shipment ---*/}
-
-            {/*--- payment ---*/}
-            {OrderDetail !== null &&
-              (OrderDetail.payments?.length !== 0 ? (
-                <Card
-                  className="margin-top-20"
-                  title={
-                    <Space>
-                      <CreditCardOutlined />
-                      Thanh toán
-                      {OrderDetail?.payments !== null
-                        ? OrderDetail?.payments.map(
-                            (item, index) =>
-                              OrderDetail.total !== null &&
-                              (OrderDetail.total - item.paid_amount === 0 ? (
-                                <Tag
-                                  className="orders-tag orders-tag-success"
-                                  style={{ backgroundColor: "#d3fff3" }}
-                                >
-                                  <span style={{ color: "#27AE60" }}>
-                                    {" "}
-                                    Đã thanh toán
-                                  </span>
-                                </Tag>
-                              ) : OrderDetail.total === item.paid_amount ? (
-                                <Tag className="orders-tag orders-tag-danger">
-                                  Chưa thanh toán
-                                </Tag>
-                              ) : (
-                                <Tag className="orders-tag orders-tag-warning">
-                                  Thanh toán 1 phần
-                                </Tag>
-                              ))
-                          )
-                        : "Chưa thanh toán"}
-                    </Space>
-                  }
-                >
-                  <div className="padding-20">
-                    <Row>
-                      <Col span={12}>
-                        <span className="text-field margin-right-40">
-                          Đã thanh toán:
-                        </span>
-                        <span>
-                          {OrderDetail?.payments !== null
-                            ? OrderDetail?.payments.map((item, index) =>
-                                formatCurrency(item.paid_amount)
-                              )
-                            : 0}
-                        </span>
-                      </Col>
-                      <Col span={12}>
-                        <span className="text-field margin-right-40">
-                          Còn phải trả
-                        </span>
-                        <span className="text-success">
-                          {OrderDetail?.payments !== null
-                            ? OrderDetail?.payments.map(
-                                (item, index) =>
-                                  OrderDetail.total !== null &&
-                                  formatCurrency(
-                                    OrderDetail.total - item.paid_amount
-                                  )
-                              )
-                            : formatCurrency(OrderDetail.total)}
-                        </span>
-                      </Col>
-                    </Row>
-                  </div>
-                  <Divider style={{ margin: "0px" }} />
-                  {OrderDetail?.payments !== null && (
-                    <div className="padding-20">
+                    <div style={{marginBottom: 20}}>
+                      <Row>
+                        <Col span={12}>
+                          <span className="text-field margin-right-40">
+                            Đã thanh toán:
+                          </span>
+                          <b>0</b>
+                        </Col>
+                        <Col span={12}>
+                          <span className="text-field margin-right-40">
+                            Còn phải trả:
+                          </span>
+                          <b style={{color: "red"}}>0</b>
+                        </Col>
+                      </Row>
+                    </div>
+                    <Divider style={{margin: "0px"}} />
+                    <div style={{padding: "20px 20px 0 20px"}}>
                       <Collapse
                         className="orders-timeline"
                         defaultActiveKey={["1"]}
                         ghost
                       >
                         <Panel
-                          className="orders-timeline-custom"
+                          className={
+                            OrderDetail?.fulfillments[0].status !== "shipped"
+                              ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
+                              : "orders-timeline-custom orders-dot-fullCod-status"
+                          }
+                          showArrow={false}
                           header={
-                            <span>
-                              Đã thanh toán:{" "}
-                              <b>
-                                {OrderDetail?.payments !== null &&
-                                  OrderDetail?.payments.map(
-                                    (item, index) => item.payment_method
-                                  )}
+                            <div
+                              style={{
+                                color: "#222222",
+                                paddingTop: 4,
+                                fontWeight: 500,
+                              }}
+                            >
+                              COD
+                              <Tag
+                                className="orders-tag orders-tag-warning"
+                                style={{marginLeft: 10}}
+                              >
+                                Đang chờ thu
+                              </Tag>
+                              <b
+                                style={{
+                                  marginLeft: "200px",
+                                  color: "#222222",
+                                }}
+                              >
+                                {OrderDetail.fulfillments
+                                  ? formatCurrency(
+                                    OrderDetail.fulfillments[0].shipment?.cod
+                                  )
+                                  : 0}
                               </b>
-                            </span>
+                            </div>
                           }
                           key="1"
-                          extra={
-                            <>
-                              {OrderDetail?.payments !== null &&
-                                OrderDetail?.payments.map((item, index) => (
-                                  <div>
-                                    <b className="fixed-total">
-                                      {formatCurrency(item.paid_amount)}
-                                    </b>
-                                    <span className="fixed-time text-field">
-                                      {moment(item.created_date).format(
-                                        "DD/MM/YYYY HH:MM a"
-                                      )}
-                                    </span>
-                                  </div>
-                                ))}
-                            </>
-                          }
                         >
                           <Row gutter={24}>
-                            {OrderDetail?.payments !== null &&
+                            {OrderDetail?.payments &&
                               OrderDetail?.payments.map((item, index) => (
-                                <Col span={12}>
-                                  <p className="text-field">
-                                    {item.payment_method}
-                                  </p>
+                                <Col span={12} key={item.id}>
+                                  <p className="text-field">{item.payment_method}</p>
                                   <p>{formatCurrency(item.paid_amount)}</p>
                                 </Col>
                               ))}
                           </Row>
                         </Panel>
-                        {/* <Panel key="2" showArrow={false} header="COD" /> */}
                       </Collapse>
-                      <Divider style={{ margin: "0px" }} />
                     </div>
-                  )}
-
-                  <div className="padding-20 text-right">
                     {OrderDetail?.payments !== null
                       ? OrderDetail?.payments.map(
-                          (item, index) =>
-                            OrderDetail.total !== null &&
-                            OrderDetail.total - item.paid_amount !== 0 && (
+                        (item, index) =>
+                          OrderDetail.total !== null &&
+                          OrderDetail.total - item.paid_amount !== 0 && (
+                            <div className="padding-24 text-right">
                               <Button
+                                key={index}
                                 type="primary"
                                 className="ant-btn-outline fixed-button"
+                                disabled={
+                                  stepsStatusValue === OrderStatus.CANCELLED ||
+                                  stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                                  disabledBottomActions
+                                }
                               >
                                 Thanh toán
                               </Button>
-                            )
-                        )
-                      : "Chưa thanh toán"}
-                  </div>
-                </Card>
-              ) : (
-                <UpdatePaymentCard
-                  setSelectedPaymentMethod={onPaymentSelect}
-                  setPayments={onPayments}
-                  paymentMethod={paymentType}
-                  amount={OrderDetail.total}
-                  order_id={OrderDetail.id}
-                />
-              ))}
-
-            {/*--- end payment ---*/}
-          </Col>
-
-          <Col xs={24} lg={6}>
-            <Card
-              className="card-block card-block-normal"
-              title={
-                <div className="d-flex">
-                  <img src={documentIcon} alt="" /> Thông tin đơn hàng
-                </div>
-              }
-            >
-              <div className="padding-20">
-                <Row className="" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> Cửa hàng
-                  </Col>
-                  <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.store}</span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> Điện thoại
-                  </Col>
-                  <Col span={15}>
-                    <span>{OrderDetail?.customer_phone_number}</span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> Địa chỉ
-                  </Col>
-                  <Col span={15}>
-                    <span>{OrderDetail?.shipping_address?.full_address}</span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> NVBH
-                  </Col>
-                  <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.assignee}</span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> Người tạo
-                  </Col>
-                  <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.account}</span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> Thời gian
-                  </Col>
-                  <Col span={15}>
-                    <span>
-                      {OrderDetail?.fulfillments !== null &&
-                        OrderDetail?.fulfillments !== undefined &&
-                        OrderDetail?.fulfillments.map((item, index) =>
-                          moment(item.shipment?.created_date).format(
-                            "DD/MM/YYYY HH:MM a"
+                            </div>
                           )
-                        )}
-                    </span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> Đường dẫn
-                  </Col>
-                  <Col span={15}>
-                    <span className="text-focus">
-                      {OrderDetail?.url !== undefined
-                        ? OrderDetail?.url
-                        : "Không"}
-                    </span>
-                  </Col>
-                </Row>
-              </div>
-            </Card>
+                      )
+                      : "Chưa thanh toán"}
+                  </Card>
+                )}
 
-            <Card
-              className="margin-top-20"
-              title={
-                <Space>
-                  <ProfileOutlined />
-                  Thông tin bổ sung
-                </Space>
-              }
-            >
-              <div className="padding-20">
-                <Row className="" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> Ghi chú
-                  </Col>
-                  <Col span={15}>
-                    <span className="text-focus">
-                      {OrderDetail?.note !== ""
-                        ? OrderDetail?.note
-                        : "Không có ghi chú"}
-                    </span>
-                  </Col>
-                </Row>
+              {/* Chưa thanh toán đơn nháp*/}
+              {OrderDetail &&
+                OrderDetail.payments?.length === 0 &&
+                (OrderDetail.fulfillments?.length === 0 ||
+                  (OrderDetail?.fulfillments &&
+                    OrderDetail.fulfillments[0].shipment === null)) && (
+                  <UpdatePaymentCard
+                  setPaymentMethod={onPaymentSelect}
+                    setPayments={onPayments}
+                    paymentMethod={paymentMethod}
+                    shipmentMethod={shipmentMethod}
+                    amount={OrderDetail.total + shippingFeeInformedCustomer}
+                    order_id={OrderDetail.id}
+                    orderDetail={OrderDetail}
+                    showPartialPayment={false}
+                    // setTotalPaid={setTotalPaid}
+                    isVisibleUpdatePayment={isVisibleUpdatePayment}
+                    setVisibleUpdatePayment={setVisibleUpdatePayment}
+                    // đơn POS vẫn cho thanh toán tiếp khi chưa thanh toán đủ
+                    disabled={
+                      OrderDetail.source_code !== "POS" &&
+                     (stepsStatusValue === OrderStatus.CANCELLED ||
+                      stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                      disabledBottomActions)
+                    }
+                    reload={() => {
+                      setReload(true);
+                    }}
+                    disabledActions={disabledActions}
+                    listPaymentMethods={listPaymentMethods}
+                    form={form}
+                  />
+                )}
 
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    <ShopOutlined /> Tags
-                  </Col>
-                  <Col span={15}>
-                    <span className="text-focus">
-                      {OrderDetail?.tags !== ""
-                        ? OrderDetail?.tags
-                        : "Không có tags"}
-                    </span>
-                  </Col>
-                </Row>
-              </div>
-            </Card>
-            <Card className="margin-top-20">
-              <div className="padding-20">
-                <span className="text-focus">Lịch sử thao tác đơn hàng</span>
-              </div>
-            </Card>
-          </Col>
-        </Row>
+              {/*--- end payment ---*/}
 
-        <Row className="margin-top-10" justify="end">
-          <Button
-            type="default"
-            className="btn-style btn-cancel"
-            style={{ marginRight: "10px" }}
-          >
-            Hủy
-          </Button>
-          <Button
-            type="primary"
-            className="btn-style btn-save"
-            style={{ color: "white" }}
-          >
-            Lưu
-          </Button>
-        </Row>
+              {/*--- shipment ---*/}
+              <UpdateShipmentCard
+                shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
+                setVisibleUpdatePayment={setVisibleUpdatePayment}
+                setShipmentMethod={onSelectShipment}
+                setOfficeTime={setOfficeTime}
+                setVisibleShipping={setVisibleShipping}
+                OrderDetail={OrderDetail}
+                customerDetail={customerDetail}
+                storeDetail={storeDetail}
+                stepsStatusValue={stepsStatusValue}
+                totalPaid={
+                  OrderDetail?.total_paid
+                    ? OrderDetail?.total_paid
+                    : paymentMethod === 2
+                    // ? totalPaid
+                    ? 0
+                    : 0
+                }
+                officeTime={officeTime}
+                shipmentMethod={shipmentMethod}
+                isVisibleShipping={isVisibleShipping}
+                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
+                orderSettings={orderSettings}
+                onReload={() => setReload(true)}
+                disabledActions={disabledActions}
+                disabledBottomActions={disabledBottomActions}
+                reasons={reasons}
+              />
+              {/*--- end shipment ---*/}
+
+              {/* <CardShipment
+                shipmentMethod={shipmentMethod}
+                orderPrice={OrderDetail?.total_line_amount_after_line_discount}
+                storeDetail={storeDetail}
+                customer={customerDetail}
+                items={OrderDetail?.items}
+                isCancelValidateDelivery={false}
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
+                setShipmentMethod={setShipmentMethod}
+                setHVC={setHvc}
+                form={form}
+                serviceType3PL={serviceType3PL}
+                setServiceType3PL={setServiceType3PL}
+              /> */}
+
+              {/* {renderShipment()} */}
+
+              {OrderDetail?.order_return_origin?.items && (
+                <CardReturnReceiveProducts
+                  handleReceivedReturnProducts={handleReceivedReturnProducts}
+                  isReceivedReturnProducts={isReceivedReturnProducts}
+                  isDetailPage
+                />
+              )}
+            </Col>
+
+            <Col md={6}>
+              <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
+              <SubStatusOrder
+                subStatusCode={subStatusCode}
+                status={OrderDetail?.status}
+                orderId={OrderId}
+                fulfillments={OrderDetail?.fulfillments}
+                handleUpdateSubStatus={handleUpdateSubStatus}
+              />
+              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
+              <ActionHistory
+                orderId={OrderDetail?.id}
+                countChangeSubStatus={countChangeSubStatus}
+                reload={reload}
+              />
+              <SidebarOrderHistory customerId={customerDetail?.id} />
+            </Col>
+          </Row>
+          <OrderDetailBottomBar
+            isVisibleGroupButtons={false}
+            isVisibleActionsButtons={true}
+            stepsStatusValue={stepsStatusValue}
+            orderActionsClick={orderActionsClick}
+            orderDetail={OrderDetailAllFullfilment}
+            onConfirmOrder={onConfirmOrder}
+            isShowConfirmOrderButton={isShowConfirmOrderButton}
+            disabledBottomActions={disabledBottomActions}
+          />
+        </Form>
       </div>
+      <CancelOrderModal
+        visible={visibleCancelModal}
+        orderCode={OrderDetail?.code}
+        onCancel={() => setVisibleCancelModal(false)}
+        onOk={(reason_id: string, sub_reason_id: string, reason: string) => handleCancelOrder(reason_id, sub_reason_id, reason)}
+        reasons={reasons}
+      />
     </ContentContainer>
   );
 };

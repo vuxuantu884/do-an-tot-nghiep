@@ -4,11 +4,12 @@ import {
   colorDeleteOneApi,
   colorDetailApi,
   colorSearchApi,
+  colorUpdateApi,
 } from "service/product/color.service";
 import { call, takeLatest, takeEvery } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
-import { HttpStatus } from "config/HttpStatus";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ColorResponse } from "model/product/color.model";
@@ -25,6 +26,7 @@ function* searchColorSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(response.data);
         setData(response.data.items);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -48,6 +50,7 @@ function* getListColorSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(response.data);
         setData(response.data.items);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -73,6 +76,7 @@ function* getColorSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(response.data);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -128,9 +132,39 @@ function* deleteManyColorSaga(action: YodyAction) {
 }
 
 export function* colorCreateSaga(action: YodyAction) {
-  const { request, onCreateSuccess } = action.payload;
+  const { request, createCallback } = action.payload;
   try {
-    let response: BaseResponse<string> = yield call(colorCreateApi, request);
+    let response: BaseResponse<ColorResponse> = yield call(
+      colorCreateApi,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        createCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        createCallback(null);
+        break;
+      default:
+        createCallback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    createCallback(null);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+export function* colorUpdateSaga(action: YodyAction) {
+  const { id, request, onCreateSuccess } = action.payload;
+  try {
+    let response: BaseResponse<string> = yield call(
+      colorUpdateApi,
+      id,
+      request
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess();
@@ -148,21 +182,24 @@ export function* colorCreateSaga(action: YodyAction) {
 }
 
 export function* colorDetailRequest(action: YodyAction) {
-  const { id, setData } = action.payload;
+  const { id, getColorCallback } = action.payload;
   try {
     let response: BaseResponse<ColorResponse> = yield call(colorDetailApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        getColorCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        getColorCallback(false);
         break;
     }
   } catch (error) {
+    getColorCallback(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -175,4 +212,5 @@ export function* colorSaga() {
   yield takeEvery(ColorType.LIST_COLOR_REQUEST, getListColorSaga);
   yield takeLatest(ColorType.CREATE_COLOR_REQUEST, colorCreateSaga);
   yield takeLatest(ColorType.DETAIL_COLOR_REQUEST, colorDetailRequest);
+  yield takeLatest(ColorType.UPDATE_COLOR_REQUEST, colorUpdateSaga);
 }

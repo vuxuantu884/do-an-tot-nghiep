@@ -1,8 +1,3 @@
-include:
-  - project: yody-system/devops/cicd-templates
-    file: before-scripts-template.yml
-    ref: master
-
 cache:
   key: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   paths:
@@ -13,48 +8,55 @@ variables:
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 stages:
-  - verify
-  - compile_build
   - docker_build
   - deploy
-  - tag
-  - notify
 
-docker build:
+docker build dev:
   stage: docker_build
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  tags:
+  - build-yody-tag
   only:
-    refs:
-      - develop
+    - develop
   variables:
     DOCKER_FILE: Dockerfile
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
-    - bash deployment/dockerbuild.sh
+    - sh deployment/dockerbuild.sh
 
 docker build uat:
   stage: docker_build
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  tags:
+  - build-yody-tag
   only:
-    refs:
-      - uat
+    - uat
   variables:
     DOCKER_FILE: Dockerfile-uat
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
-    - bash deployment/dockerbuild.sh
+    - sh deployment/dockerbuild.sh
+
+docker build production:
+  stage: docker_build
+  tags:
+  - build-yody-tag
+  only:
+    - master
+  variables:
+    DOCKER_FILE: Dockerfile-production
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
 
 deploy to dev:
   stage: deploy
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
-  dependencies: []
-  when: manual
+  cache: {}
+  tags:
+    - nonprod-deploy
   only:
     - develop
-    - feature/sprint-4-app-admin
-    - feature/ci-cd
   variables:
     HOST: dev.yody.io
     NAMESPACE: dev
@@ -66,13 +68,14 @@ deploy to dev:
 
 deploy to uat:
   stage: deploy
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
-  dependencies: []
+  cache: {}
   when: manual
+  tags:
+    - nonprod-deploy
   only:
     - uat
   variables:
-    HOST: uat.app-admin.yody.io
+    HOST: uat.yody.io
     NAMESPACE: uat
     ENVIRONMENT: uat
     SERVICE_NAME: yody-app-admin
@@ -80,12 +83,19 @@ deploy to uat:
   script:
     - bash deployment/deploy.sh app-admin
 
-tag:
-  stage: tag
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+deploy to production:
+  stage: deploy
+  when: manual
+  cache: {}
+  tags:
+    - production
   only:
-    - tags
+    - master
   variables:
+    HOST: unicorn.yody.io
+    NAMESPACE: production
+    ENVIRONMENT: production
+    SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
-    - bash deployment/dockertag.sh $DOCKER_IMAGE_NAME $IMAGE_TAG $CI_COMMIT_TAG
+    - bash deployment/deploy.sh app-admin

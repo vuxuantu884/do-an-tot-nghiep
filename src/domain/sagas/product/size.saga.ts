@@ -1,11 +1,12 @@
 import { SizeType } from "domain/types/product.type";
 import { SizeResponse } from "model/product/size.model";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
-import { HttpStatus } from "config/HttpStatus";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 import {
   getAllSizeApi,
+  getSearchSize,
   sizeCreateApi,
   sizeDeleteManyApi,
   sizeDeleteOneApi,
@@ -14,7 +15,6 @@ import {
 } from "service/product/size.service";
 import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 
 function* getAllSizeSaga(action: YodyAction) {
@@ -40,27 +40,25 @@ function* getAllSizeSaga(action: YodyAction) {
 }
 
 function* sizeSearchSaga(action: YodyAction) {
-  const { setData } = action.payload;
+  const { query, setData } = action.payload;
   try {
+    
     let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
-      getAllSizeApi
+      getSearchSize,query
     );
-    yield put(showLoading());
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        yield put(hideLoading());
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
-        yield put(hideLoading());
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -72,22 +70,19 @@ function* sizeCreateSaga(action: YodyAction) {
       sizeCreateApi,
       request
     );
-    yield put(showLoading());
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        yield put(hideLoading());
         onCreateSuccess();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
-        yield put(hideLoading());
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -96,22 +91,22 @@ function* sizeDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
     let response: BaseResponse<SizeResponse> = yield call(sizeDetailApi, id);
-    yield put(showLoading());
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        yield put(hideLoading());
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setData(false);
         yield put(unauthorizedAction());
         break;
       default:
-        yield put(hideLoading());
+        setData(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -124,22 +119,19 @@ function* sizeUpdateSaga(action: YodyAction) {
       id,
       request
     );
-    yield put(showLoading());
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        yield put(hideLoading());
         onUpdateSuccess();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
-        yield put(hideLoading());
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -150,19 +142,16 @@ function* sizeDeleteSaga(action: YodyAction) {
     let response: BaseResponse<SizeResponse> = yield call(sizeDeleteOneApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        yield put(hideLoading());
         onDeleteSuccess();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
-        yield put(hideLoading());
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -173,19 +162,16 @@ function* sizeDeleteManySaga(action: YodyAction) {
     let response: BaseResponse<string> = yield call(sizeDeleteManyApi, ids);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        yield put(hideLoading());
         onDeleteSuccess();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
-        yield put(hideLoading());
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

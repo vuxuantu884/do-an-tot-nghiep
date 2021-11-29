@@ -1,3 +1,4 @@
+import { AuthProfilePermission } from 'model/auth/permission.model';
 import { AppSettingReducerType } from './AppSettingReducerType';
 import { BootstrapReducerType } from './BootstrapReducerType';
 import { LoadingReducerType } from './LoadingReducerType';
@@ -7,5 +8,6 @@ export interface RootReducerType {
   userReducer: UserReducerType,
   loadingReducer: LoadingReducerType,
   bootstrapReducer: BootstrapReducerType,
-  appSettingReducer: AppSettingReducerType
+  appSettingReducer: AppSettingReducerType,
+  permissionReducer: AuthProfilePermission
 }

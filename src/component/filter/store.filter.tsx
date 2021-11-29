@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Col,
   DatePicker,
   Form,
@@ -10,18 +9,22 @@ import {
   Select,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import { SupplierQuery } from "model/core/supplier.model";
-import { createRef, useCallback, useLayoutEffect, useState } from "react";
+import { createRef, useCallback, useEffect,  useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { StoreQuery } from "model/core/store.model";
+import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
 import CustomFilter from "component/table/custom.filter";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { GroupResponse } from "model/content/group.model";
 import NumberInput from "component/custom/number-input.custom";
+import "assets/css/custom-filter.scss";
+import { DepartmentResponse } from "model/account/department.model";
+import ButtonSetting from "component/table/ButtonSetting";
+import CustomSelect from "component/custom/select.custom";
 
 type StoreFilterProps = {
+  initValue: StoreQuery;
   params: StoreQuery;
   onFilter?: (values: StoreQuery) => void;
   onClearFilter?: () => void;
@@ -30,13 +33,15 @@ type StoreFilterProps = {
   storeStatusList?: Array<BaseBootstrapResponse>;
   storeRanks?: Array<StoreRankResponse>;
   groups?: Array<GroupResponse>;
+  type?: Array<StoreTypeRequest>;
+  listDepartment?: Array<DepartmentResponse>;
+  onClickOpen?: () => void;
 };
 
 const { Item } = Form;
 const { Option } = Select;
 const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   const {
-    onClearFilter,
     onFilter,
     params,
     actions,
@@ -44,12 +49,16 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     storeStatusList,
     storeRanks,
     groups,
+    initValue,
+    type,
+    listDepartment,
+    onClickOpen
   } = props;
   const [visible, setVisible] = useState(false);
 
   const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
-    (values: SupplierQuery) => {
+    (values: StoreQuery) => {
       onFilter && onFilter(values);
     },
     [onFilter]
@@ -70,14 +79,19 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     },
     [onMenuClick]
   );
-  useLayoutEffect(() => {
+  const onClearFilterAdvanceClick = useCallback(() => {
+    formRef.current?.setFieldsValue(initValue);
+    setVisible(false);
+    formRef.current?.submit();
+  }, [formRef, initValue]);
+  useEffect(() => {
     if (visible) {
       formRef.current?.resetFields();
     }
   }, [formRef, visible]);
 
   return (
-    <Card bordered={false}>
+    <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form
           className="form-search"
@@ -85,22 +99,43 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           initialValues={params}
           layout="inline"
         >
-          <Form.Item name="info">
+          <Form.Item name="info" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
-              placeholder="Tên/Id cửa hàng"
+              placeholder="Tên/ Mã cửa hàng/ Sđt/ Hotline"
             />
+          </Form.Item> 
+          <Form.Item name="department_ids">
+            <CustomSelect
+              showSearch
+              allowClear
+              showArrow 
+              placeholder="Chọn bộ phận"
+              style={{
+                minWidth: 200,
+                width: "100%",
+              }}
+              optionFilterProp="children"
+            >
+              {listDepartment?.map((item) => (
+                <Select.Option key={item.id} value={item.id}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </CustomSelect>
           </Form.Item>
           <Form.Item name="status">
-            <Select style={{ width: 200 }} placeholder="Trạng thái">
-              <Option value="">Trạng thái</Option>
+            <CustomSelect  
+            allowClear 
+            showArrow 
+            style={{ width: 180 }} 
+            placeholder="Chọn trạng thái">
               {storeStatusList?.map((item) => (
                 <Option key={item.value} value={item.value}>
                   {item.name}
                 </Option>
               ))}
-            </Select>
+            </CustomSelect>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
@@ -110,13 +145,17 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Form.Item>
             <Button onClick={openFilter}>Thêm bộ lọc</Button>
           </Form.Item>
+          <Item>
+              <ButtonSetting onClick={onClickOpen} />
+            </Item>
         </Form>
       </CustomFilter>
       <BaseFilter
-        onClearFilter={onClearFilter}
+        onClearFilter={onClearFilterAdvanceClick}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
+        width={396}
       >
         <Form
           onFinish={onFinish}
@@ -130,6 +169,16 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               {storeRanks?.map((item) => (
                 <Option key={item.id} value={item.id}>
                   {item.code}
+                </Option>
+              ))}
+            </Select>
+          </Item>
+          <Item name="type" label="Phân loại">
+            <Select placeholder="Chọn loại cửa hàng">
+              <Option value="">Chọn tất cả</Option>
+              {type?.map((item, index) => (
+                <Option key={index} value={item.value}>
+                  {item.name}
                 </Option>
               ))}
             </Select>
@@ -150,12 +199,12 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Row gutter={24}>
             <Col span={12}>
               <Item name="from_begin_date" label="Ngày mở cừa từ">
-                <DatePicker placeholder="Ngày mở cửa từ" />
+                <DatePicker style={{width: '100%'}} placeholder="Ngày mở cửa từ" />
               </Item>
             </Col>
             <Col span={12}>
               <Item name="to_begin_date" label="Đến">
-                <DatePicker placeholder="Đến" />
+                <DatePicker style={{width: '100%'}} placeholder="Đến" />
               </Item>
             </Col>
           </Row>
@@ -173,7 +222,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           </Row>
         </Form>
       </BaseFilter>
-    </Card>
+    </div>
   );
 };
 

@@ -1,30 +1,29 @@
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { SupplierType } from "domain/types/core.type";
 import { SupplierQuery } from "model/core/supplier.model";
 import { SupplierCreateRequest, SupplierUpdateRequest } from "model/core/supplier.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
 
-const supplierSearchAction = (query: SupplierQuery, setData: (response: PageResponse<SupplierResponse>) => void) => {
-  return BaseAction(SupplierType.SEARCH_SUPPLIER_REQUEST, {query, setData});
+export const SupplierSearchAction = (query: SupplierQuery, searchSupplierCallback: (response: PageResponse<SupplierResponse>) => void) => {
+  return BaseAction(SupplierType.SEARCH_SUPPLIER_REQUEST, {query, searchSupplierCallback});
 }
 
-export const supplierGetAllAction = (setData: (response: Array<SupplierResponse>) => void) => {
+export const SupplierGetAllAction = (setData: (response: Array<SupplierResponse>) => void) => {
   return BaseAction(SupplierType.GET_ALL_SUPPLIER_REQUEST, {setData});
 }
 
-const supplierCreateAction = (request: SupplierCreateRequest, setData: () => void) => {
+export const SupplierCreateAction = (request: SupplierCreateRequest, setData: (result:SupplierResponse) => void) => {
   return BaseAction(SupplierType.CREATE_SUPPLIER_REQUEST, {request, setData});
 }
 
-const supplierUpdateAction = (request: SupplierUpdateRequest, setData: (response: SupplierResponse) => void) => {
-  return BaseAction(SupplierType.EDIT_SUPPLIER_REQUEST, {request, setData});
+export const SupplierUpdateAction = (id: number, request: SupplierUpdateRequest, setData: (response: SupplierResponse|false) => void) => {
+  return BaseAction(SupplierType.EDIT_SUPPLIER_REQUEST, {id, request, setData});
 }
 
-const SupplierAction = {
-  supplierSearchAction, 
-  supplierCreateAction,
-  supplierUpdateAction,
+export const SupplierDetailAction = (id: number, setData: (response: SupplierResponse|false) => void) => {
+  return BaseAction(SupplierType.DETAIL_SUPPLIER_REQUEST, {id, setData});
 }
-
-export default SupplierAction;
+export const SupplierDeleteAction = (id: number, deleteCallback: (result: any|null) => void) => {
+  return BaseAction(SupplierType.DELETE_SUPPLIER_REQUEST, {id, deleteCallback});
+}

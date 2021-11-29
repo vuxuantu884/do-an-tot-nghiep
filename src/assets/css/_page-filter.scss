@@ -1,0 +1,66 @@
+.page-filter {
+  padding: 20px 0px 20px 0px;
+
+  &-heading {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &-content {
+    margin-top: 10px;
+  }
+  .action-button {
+    border: 1px solid $primary-color;
+    padding: 6px 15px;
+    border-radius: 5px;
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+    color: $primary-color;
+    &:hover {
+      color: $primary-color;
+      border: 1px solid $primary-color;
+      color: $primary-color;
+    }
+    &:focus {
+      color: $primary-color;
+      border: 1px solid $primary-color;
+      color: $primary-color;
+    }
+    &:disabled {
+      color: $primary-color;
+      border: 1px solid $primary-color;
+      color: $primary-color;
+      opacity: 0.5;
+    }
+    &.ant-btn-primary {
+      color: white;
+    }
+  }
+}
+
+.button-select:focus {
+  &:focus {
+    color: #37394d;
+    border-color: #e5e5e5;
+    background-color: #f5f5f5;
+  }
+  &.active {
+    color: $white;
+    background-color: $primary-color;
+    border-color: $primary-color;
+  }
+}
+
+.card-tab {
+  .ant-card-body {
+      padding-top: 0;
+      .ant-tabs-nav {
+          margin-bottom: 0;
+          padding: 0;
+          .ant-tabs-tab {
+              padding: 16px 0;
+          }
+      }
+  }
+}

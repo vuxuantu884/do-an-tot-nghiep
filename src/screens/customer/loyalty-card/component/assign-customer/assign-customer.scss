@@ -1,0 +1,26 @@
+.assign-customer-modal {
+  .ant-modal-title {
+    font-family: Roboto;
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  .assignment {
+    margin-top: 8px;
+    display: flex;
+
+    .dropdown-rule {
+      width: 80%;
+    }
+
+    .assign-btn {
+      margin-left: 12px;
+      display: flex;
+      align-items: center;
+
+      span {
+        margin-left: 10px;
+      }
+    }
+  }
+}

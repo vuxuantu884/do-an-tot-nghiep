@@ -8,10 +8,10 @@ export interface ProductCollectionsResponse  {
   product_id:number
 }
 
-export interface VariantImagesResponse  {
-  id:number,
-  variant_id:number,
-  position:string,
+export interface VariantImage  {
+  id? :number,
+  variant_id?:number,
+  position: number|null,
   image_id:number,
   url: string,
   variant_avatar:boolean,
@@ -22,14 +22,49 @@ export interface VariantImagesResponse  {
 export interface VariantPricesResponse  {
   id:number,
   price_type:string,
-  price:number,
+  import_price:number,
+  wholesale_price: number,
+  cost_price: number,
   variant_id:number,
   currency_code:string,
   currency_symbol:string,
+  retail_price: number,
   tax_percent:number
 }
 
 export interface ProductResponse extends BaseObject {
+  name: string,
+  category_id: number,
+  category: string,
+  material_id: number,
+  material:string,
+  goods:string,
+  goods_name: string,
+  brand:string,
+  brand_name:string,
+  made_in_id:number,
+  made_in:string,
+  description:string,
+  content:string,
+  merchandiser_code:string,
+  merchandiser:string,
+  designer_code:string,
+  designer:string,
+  tags:string|null,
+  status:string,
+  status_name:string,
+  preservation:string,
+  unit:string,
+  unit_name:string,
+  product_type:string,
+  code:string,
+  product_collections: Array<ProductCollectionsResponse>,
+  specifications: string,
+  variants: Array<VariantResponse>
+}
+
+export interface ProductWrapperResponse extends BaseObject {
+  id: number,
   name: string,
   category_id: number,
   category: string,
@@ -54,10 +89,74 @@ export interface ProductResponse extends BaseObject {
   product_type:string,
   product_collections: Array<ProductCollectionsResponse>,
   specifications: string,
+  variants: Array<VariantResponse>,
 }
 
-
+export interface ProductWrapperUpdateRequest{
+  id: number,
+  name: string,
+  category_id: number | null,
+  category: string | null,
+  material_id: number | null,
+  material:string | null,
+  goods:string | null,
+  brand:string | null,
+  brand_name:string | null,
+  made_in_id:number | null,
+  made_in:string | null,
+  description:string | null,
+  content:string | null,
+  merchandiser_code:string | null,
+  merchandiser:string | null,
+  designer_code:string | null,
+  designer:string | null,
+  tags:string|null,
+  status:string,
+  status_name:string | null,
+  preservation:string | null,
+  unit:string | null,
+  product_type:string | null,
+  product_collections: Array<ProductCollectionsResponse>,
+  specifications: string | null,
+  variants: Array<VariantResponse>,
+}
 export interface VariantResponse extends BaseObject {
+  amount: number;
+  name: string,
+  on_hand: number,
+  inventory : number,
+  available:number|null,
+  category: string,
+  supplier_id:number,
+  supplier:string,
+  color_id:number,
+  color:string,
+  size_id:number,
+  size:string,
+  barcode:string,
+  taxable:boolean,
+  saleable:boolean,
+  sku:string,
+  status:string,
+  status_name:string,
+  composite:boolean,
+  width:number|null,
+  length:number|null,
+  height:number|null,
+  weight:number,
+  weight_unit:string,
+  length_unit:string,
+  composites:string,
+  product_id:number,
+  product_name:string,
+  product:ProductResponse,
+  variant_prices:Array<VariantPricesResponse>,
+  variant_images:Array<VariantImage>,
+  transfer_quantity: number,
+  variant_id: number,
+}
+
+export interface VariantView extends BaseObject {
   name: string,
   inventory: number,
   category: string,
@@ -83,8 +182,8 @@ export interface VariantResponse extends BaseObject {
   composites:string,
   product_id:string,
   product:ProductResponse,
-  variant_prices:Array<VariantPricesResponse>,
-  variant_images:Array<VariantImagesResponse>
+  variant_prices:Array<VariantPriceViewRequest>,
+  variant_images:Array<VariantImage>
 }
 
 
@@ -103,29 +202,36 @@ export interface VariantSearchQuery extends BaseQuery {
   main_color?:string,
   color?:string,
   supplier?:string
+  saleable?: boolean
+  store_id?: number,
+  store_ids?: number|null,
+}
+export interface ProductWrapperSearchQuery extends BaseQuery {
+  info?: string,
+  category_id?: number|"",
+  designer_code?: string,
+  material_id?: number|"",
+  merchandiser_code?: string,
+  from_create_date?:string,
+  to_create_date?:string,
+  status?: string,
+  goods?: string,
 }
 
 export interface VariantPriceRequest {
-  price: number,
+  import_price: number|null,
+  retail_price: number|null,
+  wholesale_price: number|null,
+  cost_price: number|null,
   currency_code: string,
-  price_type: string,
-  tax_percent: number,
-}
-
-export interface VariantImageRequest {
-  id?: number,
-  position: number|null,
-  image_id: number,
-  url: string,
-  variant_avatar: boolean,
-  product_avatar: boolean,
+  tax_percent: number|null,
 }
 
 export interface VariantRequest {
   status: string,
   name: string,
-  color_id: number,
-  size_id: number,
+  color_id: number|null,
+  size_id: number|null,
   barcode: string|null,
   taxable: boolean|null,
   saleable: boolean|null
@@ -136,11 +242,36 @@ export interface VariantRequest {
   length: number|null,
   length_unit: string|null,
   weight: number|null,
+  supplier_id:number|null,
   weight_unit: string|null,
   variant_prices: Array<VariantPriceRequest>
-  variant_images: Array<VariantImageRequest>,
+  variant_images: Array<VariantImage>,
   inventory: 0,
-  version?: null,
+  version?: number,
+}
+
+export interface VariantUpdateRequest {
+  id:number|null,
+  barcode: string|null,
+  color_id: number|null, 
+  composite:boolean,
+  height: number|null,
+  length: number|null,
+  length_unit: string|null,
+  name: string,
+  product_id:number|null,
+  saleable: boolean|null
+  size_id: number|null,
+  sku: string,
+  taxable: boolean|null,
+  status: string,
+  deleted: boolean,
+  supplier_id:number|null
+  width: number|null, 
+  weight: number|null,
+  weight_unit: string|null,
+  variant_prices: Array<VariantPriceRequest>,
+  variant_images: Array<VariantImage>|null
 }
 
 export interface ProductRequest {
@@ -160,26 +291,30 @@ export interface ProductRequest {
   status: string,
   tags: string|null,
   variants: Array<VariantRequest>,
-  product_unit: string|null,
+  unit: string|null,
+  material_id:number|null,
+  supplier_id:number|null,
+  collections:Array<string>,
 }
 
 export interface VariantRequestView {
   name: string,
-  color_id: number,
-  color: string,
-  size_id: number,
-  size: string,
+  color_id: number|null,
+  color: string|null,
+  size_id: number|null,
+  size: string|null,
   sku: string,
-  quantity: string|null,
-  variant_images: Array<VariantImageRequest>,
+  quantity: number|null,
+  variant_images: Array<VariantImage>,
 }
 
 export interface VariantPriceViewRequest {
-  retail_price: string,
-  import_price: string,
-  whole_sale_price: string,
+  retail_price: number|"",
+  import_price: number|"",
+  wholesale_price: number|"",
+  cost_price: number|"",
   currency: string,
-  tax_percent: string,
+  tax_percent: number|"",
 }
 export interface ProductRequestView {
   product_type?: string|null,
@@ -194,8 +329,8 @@ export interface ProductRequestView {
   length_unit: string|null,
   weight: number|null,
   weight_unit: string|null,
-  tags: Array<string>,
-  product_unit: string|null,
+  tags: string,
+  unit: string|null,
   brand: string|null,
   content: string|null,
   description: string|null,
@@ -207,6 +342,9 @@ export interface ProductRequestView {
   status: string,
   variant_prices: Array<VariantPriceViewRequest>,
   saleable: boolean,
+  material_id:number|null,
+  supplier_id:number|null,
+
 }
 
 export interface ProductUpdateView {
@@ -228,21 +366,56 @@ export interface ProductUpdateView {
 }
 
 export interface VariantUpdateView {
+  id:number|null,
   status: string,
   name: string,
-  color_id: number,
-  size_id: number,
+  color_id: number|null,
+  size_id: number|null,
   barcode: string|null,
   taxable: boolean|null,
   saleable: boolean|null
   deleted: boolean,
   sku: string,
-  width: string|null,
-  height: string|null,
-  length: string|null,
+  width: number|null,
+  height: number|null,
+  length: number|null,
   length_unit: string|null,
-  weight: string,
+  weight: number,
   weight_unit: string|null,
   variant_prices: Array<VariantPriceViewRequest>,
+  variant_image: Array<VariantImage>|null,
   product: ProductUpdateView
+  product_id:number|null,
+  supplier_id:number|null
+}
+
+export interface ProductHistoryResponse extends BaseObject {
+  history_type:      string;
+  product_id:        number;
+  product_code:      string;
+  product_name:      string;
+  variant_id:        number | null;
+  variant_name:      null | string;
+  sku:               null | string;
+  data_old:          null | string;
+  data_current:      string;
+  action_by:         string;
+  action_name:       string;
+  action_date:       Date;
+  history_type_name: string;
+}
+
+export interface ProductHistoryQuery extends BaseQuery {
+  condition?: string
+  history_type?: string,
+}
+
+export interface ProductBarcodeRequest {
+  type_name: string,
+  products: Array<ProductBarcodeItem>,
+}
+
+export interface ProductBarcodeItem {
+  product_id: number,
+  quantity_req: number,
 }

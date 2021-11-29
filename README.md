@@ -44,3 +44,21 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+extent:
+npm Intellisense
+Auto Close Tag
+Auto Complete Tag
+Auto Import
+Auto Rename Tag
+Bracket Pair Colorizer
+Code Spell Checker
+ES7 React/Redux/GraphQL/React-Native snippets
+ESLint
+file-icons
+GitLens — Git supercharged
+JavaScript (ES6) code snippets
+Material Icon Theme
+Path Autocomplete
+Path Intellisense
+Prettier - Code formatter

@@ -1,14 +1,14 @@
 import { generateQuery } from 'utils/AppUtils';
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
-import { AccountSearchQuery,LoginResponse ,AccountResponse, AccountRequest} from "model/account/account.model";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { ApiConfig } from "config/api.config";
+import { AccountSearchQuery, LoginResponse, AccountResponse, AccountRequest } from "model/account/account.model";
 import { AuthenRequest } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DepartmentResponse } from 'model/account/department.model';
 import { PositionResponse } from 'model/account/position.model';
 
-export const getAcccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
+export const getAccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/detail`);
 }
 
@@ -33,12 +33,19 @@ export const AccountUpdateService = (id: number, request: AccountRequest): Promi
   return BaseAxios.put(`${ApiConfig.ACCOUNTS}/accounts/${id}`, request)
 }
 
-export const AccountGetByIdService = (id: number): Promise<BaseResponse<AccountResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/${id}`)
+export const AccountGetByIdService = (code: string): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/code/${code}`)
 }
 
 
-export const getDepartmentAllApi = (): Promise<BaseResponse<DepartmentResponse>> => {
+export const AccountDeleteService = (id: number): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.delete(`${ApiConfig.ACCOUNTS}/accounts/${id}`)
+}
+export const AccountManyDeleteService = (ids: number[]): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.delete(`${ApiConfig.ACCOUNTS}/accounts/${ids}`)
+}
+
+export const getDepartmentAllApi = (): Promise<BaseResponse<DepartmentResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/departments`);
 }
 
@@ -48,4 +55,12 @@ export const getPositionAllApi = (): Promise<BaseResponse<PositionResponse>> => 
 
 export const searchShipperApi = (): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?is_shipper=1`);
+}
+
+export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/power-bi/groups/${params.group_id}/reports/${params.report_id}`,
+  {
+    access_level: 'View',
+    allow_save_as: 'false'
+  });
 }

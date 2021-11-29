@@ -1,59 +1,133 @@
-import {Input} from 'antd';
-import { CSSProperties, useCallback } from 'react';
-import { FLOATREG, NUMBERREG } from 'utils/RegUtils';
+import { Input } from "antd";
+import React, { useEffect, useState } from "react";
+import { CSSProperties, useCallback } from "react";
+import { RegUtil } from "utils/RegUtils";
 
-type NumberInputProps = {
-  value?: string,
-  isFloat?: boolean,
-  onChange?: (v: string|null) => void,
-  onBlur?: () => void,
-  style?: CSSProperties,
-  placeholder?: string,
-  format?: (a: string) => string,
-  replace?: (a: string) => string,
-  suffix?: React.ReactNode
+interface NumberInputProps {
+  id?: string
+  value?: number;
+  isFloat?: boolean;
+  onChange?: (v: number | null) => void;
+  onBlur?: () => void;
+  onKeyPress?: (event: any) => void;
+  style?: CSSProperties;
+  placeholder?: string;
+  format?: (a: string) => string;
+  replace?: (a: string) => string;
+  suffix?: React.ReactNode;
+  maxLength?: number;
+  minLength?: number;
+  className?: string;
+  min?: number;
+  max?: number;
+  default?: number;
+  prefix?: React.ReactNode;
+  autoFocus?: boolean;
+  onFocus?: (e: any) => void;
+  disabled?: boolean
+  step?:number
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
-  const {replace, value, isFloat, onChange, placeholder, style, format, onBlur, suffix} = props;
-  const onChangeText = useCallback((e) => {
-    let newValue: string = e.target.value;
-    let value = format ? (replace ? replace(newValue) : newValue) : newValue;
-    if(value === '') {
-      onChange && onChange(null)
-      return;
-    }
-    if(isFloat) {
-      if(FLOATREG.test(value)) {
-        onChange && onChange(value)
+  const {
+    replace,
+    value,
+    isFloat,
+    onChange,
+    placeholder,
+    onKeyPress,
+    style,
+    format,
+    onBlur,
+    suffix,
+    maxLength,
+    minLength,
+    className,
+    prefix,
+    id,
+    onFocus,
+    disabled = false,
+    step
+  } = props;
+  const [data, setData] = useState<string>('');
+  const onChangeText = useCallback(
+    (e) => {
+      let newValue: string = e.target.value;
+      let valueS = format ? (replace ? replace(newValue) : newValue) : newValue;
+      if (valueS === "") {
+        setData(valueS);
+        onChange && onChange(null);
         return;
       }
-    }
-    if(NUMBERREG.test(value)) {
-      onChange && onChange(value)
-      return;
-    }
-  }, [format, isFloat, onChange, replace])
-  const onBlurEvent = useCallback((e) => {
-    let valueTemp = value;
-    if(value) {
-      if (value.charAt(value.length - 1) === '.' || value === '-') {
-        valueTemp = value.slice(0, -1);
+      if (isFloat) {
+        if (RegUtil.FLOATREG.test(valueS)) {
+          setData(valueS);
+          if(valueS[valueS.length - 1] !== '.') {
+            onChange && onChange(parseFloat(valueS));
+          }
+          return;
+        }
       }
-      (onChange && valueTemp) && onChange(valueTemp.replace(/0*(\d+)/, '$1'));
-    }
-    onBlur && onBlur();
-  }, [onBlur, onChange, value])
+      if (RegUtil.NUMBERREG.test(valueS)) {
+        setData(valueS);
+        onChange && onChange(parseInt(valueS));
+        return;
+      }
+    },
+    [format, isFloat, onChange, replace]
+  );
+  const onBlurEvent = useCallback(
+    (e) => {
+      let temp = value?.toString();
+      let valueTemp = temp;
+      if (temp !== undefined && value !== undefined) {
+        if (temp.charAt(temp.length - 1) === "." || temp === "-") {
+          valueTemp = temp.slice(0, -1);
+        }
+        if (props.min !== undefined && value < props.min) {
+          onChange && onChange(props.min);
+        } else if (props.max !== undefined && value > props.max) {
+          onChange && onChange(props.max);
+        } else {
+          onChange &&
+            valueTemp &&
+            onChange(parseFloat(valueTemp.replace(/0*(\d+)/, "$1")));
+        }
+      } else {
+        if (props.default !== undefined) {
+          onChange && onChange(props.default);
+        }
+      }
+      onBlur && onBlur();
+    },
+    [onBlur, onChange, props, value]
+  );
+  useEffect(() => {
+    setData(value !== undefined && value !== null ? value.toString() : '');
+  }, [value]);
   return (
     <Input
+      id={id}
+      className={className}
       placeholder={placeholder}
-      value={value && format ? format(value) : value}
-      style={style}
+      value={format ? format(data) : data}
+      style={{textAlign: 'right', ...style}}
       onBlur={onBlurEvent}
+      onKeyPress={onKeyPress}
       onChange={onChangeText}
       suffix={suffix}
+      maxLength={maxLength}
+      minLength={minLength}
+      onFocus={(e) => {
+        e.target.select();
+        onFocus && onFocus(e);
+      }}
+      prefix={prefix}
+      autoFocus={props.autoFocus}
+      disabled={disabled}
+      step={step}
     />
-  )
-}
+  );
+};
 
 export default NumberInput;

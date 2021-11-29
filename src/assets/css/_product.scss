@@ -1,0 +1,38 @@
+.product-image {
+  background-color: rgba($primary-color, 0.05);
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  img {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    object-fit: cover;
+  }
+  &-upload {
+    z-index: 100;
+    display: none;
+  }
+  &-default {
+    display: inline;
+  }
+  &-path {
+    width: 40px !important;
+    height: 36px !important;
+    object-fit: contain;
+    border-radius: 5px;
+  }
+  &:hover {
+    .product-image-upload {
+      display: inline;
+    }
+    .product-image-default {
+      display: none;
+    }
+  }
+}
+

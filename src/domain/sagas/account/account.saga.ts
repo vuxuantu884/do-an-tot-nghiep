@@ -1,10 +1,9 @@
-
 import { PositionResponse } from "model/account/position.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { call, takeEvery, takeLatest } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
-import { HttpStatus } from "config/HttpStatus";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 import { AccountType } from "domain/types/account.type";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -16,9 +15,12 @@ import {
   AccountCreateService,
   AccountGetByIdService,
   AccountUpdateService,
+  AccountDeleteService,
+  powerBIEmbededApi,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
-
+import { put } from "redux-saga/effects";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -31,10 +33,16 @@ function* AccountSearchSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
+        setData(false);
         break;
     }
-  } catch (e) {}
+  } catch (e) {
+    setData(false);
+  }
 }
 
 function* AccountGetListSaga(action: YodyAction) {
@@ -48,6 +56,9 @@ function* AccountGetListSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         break;
     }
@@ -55,7 +66,7 @@ function* AccountGetListSaga(action: YodyAction) {
 }
 
 function* AccountCreateSaga(action: YodyAction) {
-  const { request, setData } = action.payload;
+  const { request, onCreateSuccess } = action.payload;
   try {
     let response: BaseResponse<AccountResponse> = yield call(
       AccountCreateService,
@@ -63,13 +74,18 @@ function* AccountCreateSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        onCreateSuccess(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
+        onCreateSuccess(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onCreateSuccess(null);
     console.log("AccountCreateSaga:" + error);
     showError("Có lỗi vui lòng thử lại sau");
   }
@@ -87,6 +103,9 @@ function* AccountUpdateSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
@@ -96,19 +115,46 @@ function* AccountUpdateSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
+function* AccountDeleteSaga(action: YodyAction) {
+  const { id, deleteCallback } = action.payload;
+  try {
+    let response: BaseResponse<any | null> = yield call(
+      AccountDeleteService,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        deleteCallback(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        deleteCallback(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    deleteCallback(false);
+    console.log("AccountUpdateSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
 
 function* AccountGetByIdSaga(action: YodyAction) {
-  const { id, setData } = action.payload;
+  const { code, setData } = action.payload;
   try {
-    
     let response: BaseResponse<AccountResponse> = yield call(
       AccountGetByIdService,
-      id
+      code
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response.data);
         setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         response.errors.forEach((e) => showError(e));
@@ -130,6 +176,9 @@ function* DepartmentGetListSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         break;
     }
@@ -145,6 +194,9 @@ function* PositionGetListSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         break;
     }
@@ -154,20 +206,43 @@ function* PositionGetListSaga(action: YodyAction) {
 function* ShipperSearchSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-      let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searchShipperApi);
-      switch (response.code) {
-          case HttpStatus.SUCCESS:
-            setData(response.data.items);
-              break;
-          default:
-              break;
-      }
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
+      searchShipperApi
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data.items);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
   } catch (error) {}
 }
 
+function* powerBIEmbededSaga(action: YodyAction) {
+  let { params, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
+      powerBIEmbededApi, params
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
 
 export function* accountSaga() {
-  yield takeLatest(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
+  yield takeEvery(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
   yield takeLatest(
     AccountType.GET_LIST_DEPARTMENT_REQUEST,
@@ -176,6 +251,8 @@ export function* accountSaga() {
   yield takeLatest(AccountType.GET_LIST_POSITION_REQUEST, PositionGetListSaga);
   yield takeLatest(AccountType.GET_LIST_SHIPPER_REQUEST, ShipperSearchSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_DETAIL_REQUEST, AccountGetByIdSaga);
-  yield takeEvery(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
-  yield takeEvery(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
+  yield takeLatest(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
+  yield takeLatest(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
+  yield takeLatest(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
+  yield takeLatest(AccountType.POWER_BI_EMBEDED_REQUEST, powerBIEmbededSaga);
 }

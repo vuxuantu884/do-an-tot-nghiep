@@ -1,9 +1,7 @@
-import { OrderRequest } from "model/request/order.request";
 import { ConvertDateToUtc } from "./DateUtils";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DistrictResponse } from "model/content/district.model";
 import { CityView } from "model/content/district.model";
-import { AppConfig } from "config/AppConfig";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from "moment";
@@ -11,17 +9,34 @@ import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   ProductRequest,
   ProductRequestView,
-  VariantImageRequest,
-  VariantImagesResponse,
+  ProductResponse,
+  VariantImage,
   VariantPriceRequest,
   VariantPricesResponse,
   VariantPriceViewRequest,
   VariantRequest,
   VariantRequestView,
   VariantResponse,
+  VariantUpdateRequest,
   VariantUpdateView,
 } from "model/product/product.model";
-import { PriceConfig } from "config/PriceConfig";
+import {
+  // DeliveryServiceResponse,
+  OrderLineItemResponse,
+  OrderPaymentResponse,
+  OrderResponse,
+} from "model/response/order/order.response";
+import {
+  OrderLineItemRequest,
+  OrderPaymentRequest,
+} from "model/request/order.request";
+import { RegUtil } from "./RegUtils";
+import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { ErrorGHTK } from "./Constants";
+import { UploadFile } from "antd/lib/upload/interface";
+import { LineItem } from "model/inventory/transfer";
+import { DepartmentResponse, DepartmentView } from "model/account/department.model";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -34,23 +49,34 @@ export const findCurrentRoute = (
   routes: Array<RouteMenu> = [],
   path: string = ""
 ) => {
-  let obj = {
-    current: "",
-    subMenu: "",
-  };
+  let current: Array<string> = [];
+  let subMenu: Array<string> = [];
   routes.forEach((route) => {
-    if (path.includes(route.path)) {
-      obj.current = route.key;
-    }
     if (route.subMenu.length > 0) {
       route.subMenu.forEach((item) => {
-        if (path.includes(item.path)) {
-          obj.current = item.key;
-          obj.subMenu = route.key;
+        if (item.subMenu.length > 0 && item.showMenuThird) {
+          item.subMenu.forEach((item1) => {
+            if (path === item1.path) {
+              current.push(item1.key);
+              subMenu.push(route.key);
+              subMenu.push(item.key);
+            }
+          });
+        }
+        if (path === item.path) {
+          current.push(item.key);
+          subMenu.push(route.key);
         }
       });
     }
+    if (path === route.path) {
+      current.push(route.key);
+    }
   });
+  let obj = {
+    current: current,
+    subMenu: subMenu,
+  };
   return obj;
 };
 
@@ -83,7 +109,7 @@ const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
 export const formatSuffixPoint = (point: number | string): string => {
   let format = point.toString();
   //return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")} điểm`;
-  return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}`;
+  return `${format.replace(RegUtil.SUFIX_POINT, "$1,")}`;
 };
 
 export const getListBreadcumb = (
@@ -132,6 +158,16 @@ export const convertCategory = (data: Array<CategoryResponse>) => {
   return arr;
 };
 
+export const convertDepartment = (data: Array<DepartmentResponse>) => {
+  let arr: Array<DepartmentView> = [];
+  data.forEach((item) => {
+    let level = 0;
+    let temp = getArrDepartment(item, level, null);
+    arr = [...arr, ...temp];
+  });
+  return arr;
+};
+
 export const getArrCategory = (
   i: CategoryResponse,
   level: number,
@@ -156,7 +192,7 @@ export const getArrCategory = (
     version: i.version,
     code: i.code,
     goods_name: i.goods_name,
-    gooods: i.gooods,
+    goods: i.goods,
     level: level,
     parent: parentTemp,
     name: i.name,
@@ -164,6 +200,46 @@ export const getArrCategory = (
   if (i.children.length > 0) {
     i.children.forEach((i1) => {
       let c = getArrCategory(i1, level + 1, i);
+      arr = [...arr, ...c];
+    });
+  }
+  return arr;
+};
+
+export const getArrDepartment = (
+  i: DepartmentResponse,
+  level: number,
+  parent: DepartmentResponse | null
+) => {
+  let arr: Array<DepartmentView> = [];
+  let parentTemp = null;
+  if (parent !== null) {
+    parentTemp = {
+      id: parent.id,
+      name: parent.name,
+    };
+  }
+  arr.push({
+    id: i.id,
+    created_by: i.created_by,
+    created_date: i.created_date,
+    created_name: i.created_name,
+    updated_by: i.updated_by,
+    updated_name: i.updated_name,
+    updated_date: i.updated_date,
+    version: i.version,
+    code: i.code,
+    address: i.address,
+    manager: i.manager,
+    manager_code: i.manager_code,
+    mobile: i.mobile,
+    level: level,
+    parent: parentTemp,
+    name: i.name,
+  });
+  if (i.children.length > 0) {
+    i.children.forEach((i1) => {
+      let c = getArrDepartment(i1, level + 1, i);
       arr = [...arr, ...c];
     });
   }
@@ -182,15 +258,28 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     updated_name: size.updated_name,
     updated_date: size.updated_date,
     version: size.version,
-    code: size.code,
-    category_ids: ids,
+    code: size.code, 
   };
   return sizeConvert;
 };
 
-export const formatCurrency = (currency: number | string): string => {
-  let format = currency.toString();
-  return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
+  let goods: Array<string> = [];
+  supplier.goods.forEach((good) => goods.push(good.value));
+  let supplierConverted: SupplierDetail = {
+    ...supplier,
+    goods: goods,
+  };
+  return supplierConverted;
+};
+
+export const formatCurrency = (currency: number | string | boolean): string => {
+  try {
+    let format = currency.toString();
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  } catch (e) {
+    return "";
+  }
 };
 
 export const generateQuery = (obj: any) => {
@@ -198,7 +287,12 @@ export const generateQuery = (obj: any) => {
     let a: string = Object.keys(obj)
       .map((key, index) => {
         let url = "";
-        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
+        if (
+          obj[key] !== undefined &&
+          obj[key] !== null &&
+          obj[key] !== "" &&
+          obj[key].length !== 0
+        ) {
           let value = obj[key];
           if (obj[key] instanceof Array) {
             value = obj[key].join(",");
@@ -255,11 +349,8 @@ export const findPriceInVariant = (
 ): number => {
   let price: number = 0;
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
-      price = v.price;
+    if (v.currency_code === currency_code) {
+      price = v.retail_price;
     }
   });
   return price;
@@ -269,12 +360,9 @@ export const findTaxInVariant = (
   variantPrices: Array<VariantPricesResponse>,
   currency_code: string
 ): number => {
-  let tax: number = 0;
+  let tax: number | null = 0;
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
+    if (v.currency_code === currency_code) {
       tax = v.tax_percent;
     }
   });
@@ -287,11 +375,8 @@ export const findPrice = (
 ): string => {
   let price: string = "0";
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
-      price = v.price.toString();
+    if (v.currency_code === currency_code) {
+      price = v.retail_price.toString();
     }
   });
   return price.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
@@ -307,11 +392,9 @@ export const replaceFormatString = (currency: number | string): string => {
   return format.replace(/,/gi, "");
 };
 
-export const findAvatar = (
-  variantImages: Array<VariantImagesResponse>
-): string => {
+export const findAvatar = (VariantImage: Array<VariantImage>): string => {
   let avatar: string = "";
-  variantImages.forEach((v) => {
+  VariantImage.forEach((v) => {
     if (v.variant_avatar) {
       avatar = v.url;
     }
@@ -340,6 +423,23 @@ export const ListUtil = {
 };
 
 export const Products = {
+  convertVariantPriceViewToRequest: (
+    priceView: Array<VariantPriceViewRequest>
+  ) => {
+    let variant_prices: Array<VariantPriceRequest> = [];
+    priceView.forEach((item) => {
+      variant_prices.push({
+        cost_price: item.cost_price === "" ? null : item.cost_price,
+        currency_code: item.currency,
+        import_price: item.import_price === "" ? null : item.import_price,
+        retail_price: item.retail_price === "" ? null : item.retail_price,
+        tax_percent: item.tax_percent === "" ? null : item.tax_percent,
+        wholesale_price:
+          item.wholesale_price === "" ? null : item.wholesale_price,
+      });
+    });
+    return variant_prices;
+  },
   convertProductViewToRequest: (
     pr: ProductRequestView,
     arrVariants: Array<VariantRequestView>,
@@ -348,34 +448,15 @@ export const Products = {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
     pr.variant_prices.forEach((item) => {
-      let retail_price = parseInt(item.retail_price);
-      let import_price = parseInt(item.import_price);
-      let whole_sale_price = parseInt(item.whole_sale_price);
-      let tax_percent = parseInt(item.tax_percent);
-      if (!isNaN(retail_price)) {
-        variant_prices.push({
-          price: retail_price,
-          price_type: PriceConfig.RETAIL,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
-      if (!isNaN(import_price)) {
-        variant_prices.push({
-          price: import_price,
-          price_type: PriceConfig.IMPORT,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
-      if (!isNaN(whole_sale_price)) {
-        variant_prices.push({
-          price: whole_sale_price,
-          price_type: PriceConfig.WHOLE_SALE,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
+      variant_prices.push({
+        cost_price: item.cost_price === "" ? null : item.cost_price,
+        currency_code: item.currency,
+        import_price: item.import_price === "" ? null : item.import_price,
+        retail_price: item.retail_price === "" ? null : item.retail_price,
+        tax_percent: item.tax_percent === "" ? null : item.tax_percent,
+        wholesale_price:
+          item.wholesale_price === "" ? null : item.wholesale_price,
+      });
     });
     arrVariants.forEach((item) => {
       variants.push({
@@ -395,8 +476,9 @@ export const Products = {
         weight: pr.weight,
         weight_unit: pr.weight_unit,
         variant_prices: variant_prices,
-        variant_images: [],
+        variant_images: item.variant_images,
         inventory: 0,
+        supplier_id: pr.supplier_id,
       });
     });
     let productRequest: ProductRequest = {
@@ -414,63 +496,42 @@ export const Products = {
       specifications: pr.specifications,
       product_type: pr.product_type ? pr.product_type : "",
       status: status,
-      tags: pr.tags.join(","),
+      tags: pr.tags,
       variants: variants,
-      product_unit: pr.product_unit,
+      unit: pr.unit,
+      supplier_id: pr.supplier_id,
+      material_id: pr.material_id,
+      collections: pr.collections,
     };
     return productRequest;
   },
-  findAvatar: (images: Array<VariantImageRequest>) => {
-    let image: VariantImageRequest | null = null;
-    images.forEach((imagerRequest) => {
-      if (imagerRequest.variant_avatar) {
-        image = imagerRequest;
+  findAvatar: (images: Array<VariantImage>): VariantImage | null => {
+    let image: VariantImage | null = null;
+    images?.forEach((imageRequest) => {
+      if (imageRequest.variant_avatar) {
+        image = imageRequest;
       }
     });
     return image;
   },
-  convertVariantRequestToView: (variant: VariantResponse) => {
-    let variantPrices: Array<VariantPriceViewRequest> = [];
-    variant.variant_prices.forEach((item) => {
-      let index = variantPrices.findIndex(
-        (v) => (v.currency = item.currency_code)
-      );
-      let price = item.price;
-      let type = item.price_type;
-      let tax_percent = item.tax_percent;
-      let temp: VariantPriceViewRequest | null = null;
-      if (index === -1) {
-        temp = {
-          currency: item.currency_code,
-          retail_price: "",
-          import_price: "",
-          tax_percent: tax_percent.toString(),
-          whole_sale_price: "",
-        };
-        if (type === PriceConfig.RETAIL) {
-          temp.retail_price = price.toString();
-        }
-        if (type === PriceConfig.IMPORT) {
-          temp.import_price = price.toString();
-        }
-        if (type === PriceConfig.WHOLE_SALE) {
-          temp.whole_sale_price = price.toString();
-        }
-        variantPrices.push(temp);
-      } else {
-        temp = variantPrices[index];
-        if (type === PriceConfig.RETAIL) {
-          temp.retail_price = price.toString();
-        }
-        if (type === PriceConfig.IMPORT) {
-          temp.import_price = price.toString();
-        }
-        if (type === PriceConfig.WHOLE_SALE) {
-          temp.whole_sale_price = price.toString();
-        }
+  findPrice: (
+    prices: Array<VariantPricesResponse>,
+    currency: string
+  ): VariantPricesResponse | null => {
+    let price: VariantPricesResponse | null = null;
+    prices.forEach((priceResponse) => {
+      if (priceResponse.currency_code === currency) {
+        price = priceResponse;
       }
     });
+    return price;
+  },
+  convertVariantRequestToView: (variant: VariantResponse) => {
+    let variantPrices: Array<VariantPriceViewRequest> = [];
     let variantUpdateView: VariantUpdateView = {
+      id: variant.id,
+      product_id: variant.product_id,
+      supplier_id: variant.supplier_id,
       status: variant.status,
       name: variant.name,
       color_id: variant.color_id,
@@ -480,11 +541,11 @@ export const Products = {
       saleable: variant.saleable,
       deleted: false,
       sku: variant.sku,
-      width: variant.width != null ? variant.width.toString() : "",
-      height: variant.height != null ? variant.height.toString() : "",
-      length: variant.length != null ? variant.length.toString() : "",
+      width: variant.width,
+      height: variant.height,
+      length: variant.length,
       length_unit: variant.length_unit,
-      weight: variant.weight.toString(),
+      weight: variant.weight,
       weight_unit: variant.weight_unit,
       variant_prices: variantPrices,
       product: {
@@ -507,7 +568,537 @@ export const Products = {
         specifications: variant.product.specifications,
         material_id: variant.product.material_id,
       },
+      variant_image: null,
     };
     return variantUpdateView;
   },
+  convertVariantResponseToRequest: (variant: VariantResponse) => {
+    let variantUpadteRequest: VariantUpdateRequest = {
+      id: variant.id,
+      composite: variant.composite,
+      product_id: variant.product_id,
+      supplier_id: variant.supplier_id,
+      status: variant.status,
+      name: variant.name,
+      color_id: variant.color_id,
+      size_id: variant.size_id,
+      barcode: variant.barcode,
+      taxable: variant.taxable,
+      saleable: variant.saleable,
+      deleted: false,
+      sku: variant.sku,
+      width: variant.width,
+      height: variant.height,
+      length: variant.length,
+      length_unit: variant.length_unit,
+      weight: variant.weight,
+      weight_unit: variant.weight_unit,
+      variant_prices: variant.variant_prices,
+      variant_images: variant.variant_images,
+    };
+    return variantUpadteRequest;
+  },
+  findAvatarProduct: (product: ProductResponse | null) => {
+    let avatar = null;
+    if (product) {
+      product.variants.forEach((variant) => {
+        variant.variant_images.forEach((variantImage) => {
+          if (variantImage.product_avatar) {
+            avatar = variantImage.url;
+          }
+        });
+      }, []);
+    }
+    return avatar;
+  },
+  convertAvatarToFileList: (arrImg: Array<VariantImage>) => {
+    let arr: Array<UploadFile> = [];
+    arrImg.forEach((item, index) => {
+      arr.push({
+        uid: item.image_id.toString(),
+        name: item.image_id.toString(),
+        url: item.url,
+        status: "done",
+      });
+    });
+    return arr;
+  },
+};
+
+export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
+  let value = 0;
+  if (items.length > 0) {
+    if (items[0].amount !== null) {
+      value = items[0].amount;
+    }
+  }
+  return value;
+};
+
+export const getAmountPayment = (items: Array<OrderPaymentResponse> | null) => {
+  let value = 0;
+  if (items !== null) {
+    if (items.length > 0) {
+      items.forEach((a) => (value = value + a.paid_amount));
+    }
+  }
+  return value;
+};
+
+export const getAmountPaymentRequest = (
+  items: Array<OrderPaymentRequest> | null
+) => {
+  let value = 0;
+  if (items !== null) {
+    if (items.length > 0) {
+      items.forEach((a) => (value = value + a.paid_amount));
+    }
+  }
+  return value;
+};
+
+export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
+  let total = 0;
+  items.forEach((a) => {
+    if (a.product_type === "normal" || "combo") {
+      total = total + a.amount;
+    }
+  });
+  return total;
+};
+
+export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
+  let total = 0;
+  // console.log('getTotalDiscount =============+> ', items);
+  items.forEach((a) => (total = total + a.discount_amount * a.quantity));
+  return total;
+};
+
+export const getTotalAmountAfferDiscount = (
+  items: Array<OrderLineItemRequest>
+) => {
+  let total = 0;
+  items.forEach((a) => (total = total + a.line_amount_after_line_discount));
+  return total;
+};
+
+export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
+  let total = 0;
+  items.forEach((a) => (total = total + a.quantity));
+  return total;
+};
+
+export const checkPaymentStatusToShow = (items: OrderResponse) => {
+  //tính tổng đã thanh toán
+  let value = 0;
+  if (items !== null) {
+    if (items.payments !== null) {
+      if (items.payments.length > 0) {
+        items.payments.forEach((a) => (value = value + a.paid_amount));
+      }
+    }
+  }
+
+  if (
+    items?.total_line_amount_after_line_discount +
+      (items?.fulfillments &&
+      items?.fulfillments.length > 0 &&
+      items?.fulfillments[0].shipment &&
+      items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        ? items?.fulfillments[0].shipment &&
+          items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        : 0) -
+      (items?.discounts &&
+      items?.discounts.length > 0 &&
+      items?.discounts[0].amount
+        ? items?.discounts[0].amount
+        : 0) <=
+    value
+  ) {
+    return 1; //đã thanh toán
+  } else {
+    if (value === 0) {
+      return -1; //chưa thanh toán
+    } else {
+      return 0; //thanh toán 1 phần
+    }
+  }
+};
+
+export const checkPaymentStatus = (payments: any, orderAmount: number) => {
+  let value = 0;
+  if (payments !== null) {
+    if (payments !== null) {
+      if (payments.length > 0) {
+        payments.forEach((a: any) => (value = value + a.paid_amount));
+      }
+    }
+  }
+  if (
+    value >= orderAmount
+  ) {
+    return 1; //đã thanh toán
+  } else {
+    if (value === 0) {
+      return -1; //chưa thanh toán
+    } else {
+      return 0; //thanh toán 1 phần
+    }
+  }
+};
+
+export const SumCOD = (items: OrderResponse) => {
+  let cod = 0;
+  if (items !== null) {
+    if (items.fulfillments) {
+      if (items.fulfillments.length > 0) {
+        items.fulfillments.forEach((a) => {
+          if (a.shipment !== undefined && a.shipment !== null) {
+            cod = cod + a.shipment?.cod;
+          }
+        });
+      }
+    }
+  }
+
+  return cod;
+};
+
+//COD + tổng đã thanh toán
+export const checkPaymentAll = (items: OrderResponse) => {
+  //tính tổng đã thanh toán
+  let value = 0;
+  if (items !== null) {
+    if (items.payments !== null) {
+      if (items.payments.length > 0) {
+        items.payments.forEach((a) => (value = value + a.paid_amount));
+      }
+    }
+  }
+
+  //tổng cod
+  let cod = SumCOD(items);
+
+  let totalPay = value + cod;
+  if (items.total === totalPay) {
+    return 1;
+  } else {
+    return 0;
+  }
+};
+
+// export const getDateLastPayment = (items: OrderResponse) => {
+//   let value: Date | undefined;
+//   if (items !== null) {
+//     if (items.payments !== null) {
+//       if (items.payments.length > 0) {
+//         items.payments.forEach((a) => (value = a.created_date));
+//       }
+//     }
+//   }
+//   return value;
+// };
+
+export const getDateLastPayment = (items: any) => {
+  let value: Date | undefined;
+  if (items !== null) {
+    if (items !== null) {
+      if (items.length > 0) {
+        items.forEach((a: any) => (value = a.created_date));
+      }
+    }
+  }
+  return value;
+};
+
+//Lấy ra địa chỉ giao hàng mắc định
+export const getShippingAddressDefault = (items: CustomerResponse | null) => {
+  let objShippingAddress = null;
+  if (items !== null) {
+    for (let i = 0; i < items.shipping_addresses.length; i++) {
+      if (items.shipping_addresses[i].default === true) {
+        objShippingAddress = items.shipping_addresses[i];
+      }
+    }
+  }
+  return objShippingAddress;
+};
+
+export const SumWeight = (items?: Array<OrderLineItemRequest>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight * items[i].quantity;
+          break;
+        case "kg":
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].quantity;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};
+
+export const SumWeightLineItems = (items?: Array<LineItem>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight * items[i].transfer_quantity;
+          break;
+        case "kg":
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].transfer_quantity;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};
+
+export const SumWeightInventory = (items?: Array<LineItem>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight * items[i].transfer_quantity;
+          break;
+        case "kg":
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].transfer_quantity;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};
+
+export const SumWeightResponse = (items?: Array<OrderLineItemResponse>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight * items[i].quantity;
+          break;
+        case "kg":
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].quantity;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};
+
+export const InfoServiceDeliveryDetail = (
+  items: Array<any> | null,
+  delivery_id: number | null
+) => {
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].id === delivery_id) {
+        return items[i].logo;
+      }
+    }
+  }
+};
+
+export const CheckShipmentType = (item: OrderResponse) => {
+  if (item) {
+    if (item.fulfillments) {
+      if (item.fulfillments.length > 0) {
+        return item.fulfillments[0].shipment?.delivery_service_provider_type;
+      }
+    }
+  }
+};
+
+export const TrackingCode = (item: OrderResponse | null) => {
+  if (item) {
+    if (item.fulfillments) {
+      if (item.fulfillments.length > 0) {
+        if (item.fulfillments[0].shipment?.pushing_status === "waiting") {
+          return ErrorGHTK.WAITTING;
+        } else {
+          return item.fulfillments[0].shipment?.tracking_code;
+        }
+      }
+    }
+  }
+};
+
+export const getServiceName = (item: OrderResponse) => {
+  if (item) {
+    if (item.fulfillments) {
+      if (item.fulfillments.length > 0) {
+        if (
+          item.fulfillments[0].shipment?.delivery_service_provider_type ===
+          "external_service"
+        ) {
+          if (
+            item.fulfillments[0].shipment?.delivery_service_provider_id === 1
+          ) {
+            if (item.fulfillments[0].shipment?.service === "standard") {
+              return "Đường bộ";
+            } else {
+              return "Đường bay";
+            }
+          } else {
+            return "Chuyển phát nhanh PDE";
+          }
+        }
+      }
+    }
+  }
+};
+
+export const scrollAndFocusToDomElement = (element?: HTMLElement) => {
+  if (!element) {
+    return;
+  }
+  element.focus();
+  const y = element.getBoundingClientRect()?.top + window.pageYOffset + -250;
+  window.scrollTo({top: y, behavior: "smooth"});
+};
+
+// lấy danh sách sản phẩm đã đổi
+export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return [];
+  }
+  if(!OrderDetail?.order_returns || OrderDetail?.order_returns?.length === 0) {
+    return []
+  }
+  let orderReturnItems:OrderLineItemResponse[] = [];
+
+  for (const singleReturn of OrderDetail.order_returns) {
+     //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
+     for (const singleReturnItem of singleReturn.items) {
+       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id);
+
+       if(index > -1) {
+         let duplicatedItem = {...orderReturnItems[index]};
+        duplicatedItem.quantity = duplicatedItem.quantity + singleReturnItem.quantity;
+        orderReturnItems[index] = duplicatedItem;
+       } else {
+         orderReturnItems.push(singleReturnItem);
+       }
+
+     }
+  }
+  return orderReturnItems;
+};
+
+// kiểm tra xem đã trả hết hàng chưa
+export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return false;
+  }
+  let result = false;
+  let orderReturnItems = getListReturnedOrders(OrderDetail)
+  console.log('orderReturnItems', orderReturnItems)
+  // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về false
+  if( orderReturnItems.length > 0) {
+    let checkIfNotReturnAll = false;
+    for (const singleItem of OrderDetail.items) {
+      console.log('singleItem', singleItem)
+      let selectedItem = orderReturnItems.find((item) => item.variant_id === singleItem.variant_id);
+      console.log('selectedItem', selectedItem)
+      if(!selectedItem) {
+        checkIfNotReturnAll = true;
+        break;
+      }
+      if(selectedItem.quantity < singleItem.quantity) {
+        checkIfNotReturnAll = true;
+        break;
+      }
+      checkIfNotReturnAll = false;
+    }
+    console.log('checkIfNotReturnAll', checkIfNotReturnAll)
+    result = !checkIfNotReturnAll;
+  }
+  console.log('result', result)
+  return result;
+}
+// lấy danh sách còn có thể đổi trả
+export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return [];
+  }
+  let result:OrderLineItemResponse[] = [];
+  let orderReturnItems = getListReturnedOrders(OrderDetail);
+  console.log('orderReturnItems', orderReturnItems)
+  for (const singleOrder of OrderDetail.items) {
+    let duplicatedItem = orderReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
+    if(duplicatedItem) {
+      let clone = {...duplicatedItem}
+      if(singleOrder.quantity - duplicatedItem.quantity > 0) {
+        clone.quantity = singleOrder.quantity - clone.quantity;
+        result.push(clone)
+
+      }
+    }
+    else {
+      result.push(singleOrder);
+    }
+  }
+  console.log('result', result)
+ return result;
+}
+
+export const customGroupBy = (array:any, groupBy:any) => {
+  let groups = {};
+  array.forEach((o: any) => {
+    const group:string = groupBy.map((e: any) => `{"${e}": "${o[e]}"}`);
+    // @ts-ignore
+    groups[group] = groups[group] || [];
+    const e = Object.assign({}, o);
+    groupBy.forEach((g:string) => {
+      // @ts-ignore
+      groups[group][g] = e[g];
+      delete e[g];
+    })
+    // @ts-ignore
+    groups[group].push(e);
+  });
+  return Object.keys(groups).map((group) => {
+    // @ts-ignore
+    const r = {variants: groups[group]};
+    groupBy.forEach((b: string) => {
+      // @ts-ignore
+      r[b] = groups[group][b];
+      // @ts-ignore
+      delete groups[group][b]
+    })
+    return r;
+  });
+};
+
+
+export const handleDisplayCoupon = (coupon: string, numberCouponCharactersShowedBeforeAndAfter: number = 2) => {
+  if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
+    const firstCharacters = coupon.substring(0,numberCouponCharactersShowedBeforeAndAfter);
+    const lastCharacters = coupon.substring(coupon.length - numberCouponCharactersShowedBeforeAndAfter,coupon.length);
+    return `${firstCharacters}***${lastCharacters}`;
+  } else {
+    return `${coupon}***${coupon}`;
+  }
 };

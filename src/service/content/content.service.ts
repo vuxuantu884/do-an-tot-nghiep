@@ -1,6 +1,6 @@
-import BaseAxios from 'base/BaseAxios';
-import BaseResponse from 'base/BaseResponse';
-import {ApiConfig} from 'config/ApiConfig';
+import BaseAxios from 'base/base.axios';
+import BaseResponse from 'base/base.response';
+import {ApiConfig} from 'config/api.config';
 import { DistrictResponse } from 'model/content/district.model';
 import { CountryResponse } from 'model/content/country.model';
 import { WardResponse } from 'model/content/ward.model';
@@ -15,6 +15,16 @@ export const countryGetApi = (): Promise<BaseResponse<Array<CountryResponse>>> =
 
 export const getDistrictApi = (countryId: number): Promise<BaseResponse<Array<DistrictResponse>>> => {
   let url = `${ApiConfig.CONTENT}/countries/${countryId}/districts` 
+  return BaseAxios.get(url);
+}
+
+export const getCityByCountryApi = (countryId: number): Promise<BaseResponse<Array<DistrictResponse>>> => {
+  let url = `${ApiConfig.CONTENT}/countries/${countryId}/cities` 
+  return BaseAxios.get(url);
+}
+
+export const getDistrictByCityApi = (cityId: number): Promise<BaseResponse<Array<DistrictResponse>>> => {
+  let url = `${ApiConfig.CONTENT}/cities/${cityId}/districts` 
   return BaseAxios.get(url);
 }
 

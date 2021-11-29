@@ -4,6 +4,8 @@ import { PlusOutlined } from "@ant-design/icons";
 
 type ButtonCreateProps = {
   path: string;
+  disabled?: boolean;
+  child?: any;
 };
 
 const ButtonCreate: React.FC<ButtonCreateProps> = (
@@ -13,11 +15,12 @@ const ButtonCreate: React.FC<ButtonCreateProps> = (
     <Link to={props.path}>
       <Button
         type="primary"
-        className="ant-btn-secondary"
+        className="ant-btn-primary"
         size="large"
         icon={<PlusOutlined />}
+        disabled={props.disabled}
       >
-        Thêm mới
+        { props.child || 'Thêm mới' }
       </Button>
     </Link>
   );

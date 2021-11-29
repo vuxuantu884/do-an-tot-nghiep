@@ -1,0 +1,51 @@
+.page-header{
+  height: 90px;
+  top: 0;
+  right: 0;
+  left: 255px;
+  background: $background-color;
+  padding: 18px 0px;
+  transition: all .1s;
+  
+  &-heading{
+    display: flex;
+    justify-content: space-between;
+
+    &-title{
+      font-size: 20px;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    &-left{
+      .ant-breadcrumb{
+        span{
+          .ant-breadcrumb-link{
+            color: #5D5D8A;
+              a{
+              color: #5D5D8A;
+            }
+
+            &:hover{
+              color: $primary-color;
+              a{
+                color: $primary-color;
+              }
+            }
+          }
+
+          &:last-child{
+            .ant-breadcrumb-link, a{
+              color: #222222;
+            }
+          }
+        }
+      }
+    }
+
+    &-extra{
+      display: flex;
+      align-items: center;
+    }
+  }
+}

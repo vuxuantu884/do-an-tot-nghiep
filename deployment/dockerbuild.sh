@@ -20,6 +20,3 @@ aws ecr describe-repositories --repository-names $DOCKER_IMAGE_NAME --no-cli-pag
 DOCKER_IMAGE="$DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$IMAGE_TAG"
 docker build -f $DOCKER_FILE -t $DOCKER_IMAGE .
 docker push $DOCKER_IMAGE
-# remove image after push to free runner space
-# hotfix due by using same docker daemon with runner
-docker rmi $DOCKER_IMAGE

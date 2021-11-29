@@ -1,0 +1,16 @@
+.timeline {
+  .ant-timeline-item-head {
+    background: none;
+    border-color: #27ae60;
+    top: -2px;
+  }
+  .ant-timeline-item-last {
+    padding-bottom: 0;
+    > .ant-timeline-item-tail {
+      display: block;
+    }
+  }
+  .ant-timeline {
+    color: #666;
+  }
+}
