@@ -19,6 +19,7 @@ const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"));
 const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"));
 const Report = React.lazy(() => import ("screens/reports"));
+const YDpage = React.lazy(() => import ("screens/YDpage/YDpage"));
 
 const menu: Array<RouteMenu> = [
   {
@@ -143,6 +144,17 @@ const menu: Array<RouteMenu> = [
     header: null,
     subMenu: [],
     permissions: [AdminPermission.all],
+  },
+  {
+    path: UrlConfig.YDPAGE,
+    exact: true,
+    title: "Bán hàng trên YDPage",
+    icon: 'icon-YDpage',
+    component: YDpage,
+    key: "YDpage",
+    isShow: true,
+    header: null,
+    subMenu: [],
   },
 ]
 

@@ -25,6 +25,7 @@ const UrlConfig = {
   CUSTOMER2: `/customer`,
   SHIPMENTS: `/shipments`,
   YD_PAGE: `/yd-page`,
+  YDPAGE: `/YDpage`,
   ECOMMERCE: "/ecommerce",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
