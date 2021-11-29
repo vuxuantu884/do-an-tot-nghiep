@@ -270,7 +270,7 @@ const CustomerDetail = () => {
             </div>,
         value:
           <NumberFormat
-            value={Math.floor(purchaseIfo?.average_order_value)}
+            value={Math.round(purchaseIfo?.average_order_value)}
             displayType={"text"}
             thousandSeparator={true}
           />

@@ -33,6 +33,7 @@ import {
 } from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 
 
 const initQuery: GetOrdersMappingQuery = {
@@ -45,17 +46,19 @@ const initQuery: GetOrdersMappingQuery = {
   created_date_to: null,
   ecommerce_order_statuses: [],
   shop_ids: [],
+  // sort_column: "ecommerce_created_date",
+  // sort_type: "DESC"
 };
 
 const CORE_ORDER_STATUS = [
-  { name: "Nháp", value: "draft" },
-  { name: "Đóng gói", value: "packed" },
-  { name: "Xuất kho", value: "shipping" },
-  { name: "Đã xác nhận", value: "finalized" },
-  { name: "Hoàn thành", value: "completed" },
-  { name: "Kết thúc", value: "finished" },
-  { name: "Đã huỷ", value: "cancelled" },
-  { name: "Đã hết hạn", value: "expired" },
+  { name: "Nháp", value: "draft", className: "gray-status" },
+  { name: "Đóng gói", value: "packed", className: "blue-status" },
+  { name: "Xuất kho", value: "shipping", className: "blue-status" },
+  { name: "Đã xác nhận", value: "finalized", className: "blue-status" },
+  { name: "Hoàn thành", value: "completed", className: "green-status" },
+  { name: "Kết thúc", value: "finished", className: "green-status" },
+  { name: "Đã huỷ", value: "cancelled", className: "red-status" },
+  { name: "Đã hết hạn", value: "expired", className: "red-status" },
 ];
 
 const ECOMMERCE_ORDER_STATUS = [
@@ -172,18 +175,21 @@ const EcommerceOrderSync: React.FC = () => {
           (status) => status.value === status_value
         );
         return (
-          <div
-            style={{
-              background: "rgba(42, 42, 134, 0.1)",
-              borderRadius: "100px",
-              color: "#2A2A86",
-              width: "fit-content",
-              padding: "5px 10px",
-              margin: "0 auto",
-            }}
-          >
-            {status?.name}
-          </div>
+          // <div
+          //   style={{
+          //     background: "rgba(42, 42, 134, 0.1)",
+          //     borderRadius: "100px",
+          //     color: "#2A2A86",
+          //     width: "fit-content",
+          //     padding: "5px 10px",
+          //     margin: "0 auto",
+          //   }}
+          // >
+          //   {status?.name}
+          // </div>
+          <StyledStatus>
+            <span className={status?.className}>{status?.name}</span>
+          </StyledStatus>
         );
       },
     },

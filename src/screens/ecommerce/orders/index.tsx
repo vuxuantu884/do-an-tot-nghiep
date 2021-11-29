@@ -346,7 +346,6 @@ const EcommerceOrders: React.FC = () => {
         );
       },
       visible: true,
-      align: "center",
       width: nameQuantityWidth,
     },
     {
