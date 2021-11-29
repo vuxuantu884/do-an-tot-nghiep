@@ -82,7 +82,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="department_id">
+          <Form.Item name="department_ids">
             <Select
               showSearch
               allowClear
