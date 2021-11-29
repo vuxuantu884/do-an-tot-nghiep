@@ -1,9 +1,9 @@
-import {CheckCircleOutlined, CloseCircleOutlined} from "@ant-design/icons";
-import {Col, Divider, Row, Space, Tag, Typography} from "antd";
-import {OrderLineItemRequest} from "model/request/order.request";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
-import {formatCurrency, handleDisplayCoupon} from "utils/AppUtils";
-import {StyledComponent} from "./styles";
+import { formatCurrency, handleDisplayCoupon } from "utils/AppUtils";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   levelOrder?: number;
@@ -12,7 +12,6 @@ type PropType = {
   discountRate?: number;
   discountValue?: number;
   totalAmountCustomerNeedToPay: number;
-  coupon: string;
   shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
   amount: number;
@@ -43,7 +42,6 @@ function CardProductBottom(props: PropType) {
     items,
     discountRate,
     discountValue,
-    coupon,
     couponInputText,
     // changeMoney,
     amount,

@@ -913,7 +913,7 @@ function OrderCreateProduct(props: PropType) {
     item.discount_amount = 0;
     item.discount_rate = 0;
     item.discount_value = 0;
-    item.discount_items = null;
+    item.discount_items = [];
   };
 
   const onDeleteItem = (index: number) => {
@@ -1895,7 +1895,6 @@ function OrderCreateProduct(props: PropType) {
             amount={amount}
             calculateChangeMoney={calculateChangeMoney}
             changeMoney={changeMoney}
-            coupon={coupon}
             setCoupon={setCoupon}
             discountRate={discountRate}
             discountValue={discountValue}
