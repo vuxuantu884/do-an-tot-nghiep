@@ -53,10 +53,8 @@ import {CityView, DistrictResponse} from "model/content/district.model";
 import {StoreResponse} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType"; 
 import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import { FaSleigh } from "react-icons/fa";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
-import { setConstantValue } from "typescript";
 import {convertDepartment, convertDistrict} from "utils/AppUtils";
 import {RegUtil} from "utils/RegUtils";
 import {showSuccess} from "utils/ToastUtils";
@@ -127,17 +125,7 @@ const AccountCreateScreen: React.FC = () => {
       });
     },
     [formRef]
-  );
-
-  const validateDuplicationJob = function(item: AccountJobReQuest, lstJob: Array<AccountJobReQuest>): boolean {
-    const job = lstJob.filter(e=> (e.department_id && e.department_id === item.department_id )
-                            && (e.position_id && e.position_id === item.position_id) );
-                            
-    if (lstJob && job && job.length > 1) {
-      return false;
-    }
-    return true;
-  }
+  ); 
 
   const onChangeDepartment = (e: any, key: number) => {
     let listJob = [...listaccountJob];
