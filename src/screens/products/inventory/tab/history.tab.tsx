@@ -82,7 +82,6 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   );
 
   const getUrlByDocumentType = (type: string) => {
-    debugger
     switch (type) {
       case DocumentType.ORDER:
         return UrlConfig.ORDER;
