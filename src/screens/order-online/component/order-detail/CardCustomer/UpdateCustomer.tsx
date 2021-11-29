@@ -17,7 +17,8 @@ import {
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   getCustomerDetailAction,
-  UpdateShippingAddress
+  UpdateShippingAddress,
+  CreateShippingAddress
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import { CustomerShippingAddress } from "model/request/customer.request";
@@ -195,28 +196,51 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         full_address: value.full_address,
         is_default: true,
       };
-      dispatch(
-        UpdateShippingAddress(
-          shippingAddress?.id,
-          customerItem.id,
-          param,
-          (data: any) => {
-            if (data) {
-              dispatch(
-                getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
-                  handleChangeCustomer(datas);
-                })
-              );
-
-              //if(data!==null) ShippingAddressChange(data);
-              setVisibleBtnUpdate(false);
-              showSuccess("Cập nhật địa chỉ giao hàng thành công");
-            } else {
-              showError("Cập nhật địa chỉ giao hàng thất bại");
+      if(shippingAddress)
+      {
+        dispatch(
+          UpdateShippingAddress(
+            shippingAddress?.id,
+            customerItem.id,
+            param,
+            (data: any) => {
+              if (data) {
+                dispatch(
+                  getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
+                    handleChangeCustomer(datas);
+                  })
+                );
+  
+                //if(data!==null) ShippingAddressChange(data);
+                setVisibleBtnUpdate(false);
+                showSuccess("Cập nhật địa chỉ giao hàng thành công");
+              } else {
+                showError("Cập nhật địa chỉ giao hàng thất bại");
+              }
             }
-          }
-        )
-      );
+          )
+        );
+      }
+      else{
+          dispatch(
+            CreateShippingAddress(
+              customerItem.id,
+              param,
+              (data: CustomerShippingAddress) => {
+                if (data) {
+                  dispatch(
+                    getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
+                      handleChangeCustomer(datas);
+                    })
+                  );
+                  showSuccess("Cập nhật địa chỉ giao hàng thành công");
+                } else {
+                  showError("Cập nhật địa chỉ giao hàng thành công");
+                }
+              }
+            )
+          );
+      }
     },
     [dispatch, customerItem, areas, shippingAddress, handleChangeCustomer]
   );
