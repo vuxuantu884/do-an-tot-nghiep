@@ -780,7 +780,7 @@ export const checkPaymentAll = (items: OrderResponse) => {
   let cod = SumCOD(items);
 
   let totalPay = value + cod;
-  if (items.total === totalPay) {
+  if (items?.total === totalPay) {
     return 1;
   } else {
     return 0;
@@ -802,10 +802,8 @@ export const checkPaymentAll = (items: OrderResponse) => {
 export const getDateLastPayment = (items: any) => {
   let value: Date | undefined;
   if (items !== null) {
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a: any) => (value = a.created_date));
-      }
+    if (items.length > 0) {
+      items.forEach((a: any) => (value = a.created_date));
     }
   }
   return value;
@@ -815,8 +813,8 @@ export const getDateLastPayment = (items: any) => {
 export const getShippingAddressDefault = (items: CustomerResponse | null) => {
   let objShippingAddress = null;
   if (items !== null) {
-    for (let i = 0; i < items.shipping_addresses.length; i++) {
-      if (items.shipping_addresses[i].default === true) {
+    for (let i = 0; i < items.shipping_addresses?.length; i++) {
+      if (items.shipping_addresses[i].default) {
         objShippingAddress = items.shipping_addresses[i];
       }
     }
