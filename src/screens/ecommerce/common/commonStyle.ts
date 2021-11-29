@@ -60,4 +60,12 @@ export const StyledStatus = styled.div`
     padding: 5px 15px;
     margin: 0px auto;
   }
+
+  .gray-status {
+    background: rgba(102, 102, 102, 0.1);
+    color: #666666;
+    border-radius: 100px;
+    padding: 5px 15px;
+    margin: 0px auto;
+  }
 `;
