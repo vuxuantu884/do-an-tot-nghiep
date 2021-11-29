@@ -252,6 +252,7 @@ function OrderCreateProduct(props: PropType) {
   const [splitOrderNumber, setSplitOrderNumber] = useState(0);
   const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
   const [isCouponValid, setIsCouponValid] = useState(false);
+  const [couponInputText, setCouponInputText] = useState(coupon);
 
   const lineItemQuantityInputTimeoutRef: MutableRefObject<any> = useRef();
   const lineItemPriceInputTimeoutRef: MutableRefObject<any> = useRef();
@@ -434,8 +435,8 @@ function OrderCreateProduct(props: PropType) {
         clearTimeout(inputRef.current);
       }
       inputRef.current = setTimeout(() => {
-        if (coupon && items && items?.length > 0) {
-          handleApplyCouponWhenInsertCoupon(coupon, _items);
+        if (couponInputText && items && items?.length > 0) {
+          handleApplyCouponWhenInsertCoupon(couponInputText, _items);
           return;
         }
       }, QUANTITY_DELAY_TIME);
@@ -912,16 +913,7 @@ function OrderCreateProduct(props: PropType) {
     item.discount_amount = 0;
     item.discount_rate = 0;
     item.discount_value = 0;
-    item.discount_items = [
-      {
-        amount: 0,
-        rate: 0,
-        discount_code: "",
-        promotion_id: undefined,
-        reason: "",
-        value: 0,
-      },
-    ];
+    item.discount_items = [];
   };
 
   const onDeleteItem = (index: number) => {
@@ -1128,19 +1120,23 @@ function OrderCreateProduct(props: PropType) {
                 showError(applyDiscountResponse.invalid_description);
                 if (
                   applyDiscountResponse.invalid_description ===
-                  "Mã khuyến mại không tồn tại."
+                  "Mã khuyến mại không tồn tại." || applyDiscountResponse.invalid_description ===
+                  "Khuyến mại đã hết lượt sử dụng."
                 ) {
                   _items?.forEach((item) => {
                     removeDiscountItem(item);
                   });
+                  setCouponInputText && setCouponInputText(coupon);
                 } else {
-                  setCoupon && setCoupon(coupon);
+                  setCouponInputText && setCouponInputText(coupon);
                 }
                 setIsCouponValid(false);
+                setCoupon && setCoupon("");
                 setItems(_items);
                 handleChangeItems(_items);
               } else {
                 setCoupon && setCoupon(coupon);
+                setCouponInputText(coupon)
                 setIsCouponValid(true);
                 // const discount_code = applyDiscountResponse.code || undefined;
                 let couponType = applyDiscountResponse.value_type;
@@ -1596,11 +1592,11 @@ function OrderCreateProduct(props: PropType) {
   }, [customer?.id, storeId, orderSourceId]);
 
   /**
-   * gọi lại api coupon khi thay đổi số lượng item
+   * gọi lại api couponInputText khi thay đổi số lượng item
    */
   useEffect(() => {
-    if (!isAutomaticDiscount && coupon && items && items?.length > 0) {
-      handleApplyCouponWhenInsertCoupon(coupon, items);
+    if (!isAutomaticDiscount && couponInputText && items && items?.length > 0) {
+      handleApplyCouponWhenInsertCoupon(couponInputText, items);
     }
   }, [customer?.id, storeId, orderSourceId]);
 
@@ -1899,7 +1895,6 @@ function OrderCreateProduct(props: PropType) {
             amount={amount}
             calculateChangeMoney={calculateChangeMoney}
             changeMoney={changeMoney}
-            coupon={coupon}
             setCoupon={setCoupon}
             discountRate={discountRate}
             discountValue={discountValue}
@@ -1914,6 +1909,7 @@ function OrderCreateProduct(props: PropType) {
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
             isDisableOrderDiscount={isDisableOrderDiscount}
             isCouponValid={isCouponValid}
+            couponInputText={couponInputText}
             handleRemoveAllDiscount={handleRemoveAllDiscount}
           />
         )}
