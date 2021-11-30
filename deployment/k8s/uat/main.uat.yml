@@ -21,7 +21,24 @@ spec:
       containers:
         - name: $SERVICE_NAME
           image: $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$PREFIX-$IMAGE_TAG
+          startupProbe:
+            httpGet:
+              path: $SERVICE_PATH
+              port: 80
+            failureThreshold: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: $SERVICE_PATH
+              port: 80
+          readinessProbe:
+            httpGet:
+              path: $SERVICE_PATH
+              port: 80
           resources:
+            requests:
+              memory: "200Mi"
+              cpu: "0.2"
             limits:
               memory: "500Mi"
               cpu: "0.5"
