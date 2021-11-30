@@ -28,11 +28,10 @@ import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 
-import {
-  StyledComponent,
-} from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 
 
 const initQuery: GetOrdersMappingQuery = {
@@ -48,14 +47,14 @@ const initQuery: GetOrdersMappingQuery = {
 };
 
 const CORE_ORDER_STATUS = [
-  { name: "Nháp", value: "draft" },
-  { name: "Đóng gói", value: "packed" },
-  { name: "Xuất kho", value: "shipping" },
-  { name: "Đã xác nhận", value: "finalized" },
-  { name: "Hoàn thành", value: "completed" },
-  { name: "Kết thúc", value: "finished" },
-  { name: "Đã huỷ", value: "cancelled" },
-  { name: "Đã hết hạn", value: "expired" },
+  { name: "Nháp", value: "draft", className: "gray-status" },
+  { name: "Đóng gói", value: "packed", className: "blue-status" },
+  { name: "Xuất kho", value: "shipping", className: "blue-status" },
+  { name: "Đã xác nhận", value: "finalized", className: "blue-status" },
+  { name: "Hoàn thành", value: "completed", className: "green-status" },
+  { name: "Kết thúc", value: "finished", className: "green-status" },
+  { name: "Đã huỷ", value: "cancelled", className: "red-status" },
+  { name: "Đã hết hạn", value: "expired", className: "red-status" },
 ];
 
 const ECOMMERCE_ORDER_STATUS = [
@@ -125,7 +124,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Gian hàng",
       key: "shop",
-      width: "15%",
+      width: "18%",
       render: (item) => (
         <div>
           <img
@@ -141,7 +140,7 @@ const EcommerceOrderSync: React.FC = () => {
       title: "Trạng thái trên sàn",
       dataIndex: "ecommerce_order_status",
       key: "ecommerce_order_status",
-      width: "15%",
+      width: "16%",
       render: (status_value: string) => {
         const ecommerceStatus = ECOMMERCE_ORDER_STATUS.find(
           (status) => status.value === status_value
@@ -156,7 +155,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Mã đơn trên Yody",
       key: "core_order_code",
-      width: "13%",
+      width: "11%",
       render: (item: any, row: any) => (
         <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank"><b>{item.core_order_code}</b></Link>
       ),
@@ -172,18 +171,9 @@ const EcommerceOrderSync: React.FC = () => {
           (status) => status.value === status_value
         );
         return (
-          <div
-            style={{
-              background: "rgba(42, 42, 134, 0.1)",
-              borderRadius: "100px",
-              color: "#2A2A86",
-              width: "fit-content",
-              padding: "5px 10px",
-              margin: "0 auto",
-            }}
-          >
-            {status?.name}
-          </div>
+          <StyledStatus>
+            <div className={status?.className}>{status?.name}</div>
+          </StyledStatus>
         );
       },
     },
@@ -296,7 +286,7 @@ const EcommerceOrderSync: React.FC = () => {
 
 
   return (
-    <StyledComponent>
+    <AllOrdersMappingStyled>
       <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
         {(allowed: boolean) => (allowed ?
           <Card>
@@ -335,7 +325,7 @@ const EcommerceOrderSync: React.FC = () => {
           </Card>
           : <NoPermission />)}
       </AuthWrapper>
-    </StyledComponent>
+    </AllOrdersMappingStyled>
   );
 };
 

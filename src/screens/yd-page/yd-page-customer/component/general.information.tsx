@@ -1,5 +1,5 @@
 import {Input, Form, Row, Col, DatePicker, Select, Card, Tag, Button} from "antd";
-import {CalendarOutlined} from "@ant-design/icons";
+import {BarcodeOutlined, CalendarOutlined} from "@ant-design/icons";
 import {RegUtil} from "utils/RegUtils";
 import "../customer.scss";
 import CustomInput from "../common/customInput";
@@ -197,7 +197,7 @@ const GeneralInformation = (props: any) => {
                             }}
                             style={{width: 16, marginBottom: 2}}
                             src={XCloseBtn}
-                          ></img>
+                            />
                         </Tag>
                       ))}
                   </Col>
@@ -223,6 +223,15 @@ const GeneralInformation = (props: any) => {
                     placeholder="Nhập email"
                   />
                 </Form.Item>
+                <Col span={24}>
+                  <Form.Item name="card_number"
+                             label={<span className="customer-field-label">Thẻ khách hàng:</span>}>
+                    <Input
+                      placeholder="Nhập mã thẻ"
+                      prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
+                    />
+                  </Form.Item>
+                </Col>
               </Col>
               <Col span={24}>
                 <Form.Item

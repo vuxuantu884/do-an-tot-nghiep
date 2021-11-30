@@ -2,18 +2,25 @@ import {
   Button,
   Card,
   Col,
-  Space,
+  Collapse,
+  Divider,
   Form,
   FormInstance,
   Input,
   Radio,
   Row,
   Select,
+  Space,
   Switch,
-  Divider,
-  Collapse,
 } from "antd";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import ContentContainer from "component/container/content.container";
+import NumberInput from "component/custom/number-input.custom";
+import AccountSearchSelect from "component/custom/select-search/account-select";
+import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
+import {AppConfig} from "config/app.config";
+import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
@@ -22,31 +29,22 @@ import {
   SupplierDetailAction,
   SupplierUpdateAction,
 } from "domain/actions/core/supplier.action";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import useAuthorization from "hook/useAuthorization";
+import {CountryResponse} from "model/content/country.model";
+import {DistrictResponse} from "model/content/district.model";
 import {
   SupplierDetail,
   SupplierResponse,
   SupplierUpdateRequest,
 } from "model/core/supplier.model";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {CountryResponse} from "model/content/country.model";
-import {DistrictResponse} from "model/content/district.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory, useParams} from "react-router";
 import {convertSupplierResponseToDetail} from "utils/AppUtils";
-import {AppConfig} from "config/app.config";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import {showSuccess} from "utils/ToastUtils";
+import {CompareObject} from "utils/CompareObject";
 import {RegUtil} from "utils/RegUtils";
-import NumberInput from "component/custom/number-input.custom";
-import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
-import useAuthorization from "hook/useAuthorization";
-import BottomBarContainer from "component/container/bottom-bar.container";
-import { CompareObject } from "utils/CompareObject";
-import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import {showSuccess} from "utils/ToastUtils";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -85,7 +83,6 @@ const UpdateSupplierScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status
   );
   //State
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [status, setStatus] = useState<string>();
@@ -102,12 +99,6 @@ const UpdateSupplierScreen: React.FC = () => {
 
   //EndState
   //Callback
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
 
   const onChangeStatus = useCallback(
     (checked: boolean) => {
@@ -145,7 +136,7 @@ const UpdateSupplierScreen: React.FC = () => {
       dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
     },
     [dispatch, idNumber, onUpdateSuccess]
-  ); 
+  );
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -169,22 +160,21 @@ const UpdateSupplierScreen: React.FC = () => {
     }
   }, []);
 
-  const backAction = ()=>{    
-    if (!CompareObject(formRef.current?.getFieldsValue(),supplier)) {
+  const backAction = () => {
+    if (!CompareObject(formRef.current?.getFieldsValue(), supplier)) {
       setModalConfirm({
         visible: true,
         onCancel: () => {
           setModalConfirm({visible: false});
         },
-        onOk: () => { 
+        onOk: () => {
           setModalConfirm({visible: false});
           history.goBack();
         },
         title: "Bạn có muốn quay lại?",
-        subTitle:
-          "Sau khi quay lại thay đổi sẽ không được lưu.",
-      }); 
-    }else{
+        subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
+      });
+    } else {
       history.goBack();
     }
   };
@@ -192,12 +182,6 @@ const UpdateSupplierScreen: React.FC = () => {
   //end memo
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(
-        AccountSearchAction(
-          {department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"},
-          setDataAccounts
-        )
-      );
       dispatch(CountryGetAllAction(setCountries));
       dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
       if (!Number.isNaN(idNumber)) {
@@ -205,7 +189,7 @@ const UpdateSupplierScreen: React.FC = () => {
       }
     }
     isFirstLoad.current = false;
-  }, [dispatch, idNumber, setDataAccounts, setListDistrict, setSupplierDetail]);
+  }, [dispatch, idNumber, setListDistrict, setSupplierDetail]);
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -330,7 +314,7 @@ const UpdateSupplierScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
+                  <AccountSearchSelect
                     rules={[
                       {
                         required: true,
@@ -339,15 +323,13 @@ const UpdateSupplierScreen: React.FC = () => {
                     ]}
                     name="person_in_charge"
                     label="Nhân viên phụ trách"
-                  >
-                    <Select placeholder="Chọn nhân viên phụ trách" className="selector" showSearch  optionFilterProp="children">
-                      {accounts.map((item) => (
-                        <Option key={item.code} value={item.code}>
-                          {item.code + " - "+item.full_name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
+                    placeholder="Chọn nhân viên phụ trách"
+                    defaultValue={supplier.person_in_charge}
+                    queryAccount={{
+                      department_ids: [AppConfig.WIN_DEPARTMENT],
+                      status: "active",
+                    }}
+                  />
                 </Col>
               </Row>
               <Divider orientation="left">Thông tin khác</Divider>
@@ -484,7 +466,7 @@ const UpdateSupplierScreen: React.FC = () => {
                       <Select
                         className="selector"
                         placeholder="Chọn phân cấp nhà cung cấp"
-                        showSearch  
+                        showSearch
                         optionFilterProp="children"
                       >
                         {scorecards?.map((item) => (
@@ -634,15 +616,16 @@ const UpdateSupplierScreen: React.FC = () => {
             back="Quay lại danh sách"
             backAction={backAction}
             rightComponent={
-              allowUpdateSup &&  
+              allowUpdateSup && (
                 <Button loading={loading} htmlType="submit" type="primary">
                   Lưu lại
                 </Button>
+              )
             }
-          /> 
+          />
         </Form>
       )}
-      
+
       <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );

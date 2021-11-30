@@ -12,9 +12,11 @@ import {
 import AccountSearchSelect from "component/custom/select-search/account-select";
 import {CustomerGroups} from "domain/actions/customer/customer.action";
 import {LoyaltyRankSearch} from "domain/actions/loyalty/rank/loyalty-rank.action";
+import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
 import {LoyaltyRankResponse} from "model/response/loyalty/ranking/loyalty-rank.response";
-import React, {ReactElement, useEffect, useMemo} from "react";
+import { Gender } from "model/response/promotion/discount/list-discount.response";
+import React, {ReactElement, useCallback, useEffect, useMemo} from "react";
 import {useDispatch} from "react-redux";
 import {DATE_FORMAT} from "utils/DateUtils";
 const {Option} = Select;
@@ -23,43 +25,81 @@ interface Props {
   form: FormInstance;
 }
 export enum CustomerFilterField {
-  apply_to_all_customers = "apply_to_all_customers",
-  starts_wedding_day = "starts_wedding_day",
-  ends_wedding_day = "ends_wedding_day",
+  customer_selection = "customer_selection",
   starts_birthday = "starts_birthday",
   ends_birthday = "ends_birthday",
+  starts_wedding_day = "starts_wedding_day",
+  ends_wedding_day = "ends_wedding_day",
   prerequisite_genders = "prerequisite_genders",
   prerequisite_customer_loyalty_level_ids = "prerequisite_customer_loyalty_level_ids",
   prerequisite_customer_group_ids = "prerequisite_customer_group_ids",
-  staff =  "staff"
+  prerequisite_assignee_codes = "prerequisite_assignee_codes",
 }
 
 const genderOptions = [
   {
     label: "Nam",
-    value: "MALE",
+    value: Gender.MALE,
   },
   {
     label: "Nữ",
-    value: "FEMALE",
+    value: Gender.FEMALE,
   },
   {
     label: "Khác",
-    value: "OTHER",
+    value: Gender.OTHER,
   },
 ];
 
 export default function CustomerFilter(props: Props): ReactElement {
-  // const {form} = props;
+  const {form} = props;
   const dispatch = useDispatch();
 
-  const [checkedAll, setCheckedAll] = React.useState<boolean>(false);
+  const [checkedAll, setCheckedAll] = React.useState<boolean>(true);
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [rankingList, setRankingList] = React.useState<Array<LoyaltyRankResponse>>([]);
 
   const rankFiltered = useMemo(() => {
     return rankingList.filter((rank) => rank.status === "ACTIVE");
   }, [rankingList]);
+
+  const resetError = useCallback(() => {
+    form.setFields(
+      Object.values(CustomerFilterField).map((field) => ({
+        name: field,
+        errors: [],
+      }))
+    );
+  }, [form]);
+
+  const validateAll = (rule: any, value: any, callback: any) => {
+    const customerFields = _.cloneDeep(
+      form.getFieldsValue(Object.values(CustomerFilterField))
+    );
+    console.log("customerFields", customerFields);
+
+    delete customerFields[CustomerFilterField.customer_selection];
+    if (
+      Object.values(customerFields).every((field: any) => !field || field?.length === 0)
+    ) {
+      form.setFields(
+        Object.values(CustomerFilterField).map((field) => ({
+          name: field,
+          errors: ["Vui lòng chọn ít nhất 1 điều kiện"],
+        }))
+      );
+      callback("Vui lòng chọn ít nhất 1 điều kiện");
+    } else {
+      resetError();
+      callback();
+    }
+  };
+  const handleCheckedAll = (value: boolean) => {
+    setCheckedAll(value);
+    if (value) {
+      resetError();
+    }
+  };
 
   useEffect(() => {
     dispatch(CustomerGroups(setGroups));
@@ -77,10 +117,10 @@ export default function CustomerFilter(props: Props): ReactElement {
         <Col span={24}>
           <Form.Item
             label={<b>Đối tượng khách hàng áp dụng:</b>}
-            name={CustomerFilterField.apply_to_all_customers}
+            name={CustomerFilterField.customer_selection}
           >
             <Space direction="horizontal">
-              <Switch defaultChecked={checkedAll} onChange={(e) => setCheckedAll(e)} />
+              <Switch defaultChecked={checkedAll} onChange={(e) => handleCheckedAll(e)} />
               {"Áp dụng toàn bộ khách hàng"}
             </Space>
           </Form.Item>
@@ -90,8 +130,14 @@ export default function CustomerFilter(props: Props): ReactElement {
               <Form.Item
                 label="Giới tính"
                 name={CustomerFilterField.prerequisite_genders}
+                rules={[
+                  {
+                    validator: validateAll,
+                  },
+                ]}
+                help={false}
               >
-                <Select placeholder="Chọn giới tính" showArrow mode="multiple">
+                <Select placeholder="Chọn giới tính" showArrow mode="multiple" maxTagCount="responsive">
                   {genderOptions.map((option) => (
                     <Option key={option.value} value={option.value}>
                       {option.label}
@@ -108,8 +154,13 @@ export default function CustomerFilter(props: Props): ReactElement {
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    name="starts_birthday"
-                    rules={[{required: true, message: "Vui lòng chọn thời gian áp dụng"}]}
+                    name={CustomerFilterField.starts_birthday}
+                    rules={[
+                      {
+                        validator: validateAll,
+                      },
+                    ]}
+                    help={false}
                   >
                     <DatePicker
                       style={{width: "100%"}}
@@ -125,7 +176,15 @@ export default function CustomerFilter(props: Props): ReactElement {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="ends_birthday">
+                  <Form.Item
+                    name={CustomerFilterField.ends_birthday}
+                    rules={[
+                      {
+                        validator: validateAll,
+                      },
+                    ]}
+                    help={false}
+                  >
                     <DatePicker
                       // disabled={disabledEndDate}
                       style={{width: "100%"}}
@@ -149,8 +208,13 @@ export default function CustomerFilter(props: Props): ReactElement {
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    name="starts_wedding"
-                    rules={[{required: true, message: "Vui lòng chọn thời gian áp dụng"}]}
+                    name={CustomerFilterField.starts_wedding_day}
+                    help={false}
+                    rules={[
+                      {
+                        validator: validateAll,
+                      },
+                    ]}
                   >
                     <DatePicker
                       style={{width: "100%"}}
@@ -166,7 +230,15 @@ export default function CustomerFilter(props: Props): ReactElement {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="ends_birthday">
+                  <Form.Item
+                    name={CustomerFilterField.ends_wedding_day}
+                    help={false}
+                    rules={[
+                      {
+                        validator: validateAll,
+                      },
+                    ]}
+                  >
                     <DatePicker
                       // disabled={disabledEndDate}
                       style={{width: "100%"}}
@@ -182,7 +254,16 @@ export default function CustomerFilter(props: Props): ReactElement {
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item label="Nhóm khách hàng" name="prerequisite_customer_group_ids">
+              <Form.Item
+                label="Nhóm khách hàng"
+                name={CustomerFilterField.prerequisite_customer_group_ids}
+                rules={[
+                  {
+                    validator: validateAll,
+                  },
+                ]}
+                help={false}
+              >
                 <Select
                   placeholder="Chọn nhóm khách hàng"
                   showArrow
@@ -190,6 +271,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   showSearch
                   allowClear
                   mode="multiple"
+                  maxTagCount="responsive"
                 >
                   {groups.map((group) => (
                     <Option key={group.id} value={group.id}>
@@ -200,7 +282,13 @@ export default function CustomerFilter(props: Props): ReactElement {
               </Form.Item>
               <Form.Item
                 label="Hạng khách hàng"
-                name="prerequisite_customer_loyalty_level_ids"
+                name={CustomerFilterField.prerequisite_customer_loyalty_level_ids}
+                rules={[
+                  {
+                    validator: validateAll,
+                  },
+                ]}
+                help={false}
               >
                 <Select
                   mode="multiple"
@@ -208,6 +296,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   showArrow
                   optionFilterProp="children"
                   showSearch
+                  maxTagCount="responsive"
                   allowClear
                 >
                   {rankFiltered.map((type) => (
@@ -217,11 +306,18 @@ export default function CustomerFilter(props: Props): ReactElement {
                   ))}
                 </Select>
               </Form.Item>
-           
+
               <AccountSearchSelect
-                lable="Nhân viên phụ trách"
+                label="Nhân viên phụ trách"
                 placeholder="Chọn nhân viên phụ trách"
-                name={CustomerFilterField.staff}
+                name={CustomerFilterField.prerequisite_assignee_codes}
+                mode="multiple"
+                rules={[
+                  {
+                    validator: validateAll,
+                  },
+                ]}
+                help={false}
               />
             </>
           )}

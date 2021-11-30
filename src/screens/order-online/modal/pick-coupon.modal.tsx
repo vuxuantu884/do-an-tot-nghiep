@@ -2,18 +2,20 @@ import {
   Button, Form, FormInstance,
   Input, Modal
 } from "antd";
-import React, { createRef, useState } from "react";
+import React, { createRef, useEffect, useState } from "react";
 
 type PropType = {
   visible: boolean;
   onCancelCouponModal: (e: React.MouseEvent<HTMLElement>) => void;
   onOkCouponModal: (type: string, value: number, rate: number, coupon: string) => void;
-  coupon: string;
+  couponInputText?: string;
+  coupon?: string;
 };
 
 function PickCouponModal(props: PropType){
-  const { visible, onCancelCouponModal, onOkCouponModal, coupon } = props;
-  const [_coupon, setCoupon] = useState<string>(coupon);
+  const { visible, onCancelCouponModal, onOkCouponModal, couponInputText } = props;
+	console.log('couponInputText', couponInputText)
+  const [_coupon, setCoupon] = useState<string>(couponInputText || "");
 
   const formRef = createRef<FormInstance>();
   const onSubmit = () => {
@@ -30,11 +32,11 @@ function PickCouponModal(props: PropType){
     }
   };
 
-  // useEffect(() => {
-  //   return () => {
-  //     setCoupon("")
-  //   }
-  // }, [])
+  useEffect(() => {
+    if(couponInputText !==undefined) {
+			setCoupon(couponInputText)
+		}
+  }, [couponInputText])
 
   return (
     <Modal

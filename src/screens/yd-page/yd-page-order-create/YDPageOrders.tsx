@@ -512,6 +512,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   };
   const onFinish = (values: OrderRequest) => {
     values.channel_id = DEFAULT_CHANNEL_ID;
+    values.company_id = DEFAULT_COMPANY.company_id
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
