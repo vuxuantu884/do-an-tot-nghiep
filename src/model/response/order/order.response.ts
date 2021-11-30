@@ -357,8 +357,8 @@ export interface StoreCustomResponse extends BaseObject {
   country_name: string;
   city_id: number;
   city_name: string;
-  group_id: number;
-  group_name: string;
+  department: string;
+  department_id: number,
   status: string;
   status_name: string;
   zip_code: string;
@@ -367,21 +367,17 @@ export interface StoreCustomResponse extends BaseObject {
   ward_id: number;
   ward_name: string;
   address: string;
-  full_address: string;
   hotline: string;
-  manager_code: string;
+  vm:string;
   vm_code: string;
-  finder_code: string;
   mail: string;
   begin_date: string;
   number_of_account: number;
   accounts: Array<any>;
   is_saleable: boolean;
   is_stocktaking: boolean;
-  type: string,
-  type_name: string,
-  merchandiser_code:string,
-  merchandiser:string,
+  type: string;
+  type_name: string;
 }
 
 export interface OrderSubStatusResponse {
