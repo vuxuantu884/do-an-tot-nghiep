@@ -264,9 +264,9 @@ function OrderCreateProduct(props: PropType) {
 
   // const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
 
-	//nếu là order update thì lần đầu load ko áp dụng chiết khấu hay coupon mà lấy từ orderDetail
-	let isUpdateDiscount = orderDetail ? false : true;
-	let isUpdateCoupon = orderDetail ? false : true;
+	const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
+	const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
+
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -1040,7 +1040,7 @@ function OrderCreateProduct(props: PropType) {
 
   const handleApplyDiscount = async (items: OrderLineItemRequest[] | undefined) => {
 		console.log('items', items);
-		isUpdateDiscount = true;
+		isShouldUpdateDiscountRef.current = true;
     if (!items || items.length === 0) {
       return;
     }
@@ -1097,7 +1097,7 @@ function OrderCreateProduct(props: PropType) {
   };
 
   const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
-		isUpdateCoupon = true;
+		isShouldUpdateCouponRef.current = true;
     if (!_items || !coupon) {
       return;
     }
@@ -1603,19 +1603,30 @@ function OrderCreateProduct(props: PropType) {
    * gọi lại api chiết khấu khi update cửa hàng, khách hàng, nguồn, số lượng item
    */
   useEffect(() => {
-    if (isUpdateDiscount && isAutomaticDiscount && items && items?.length > 0) {
-      handleApplyDiscount(items);
-    }
+		if (isShouldUpdateDiscountRef.current)
+			if (isShouldUpdateDiscountRef.current && isAutomaticDiscount && items && items?.length > 0) {
+				handleApplyDiscount(items);
+			}
+    else
+      isShouldUpdateDiscountRef.current = true;
+    
   }, [customer?.id, storeId, orderSourceId]);
 
   /**
    * gọi lại api couponInputText khi thay đổi số lượng item
    */
   useEffect(() => {
-    if (!isAutomaticDiscount && isUpdateCoupon && couponInputText && items && items?.length > 0) {
+		console.log('isShouldUpdateCouponRef.current', isShouldUpdateCouponRef.current)
+    if (!isAutomaticDiscount && isShouldUpdateCouponRef.current && couponInputText && items && items?.length > 0) {
       handleApplyCouponWhenInsertCoupon(couponInputText, items);
     }
+
+		setTimeout(() => {
+			isShouldUpdateCouponRef.current = true;
+			isShouldUpdateDiscountRef.current = true;
+		}, 1000);
   }, [customer?.id, storeId, orderSourceId]);
+
 
   return (
     <StyledComponent>
@@ -1943,7 +1954,7 @@ function OrderCreateProduct(props: PropType) {
               visible={isVisiblePickDiscount}
             />
             <PickCouponModal
-              coupon={coupon}
+              couponInputText={couponInputText}
               onCancelCouponModal={() => {
                 setIsVisiblePickCoupon(false);
               }}
