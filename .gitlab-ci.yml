@@ -18,6 +18,7 @@ docker build dev:
   only:
     - develop
   variables:
+    PREFIX: dev
     DOCKER_FILE: Dockerfile
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
@@ -31,6 +32,7 @@ docker build uat:
   only:
     - uat
   variables:
+    PREFIX: uat
     DOCKER_FILE: Dockerfile-uat
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
@@ -44,6 +46,7 @@ docker build production:
   only:
     - master
   variables:
+    PREFIX: prod
     DOCKER_FILE: Dockerfile-production
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
@@ -59,6 +62,7 @@ deploy to dev:
     - develop
   when: manual
   variables:
+    PREFIX: dev
     HOST: dev.unicorn.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
@@ -76,6 +80,7 @@ deploy to uat:
   only:
     - uat
   variables:
+    PREFIX: uat
     HOST: uat.unicorn.yody.io
     NAMESPACE: uat
     ENVIRONMENT: uat
@@ -93,6 +98,7 @@ deploy to production:
   only:
     - master
   variables:
+    PREFIX: prod
     HOST: unicorn.yody.io
     NAMESPACE: production
     ENVIRONMENT: production
