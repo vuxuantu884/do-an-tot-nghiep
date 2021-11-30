@@ -145,7 +145,7 @@ function* searchVariantOrderSaga(action: YodyAction) {
       }
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy dữ liệu tồn kho sản phẩm! Vui lòng thử lại sau!");
   }
 }
 
