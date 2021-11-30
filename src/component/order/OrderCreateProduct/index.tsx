@@ -941,8 +941,8 @@ function OrderCreateProduct(props: PropType) {
     _items.splice(index, 1);
 		if(isAutomaticDiscount && _items.length > 0) {
 			handleApplyDiscount(_items);
-		} else if(coupon  && _items.length > 0) {
-      handleApplyCouponWhenInsertCoupon(coupon, _items)
+		} else if(couponInputText  && _items.length > 0) {
+      handleApplyCouponWhenInsertCoupon(couponInputText, _items)
     } else {
 			setItems(_items);
 			calculateChangeMoney(_items, _amount, discountRate, discountValue);
@@ -1332,8 +1332,8 @@ function OrderCreateProduct(props: PropType) {
 			console.log('333')
 			if(isAutomaticDiscount && _items.length > 0) {
 				handleApplyDiscount(_items);
-			} else if(coupon && _items.length > 0) {
-        handleApplyCouponWhenInsertCoupon(coupon, _items)
+			} else if(couponInputText && _items.length > 0) {
+        handleApplyCouponWhenInsertCoupon(couponInputText, _items)
       }
       autoCompleteRef.current?.blur();
       setIsInputSearchProductFocus(false);
@@ -1938,6 +1938,7 @@ function OrderCreateProduct(props: PropType) {
             isDisableOrderDiscount={isDisableOrderDiscount}
             isCouponValid={isCouponValid}
             couponInputText={couponInputText}
+            setCouponInputText={setCouponInputText}
             handleRemoveAllDiscount={handleRemoveAllDiscount}
           />
         )}

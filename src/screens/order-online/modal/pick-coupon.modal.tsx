@@ -33,7 +33,7 @@ function PickCouponModal(props: PropType){
   };
 
   useEffect(() => {
-    if(couponInputText) {
+    if(couponInputText !==undefined) {
 			setCoupon(couponInputText)
 		}
   }, [couponInputText])
