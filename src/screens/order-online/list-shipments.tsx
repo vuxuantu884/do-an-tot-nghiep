@@ -46,15 +46,26 @@ import { DeliveryServiceResponse } from "model/response/order/order.response";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 
+const ACTION_ID = {
+	delete: 1,
+	export: 2,
+	printShipment: 3,
+}
+
 const actions: Array<MenuAction> = [
   {
-    id: 1,
+    id: ACTION_ID.delete,
     name: "Xóa",
     icon:<DeleteOutlined />
   },
   {
-    id: 2,
+    id: ACTION_ID.export,
     name: "Export",
+    icon:<ExportOutlined />
+  },
+	{
+    id: ACTION_ID.printShipment,
+    name: "In phiếu giao hàng",
     icon:<ExportOutlined />
   },
 ];
@@ -449,9 +460,12 @@ const ListOrderScreen: React.FC = () => {
   const [statusExport, setStatusExport] = useState<number>(1);
 
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
+  const [selectedRow, setSelectedRow] = useState([]);
+	
   const onSelectedChange = useCallback((selectedRow) => {
     const selectedRowCodes = selectedRow.map((row: any) => row.code);
     setSelectedRowCodes(selectedRowCodes);
+		setSelectedRow(selectedRow);
   }, []);
 
   const onExport = useCallback((optionExport, typeExport) => {
@@ -541,7 +555,25 @@ const ListOrderScreen: React.FC = () => {
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
 
-  const onMenuClick = useCallback((index: number) => {}, []);
+  const onMenuClick = useCallback((index: number) => {
+		switch (index) {
+			case ACTION_ID.printShipment:
+				console.log('selectedRow', selectedRow)
+				let params = {
+					action: "print",
+					ids: selectedRow.map((single:ShipmentModel) => single.order_id),
+					"print-type": "shipment",
+					"print-dialog": true,
+				};
+				const queryParam = generateQuery(params);
+				const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          window.open(printPreviewUrl, "_blank");
+				break;
+		
+			default:
+				break;
+		}
+	}, [selectedRow]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<ShipmentModel> | false) => {

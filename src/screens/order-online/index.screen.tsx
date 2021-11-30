@@ -52,14 +52,19 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { ShipmentMethod } from "utils/Constants";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
+const ACTION_ID = {
+	printShipment: 4,
+	printStockExport: 5,
+}
+
 const actions: Array<MenuAction> = [
   {
-    id: 4,
+    id: ACTION_ID.printShipment,
     name: "In phiếu giao hàng",
     icon:<PrinterOutlined />
   },
   {
-    id: 5,
+    id: ACTION_ID.printStockExport,
     name: "In phiếu xuất kho",
     icon:<PrinterOutlined />
   },
@@ -742,7 +747,7 @@ const ListOrderScreen: React.FC = () => {
       let params = {
         action: "print",
         ids: selectedRowKeys,
-        "print-type": index === 4 ? "shipment" : "stock_export",
+        "print-type": index === ACTION_ID.printShipment ? "shipment" : "stock_export",
         "print-dialog": true,
       };
       const queryParam = generateQuery(params);
@@ -754,7 +759,7 @@ const ListOrderScreen: React.FC = () => {
           break;
         case 3:
           break;
-        case 4:
+        case ACTION_ID.printShipment:
           let ids:number[] = [];
           selectedRow.forEach((row) => row.fulfillments?.forEach((single) => {
             ids.push(single.id)
@@ -782,7 +787,7 @@ const ListOrderScreen: React.FC = () => {
           const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewUrl);
           break;
-        case 5:
+        case ACTION_ID.printStockExport:
           // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
           const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewUrlExport);
