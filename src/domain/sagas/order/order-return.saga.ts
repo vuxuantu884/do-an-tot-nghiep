@@ -97,7 +97,7 @@ function* setIsReceivedProductReturnSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi tạo nhận hàng đơn trả hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -124,7 +124,7 @@ function* getOrderReturnReasonsSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy danh sách lý do trả hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -143,7 +143,7 @@ function* orderRefundSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
-        showSuccess("Hoàn tiền thành công");
+        showSuccess("Hoàn tiền thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -154,7 +154,7 @@ function* orderRefundSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi hoàn tiền đơn trả hàng! Vui lòng thử lại sau!");
   }
 }
 
@@ -212,7 +212,7 @@ function* getOrderReturnLogSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy danh sách bản ghi đơn trả hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -242,7 +242,7 @@ function* getOrderReturnCalculateRefundSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy dữ liệu điểm tích lũy! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }

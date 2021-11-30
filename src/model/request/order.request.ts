@@ -43,6 +43,7 @@ export interface OrderRequest {
   channel_id?: number | null;
   finalized?: boolean;
   sub_status_code?: string; 
+	automatic_discount?: boolean;
 }
 
 export interface ReturnRequest extends OrderRequest {

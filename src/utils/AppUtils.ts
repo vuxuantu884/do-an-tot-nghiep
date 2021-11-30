@@ -670,7 +670,7 @@ export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
 export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   // console.log('getTotalDiscount =============+> ', items);
-  items.forEach((a) => (total = total + a.discount_amount * a.quantity));
+  items.forEach((a) => (total = total + a.discount_amount));
   return total;
 };
 
