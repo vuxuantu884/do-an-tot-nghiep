@@ -242,7 +242,7 @@ function OrderCreateProduct(props: PropType) {
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
   // const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
-	let isAutomaticDiscount = form.getFieldValue('is_automatic_discount');
+	let isAutomaticDiscount = form.getFieldValue('automatic_discount');
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -1633,7 +1633,7 @@ function OrderCreateProduct(props: PropType) {
                 <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
             </Form.Item>
-						<Form.Item name="is_automatic_discount" valuePropName="checked">
+						<Form.Item name="automatic_discount" valuePropName="checked">
 							<Checkbox
 								disabled={levelOrder > 3}
 								checked={isAutomaticDiscount}

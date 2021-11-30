@@ -239,7 +239,7 @@ export default function Order() {
     billing_address: null,
     payments: [],
     channel_id: null,
-		is_automatic_discount: true,
+		automatic_discount: true,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -773,7 +773,7 @@ export default function Order() {
                 note: response.note,
                 tags: response.tags,
                 channel_id: response.channel_id,
-								is_automatic_discount: response.is_automatic_discount,
+								automatic_discount: response.automatic_discount,
               });
               form.resetFields();
               // load lại form sau khi set initialValue
