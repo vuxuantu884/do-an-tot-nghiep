@@ -15,6 +15,7 @@ import {useDispatch} from "react-redux";
 import {useHistory} from "react-router";
 import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import useAuthorization from "hook/useAuthorization";
+import TreeDepartment from "../component/TreeDepartment";
 
 const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
@@ -184,20 +185,6 @@ const DepartmentCreateScreen: React.FC = () => {
       </Form>
     </ContentContainer>
   );
-};
-
-const TreeDepartment = (item: DepartmentResponse) => {
-  return (
-    <TreeSelect.TreeNode value={item.id} title={item.name}>
-      {item.children.length > 0 && (
-        <React.Fragment>
-          {item.children.map((item, index) => (
-            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-          ))}
-        </React.Fragment>
-      )}
-    </TreeSelect.TreeNode>
-  );
-};
+}; 
 
 export default DepartmentCreateScreen;
