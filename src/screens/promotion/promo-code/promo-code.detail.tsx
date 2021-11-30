@@ -1100,6 +1100,8 @@ const PromotionDetailScreen: React.FC = () => {
                           "index"
                         ).sort((a: any, b: any) => a.index - b.index);
                         setCodeErrorsResponse([...errors]);
+                      }else{
+                        setCodeErrorsResponse([]);
                       }
                       setImportTotal(response.data.total);
                       setSuccessCount(response.data.success_count);

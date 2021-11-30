@@ -252,6 +252,7 @@ function OrderCreateProduct(props: PropType) {
   const [splitOrderNumber, setSplitOrderNumber] = useState(0);
   const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
   const [isCouponValid, setIsCouponValid] = useState(false);
+  const [couponInputText, setCouponInputText] = useState(coupon);
 
   const lineItemQuantityInputTimeoutRef: MutableRefObject<any> = useRef();
   const lineItemPriceInputTimeoutRef: MutableRefObject<any> = useRef();
@@ -336,6 +337,13 @@ function OrderCreateProduct(props: PropType) {
     }
   }, []);
 
+  useEffect(() => {
+    if (orderDetail && orderDetail?.discounts && orderDetail?.discounts[0]?.discount_code) {
+      // setCoupon && setCoupon(orderDetail?.discounts[0]?.discount_code)
+      setCouponInputText(orderDetail?.discounts[0]?.discount_code)
+    }
+  }, [orderDetail]);
+
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
       if (!items) {
@@ -393,6 +401,8 @@ function OrderCreateProduct(props: PropType) {
     },
     [items]
   );
+
+  
   const onChangeNote = (e: any, index: number) => {
     let value = e.target.value;
     if (items) {
@@ -434,8 +444,8 @@ function OrderCreateProduct(props: PropType) {
         clearTimeout(inputRef.current);
       }
       inputRef.current = setTimeout(() => {
-        if (coupon && items && items?.length > 0) {
-          handleApplyCouponWhenInsertCoupon(coupon, _items);
+        if (couponInputText && items && items?.length > 0) {
+          handleApplyCouponWhenInsertCoupon(couponInputText, _items);
           return;
         }
       }, QUANTITY_DELAY_TIME);
@@ -460,12 +470,12 @@ function OrderCreateProduct(props: PropType) {
   const onChangePrice = (value: number | null, index: number) => {
     if (items) {
       let _items = [...items];
-      if (value !== null) {
+      if (value !== null && value!==_items[index].price) {
         _items[index].price = value;
+        handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
+        setItems(_items);
+        handleChangeItems(_items);
       }
-      handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
-      setItems(_items);
-      handleChangeItems(_items);
     }
   };
 
@@ -709,7 +719,6 @@ function OrderCreateProduct(props: PropType) {
             value={l.price}
             onChange={(value) => {
               onChangePrice(value, index);
-              // handleApplyCouponWhenInsertCoupon(coupon);
             }}
             disabled={levelOrder > 3 || isAutomaticDiscount}
           />
@@ -733,9 +742,9 @@ function OrderCreateProduct(props: PropType) {
           <DiscountGroup
             price={l.price}
             index={index}
-            discountRate={l.discount_items[0].rate}
-            discountValue={l.discount_items[0].value}
-            totalAmount={l.discount_items[0].amount}
+            discountRate={l.discount_items[0]?.rate ? l.discount_items[0]?.rate : 0}
+            discountValue={l.discount_items[0]?.value ? l.discount_items[0]?.value : 0}
+            totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
             items={items}
             handleCardItems={onDiscountItem}
             disabled={levelOrder > 3 || isAutomaticDiscount || coupon !== ""}
@@ -856,6 +865,7 @@ function OrderCreateProduct(props: PropType) {
 
   const autoCompleteRef = createRef<RefSelectProps>();
   const createItem = (variant: VariantResponse) => {
+    console.log('variant', variant)
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
@@ -868,6 +878,7 @@ function OrderCreateProduct(props: PropType) {
       variant: variant.name,
       variant_barcode: variant.barcode,
       product_type: variant.product.product_type,
+      product_code: variant.product.code,
       quantity: 1,
       price: price,
       amount: price,
@@ -911,16 +922,7 @@ function OrderCreateProduct(props: PropType) {
     item.discount_amount = 0;
     item.discount_rate = 0;
     item.discount_value = 0;
-    item.discount_items = [
-      {
-        amount: 0,
-        rate: 0,
-        discount_code: "",
-        promotion_id: undefined,
-        reason: "",
-        value: 0,
-      },
-    ];
+    item.discount_items = [];
   };
 
   const onDeleteItem = (index: number) => {
@@ -933,10 +935,11 @@ function OrderCreateProduct(props: PropType) {
     _items.splice(index, 1);
 		if(isAutomaticDiscount && _items.length > 0) {
 			handleApplyDiscount(_items);
-		}else {
+		} else if(coupon  && _items.length > 0) {
+      handleApplyCouponWhenInsertCoupon(coupon, _items)
+    } else {
 			setItems(_items);
 			calculateChangeMoney(_items, _amount, discountRate, discountValue);
-
 		}
   };
 
@@ -1126,21 +1129,25 @@ function OrderCreateProduct(props: PropType) {
                 showError(applyDiscountResponse.invalid_description);
                 if (
                   applyDiscountResponse.invalid_description ===
-                  "Mã khuyến mại không tồn tại."
+                  "Mã khuyến mại không tồn tại." || applyDiscountResponse.invalid_description ===
+                  "Khuyến mại đã hết lượt sử dụng."
                 ) {
                   _items?.forEach((item) => {
                     removeDiscountItem(item);
                   });
+                  setCouponInputText && setCouponInputText(coupon);
                 } else {
-                  setCoupon && setCoupon(coupon);
+                  setCouponInputText && setCouponInputText(coupon);
                 }
                 setIsCouponValid(false);
+                setCoupon && setCoupon("");
                 setItems(_items);
                 handleChangeItems(_items);
               } else {
                 setCoupon && setCoupon(coupon);
+                setCouponInputText(coupon)
                 setIsCouponValid(true);
-                const discount_code = applyDiscountResponse.code || undefined;
+                // const discount_code = applyDiscountResponse.code || undefined;
                 let couponType = applyDiscountResponse.value_type;
                 let listDiscountItem: any[] = [];
                 response.data.line_items.forEach((single) => {
@@ -1236,7 +1243,7 @@ function OrderCreateProduct(props: PropType) {
                               ? Math.round(discount_rate * 100) / 100
                               : 0,
                             reason: applyDiscountLineItem?.title || null,
-                            discount_code,
+                            // discount_code,
                           },
                         ];
                         singleItem.discount_rate = discount_rate;
@@ -1315,9 +1322,11 @@ function OrderCreateProduct(props: PropType) {
         }
       }
 			console.log('333')
-			if(isAutomaticDiscount) {
+			if(isAutomaticDiscount && _items.length > 0) {
 				handleApplyDiscount(_items);
-			}
+			} else if(coupon && _items.length > 0) {
+        handleApplyCouponWhenInsertCoupon(coupon, _items)
+      }
       autoCompleteRef.current?.blur();
       setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
@@ -1592,11 +1601,11 @@ function OrderCreateProduct(props: PropType) {
   }, [customer?.id, storeId, orderSourceId]);
 
   /**
-   * gọi lại api coupon khi thay đổi số lượng item
+   * gọi lại api couponInputText khi thay đổi số lượng item
    */
   useEffect(() => {
-    if (!isAutomaticDiscount && coupon && items && items?.length > 0) {
-      handleApplyCouponWhenInsertCoupon(coupon, items);
+    if (!isAutomaticDiscount && couponInputText && items && items?.length > 0) {
+      handleApplyCouponWhenInsertCoupon(couponInputText, items);
     }
   }, [customer?.id, storeId, orderSourceId]);
 
@@ -1895,7 +1904,6 @@ function OrderCreateProduct(props: PropType) {
             amount={amount}
             calculateChangeMoney={calculateChangeMoney}
             changeMoney={changeMoney}
-            coupon={coupon}
             setCoupon={setCoupon}
             discountRate={discountRate}
             discountValue={discountValue}
@@ -1910,6 +1918,7 @@ function OrderCreateProduct(props: PropType) {
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
             isDisableOrderDiscount={isDisableOrderDiscount}
             isCouponValid={isCouponValid}
+            couponInputText={couponInputText}
             handleRemoveAllDiscount={handleRemoveAllDiscount}
           />
         )}

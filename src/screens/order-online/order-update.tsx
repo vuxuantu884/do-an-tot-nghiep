@@ -102,6 +102,7 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { DEFAULT_COMPANY } from "utils/Constants";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
@@ -301,6 +302,7 @@ export default function Order(props: PropType) {
   let initialRequest: OrderRequest = {
     action: "", //finalized
     store_id: null,
+    company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
@@ -680,6 +682,7 @@ export default function Order(props: PropType) {
     values.customer_city = customer?.city;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.channel_id = OrderDetail.channel_id;
+    values.company_id = DEFAULT_COMPANY.company_id;
     // console.log("onFinish onFinish", values);
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -927,6 +930,7 @@ export default function Order(props: PropType) {
                 variant_barcode: item.variant_barcode,
                 product_id: item.product_id,
                 product_type: item.product_type,
+                product_code: item.product_code,
                 quantity: item.quantity,
                 price: item.price,
                 amount: item.amount,

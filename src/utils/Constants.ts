@@ -156,7 +156,7 @@ export const PoFinancialStatus = {
   CANCELLED: "cancelled",
 };
 
-export const DEFAULT_FORM_VALUE = {
+export const DEFAULT_COMPANY = {
   company: "YODY",
   company_id: 1,
 };

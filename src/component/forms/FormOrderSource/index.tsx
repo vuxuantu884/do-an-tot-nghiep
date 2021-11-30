@@ -3,14 +3,12 @@ import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import {CustomModalFormModel} from "model/modal/modal.model";
 import {useEffect, useState} from "react";
 import * as CONSTANTS from "utils/Constants";
-import {RegUtil} from "utils/RegUtils";
 import {StyledComponent} from "./styles";
 
 type FormValuesType = {
   company_id: number;
   company: string;
   name: string;
-  code: string | null;
   department_id: string;
   department: string;
   channel_id: number;
@@ -19,9 +17,9 @@ type FormValuesType = {
 };
 
 const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
-  const DEFAULT_FORM_VALUE = {
-    company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
-    company: CONSTANTS.DEFAULT_FORM_VALUE.company,
+  const DEFAULT_COMPANY = {
+    company_id: CONSTANTS.DEFAULT_COMPANY.company_id,
+    company: CONSTANTS.DEFAULT_COMPANY.company,
   };
 
   const {modalAction, formItem, form, visible, moreFormArguments} = props;
@@ -34,9 +32,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
       ? {
           channel_id: formItem.channel_id,
           company_id: formItem.company_id,
-          company: DEFAULT_FORM_VALUE.company,
-          name: formItem.name,
-          code: formItem.code,
+          company: DEFAULT_COMPANY.company,
+          name: formItem.name, 
           department_id: formItem.department_id,
           department: formItem.department,
           is_active: formItem.active,
@@ -44,10 +41,9 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
         }
       : {
           channel_id: undefined,
-          company_id: DEFAULT_FORM_VALUE.company_id,
-          company: DEFAULT_FORM_VALUE.company,
+          company_id: DEFAULT_COMPANY.company_id,
+          company: DEFAULT_COMPANY.company,
           name: "",
-          code: null,
           department_id: undefined,
           department: "",
           is_active: false,
@@ -97,7 +93,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
           <Input />
         </Form.Item>
         <Row gutter={30}>
-        <Col span={modalAction === "create" ? 24 : 12}>
+        <Col span={24}>
             <Form.Item
               name="name"
               label="Tên nguồn đơn hàng"
@@ -108,34 +104,11 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
             >
               <Input placeholder="Nhập tên nguồn đơn hàng" style={{width: "100%"}} />
             </Form.Item>
-          </Col>
-          <Col span={12} hidden={modalAction === "create"}>
-            <Form.Item
-              name="code"
-              label="Mã nguồn"
-              rules={[
-                () => ({
-                  validator(_, value) {
-                    if (RegUtil.ONLY_STRING.test(value)) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error("Chỉ nhập kí tự chữ và in hoa!"));
-                  },
-                }),
-                {len: 4, message: "Nhập 4 ký tự!"},
-              ]}
-            >
-              <Input
-                type="text"
-                placeholder="Nhập mã nguồn"
-                style={{width: "100%", textTransform: "uppercase"}}
-              />
-            </Form.Item>
-          </Col>
+          </Col> 
         </Row>
 
         <Row gutter={30}>
-          <Col span={modalAction === "create" ? 24 : 12}>
+          <Col span={24}>
             <Form.Item
               name="department_id"
               label="Phòng ban"

@@ -200,10 +200,10 @@ const EcommerceOrders: React.FC = () => {
   }, [dispatch]);
 
   const status_order = [
-    { name: "Nháp", value: "draft", className: "blue-status" },
+    { name: "Nháp", value: "draft", className: "gray-status" },
     { name: "Đóng gói", value: "packed", className: "blue-status" },
     { name: "Xuất kho", value: "shipping", className: "blue-status" },
-    { name: "Đã xác nhận", value: "finalized", className: "yellow-status" },
+    { name: "Đã xác nhận", value: "finalized", className: "blue-status" },
     { name: "Hoàn thành", value: "completed", className: "green-status" },
     { name: "Kết thúc", value: "finished", className: "green-status" },
     { name: "Đã huỷ", value: "cancelled", className: "red-status" },
@@ -346,7 +346,6 @@ const EcommerceOrders: React.FC = () => {
         );
       },
       visible: true,
-      align: "center",
       width: nameQuantityWidth,
     },
     {
@@ -462,7 +461,7 @@ const EcommerceOrders: React.FC = () => {
         );
         return (
           <StyledStatus>
-            <span className={status?.className}>{status?.name}</span>
+            <div className={status?.className}>{status?.name}</div>
           </StyledStatus>
         );
       },

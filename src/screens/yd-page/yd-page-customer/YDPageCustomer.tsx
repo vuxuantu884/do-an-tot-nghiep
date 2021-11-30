@@ -58,6 +58,7 @@ const YDPageCustomerDetail = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
+    loyaltyCard
   } = props;
   const [customerForm] = Form.useForm();
   // const history = useHistory();
@@ -72,7 +73,6 @@ const YDPageCustomerDetail = (props: any) => {
     acceptPermissions: customersUpdatePermission,
     not: false,
   });
-
   
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
@@ -205,7 +205,7 @@ const YDPageCustomerDetail = (props: any) => {
               target="_blank"
               to={`${UrlConfig.ORDER}/${row.id}`}
             >
-              <img src={urlCrimson} alt="link"></img>
+              <img src={urlCrimson} alt="link"/>
             </Link>
           </Tooltip>
         );
@@ -250,6 +250,7 @@ const YDPageCustomerDetail = (props: any) => {
   React.useEffect(() => {
     customerForm.setFieldsValue({ ...new CustomerModel() });
   }, [customerForm]);
+
   React.useEffect(() => {
     if (customer) {
       const field = {
@@ -262,6 +263,7 @@ const YDPageCustomerDetail = (props: any) => {
         ward_id: customer.ward_id,
         full_address: customer.full_address,
         city_id: customer.city_id,
+        card_number: loyaltyCard?.card_number
       };
       setNotes(customer.notes?.reverse());
       customerForm.setFieldsValue(field);
@@ -277,7 +279,7 @@ const YDPageCustomerDetail = (props: any) => {
       };
       customerForm.setFieldsValue(field);
     }
-  }, [customer, customerForm, customerFbName]);
+  }, [customer, customerForm, customerFbName, loyaltyCard]);
   const setResultUpdate = React.useCallback(
     (result) => {
       if (result) {

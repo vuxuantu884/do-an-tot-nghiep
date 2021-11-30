@@ -335,7 +335,11 @@ function OrderCreateShipment(props: PropType) {
           </Col>
 
           <Col span={24}>
-            <Form.Item name="office_time" label="Giờ hành chính:">
+            <Form.Item
+              name="office_time"
+              label="Giờ hành chính:"
+              valuePropName="checked"
+            >
               <Checkbox style={{marginTop: "8px"}}/>
             </Form.Item>
           </Col>

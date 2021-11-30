@@ -25,6 +25,7 @@ const UrlConfig = {
   CUSTOMER2: `/customer`,
   SHIPMENTS: `/shipments`,
   YD_PAGE: `/yd-page`,
+  YDPAGE: `/YDpage`,
   ECOMMERCE: "/ecommerce",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
@@ -58,6 +59,6 @@ export const ProcurementTabUrl = {
   TODAY: UrlConfig.PROCUREMENT + "/today",
   ALL: UrlConfig.PROCUREMENT
 };
-export const BASE_NAME_ROUTER = "/unicorn/admin";
-// export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/unicorn/admin`;
+export const BASE_NAME_ROUTER = "/admin";
+// export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;
 export default UrlConfig;

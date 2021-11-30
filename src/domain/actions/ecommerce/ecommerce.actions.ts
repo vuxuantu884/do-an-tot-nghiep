@@ -45,7 +45,7 @@ export const setFpageDefaultPhone = (
   });
 };
 
-export const getFpageCustomerInfo = (
+export const getYDPageCustomerInfo = (
   userId: string,
   setData: (data: YDPageCustomerResponse) => void
 ) => {

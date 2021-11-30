@@ -159,7 +159,7 @@ function* getReturnsSaga(action: YodyAction) {
 }
 
 function* orderCreateSaga(action: YodyAction) {
-  const { request, setData } = action.payload;
+  const { request, setData, onError } = action.payload;
   try {
     let response: BaseResponse<OrderResponse> = yield call(orderPostApi, request);
     switch (response.code) {
@@ -167,6 +167,7 @@ function* orderCreateSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
+        onError()
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -765,10 +766,12 @@ function* confirmDraftOrderSaga(action: YodyAction) {
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        handleData();
         break;
     }
   } catch (error) {
     showError(`Xác nhận đơn nháp xảy ra lỗi!`);
+    handleData();
   } finally {
     yield put(hideLoading());
   }

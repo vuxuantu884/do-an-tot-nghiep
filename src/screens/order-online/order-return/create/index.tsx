@@ -54,6 +54,7 @@ import {
   scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
+  DEFAULT_COMPANY,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
@@ -174,6 +175,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const initialForm: OrderRequest = {
     action: "", //finalized
     store_id: null,
+    company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
@@ -539,6 +541,7 @@ const ScreenReturnCreate = (props: PropType) => {
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
           valuesResult.channel_id = DEFAULT_CHANNEL_ID;
+          values.company_id = DEFAULT_COMPANY.company_id;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
 							valuesResult.order_return_id = orderReturnId;

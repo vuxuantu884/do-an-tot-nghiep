@@ -1,5 +1,5 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useState} from "react";
-import {StyledWrapper} from "./styles";
+import "./index.scss";
 import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {Button, Card, Col, Form, Input, Row, Select, Space, Upload, Empty} from "antd";
@@ -674,7 +674,6 @@ const CreateInventoryAdjustment: FC = () => {
   ];
 
   return (
-    <StyledWrapper>
       <ContentContainer
         title="Thêm mới phiếu kiểm kho"
         breadcrumb={[
@@ -1106,7 +1105,6 @@ const CreateInventoryAdjustment: FC = () => {
           )}
         </Form>
       </ContentContainer>
-    </StyledWrapper>
   );
 };
 

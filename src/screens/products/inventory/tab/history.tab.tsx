@@ -20,6 +20,8 @@ enum DocumentType {
   ORDER = "order",
   RETURN_ORDER = "return_order",
   RETURN_PO = "return_po",
+  INVENTORY_TRANSFER = "inventory_transfer",
+  INVENTORY_ADJUSTMENT = "inventory_adjustment",
 }
 
 const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
@@ -44,6 +46,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<HistoryInventoryQuery>(dataQuery);
+
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 1 };
@@ -87,8 +90,12 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       case DocumentType.PURCHASE_ORDER:
       case DocumentType.RETURN_PO:
         return UrlConfig.PURCHASE_ORDERS;
-      default:
-        return type;
+      case DocumentType.INVENTORY_TRANSFER:
+        return UrlConfig.INVENTORY_TRANSFERS;
+      case DocumentType.INVENTORY_ADJUSTMENT:
+        return UrlConfig.INVENTORY_ADJUSTMENTS;
+        default:
+          return type;
     }
   };
   const [selected, setSelected] = useState<Array<HistoryInventoryResponse>>([]);
@@ -174,9 +181,12 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       render: (item: HistoryInventoryResponse)=>{
         return (
           <>
+           {item.account_code ?  
             <div>
-              <b>{item.account_code ?? ""}</b>
-            </div>
+                <Link to={`${UrlConfig.ACCOUNTS}/${item.account_code}`}> 
+                  {item.account_code} 
+                </Link>  
+            </div> : ""}
             <div>
               {item.account ?? ""}
             </div>
@@ -214,11 +224,11 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, history.location.search])
+
   useEffect(() => {
     setLoading(true);
     dispatch(inventoryGetHistoryAction(params, onResult));
   }, [dispatch, onResult, params]) 
- 
 
   return (
     <div>

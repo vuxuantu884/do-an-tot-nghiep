@@ -60,6 +60,7 @@ import {
   scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
+  DEFAULT_COMPANY,
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
@@ -115,7 +116,7 @@ export default function Order() {
     service: "",
     shipping_fee_paid_to_three_pls: null,
   });
-  console.log("thirdPL", thirdPL);
+  console.log("items333", items);
   const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
@@ -204,6 +205,7 @@ export default function Order() {
   let initialRequest: OrderRequest = {
     action: "", //finalized
     store_id: null,
+    company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
@@ -475,6 +477,7 @@ export default function Order() {
   };
   const onFinish = (values: OrderRequest) => {
     values.channel_id = DEFAULT_CHANNEL_ID;
+    values.company_id = DEFAULT_COMPANY.company_id;
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -552,7 +555,11 @@ export default function Order() {
           } else {
             (async () => {
               try {
-                await dispatch(orderCreateAction(values, createOrderCallback));
+                await dispatch(orderCreateAction(values, createOrderCallback, () => {
+                  // on error
+                  setCreating(false);
+                  setIsSaveDraft(false);
+                }));
               } catch {
                 setCreating(false);
                 setIsSaveDraft(false);
@@ -579,7 +586,11 @@ export default function Order() {
                 (async () => {
                   console.log('values', values);
                   try {
-                    await dispatch(orderCreateAction(values, createOrderCallback));
+                    await dispatch(orderCreateAction(values, createOrderCallback, () => {
+                      // on error
+                      setCreating(false);
+                      setIsSaveDraft(false);
+                    }));
                   } catch {
                     setCreating(false);
                     setIsSaveDraft(false);
@@ -677,6 +688,7 @@ export default function Order() {
                     show_note: item.show_note,
                     variant_barcode: item.variant_barcode,
                     product_id: item.product_id,
+                    product_code: item.product_code,
                     product_type: item.product_type,
                     quantity: item.quantity,
                     price: item.price,

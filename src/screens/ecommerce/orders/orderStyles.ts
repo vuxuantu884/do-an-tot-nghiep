@@ -26,7 +26,6 @@ export const StyledComponent = styled.div`
 
   .item-custom-td {
     height: 100%;
-    /* width: ${nameQuantityWidth}px; */
     display: flex;
     justify-content: space-between;
     &:not(:last-child) {
@@ -35,7 +34,7 @@ export const StyledComponent = styled.div`
 
     .product {
       width: ${nameWidth}px;
-      padding: 10px 10px;
+      padding: 10px;
     }
   }
 

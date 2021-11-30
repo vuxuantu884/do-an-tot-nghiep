@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { StyledWrapper } from "./index.style";
+import './index.scss'
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
@@ -619,7 +619,6 @@ const CreateTicket: FC = () => {
   ];
 
   return (
-    <StyledWrapper>
       <ContentContainer
         title="Thêm mới phiếu chuyển hàng"
         breadcrumb={[
@@ -778,7 +777,7 @@ const CreateTicket: FC = () => {
                       onSelect={onSelectProduct}
                       options={renderResult}
                       onClickAddNew={() => {
-                        window.open(`/unicorn/admin${UrlConfig.PRODUCT}/create`, "_blank");
+                        window.open(`/admin${UrlConfig.PRODUCT}/create`, "_blank");
                       }}
                       ref={productSearchRef}
                     />
@@ -895,7 +894,6 @@ const CreateTicket: FC = () => {
           }
         </Form>
       </ContentContainer>
-    </StyledWrapper>
   );
 }; 
 

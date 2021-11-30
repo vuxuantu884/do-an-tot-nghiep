@@ -4,6 +4,7 @@ import { modalActionType } from "model/modal/modal.model";
 import React, { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
+import NumberFormat from "react-number-format";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -26,10 +27,7 @@ import {
 } from "domain/actions/loyalty/loyalty.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import ActionButton, {
-  MenuAction,
-} from "../../../component/table/ActionButton";
-import { formatCurrency } from "utils/AppUtils";
+import ActionButton, { MenuAction, } from "component/table/ActionButton";
 import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -207,21 +205,34 @@ const CustomerDetail = () => {
       },
       {
         name: "Số đơn trả",
-        value: purchaseIfo?.total_returned_order,
+        value:
+          <NumberFormat
+            value={purchaseIfo?.total_returned_order}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
       },
       {
         name: "Tiền tích luỹ",
-        value: purchaseIfo?.total_paid_amount,
+        value:
+          <NumberFormat
+            value={purchaseIfo?.total_paid_amount}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
       },
       {
         name: "Ngày mua đầu",
-        value: purchaseIfo?.first_order_date,
+        value: <span>{ConvertUtcToLocalDate(purchaseIfo?.first_order_time, DATE_FORMAT.DDMMYYY)}</span>
       },
       {
         name: "Tổng giá trị đơn trả",
-        value: formatCurrency(
-          purchaseIfo?.total_refunded_amount ? purchaseIfo?.total_refunded_amount : ""
-        ),
+        value:
+          <NumberFormat
+            value={purchaseIfo?.total_refunded_amount}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
       },
       {
         name: "Số ngày chưa mua",
@@ -234,7 +245,12 @@ const CustomerDetail = () => {
       
       {
         name: "Số tiền cần nâng hạng",
-        value: purchaseIfo?.remain_amount_to_level_up,
+        value:
+          <NumberFormat
+            value={purchaseIfo?.remain_amount_to_level_up}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
       },
       {
         name: 
@@ -252,11 +268,16 @@ const CustomerDetail = () => {
                 />
               </Tooltip>
             </div>,
-        value: purchaseIfo?.average_order_value,
+        value:
+          <NumberFormat
+            value={Math.round(purchaseIfo?.average_order_value)}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
       },
       {
         name: "Ngày mua cuối",
-        value: purchaseIfo?.last_order_date,
+        value: <span>{ConvertUtcToLocalDate(purchaseIfo?.last_order_time, DATE_FORMAT.DDMMYYY)}</span>
       }
     ];
 

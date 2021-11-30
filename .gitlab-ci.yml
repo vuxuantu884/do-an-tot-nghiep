@@ -4,7 +4,7 @@ cache:
     - .npm/
 
 variables:
-  SERVICE_PATH: /unicorn/admin
+  SERVICE_PATH: /admin
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 stages:
@@ -57,8 +57,9 @@ deploy to dev:
     - nonprod-deploy
   only:
     - develop
+  when: manual
   variables:
-    HOST: dev.yody.io
+    HOST: dev.unicorn.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
     SERVICE_NAME: yody-app-admin
@@ -75,7 +76,7 @@ deploy to uat:
   only:
     - uat
   variables:
-    HOST: uat.yody.io
+    HOST: uat.unicorn.yody.io
     NAMESPACE: uat
     ENVIRONMENT: uat
     SERVICE_NAME: yody-app-admin
