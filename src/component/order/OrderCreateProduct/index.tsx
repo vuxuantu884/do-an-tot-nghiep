@@ -241,7 +241,8 @@ function OrderCreateProduct(props: PropType) {
   // console.log("coupon", coupon);
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
-  const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
+  // const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
+	let isAutomaticDiscount = form.getFieldValue('is_automatic_discount');
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -262,6 +263,10 @@ function OrderCreateProduct(props: PropType) {
     useState<Array<StoreResponse> | null>([]);
 
   // const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
+
+	//nếu là order update thì lần đầu load ko áp dụng chiết khấu hay coupon mà lấy từ orderDetail
+	let isUpdateDiscount = orderDetail ? false : true;
+	let isUpdateCoupon = orderDetail ? false : true;
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -340,7 +345,8 @@ function OrderCreateProduct(props: PropType) {
   useEffect(() => {
     if (orderDetail && orderDetail?.discounts && orderDetail?.discounts[0]?.discount_code) {
       // setCoupon && setCoupon(orderDetail?.discounts[0]?.discount_code)
-      setCouponInputText(orderDetail?.discounts[0]?.discount_code)
+      setCouponInputText(orderDetail?.discounts[0]?.discount_code);
+			setIsCouponValid(true)
     }
   }, [orderDetail]);
 
@@ -1033,7 +1039,8 @@ function OrderCreateProduct(props: PropType) {
   };
 
   const handleApplyDiscount = async (items: OrderLineItemRequest[] | undefined) => {
-		console.log('items', items)
+		console.log('items', items);
+		isUpdateDiscount = true;
     if (!items || items.length === 0) {
       return;
     }
@@ -1090,6 +1097,7 @@ function OrderCreateProduct(props: PropType) {
   };
 
   const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
+		isUpdateCoupon = true;
     if (!_items || !coupon) {
       return;
     }
@@ -1595,7 +1603,7 @@ function OrderCreateProduct(props: PropType) {
    * gọi lại api chiết khấu khi update cửa hàng, khách hàng, nguồn, số lượng item
    */
   useEffect(() => {
-    if (isAutomaticDiscount && items && items?.length > 0) {
+    if (isUpdateDiscount && isAutomaticDiscount && items && items?.length > 0) {
       handleApplyDiscount(items);
     }
   }, [customer?.id, storeId, orderSourceId]);
@@ -1604,7 +1612,7 @@ function OrderCreateProduct(props: PropType) {
    * gọi lại api couponInputText khi thay đổi số lượng item
    */
   useEffect(() => {
-    if (!isAutomaticDiscount && couponInputText && items && items?.length > 0) {
+    if (!isAutomaticDiscount && isUpdateCoupon && couponInputText && items && items?.length > 0) {
       handleApplyCouponWhenInsertCoupon(couponInputText, items);
     }
   }, [customer?.id, storeId, orderSourceId]);
@@ -1625,24 +1633,24 @@ function OrderCreateProduct(props: PropType) {
                 <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
             </Form.Item>
-            <Checkbox
-              disabled={levelOrder > 3}
-              checked={isAutomaticDiscount}
-              onChange={(e) => {
-                setIsAutomaticDiscount(e.target.checked);
-
-                if (e.target.checked) {
-                  setCoupon && setCoupon("");
-                  handleRemoveAllDiscount();
-                  handleApplyDiscount(items);
-                } else {
-                  setIsDisableOrderDiscount(false);
-                  handleRemoveAllDiscount();
-                }
-              }}
-            >
-              Chiết khấu tự động
-            </Checkbox>
+						<Form.Item name="is_automatic_discount" valuePropName="checked">
+							<Checkbox
+								disabled={levelOrder > 3}
+								checked={isAutomaticDiscount}
+								onChange={(e) => {
+									if (e.target.checked) {
+										setCoupon && setCoupon("");
+										handleRemoveAllDiscount();
+										handleApplyDiscount(items);
+									} else {
+										setIsDisableOrderDiscount(false);
+										handleRemoveAllDiscount();
+									}
+								}}
+							>
+								Chiết khấu tự động
+							</Checkbox>
+						</Form.Item>
             <Select
               style={{minWidth: 145, height: 38}}
               placeholder="Chương trình khuyến mại"

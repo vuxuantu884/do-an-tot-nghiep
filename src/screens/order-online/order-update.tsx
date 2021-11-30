@@ -337,6 +337,7 @@ export default function Order(props: PropType) {
     payments: [],
     channel_id: null,
     finalized: false,
+		is_automatic_discount: true,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -998,6 +999,7 @@ export default function Order(props: PropType) {
             marketer_code: response.marketer_code,
             coordinator_code: response.coordinator_code,
             sub_status_code: response.sub_status_code,
+						is_automatic_discount: response.is_automatic_discount,
           });
           let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
           if (
