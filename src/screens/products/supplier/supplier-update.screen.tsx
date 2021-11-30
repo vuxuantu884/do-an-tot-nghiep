@@ -324,10 +324,10 @@ const UpdateSupplierScreen: React.FC = () => {
                     name="person_in_charge"
                     label="Nhân viên phụ trách"
                     placeholder="Chọn nhân viên phụ trách"
+                    defaultValue={supplier.person_in_charge}
                     queryAccount={{
                       department_ids: [AppConfig.WIN_DEPARTMENT],
                       status: "active",
-                      info: supplier.person_in_charge,
                     }}
                   />
                 </Col>

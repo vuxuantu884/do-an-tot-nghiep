@@ -1,0 +1,19 @@
+import styled from "styled-components";
+export const CustomerContitionDetailStyle = styled.div`
+  .customer-condition {
+    display: flex;
+    flex-direction: column;
+    .item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .title {
+      margin-right: 5px;
+    }
+
+    .info {
+      font-weight: 500;
+    }
+  }
+`;

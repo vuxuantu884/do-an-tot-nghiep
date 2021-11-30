@@ -8,17 +8,22 @@ import useAuthorization from "hook/useAuthorization";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
 import {ChannelResponse} from "model/response/product/channel.response";
+import { CustomerSelectionOption } from "model/response/promotion/discount/list-discount.response";
+import moment from "moment";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {useHistory} from "react-router-dom";
 import {PROMO_TYPE} from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import {StoreGetListAction} from "../../../domain/actions/core/store.action";
 import {getListSourceRequest} from "../../../domain/actions/product/source.action";
 import {showSuccess} from "../../../utils/ToastUtils";
+import {CustomerFilterField} from "../shared/cusomer-condition.form";
 import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
+
 
 const CreatePromotionCodePage = () => {
   const dispatch = useDispatch();
@@ -116,7 +121,66 @@ const CreatePromotionCodePage = () => {
         },
       ];
     }
+    // ==Đối tượng khách hàng==
+    // Áp dụng tất cả
+    body.customer_selection = values.customer_selection ? CustomerSelectionOption.ALL : CustomerSelectionOption.PREREQUISITE;
 
+    //Giới tính khách hàng
+    body.prerequisite_genders = values.prerequisite_genders;
+
+    //Ngày sinh khách hàng
+    const startsBirthday = values[CustomerFilterField.starts_birthday] ?  moment(values[CustomerFilterField.starts_birthday]): null;
+    const endsBirthday = values[CustomerFilterField.ends_birthday] ?  moment(values[CustomerFilterField.ends_birthday]) : null;
+     if (startsBirthday || endsBirthday) {
+       body.prerequisite_birthday_duration = {
+         starts_mmdd_key: startsBirthday
+           ? Number(
+               (startsBirthday.month() + 1).toString().padStart(2, "0") +
+                 startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+             )
+           : null,
+         ends_mmdd_key: endsBirthday
+           ? Number(
+               (endsBirthday.month() + 1).toString().padStart(2, "0") +
+                 endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+             )
+           : null,
+       };
+     } else {
+       body.prerequisite_birthday_duration = null;
+     }
+ 
+     //==Ngày cưới khách hàng
+     const startsWeddingDays = values[CustomerFilterField.starts_wedding_day] ?  moment(values[CustomerFilterField.starts_wedding_day]): null;
+    const endsWeddingDays = values[CustomerFilterField.ends_wedding_day] ?  moment(values[CustomerFilterField.ends_wedding_day]) : null;
+
+     if (startsWeddingDays || endsWeddingDays) {
+       body.prerequisite_wedding_duration = {
+         starts_mmdd_key: startsWeddingDays
+           ? Number(
+               (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
+               startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+             )
+           : null,
+         ends_mmdd_key: endsWeddingDays
+           ? Number(
+               (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
+               endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+             )
+           : null,
+       };
+     } else {
+       body.prerequisite_wedding_duration = null;
+     }
+
+    //Nhóm khách hàng
+    body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids;
+
+    //Hạng khách hàng
+    body.prerequisite_customer_loyalty_level_ids = values.prerequisite_customer_loyalty_level_ids;
+
+    //Nhân viên phụ trách
+     body.prerequisite_assignee_codes = values.prerequisite_assignee_codes;
     return body;
   };
 
