@@ -1,13 +1,13 @@
-import {Form, Select} from "antd";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import _, {debounce} from "lodash";
-import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import React, {ReactElement, useCallback, useEffect, useMemo} from "react";
-import {useDispatch} from "react-redux";
+import { Form, FormItemProps, Select } from "antd";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import _, { debounce } from "lodash";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import React, { ReactElement, useCallback, useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 const {Option} = Select;
-interface Props {
+interface Props extends FormItemProps {
   label: string;
   name: string;
   rules?: any[];
@@ -15,7 +15,7 @@ interface Props {
   queryAccount?: AccountSearchQuery;
   mode?: "multiple" | "tags" | undefined;
   key?: "code" | "id";
-  defaultValue?: string | number;
+  defaultValue?: string | number | string[];
 }
 
 AccountSearchSelect.defaultProps = {
@@ -39,6 +39,7 @@ function AccountSearchSelect({
   key,
   queryAccount,
   defaultValue,
+  ...restFormProps
 }: Props): ReactElement {
   const dispatch = useDispatch();
   const [accountList, setAccountList] = React.useState<{
@@ -47,7 +48,7 @@ function AccountSearchSelect({
   }>({items: [], isLoading: false});
 
   const handleChangeAccountSearch = useCallback(
-    (key: string) => {
+    (key: string, codes?: string[]) => {
       if (queryAccount) {
         setAccountList((prev) => {
           return {items: prev?.items || [], isLoading: true};
@@ -55,6 +56,7 @@ function AccountSearchSelect({
 
         const query = _.cloneDeep(queryAccount);
         query.info = key;
+        query.codes = codes;
         dispatch(
           AccountSearchAction(
             query,
@@ -76,23 +78,18 @@ function AccountSearchSelect({
     handleChangeAccountSearch(key);
   }, 300);
 
-  const getDefaultValue = useMemo(() => {
-    if (defaultValue) {
-      _.find(accountList.items, (item) => {
-        if (item[key || "code"] === defaultValue) {
-          return true;
-        }
-      });
-    } else {
-      return undefined;
-    }
-  }, [defaultValue, accountList, key]);
-
   useEffect(() => {
-    handleChangeAccountSearch(queryAccount?.info || "");
-  }, [handleChangeAccountSearch, queryAccount?.info]);
+    if (mode === "multiple" && Array.isArray(defaultValue)) {
+      handleChangeAccountSearch("", defaultValue);
+    } else if(typeof defaultValue === "string") {
+      handleChangeAccountSearch("", [defaultValue]);
+    }else{
+      handleChangeAccountSearch("");
+    }
+  }, [handleChangeAccountSearch, queryAccount?.info, mode, defaultValue]);
+
   return (
-    <Form.Item label={label} name={name} rules={rules}>
+    <Form.Item label={label} name={name} rules={rules} {...restFormProps}>
       <Select
         mode={mode}
         placeholder={placeholder}
@@ -104,7 +101,7 @@ function AccountSearchSelect({
         onSearch={(value) => onSearchAccount(value || "")}
         onClear={() => onSearchAccount("")}
         maxTagCount="responsive"
-        defaultValue={getDefaultValue}
+        defaultValue={defaultValue}
       >
         {accountList?.items?.map((account) => (
           <Option key={account.code} value={account[key || "code"]}>
