@@ -186,8 +186,12 @@ const ColorListScreen: React.FC = () => {
     );
   }, []);
   const onFinish = useCallback(
-    (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+    (values: ColorSearchQuery) => {
+      let newPrams = { ...params, ...values,
+         info: values.info?.trim(),
+         hex_code: values.hex_code?.trim(),
+         page: 1 };
+
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.COLORS}?${queryParam}`);
@@ -196,10 +200,14 @@ const ColorListScreen: React.FC = () => {
   );
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
+      let newPrams = { ...params,
+        info: params.info?.trim(),
+        hex_code: params.hex_code?.trim(),
+        page: page, 
+        limit: size };
+    
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+      setPrams({ ...newPrams });
       history.replace(`${UrlConfig.COLORS}?${queryParam}`);
     },
     [history, params]
