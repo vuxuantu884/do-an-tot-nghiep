@@ -986,8 +986,8 @@ export default function Order(props: PropType) {
             url: response.url,
             note: response.note,
             tags: response.tags,
-						marketer_code: `${response.marketer_code} - ${response.marketer}`,
-						coordinator_code: `${response.coordinator_code} - ${response.coordinator}`,
+						marketer_code: response.marketer_code ? `${response.marketer_code} - ${response.marketer}` : null,
+						coordinator_code: response.coordinator_code ? `${response.coordinator_code} - ${response.coordinator}` :null,
             sub_status_code: response.sub_status_code,
 						automatic_discount: response.automatic_discount,
 					});
