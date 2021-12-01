@@ -226,7 +226,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
     listProducts.forEach((a) => {
-      total = total + (a.quantity * a.line_amount_after_line_discount);
+      total = total + a.line_amount_after_line_discount;
     });
     return total;
   };
