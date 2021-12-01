@@ -1,15 +1,17 @@
 import {InfoCircleOutlined, SearchOutlined} from "@ant-design/icons";
-import {Card, Form, Input, Select} from "antd";
+import {Card, Form, FormInstance, Input, Select} from "antd";
+import AccountAutoComplete from "component/custom/AccountAutoComplete";
+import CustomInputTags from "component/custom/custom-input-tags";
 import UrlConfig from "config/url.config";
 import {AccountResponse} from "model/account/account.model";
 import {OrderResponse, OrderSubStatusResponse} from "model/response/order/order.response";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import SidebarOrderHistory from "./SidebarOrderHistory";
-import CustomInputTags from "component/custom/custom-input-tags";
 import {StyledComponent} from "./styles";
 
 type PropType = {
+  form: FormInstance<any>;
   accounts: AccountResponse[];
   tags: string;
   levelOrder?: number;
@@ -36,8 +38,11 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {accounts, onChangeTag, tags, customerId, orderDetail, listOrderSubStatus} = props;
-
+  const {accounts, onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form} =
+    props;
+  const [defaultValueAssigneeCode, setDefaultValueAssigneeCode] = useState("");
+  const [defaultValueCoordinatorCode, setDefaultValueCoordinatorCode] = useState("");
+  const [defaultValueMarketerCode, setDefaultValueMarketerCode] = useState("");
   const renderSplitOrder = () => {
     const splitCharacter = "-";
     if (!orderDetail?.linked_order_code) {
@@ -75,6 +80,22 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
     }
   };
 
+  useEffect(() => {
+    let assigneeCode = form.getFieldValue("assignee_code");
+    let coordinatorCode = form.getFieldValue("coordinator_code");
+    let marketerCode = form.getFieldValue("marketer_code");
+		console.log('marketerCode', marketerCode)
+    if (assigneeCode) {
+      setDefaultValueAssigneeCode(assigneeCode);
+    }
+    if (marketerCode) {
+      setDefaultValueMarketerCode(marketerCode);
+    }
+    if (coordinatorCode) {
+      setDefaultValueCoordinatorCode(coordinatorCode);
+    }
+  }, [form]);
+
   return (
     <StyledComponent>
       <Card title="THÔNG TIN ĐƠN HÀNG">
@@ -88,30 +109,13 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             },
           ]}
         >
-          <Select
-            className="select-with-search"
-            notFoundContent="Không tìm thấy kết quả"
-            showSearch
-            allowClear
-            placeholder={
-              <React.Fragment>
-                <SearchOutlined />
-                <span> Tìm, chọn nhân viên</span>
-              </React.Fragment>
-            }
-            filterOption={(input, option) => {
-              if (option) {
-                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-              }
-              return false;
-            }}
-          >
-            {accounts.map((item, index) => (
-              <Select.Option key={index.toString()} value={item.code}>
-                {`${item.code} - ${item.full_name}`}
-              </Select.Option>
-            ))}
-          </Select>
+          <AccountAutoComplete
+            placeholder="Tìm theo họ tên hoặc mã nhân viên"
+            form={form}
+            formFieldName="assignee_code"
+            defaultValue={defaultValueAssigneeCode}
+						key={defaultValueAssigneeCode}
+          />
         </Form.Item>
         <Form.Item
           label="Nhân viên marketing"
@@ -123,56 +127,22 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             },
           ]}
         >
-          <Select
-            className="select-with-search"
-            notFoundContent="Không tìm thấy kết quả"
-            showSearch
-            allowClear
-            placeholder={
-              <React.Fragment>
-                <SearchOutlined />
-                <span> Tìm, chọn nhân viên</span>
-              </React.Fragment>
-            }
-            filterOption={(input, option) => {
-              if (option) {
-                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-              }
-              return false;
-            }}
-          >
-            {accounts.map((item, index) => (
-              <Select.Option key={index.toString()} value={item.code}>
-                {`${item.code} - ${item.full_name}`}
-              </Select.Option>
-            ))}
-          </Select>
+          <AccountAutoComplete
+            placeholder="Tìm theo họ tên hoặc mã nhân viên"
+            form={form}
+            formFieldName="marketer_code"
+            defaultValue={defaultValueMarketerCode}
+						key={defaultValueMarketerCode}
+          />
         </Form.Item>
         <Form.Item label="Nhân viên điều phối" name="coordinator_code">
-          <Select
-            className="select-with-search"
-            notFoundContent="Không tìm thấy kết quả"
-            showSearch
-            allowClear
-            placeholder={
-              <React.Fragment>
-                <SearchOutlined />
-                <span> Tìm, chọn nhân viên</span>
-              </React.Fragment>
-            }
-            filterOption={(input, option) => {
-              if (option) {
-                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-              }
-              return false;
-            }}
-          >
-            {accounts.map((item, index) => (
-              <Select.Option key={index.toString()} value={item.code}>
-                {`${item.code} - ${item.full_name}`}
-              </Select.Option>
-            ))}
-          </Select>
+          <AccountAutoComplete
+            placeholder="Tìm theo họ tên hoặc mã nhân viên"
+            form={form}
+            formFieldName="coordinator_code"
+            defaultValue={defaultValueCoordinatorCode}
+						key={defaultValueCoordinatorCode}
+          />
         </Form.Item>
         <Form.Item
           label="Tham chiếu"
@@ -196,32 +166,31 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
         </Form.Item>
         {renderSplitOrder()}
       </Card>
-      {listOrderSubStatus &&
-      <Card title="XỬ LÝ ĐƠN HÀNG">
-        <Form.Item
-          name="sub_status_code"
-        >
-          <Select
-            showSearch
-            style={{ width: "100%" }}
-            placeholder="Chọn trạng thái phụ"
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-            notFoundContent="Không tìm thấy trạng thái phụ"
-            key={Math.random()}
-          >
-            {listOrderSubStatus.map((single) => {
-              return (
-                <Select.Option value={single.code} key={single.code}>
-                  {single.sub_status}
-                </Select.Option>
-              );
-            })}
-          </Select>
-        </Form.Item>
-      </Card>}
+      {listOrderSubStatus && (
+        <Card title="XỬ LÝ ĐƠN HÀNG">
+          <Form.Item name="sub_status_code">
+            <Select
+              showSearch
+              style={{width: "100%"}}
+              placeholder="Chọn trạng thái phụ"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              notFoundContent="Không tìm thấy trạng thái phụ"
+              key={Math.random()}
+            >
+              {listOrderSubStatus.map((single) => {
+                return (
+                  <Select.Option value={single.code} key={single.code}>
+                    {single.sub_status}
+                  </Select.Option>
+                );
+              })}
+            </Select>
+          </Form.Item>
+        </Card>
+      )}
       <Card title="THÔNG TIN BỔ SUNG">
         <Form.Item name="customer_note" label="Ghi chú của khách">
           <Input.TextArea
