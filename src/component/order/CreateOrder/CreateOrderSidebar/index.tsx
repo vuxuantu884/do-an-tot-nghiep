@@ -1,18 +1,16 @@
-import {InfoCircleOutlined, SearchOutlined} from "@ant-design/icons";
-import {Card, Form, FormInstance, Input, Select} from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import { Card, Form, FormInstance, Input, Select } from "antd";
 import AccountAutoComplete from "component/custom/AccountAutoComplete";
 import CustomInputTags from "component/custom/custom-input-tags";
 import UrlConfig from "config/url.config";
-import {AccountResponse} from "model/account/account.model";
-import {OrderResponse, OrderSubStatusResponse} from "model/response/order/order.response";
-import React, {useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import SidebarOrderHistory from "./SidebarOrderHistory";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   form: FormInstance<any>;
-  accounts: AccountResponse[];
   tags: string;
   levelOrder?: number;
   updateOrder?: boolean;
@@ -25,8 +23,6 @@ type PropType = {
 /**
  * sử dụng trong tạo đơn hàng, sửa đơn hàng, clone
  *
- * accounts: danh sách nhân viên
- *
  * leverOrder: phân quyền
  *
  * updateOrder: sửa đơn hàng
@@ -38,7 +34,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {accounts, onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form} =
+  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form} =
     props;
   const [defaultValueAssigneeCode, setDefaultValueAssigneeCode] = useState("");
   const [defaultValueCoordinatorCode, setDefaultValueCoordinatorCode] = useState("");
