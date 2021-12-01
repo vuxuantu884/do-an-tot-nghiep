@@ -118,7 +118,7 @@ export interface OrderLineItemResponse {
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {
-  maxQuantity: number;
+  maxQuantityCanBeReturned: number;
 }
 
 export interface FulFillmentResponse {
