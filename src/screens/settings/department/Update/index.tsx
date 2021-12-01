@@ -1,6 +1,7 @@
-import {Button, Card, Col, Form, Input, Row, Space, Select, TreeSelect} from "antd";
+import {Button, Card, Col, Form, Input, Row, Space, TreeSelect} from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import AccountSearchSelect from "component/custom/select-search/account-select";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
@@ -30,7 +31,7 @@ const DepartmentUpdateScreen: React.FC = () => {
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [departments, setDepartment] = useState<Array<DepartmentResponse>>([]);
-  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+  const [, setAccounts] = useState<PageResponse<AccountResponse>>({
     metadata: {
       limit: 20,
       page: 1,
@@ -195,24 +196,7 @@ const DepartmentUpdateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={8}>
-                <Form.Item name="manager_code" label="Quản lý">
-                  <Select
-                    onSearch={(value) => {
-                      searchAccount({info: value}, false);
-                      console.log(value);
-                    }}
-                    notFoundContent="Không có dữ liệu"
-                    placeholder="Chọn quản lý"
-                    allowClear
-                    showSearch
-                  >
-                    {accounts.items.map((item) => (
-                      <Select.Option key={item.id} value={item.code}>
-                        {item.code} - {item.full_name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
+              <AccountSearchSelect name="manager_code" label="Quản lý" form={form}/>
               </Col>
               <Col span={8}>
                 <Form.Item name="parent_id" label="Thuộc về bộ phận" >
