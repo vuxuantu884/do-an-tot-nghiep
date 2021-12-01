@@ -1100,3 +1100,12 @@ export const handleDisplayCoupon = (coupon: string, numberCouponCharactersShowed
     return `${coupon}***${coupon}`;
   }
 };
+
+export const getAccountCodeFromCodeAndName = (text: string | null | undefined) => {
+	const splitString = "-"
+	let result = null;
+	if(text) {
+		result = text.split(splitString)[0].trim();
+	} 
+	return result;
+};
