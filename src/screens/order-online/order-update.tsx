@@ -154,6 +154,7 @@ export default function Order(props: PropType) {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+  const [assigneeCode, setAssigneeCode] = useState("")
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -1027,6 +1028,9 @@ export default function Order(props: PropType) {
           if(response?.discounts && response.discounts[0]?.discount_code) {
             setCoupon(response.discounts[0].discount_code)
           }
+          if (response.assignee_code) {
+            setAssigneeCode(response.assignee_code);
+          }
         }
       })
     );
@@ -1299,6 +1303,7 @@ export default function Order(props: PropType) {
                     setPromotionId={setPromotionId}
                     orderDetail={OrderDetail}
                     configOrder={configOrder}
+                    assigneeCode={assigneeCode}
                   />
 
                   {OrderDetail !== null &&
@@ -2351,6 +2356,7 @@ export default function Order(props: PropType) {
                     customerId={customer?.id}
                     listOrderSubStatus={listOrderSubStatus}
 										form={form}
+                    setAssigneeCode={setAssigneeCode}
                   />
                 </Col>
               </Row>

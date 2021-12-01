@@ -947,6 +947,7 @@ const ScreenReturnCreate = (props: PropType) => {
                       totalAmountReturn: totalAmountReturnProducts,
                     }}
                     configOrder={configOrder}
+                    assigneeCode={OrderDetail?.assignee_code ? OrderDetail?.assignee_code : "" }
                   />
                 )}
                 {!isExchange && (

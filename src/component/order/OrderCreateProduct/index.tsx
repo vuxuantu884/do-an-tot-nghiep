@@ -112,6 +112,7 @@ type PropType = {
   inventoryResponse: Array<InventoryResponse> | null;
   levelOrder?: number;
   coupon?: string;
+  assigneeCode: string;
   orderSourceId?: number | null;
   updateOrder?: boolean;
   isSplitOrder?: boolean;
@@ -216,6 +217,7 @@ function OrderCreateProduct(props: PropType) {
     setDiscountValue,
     setDiscountRate,
     setCoupon,
+    assigneeCode,
   } = props;
   const dispatch = useDispatch();
   const [loadingAutomaticDiscount] = useState(false);
@@ -1079,7 +1081,7 @@ function OrderCreateProduct(props: PropType) {
       store_id: form.getFieldValue("store_id"),
       sales_channel_name: "ADMIN",
       order_source_id: form.getFieldValue("source_id"),
-      assignee_code: getAccountCodeFromCodeAndName(form.getFieldValue("assignee_code")),
+      assignee_code: getAccountCodeFromCodeAndName(assigneeCode),
       line_items: lineItems,
       applied_discount: {
         code: coupon,
@@ -1145,7 +1147,7 @@ function OrderCreateProduct(props: PropType) {
         store_id: form.getFieldValue("store_id"),
         sales_channel_name: "ADMIN",
         order_source_id: form.getFieldValue("source_id"),
-        assignee_code: getAccountCodeFromCodeAndName(form.getFieldValue("assignee_code")),
+        assignee_code: getAccountCodeFromCodeAndName(assigneeCode),
         line_items: lineItems,
         applied_discount: {
           code: coupon,
