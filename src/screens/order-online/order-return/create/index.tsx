@@ -273,6 +273,12 @@ const ScreenReturnCreate = (props: PropType) => {
           ...single,
           maxQuantity: single.quantity,
           quantity: 0,
+					discount_items: single.discount_items.map((discount) => {
+						return {
+							...discount,
+							amount: 0,
+						}
+					})
         };
       });
       console.log("returnProduct", returnProduct);

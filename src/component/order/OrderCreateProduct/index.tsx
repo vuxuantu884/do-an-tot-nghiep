@@ -51,10 +51,16 @@ import {
 	OrderLineItemRequest,
 	SplitOrderRequest
 } from "model/request/order.request";
-import { CouponRequestModel, LineItemRequestModel } from "model/request/promotion.request";
+import {
+	DiscountRequestModel,
+	LineItemRequestModel
+} from "model/request/promotion.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { OrderConfig, OrderResponse } from "model/response/order/order.response";
-import { ApplyCouponResponseModel, SuggestDiscountResponseModel } from "model/response/order/promotion.response";
+import {
+	ApplyCouponResponseModel,
+	SuggestDiscountResponseModel
+} from "model/response/order/promotion.response";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, {
 	createRef,
@@ -73,9 +79,7 @@ import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
-import {
-	applyDiscountService
-} from "service/promotion/discount/discount.service";
+import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
 	findAvatar,
 	findPrice,
@@ -242,7 +246,7 @@ function OrderCreateProduct(props: PropType) {
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
   // const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
-	let isAutomaticDiscount = form.getFieldValue('automatic_discount');
+  let isAutomaticDiscount = form.getFieldValue("automatic_discount");
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -264,9 +268,8 @@ function OrderCreateProduct(props: PropType) {
 
   // const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
 
-	const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
-	const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
-
+  const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
+  const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -343,10 +346,14 @@ function OrderCreateProduct(props: PropType) {
   }, []);
 
   useEffect(() => {
-    if (orderDetail && orderDetail?.discounts && orderDetail?.discounts[0]?.discount_code) {
+    if (
+      orderDetail &&
+      orderDetail?.discounts &&
+      orderDetail?.discounts[0]?.discount_code
+    ) {
       // setCoupon && setCoupon(orderDetail?.discounts[0]?.discount_code)
       setCouponInputText(orderDetail?.discounts[0]?.discount_code);
-			setIsCouponValid(true)
+      setIsCouponValid(true);
     }
   }, [orderDetail]);
 
@@ -408,7 +415,6 @@ function OrderCreateProduct(props: PropType) {
     [items]
   );
 
-  
   const onChangeNote = (e: any, index: number) => {
     let value = e.target.value;
     if (items) {
@@ -476,7 +482,7 @@ function OrderCreateProduct(props: PropType) {
   const onChangePrice = (value: number | null, index: number) => {
     if (items) {
       let _items = [...items];
-      if (value !== null && value!==_items[index].price) {
+      if (value !== null && value !== _items[index].price) {
         _items[index].price = value;
         handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
         setItems(_items);
@@ -871,7 +877,7 @@ function OrderCreateProduct(props: PropType) {
 
   const autoCompleteRef = createRef<RefSelectProps>();
   const createItem = (variant: VariantResponse) => {
-    console.log('variant', variant)
+    console.log("variant", variant);
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
@@ -939,14 +945,14 @@ function OrderCreateProduct(props: PropType) {
     let _amount = amount - _items[index].line_amount_after_line_discount;
     setAmount(_amount);
     _items.splice(index, 1);
-		if(isAutomaticDiscount && _items.length > 0) {
-			handleApplyDiscount(_items);
-		} else if(couponInputText  && _items.length > 0) {
-      handleApplyCouponWhenInsertCoupon(couponInputText, _items)
+    if (isAutomaticDiscount && _items.length > 0) {
+      handleApplyDiscount(_items);
+    } else if (couponInputText && _items.length > 0) {
+      handleApplyCouponWhenInsertCoupon(couponInputText, _items);
     } else {
-			setItems(_items);
-			calculateChangeMoney(_items, _amount, discountRate, discountValue);
-		}
+      setItems(_items);
+      calculateChangeMoney(_items, _amount, discountRate, discountValue);
+    }
   };
 
   // const handleSplitLineItem = (items: OrderLineItemRequest[], lineItem: OrderLineItemRequest, quantity: 1, position:number) => {
@@ -954,18 +960,19 @@ function OrderCreateProduct(props: PropType) {
   //   console.log('itemsSplit', items)
   // };
 
-	const calculateDiscount = (_item: OrderLineItemRequest, _highestValueSuggestDiscount:any) => {
+  const calculateDiscount = (
+    _item: OrderLineItemRequest,
+    _highestValueSuggestDiscount: any
+  ) => {
     let item: OrderLineItemRequest = {..._item};
     let highestValueSuggestDiscount = {..._highestValueSuggestDiscount};
-    let result:OrderLineItemRequest[] = []
+    let result: OrderLineItemRequest[] = [];
     let value: number = 0;
     if (!highestValueSuggestDiscount) {
       return [];
     }
     if (highestValueSuggestDiscount.value_type === "FIXED_AMOUNT") {
-      value = highestValueSuggestDiscount.value
-        ? highestValueSuggestDiscount.value
-        : 0;
+      value = highestValueSuggestDiscount.value ? highestValueSuggestDiscount.value : 0;
     } else if (highestValueSuggestDiscount.value_type === "PERCENTAGE") {
       value = highestValueSuggestDiscount.value
         ? item.price * (highestValueSuggestDiscount.value / 100)
@@ -992,59 +999,61 @@ function OrderCreateProduct(props: PropType) {
       discount_rate: rate,
       amount: item.price * item.quantity,
       discount_amount: value * item.quantity,
-      line_amount_after_line_discount : item.quantity * (item.price -value),
-      discount_items: [discountItem]
-    }
+      line_amount_after_line_discount: item.quantity * (item.price - value),
+      discount_items: [discountItem],
+    };
 
     result.push(itemResult);
     return result;
   };
 
-	const getDiscountMulti = (suggested_discounts:SuggestDiscountResponseModel[], item: OrderLineItemRequest): OrderLineItemRequest[] => {
-    console.log('suggested_discounts', suggested_discounts)
-    console.log('item', item)
+  const getDiscountMulti = (
+    suggested_discounts: SuggestDiscountResponseModel[],
+    item: OrderLineItemRequest
+  ): OrderLineItemRequest[] => {
+    console.log("suggested_discounts", suggested_discounts);
+    console.log("item", item);
     let result: OrderLineItemRequest[] = [];
-    if(suggested_discounts.length ===0) {
+    if (suggested_discounts.length === 0) {
       removeDiscountItem(item);
       return [item];
     }
     const suggest = suggested_discounts[0];
-    console.log('suggest', suggest)
-    if(suggest.allocation_count ===0 || !suggest.allocation_count) {
+    console.log("suggest", suggest);
+    if (suggest.allocation_count === 0 || !suggest.allocation_count) {
       removeDiscountItem(item);
       result = [item]; // trong pos chưa test
     } else if (item.quantity <= suggest.allocation_count) {
       result = calculateDiscount(item, suggest);
     } else if (item.quantity > suggest.allocation_count) {
-
       let itemResult: OrderLineItemRequest = {
         ...item,
         quantity: suggest.allocation_count,
       };
       let result1 = calculateDiscount(itemResult, suggest);
-      console.log('result1', result1)
-      console.log('suggested_discounts', suggested_discounts);
+      console.log("result1", result1);
+      console.log("suggested_discounts", suggested_discounts);
       let suggestLeft = suggested_discounts;
       suggestLeft.splice(0, 1);
-      console.log('suggestLeft', suggestLeft);
+      console.log("suggestLeft", suggestLeft);
       let newItem = {
         ...item,
         quantity: item.quantity - suggest.allocation_count,
-      }
-      console.log('newItem', newItem)
-      let result2 = getDiscountMulti(suggestLeft, newItem)
+      };
+      console.log("newItem", newItem);
+      let result2 = getDiscountMulti(suggestLeft, newItem);
       result = [...result, ...result1, ...result2];
     }
     return result;
   };
 
   const handleApplyDiscount = async (items: OrderLineItemRequest[] | undefined) => {
-		console.log('items', items);
-		isShouldUpdateDiscountRef.current = true;
+    console.log("items", items);
+    isShouldUpdateDiscountRef.current = true;
     if (!items || items.length === 0) {
       return;
     }
-		const lineItems: LineItemRequestModel[] = items.map((single) => {
+    const lineItems: LineItemRequestModel[] = items.map((single) => {
       return {
         original_unit_price: single.price,
         product_id: single.product_id,
@@ -1053,19 +1062,25 @@ function OrderCreateProduct(props: PropType) {
         variant_id: single.variant_id,
       };
     });
-		let params: CouponRequestModel = {
-			order_id: orderDetail?.id || null,
-			customer_id: customer?.id || null,
-			store_id: form.getFieldValue("store_id"),
-			sales_channel_name: "ADMIN",
-			order_source_id: form.getFieldValue("source_id"),
-			line_items: lineItems,
-			applied_discount: {
-				code: coupon,
-			},
-			taxes_included: true,
-			tax_exempt: false,
-		};
+    let params: DiscountRequestModel = {
+      order_id: orderDetail?.id || null,
+      customer_id: customer?.id || null,
+      gender: customer?.gender || null,
+      customer_group_id: customer?.group_id || null,
+      customer_loyalty_level_id: customer?.loyalty_level_id || null,
+      customer_type_id: customer?.type_id || null,
+      birthday_date: customer?.birthday || null,
+      wedding_date: customer?.wedding_date || null,
+      store_id: form.getFieldValue("store_id"),
+      sales_channel_name: "ADMIN",
+      order_source_id: form.getFieldValue("source_id"),
+      line_items: lineItems,
+      applied_discount: {
+        code: coupon,
+      },
+      taxes_included: true,
+      tax_exempt: false,
+    };
 
     dispatch(showLoading());
     const checkingDiscountResponse = await applyDiscountService(params).finally(() => {
@@ -1076,19 +1091,19 @@ function OrderCreateProduct(props: PropType) {
       checkingDiscountResponse?.code === HttpStatus.SUCCESS &&
       checkingDiscountResponse.data.line_items.length > 0
     ) {
-			let result: OrderLineItemRequest[] = [];
-			let responseLineItemLength = checkingDiscountResponse.data.line_items.length;
-			console.log('responseLineItemLength', responseLineItemLength)
-			for (let i = 0; i < responseLineItemLength; i++) {
-				let line = checkingDiscountResponse.data.line_items[i];
-				const suggested_discounts = line.suggested_discounts;
-				let discountMulti =getDiscountMulti(suggested_discounts, items[i]);
-				console.log('i', i)
-				console.log('discountMulti', discountMulti)
-				result =result.concat(discountMulti);
-			}
-			console.log('result', result)
-			setItems(result);
+      let result: OrderLineItemRequest[] = [];
+      let responseLineItemLength = checkingDiscountResponse.data.line_items.length;
+      console.log("responseLineItemLength", responseLineItemLength);
+      for (let i = 0; i < responseLineItemLength; i++) {
+        let line = checkingDiscountResponse.data.line_items[i];
+        const suggested_discounts = line.suggested_discounts;
+        let discountMulti = getDiscountMulti(suggested_discounts, items[i]);
+        console.log("i", i);
+        console.log("discountMulti", discountMulti);
+        result = result.concat(discountMulti);
+      }
+      console.log("result", result);
+      setItems(result);
       handleChangeItems(result);
       showSuccess("Cập nhật chiết khấu tự động thành công!");
     } else {
@@ -1097,7 +1112,7 @@ function OrderCreateProduct(props: PropType) {
   };
 
   const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
-		isShouldUpdateCouponRef.current = true;
+    isShouldUpdateCouponRef.current = true;
     if (!_items || !coupon) {
       return;
     }
@@ -1112,9 +1127,15 @@ function OrderCreateProduct(props: PropType) {
       };
     });
     if (!isAutomaticDiscount) {
-      let params: CouponRequestModel = {
+      let params: DiscountRequestModel = {
         order_id: orderDetail?.id || null,
         customer_id: customer?.id || null,
+				gender: customer?.gender || null,
+				customer_group_id: customer?.group_id || null,
+				customer_loyalty_level_id: customer?.loyalty_level_id || null,
+				customer_type_id: customer?.type_id || null,
+				birthday_date: customer?.birthday || null,
+				wedding_date: customer?.wedding_date || null,
         store_id: form.getFieldValue("store_id"),
         sales_channel_name: "ADMIN",
         order_source_id: form.getFieldValue("source_id"),
@@ -1137,8 +1158,9 @@ function OrderCreateProduct(props: PropType) {
                 showError(applyDiscountResponse.invalid_description);
                 if (
                   applyDiscountResponse.invalid_description ===
-                  "Mã khuyến mại không tồn tại." || applyDiscountResponse.invalid_description ===
-                  "Khuyến mại đã hết lượt sử dụng."
+                    "Mã khuyến mại không tồn tại." ||
+                  applyDiscountResponse.invalid_description ===
+                    "Khuyến mại đã hết lượt sử dụng."
                 ) {
                   _items?.forEach((item) => {
                     removeDiscountItem(item);
@@ -1153,7 +1175,7 @@ function OrderCreateProduct(props: PropType) {
                 handleChangeItems(_items);
               } else {
                 setCoupon && setCoupon(coupon);
-                setCouponInputText(coupon)
+                setCouponInputText(coupon);
                 setIsCouponValid(true);
                 // const discount_code = applyDiscountResponse.code || undefined;
                 let couponType = applyDiscountResponse.value_type;
@@ -1295,7 +1317,7 @@ function OrderCreateProduct(props: PropType) {
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
       const item: OrderLineItemRequest = createItem(r);
       item.position = items.length + 1;
-      if (r.id === newV && checkInventory(item)===true) {
+      if (r.id === newV && checkInventory(item) === true) {
         if (splitLine || index === -1) {
           _items.unshift(item);
           setAmount(amount + (item.price - item.discount_items[0].amount));
@@ -1329,11 +1351,11 @@ function OrderCreateProduct(props: PropType) {
           );
         }
       }
-			console.log('333')
-			if(isAutomaticDiscount && _items.length > 0) {
-				handleApplyDiscount(_items);
-			} else if(couponInputText && _items.length > 0) {
-        handleApplyCouponWhenInsertCoupon(couponInputText, _items)
+      console.log("333");
+      if (isAutomaticDiscount && _items.length > 0) {
+        handleApplyDiscount(_items);
+      } else if (couponInputText && _items.length > 0) {
+        handleApplyCouponWhenInsertCoupon(couponInputText, _items);
       }
       autoCompleteRef.current?.blur();
       setIsInputSearchProductFocus(false);
@@ -1346,13 +1368,13 @@ function OrderCreateProduct(props: PropType) {
    * kiểm tra Sản phẩm thêm ăn theo cấu hình cài đặt của tồn kho bán
    */
   const checkInventory = (item: OrderLineItemRequest) => {
-    if(!item) return true;
+    if (!item) return true;
 
     let available = item.available === null ? 0 : item.available;
 
     if (available <= 0 && configOrder?.sellable_inventory !== true) {
       showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
-      return false
+      return false;
     }
 
     return true;
@@ -1603,30 +1625,37 @@ function OrderCreateProduct(props: PropType) {
    * gọi lại api chiết khấu khi update cửa hàng, khách hàng, nguồn, số lượng item
    */
   useEffect(() => {
-		if (isShouldUpdateDiscountRef.current)
-			if (isShouldUpdateDiscountRef.current && isAutomaticDiscount && items && items?.length > 0) {
-				handleApplyDiscount(items);
-			}
-    else
-      isShouldUpdateDiscountRef.current = true;
-    
+    if (isShouldUpdateDiscountRef.current)
+      if (
+        isShouldUpdateDiscountRef.current &&
+        isAutomaticDiscount &&
+        items &&
+        items?.length > 0
+      ) {
+        handleApplyDiscount(items);
+      } else isShouldUpdateDiscountRef.current = true;
   }, [customer?.id, storeId, orderSourceId]);
 
   /**
    * gọi lại api couponInputText khi thay đổi số lượng item
    */
   useEffect(() => {
-		console.log('isShouldUpdateCouponRef.current', isShouldUpdateCouponRef.current)
-    if (!isAutomaticDiscount && isShouldUpdateCouponRef.current && couponInputText && items && items?.length > 0) {
+    console.log("isShouldUpdateCouponRef.current", isShouldUpdateCouponRef.current);
+    if (
+      !isAutomaticDiscount &&
+      isShouldUpdateCouponRef.current &&
+      couponInputText &&
+      items &&
+      items?.length > 0
+    ) {
       handleApplyCouponWhenInsertCoupon(couponInputText, items);
     }
 
-		setTimeout(() => {
-			isShouldUpdateCouponRef.current = true;
-			isShouldUpdateDiscountRef.current = true;
-		}, 1000);
+    setTimeout(() => {
+      isShouldUpdateCouponRef.current = true;
+      isShouldUpdateDiscountRef.current = true;
+    }, 1000);
   }, [customer?.id, storeId, orderSourceId]);
-
 
   return (
     <StyledComponent>
@@ -1644,24 +1673,24 @@ function OrderCreateProduct(props: PropType) {
                 <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
             </Form.Item>
-						<Form.Item name="automatic_discount" valuePropName="checked">
-							<Checkbox
-								disabled={levelOrder > 3}
-								checked={isAutomaticDiscount}
-								onChange={(e) => {
-									if (e.target.checked) {
-										setCoupon && setCoupon("");
-										handleRemoveAllDiscount();
-										handleApplyDiscount(items);
-									} else {
-										setIsDisableOrderDiscount(false);
-										handleRemoveAllDiscount();
-									}
-								}}
-							>
-								Chiết khấu tự động
-							</Checkbox>
-						</Form.Item>
+            <Form.Item name="automatic_discount" valuePropName="checked">
+              <Checkbox
+                disabled={levelOrder > 3}
+                checked={isAutomaticDiscount}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setCoupon && setCoupon("");
+                    handleRemoveAllDiscount();
+                    handleApplyDiscount(items);
+                  } else {
+                    setIsDisableOrderDiscount(false);
+                    handleRemoveAllDiscount();
+                  }
+                }}
+              >
+                Chiết khấu tự động
+              </Checkbox>
+            </Form.Item>
             <Select
               style={{minWidth: 145, height: 38}}
               placeholder="Chương trình khuyến mại"

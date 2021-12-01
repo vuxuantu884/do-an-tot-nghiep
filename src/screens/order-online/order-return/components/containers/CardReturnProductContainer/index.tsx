@@ -225,6 +225,15 @@ function CardReturnProductContainer(props: PropType) {
     resultListReturnProducts[index].quantity = Number(
       value === null ? "0" : value.toString().replace(".", "")
     );
+		if(value) {
+			resultListReturnProducts[index].discount_items = listReturnProducts[index].discount_items.map((discount) => {
+				return {
+					...discount,
+					amount: value * discount.value,
+				}
+			})
+
+		}
     if (setListReturnProducts) {
       setListReturnProducts(resultListReturnProducts);
     }
