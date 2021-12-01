@@ -662,7 +662,7 @@ const ProductCreateScreen: React.FC = () => {
                           placeholder="Chọn danh mục"
                           suffix={
                             <Button
-                              style={{ width: 37, height: 37 }}
+                              style={{ width: 37, height: 37, padding: 0 }}
                               icon={<PlusOutlined />}
                               onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`)}
                             />
@@ -779,7 +779,7 @@ const ProductCreateScreen: React.FC = () => {
                           onChange={onMaterialChange}
                           suffix={
                             <Button
-                              style={{ width: 37, height: 37 }}
+                              style={{ width: 37, height: 37, padding: 0 }}
                               icon={<PlusOutlined />}
                               onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.MATERIALS}/create`)}
                             />
