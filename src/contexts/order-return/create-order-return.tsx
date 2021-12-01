@@ -1,3 +1,4 @@
+import { StoreResponse } from "model/core/store.model";
 import {
   OrderLineItemResponse,
   OrderResponse,
@@ -17,9 +18,12 @@ type CreateOrderReturnContextType = {
     totalAmountReturnProducts: number;
     totalAmountExchange: number;
     totalAmountCustomerNeedToPay: number;
+    setStoreReturn:(item:StoreResponse|null)=>void;
+    storeReturn:StoreResponse|null;
   };
   isExchange: boolean;
   isStepExchange: boolean;
+  listStoreReturn:StoreResponse[];
 };
 // tạo context
 export const CreateOrderReturnContext =
