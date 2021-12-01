@@ -982,10 +982,14 @@ function OrderCreateProduct(props: PropType) {
         ? item.price - highestValueSuggestDiscount.value
         : 0;
     }
-    let rate = Math.round((value / item.price) * 100 * 100) / 100;
-    rate = Math.min(rate, 100);
     value = Math.min(value, item.price);
     value = Math.round(value);
+    if(value < 0) {
+      value = 0;
+    }
+    let rate = Math.round((value / item.price) * 100 * 100) / 100;
+    rate = Math.min(rate, 100);
+    
     const discountItem: OrderItemDiscountRequest = {
       rate,
       value,
