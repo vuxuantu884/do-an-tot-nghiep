@@ -86,6 +86,7 @@ import {
 	findPriceInVariant,
 	findTaxInVariant,
 	formatCurrency,
+	getAccountCodeFromCodeAndName,
 	getTotalAmount,
 	getTotalAmountAfferDiscount,
 	getTotalDiscount,
@@ -1078,6 +1079,7 @@ function OrderCreateProduct(props: PropType) {
       store_id: form.getFieldValue("store_id"),
       sales_channel_name: "ADMIN",
       order_source_id: form.getFieldValue("source_id"),
+      assignee_code: getAccountCodeFromCodeAndName(form.getFieldValue("assignee_code")),
       line_items: lineItems,
       applied_discount: {
         code: coupon,
@@ -1143,6 +1145,7 @@ function OrderCreateProduct(props: PropType) {
         store_id: form.getFieldValue("store_id"),
         sales_channel_name: "ADMIN",
         order_source_id: form.getFieldValue("source_id"),
+        assignee_code: getAccountCodeFromCodeAndName(form.getFieldValue("assignee_code")),
         line_items: lineItems,
         applied_discount: {
           code: coupon,
@@ -1638,7 +1641,7 @@ function OrderCreateProduct(props: PropType) {
       ) {
         handleApplyDiscount(items);
       } else isShouldUpdateDiscountRef.current = true;
-  }, [customer?.id, storeId, orderSourceId]);
+  }, [customer?.id, storeId, orderSourceId, form.getFieldValue("assignee_code")]);
 
   /**
    * gọi lại api couponInputText khi thay đổi số lượng item
@@ -1659,7 +1662,7 @@ function OrderCreateProduct(props: PropType) {
       isShouldUpdateCouponRef.current = true;
       isShouldUpdateDiscountRef.current = true;
     }, 1000);
-  }, [customer?.id, storeId, orderSourceId]);
+  }, [customer?.id, storeId, orderSourceId, form.getFieldValue("assignee_code")]);
 
   return (
     <StyledComponent>
