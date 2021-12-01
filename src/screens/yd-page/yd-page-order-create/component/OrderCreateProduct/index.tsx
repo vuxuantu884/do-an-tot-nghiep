@@ -68,6 +68,7 @@ import {
 	findPriceInVariant,
 	findTaxInVariant,
 	formatCurrency,
+	getAccountCodeFromCodeAndName,
 	getTotalAmount,
 	// getTotalAmountAfferDiscount,
 	getTotalDiscount,
@@ -1047,6 +1048,7 @@ function OrderCreateProduct(props: PropType) {
 			store_id: form.getFieldValue("store_id"),
 			sales_channel_name: "ADMIN",
 			order_source_id: form.getFieldValue("source_id"),
+      assignee_code: getAccountCodeFromCodeAndName(form.getFieldValue("assignee_code")),
 			line_items: lineItems,
 			applied_discount: {
 				code: coupon,
@@ -1111,6 +1113,7 @@ function OrderCreateProduct(props: PropType) {
         store_id: form.getFieldValue("store_id"),
         sales_channel_name: "ADMIN",
         order_source_id: form.getFieldValue("source_id"),
+        assignee_code: getAccountCodeFromCodeAndName(form.getFieldValue("assignee_code")),
         line_items: lineItems,
         applied_discount: {
           code: coupon,

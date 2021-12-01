@@ -10,6 +10,7 @@ type PropType = {
 	form: FormInstance<any>
   formFieldName: string;
   defaultValue?: string;
+  handleSelect?: () => void;
 };
 function AccountAutoComplete(props: PropType) {
   const {
@@ -17,6 +18,7 @@ function AccountAutoComplete(props: PropType) {
 		form,
 		formFieldName,
 		defaultValue,
+		handleSelect
   } = props;
 
 	const [loadingSearch, setLoadingSearch] = useState(false);
@@ -62,6 +64,7 @@ function AccountAutoComplete(props: PropType) {
 		});
 		console.log('form.getFieldValue(formFieldName)', form.getFieldValue(formFieldName));
 		setLoadingSearch(false);
+		handleSelect && handleSelect();
 	};
 
   return (
