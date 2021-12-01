@@ -67,6 +67,15 @@ export const AccountUpdateAction = (
     setData,
   });
 };
+export const AccountUpdatePassAction = (
+  request: AccountRequest | AccountResponse,
+  setData: (data: AccountResponse) => void
+) => {
+  return BaseAction(AccountType.UPDATE_PASSS_REQUEST, {
+    request,
+    setData,
+  });
+};
 
 export const AccountDeleteAction = (
   id: number,
