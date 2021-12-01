@@ -127,6 +127,9 @@ export default function Order() {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+
+  const [assigneeCode, setAssigneeCode] = useState("")
+
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   // const [listOrderConfigs, setListOrderConfigs] =
   //   useState<OrderConfigResponseModel | null>(null);
@@ -1016,6 +1019,10 @@ export default function Order() {
     );
   }, [dispatch]);
 
+  useEffect(() => {
+    setAssigneeCode(`${userReducer.account?.code} - ${userReducer.account?.full_name}`)
+  }, [userReducer.account?.code, userReducer.account?.full_name])
+
   // khách cần trả
   const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
     let value = 0;
@@ -1143,6 +1150,7 @@ export default function Order() {
                       orderConfig={null}
                       orderSourceId={orderSourceId}
                       configOrder={configOrder}
+                      assigneeCode={assigneeCode}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments
@@ -1181,6 +1189,7 @@ export default function Order() {
                       onChangeTag={onChangeTag}
                       customerId={customer?.id}
 											form={form}
+											setAssigneeCode={setAssigneeCode}
                     />
                   </Col>
                 </Row>
