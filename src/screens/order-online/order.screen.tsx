@@ -8,46 +8,43 @@ import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
-  getLoyaltyPoint,
-  getLoyaltyRate,
-  getLoyaltyUsage
+	getLoyaltyPoint,
+	getLoyaltyRate,
+	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-  configOrderSaga,
-  DeliveryServicesGetList,
-  orderCreateAction,
-  OrderDetailAction,
-  PaymentMethodGetList
+	configOrderSaga,
+	DeliveryServicesGetList,
+	orderCreateAction,
+	OrderDetailAction,
+	PaymentMethodGetList
 } from "domain/actions/order/order.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  BillingAddress,
-  FulFillmentRequest,
-  OrderDiscountRequest,
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-  OrderRequest,
-  ShipmentRequest,
-  ShippingAddress
+	BillingAddress,
+	FulFillmentRequest,
+	OrderDiscountRequest,
+	OrderLineItemRequest,
+	OrderPaymentRequest,
+	OrderRequest,
+	ShipmentRequest,
+	ShippingAddress
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  DeliveryServiceResponse, OrderConfig,
-  OrderResponse,
-  StoreCustomResponse
+	DeliveryServiceResponse, OrderConfig,
+	OrderResponse,
+	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
@@ -56,18 +53,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
 	getAccountCodeFromCodeAndName,
-  getAmountPaymentRequest,
-  getTotalAmountAfferDiscount,
-  scrollAndFocusToDomElement
+	getAmountPaymentRequest,
+	getTotalAmountAfferDiscount,
+	scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
-  DEFAULT_COMPANY,
-  OrderStatus,
-  PaymentMethodCode,
-  PaymentMethodOption,
-  ShipmentMethod,
-  ShipmentMethodOption,
-  TaxTreatment
+	DEFAULT_COMPANY,
+	OrderStatus,
+	PaymentMethodCode,
+	PaymentMethodOption,
+	ShipmentMethod,
+	ShipmentMethodOption,
+	TaxTreatment
 } from "utils/Constants";
 import { DEFAULT_CHANNEL_ID } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -122,7 +119,6 @@ export default function Order() {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
   >(0);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTags] = useState<string>("");
   const formRef = createRef<FormInstance>();
@@ -611,13 +607,6 @@ export default function Order() {
       }
     }
   };
-
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -633,13 +622,12 @@ export default function Order() {
   }, [dispatch, storeId]);
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setDeliveryServices(response);
       })
     );
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch]);
 
   //windows offset
   useEffect(() => {
@@ -1189,7 +1177,6 @@ export default function Order() {
                   </Col>
                   <Col md={6}>
                     <CreateOrderSidebar
-                      accounts={accounts}
                       tags={tags}
                       onChangeTag={onChangeTag}
                       customerId={customer?.id}

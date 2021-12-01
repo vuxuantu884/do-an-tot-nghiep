@@ -27,7 +27,6 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-	AccountSearchAction,
 	ShipperGetListAction
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -48,7 +47,6 @@ import {
 	PaymentMethodGetList
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -94,7 +92,7 @@ import {
 	TrackingCode
 } from "utils/AppUtils";
 import {
-	FulFillmentStatus, OrderStatus,
+	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
 	ShipmentMethodOption,
@@ -102,7 +100,6 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { DEFAULT_COMPANY } from "utils/Constants";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
@@ -149,7 +146,6 @@ export default function Order(props: PropType) {
   // const [shippingFeeInformedToCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
   //   null
   // );
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [tags, setTag] = useState<string>("");
@@ -342,6 +338,8 @@ export default function Order(props: PropType) {
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
+
+	console.log('setInitialForm', setInitialForm)
 
   const onChangeTag = useCallback(
     (value: []) => {
@@ -755,13 +753,6 @@ export default function Order(props: PropType) {
       }
     }
   };
-
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -867,10 +858,6 @@ export default function Order(props: PropType) {
       dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
     }
   }, [dispatch, storeId]);
-
-  useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
 
   //windows offset
   useEffect(() => {
@@ -2359,7 +2346,6 @@ export default function Order(props: PropType) {
                 </Col>
                 <Col md={6}>
                   <CreateOrderSidebar
-                    accounts={accounts}
                     tags={tags}
                     onChangeTag={onChangeTag}
                     customerId={customer?.id}
