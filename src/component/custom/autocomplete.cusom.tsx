@@ -20,6 +20,8 @@ interface CustomAutoCompleteType {
   textAdd?: string;
   textEmpty?: string;
   onClickAddNew?: () => void;
+	isFillInputWithTextSelected?: boolean; // có điền vào input giá trị đã select ko
+	defaultValue?: string; // giá trị mặc định
 }
 
 interface CustomAutoCompleteState {
@@ -39,7 +41,7 @@ export default class CustomAutoComplete extends Component<
     super(props);
     this.state = {
       open: false,
-      value: "",
+      value: this.props.defaultValue ? this.props.defaultValue : "",
     };
   }
 
@@ -50,7 +52,7 @@ export default class CustomAutoComplete extends Component<
   onSelect = (value: string) => {
     this.setState({
       open: false,
-      value: "",
+      value: this.props.isFillInputWithTextSelected ? value : "",
     });
     this.props.onSelect && this.props.onSelect(value);
     this.auputRef?.blur();

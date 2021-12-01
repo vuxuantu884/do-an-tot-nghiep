@@ -87,7 +87,7 @@ import {
 	checkPaymentStatus,
 	checkPaymentStatusToShow,
 	CheckShipmentType,
-	formatCurrency, getAmountPaymentRequest,
+	formatCurrency, getAccountCodeFromCodeAndName, getAmountPaymentRequest,
 	getTotalAmountAfferDiscount,
 	SumCOD,
 	SumWeightResponse,
@@ -646,6 +646,9 @@ export default function Order(props: PropType) {
 
   const onFinish = (values: OrderRequest) => {
     if (!OrderDetail) return;
+		values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
+		values.marketer_code = getAccountCodeFromCodeAndName(values.marketer_code);
+		values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -896,9 +899,9 @@ export default function Order(props: PropType) {
     });
   }, []);
 
-  const fetchData = () => {
+  const fetchData = () =>  {
     dispatch(
-      OrderDetailAction(id, (res) => {
+      OrderDetailAction(id, async (res) => {
         const response = {
           ...res,
           // ffm des id
@@ -981,11 +984,11 @@ export default function Order(props: PropType) {
           setOrderAmount(
             response.total - (response.shipping_fee_informed_to_customer || 0)
           );
-          setInitialForm({
-            ...initialForm,
+					form.setFieldsValue({
+						...initialForm,
             customer_note: response.customer_note,
             source_id: response.source_id,
-            assignee_code: response.assignee_code,
+            assignee_code: `${response.assignee_code} - ${response.assignee}`,
             store_id: response.store_id,
             items: responseItems,
             dating_ship: newDatingShip,
@@ -996,11 +999,11 @@ export default function Order(props: PropType) {
             url: response.url,
             note: response.note,
             tags: response.tags,
-            marketer_code: response.marketer_code,
-            coordinator_code: response.coordinator_code,
+						marketer_code: `${response.marketer_code} - ${response.marketer}`,
+						coordinator_code: `${response.coordinator_code} - ${response.coordinator}`,
             sub_status_code: response.sub_status_code,
 						automatic_discount: response.automatic_discount,
-          });
+					});
           let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
           if (
             response.fulfillments &&
@@ -2361,6 +2364,7 @@ export default function Order(props: PropType) {
                     onChangeTag={onChangeTag}
                     customerId={customer?.id}
                     listOrderSubStatus={listOrderSubStatus}
+										form={form}
                   />
                 </Col>
               </Row>

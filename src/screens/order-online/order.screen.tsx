@@ -55,6 +55,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
+	getAccountCodeFromCodeAndName,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
   scrollAndFocusToDomElement
@@ -221,7 +222,8 @@ export default function Order() {
     tags: "",
     customer_note: "",
     account_code: userReducer.account?.code,
-    assignee_code: userReducer.account?.code || null,
+    // assignee_code: userReducer.account?.code || null,
+		assignee_code: `${userReducer.account?.code} - ${userReducer.account?.full_name}`,
     marketer_code: null,
     coordinator_code: null,
     customer_id: null,
@@ -262,7 +264,7 @@ export default function Order() {
     let shipmentRequest = createShipmentRequest(value);
     let request: FulFillmentRequest = {
       store_id: value.store_id,
-      account_code: userReducer.account?.code,
+      account_code: `${userReducer.account?.code}`,
       assignee_code: value.assignee_code,
       delivery_type: "",
       stock_location_id: null,
@@ -476,9 +478,13 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
+
   const onFinish = (values: OrderRequest) => {
     values.channel_id = DEFAULT_CHANNEL_ID;
     values.company_id = DEFAULT_COMPANY.company_id;
+		values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
+		values.marketer_code = getAccountCodeFromCodeAndName(values.marketer_code);
+		values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -1187,6 +1193,7 @@ export default function Order() {
                       tags={tags}
                       onChangeTag={onChangeTag}
                       customerId={customer?.id}
+											form={form}
                     />
                   </Col>
                 </Row>

@@ -55,7 +55,7 @@ const initRequest: SupplierCreateRequest = {
   website: null,
   email: "",
   fax: "",
-  goods: [],
+  goods: [AppConfig.FASHION_INDUSTRY],
   person_in_charge: null,
   moq: null,
   note: "",
@@ -279,7 +279,6 @@ const CreateSupplierScreen: React.FC = () => {
                   className="selector"
                   placeholder="Chọn ngành hàng"
                   showArrow
-                  // defaultValue="fashion"
                 >
                   {goods?.map((item) => (
                     <Option key={item.value} value={item.value}>

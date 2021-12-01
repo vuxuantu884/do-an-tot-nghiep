@@ -272,7 +272,7 @@ function OrderSources(props: PropsType) {
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
-        case 1:
+        case ACTIONS_INDEX.DELETE:
           setIsShowConfirmDelete(true);
       }
     },

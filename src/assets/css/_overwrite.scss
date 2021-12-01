@@ -17,9 +17,12 @@
             background-color: $white;
             &-left {
                 width: 240px;
-                padding: 0 28px;
+                padding: 0 0 0 28px;
                 align-items: center;
                 display: flex;
+								@media screen and (max-width: 1439px) {
+									width: 200px;
+								}
                 .header-right {
                     flex-direction: row-reverse;
                     display: flex;

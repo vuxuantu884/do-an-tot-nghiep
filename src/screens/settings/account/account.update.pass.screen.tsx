@@ -12,43 +12,48 @@ import ContentContainer from "component/container/content.container";
 import { AccountPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
-  AccountRequest,
+  AccountRequest, AccountResponse,
 } from "model/account/account.model";
 import React, {useCallback, useEffect, useState} from "react";
-import { useHistory, useParams } from "react-router";
+import { useHistory } from "react-router";
 import { LockOutlined } from "@ant-design/icons";
-type AccountParam = {
-  code: string;
-};
+import { useDispatch, useSelector } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { AccountUpdatePassAction } from "domain/actions/account/account.action";
+
 
 const AccountUpdatePassScreen: React.FC = () => {
   const [form] = Form.useForm();
-  const {code: userCode} = useParams<AccountParam>();
   const [loading, setLoading] = useState<boolean>(false);
   const {Item} = Form;
   const allowUpdateAcc = useAuthorization({
     acceptPermissions: [AccountPermissions.UPDATE],
   });
-  const history = useHistory()
+  const history = useHistory();
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const dispatch = useDispatch();
 
   const backAction = ()=>{    
-    history.push(UrlConfig.ACCOUNTS + "/" + userCode);
+    history.push(UrlConfig.ACCOUNTS + "/" + userReducer.account?.code);
   };
 
   useEffect(() => {
   }, [history]);
 
-  // const onRes = useCallback((res: AccountResponse)=>{
-
-  // },[]);
+  const onRes = useCallback((res: AccountResponse)=>{
+    if (res) {
+      showSuccess("Đặt lại mật khẩu thành công."); 
+      history.push(UrlConfig.HOME);
+    }
+  },[history]);
 
   const validateRePassNew = useCallback((): boolean => {
-    const passNew = form.getFieldValue('passnew'),
-         rePassNew = form.getFieldValue('repassnew');
-
-  if (passNew !== rePassNew) {
+    const password = form.getFieldValue('password'),
+        confirmPassword = form.getFieldValue('confirm_password');
+ 
+  if (password !== confirmPassword) {
     showError("Mật khẩu không khớp nhau, xin vui lòng thử lại.");
     return false;
   }
@@ -58,11 +63,13 @@ const AccountUpdatePassScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: AccountRequest) => { 
       setLoading(true);
-      if (!validateRePassNew()) {
-        
-      }
+      if (validateRePassNew()) {
+         dispatch(AccountUpdatePassAction(values,onRes));
+      }   
+      
+      setLoading(false);
      },
-    [validateRePassNew]
+    [validateRePassNew, dispatch, onRes]
   );
   
   return (
@@ -89,25 +96,14 @@ const AccountUpdatePassScreen: React.FC = () => {
           onFinish={onFinish}
         > 
         <Row>
-          <Col span={24}>
-            <Row>
-              <Col span={24} style={{maxWidth: 400}}>
-                <Item  
-                    rules={[{required: true, message: "Vui lòng nhập lại mật khẩu cũ"},
-                            {min: 6, max: 12,message: "Mật khẩu cũ từ 6 đến 12 ký tự"}]}
-                    label="Mật khẩu cũ" 
-                    name="password">
-                    <Input.Password prefix={<LockOutlined className="site-form-item-icon" />} placeholder="Mật khẩu cũ"/> 
-                </Item> 
-              </Col>
-            </Row>
+          <Col span={24}> 
             <Row>
               <Col span={24} style={{maxWidth: 400}}>
                 <Item  
                     rules={[{required: true, message: "Vui lòng nhập mật khẩu mới"},
                             {min: 6, max: 12,message: "Mật khẩu mới từ 6 đến 12 ký tự"}]}
                     label="Mật khẩu mới" 
-                    name="passnew">
+                    name="password">
                     <Input.Password prefix={<LockOutlined className="site-form-item-icon" />} placeholder="Mật khẩu mới"/> 
                 </Item> 
               </Col>
@@ -118,7 +114,7 @@ const AccountUpdatePassScreen: React.FC = () => {
                   rules={[{required: true, message: "Vui lòng nhập lại mật khẩu mới"},
                           {min: 6, max: 12,message: "Mật khẩu mới từ 6 đến 12 ký tự"}]}
                   label="Nhập lại mật khẩu mới" 
-                  name="repassnew">
+                  name="confirm_password">
                   <Input.Password prefix={<LockOutlined className="site-form-item-icon" />} placeholder="Mật khẩu mới"/> 
                 </Item> 
               </Col>

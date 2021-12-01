@@ -26,7 +26,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
         </Link>
       </Menu.Item>
       <Menu.Item key="info">
-        <Link to={`${UrlConfig.ACCOUNTS}/${props.account?.code}/update-pass`}>
+        <Link to={`${UrlConfig.ACCOUNTS}/me/update-password`}>
           <span>Đổi mật khẩu</span>
         </Link>
       </Menu.Item>
