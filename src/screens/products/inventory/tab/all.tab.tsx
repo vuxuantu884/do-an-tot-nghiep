@@ -6,6 +6,7 @@ import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
 import {searchVariantsRequestAction} from "domain/actions/product/products.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
@@ -13,7 +14,7 @@ import {
   InventoryVariantListQuery,
 } from "model/inventory";
 import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
 import {useDispatch} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
@@ -131,6 +132,23 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     );
   };
 
+  const debouncedSearch = React.useMemo(() =>
+    _.debounce((keyword: string) => {
+      setLoading(true);
+      const temps = {...params,info: keyword?.trim() };
+      delete temps.status; 
+      dispatch(searchVariantsRequestAction(temps, onResult));
+    }, 300),
+    [dispatch, params, onResult]
+  ) 
+
+  const onChangeKeySearch = useCallback(
+    (keyword: string) => {
+      debouncedSearch(keyword)
+    },
+    [debouncedSearch]
+  )
+
   useEffect(() => {
     setColumns([
       {
@@ -212,6 +230,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         actions={[]}
         onClearFilter={() => {}}
         listStore={stores}
+        onChangeKeySearch={(value: string)=>{
+          onChangeKeySearch(value);
+        }}
       />
       <CustomTable
         isRowSelection
