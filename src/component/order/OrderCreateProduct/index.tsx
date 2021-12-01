@@ -938,6 +938,7 @@ function OrderCreateProduct(props: PropType) {
     item.discount_rate = 0;
     item.discount_value = 0;
     item.discount_items = [];
+    item.line_amount_after_line_discount = item.price;
   };
 
   const onDeleteItem = (index: number) => {
@@ -1006,7 +1007,7 @@ function OrderCreateProduct(props: PropType) {
       discount_rate: rate,
       amount: item.price * item.quantity,
       discount_amount: value * item.quantity,
-      line_amount_after_line_discount: item.quantity * (item.price - value),
+      line_amount_after_line_discount: item.price - value,
       discount_items: [discountItem],
     };
 
@@ -1287,6 +1288,7 @@ function OrderCreateProduct(props: PropType) {
                         ];
                         singleItem.discount_rate = discount_rate;
                         singleItem.discount_value = discount_value;
+                        singleItem.line_amount_after_line_discount = singleItem.price - discount_value;
                       } else {
                         removeDiscountItem(singleItem);
                       }
