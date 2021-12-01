@@ -25,7 +25,8 @@ const DepartmentCreateScreen: React.FC = () => {
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<DepartmentResponse | null>(null); 
-
+  
+ 
   const convertDepTree =useCallback((item:DepartmentResponse): Array<DataNode> =>{
     let arr= [] as Array<DataNode>;
     let node= {} as DataNode;
@@ -33,13 +34,15 @@ const DepartmentCreateScreen: React.FC = () => {
       title: item.name,
       key: item.id
     };
-    if (item.children.length > 0) {
+    
+    if (item.children.length > 0) { 
+      let childs =  [] as Array<DataNode>;
       item.children.forEach((i)=>{
        const c = convertDepTree(i);
-       node = {...node, children: c}
-      });
+       childs = [...childs,...c];
+      }); 
+      node = {...node, children: childs};
     }
-
     arr.push(node);
     return arr;
   },[])    

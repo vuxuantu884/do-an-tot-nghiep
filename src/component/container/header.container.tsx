@@ -25,11 +25,11 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
           <span>Thông tin cá nhân</span>
         </Link>
       </Menu.Item>
-      {/* <Menu.Item key="info">
+      <Menu.Item key="info">
         <Link to={`${UrlConfig.ACCOUNTS}/${props.account?.code}/update-pass`}>
           <span>Đổi mật khẩu</span>
         </Link>
-      </Menu.Item> */}
+      </Menu.Item>
       <Menu.Item key="logout">
         <Link onClick={() => dispatch(logoutAction())} to="#" type="text">
           <span>Đăng xuất</span>
