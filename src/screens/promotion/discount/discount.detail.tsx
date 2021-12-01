@@ -1,37 +1,29 @@
 import {Button, Card, Col, Divider, Row, Space} from "antd";
 import ContentContainer from "component/container/content.container";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
+import "domain/actions/promotion/promo-code/promo-code.action";
+import useAuthorization from "hook/useAuthorization";
+import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {useParams} from "react-router";
 import {Link} from "react-router-dom";
-import moment from "moment";
-import Countdown from "react-countdown";
-import "./discount.scss";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
-import {DATE_FORMAT} from "utils/DateUtils";
-import "domain/actions/promotion/promo-code/promo-code.action";
-import {StoreGetListAction} from "domain/actions/core/store.action";
-import {getListSourceRequest} from "domain/actions/product/source.action";
-import {StoreResponse} from "model/core/store.model";
-import {SourceResponse} from "model/response/order/source.response";
+import BottomBarContainer from "../../../component/container/bottom-bar.container";
+import CustomTable from "../../../component/table/CustomTable";
+import {HttpStatus} from "../../../config/http-status.config";
+import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
+import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
 import {
   bulkEnablePriceRules,
   getVariants,
   promoGetDetail,
 } from "../../../domain/actions/promotion/discount/discount.action";
-import CustomTable from "../../../component/table/CustomTable";
-import {formatCurrency} from "../../../utils/AppUtils";
-import {ChannelResponse} from "model/response/product/channel.response";
-import {getListChannelRequest} from "domain/actions/order/order.action";
-import BottomBarContainer from "../../../component/container/bottom-bar.container";
-import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
 import {bulkDisablePriceRules} from "../../../service/promotion/discount/discount.service";
-import {HttpStatus} from "../../../config/http-status.config";
-import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
+import {formatCurrency} from "../../../utils/AppUtils";
 import {showError} from "../../../utils/ToastUtils";
-import useAuthorization from "hook/useAuthorization";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import GeneralConditionDetail from "../shared/general-condition.detail";
+import "./discount.scss";
 
 export interface ProductParams {
   id: string;
@@ -105,9 +97,6 @@ const PromotionDetailScreen: React.FC = () => {
   const [data, setData] = useState<DiscountResponse | null>(null);
   const [costType, setCostType] = useState<string>();
   const [dataVariants, setDataVariants] = useState<any | null>(null);
-  const [listStore, setListStore] = useState<Array<StoreResponse>>();
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [entitlements, setEntitlements] = useState<Array<any>>([]);
   const [quantityColumn, setQuantityColumn] = useState<any>([]);
 
@@ -142,15 +131,10 @@ const PromotionDetailScreen: React.FC = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      dispatch(StoreGetListAction(setListStore));
-      dispatch(getListSourceRequest(setListSource));
-      dispatch(getListChannelRequest(setListChannel));
       dispatch(promoGetDetail(idNumber, onResult));
       dispatch(getVariants(idNumber, handleResponse));
     }, 500);
   }, [dispatch, handleResponse, idNumber, onResult]);
-
-
 
   const spreadData = (data: any) => {
     let result: any[] = [];
@@ -174,38 +158,47 @@ const PromotionDetailScreen: React.FC = () => {
     return result;
   };
 
-  const mergeVariants = useCallback((sourceData: Array<any>) => {
-    return sourceData.map((s) => {
-      const variant = dataVariants.find((v: any) => v.variant_id === s.id);
-      if (variant) {
-        s.title = variant.variant_title;
-        s.sku = variant.sku;
-        s.cost = variant.cost;
-        s.discountValue = `${renderDiscountValue(s.value, s.valueType)}`;
-        s.total = `${renderTotalBill(variant.cost, s.value, s.valueType)}`;
-      }
-      return s;
-    });
-  },[dataVariants]);
+  const mergeVariants = useCallback(
+    (sourceData: Array<any>) => {
+      return sourceData.map((s) => {
+        const variant = dataVariants.find((v: any) => v.variant_id === s.id);
+        if (variant) {
+          s.title = variant.variant_title;
+          s.sku = variant.sku;
+          s.cost = variant.cost;
+          s.discountValue = `${renderDiscountValue(s.value, s.valueType)}`;
+          s.total = `${renderTotalBill(variant.cost, s.value, s.valueType)}`;
+        }
+        return s;
+      });
+    },
+    [dataVariants]
+  );
 
   useEffect(() => {
     if (dataVariants && data && data.entitlements.length > 0) {
-      setCostType(data.entitled_method)
-      const flattenData:Array<any> = spreadData(data);
-      const listEntitlements:Array<any> = mergeVariants(flattenData);
-
+      setCostType(data.entitled_method);
+      const flattenData: Array<any> = spreadData(data);
+      const listEntitlements: Array<any> = mergeVariants(flattenData);
 
       if (!listEntitlements || listEntitlements.length === 0) {
         const rawEntitlement = data.entitlements[0];
         const quantityRange = rawEntitlement.prerequisite_quantity_ranges[0];
         listEntitlements.push({
-          title: (<span style={{color: "#2A2A86", fontWeight: 500}}>Tất cả sản phẩm</span>),
+          title: <span style={{color: "#2A2A86", fontWeight: 500}}>Tất cả sản phẩm</span>,
           sku: null,
           minimum: quantityRange.greater_than_or_equal_to,
           allocationLimit: quantityRange.allocation_limit,
-          discountValue: `${renderDiscountValue(quantityRange.value, quantityRange.value_type)}`,
-          total: `${renderTotalBill(quantityRange.cost, quantityRange.value, quantityRange.value_type)}`
-        })
+          discountValue: `${renderDiscountValue(
+            quantityRange.value,
+            quantityRange.value_type
+          )}`,
+          total: `${renderTotalBill(
+            quantityRange.cost,
+            quantityRange.value,
+            quantityRange.value_type
+          )}`,
+        });
       }
       setEntitlements(listEntitlements);
     }
@@ -320,21 +313,20 @@ const PromotionDetailScreen: React.FC = () => {
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
   }, [costType, idNumber]);
 
-
   const renderTotalBill = (cost: number, value: number, valueType: string) => {
     let result = "";
 
     switch (valueType) {
       case "FIXED_PRICE":
-        result = formatCurrency(Math.round(value ));
+        result = formatCurrency(Math.round(value));
         break;
       case "FIXED_AMOUNT":
         if (!cost) result = "";
-        else result = `${formatCurrency(Math.round((cost - value)))}`;
+        else result = `${formatCurrency(Math.round(cost - value))}`;
         break;
       case "PERCENTAGE":
         if (!cost) result = "";
-        else result = `${formatCurrency(Math.round((cost - ((cost * value) / 100))))}`;
+        else result = `${formatCurrency(Math.round(cost - (cost * value) / 100))}`;
         break;
     }
     return result;
@@ -441,49 +433,6 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(hideLoading());
     dispatch(promoGetDetail(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
-
-  // @ts-ignore
-  const renderer = ({days, hours, minutes, seconds, completed}) => {
-    if (completed) {
-      // Render a complete state
-      return <span>Kết thúc chương trình</span>;
-    } else {
-      // Render a countdown
-      return (
-        <span style={{color: "#FCAF17", fontWeight: 500}}>
-          {days > 0 ? `${days} Ngày` : ""} {hours}:{minutes}
-        </span>
-      );
-    }
-  };
-
-  const timeApply = [
-    {
-      name: "Từ",
-      value:
-        data?.starts_date && moment(data.starts_date).format(DATE_FORMAT.DDMMYY_HHmm),
-      key: "1",
-    },
-    {
-      name: "Đến",
-      value: data?.ends_date && moment(data.ends_date).format(DATE_FORMAT.DDMMYY_HHmm),
-      key: "2",
-    },
-    {
-      name: "Còn",
-      value: data?.ends_date ? (
-        <Countdown
-          zeroPadTime={2}
-          zeroPadDays={2}
-          date={moment(data?.ends_date).toDate()}
-          renderer={renderer}
-        />
-      ) : (
-        "---"
-      ),
-      key: "3",
-    },
-  ];
 
   const renderActionButton = () => {
     switch (data?.state) {
@@ -675,205 +624,16 @@ const PromotionDetailScreen: React.FC = () => {
               >
                 <CustomTable
                   dataSource={entitlements}
-                  columns={entitlements.length > 1 ? quantityColumn : quantityColumn.filter((column:any) => column.title !== "STT")}
+                  columns={
+                    entitlements.length > 1
+                      ? quantityColumn
+                      : quantityColumn.filter((column: any) => column.title !== "STT")
+                  }
                   pagination={false}
                 />
               </Card>
             </Col>
-            <Col span={24} md={6}>
-              {/* Thời gian áp dụng */}
-              <Card className="card">
-                <Row>
-                  <Col
-                    span={24}
-                    style={{
-                      paddingBottom: 16,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Thời gian áp dụng:
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          color: "#E24343",
-                        }}
-                      >
-                        *
-                      </span>
-                    </span>
-                  </Col>
-                  {timeApply &&
-                    timeApply.map((detail: any, index: number) => (
-                      <Col
-                        key={index}
-                        span={24}
-                        style={{
-                          display: "flex",
-                          marginBottom: 10,
-                          color: "#222222",
-                        }}
-                      >
-                        <Col
-                          span={5}
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            padding: "0 4px 0 0",
-                          }}
-                        >
-                          <span style={{color: "#666666"}}>{detail.name}</span>
-                          <span style={{fontWeight: 600}}>:</span>
-                        </Col>
-                        <Col span={15} style={{paddingLeft: 0}}>
-                          <span
-                            style={{
-                              wordWrap: "break-word",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {detail.value ? detail.value : "---"}
-                          </span>
-                        </Col>
-                      </Col>
-                    ))}
-                </Row>
-              </Card>
-              {/* Cửa hàng áp dụng */}
-              <Card className="card">
-                <Row>
-                  <Col
-                    span={24}
-                    style={{
-                      paddingBottom: 16,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Cửa hàng áp dụng:
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          color: "#E24343",
-                        }}
-                      >
-                        *
-                      </span>
-                    </span>
-                  </Col>
-                  <Col span={24}>
-                    {data?.prerequisite_store_ids.length > 0 ? (
-                      <ul
-                        style={{
-                          padding: "0 16px",
-                        }}
-                      >
-                        {listStore &&
-                          data.prerequisite_store_ids.map((id) => (
-                            <li>{listStore.find((store) => store.id === id)?.name}</li>
-                          ))}
-                      </ul>
-                    ) : (
-                      "Áp dụng toàn bộ"
-                    )}
-                  </Col>
-                </Row>
-              </Card>
-              {/* Kênh bán áp dụng */}
-              <Card className="card">
-                <Row>
-                  <Col
-                    span={24}
-                    style={{
-                      paddingBottom: 16,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Kênh bán áp dụng:
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          color: "#E24343",
-                        }}
-                      >
-                        *
-                      </span>
-                    </span>
-                  </Col>
-                  <Col span={24}>
-                    {data?.prerequisite_sales_channel_names.length > 0 ? (
-                      <ul
-                        style={{
-                          padding: "0 16px",
-                        }}
-                      >
-                        {listChannel &&
-                          data.prerequisite_sales_channel_names.map((code) => (
-                            <li>
-                              {listChannel.find((channel) => channel.code.toLowerCase() === code.toLowerCase())?.name}
-                            </li>
-                          ))}
-                      </ul>
-                    ) : (
-                      "Áp dụng toàn bộ"
-                    )}
-                  </Col>
-                </Row>
-              </Card>
-              {/* Nguồn đơn hàng áp dụng */}
-              <Card className="card">
-                <Row>
-                  <Col
-                    span={24}
-                    style={{
-                      paddingBottom: 16,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Nguồn đơn hàng áp dụng:
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          color: "#E24343",
-                        }}
-                      >
-                        *
-                      </span>
-                    </span>
-                  </Col>
-                  <Col span={24}>
-                    {data?.prerequisite_order_source_ids.length > 0 ? (
-                      <ul
-                        style={{
-                          padding: "0 16px",
-                        }}
-                      >
-                        {listSource &&
-                          data.prerequisite_order_source_ids.map((id) => (
-                            <li>{listSource.find((source) => source.id === id)?.name}</li>
-                          ))}
-                      </ul>
-                    ) : (
-                      "Áp dụng toàn bộ"
-                    )}
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
+            <GeneralConditionDetail data={data} />
           </Row>
           <BottomBarContainer
             back="Quay lại danh sách khuyến mại"

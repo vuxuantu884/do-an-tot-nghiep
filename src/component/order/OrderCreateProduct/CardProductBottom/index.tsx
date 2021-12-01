@@ -23,6 +23,7 @@ type PropType = {
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
   setCoupon?: (value: string) => void;
+  setCouponInputText?: (value: string) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -56,6 +57,7 @@ function CardProductBottom(props: PropType) {
     setDiscountValue,
     calculateChangeMoney,
     setCoupon,
+    setCouponInputText,
     handleRemoveAllDiscount,
   } = props;
 
@@ -152,6 +154,7 @@ function CardProductBottom(props: PropType) {
                     setDiscountValue && setDiscountValue(0);
                     handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
+                    setCouponInputText && setCouponInputText("");
                   }}
                 >
                   {couponInputText ? (

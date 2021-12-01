@@ -13,6 +13,7 @@ import {
 import {DiscountFormModel, DiscountMethod} from "model/promotion/discount.create.model";
 import moment from "moment";
 import React, {useEffect, useMemo, useState} from "react";
+import CustomerFilter from "screens/promotion/shared/cusomer-condition.form";
 import {DATE_FORMAT} from "../../../../utils/DateUtils";
 import CustomInput from "../../../customer/common/customInput";
 import "../discount.scss";
@@ -485,6 +486,8 @@ const GeneralInfo = (props: any) => {
             </Col>
           </Row>
         </Card>
+        {/* Đối tượng khách hàng áp dụng */}
+        <CustomerFilter form={form} />
       </Col>
     </Row>
   );
