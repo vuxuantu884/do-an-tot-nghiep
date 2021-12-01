@@ -1,3 +1,4 @@
+import CustomPagination from "component/table/CustomPagination";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {AppConfig} from "config/app.config";
@@ -25,7 +26,8 @@ import {TabProps} from "./tab.props";
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const {stores} = props;
   const history = useHistory();
-
+  const pageSizeOptions: Array<string> =["50","100"];
+  
   const query = new URLSearchParams(history.location.hash.substring(2));
 
   const dispatch = useDispatch();
@@ -37,7 +39,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   let [params, setPrams] = useState<VariantSearchQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<VariantResponse>>({
     metadata: {
-      limit: 30,
+      limit: 50,
       page: 1,
       total: 0,
     },
@@ -186,8 +188,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   useEffect(() => {
     setLoading(true);
-    const temps = {...params};
-    delete temps.status;
+    const temps = {...params, limit: params.limit ?? 50};
+    delete temps.status; 
+    
     dispatch(searchVariantsRequestAction(temps, onResult));
   }, [dispatch, onResult, params]);
 
@@ -216,16 +219,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         scroll={{x: 900}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
-        expandedRowKeys={expandRow}
-        pagination={{
-          pageSize: data.metadata.limit,
-          total: data.metadata.total,
-          current: data.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
-        onSelectedChange={onSelect}
+        expandedRowKeys={expandRow} 
+        onSelectedChange={onSelect} 
+        pagination={false}
         expandable={{
           expandIcon: (props) => {
             let icon = <HiChevronDoubleRight size={12} />;
@@ -309,6 +305,17 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         }}
         columns={columnsFinal}
         rowKey={(data) => data.id}
+      />
+      <CustomPagination
+        pagination={{
+          showSizeChanger: true,
+          pageSize: data.metadata.limit,
+          current: data.metadata.page,
+          total: data.metadata.total,
+          onChange: onPageChange,
+          onShowSizeChange: onPageChange,
+          pageSizeOptions: pageSizeOptions
+        }}
       />
       <ModalSettingColumn
         visible={showSettingColumn}

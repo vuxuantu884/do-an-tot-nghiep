@@ -131,6 +131,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                   current={pagination.current}
                   pageSize={pagination.pageSize}
                   onChange={pagination.onChange}
+                  onShowSizeChange={pagination.onShowSizeChange}
                   showSizeChanger={false}
                 />
                 <div title="Trang cuối" className="ant-pagination-last">
