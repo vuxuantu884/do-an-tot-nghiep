@@ -138,7 +138,7 @@ const GeneralInformation = (props: any) => {
             <Col span={24}>
               <div className="phone-container">
                 <div className="ant-col ant-form-item-label">
-                  <span className="customer-field-label">SĐT:</span>
+                  <span className="customer-field-label">SĐT: <span style={{ color: "#E24343" }}>*</span></span>
                 </div>
                 <Form.Item
                   name="phone"
