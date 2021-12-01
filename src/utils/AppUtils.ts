@@ -258,8 +258,7 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     updated_name: size.updated_name,
     updated_date: size.updated_date,
     version: size.version,
-    code: size.code,
-    category_ids: ids,
+    code: size.code, 
   };
   return sizeConvert;
 };
@@ -670,8 +669,8 @@ export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
 
 export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
-  console.log('getTotalDiscount =============+> ', items);
-  items.forEach((a) => (total = total + a.discount_amount * a.quantity));
+  // console.log('getTotalDiscount =============+> ', items);
+  items.forEach((a) => (total = total + a.discount_amount));
   return total;
 };
 
@@ -726,6 +725,28 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
   }
 };
 
+export const checkPaymentStatus = (payments: any, orderAmount: number) => {
+  let value = 0;
+  if (payments !== null) {
+    if (payments !== null) {
+      if (payments.length > 0) {
+        payments.forEach((a: any) => (value = value + a.paid_amount));
+      }
+    }
+  }
+  if (
+    value >= orderAmount
+  ) {
+    return 1; //đã thanh toán
+  } else {
+    if (value === 0) {
+      return -1; //chưa thanh toán
+    } else {
+      return 0; //thanh toán 1 phần
+    }
+  }
+};
+
 export const SumCOD = (items: OrderResponse) => {
   let cod = 0;
   if (items !== null) {
@@ -759,7 +780,7 @@ export const checkPaymentAll = (items: OrderResponse) => {
   let cod = SumCOD(items);
 
   let totalPay = value + cod;
-  if (items.total === totalPay) {
+  if (items?.total === totalPay) {
     return 1;
   } else {
     return 0;
@@ -781,10 +802,8 @@ export const checkPaymentAll = (items: OrderResponse) => {
 export const getDateLastPayment = (items: any) => {
   let value: Date | undefined;
   if (items !== null) {
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a: any) => (value = a.created_date));
-      }
+    if (items.length > 0) {
+      items.forEach((a: any) => (value = a.created_date));
     }
   }
   return value;
@@ -794,8 +813,8 @@ export const getDateLastPayment = (items: any) => {
 export const getShippingAddressDefault = (items: CustomerResponse | null) => {
   let objShippingAddress = null;
   if (items !== null) {
-    for (let i = 0; i < items.shipping_addresses.length; i++) {
-      if (items.shipping_addresses[i].default === true) {
+    for (let i = 0; i < items.shipping_addresses?.length; i++) {
+      if (items.shipping_addresses[i].default) {
         objShippingAddress = items.shipping_addresses[i];
       }
     }
@@ -971,7 +990,7 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
   for (const singleReturn of OrderDetail.order_returns) {
      //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
      for (const singleReturnItem of singleReturn.items) {
-       let index = orderReturnItems.findIndex((item) => item.product_id === singleReturnItem.product_id);
+       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id);
 
        if(index > -1) {
          let duplicatedItem = {...orderReturnItems[index]};
@@ -996,15 +1015,21 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
   console.log('orderReturnItems', orderReturnItems)
   // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về false
   if( orderReturnItems.length > 0) {
-    let checkIfNotReturnAll = OrderDetail.items.some((singleItem) => {
+    let checkIfNotReturnAll = false;
+    for (const singleItem of OrderDetail.items) {
       console.log('singleItem', singleItem)
-      let selectedItem = orderReturnItems.find((item) => item.product_id === singleItem.product_id);
+      let selectedItem = orderReturnItems.find((item) => item.variant_id === singleItem.variant_id);
       console.log('selectedItem', selectedItem)
       if(!selectedItem) {
-        return true
+        checkIfNotReturnAll = true;
+        break;
       }
-      return (singleItem.quantity > selectedItem.quantity)
-    })
+      if(selectedItem.quantity < singleItem.quantity) {
+        checkIfNotReturnAll = true;
+        break;
+      }
+      checkIfNotReturnAll = false;
+    }
     console.log('checkIfNotReturnAll', checkIfNotReturnAll)
     result = !checkIfNotReturnAll;
   }
@@ -1020,7 +1045,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   let orderReturnItems = getListReturnedOrders(OrderDetail);
   console.log('orderReturnItems', orderReturnItems)
   for (const singleOrder of OrderDetail.items) {
-    let duplicatedItem = orderReturnItems.find(single=>single.product_id === singleOrder.product_id);
+    let duplicatedItem = orderReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
     if(duplicatedItem) {
       let clone = {...duplicatedItem}
       if(singleOrder.quantity - duplicatedItem.quantity > 0) {
@@ -1074,4 +1099,13 @@ export const handleDisplayCoupon = (coupon: string, numberCouponCharactersShowed
   } else {
     return `${coupon}***${coupon}`;
   }
+};
+
+export const getAccountCodeFromCodeAndName = (text: string | null | undefined) => {
+	const splitString = "-"
+	let result = null;
+	if(text) {
+		result = text.split(splitString)[0].trim();
+	} 
+	return result;
 };

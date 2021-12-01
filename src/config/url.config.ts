@@ -4,31 +4,32 @@ const UrlConfig = {
   LOGIN: `/login`,
   PRODUCT: `/products`,
   VARIANTS: `/variants`,
-  CATEGORIES: `/products/categories`,
-  PURCHASE_ORDER: `/purchase-order`,
-  INVENTORY: "/products/inventory",
-  MATERIALS: `/products/materials`,
-  SIZES: `/products/sizes`,
-  COLORS: `/products/colors`,
-  SUPPLIERS: `/products/suppliers`,
+  CATEGORIES: `/categories`,
+  PURCHASE_ORDERS: `/purchase-orders`,
+  INVENTORY: "/inventories",
+  MATERIALS: `/materials`,
+  SIZES: `/sizes`,
+  COLORS: `/colors`,
+  SUPPLIERS: `/suppliers`,
   ACCOUNTS: `/accounts`,
   STORE: `/stores`,
   ROLES: `/roles`,
   ORDER: `/orders`,
   ORDERS_RETURN: `/orders-return`,
-  ORDER_PROCESSING_STATUS: `/${SETTINGS}/order-processing-status`,
-  ORDER_SOURCES: `/${SETTINGS}/order-sources`,
-  PRINTER: `/${SETTINGS}/printer`,
+  ORDER_PROCESSING_STATUS: `/order-processing-status`,
+  ORDER_SOURCES: `/order-sources`,
+  PRINTER: `/prints-templates`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
-  ORDER_SETTINGS: `/${SETTINGS}/order-settings`,
+  ORDER_SETTINGS: `/${SETTINGS}/orders`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
   SHIPMENTS: `/shipments`,
   YD_PAGE: `/yd-page`,
+  YDPAGE: `/YDpage`,
   ECOMMERCE: "/ecommerce",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
-  PROCUREMENT: '/procurement',
+  PROCUREMENT: '/procurements',
   INVENTORY_TRANSFERS: `/inventory-transfers`,
   INVENTORY_ADJUSTMENTS: `/inventory-adjustments`, 
   DEPARTMENT: `/departments`,
@@ -44,6 +45,20 @@ export const ProductTabUrl = {
   HISTORY_PRICES: UrlConfig.PRODUCT + "/history-prices",
 };
 
-export const BASE_NAME_ROUTER = "/unicorn/admin";
-// export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/unicorn/admin`;
+export const InventoryTransferTabUrl = {
+  LIST: UrlConfig.INVENTORY_TRANSFERS,
+  HISTORIES: UrlConfig.INVENTORY_TRANSFERS + "/histories",
+};
+export const InventoryTabUrl = {
+  ALL: UrlConfig.INVENTORY,
+  DETAIL: UrlConfig.INVENTORY+ "/details",
+  HISTORIES: UrlConfig.INVENTORY + "/histories",
+};
+
+export const ProcurementTabUrl = {
+  TODAY: UrlConfig.PROCUREMENT + "/today",
+  ALL: UrlConfig.PROCUREMENT
+};
+export const BASE_NAME_ROUTER = "/admin";
+// export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;
 export default UrlConfig;

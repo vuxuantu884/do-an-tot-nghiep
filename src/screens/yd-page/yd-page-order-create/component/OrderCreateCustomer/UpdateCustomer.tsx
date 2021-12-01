@@ -17,7 +17,7 @@ import {
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
     CreateShippingAddress,
-    CustomerDetail,
+    getCustomerDetailAction,
     UpdateShippingAddress
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
@@ -115,6 +115,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   txtShippingAddressFullAddress?.addEventListener("change", (e: any) => {
     setVisibleBtnUpdate(true)
   });
+
   const initialFormValueCustomer =
     customerItem !== null
       ? {
@@ -144,7 +145,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
 
   const initialFormValueshippingAddress =
-    shippingAddress && shippingAddress !== null
+    shippingAddress
       ? {
           card_number: customerItem.card_number,
           name: shippingAddress?.name,
@@ -203,7 +204,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   (data: any) => {
                       if (data) {
                           dispatch(
-                              CustomerDetail(customerItem.id, (datas: CustomerResponse) => {
+                              getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
                                   handleChangeCustomer(datas);
                               })
                           );
@@ -227,7 +228,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   (data: ShippingAddress) => {
                       if (data) {
                           dispatch(
-                              CustomerDetail(customerItem.id, (datas: CustomerResponse) => {
+                              getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
                                   handleChangeCustomer(datas);
                               })
                           );
@@ -344,7 +345,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           <Col span={12} hidden>
             <Form.Item
               name="card_number"
-              style={customerItem !== null ? { marginBottom: "0px" } : {}}
+              style={customerItem ? { marginBottom: "0px" } : {}}
             >
               <Input
                 placeholder="Nhập mã thẻ"
@@ -442,7 +443,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           <Col span={24}>
             <Form.Item
               name="full_address"
-              style={customerItem !== null ? { marginBottom: "0px" } : {}}
+              style={customerItem ? { marginBottom: "0px" } : {}}
             >
               <Input
                 placeholder="Địa chỉ"

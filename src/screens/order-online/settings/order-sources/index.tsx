@@ -35,9 +35,11 @@ import {convertDepartment, generateQuery} from "utils/AppUtils";
 import {showError, showSuccess} from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import {StyledComponent} from "./styles";
+import { primaryColor } from "utils/global-styles/variables";
 import { SourcePermissions } from "config/permissions/setting.permisssion";  
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
+import "assets/css/custom-filter.scss";
 
 type formValuesType = {
   name: string | undefined;
@@ -149,7 +151,7 @@ function OrderSources(props: PropsType) {
       render: (value, record, index) => {
         if (value) {
           return (
-            <span title={value} className="title">
+            <span title={value} className="title" style={{color: primaryColor, fontWeight: 500}}>
               {value}
             </span>
           );
@@ -270,7 +272,7 @@ function OrderSources(props: PropsType) {
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
-        case 1:
+        case ACTIONS_INDEX.DELETE:
           setIsShowConfirmDelete(true);
       }
     },
@@ -362,7 +364,7 @@ function OrderSources(props: PropsType) {
   ): OrderSourceModel => {
     return {
       ...formValues,
-      code: formValues.code.toUpperCase(),
+      code: formValues.code? formValues.code: undefined,
     };
   };
 
@@ -485,35 +487,32 @@ function OrderSources(props: PropsType) {
           extra={renderCardExtraHtml()}
         >
           <Card>
-            <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+            <div className="custom-filter">
+            <CustomFilter onMenuClick={onMenuClick} menu={actions} >
               <Form
                 onFinish={onFilterFormFinish}
                 initialValues={initFilterParams}
                 layout="inline"
                 form={form}
               >
-                <Form.Item name="name" style={{width: 245, maxWidth: "100%"}}>
+                <Form.Item name="name" className="input-search">
                   <Input
                     prefix={<img src={search} alt="" />}
                     placeholder="Nguồn đơn hàng"
                   />
                 </Form.Item>
-                <Form.Item name="department_id" style={{width: 305, maxWidth: "100%"}}>
+                <Form.Item name="department_id" style={{width: 305}}>
                   <Select
                     showSearch
-                    allowClear
-                    style={{width: "100%"}}
+                    allowClear 
                     placeholder="Phòng ban"
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
+                    optionFilterProp="title"
                     notFoundContent="Không tìm thấy phòng ban"
                   >
                     {listDepartments &&
                       listDepartments.map((single) => {
                         return (
-                          <Select.Option value={single.id} key={single.id}>
+                          <Select.Option value={single.id} key={single.id} title={single.name}>
                             <span
                               className="hideInSelect"
                               style={{paddingLeft: +18 * single.level}}
@@ -536,6 +535,7 @@ function OrderSources(props: PropsType) {
                 </Form.Item>
               </Form>
             </CustomFilter>
+            </div>
             <CustomTable
               isLoading={tableLoading}
               isRowSelection

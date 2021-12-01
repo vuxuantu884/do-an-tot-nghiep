@@ -1,24 +1,29 @@
-import React, {useCallback, useEffect, useState} from "react";
-import ContentContainer from "../../../component/container/content.container";
-import UrlConfig from "../../../config/url.config";
-import arrowLeft from "../../../assets/icon/arrow-left.svg";
-import GeneralCreate from "./components/general.create";
-import "./promo-code.scss";
 import {Button, Col, Form, Row} from "antd";
-import {useHistory} from "react-router-dom";
-import {showSuccess} from "../../../utils/ToastUtils";
-import {useDispatch} from "react-redux";
-import {PROMO_TYPE} from "utils/Constants";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
+import {getListChannelRequest} from "domain/actions/order/order.action";
+import {addPriceRules} from "domain/actions/promotion/discount/discount.action";
+import useAuthorization from "hook/useAuthorization";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
+import {ChannelResponse} from "model/response/product/channel.response";
+import { CustomerSelectionOption } from "model/response/promotion/discount/list-discount.response";
+import moment from "moment";
+import React, {useCallback, useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {useHistory} from "react-router-dom";
+import {PROMO_TYPE} from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
+import ContentContainer from "../../../component/container/content.container";
+import UrlConfig from "../../../config/url.config";
 import {StoreGetListAction} from "../../../domain/actions/core/store.action";
 import {getListSourceRequest} from "../../../domain/actions/product/source.action";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {addPriceRules} from "domain/actions/promotion/discount/discount.action";
-import {getListChannelRequest} from "domain/actions/order/order.action";
-import {ChannelResponse} from "model/response/product/channel.response";
-import useAuthorization from "hook/useAuthorization";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import {showSuccess} from "../../../utils/ToastUtils";
+import {CustomerFilterField} from "../shared/cusomer-condition.form";
+import GeneralCreate from "./components/general.create";
+import "./promo-code.scss";
+
 
 const CreatePromotionCodePage = () => {
   const dispatch = useDispatch();
@@ -116,7 +121,66 @@ const CreatePromotionCodePage = () => {
         },
       ];
     }
+    // ==Đối tượng khách hàng==
+    // Áp dụng tất cả
+    body.customer_selection = values.customer_selection ? CustomerSelectionOption.ALL : CustomerSelectionOption.PREREQUISITE;
 
+    //Giới tính khách hàng
+    body.prerequisite_genders = values.prerequisite_genders;
+
+    //Ngày sinh khách hàng
+    const startsBirthday = values[CustomerFilterField.starts_birthday] ?  moment(values[CustomerFilterField.starts_birthday]): null;
+    const endsBirthday = values[CustomerFilterField.ends_birthday] ?  moment(values[CustomerFilterField.ends_birthday]) : null;
+     if (startsBirthday || endsBirthday) {
+       body.prerequisite_birthday_duration = {
+         starts_mmdd_key: startsBirthday
+           ? Number(
+               (startsBirthday.month() + 1).toString().padStart(2, "0") +
+                 startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+             )
+           : null,
+         ends_mmdd_key: endsBirthday
+           ? Number(
+               (endsBirthday.month() + 1).toString().padStart(2, "0") +
+                 endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+             )
+           : null,
+       };
+     } else {
+       body.prerequisite_birthday_duration = null;
+     }
+ 
+     //==Ngày cưới khách hàng
+     const startsWeddingDays = values[CustomerFilterField.starts_wedding_day] ?  moment(values[CustomerFilterField.starts_wedding_day]): null;
+    const endsWeddingDays = values[CustomerFilterField.ends_wedding_day] ?  moment(values[CustomerFilterField.ends_wedding_day]) : null;
+
+     if (startsWeddingDays || endsWeddingDays) {
+       body.prerequisite_wedding_duration = {
+         starts_mmdd_key: startsWeddingDays
+           ? Number(
+               (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
+               startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+             )
+           : null,
+         ends_mmdd_key: endsWeddingDays
+           ? Number(
+               (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
+               endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+             )
+           : null,
+       };
+     } else {
+       body.prerequisite_wedding_duration = null;
+     }
+
+    //Nhóm khách hàng
+    body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids;
+
+    //Hạng khách hàng
+    body.prerequisite_customer_loyalty_level_ids = values.prerequisite_customer_loyalty_level_ids;
+
+    //Nhân viên phụ trách
+     body.prerequisite_assignee_codes = values.prerequisite_assignee_codes;
     return body;
   };
 
@@ -191,43 +255,38 @@ const CreatePromotionCodePage = () => {
             />
           </Col>
         </Row>
-        <div className="customer-bottom-button">
-          <div onClick={() => history.goBack()} style={{cursor: "pointer"}}>
-            <img
-              style={{marginRight: "10px", transform: "rotate(180deg)"}}
-              src={arrowLeft}
-              alt=""
-            />
-            Quay lại danh sách đợt phát hành
-          </div>
-          <div>
-            <Button
-              onClick={() => reload()}
-              style={{marginLeft: ".75rem", marginRight: ".75rem"}}
-              type="ghost"
-            >
-              Hủy
-            </Button>
-            {allowCreatePromoCode ? (
-              <>
-                <Button
-                  onClick={() => save()}
-                  style={{
-                    marginLeft: ".75rem",
-                    marginRight: ".75rem",
-                    borderColor: "#2a2a86",
-                  }}
-                  type="ghost"
-                >
-                  Lưu
-                </Button>
-                <Button type="primary" htmlType="submit">
-                  Lưu và kích hoạt
-                </Button>
-              </>
-            ) : null}
-          </div>
-        </div>
+        <BottomBarContainer
+          back="Quay lại danh sách đợt phát hành"
+          rightComponent={
+            <div>
+              <Button
+                onClick={() => reload()}
+                style={{marginLeft: ".75rem", marginRight: ".75rem"}}
+                type="ghost"
+              >
+                Hủy
+              </Button>
+              {allowCreatePromoCode && (
+                <>
+                  <Button
+                    onClick={() => save()}
+                    style={{
+                      marginLeft: ".75rem",
+                      marginRight: ".75rem",
+                      borderColor: "#2a2a86",
+                    }}
+                    type="ghost"
+                  >
+                    Lưu
+                  </Button>
+                  <Button type="primary" htmlType="submit">
+                    Lưu và kích hoạt
+                  </Button>
+                </>
+              )}
+            </div>
+          }
+        />
       </Form>
     </ContentContainer>
   );

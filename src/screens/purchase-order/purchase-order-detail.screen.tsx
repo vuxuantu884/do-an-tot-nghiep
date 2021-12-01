@@ -132,12 +132,22 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     },
     [formMain]
   );
+
+  const printContentCallback = useCallback(
+    (printContent: Array<PurchaseOrderPrint>) => {
+      if (!printContent || printContent.length === 0) return;
+      setPrintContent(printContent[0].html_content);
+    },
+    [setPrintContent]
+  );
+
   const loadDetail = useCallback(
     (id: number, isLoading, isSuggestDetail: boolean) => {
       setSuggest(isSuggestDetail);
       dispatch(PoDetailAction(idNumber, onDetail));
+      dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     },
-    [dispatch, idNumber, onDetail]
+    [dispatch, idNumber, onDetail, printContentCallback]
   );
 
   const onConfirmButton = useCallback(() => {
@@ -252,7 +262,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         amount: poData.total_paid,
       });
     }else{
-       history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
+       history.push(`${UrlConfig.PURCHASE_ORDERS}/${id}/return`, {
       params: poData,
       listCountries: listCountries,
       listDistrict: listDistrict,
@@ -345,7 +355,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
                   }
                 }}
               >
-                {isEditDetail ? "Lưu nháp" : "Sửa"}
+                {isEditDetail ? "Lưu nháp" : "Sửa đặt hàng"}
               </Button>
             </AuthWrapper>
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
@@ -378,7 +388,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
                 }
               }}
             >
-              {isEditDetail ? "Lưu" : "Sửa"}
+              {isEditDetail ? "Lưu lại" : "Sửa"}
             </Button>
           </AuthWrapper>
         );
@@ -392,13 +402,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     status,
   ]);
 
-  const printContentCallback = useCallback(
-    (printContent: Array<PurchaseOrderPrint>) => {
-      if (!printContent || printContent.length === 0) return;
-      setPrintContent(printContent[0].html_content);
-    },
-    [setPrintContent]
-  );
+ 
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
@@ -466,7 +470,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         },
         {
           name: "Đặt hàng",
-          path: `${UrlConfig.PURCHASE_ORDER}`,
+          path: `${UrlConfig.PURCHASE_ORDERS}`,
         },
         {
           name: `Đơn hàng ${id}`,

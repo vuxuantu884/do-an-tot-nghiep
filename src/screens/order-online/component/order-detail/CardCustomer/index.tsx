@@ -28,7 +28,7 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import {
-  CustomerDetail,
+  getCustomerDetailAction,
   CustomerGroups,
   CustomerSearch,
   DeleteShippingAddress,
@@ -169,6 +169,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
     setVisibleCustomer(true);
+    setKeySearchCustomer("");
   };
   const OkConfirmCustomerEdit = () => {
     setModalAction("edit");
@@ -412,7 +413,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             customer.id,
             (data: ShippingAddress) => {
               dispatch(
-                CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                   handleChangeCustomer(datas);
                 })
               );
@@ -640,6 +641,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 handleChangeCustomer={handleChangeCustomer}
                 ShippingAddressChange={props.ShippingAddressChange}
                 keySearchCustomer={keySearchCustomer}
+                CustomerDeleteInfo={CustomerDeleteInfo}
               />
             )}
 

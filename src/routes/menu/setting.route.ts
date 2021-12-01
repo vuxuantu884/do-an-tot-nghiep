@@ -21,11 +21,17 @@ const RoleListScreen = React.lazy(
 const RoleCreateScreen = React.lazy(
   () => import("screens/settings/roles/role-create.screen")
 );
+const RoleUpdateScreen = React.lazy(
+  () => import("screens/settings/roles/update/role-update.screen")
+);
 const AccountCreateScreen = React.lazy(
   () => import("screens/settings/account/account.create.screen")
 );
 const AccountUpdateScreen = React.lazy(
   () => import("screens/settings/account/account.update.screen")
+);
+const AccountUpdatePassScreen = React.lazy(
+  () => import("screens/settings/account/account.update.pass.screen")
 );
 
 //store
@@ -115,6 +121,17 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [AccountPermissions.UPDATE],
+      }, {
+        path: `${UrlConfig.ACCOUNTS}/me/update-password`,
+        exact: true,
+        title: "Đặt lại mật khẩu",
+        icon: "icon-dot",
+        component: AccountUpdatePassScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
         permissions: [AccountPermissions.UPDATE],
       },
       {
@@ -207,7 +224,7 @@ const setting: Array<RouteMenu> = [
       {
         path: `${UrlConfig.STORE}/:id`,
         exact: true,
-        title: "Sửa cửa hàng",
+        title: "Chi tiết cửa hàng",
         icon: "icon-dot",
         component: StoreDetailScreen,
         key: "subMenu922",
@@ -288,6 +305,17 @@ const setting: Array<RouteMenu> = [
         icon: "icon-dot",
         component: RoleCreateScreen,
         key: "subMenu941",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ROLES}/:id/update`,
+        exact: true,
+        title: "Chỉnh sửa nhóm quyền",
+        icon: "icon-dot",
+        component: RoleUpdateScreen,
+        key: "subMenu942",
         isShow: true,
         header: null,
         subMenu: [],

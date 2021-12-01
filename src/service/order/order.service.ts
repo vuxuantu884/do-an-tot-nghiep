@@ -85,7 +85,7 @@ export const getReturnApi = (
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
+  return BaseAxios.get(`${ApiConfig.CORE}/sources/listing`);
 };
 
 export const getPaymentMethod = (): Promise<BaseResponse<Array<PaymentMethodResponse>>> => {
@@ -218,7 +218,7 @@ export const getSourcesWithParamsService = (
   query: BaseQuery,
 ): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
+  return BaseAxios.get(`${ApiConfig.CORE}/sources?${queryString}`);
 };
 
 export const getListSourcesCompaniesService = (): Promise<BaseResponse<SourceResponse>> => {
@@ -228,20 +228,20 @@ export const getListSourcesCompaniesService = (): Promise<BaseResponse<SourceRes
 export const createOrderSourceService = (
   newOrderSource: OrderSourceModel,
 ): Promise<BaseResponse<OrderSourceCompanyModel>> => {
-  return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
+  return BaseAxios.post(`${ApiConfig.CORE}/sources`, newOrderSource);
 };
 
 export const editOrderSourceService = (
   id: number,
   orderSource: OrderSourceModel,
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/sources/${id}`, orderSource);
+  return BaseAxios.put(`${ApiConfig.CORE}/sources/${id}`, orderSource);
 };
 
 export const deleteOrderSourceService = (
   id: number,
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
-  return BaseAxios.delete(`${ApiConfig.ORDER}/sources/${id}`);
+  return BaseAxios.delete(`${ApiConfig.CORE}/sources/${id}`);
 };
 
 export const deleteMultiOrderSourceService = (
@@ -250,7 +250,7 @@ export const deleteMultiOrderSourceService = (
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
   const source_ids = sourceIds;
   const channel_ids = channelIds;
-  return BaseAxios.delete(`${ApiConfig.ORDER}/sources`, {
+  return BaseAxios.delete(`${ApiConfig.CORE}/sources`, {
     data: {source_ids, channel_ids},
   });
 };
@@ -409,7 +409,7 @@ export const updateGoodsReceiptsService = (
  */
 export const getByIdGoodsReceiptsService = (goodsReceiptsId: number) => {
   const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
-  return BaseAxios.put(link);
+  return BaseAxios.get(link);
 };
 
 /**
@@ -432,6 +432,14 @@ export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<a
     `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?${queryString}`,
   );
 };
+/**
+ *  Danh sách đơn hàng đủ điều kiện thêm vào biên bản
+ */
+export const getOrderGoodsReceiptsService=():Promise<BaseResponse<OrderResponse>>=>{
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/goods-receipt-manager/orders?status=packed&last_created_hour=8`,
+  );
+}
 
 /**
  * tách đơn
@@ -462,8 +470,8 @@ export const getOrderConcernGoodsReceiptsService = (
 export const getChannelsService = (
   typeId: number,
 ): Promise<BaseResponse<ChannelResponse[]>> => {
-  let link = `${ApiConfig.ORDER}/channels`;
-  if (typeId !== null) link = `${ApiConfig.ORDER}/channels?type_id=${typeId}`;
+  let link = `${ApiConfig.ORDER}/channels/types`;
+  if (typeId !== null) link = `${ApiConfig.CORE}/channels/types?type_id=${typeId}`;
   return BaseAxios.get(link);
 };
 /**

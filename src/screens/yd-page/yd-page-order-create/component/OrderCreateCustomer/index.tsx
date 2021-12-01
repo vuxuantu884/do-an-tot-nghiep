@@ -28,7 +28,7 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import {
-  CustomerDetail,
+  getCustomerDetailAction,
   CustomerGroups,
   CustomerSearch,
   DeleteShippingAddress,
@@ -121,14 +121,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       setShippingAddress,
     setOrderSourceId
   } = props;
-  //State
-  // const [addressesForm] = Form.useForm();
-  // const shippingWarRef: any = useRef(null);
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
-  // const [isVisibleBilling, setVisibleBilling] = useState(false);
-  // const [isVisibleCustomer, setVisibleCustomer] = useState(true);
   const [searchCustomer, setSearchCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
@@ -141,9 +136,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const [modalActionShipping, setModalActionShipping] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  // const [shippingAddress, setShippingAddress] =
-  //   useState<ShippingAddress | null>(null);
-
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
 
@@ -153,14 +145,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = useRef<any>(null);
   const autoCompleteElement: any = document.getElementById("search_customer");
-
-  //const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
 
-  //#region Modal
-  // const ShowBillingAddress = (e: any) => {
-  //   setVisibleBilling(e.target.checked);
-  // };
   const CancelConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
@@ -261,17 +247,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerChangeSearch = useCallback(
     (value) => {
-      // clearTimeout(timeRef);
-      // setKeySearchCustomer(value);
-      // setSearchCustomer(true);
-      // let time = setTimeout(() => {
-      //   initQueryCustomer.request = value.trim();
-      //   dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
-      //   setSearchCustomer(false);
-      // }, typingTimer);
-      // setTimeRef(time);
-      // setTypingTimer(3000);
-
       setKeySearchCustomer(value);
       setSearchCustomer(true);
       initQueryCustomer.request = value.trim();
@@ -416,7 +391,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             customer.id,
             (data: ShippingAddress) => {
               dispatch(
-                CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                   handleChangeCustomer(datas);
                 })
               );

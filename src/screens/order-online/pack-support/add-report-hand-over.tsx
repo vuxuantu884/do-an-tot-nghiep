@@ -19,10 +19,12 @@ import { showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./add-order-bottombar";
 import AddOrderInReport from "./add-order-in-report";
 import "assets/css/_pack.scss";
+import { useHistory } from "react-router";
 
 // }
 const AddReportHandOver: React.FC<any> = (props: any) => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [goodsReceiptsForm] = Form.useForm();
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
@@ -124,6 +126,9 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
             if(value)
             {
               showSuccess("Thêm biên bản bàn giao thành công");
+              history.push(
+                `${UrlConfig.PACK_SUPPORT}/${value.id}`
+              );
             }
           })
         );
@@ -134,6 +139,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
     },
     [
       dispatch,
+      history,
       listGoodsReceiptsType,
       listStores,
       listThirdPartyLogistics,

@@ -1,3 +1,4 @@
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
@@ -11,16 +12,18 @@ type PropType = {
   discountRate?: number;
   discountValue?: number;
   totalAmountCustomerNeedToPay: number;
-  coupon: string;
   shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
   amount: number;
   isDisableOrderDiscount?: boolean;
+  isCouponValid?: boolean;
+  couponInputText?: string;
   showDiscountModal: () => void;
   showCouponModal: () => void;
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
   setCoupon?: (value: string) => void;
+  setCouponInputText?: (value: string) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -33,7 +36,6 @@ type PropType = {
   handleRemoveAllDiscount: () => void;
 };
 
-
 function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
@@ -41,24 +43,26 @@ function CardProductBottom(props: PropType) {
     items,
     discountRate,
     discountValue,
-    coupon,
+    couponInputText,
     // changeMoney,
     amount,
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
     isDisableOrderDiscount,
+    isCouponValid,
     showDiscountModal,
     showCouponModal,
     setDiscountRate,
     setDiscountValue,
     calculateChangeMoney,
     setCoupon,
+    setCouponInputText,
     handleRemoveAllDiscount,
   } = props;
-  
-console.log('coupon33', coupon)
-console.log('discountRate', discountRate);
+
+  // console.log('coupon33', coupon)
+  // console.log('discountRate', discountRate);
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -95,7 +99,7 @@ console.log('discountRate', discountRate);
                 <div>Chiết khấu:</div>
               )}
 
-              {items && discountRate!==0 && (
+              {items && discountRate !== 0 && (
                 <Tag
                   style={{
                     marginTop: 0,
@@ -136,7 +140,7 @@ console.log('discountRate', discountRate);
                 <div>Mã giảm giá:</div>
               )}
 
-              {coupon && coupon !== "" && (
+              {couponInputText && couponInputText !== "" && (
                 <Tag
                   style={{
                     margin: 0,
@@ -150,9 +154,32 @@ console.log('discountRate', discountRate);
                     setDiscountValue && setDiscountValue(0);
                     handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
+                    setCouponInputText && setCouponInputText("");
                   }}
                 >
-                  {handleDisplayCoupon(coupon)}
+                  {couponInputText ? (
+                    isCouponValid ? (
+                      <React.Fragment>
+                        <CheckCircleOutlined
+                          style={{
+                            color: "#27AE60",
+                            marginRight: 5,
+                          }}
+                        />
+                        <span style={{color: "#27AE60"}}>{handleDisplayCoupon(couponInputText)}</span>
+                      </React.Fragment>
+                    ) : (
+                      <React.Fragment>
+                        <CloseCircleOutlined
+                          style={{
+                            color: "#E24343",
+                            marginRight: 5,
+                          }}
+                        />
+                        <span style={{color: "#E24343"}}>{handleDisplayCoupon(couponInputText)}</span>
+                      </React.Fragment>
+                    )
+                  ) : undefined}
                 </Tag>
               )}
             </Space>

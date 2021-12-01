@@ -3,6 +3,7 @@ import { Moment } from "moment";
 export interface OrderRequest {
   action: string | null;
   store_id: number | null;
+  company_id: number | null;
   price_type: string | null;
   tax_treatment: string | null;
   source_id: number | null;
@@ -14,6 +15,10 @@ export interface OrderRequest {
   marketer_code?: string | null;
   coordinator_code?: string | null;
   customer_id?: number | null;
+  customer_address?: string | null;
+  customer_ward?: string | null;
+  customer_district?: string | null;
+  customer_city?: string | null;
   reference_code: string | null;
   url: string | null;
   total_line_amount_after_line_discount: number | null;
@@ -38,6 +43,7 @@ export interface OrderRequest {
   channel_id?: number | null;
   finalized?: boolean;
   sub_status_code?: string; 
+	automatic_discount?: boolean;
 }
 
 export interface ReturnRequest extends OrderRequest {
@@ -246,6 +252,7 @@ export interface OrderLineItemRequest {
   show_note: boolean;
   variant_barcode: string;
   product_id: number;
+  product_code?: string;
   product_type: string;
   quantity: number;
   price: number;

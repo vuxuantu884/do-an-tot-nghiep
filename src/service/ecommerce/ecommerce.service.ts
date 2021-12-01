@@ -136,6 +136,13 @@ const postEcommerceOrderApi = (
   return BaseAxios.post(link, requestBody);
 };
 
+//get order mapping list api
+const getOrderMappingListApi = (query: any) => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.ECOMMERCE}/orders/mapping-sync?${params}`;
+  return BaseAxios.get(link);
+};
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,
@@ -157,4 +164,5 @@ export {
   addFpagePhone,
   deleteFpagePhone,
   setFpageDefaultPhone,
+  getOrderMappingListApi,
 };

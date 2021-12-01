@@ -29,6 +29,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
       collapsedWidth={52}
       width={240}
       style={{ zIndex: 2 }}
+
     >
       <Scrollbars autoHide>
         <Menu
@@ -42,8 +43,9 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
               return (
                 <Menu.SubMenu
                   icon={<i className={route.icon} style={{ fontSize: 18 }} />}
-                  title={route.title}
+                  title={<div title={route.title}>{route.title}</div>}
                   key={route.key}
+
                 >
                   {route.subMenu.map((item) => {
                     if (
@@ -70,6 +72,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                 />
                               }
                               key={item2.key}
+															title={item2.subTitle || item2.title}
                             >
                               <Link to={item2.path}>{item2.title}</Link>
                             </Menu.Item>
@@ -86,6 +89,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                           />
                         }
                         key={item.key}
+												title={item.subTitle || item.title}
                       >
                         {
                           <Link
@@ -126,9 +130,10 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                 }}
                 icon={<i className={route.icon} style={{ fontSize: 18 }} />}
                 key={route.key}
+								title={route.subTitle || route.title}
               >
                 {route.isShow ? (
-                  <Link to={route.path}>{route.title}</Link>
+                  <Link to={route.path} title={route.subTitle || route.title}>{route.title}</Link>
                 ) : (
                   route.title
                 )}

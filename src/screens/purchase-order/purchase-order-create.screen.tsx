@@ -135,7 +135,7 @@ const POCreateScreen: React.FC = () => {
     (result: PurchaseOrder) => {
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
-        history.push(`${UrlConfig.PURCHASE_ORDER}/${result.id}`);
+        history.push(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`);
       } else {
         setLoadingSaveButton(false);
         setLoadingDraftButton(false);
@@ -207,7 +207,7 @@ const POCreateScreen: React.FC = () => {
         },
         {
           name: "Đặt hàng",
-          path: `${UrlConfig.PURCHASE_ORDER}`,
+          path: `${UrlConfig.PURCHASE_ORDERS}`,
         },
         {
           name: "Tạo mới đơn đặt hàng",
@@ -300,7 +300,7 @@ const POCreateScreen: React.FC = () => {
                   formMain.submit();
                 }}
               >
-                Lưu nháp
+                Tạo nháp
               </Button>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
               <Button
@@ -313,7 +313,7 @@ const POCreateScreen: React.FC = () => {
                   formMain.submit();
                 }}
               >
-                Lưu và duyệt
+                Tạo và xác nhận
               </Button>
               </AuthWrapper>
             </React.Fragment>

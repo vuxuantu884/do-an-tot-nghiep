@@ -7,7 +7,9 @@ import {
   ProductEcommerceQuery,
   PostProductEcommerceQuery,
   PostEcommerceOrderQuery,
+  GetOrdersMappingQuery,
 } from "model/query/ecommerce.query";
+import { PageResponse } from "model/base/base-metadata.response";
 
 export const addFpagePhone = (
   userId: string,
@@ -43,7 +45,7 @@ export const setFpageDefaultPhone = (
   });
 };
 
-export const getFpageCustomerInfo = (
+export const getYDPageCustomerInfo = (
   userId: string,
   setData: (data: YDPageCustomerResponse) => void
 ) => {
@@ -168,4 +170,15 @@ export const postEcommerceOrderAction = (
   setData: (data: any) => void
 ) => {
   return BaseAction(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, { query, setData });
+};
+
+//get orders mapping list thai todo, need update api
+export const getOrderMappingListAction = (
+  query: GetOrdersMappingQuery,
+  setData: (data: PageResponse<any> | false) => void
+) => {
+  return BaseAction(EcommerceType.GET_ORDER_MAPPING_LIST_REQUEST, {
+    query,
+    setData,
+  });
 };

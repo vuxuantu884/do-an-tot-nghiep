@@ -1,6 +1,5 @@
 const InventoryQueryField = {
-  condition: 'condition',
-  store_id: 'store_id',
+  condition: 'condition', 
   store_ids: 'store_ids',
   is_remain: 'is_remain',
   created_date: 'created_date',
@@ -22,7 +21,6 @@ const InventoryQueryField = {
 }
 
 const AvdInventoryFilter = {
-  created_date: 'created_date',
   transaction_date: 'transaction_date',
   total_stock: 'total_stock',
   on_hand: 'on_hand',
@@ -45,7 +43,6 @@ const BasicInventoryFilter = {
 }
 
 const InventoryMappingField = {
-  [AvdInventoryFilter.created_date]: 'Ngày khởi tạo',
   [AvdInventoryFilter.transaction_date]: 'Cập nhật cuối',
   [AvdInventoryFilter.total_stock]: 'Tổng tồn',
   [AvdInventoryFilter.on_hand]: 'Tồn trong kho',
@@ -74,13 +71,13 @@ const HistoryInventoryQueryField = {
 }
 
 const AvdHistoryInventoryFilter = {
-  created_date: 'created_date',
-  // transaction_date: 'transaction_date',
-  quantity_change: 'quantity_change'
+  //created_date: 'created_date',
+  transaction_date: 'transaction_date',
+  quantity_change: 'quantity_change', 
 }
 
 const HistoryInventoryMappingField = {
-  [AvdHistoryInventoryFilter.created_date]: 'Thời gian',
+  [AvdHistoryInventoryFilter.transaction_date]: 'Thời gian',
   [AvdHistoryInventoryFilter.quantity_change]: 'Số lượng thay đổi',
 }
 

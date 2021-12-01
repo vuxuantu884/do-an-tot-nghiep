@@ -95,7 +95,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
     });
   };
 
-  const findStatusTagWithReturned = () => {
+  const findStatusTagWithReturnedOrCancel = () => {
     if (!fulfillment) {
       return;
     }
@@ -106,7 +106,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       );
     });
   };
-  const findStatusTagWithoutReturn = () => {
+  const findStatusTagWithoutReturnOrCancel = () => {
     if (!fulfillment) {
       return;
     }
@@ -125,10 +125,13 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
         statusTag = findStatusTagWithReturning();
         break;
       case FulFillmentStatus.RETURNED:
-        statusTag = findStatusTagWithReturned();
+        statusTag = findStatusTagWithReturnedOrCancel();
+        break;
+      case FulFillmentStatus.CANCELLED:
+        statusTag = findStatusTagWithReturnedOrCancel();
         break;
       default:
-        statusTag = findStatusTagWithoutReturn();
+        statusTag = findStatusTagWithoutReturnOrCancel();
         break;
     }
     if (statusTag) {

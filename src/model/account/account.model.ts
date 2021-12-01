@@ -46,6 +46,7 @@ export interface AccountSearchQuery extends BaseQuery {
   role_id?: Array<number>;
   store_ids?: Array<number>;
   status?:string
+  codes?: Array<string>
 }
 
 export interface AccountJobResponse {
@@ -85,7 +86,7 @@ export interface AccountJobReQuest {
 export interface AccountView extends AccountBaseModel {  
   account_jobs?: Array<AccountJobReQuest>;
   account_stores: Array<number>;
-  permissions : {
+  permissions? : {
     modules: Array<ModuleAuthorize>,
   }
 }

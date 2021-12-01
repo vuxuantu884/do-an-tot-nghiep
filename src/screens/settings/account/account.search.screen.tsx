@@ -1,17 +1,18 @@
 import {DeleteOutlined} from "@ant-design/icons";
 import {Card, Switch, Tag} from "antd";
+import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import {MenuAction} from "component/table/ActionButton";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { HttpStatus } from "config/http-status.config";
 import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
   AccountDeleteAction,
   AccountSearchAction,
   AccountUpdateAction,
-  DepartmentGetListAction,
   PositionGetListAction,
 } from "domain/actions/account/account.action";
 import {StoreGetListAction} from "domain/actions/core/store.action";
@@ -31,9 +32,10 @@ import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import {generateQuery} from "utils/AppUtils";
+import { getDepartmentAllApi } from "service/accounts/account.service";
+import {convertDepartment, generateQuery} from "utils/AppUtils";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showSuccess} from "utils/ToastUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 import {getQueryParams, useQuery} from "utils/useQuery";
 import {SearchContainer} from "./account.search.style";
 
@@ -268,7 +270,23 @@ const ListAccountScreen: React.FC = () => {
 
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(DepartmentGetListAction(setDepartment));
+      getDepartmentAllApi()
+      .then((response: BaseResponse<DepartmentResponse[]>) => {
+        switch (response.code) {
+          case HttpStatus.SUCCESS:
+            if (response.data) {
+              let array: any = convertDepartment(response.data);
+              setDepartment(array);
+            }
+            break;
+          default:
+            response.errors.forEach((e) => showError(e));
+            break;
+        }
+      })
+      .catch((error) => {
+        showError("Có lỗi khi lấy danh sách phòng ban!");
+      });
       dispatch(PositionGetListAction(setPosition));
       dispatch(StoreGetListAction(setStore));
     }
@@ -291,7 +309,7 @@ const ListAccountScreen: React.FC = () => {
           ]}
           extra={
             !allowCreateAcc ? null : (
-              <ButtonCreate path={`${UrlConfig.ACCOUNTS}/create`} />
+              <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
             ) 
           }
         >

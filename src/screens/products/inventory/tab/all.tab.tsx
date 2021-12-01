@@ -1,10 +1,12 @@
+import CustomPagination from "component/table/CustomPagination";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {AppConfig} from "config/app.config";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
 import {searchVariantsRequestAction} from "domain/actions/product/products.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
@@ -12,7 +14,7 @@ import {
   InventoryVariantListQuery,
 } from "model/inventory";
 import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
 import {useDispatch} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
@@ -25,7 +27,8 @@ import {TabProps} from "./tab.props";
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const {stores} = props;
   const history = useHistory();
-
+  const pageSizeOptions: Array<string> =["50","100"];
+  
   const query = new URLSearchParams(history.location.hash.substring(2));
 
   const dispatch = useDispatch();
@@ -37,7 +40,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   let [params, setPrams] = useState<VariantSearchQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<VariantResponse>>({
     metadata: {
-      limit: 30,
+      limit: 50,
       page: 1,
       total: 0,
     },
@@ -60,12 +63,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = {...params, ...values, page: 1};
-      console.log(newPrams);
-
+      const newValues = {...values,info: values.info?.trim()}
+      const newPrams = {...params, ...newValues, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.INVENTORY}#1?${queryParam}`);
+      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     },
     [history, params]
   );
@@ -130,6 +132,23 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     );
   };
 
+  const debouncedSearch = React.useMemo(() =>
+    _.debounce((keyword: string) => {
+      setLoading(true);
+      const temps = {...params,info: keyword?.trim() };
+      delete temps.status; 
+      dispatch(searchVariantsRequestAction(temps, onResult));
+    }, 300),
+    [dispatch, params, onResult]
+  ) 
+
+  const onChangeKeySearch = useCallback(
+    (keyword: string) => {
+      debouncedSearch(keyword)
+    },
+    [debouncedSearch]
+  )
+
   useEffect(() => {
     setColumns([
       {
@@ -187,8 +206,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   useEffect(() => {
     setLoading(true);
-    const temps = {...params};
-    delete temps.status;
+    const temps = {...params, limit: params.limit ?? 50};
+    delete temps.status; 
+    
     dispatch(searchVariantsRequestAction(temps, onResult));
   }, [dispatch, onResult, params]);
 
@@ -210,6 +230,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         actions={[]}
         onClearFilter={() => {}}
         listStore={stores}
+        onChangeKeySearch={(value: string)=>{
+          onChangeKeySearch(value);
+        }}
       />
       <CustomTable
         isRowSelection
@@ -217,16 +240,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         scroll={{x: 900}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
-        expandedRowKeys={expandRow}
-        pagination={{
-          pageSize: data.metadata.limit,
-          total: data.metadata.total,
-          current: data.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
-        onSelectedChange={onSelect}
+        expandedRowKeys={expandRow} 
+        onSelectedChange={onSelect} 
+        pagination={false}
         expandable={{
           expandIcon: (props) => {
             let icon = <HiChevronDoubleRight size={12} />;
@@ -310,6 +326,17 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         }}
         columns={columnsFinal}
         rowKey={(data) => data.id}
+      />
+      <CustomPagination
+        pagination={{
+          showSizeChanger: true,
+          pageSize: data.metadata.limit,
+          current: data.metadata.page,
+          total: data.metadata.total,
+          onChange: onPageChange,
+          onShowSizeChange: onPageChange,
+          pageSizeOptions: pageSizeOptions
+        }}
       />
       <ModalSettingColumn
         visible={showSettingColumn}

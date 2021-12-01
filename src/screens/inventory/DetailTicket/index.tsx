@@ -607,8 +607,12 @@ const DetailTicket: FC = () => {
     }
   }
 
+  const onReload = useCallback(()=>{
+    dispatch(getDetailInventoryTransferAction(idNumber, onResult)); 
+  },[dispatch,idNumber,onResult])
+
   useEffect(() => {
-    if (!stores && !data) return;
+    if (!stores || !data) return;
     else {
       const fromStoreData = stores.find(item => item.id === data?.from_store_id);
       const toStoreData = stores.find(item => item.id === data?.to_store_id);
@@ -921,16 +925,16 @@ const DetailTicket: FC = () => {
                         <Row className="shipment">
                           <div className="shipment-logo">
                             <img
-                              src={(deliveryService as any)[data?.shipment?.delivery_service_code]?.logo}
+                              src={(deliveryService as any)[dataShipment?.delivery_service_code ?? "yody"].logo}
                               alt=""
                             />
                           </div>
                           <div className="shipment-detail">
-                            Mã vận đơn: <span>{data?.shipment?.tracking_code}</span>
+                            Mã vận đơn: <span>{dataShipment?.tracking_code}</span>
                             <CopyOutlined style={{color: "#71767B"}}
                               onClick={() => {
                                 showSuccess('Đã copy');
-                                copy(data.shipment.tracking_code);
+                                copy(data.shipment?.tracking_code);
                               }} 
                             />
                           </div>
@@ -960,20 +964,22 @@ const DetailTicket: FC = () => {
                       </>
                     }
                     {
-                      data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                      ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && data.shipment !==null) && (
                         <div className="inventory-transfer-action">
                           <AuthWrapper 
                             acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
                           >
                             <Button
                               type="default"
-                              onClick={() => setIsVisibleModalWarning(true)}
+                              onClick={() =>setIsVisibleModalWarning(true)}
                             >
-                              Huỷ giao hàng
+                              Hủy giao hàng
                             </Button>
                           </AuthWrapper>
                           {
-                            data.shipment.status === 'confirmed' && (
+                            (data.shipment?.status === 'confirmed' &&
+                            data.status ===  STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
                               <AuthWrapper 
                                 acceptPermissions={[ShipmentInventoryTransferPermission.export]}
                               >
@@ -981,7 +987,9 @@ const DetailTicket: FC = () => {
                                   className="export-button"
                                   type="primary"
                                   onClick={() => {
-                                    if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, onResult));
+                                    if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, 
+                                      onReload
+                                      ));
                                   }}
                                 >
                                   Xuất kho
@@ -1116,9 +1124,7 @@ const DetailTicket: FC = () => {
                     </Button>
                   </AuthWrapper>
                   {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-                      data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && 
-                    
+                    data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&  
                     <AuthWrapper 
                       acceptPermissions={[InventoryTransferPermission.cancel]}
                     >
@@ -1198,7 +1204,7 @@ const DetailTicket: FC = () => {
             onOk={() => {
               if (data) {
                 setIsVisibleModalWarning(false);
-                dispatch(cancelShipmentInventoryTransferAction(data?.id, data?.shipment.id, onResult));
+                dispatch(cancelShipmentInventoryTransferAction(data?.id, data?.shipment.id, onReload));
               }
             }}
             okText="Đồng ý"
@@ -1272,12 +1278,9 @@ const DetailTicket: FC = () => {
             dataTicket={data}
             onCancel={() => setIsVisibleInventoryShipment(false)}
             onOk={item => {
-              if (item) {
-                setDataTable(item?.line_items);
-                setData(item);
-                setDataShipment(item?.shipment)
+              if (item){
+                onReload()
               }
-              setIsVisibleInventoryShipment(false);
             }}
             infoFees={infoFees}
           />

@@ -3,8 +3,7 @@ import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import {Type} from "config/type.config";
 import {AccountSearchAction} from "domain/actions/account/account.action";
 import {StoreDetailCustomAction} from "domain/actions/core/store.action";
-import {CustomerDetail} from "domain/actions/customer/customer.action";
-import {inventoryGetDetailVariantIdsExt} from "domain/actions/inventory/inventory.action";
+import {getCustomerDetailAction} from "domain/actions/customer/customer.action";
 
 import {
   configOrderSaga,
@@ -45,6 +44,7 @@ import {
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import {
+  DEFAULT_COMPANY,
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
@@ -233,6 +233,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   let initialRequest: OrderRequest = {
     action: "", //finalized
     store_id: null,
+    company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
@@ -511,6 +512,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   };
   const onFinish = (values: OrderRequest) => {
     values.channel_id = DEFAULT_CHANNEL_ID;
+    values.company_id = DEFAULT_COMPANY.company_id
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -660,7 +662,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
             if (customer_id) {
               dispatch(
-                CustomerDetail(customer_id, (responseCustomer) => {
+                getCustomerDetailAction(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
 
                   responseCustomer.shipping_addresses.forEach((item) => {
@@ -969,18 +971,19 @@ export default function Order(props: OrdersCreatePermissionProps) {
   );
 
   const checkInventory = () => {
-    let status = true;
+    let status:boolean = true;
 
     if (items) {
       items.forEach(function (value) {
         let available = value.available === null ? 0 : value.available;
         if (available <= 0 && configOrder?.sellable_inventory !== true) {
           status = false;
-          showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
-          setCreating(false);
+          //setCreating(false);
         }
       });
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
     }
+
     return status;
   };
 
@@ -1120,6 +1123,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     coupon={coupon}
                     setCoupon={setCoupon}
                     setPromotionId={setPromotionId}
+                    configOrder={configOrder}
                   />
                   <Card>
                     <OrderCreatePayments

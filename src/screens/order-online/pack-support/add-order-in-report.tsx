@@ -96,6 +96,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
               receiver: order.customer,
               product: item.product,
               sku: item.sku,
+              variant_id:item.variant_id,
               price: fulfillment.total,
               quantity: fulfillment.total_quantity,
               postage: 0,
@@ -147,7 +148,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                 <div className="yody-pos-sku">
                   <Link
                     target="_blank"
-                    to={`${UrlConfig.PRODUCT}/${l.product}/variants/${l.product}`}
+                    to={`${UrlConfig.PRODUCT}/${l.product}/variants/${l.variant_id}`}
                   >
                     {l.sku}
                   </Link>
@@ -215,7 +216,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                     <Input
                       style={{width: "100%"}}
                       prefix={<img src={search} alt="" />}
-                      placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, tên người nhận, sđt người nhận"
+                      placeholder="Mã đơn hàng"
                     />
                   </Item>
 

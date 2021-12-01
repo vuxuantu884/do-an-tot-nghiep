@@ -290,7 +290,7 @@ const ListSupplierScreen: React.FC = () => {
           ]}
           extra={
             allowCreateSup ? (
-              <ButtonCreate path={`${UrlConfig.SUPPLIERS}/create`} />
+              <ButtonCreate child="Thêm nhà cung cấp" path={`${UrlConfig.SUPPLIERS}/create`} />
             ) : null
           }
         >

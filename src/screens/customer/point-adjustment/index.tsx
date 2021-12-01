@@ -24,7 +24,7 @@ import "./point-adjustment.scss";
 import _ from "lodash";
 import {
   CustomerSearch,
-  CustomerDetail,
+  getCustomerDetailAction,
 } from "domain/actions/customer/customer.action";
 import {
   addLoyaltyPoint,
@@ -110,7 +110,7 @@ const PointAdjustment = () => {
       const customerId = customerIds[0];
       if (customerId) {
         dispatch(
-          CustomerDetail(customerId, (data: CustomerResponse) => {
+          getCustomerDetailAction(customerId, (data: CustomerResponse) => {
             let customer = data as any;
             formRef.current?.setFieldsValue({
               search: `${customer.full_name} - ${customer.phone}`,

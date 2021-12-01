@@ -99,6 +99,8 @@ export interface HistoryInventoryResponse extends BaseObject{
   document_type: string;
   transaction_date: string;
   account_id: number;
+  account: string|null;
+  account_code: string|null;
   import_price: number;
   retail_price: number;
   total: number;
@@ -107,7 +109,7 @@ export interface HistoryInventoryResponse extends BaseObject{
 
 export interface HistoryInventoryQuery extends BaseQuery {
   condition?: string,
-  store_id?: number|Array<number>,
+  store_ids?: number|Array<number>|null,
   from_created_date?: string,
   to_created_date?: string,
   from_transaction_date?: string,

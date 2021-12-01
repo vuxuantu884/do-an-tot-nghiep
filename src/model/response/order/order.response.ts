@@ -32,6 +32,10 @@ export interface OrderResponse extends BaseObject {
   customer: string | null;
   customer_phone_number: string | null;
   customer_email: string | null;
+  customer_address: string | null;
+  customer_ward: string | null;
+  customer_district: string | null;
+  customer_city: string | null;
   fulfillment_status: string | null;
   packed_status: string | null;
   received_status: string | null;
@@ -77,6 +81,7 @@ export interface OrderResponse extends BaseObject {
   shipment: ShipmentResponse | null | undefined;
   linked_order_code: string | null;
   ecommerce_shop_name: string | null;
+	automatic_discount?: boolean;
 }
 
 export interface OrderLineItemResponse {
@@ -89,6 +94,7 @@ export interface OrderLineItemResponse {
   show_note: boolean;
   variant_barcode: string;
   product_type: string;
+  product_code?: string;
   quantity: number;
   price: number;
   amount: number;
@@ -351,8 +357,8 @@ export interface StoreCustomResponse extends BaseObject {
   country_name: string;
   city_id: number;
   city_name: string;
-  group_id: number;
-  group_name: string;
+  department: string;
+  department_id: number,
   status: string;
   status_name: string;
   zip_code: string;
@@ -361,19 +367,17 @@ export interface StoreCustomResponse extends BaseObject {
   ward_id: number;
   ward_name: string;
   address: string;
-  full_address: string;
   hotline: string;
-  manager_code: string;
+  vm:string;
   vm_code: string;
-  finder_code: string;
   mail: string;
   begin_date: string;
   number_of_account: number;
   accounts: Array<any>;
   is_saleable: boolean;
   is_stocktaking: boolean;
-  type: string,
-  type_name: string,
+  type: string;
+  type_name: string;
 }
 
 export interface OrderSubStatusResponse {
@@ -398,7 +402,9 @@ export interface TrackingLogFulfillmentResponse extends BaseObject {
   raw_data: string;
   action_date: string;
   deleted: boolean;
-  shipping_status: string;
+  shipping_status: string|null;
+  status: string;
+  partner_note: string|null;
 }
 
 export interface ErrorLogResponse extends BaseObject {

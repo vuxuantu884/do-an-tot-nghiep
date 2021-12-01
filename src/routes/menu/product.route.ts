@@ -198,6 +198,7 @@ const product: Array<RouteMenu> = [
     path: "submenu23",
     exact: true,
     title: "Cấu hình thuộc tính",
+    subTitle: "Cấu hình thuộc tính",
     icon: "icon-dot",
     component: Category,
     key: "submenu23",

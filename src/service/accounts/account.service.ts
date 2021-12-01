@@ -9,8 +9,8 @@ import { DepartmentResponse } from 'model/account/department.model';
 import { PositionResponse } from 'model/account/position.model';
 
 export const getAccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/detail`);
-}
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/me`);
+} 
 
 export const loginApi = (request: AuthenRequest): Promise<BaseResponse<LoginResponse>> => {
   return BaseAxios.post(`${ApiConfig.ACCOUNTS}/accounts/login`, request);
@@ -55,4 +55,16 @@ export const getPositionAllApi = (): Promise<BaseResponse<PositionResponse>> => 
 
 export const searchShipperApi = (): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?is_shipper=1`);
+}
+
+export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/power-bi/groups/${params.group_id}/reports/${params.report_id}`,
+  {
+    access_level: 'View',
+    allow_save_as: 'false'
+  });
+}
+
+export const accountUpdatePassScreenService = (request: AccountRequest): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.put(`${ApiConfig.ACCOUNTS}/me/update-password`, request)
 }

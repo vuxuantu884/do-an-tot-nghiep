@@ -22,8 +22,8 @@ import { OrderType } from "../../types/order.type";
 
 function* getOrderReturnDetailsSaga(action: YodyAction) {
   const { id, handleData } = action.payload;
-  yield put(showLoading());
   try {
+    yield put(showLoading());
     let response: BaseResponse<any> = yield call(getOrderReturnService, id);
 
     switch (response.code) {
@@ -47,8 +47,8 @@ function* getOrderReturnDetailsSaga(action: YodyAction) {
 
 function* createOrderReturnSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
-  yield put(showLoading());
   try {
+    yield put(showLoading());
     let response: BaseResponse<any> = yield call(
       createOrderReturnService,
       params
@@ -76,8 +76,8 @@ function* createOrderReturnSaga(action: YodyAction) {
 
 function* setIsReceivedProductReturnSaga(action: YodyAction) {
   const { id, handleData } = action.payload;
-  yield put(showLoading());
   try {
+    yield put(showLoading());
     let response: BaseResponse<any> = yield call(
       setIsReceivedProductOrderReturnService,
       id
@@ -97,7 +97,7 @@ function* setIsReceivedProductReturnSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi tạo nhận hàng đơn trả hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -106,6 +106,7 @@ function* setIsReceivedProductReturnSaga(action: YodyAction) {
 function* getOrderReturnReasonsSaga(action: YodyAction) {
   const { handleData } = action.payload;
   try {
+    yield put(showLoading());
     let response: BaseResponse<OrderReturnReasonModel[]> = yield call(
       getOrderReturnReasonService
     );
@@ -123,14 +124,16 @@ function* getOrderReturnReasonsSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy danh sách lý do trả hàng! Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* orderRefundSaga(action: YodyAction) {
   const { id, params, handleData } = action.payload;
-  yield put(showLoading());
   try {
+    yield put(showLoading());
     let response: BaseResponse<any> = yield call(
       orderRefundService,
       id,
@@ -140,7 +143,7 @@ function* orderRefundSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
-        showSuccess("Hoàn tiền thành công");
+        showSuccess("Hoàn tiền thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -151,16 +154,14 @@ function* orderRefundSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
-  } finally {
-    yield put(hideLoading());
+		showError("Có lỗi khi hoàn tiền đơn trả hàng! Vui lòng thử lại sau!");
   }
 }
 
 function* createOrderExchangeSaga(action: YodyAction) {
   const { params, handleData, handleError } = action.payload;
-  yield put(showLoading());
   try {
+    yield put(showLoading());
     let response: BaseResponse<any> = yield call(
       createOrderExchangeService,
       params
@@ -173,14 +174,16 @@ function* createOrderExchangeSaga(action: YodyAction) {
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+        handleError();
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        handleError();
         break;
     }
   } catch (error) {
     console.log("error", error);
-    handleError(error);
+    handleError();
     showError("Có lỗi khi tạo đơn đổi hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
@@ -190,6 +193,7 @@ function* createOrderExchangeSaga(action: YodyAction) {
 function* getOrderReturnLogSaga(action: YodyAction) {
   const { id, handleData } = action.payload;
   try {
+    yield put(showLoading());
     let response: BaseResponse<OrderActionLogResponse[]> = yield call(
       getOrderReturnLog,
       id
@@ -208,13 +212,16 @@ function* getOrderReturnLogSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy danh sách bản ghi đơn trả hàng! Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* getOrderReturnCalculateRefundSaga(action: YodyAction) {
   const { customerId, orderId, refund, handleData } = action.payload;
   try {
+    yield put(showLoading());
     let response: BaseResponse<any> = yield call(
       getOrderReturnCalculateRefund,
       customerId,
@@ -235,7 +242,9 @@ function* getOrderReturnCalculateRefundSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy dữ liệu điểm tích lũy! Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
   }
 }
 

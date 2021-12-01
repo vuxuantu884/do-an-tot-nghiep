@@ -6,7 +6,7 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
@@ -340,7 +340,7 @@ const OrderDetail = (props: PropType) => {
         case "clone":
           // history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
           const newTab = window.open(
-            `/unicorn/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
+            `/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
             "_blank"
           );
           newTab?.focus();
@@ -369,7 +369,7 @@ const OrderDetail = (props: PropType) => {
           console.log("response", response);
           // handleReload();
           setReload(true);
-        })
+        },)
       );
     }
   };
@@ -424,7 +424,7 @@ const OrderDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomerDetail));
     }
   }, [dispatch, OrderDetail]);
 
@@ -815,6 +815,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                                     disabledActions={disabledActions}
                                     listPaymentMethods={listPaymentMethods}
                                     form={form}
+                                    isDisablePostPayment={isDisablePostPayment}
                                   />
                                 )}
                               </Panel>
@@ -908,7 +909,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                               style={{marginTop: 10}}
                               // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
                               disabled={
-                                OrderDetail.source_code !== "POS" ||
+                                OrderDetail.source_code !== "POS" &&
                                ( stepsStatusValue === OrderStatus.CANCELLED ||
                                 stepsStatusValue === FulFillmentStatus.SHIPPED ||
                                 disabledBottomActions)
@@ -1075,9 +1076,12 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                     // setTotalPaid={setTotalPaid}
                     isVisibleUpdatePayment={isVisibleUpdatePayment}
                     setVisibleUpdatePayment={setVisibleUpdatePayment}
+                    // đơn POS vẫn cho thanh toán tiếp khi chưa thanh toán đủ
                     disabled={
-                      stepsStatusValue === OrderStatus.CANCELLED ||
-                      stepsStatusValue === FulFillmentStatus.SHIPPED
+                      OrderDetail.source_code !== "POS" &&
+                     (stepsStatusValue === OrderStatus.CANCELLED ||
+                      stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                      disabledBottomActions)
                     }
                     reload={() => {
                       setReload(true);

@@ -65,7 +65,7 @@ function CustomInput(props: CustomInputProps) {
         suffix={
           customer ? (
             <span style={{ backgroundColor: `${color[rankLvl()]}` }}>
-              {rankLvl() && `${rankLvl() || ""}: ${loyaltyPoint?.point || 0} điểm`}
+              {rankLvl() ? `${rankLvl() || ""}: ${loyaltyPoint?.point || 0} điểm` : "Chưa có hạng"}
             </span>
           ) : null
         }
@@ -74,7 +74,7 @@ function CustomInput(props: CustomInputProps) {
         onBlur={(value) => handleBlur(value.target.value)}
         onChange={(value) => handleChange(value.target.value)}
         disabled={isDisable}
-      ></Input>
+      />
     </Form.Item>
   );
 }

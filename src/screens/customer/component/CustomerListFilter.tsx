@@ -1,36 +1,36 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
+import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import {
-  Form,
+  AutoComplete,
+  Button, Form,
   Input,
   Select,
-  AutoComplete,
-  Button,
+  Tag
 } from "antd";
-import { DownOutlined, SearchOutlined } from "@ant-design/icons";
-
-import BaseFilter from "component/filter/base.filter";
 import { RefSelectProps } from "antd/lib/select";
-
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-
-import SelectAreaFilter from "screens/customer/component/SelectAreaFilter";
-import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
-
+import filterIcon from "assets/icon/filter.svg";
 import rightArrow from "assets/icon/right-arrow.svg";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
-import { StyledCustomerBaseFilter, StyledCustomerFilter } from "screens/customer/customerStyled";
+import BaseFilter from "component/filter/base.filter";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ChannelResponse } from "model/response/product/channel.response";
-import { RegUtil } from "utils/RegUtils";
 import moment from "moment";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import SelectAreaFilter from "screens/customer/component/SelectAreaFilter";
+import { StyledCustomerBaseFilter, StyledCustomerFilter } from "screens/customer/customerStyled";
+import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
+import { RegUtil } from "utils/RegUtils";
 
-import filterIcon from "assets/icon/filter.svg";
+
+
+
+
+
 
 
 type CustomerListFilterProps = {
@@ -90,6 +90,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     }),
     []
   );
+
+  const initialValues = useMemo(() => {
+    return {
+      ...params,
+    };
+  }, [params]);
 
   const AccountConvertResultSearch = React.useMemo(() => {
     let options: any[] = [];
@@ -335,23 +341,23 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const [firstOrderDateClick, setFirstOrderDateClick] = useState("");
   const [lastOrderDateClick, setLastOrderDateClick] = useState("");
 
-  const [firstOrderDateMin, setFirstOrderDateMin] = useState(
+  const [firstOrderDateFrom, setFirstOrderDateFrom] = useState(
     params.date_of_first_order
       ? moment(params.date_of_first_order, "DD-MM-YYYY")
       : null
   );
-  const [firstOrderDateMax, setFirstOrderDateMax] = useState(
+  const [firstOrderDateTo, setFirstOrderDateTo] = useState(
     params.date_of_first_order
       ? moment(params.date_of_first_order, "DD-MM-YYYY")
       : null
   );
 
-  const [lastOrderDateMin, setLastOrderDateMin] = useState(
+  const [lastOrderDateFrom, setLastOrderDateFrom] = useState(
     params.date_of_last_order
       ? moment(params.date_of_last_order, "DD-MM-YYYY")
       : null
   );
-  const [lastOrderDateMax, setLastOrderDateMax] = useState(
+  const [lastOrderDateTo, setLastOrderDateTo] = useState(
     params.date_of_last_order
       ? moment(params.date_of_last_order, "DD-MM-YYYY")
       : null
@@ -413,23 +419,23 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         case "firstOrderDate":
           if (firstOrderDateClick === value) {
             setFirstOrderDateClick("");
-            setFirstOrderDateMin(null);
-            setFirstOrderDateMax(null);
+            setFirstOrderDateFrom(null);
+            setFirstOrderDateTo(null);
           } else {
             setFirstOrderDateClick(value);
-            setFirstOrderDateMin(moment(minValue, "DD-MM-YYYY"));
-            setFirstOrderDateMax(moment(maxValue, "DD-MM-YYYY"));
+            setFirstOrderDateFrom(moment(minValue, "DD-MM-YYYY"));
+            setFirstOrderDateTo(moment(maxValue, "DD-MM-YYYY"));
           }
           break;
         case "lastOrderDate":
           if (lastOrderDateClick === value) {
             setLastOrderDateClick("");
-            setLastOrderDateMin(null);
-            setLastOrderDateMax(null);
+            setLastOrderDateFrom(null);
+            setLastOrderDateTo(null);
           } else {
             setLastOrderDateClick(value);
-            setLastOrderDateMin(moment(minValue, "DD-MM-YYYY"));
-            setLastOrderDateMax(moment(maxValue, "DD-MM-YYYY"));
+            setLastOrderDateFrom(moment(minValue, "DD-MM-YYYY"));
+            setLastOrderDateTo(moment(maxValue, "DD-MM-YYYY"));
           }
           break;
         default:
@@ -443,13 +449,13 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     switch (type) {
       case "firstOrderDate":
         setFirstOrderDateClick("");
-        setFirstOrderDateMin(dateString[0]);
-        setFirstOrderDateMax(dateString[1]);
+        setFirstOrderDateFrom(dateString[0]);
+        setFirstOrderDateTo(dateString[1]);
         break;
       case "lastOrderDate":
         setLastOrderDateClick("");
-        setLastOrderDateMin(dateString[0]);
-        setLastOrderDateMax(dateString[1]);
+        setLastOrderDateFrom(dateString[0]);
+        setLastOrderDateTo(dateString[1]);
         break;
       default:
         break;
@@ -457,6 +463,139 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }, []);
   // end handle select date
 
+  // handle tag filter
+  let filters = useMemo(() => {
+    let list = [];
+
+    if (initialValues.gender) {
+      const gender = LIST_GENDER?.find((item) => item.value.toString() === initialValues.gender.toString());
+      list.push({
+        key: "gender",
+        name: "Giới tính",
+        value: gender?.name,
+      });
+    }
+
+    if (initialValues.customer_group_id) {
+      const group = groups?.find((item: any) => item.id.toString() === initialValues.customer_group_id.toString());
+      list.push({
+        key: "customer_group_id",
+        name: "Nhóm khách hàng",
+        value: group?.name,
+      });
+    }
+
+    if (initialValues.customer_level_id) {
+      const loyaltyUsageRule = loyaltyUsageRules?.find((item: any) => item.rank_id.toString() === initialValues.customer_level_id.toString());
+      list.push({
+        key: "customer_level_id",
+        name: "Hạng thẻ",
+        value: loyaltyUsageRule?.rank_name,
+      });
+    }
+
+    if (initialValues.responsible_staff_code) {
+      const staff = AccountConvertResultSearch?.find((item: any) => item.value.split(" - ")[0] === initialValues.responsible_staff_code);
+      list.push({
+        key: "responsible_staff_code",
+        name: "Nhân viên phụ trách",
+        value: staff?.label,
+      });
+    }
+
+    if (initialValues.customer_type_id) {
+      const customer_type = types?.find((item: any) => item.id.toString() === initialValues.customer_type_id.toString());
+      list.push({
+        key: "customer_type_id",
+        name: "Loại khách hàng",
+        value: customer_type?.name,
+      });
+    }
+
+    if (initialValues.card_issuer) {
+      const store = listStore?.find((item: any) => item.id.toString() === initialValues.card_issuer.toString());
+      list.push({
+        key: "card_issuer",
+        name: "Cửa hàng cấp thẻ",
+        value: store?.name,
+      });
+    }
+
+    if (initialValues.store_ids?.length) {
+      let stores = "";
+      initialValues.store_ids.forEach((store_id: any) => {
+        const findStatus = listStore?.find((item) => item.id.toString() === store_id.toString());
+        stores = findStatus ? (stores + findStatus.name + "; ") : stores;
+      });
+      list.push({
+        key: "store_ids",
+        name: "Cửa hàng",
+        value: stores,
+      });
+    }
+
+    if (initialValues.day_of_birth_from || initialValues.day_of_birth_to) {
+      let textDayOfBirth =
+        (initialValues.day_of_birth_from ? initialValues.day_of_birth_from : "??") +
+        " ~ " +
+        (initialValues.day_of_birth_to ? initialValues.day_of_birth_to : "??");
+      list.push({
+        key: "day_of_birth",
+        name: "Ngày sinh",
+        value: textDayOfBirth,
+      });
+    }
+    
+
+    return list;
+  },
+    [initialValues.gender, initialValues.customer_group_id, initialValues.customer_level_id, initialValues.responsible_staff_code, initialValues.customer_type_id, initialValues.card_issuer, initialValues.store_ids, initialValues.day_of_birth_from, initialValues.day_of_birth_to, LIST_GENDER, groups, loyaltyUsageRules, AccountConvertResultSearch, types, listStore]);
+    
+  // close tag filter
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      e.preventDefault();
+      switch (tag.key) {
+        case "gender":
+          onFilter && onFilter({ ...params, gender: null });
+          formCustomerFilter?.setFieldsValue({ gender: null });
+          break;
+        case "customer_group_id":
+          onFilter && onFilter({ ...params, customer_group_id: null });
+          formCustomerFilter?.setFieldsValue({ customer_group_id: null });
+          break;
+        case "customer_level_id":
+          onFilter && onFilter({ ...params, customer_level_id: null });
+          formCustomerFilter?.setFieldsValue({ customer_level_id: null });
+          break;
+        case "responsible_staff_code":
+          onFilter && onFilter({ ...params, responsible_staff_code: null });
+          formCustomerFilter?.setFieldsValue({ responsible_staff_code: null });
+          break;
+        case "customer_type_id":
+          onFilter && onFilter({ ...params, customer_type_id: null });
+          formCustomerFilter?.setFieldsValue({ customer_type_id: null });
+          break;
+        case "card_issuer":
+          onFilter && onFilter({ ...params, card_issuer: null });
+          formCustomerFilter?.setFieldsValue({ card_issuer: null });
+          break;
+        case "store_ids":
+          onFilter && onFilter({ ...params, store_ids: [] });
+          formCustomerFilter?.setFieldsValue({ store_ids: [] });
+          break;
+        case "day_of_birth":
+          onFilter && onFilter({ ...params, day_of_birth_from: null, day_of_birth_to: null });
+          formCustomerFilter?.setFieldsValue({ day_of_birth_from: null, day_of_birth_to: null });
+          break;
+        
+        default:
+          break;
+      }
+    },
+    [formCustomerFilter, onFilter, params]
+  );
+  // end handle tag filter
 
   // handle filter action
   const openBaseFilter = useCallback(() => {
@@ -482,12 +621,28 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   const onFinish = useCallback(
     (values) => {
-      values.responsible_staff_code = values.responsible_staff_code
-      ? values.responsible_staff_code.split(" - ")[0]
-      : null;
-      onFilter && onFilter(values);
+      const formValues = {
+        ...values,
+        responsible_staff_code: values.responsible_staff_code
+          ? values.responsible_staff_code.split(" - ")[0]
+          : null,
+        first_order_date_from: firstOrderDateFrom
+          ? moment(firstOrderDateFrom, "DD-MM-YYYY")?.format("DD-MM-YYYY")
+          : null,
+        first_order_date_to: firstOrderDateTo
+          ? moment(firstOrderDateTo, "DD-MM-YYYY").format("DD-MM-YYYY")
+          : null,
+        last_order_date_from: lastOrderDateFrom
+          ? moment(lastOrderDateFrom, "DD-MM-YYYY")?.format("DD-MM-YYYY")
+          : null,
+        last_order_date_to: lastOrderDateTo
+          ? moment(lastOrderDateTo, "DD-MM-YYYY").format("DD-MM-YYYY")
+          : null,
+      };
+        
+      onFilter && onFilter(formValues);
     },
-    [onFilter]
+    [firstOrderDateTo, firstOrderDateFrom, lastOrderDateTo, lastOrderDateFrom, onFilter]
   );
 
   
@@ -582,7 +737,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   className="center-filter"
                 >
                   <Select
-                    mode="multiple"
+                    // mode="multiple"
                     maxTagCount="responsive"
                     showSearch
                     showArrow
@@ -604,7 +759,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   className="right-filter"
                 >
                   <Select
-                    mode="multiple"
+                    // mode="multiple"
                     showSearch
                     showArrow
                     allowClear
@@ -652,10 +807,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   className="center-filter"
                 >
                   <Select
-                    mode="multiple"
+                    // mode="multiple"
                     maxTagCount="responsive"
                     showSearch
-                    placeholder="Loại khách hàng"
+                    placeholder="Chọn loại khách hàng"
                     allowClear
                     optionFilterProp="children"
                   >
@@ -668,12 +823,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 </Form.Item>
 
                 <Form.Item
-                  name="store_card"
+                  name="card_issuer"
                   label={<b>Cửa hàng cấp thẻ</b>}
                   className="right-filter"
                 >
                   <Select
-                    mode="multiple"
+                    // mode="multiple"
                     showSearch
                     showArrow
                     allowClear
@@ -693,7 +848,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
               <div className="base-filter-row">
                 <Form.Item
-                  name="store"
+                  name="store_ids"
                   label={<b>Cửa hàng</b>}
                   className="left-filter"
                 >
@@ -717,7 +872,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 <div className="center-filter">
                   <div className="title">Ngày sinh</div>
                   <div className="select-scope">
-                    <Form.Item name="from_birthday" className="select-item">
+                    <Form.Item name="day_of_birth_from" className="select-item">
                       <Select
                         showSearch
                         allowClear
@@ -735,7 +890,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="to_birthday" className="select-item">
+                    <Form.Item name="day_of_birth_to" className="select-item">
                       <Select
                         showSearch
                         allowClear
@@ -757,7 +912,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 <div className="right-filter">
                   <div className="title">Năm sinh</div>
                   <div className="select-scope">
-                    <Form.Item name="from_birthYear" className="select-item">
+                    <Form.Item name="year_of_birth_from" className="select-item">
                       <Select
                         showSearch
                         allowClear
@@ -775,7 +930,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="to_birthYear" className="select-item">
+                    <Form.Item name="year_of_birth_to" className="select-item">
                       <Select
                         showSearch
                         allowClear
@@ -796,7 +951,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
               <div className="base-filter-row">
                 <Form.Item
-                  name="channel"   // todo thai need update
+                  name="channel_ids"
                   label={<b>Kênh mua hàng</b>}
                   className="left-filter"
                 >
@@ -820,7 +975,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 <div className="center-filter">
                   <div className="title">Tháng sinh</div>
                   <div className="select-scope">
-                    <Form.Item name="from_birthMonth" className="select-item">
+                    <Form.Item name="month_of_birth_from" className="select-item">
                       <Select
                         showSearch
                         allowClear
@@ -838,7 +993,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="to_birthMonth" className="select-item">
+                    <Form.Item name="month_of_birth_to" className="select-item">
                       <Select
                         showSearch
                         allowClear
@@ -862,7 +1017,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   <div className="select-scope">
                     <Form.Item
                       className="select-item"
-                      name="from_age"
+                      name="age_from"
                       rules={[
                         {
                           pattern: RegUtil.NUMBERREG,
@@ -877,7 +1032,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                     <Form.Item
                       className="select-item"
-                      name="to_age"
+                      name="age_to"
                       rules={[
                         {
                           pattern: RegUtil.NUMBERREG,
@@ -890,7 +1045,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   </div>
                 </div>
               </div>
-
               
               <div className="base-filter-row">
                 {/* Tìm kiếm theo khu vực */}
@@ -904,7 +1058,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <div className="select-scope">
                       <Form.Item
                         className="select-item"
-                        name="from_total_finished_order"
+                        name="total_order_from"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -919,7 +1073,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                       <Form.Item
                         className="select-item"
-                        name="to_total_finished_order"
+                        name="total_order_to"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -937,7 +1091,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <div className="select-scope">
                       <Form.Item
                         className="select-item"
-                        name="from_total_paid_amount"
+                        name="accumulated_amount_from"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -952,7 +1106,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                       <Form.Item
                         className="select-item"
-                        name="to_total_paid_amount"
+                        name="accumulated_amount_to"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -970,7 +1124,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <div className="select-scope">
                       <Form.Item
                         className="select-item"
-                        name="from_total_returned_order"
+                        name="total_refunded_order_from"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -985,7 +1139,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                       <Form.Item
                         className="select-item"
-                        name="to_total_returned_order"
+                        name="total_refunded_order_to"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1005,7 +1159,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <div className="select-scope">
                       <Form.Item
                         className="select-item"
-                        name="from_remain_amount_to_level_up"
+                        name="remain_amount_from"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1020,7 +1174,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                       <Form.Item
                         className="select-item"
-                        name="to_remain_amount_to_level_up"
+                        name="remain_amount_to"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1038,7 +1192,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <div className="select-scope">
                       <Form.Item
                         className="select-item"
-                        name="from_average_order_amount"
+                        name="average_order_amount_from"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1053,7 +1207,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                       <Form.Item
                         className="select-item"
-                        name="to_average_order_amount"
+                        name="average_order_amount_to"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1071,7 +1225,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <div className="select-scope">
                       <Form.Item
                         className="select-item"
-                        name="from_total_refunded_amount"
+                        name="total_refunded_amount_from"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1086,7 +1240,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                       <Form.Item
                         className="select-item"
-                        name="to_total_refunded_amount"
+                        name="total_refunded_amount_to"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1101,10 +1255,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 </div>
               </div>
 
-              
               <div className="base-filter-row">
                 <Form.Item
-                  name="place_of_first_order"   // todo thai need update
+                  name="first_order_store_id"
                   label={<b>Cửa hàng mua đầu</b>}
                   className="left-filter"
                 >
@@ -1126,7 +1279,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 </Form.Item>
 
                 <Form.Item
-                  name="place_of_last_order"
+                  name="last_order_store_id"
                   label={<b>Cửa hàng mua cuối</b>}
                   className="center-filter"
                 >
@@ -1152,7 +1305,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <div className="select-scope">
                       <Form.Item
                         className="select-item"
-                        name="from_day_without_purchase"
+                        name="days_without_purchase_from"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1167,7 +1320,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                       <Form.Item
                         className="select-item"
-                        name="to_day_without_purchase"
+                        name="days_without_purchase_to"
                         rules={[
                           {
                             pattern: RegUtil.NUMBERREG,
@@ -1188,8 +1341,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     onChangeRangeDate={onChangeRangeDate}
                     dateType="firstOrderDate"
                     dateSelected={firstOrderDateClick}
-                    startDate={firstOrderDateMin}
-                    endDate={firstOrderDateMax}
+                    startDate={firstOrderDateFrom}
+                    endDate={firstOrderDateTo}
                   />
                 </Form.Item>
 
@@ -1199,8 +1352,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     onChangeRangeDate={onChangeRangeDate}
                     dateType="lastOrderDate"
                     dateSelected={lastOrderDateClick}
-                    startDate={lastOrderDateMin}
-                    endDate={lastOrderDateMax}
+                    startDate={lastOrderDateFrom}
+                    endDate={lastOrderDateTo}
                   />
                 </Form.Item>
 
@@ -1209,7 +1362,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   <div className="select-scope">
                     <Form.Item
                       className="select-item"
-                      name="from_point"
+                      name="accumulated_amount_from"
                       rules={[
                         {
                           pattern: RegUtil.NUMBERREG,
@@ -1224,7 +1377,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                     <Form.Item
                       className="select-item"
-                      name="to_point"
+                      name="accumulated_amount_to"
                       rules={[
                         {
                           pattern: RegUtil.NUMBERREG,
@@ -1242,6 +1395,21 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           </Form>
         </StyledCustomerBaseFilter>
       </BaseFilter>
+
+      <div className="filter-tags">
+        {filters?.map((filter: any, index) => {
+          return (
+            <Tag
+              key={filter.key}
+              className="tag"
+              closable={!isLoading}
+              onClose={(e) => onCloseTag(e, filter)}
+            >
+              {filter.name}: {filter.value}
+            </Tag>
+          );
+        })}
+      </div>
     </StyledCustomerFilter>
   );
 };

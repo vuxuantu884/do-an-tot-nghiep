@@ -33,7 +33,7 @@ import moment from "moment";
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {getShippingAddressDefault, SumWeight} from "utils/AppUtils";
-import {ShipmentMethodOption} from "utils/Constants";
+import {ShipmentMethodOption, SHIPPING_REQUIREMENT} from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -62,6 +62,7 @@ type PropType = {
   setShippingFeeInformedToCustomer: (value: number) => void;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   handleCreateShipment?: () => void;
+  creating?: boolean;
   handleCancelCreateShipment?: () => void;
 };
 
@@ -96,6 +97,8 @@ type PropType = {
  *
  * handleCreateShipment: xử lý khi click nút tạo đơn giao hàng trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  *
+ * creating: loading status create
+ * 
  * handleCancelCreateShipment: xử lý khi click nút hủy trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  */
 function OrderCreateShipment(props: PropType) {
@@ -115,9 +118,10 @@ function OrderCreateShipment(props: PropType) {
     onSelectShipment,
     setShippingFeeInformedToCustomer,
     handleCreateShipment,
+    creating,
     handleCancelCreateShipment,
   } = props;
-  console.log('props', props)
+  // console.log('props', props)
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
@@ -129,7 +133,7 @@ function OrderCreateShipment(props: PropType) {
   >([]);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
-console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
+// console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
@@ -219,6 +223,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
             onClick={() => {
               handleCreateShipment && handleCreateShipment();
             }}
+            loading={creating}
           >
             Tạo đơn giao hàng
           </Button>
@@ -228,6 +233,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
               handleCancelCreateShipment && handleCancelCreateShipment();
             }}
             style={{float: "right"}}
+            disabled={creating}
           >
             Hủy
           </Button>
@@ -238,10 +244,6 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
   };
 
   useEffect(() => {
-    if (!storeDetail) {
-      setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
-      return;
-    }
     if (
       customer &&
       storeDetail &&
@@ -250,6 +252,11 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
       getShippingAddressDefault(customer)?.ward_id &&
       getShippingAddressDefault(customer)?.full_address
     ) {
+      if (!((storeDetail.city_id || storeDetail.district_id) &&
+          storeDetail.ward_id && storeDetail.address)) {
+        setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
+        return;
+      }
       let request = {
         from_city_id: storeDetail?.city_id,
         from_city: storeDetail?.city_name,
@@ -277,7 +284,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
         coupon: "",
         cod: 0,
       };
-      console.log("request", request);
+      // console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
@@ -298,14 +305,18 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
    * Chọn yêu cầu xem hàng
    */
   useEffect(() => {
-    if (orderConfig) {
+    if (orderConfig && !form.getFieldValue('requirements')) {
       if (orderConfig.for_all_order) {
         form?.setFieldsValue({
           requirements: orderConfig.order_config_action,
         });
-      }
+      } else {
+				form?.setFieldsValue({
+          requirements: shipping_requirements?.find(requirement => requirement.value === SHIPPING_REQUIREMENT.default)?.value,
+        });
+			}
     }
-  }, [form, orderConfig]);
+  }, [form, orderConfig, shipping_requirements]);
 
   useEffect(() => {
     dispatch(
@@ -349,8 +360,8 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
           </Col>
 
           <Col md={6}>
-            <Form.Item name="office_time">
-              <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+            <Form.Item name="office_time" valuePropName="checked">
+              <Checkbox  style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
             </Form.Item>
           </Col>
           <Col md={9}>

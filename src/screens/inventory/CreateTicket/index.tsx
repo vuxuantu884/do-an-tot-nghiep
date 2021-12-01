@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { StyledWrapper } from "./index.style";
+import './index.scss'
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
@@ -61,7 +61,7 @@ import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { Link } from "react-router-dom";
-import { InventoryResponse } from "model/inventory";
+import { InventoryResponse } from "model/inventory"; 
 
 const { Option } = Select;
 
@@ -320,7 +320,7 @@ const CreateTicket: FC = () => {
     if (result) {
       setIsLoadingTable(false);
       const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable, newOnHand;
+        let newAvailable, newOnHand; 
         result?.forEach((itemNew: InventoryResponse) => {
           if (itemNew.variant_id === itemOld.id) {
             newAvailable = itemNew.available;
@@ -347,7 +347,7 @@ const CreateTicket: FC = () => {
     const variants_id = dataTable?.map((item: VariantResponse) => item.id);
 
     if (variants_id?.length > 0) {
-      setIsLoadingTable(true);      
+      setIsLoadingTable(true);     
       dispatch(
         inventoryGetDetailVariantIdsAction(variants_id, storeId, onResultGetDetailVariantIds)
       );
@@ -619,7 +619,6 @@ const CreateTicket: FC = () => {
   ];
 
   return (
-    <StyledWrapper>
       <ContentContainer
         title="Thêm mới phiếu chuyển hàng"
         breadcrumb={[
@@ -778,7 +777,7 @@ const CreateTicket: FC = () => {
                       onSelect={onSelectProduct}
                       options={renderResult}
                       onClickAddNew={() => {
-                        window.open(`/unicorn/admin${UrlConfig.PRODUCT}/create`, "_blank");
+                        window.open(`/admin${UrlConfig.PRODUCT}/create`, "_blank");
                       }}
                       ref={productSearchRef}
                     />
@@ -872,7 +871,7 @@ const CreateTicket: FC = () => {
           {visibleManyProduct && (
             <PickManyProductModal
               storeID={form.getFieldValue("from_store_id")}
-              selected={[]}
+              selected={dataTable}
               isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}
@@ -895,8 +894,7 @@ const CreateTicket: FC = () => {
           }
         </Form>
       </ContentContainer>
-    </StyledWrapper>
   );
-};
+}; 
 
 export default CreateTicket;

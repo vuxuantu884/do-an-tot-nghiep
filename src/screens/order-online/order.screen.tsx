@@ -10,7 +10,8 @@ import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
@@ -54,11 +55,13 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
+	getAccountCodeFromCodeAndName,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
   scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
+  DEFAULT_COMPANY,
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
@@ -114,7 +117,7 @@ export default function Order() {
     service: "",
     shipping_fee_paid_to_three_pls: null,
   });
-  console.log("thirdPL", thirdPL);
+  console.log("items333", items);
   const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
@@ -203,6 +206,7 @@ export default function Order() {
   let initialRequest: OrderRequest = {
     action: "", //finalized
     store_id: null,
+    company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
@@ -218,7 +222,8 @@ export default function Order() {
     tags: "",
     customer_note: "",
     account_code: userReducer.account?.code,
-    assignee_code: userReducer.account?.code || null,
+    // assignee_code: userReducer.account?.code || null,
+		assignee_code: `${userReducer.account?.code} - ${userReducer.account?.full_name}`,
     marketer_code: null,
     coordinator_code: null,
     customer_id: null,
@@ -236,6 +241,7 @@ export default function Order() {
     billing_address: null,
     payments: [],
     channel_id: null,
+		automatic_discount: true,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -258,7 +264,7 @@ export default function Order() {
     let shipmentRequest = createShipmentRequest(value);
     let request: FulFillmentRequest = {
       store_id: value.store_id,
-      account_code: userReducer.account?.code,
+      account_code: `${userReducer.account?.code}`,
       assignee_code: value.assignee_code,
       delivery_type: "",
       stock_location_id: null,
@@ -439,10 +445,10 @@ export default function Order() {
       setIsSaveDraft(false);
       setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
-        showSuccess("Đơn được lưu và duyệt thành công");
+        showSuccess("Đơn được lưu và duyệt thành công!");
         history.push(`${UrlConfig.ORDER}/${value.id}`);
       } else {
-        showSuccess("Đơn được lưu nháp thành công");
+        showSuccess("Đơn được lưu nháp thành công!");
         history.push(`${UrlConfig.ORDER}/${value.id}`);
       }
     },
@@ -472,8 +478,13 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
+
   const onFinish = (values: OrderRequest) => {
     values.channel_id = DEFAULT_CHANNEL_ID;
+    values.company_id = DEFAULT_COMPANY.company_id;
+		values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
+		values.marketer_code = getAccountCodeFromCodeAndName(values.marketer_code);
+		values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -492,7 +503,7 @@ export default function Order() {
       values.total = orderAmount;
       values.shipping_fee_informed_to_customer = 0;
     } else {
-      //Nếu là đơn lưu và duyệt
+      //Nếu là đơn lưu và xác nhận
       values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
@@ -516,6 +527,9 @@ export default function Order() {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
+    values.customer_ward = customer?.ward;
+    values.customer_district = customer?.district;
+    values.customer_city = customer?.city;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -527,6 +541,12 @@ export default function Order() {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
+        if( shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+          showError("Vui lòng nhập địa chỉ giao hàng!");
+          const element: any = document.getElementById("shippingAddress_update_full_address");
+          scrollAndFocusToDomElement(element);
+          return;
+        }
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (typeButton === OrderStatus.DRAFT) {
             setIsSaveDraft(true);
@@ -542,7 +562,11 @@ export default function Order() {
           } else {
             (async () => {
               try {
-                await dispatch(orderCreateAction(values, createOrderCallback));
+                await dispatch(orderCreateAction(values, createOrderCallback, () => {
+                  // on error
+                  setCreating(false);
+                  setIsSaveDraft(false);
+                }));
               } catch {
                 setCreating(false);
                 setIsSaveDraft(false);
@@ -569,7 +593,11 @@ export default function Order() {
                 (async () => {
                   console.log('values', values);
                   try {
-                    await dispatch(orderCreateAction(values, createOrderCallback));
+                    await dispatch(orderCreateAction(values, createOrderCallback, () => {
+                      // on error
+                      setCreating(false);
+                      setIsSaveDraft(false);
+                    }));
                   } catch {
                     setCreating(false);
                     setIsSaveDraft(false);
@@ -639,7 +667,7 @@ export default function Order() {
 
             if (customer_id) {
               dispatch(
-                CustomerDetail(customer_id, (responseCustomer) => {
+                getCustomerDetailAction(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
 
                   responseCustomer.shipping_addresses.forEach((item) => {
@@ -667,6 +695,7 @@ export default function Order() {
                     show_note: item.show_note,
                     variant_barcode: item.variant_barcode,
                     product_id: item.product_id,
+                    product_code: item.product_code,
                     product_type: item.product_type,
                     quantity: item.quantity,
                     price: item.price,
@@ -750,6 +779,7 @@ export default function Order() {
                 note: response.note,
                 tags: response.tags,
                 channel_id: response.channel_id,
+								automatic_discount: response.automatic_discount,
               });
               form.resetFields();
               // load lại form sau khi set initialValue
@@ -952,18 +982,19 @@ export default function Order() {
   );
 
   const checkInventory = () => {
-    let status = true;
+    let status:boolean = true;
 
     if (items && items != null) {
       items.forEach(function (value) {
         let available = value.available === null ? 0 : value.available;
         if (available <= 0 && configOrder?.sellable_inventory !== true) {
           status = false;
-          showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
-          setCreating(false);
+          //setCreating(false);
         }
       });
+      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
     }
+    
     return status;
   };
 
@@ -980,13 +1011,14 @@ export default function Order() {
   //   );
   // }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (items && items != null&& items.length) {
-  //     let variant_id: Array<number> = [];
-  //     items.forEach((element) => variant_id.push(element.variant_id));
-  //     dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-  //   }
-  // }, [dispatch, items]);
+  useEffect(() => {
+    if (items && items != null && items?.length > 0) {
+      let variant_id: Array<number> = [];
+      items.forEach((element) => variant_id.push(element.variant_id));
+      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, items?.length]);
 
   useEffect(() => {
     dispatch(
@@ -1048,7 +1080,7 @@ export default function Order() {
             name: "Tạo mới đơn hàng",
           },
         ]}
-        extra={<CreateBillStep status="draff" orderDetail={null} />}
+        extra={<CreateBillStep orderDetail={null} />}
       >
         <React.Fragment>
           <div className="orders">
@@ -1122,6 +1154,7 @@ export default function Order() {
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
                       orderSourceId={orderSourceId}
+                      configOrder={configOrder}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments
@@ -1160,6 +1193,7 @@ export default function Order() {
                       tags={tags}
                       onChangeTag={onChangeTag}
                       customerId={customer?.id}
+											form={form}
                     />
                   </Col>
                 </Row>

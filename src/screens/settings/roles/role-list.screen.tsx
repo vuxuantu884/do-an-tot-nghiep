@@ -1,21 +1,21 @@
-import {Card} from "antd";
+import { Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
-import {RoleSearchAction} from "domain/actions/auth/role.action";
-import {PermissionsAuthorize} from "model/auth/permission.model";
-import {RoleAuthorize, RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {HiChevronDoubleDown, HiChevronDoubleRight} from "react-icons/hi";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
-import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-import {RoleListStyled} from "./role-list.style";
+import { RoleSearchAction } from "domain/actions/auth/role.action";
 import _ from "lodash";
+import { PermissionsAuthorize } from "model/auth/permission.model";
+import { RoleAuthorize, RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { HiChevronDoubleDown, HiChevronDoubleRight } from "react-icons/hi";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { RoleListStyled } from "./role-list.style";
 const defaultRoleListParams: RoleSearchQuery = {
   page: 1,
   limit: 200,
@@ -46,7 +46,7 @@ const RoleListScreen = () => {
       title: "Tên nhóm quyền",
       dataIndex: "name",
       render: (value, record) => {
-        return <Link to="#">{value}</Link>;
+        return <Link to={`${UrlConfig.ROLES}/${record.id}/update`}>{value}</Link>;
       },
       visible: true,
     },
@@ -127,7 +127,7 @@ const RoleListScreen = () => {
           path: `${UrlConfig.ROLES}`,
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.ROLES}/create`} />}
+      extra={<ButtonCreate child="Thêm nhóm quyền" path={`${UrlConfig.ROLES}/create`} />}
     >
       <RoleListStyled>
         <Card>

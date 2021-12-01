@@ -1,8 +1,9 @@
 import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
+import SidebarOrderDetailExtraInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailExtraInformation";
 import UrlConfig from "config/url.config";
 import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import {
   getLoyaltyPoint,
   getLoyaltyUsage,
@@ -31,9 +32,8 @@ import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "../components/CardShowReturnProducts";
-import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
-import OrderShortDetails from "../components/Sidebar/OrderShortDetailsReturn";
+import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
 
 type PropType = {};
 type OrderParam = {
@@ -202,7 +202,7 @@ const ScreenReturnDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
+      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomerDetail));
     }
   }, [dispatch, OrderDetail]);
 
@@ -288,12 +288,12 @@ const ScreenReturnDetail = (props: PropType) => {
               </Form>
             </Col>
             <Col md={6}>
-              <OrderShortDetails OrderDetail={OrderDetail} />
+              <OrderShortDetailsReturn OrderDetail={OrderDetail} />
               <OrderReturnActionHistory
                 orderId={id}
                 countChangeSubStatus={countChangeSubStatus}
               />
-              <OrderMoreDetails OrderDetail={OrderDetail} />
+              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
             </Col>
           </Row>
         </div>

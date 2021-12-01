@@ -38,7 +38,7 @@ import {
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 
-import ConfirmConnectProductModal from "./ConfirmConnectProductModal";
+import ConfirmConnectProductModal from "screens/ecommerce/products/tab/not-connected-items/ConfirmConnectProductModal";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
 import ResultConnectProductModal from "screens/ecommerce/products/tab/not-connected-items/ResultConnectProductModal";
@@ -480,7 +480,7 @@ const NotConnectedItems: React.FC = () => {
         )}
 
         {productSelected && productSelected.id && (
-          <div>
+          <div className="yody-product-info">
             <ul>
               <li>
                 <b>Tên sản phẩm: </b>
@@ -512,11 +512,12 @@ const NotConnectedItems: React.FC = () => {
             </ul>
 
             {allowProductsConnect &&
-              <div className="button">
+              <div className="yody-product-button">
                 <Button
                   type="primary"
                   onClick={handleSaveConnectYodyProduct}
                   loading={!isVisibleConfirmConnectModal && isSaving}
+                  className="save-button"
                 >
                   Lưu
                 </Button>
@@ -1090,6 +1091,7 @@ const NotConnectedItems: React.FC = () => {
         </StyledProductFilter>
 
         <CustomTable
+          bordered
           isRowSelection={allowProductsConnect}
           isLoading={isLoading}
           onSelectedChange={onSelectTable}

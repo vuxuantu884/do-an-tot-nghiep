@@ -14,10 +14,14 @@ export const globalCssLayoutOutsideComponent = css`
     .hideInSelect {
       display: none;
     }
+    
   }
   .ant-select-item-option  {
     .hideInDropdown {
       display: none;
+    }
+    .itemParent {
+      font-weight: 500;
     }
   }
 `;

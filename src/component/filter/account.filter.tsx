@@ -72,8 +72,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
               allowClear
               placeholder="Cửa hàng"
               style={{
-                minWidth: 200,
-                width: "100%",
+                width: 250,
               }}
             >
               {listStore?.map((item) => (
@@ -85,19 +84,32 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
           </Form.Item>
           <Form.Item name="department_ids">
             <Select
+              showSearch
               allowClear
               showArrow
-              placeholder="Bộ phận"
+              placeholder="Chọn bộ phận"
+              optionFilterProp="title"  
               style={{
-                minWidth: 200,
-                width: "100%",
+                width: 250,
               }}
             >
-              {listDepartment?.map((item) => (
-                <Select.Option key={item.id} value={item.id}>
-                  {item.name}
-                </Select.Option>
-              ))}
+             {listDepartment &&
+                  listDepartment.map((single: any) => {
+                    return (
+                      <Select.Option value={single.id} key={single.id} title={single.name}>
+                        <span
+                          className="hideInSelect"
+                          style={{paddingLeft: +18 * single.level}}
+                        ></span>
+                        {single?.parent?.name && (
+                          <span className="hideInDropdown">
+                            {single?.parent?.name} -{" "}
+                          </span>
+                        )}
+                        <span  className={`${single.level === 0 && "itemParent"}`}>{single.name}</span>
+                      </Select.Option>
+                    );
+                  })}
             </Select>
           </Form.Item>
           <Form.Item>

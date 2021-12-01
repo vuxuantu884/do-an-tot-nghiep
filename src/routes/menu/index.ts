@@ -16,8 +16,10 @@ const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
-const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"))
-const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"))
+const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"));
+const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"));
+const Report = React.lazy(() => import ("screens/reports"));
+const YDpage = React.lazy(() => import ("screens/YDpage/YDpage"));
 
 const menu: Array<RouteMenu> = [
   {
@@ -110,11 +112,11 @@ const menu: Array<RouteMenu> = [
     subMenu: ecommerce,
   },
   {
-    path: "/report",
+    path: "/reports",
     exact: true,
     title: "Báo cáo",
     icon: 'icon-report',
-    component: null,
+    component: Report,
     key: "9",
     isShow: true,
     header: null,
@@ -132,7 +134,7 @@ const menu: Array<RouteMenu> = [
     subMenu: setting,
   },
   {
-    path: "/unicorn/pos",
+    path: "/pos",
     exact: true,
     title: "Bán hàng tại quầy",
     icon: 'icon-sale',
@@ -142,6 +144,17 @@ const menu: Array<RouteMenu> = [
     header: null,
     subMenu: [],
     permissions: [AdminPermission.all],
+  },
+  {
+    path: UrlConfig.YDPAGE,
+    exact: true,
+    title: "Bán hàng trên YDPage",
+    icon: 'icon-YDpage',
+    component: YDpage,
+    key: "YDpage",
+    isShow: true,
+    header: null,
+    subMenu: [],
   },
 ]
 
