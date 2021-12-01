@@ -8,7 +8,7 @@ export interface CustomerResponse extends BaseObject {
   email: string | null;
   channel: string | null;
   facebook_url: string | null;
-  group_id: number;
+  customer_group_id: number;
   type_id: number;
   company_id: number;
   company: string | null;
