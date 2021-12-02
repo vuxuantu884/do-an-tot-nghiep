@@ -58,7 +58,8 @@ import {
   StyledProductListDropdown,
   StyledYodyProductColumn,
 } from "screens/ecommerce/products/tab/not-connected-items/styles";
-import { StyledProductConnectStatus, StyledProductFilter } from "screens/ecommerce/products/styles";
+import { StyledProductFilter } from "screens/ecommerce/products/styles";
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -632,11 +633,11 @@ const NotConnectedItems: React.FC = () => {
       width: "150px",
       render: (item: any, v: any, i: any) => {
         return (
-          <StyledProductConnectStatus>
+          <StyledStatus>
             {item.connect_status === "waiting" && (
-              <span className="not-connect-status">Chưa ghép nối</span>
+              <span className="blue-status">Chưa ghép nối</span>
             )}
-          </StyledProductConnectStatus>
+          </StyledStatus>
         );
       },
     },
@@ -938,7 +939,7 @@ const NotConnectedItems: React.FC = () => {
     history.replace(`${history.location.pathname}#connected-item`);
   };
 
-  console.log("return variantData: ", variantData);
+
   return (
     <StyledComponent>
       <Card>
