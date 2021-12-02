@@ -566,7 +566,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
           name: "Đơn hàng",
         },
         {
-          name: `Đơn hàng ${OrderDetail?.code}`,
+          name: OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
         },
       ]}
       extra={

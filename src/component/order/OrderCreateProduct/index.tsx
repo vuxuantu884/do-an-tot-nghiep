@@ -141,6 +141,7 @@ type PropType = {
   fetchData?: () => void;
   returnOrderInformation?: {
     totalAmountReturn: number;
+    totalAmountExchangePlusShippingFee: number;
   };
 };
 
@@ -216,13 +217,13 @@ function OrderCreateProduct(props: PropType) {
     orderSourceId,
     customer,
     configOrder,
+    assigneeCode,
     setStoreId,
     setItems,
     fetchData,
     setDiscountValue,
     setDiscountRate,
     setCoupon,
-    assigneeCode,
   } = props;
   const dispatch = useDispatch();
   const [loadingAutomaticDiscount] = useState(false);
@@ -351,7 +352,7 @@ function OrderCreateProduct(props: PropType) {
     if (isAutomaticDiscount) {
       setIsDisableOrderDiscount(true);
     }
-  }, []);
+  }, [isAutomaticDiscount]);
 
   useEffect(() => {
     if (
@@ -761,7 +762,7 @@ function OrderCreateProduct(props: PropType) {
             totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
             items={items}
             handleCardItems={onDiscountItem}
-            disabled={levelOrder > 3 || isAutomaticDiscount || coupon !== ""}
+            disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
           />
         </div>
       );
@@ -1004,10 +1005,11 @@ function OrderCreateProduct(props: PropType) {
       ..._item,
       discount_items: [discountItem],
     };
-		itemResult.discount_value=getLineItemDiscountValue(itemResult);
-		itemResult.discount_rate=getLineItemDiscountRate(itemResult);
-		itemResult.discount_amount=getLineItemDiscountAmount(itemResult);
-		itemResult.line_amount_after_line_discount=getLineAmountAfterLineDiscount(itemResult);
+    itemResult.discount_value = getLineItemDiscountValue(itemResult);
+    itemResult.discount_rate = getLineItemDiscountRate(itemResult);
+    itemResult.discount_amount = getLineItemDiscountAmount(itemResult);
+    itemResult.line_amount_after_line_discount =
+      getLineAmountAfterLineDiscount(itemResult);
 
     result.push(itemResult);
     return result;
@@ -1123,6 +1125,7 @@ function OrderCreateProduct(props: PropType) {
     if (!_items || !coupon) {
       return;
     }
+		handleRemoveAllDiscount();
     coupon = coupon.trim();
     const lineItems: LineItemRequestModel[] = _items.map((single) => {
       return {
@@ -1284,10 +1287,12 @@ function OrderCreateProduct(props: PropType) {
                             // discount_code,
                           },
                         ];
-												singleItem.discount_value = getLineItemDiscountValue(singleItem);
+                        singleItem.discount_value = getLineItemDiscountValue(singleItem);
                         singleItem.discount_rate = getLineItemDiscountRate(singleItem);
-												singleItem.discount_amount = getLineItemDiscountAmount(singleItem);
-                        singleItem.line_amount_after_line_discount =getLineAmountAfterLineDiscount(singleItem);
+                        singleItem.discount_amount =
+                          getLineItemDiscountAmount(singleItem);
+                        singleItem.line_amount_after_line_discount =
+                          getLineAmountAfterLineDiscount(singleItem);
                       } else {
                         removeDiscountItem(singleItem);
                       }
@@ -1403,25 +1408,27 @@ function OrderCreateProduct(props: PropType) {
       initQueryVariant.info = value;
       initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
       // console.log("initQueryVariant", initQueryVariant);
-			const handleSearchProduct = () => {
-				if (value.trim()) {
-					(async () => {
-						setSearchProducts(true);
-						try {
-							await dispatch(
-								searchVariantsOrderRequestAction(initQueryVariant, (data) => {
-									setResultSearchVariant(data);
-									setSearchProducts(false);
-									setIsShowProductSearch(true);
-								})
-							);
-						} catch {}
-					})();
-				} else {
-					setSearchProducts(false);
-				}
-			};
-			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, ()=>handleSearchProduct() )
+      const handleSearchProduct = () => {
+        if (value.trim()) {
+          (async () => {
+            setSearchProducts(true);
+            try {
+              await dispatch(
+                searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+                  setResultSearchVariant(data);
+                  setSearchProducts(false);
+                  setIsShowProductSearch(true);
+                })
+              );
+            } catch {}
+          })();
+        } else {
+          setSearchProducts(false);
+        }
+      };
+      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
+        handleSearchProduct()
+      );
     },
     [form]
   );
@@ -1982,6 +1989,9 @@ function OrderCreateProduct(props: PropType) {
             couponInputText={couponInputText}
             setCouponInputText={setCouponInputText}
             handleRemoveAllDiscount={handleRemoveAllDiscount}
+            totalAmountExchangePlusShippingFee={
+              returnOrderInformation?.totalAmountExchangePlusShippingFee
+            }
           />
         )}
         {setDiscountValue && setDiscountRate && (
