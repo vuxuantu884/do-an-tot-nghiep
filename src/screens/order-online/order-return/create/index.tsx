@@ -1010,6 +1010,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     coupon={coupon}
                     setCoupon={setCoupon}
                     setPromotionId={setPromotionId}
+                    customer={customer}
                   />
                 )}
                 {!isExchange && (
