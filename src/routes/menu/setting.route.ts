@@ -123,7 +123,7 @@ const setting: Array<RouteMenu> = [
         pathIgnore: ["create"],
         permissions: [AccountPermissions.UPDATE],
       }, {
-        path: `${UrlConfig.ACCOUNTS}/:code/update-pass`,
+        path: `${UrlConfig.ACCOUNTS}/me/update-password`,
         exact: true,
         title: "Đặt lại mật khẩu",
         icon: "icon-dot",

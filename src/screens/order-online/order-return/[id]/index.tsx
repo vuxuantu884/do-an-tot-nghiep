@@ -184,7 +184,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 _data.items.map((single) => {
                   return {
                     ...single,
-                    maxQuantity: single.quantity,
+                    maxQuantityCanBeReturned: single.quantity,
                   };
                 });
               setListReturnProducts(returnProductFormatted);
@@ -247,7 +247,7 @@ const ScreenReturnDetail = (props: PropType) => {
             path: `${UrlConfig.HOME}`,
           },
           {
-            name: `Chi tiết đơn trả hàng ${id}`,
+            name: OrderDetail?.code ? `Chi tiết đơn trả hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
           },
         ]}
       >

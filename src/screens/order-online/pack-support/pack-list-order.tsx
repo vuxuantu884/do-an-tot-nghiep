@@ -1,17 +1,9 @@
-import {
-  Button,
-  Card,
-  Space,
-  Table,
-  Input,
-  Form,
-  FormInstance,
-} from "antd";
+import {Button, Card, Space, Table, Input, Form, FormInstance} from "antd";
 import ActionButton, {MenuAction} from "component/table/ActionButton";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {FulfillmentsItemModel, GoodsReceiptsOrderListModel} from "model/pack/pack.model";
-import React, {createRef} from "react";
+import React, {createRef, useCallback, useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import search from "assets/img/search.svg";
 import {StyledComponent} from "../index.screen.styles";
@@ -25,6 +17,24 @@ type PackListOrderProps = {
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
   const {packOrderList, actions, handleSearchOrder, onMenuClick} = props;
   const formSearchOrderRef = createRef<FormInstance>();
+
+  const [dataPackOrderList, setDataPackOrderList]= useState<GoodsReceiptsOrderListModel[]>([]);
+
+  const packOrderLists = useCallback(
+    (value:any) => {
+      let query=value.search_term.trim();
+      let newData:GoodsReceiptsOrderListModel[]= packOrderList.filter(function(el) {
+        return el.order_code.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      })
+      setDataPackOrderList(newData);
+    },
+    [packOrderList],
+  )
+
+  useEffect(()=>{
+    if(packOrderList)
+      setDataPackOrderList(packOrderList);
+  },[packOrderList]);
 
   const column: Array<ICustomTableColumType<GoodsReceiptsOrderListModel>> = [
     {
@@ -65,7 +75,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: (
         <div className="productNameQuantityHeader">
           <span className="productNameWidth">Sản phẩm</span>
-          <span className="quantity quantityWidth">
+          <span className="mass massWidth">
             <span>Khối lượng</span>
           </span>
           <span className="quantity quantityWidth">
@@ -93,14 +103,14 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                       {item.variant}
                     </Link>
                   </div>
-                  <div className="quantity quantityWidth">
-                    <span>{item.net_weight?item.net_weight:0}</span>
+                  <div className="mass massWidth">
+                    <span>{item.net_weight ? item.net_weight : 0}</span>
                   </div>
                   <div className="quantity quantityWidth">
-                    <span>{item.quantity?item.quantity:0}</span>
+                    <span>{item.quantity ? item.quantity : 0}</span>
                   </div>
                   <div className="price priceWidth">
-                    <span>{item.price?item.price:0}</span>
+                    <span>{item.price ? item.price : 0}</span>
                   </div>
                 </div>
               );
@@ -162,7 +172,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       dataIndex: "postage",
       visible: true,
       width: "8%",
-      align:"center",
+      align: "center",
       render: (value: number) => {
         return <div>{value}</div>;
       },
@@ -172,7 +182,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       dataIndex: "card_number",
       visible: true,
       width: "8%",
-      align:"center",
+      align: "center",
       render: (value: number) => {
         return <div>{value}</div>;
       },
@@ -182,7 +192,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       dataIndex: "status",
       visible: true,
       width: "10%",
-      align:"center",
+      align: "center",
       render: (value: string) => {
         return <div>{value}</div>;
       },
@@ -192,7 +202,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       dataIndex: "note",
       visible: true,
       width: "20%",
-      align:"left",
+      align: "left",
       render: (value: string) => {
         return <div>{value}</div>;
       },
@@ -222,7 +232,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               </div>
               <div className="page-filter-right" style={{width: "40%"}}>
                 <Space size={4}>
-                  <Form layout="inline" ref={formSearchOrderRef}>
+                  <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}>
                     <Item name="search_term" style={{width: "calc(98% - 62px)"}}>
                       <Input
                         style={{width: "100%"}}
@@ -247,11 +257,12 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           </div>
         </div>
         <Table
-          dataSource={packOrderList}
+          dataSource={dataPackOrderList}
           scroll={{x: 1388}}
           columns={column}
           rowSelection={rowSelection}
           //pagination={false}
+          bordered
           className="row-padding"
         />
       </Card>

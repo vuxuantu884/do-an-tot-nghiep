@@ -1,14 +1,20 @@
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import imgDefault from "assets/icon/img-default.svg";
-import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
+import {CreateOrderReturnContext} from "contexts/order-return/create-order-return";
+import {actionGetOrderReturnCalculateRefund} from "domain/actions/order/order-return.action";
 import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { formatCurrency } from "utils/AppUtils";
+import {useCallback, useContext, useEffect, useMemo, useState} from "react";
+import {useDispatch} from "react-redux";
+import {
+  formatCurrency,
+  getLineAmountAfterLineDiscount,
+  getLineItemDiscountAmount,
+  getLineItemDiscountRate,
+  getLineItemDiscountValue,
+} from "utils/AppUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
 type PropType = {
@@ -19,7 +25,7 @@ type PropType = {
 };
 
 function CardReturnProductContainer(props: PropType) {
-  const { handleCanReturn, isDetailPage, orderId } = props;
+  const {handleCanReturn, isDetailPage, orderId} = props;
 
   const dispatch = useDispatch();
 
@@ -32,12 +38,9 @@ function CardReturnProductContainer(props: PropType) {
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
   const [pointRefund, setPointRefund] = useState(0);
 
-  const listReturnProducts =
-    createOrderReturnContext?.return.listReturnProducts;
-  const listItemCanBeReturn =
-    createOrderReturnContext?.return.listItemCanBeReturn;
-  const setListReturnProducts =
-    createOrderReturnContext?.return.setListReturnProducts;
+  const listReturnProducts = createOrderReturnContext?.return.listReturnProducts;
+  const listItemCanBeReturn = createOrderReturnContext?.return.listItemCanBeReturn;
+  const setListReturnProducts = createOrderReturnContext?.return.setListReturnProducts;
   const setTotalAmountReturnProducts =
     createOrderReturnContext?.return.setTotalAmountReturnProducts;
   const totalAmountReturnProducts =
@@ -62,7 +65,7 @@ function CardReturnProductContainer(props: PropType) {
     if (!selectedVariant) return;
     let selectedVariantWithMaxQuantity: ReturnProductModel = {
       ...selectedVariant,
-      maxQuantity: selectedVariant.quantity,
+      maxQuantityCanBeReturned: selectedVariant.quantity,
     };
     let indexSelectedVariant = listReturnProducts.findIndex((single) => {
       return single.id === selectedVariantWithMaxQuantity.id;
@@ -74,8 +77,8 @@ function CardReturnProductContainer(props: PropType) {
     } else {
       let selectedVariant = result[indexSelectedVariant];
       if (
-        selectedVariant.maxQuantity &&
-        selectedVariant.quantity < selectedVariant.maxQuantity
+        selectedVariant.maxQuantityCanBeReturned &&
+        selectedVariant.quantity < selectedVariant.maxQuantityCanBeReturned
       ) {
         selectedVariant.quantity += 1;
       }
@@ -88,7 +91,10 @@ function CardReturnProductContainer(props: PropType) {
     }
     if (
       result.some((single) => {
-        return single.maxQuantity && single.quantity < single.maxQuantity;
+        return (
+          single.maxQuantityCanBeReturned &&
+          single.quantity < single.maxQuantityCanBeReturned
+        );
       })
     ) {
       setIsCheckReturnAll(false);
@@ -121,7 +127,7 @@ function CardReturnProductContainer(props: PropType) {
         (single) => {
           return {
             ...single,
-            maxQuantity: single.quantity,
+            maxQuantityCanBeReturned: single.quantity,
           };
         }
       );
@@ -134,7 +140,7 @@ function CardReturnProductContainer(props: PropType) {
         return {
           ...single,
           quantity: 0,
-          maxQuantity: single.quantity,
+          maxQuantityCanBeReturned: single.quantity,
         };
       });
       if (setListReturnProducts) {
@@ -150,28 +156,28 @@ function CardReturnProductContainer(props: PropType) {
     return (
       <div
         className="row-search w-100"
-        style={{ padding: "3px 20px", alignItems: "center" }}
+        style={{padding: "3px 20px", alignItems: "center"}}
       >
-        <div className="rs-left w-100" style={{ width: "100%" }}>
-          <div style={{ marginTop: 10 }}>
+        <div className="rs-left w-100" style={{width: "100%"}}>
+          <div style={{marginTop: 10}}>
             <img
               src={avatar === "" ? imgDefault : avatar}
               alt="anh"
               placeholder={imgDefault}
-              style={{ width: "40px", height: "40px", borderRadius: 5 }}
+              style={{width: "40px", height: "40px", borderRadius: 5}}
             />
           </div>
           <div className="rs-info w-100">
-            <span style={{ color: "#37394D" }} className="text">
+            <span style={{color: "#37394D"}} className="text">
               {item.product}
             </span>
-            <span style={{ color: "#95A1AC" }} className="text p-4">
+            <span style={{color: "#95A1AC"}} className="text p-4">
               {item.sku}
             </span>
           </div>
         </div>
         <div className="rs-right">
-          <span style={{ color: "#222222" }} className="text t-right">
+          <span style={{color: "#222222"}} className="text t-right">
             {formatCurrency(item.price)}
             <span
               style={{
@@ -201,14 +207,12 @@ function CardReturnProductContainer(props: PropType) {
           .includes(searchVariantInputValue.toLowerCase());
       });
     }
-    listOrderProductsResult.forEach(
-      (item: OrderLineItemResponse, index: number) => {
-        options.push({
-          label: renderSearchVariant(item),
-          value: item.id ? item.id.toString() : "",
-        });
-      }
-    );
+    listOrderProductsResult.forEach((item: OrderLineItemResponse, index: number) => {
+      options.push({
+        label: renderSearchVariant(item),
+        value: item.id ? item.id.toString() : "",
+      });
+    });
 
     return options;
   }, [listItemCanBeReturn, searchVariantInputValue]);
@@ -225,12 +229,37 @@ function CardReturnProductContainer(props: PropType) {
     resultListReturnProducts[index].quantity = Number(
       value === null ? "0" : value.toString().replace(".", "")
     );
+    if (value) {
+			resultListReturnProducts[index].amount = resultListReturnProducts[index].price * value;
+      resultListReturnProducts[index].discount_items = listReturnProducts[
+        index
+      ].discount_items.map((discount) => {
+        return {
+          ...discount,
+          amount: value * discount.value,
+        };
+      });
+      resultListReturnProducts[index].discount_value = getLineItemDiscountValue(
+        resultListReturnProducts[index]
+      );
+      resultListReturnProducts[index].discount_rate = getLineItemDiscountRate(
+        resultListReturnProducts[index]
+      );
+      resultListReturnProducts[index].discount_amount = getLineItemDiscountAmount(
+        resultListReturnProducts[index]
+      );
+      resultListReturnProducts[index].line_amount_after_line_discount =
+        getLineAmountAfterLineDiscount(resultListReturnProducts[index]);
+    }
     if (setListReturnProducts) {
       setListReturnProducts(resultListReturnProducts);
     }
     if (
       resultListReturnProducts.some((single) => {
-        return single.maxQuantity && single.quantity < single.maxQuantity;
+        return (
+          single.maxQuantityCanBeReturned &&
+          single.quantity < single.maxQuantityCanBeReturned
+        );
       })
     ) {
       setIsCheckReturnAll(false);
@@ -244,8 +273,10 @@ function CardReturnProductContainer(props: PropType) {
     (product: ReturnProductModel) => {
       let discountPerOrder = 0;
       OrderDetail?.discounts?.forEach((single) => {
-        if(single?.amount) {
-          discountPerOrder = (single.amount * product.price / OrderDetail.total_line_amount_after_line_discount);
+        if (single?.amount) {
+          discountPerOrder =
+            (single.amount * product.price) /
+            OrderDetail.total_line_amount_after_line_discount;
         }
       });
       return discountPerOrder;
@@ -287,8 +318,7 @@ function CardReturnProductContainer(props: PropType) {
       listReturnProducts.forEach((single) => {
         let discountPerProduct = getProductDiscountPerProduct(single);
         let discountPerOrder = getProductDiscountPerOrder(single);
-        let singleTotalPrice =
-          single.price - discountPerProduct - discountPerOrder;
+        let singleTotalPrice = single.price - discountPerProduct - discountPerOrder;
         totalPrice = totalPrice + single.quantity * singleTotalPrice;
       });
       return totalPrice;

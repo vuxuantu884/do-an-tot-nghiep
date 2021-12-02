@@ -23,13 +23,20 @@ export interface CouponRequestModel {
 export interface DiscountRequestModel {
   order_id: number | null;
   customer_id: number | null;
+  gender: string | null;
+  customer_group_id: number | null;
+  customer_loyalty_level_id: number | null;
+  customer_type_id: number | null;
+  birthday_date: string | null;
+  wedding_date: string | null;
   store_id: number | null;
   sales_channel_name: string;
   order_source_id: number | null;
+  assignee_code: string | null;
   line_items: LineItemRequestModel[];
   applied_discount: {
     code: string;
-  };
+  }|null;
   taxes_included: boolean | null;
   tax_exempt: boolean | null;
 }

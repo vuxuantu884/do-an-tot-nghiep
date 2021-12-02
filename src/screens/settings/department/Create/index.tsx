@@ -1,4 +1,4 @@
-import {Button, Card, Col, Form, Input, Row, Space, Select, TreeSelect} from "antd";
+import {Button, Card, Col, Form, Input, Row, Space, TreeSelect} from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -16,12 +16,13 @@ import {useHistory} from "react-router";
 import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import TreeDepartment from "../component/TreeDepartment";
+import AccountSearchSelect from "component/custom/select-search/account-select";
 
 const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [departments, setDepartment] = useState<Array<DepartmentResponse>>([]);
-  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+  const [, setAccounts] = useState<PageResponse<AccountResponse>>({
     metadata: {
       limit: 20,
       page: 1,
@@ -123,24 +124,7 @@ const DepartmentCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={50}>
             <Col span={8}>
-              <Form.Item name="manager_code" label="Quản lý">
-                <Select
-                  onSearch={(value) => {
-                    searchAccount({info: value}, false);
-                    console.log(value);
-                  }}
-                  notFoundContent="Không có dữ liệu"
-                  placeholder="Chọn quản lý"
-                  allowClear
-                  showSearch
-                >
-                  {accounts.items.map((item) => (
-                    <Select.Option key={item.id} value={item.code}>
-                      {item.code} - {item.full_name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
+              <AccountSearchSelect name="manager_code" label="Quản lý" />
             </Col>
             <Col span={8}>
               <Form.Item name="parent_id" label="Thuộc về bộ phận">
@@ -167,7 +151,7 @@ const DepartmentCreateScreen: React.FC = () => {
             </Col>
             <Col span={8}>
               <Form.Item name="address" label="Địa chỉ liên hệ">
-                <Input placeholder="Địa chỉ liên hệ" />
+                <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
               </Form.Item>
             </Col>
           </Row>

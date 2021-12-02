@@ -10,7 +10,7 @@ import { InventoryQuery } from "model/inventory";
 import {
   InventoryQueryField
 } from "model/inventory/field";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react"; 
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -20,6 +20,7 @@ export interface InventoryFilterProps {
   onFilter?: (values: InventoryQuery) => void;
   onClearFilter?: () => void;
   openColumn: () => void;
+  onChangeKeySearch: (value: string) => void;
 }
 
 const { Item } = Form;
@@ -87,7 +88,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     params, 
     listStore, 
     onFilter,
-    openColumn
+    openColumn,
+    onChangeKeySearch
   } = props;
   let [advanceFilters, setAdvanceFilters] = useState<any>({status:"on_hand"});
   const [formBaseFilter] = Form.useForm();
@@ -98,7 +100,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       onFilter && onFilter(data);
     },
     [formBaseFilter, onFilter]
-  );
+  ); 
+
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });
   }, [advanceFilters, formBaseFilter]);
@@ -121,6 +124,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               prefix={<img src={search} alt="" />}
               style={{width: "100%"}}
               placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
+              onChange={(e)=>{onChangeKeySearch(e.target.value)}}
             />
           </Item>
           <Item name={InventoryQueryField.store_ids} className="store">
@@ -137,7 +141,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 width: "100%",
               }}
               notFoundContent="Không tìm thấy kết quả"
-              maxTagCount="responsive"
+              maxTagCount="responsive" 
             >
               {listStore?.map((item) => (
                 <CustomSelect.Option key={item.id} value={item.id}>

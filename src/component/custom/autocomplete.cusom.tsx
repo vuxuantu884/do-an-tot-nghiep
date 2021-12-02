@@ -20,6 +20,8 @@ interface CustomAutoCompleteType {
   textAdd?: string;
   textEmpty?: string;
   onClickAddNew?: () => void;
+	isFillInputWithTextSelected?: boolean; // có điền vào input giá trị đã select ko
+	defaultValue?: string; // giá trị mặc định
 }
 
 interface CustomAutoCompleteState {
@@ -32,28 +34,28 @@ export default class CustomAutoComplete extends Component<
   CustomAutoCompleteState
 > {
   inputRef: Input | null = null;
-  auputRef: RefSelectProps | null = null;
+  autoCompleteRef: RefSelectProps | null = null;
   constructor(
     props: CustomAutoCompleteType | Readonly<CustomAutoCompleteType>
   ) {
     super(props);
     this.state = {
       open: false,
-      value: "",
+      value: this.props.defaultValue ? this.props.defaultValue : "",
     };
   }
 
   focus() {
-    this.auputRef?.focus();
+    this.autoCompleteRef?.focus();
   }
 
   onSelect = (value: string) => {
     this.setState({
       open: false,
-      value: "",
+      value: this.props.isFillInputWithTextSelected ? value : "",
     });
     this.props.onSelect && this.props.onSelect(value);
-    this.auputRef?.blur();
+    this.autoCompleteRef?.blur();
   };
 
   onSearch = (value: string) => {
@@ -79,10 +81,10 @@ export default class CustomAutoComplete extends Component<
       <AutoComplete
         id={this.props.id}
         value={this.state.value}
-        ref={(ref) => (this.auputRef = ref)}
+        ref={(ref) => (this.autoCompleteRef = ref)}
         maxLength={255}
         notFoundContent={
-          this.props.textEmpty ? this.props.textEmpty : "Không có dữ liệu"
+          this.state.value ? (this.props.textEmpty ? this.props.textEmpty : "Không có dữ liệu") : "Vui lòng điền kí tự!"
         }
         dropdownMatchSelectWidth={this.props.dropdownMatchSelectWidth}
         style={this.props.style}

@@ -1,4 +1,4 @@
-import { SearchOutlined } from "@ant-design/icons";
+import {SearchOutlined} from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -11,18 +11,20 @@ import {
   Table,
   Tooltip,
 } from "antd";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { RefSelectProps } from "antd/lib/select";
-import { ColumnType } from "antd/lib/table";
+import {CheckboxChangeEvent} from "antd/lib/checkbox";
+import {RefSelectProps} from "antd/lib/select";
+import {ColumnType} from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import NumberInput from "component/custom/number-input.custom";
 import UrlConfig from "config/url.config";
-import { OrderLineItemRequest } from "model/request/order.request";
-import { OrderResponse, ReturnProductModel } from "model/response/order/order.response";
-import React, { createRef, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
-import { StyledComponent } from "./styles";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
+import {OrderLineItemRequest} from "model/request/order.request";
+import {OrderResponse, ReturnProductModel} from "model/response/order/order.response";
+import React, {createRef, useCallback, useContext, useState} from "react";
+import {Link} from "react-router-dom";
+import StoreReturnModel from "screens/order-online/modal/store-return.modal";
+import {formatCurrency, getTotalQuantity} from "utils/AppUtils";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   isDetailPage?: boolean;
@@ -65,6 +67,11 @@ function CardReturnProducts(props: PropType) {
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
+  const createOrderReturnContext = useContext(CreateOrderReturnContext);
+  const storeReturn= createOrderReturnContext?.return.storeReturn;
+
+  const [isStoreReturnModalVisible,setStoreReturnModalVisible]=useState(false);
+
   // const discountRate = useMemo(() => {
   //   if (OrderDetail && OrderDetail.discounts) {
   //     let discountRate = 0;
@@ -82,12 +89,13 @@ function CardReturnProducts(props: PropType) {
     return (
       <React.Fragment>
         <Checkbox
-          style={{ marginLeft: 20 }}
+          style={{marginLeft: 20}}
           onChange={handleChangeReturnAll}
           checked={isCheckReturnAll}
         >
           Trả toàn bộ sản phẩm
         </Checkbox>
+        <Button onClick={() => {setStoreReturnModalVisible(true)}} style={{marginLeft: 20}}>Chọn cửa hàng</Button>
       </React.Fragment>
     );
   };
@@ -104,8 +112,10 @@ function CardReturnProducts(props: PropType) {
     (product: ReturnProductModel) => {
       let discountPerOrder = 0;
       OrderDetail?.discounts?.forEach((single) => {
-        if(single?.amount) {
-          discountPerOrder = (single.amount * product.price / OrderDetail.total_line_amount_after_line_discount);
+        if (single?.amount) {
+          discountPerOrder =
+            (single.amount * product.price) /
+            OrderDetail.total_line_amount_after_line_discount;
         }
       });
       return discountPerOrder;
@@ -118,10 +128,10 @@ function CardReturnProducts(props: PropType) {
       <div>
         <div
           className="single"
-          style={{ display: "flex", justifyContent: "space-between" }}
+          style={{display: "flex", justifyContent: "space-between"}}
         >
-          <p style={{ margin: 0 }}>Đơn giá gốc: </p>
-          <p style={{ margin: "0 0 0 20px" }}>{price}</p>
+          <p style={{margin: 0}}>Đơn giá gốc: </p>
+          <p style={{margin: "0 0 0 20px"}}>{price}</p>
         </div>
       </div>
     );
@@ -135,19 +145,17 @@ function CardReturnProducts(props: PropType) {
       <div>
         <div
           className="single"
-          style={{ display: "flex", justifyContent: "space-between" }}
+          style={{display: "flex", justifyContent: "space-between"}}
         >
           <p>Chiết khấu/sản phẩm: </p>
-          <p style={{ marginLeft: 20 }}>
-            {formatCurrency(Math.round(discountPerProduct))}
-          </p>
+          <p style={{marginLeft: 20}}>{formatCurrency(Math.round(discountPerProduct))}</p>
         </div>
         <div
           className="single"
-          style={{ display: "flex", justifyContent: "space-between" }}
+          style={{display: "flex", justifyContent: "space-between"}}
         >
-          <p>Chiết khấu/đơn hàng: </p>
-          <p style={{ marginLeft: 20 }}>{formatCurrency(Math.round(discountPerOrder))}</p>
+          <p style={{marginBottom: 0}}>Chiết khấu/đơn hàng: </p>
+          <p style={{marginLeft: 20, marginBottom: 0}}>{formatCurrency(Math.round(discountPerOrder))}</p>
         </div>
       </div>
     );
@@ -188,7 +196,7 @@ function CardReturnProducts(props: PropType) {
     {
       title: () => (
         <div className="text-center">
-          <div style={{ textAlign: "center" }}>Số lượng trả</div>
+          <div style={{textAlign: "center"}}>Số lượng trả</div>
         </div>
       ),
       className: "columnQuantity",
@@ -203,7 +211,7 @@ function CardReturnProducts(props: PropType) {
             <div>
               <NumberInput
                 min={0}
-                max={record.maxQuantity}
+                max={record.maxQuantityCanBeReturned}
                 value={record.quantity}
                 // defaultValue={0}
                 onChange={(value: number | null) => {
@@ -214,9 +222,9 @@ function CardReturnProducts(props: PropType) {
                 className="hide-number-handle"
                 maxLength={4}
                 minLength={0}
-                style={{ width: 100 }}
+                style={{width: 100}}
               />{" "}
-              / {record.maxQuantity}
+              / {record.maxQuantityCanBeReturned}
             </div>
           );
         }
@@ -225,10 +233,8 @@ function CardReturnProducts(props: PropType) {
     {
       title: () => (
         <div>
-          <span style={{ color: "#222222", textAlign: "right" }}>
-            Đơn giá sau giảm giá
-          </span>
-          <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+          <span style={{color: "#222222", textAlign: "right"}}>Đơn giá sau giảm giá</span>
+          <span style={{color: "#808080", marginLeft: "6px", fontWeight: 400}}>₫</span>
         </div>
       ),
       dataIndex: "price",
@@ -250,8 +256,8 @@ function CardReturnProducts(props: PropType) {
     {
       title: () => (
         <div>
-          <span style={{ color: "#222222" }}>Tổng tiền</span>
-          <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+          <span style={{color: "#222222"}}>Tổng tiền</span>
+          <span style={{color: "#808080", marginLeft: "6px", fontWeight: 400}}>₫</span>
         </div>
       ),
       key: "total",
@@ -273,6 +279,10 @@ function CardReturnProducts(props: PropType) {
       },
     },
   ];
+
+  const handleCancelStoreReturn=()=>{
+    setStoreReturnModalVisible(false);
+  }
 
   return (
     <StyledComponent>
@@ -308,7 +318,7 @@ function CardReturnProducts(props: PropType) {
                 size="middle"
                 className="yody-search"
                 placeholder="Chọn sản phẩm"
-                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                prefix={<SearchOutlined style={{color: "#ABB4BD"}} />}
               />
             </AutoComplete>
           </div>
@@ -340,7 +350,7 @@ function CardReturnProducts(props: PropType) {
           className="w-100"
           tableLayout="fixed"
           pagination={false}
-          scroll={{ y: 300 }}
+          scroll={{y: 300}}
           sticky
         />
         <Row className="boxPayment" gutter={24}>
@@ -374,9 +384,20 @@ function CardReturnProducts(props: PropType) {
                 {formatCurrency(Math.round(totalAmountReturnProducts))}
               </strong>
             </Row>
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">Trả tại cửa hàng:</strong>
+              <strong>
+                {storeReturn?.name}
+              </strong>
+            </Row>
           </Col>
         </Row>
       </Card>
+      <StoreReturnModel
+         isModalVisible={isStoreReturnModalVisible}
+         setModalVisible={setStoreReturnModalVisible}
+         handleCancel={handleCancelStoreReturn}
+      />
     </StyledComponent>
   );
 }
