@@ -362,7 +362,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             }
           });
         }
-        autoCompleteRef.current?.blur();
+        // autoCompleteRef?.current?.blur();
         setKeySearchCustomer("");
         setDistrictId(resultSearch[index].district_id);
       }
