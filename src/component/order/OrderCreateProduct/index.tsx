@@ -351,6 +351,8 @@ function OrderCreateProduct(props: PropType) {
   useEffect(() => {
     if (isAutomaticDiscount) {
       setIsDisableOrderDiscount(true);
+    } else {
+      setIsDisableOrderDiscount(false);
     }
   }, [isAutomaticDiscount]);
 
@@ -1084,9 +1086,7 @@ function OrderCreateProduct(props: PropType) {
       order_source_id: form.getFieldValue("source_id"),
       assignee_code: getAccountCodeFromCodeAndName(assigneeCode),
       line_items: lineItems,
-      applied_discount: {
-        code: coupon,
-      },
+      applied_discount: null,
       taxes_included: true,
       tax_exempt: false,
     };

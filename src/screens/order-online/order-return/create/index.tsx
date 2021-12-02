@@ -178,6 +178,9 @@ const ScreenReturnCreate = (props: PropType) => {
   const [storeReturn,setStoreReturn]= useState<StoreResponse|null>(null);
   const [listStoreReturn, setListStoreReturn]=useState<StoreResponse[]>([]);
 
+  const [coupon, setCoupon] = useState<string>("");
+  const [promotionId, setPromotionId] = useState<number|null>(null);
+
   const initialForm: OrderRequest = {
     action: "", //finalized
     store_id: null,
@@ -403,6 +406,7 @@ const ScreenReturnCreate = (props: PropType) => {
         sub_reason_id: form.getFieldValue("sub_reason_id") || null,
         received: isReceivedReturnProducts,
         order_returns: [],
+        automatic_discount: form.getFieldValue("automatic_discount"),
       };
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
@@ -589,7 +593,9 @@ const ScreenReturnCreate = (props: PropType) => {
               }
               handleDispatchReturnAndExchange(orderDetailResult).then((response: any) => {
                 valuesResult.order_return_id = response.id;
-                setOrderReturnId(response.id)
+                let lstDiscount = createDiscountRequest();
+                valuesResult.discounts = lstDiscount;
+                setOrderReturnId(response.id);
                 dispatch(
                   actionCreateOrderExchange(
                     valuesResult,
@@ -875,13 +881,38 @@ const ScreenReturnCreate = (props: PropType) => {
       promotion_id: null,
       reason: "",
       source: "",
+      discount_code: coupon,
+      order_id: null,
     };
     let listDiscountRequest = [];
-    if (discountRate === 0 && discountValue === 0) {
+    if (coupon) {
+      listDiscountRequest.push({
+        discount_code: coupon,
+          rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: null,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    } else if(promotionId) {
+      listDiscountRequest.push({
+        discount_code: null,
+        rate: discountRate,
+        value: discountValue,
+        amount: discountValue,
+        promotion_id: promotionId,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    }  else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
     }
+    
     return listDiscountRequest;
   };
 
@@ -972,6 +1003,13 @@ const ScreenReturnCreate = (props: PropType) => {
                     }}
                     configOrder={configOrder}
                     assigneeCode={OrderDetail?.assignee_code ? OrderDetail?.assignee_code : "" }
+                    discountRate={discountRate}
+                    setDiscountRate={setDiscountRate}
+                    discountValue={discountValue}
+                    setDiscountValue={setDiscountValue}
+                    coupon={coupon}
+                    setCoupon={setCoupon}
+                    setPromotionId={setPromotionId}
                   />
                 )}
                 {!isExchange && (
