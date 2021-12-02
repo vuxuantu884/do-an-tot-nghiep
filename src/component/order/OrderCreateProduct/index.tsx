@@ -352,7 +352,7 @@ function OrderCreateProduct(props: PropType) {
     if (isAutomaticDiscount) {
       setIsDisableOrderDiscount(true);
     }
-  }, []);
+  }, [isAutomaticDiscount]);
 
   useEffect(() => {
     if (
@@ -762,7 +762,7 @@ function OrderCreateProduct(props: PropType) {
             totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
             items={items}
             handleCardItems={onDiscountItem}
-            disabled={levelOrder > 3 || isAutomaticDiscount || coupon !== ""}
+            disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
           />
         </div>
       );
@@ -1125,6 +1125,7 @@ function OrderCreateProduct(props: PropType) {
     if (!_items || !coupon) {
       return;
     }
+		handleRemoveAllDiscount();
     coupon = coupon.trim();
     const lineItems: LineItemRequestModel[] = _items.map((single) => {
       return {
