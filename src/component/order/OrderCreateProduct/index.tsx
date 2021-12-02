@@ -988,32 +988,32 @@ function OrderCreateProduct(props: PropType) {
         ? item.price - highestValueSuggestDiscount.value
         : 0;
     }
-    value = Math.min(value, item.price);
-    value = Math.round(value);
-    if (value < 0) {
-      value = 0;
+    if (value > 0) {
+      value = Math.min(value, item.price);
+      value = Math.round(value);
+      let rate = Math.round((value / item.price) * 100 * 100) / 100;
+      rate = Math.min(rate, 100);
+  
+      const discountItem: OrderItemDiscountRequest = {
+        rate,
+        value,
+        amount: value * item.quantity,
+        reason: highestValueSuggestDiscount.title,
+        promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
+      };
+      let itemResult = {
+        ..._item,
+        discount_items: [discountItem],
+      };
+      itemResult.discount_value = getLineItemDiscountValue(itemResult);
+      itemResult.discount_rate = getLineItemDiscountRate(itemResult);
+      itemResult.discount_amount = getLineItemDiscountAmount(itemResult);
+      itemResult.line_amount_after_line_discount =
+        getLineAmountAfterLineDiscount(itemResult);
+      result.push(itemResult);
+    } else {
+      result.push(_item);
     }
-    let rate = Math.round((value / item.price) * 100 * 100) / 100;
-    rate = Math.min(rate, 100);
-
-    const discountItem: OrderItemDiscountRequest = {
-      rate,
-      value,
-      amount: value * item.quantity,
-      reason: highestValueSuggestDiscount.title,
-      promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
-    };
-    let itemResult = {
-      ..._item,
-      discount_items: [discountItem],
-    };
-    itemResult.discount_value = getLineItemDiscountValue(itemResult);
-    itemResult.discount_rate = getLineItemDiscountRate(itemResult);
-    itemResult.discount_amount = getLineItemDiscountAmount(itemResult);
-    itemResult.line_amount_after_line_discount =
-      getLineAmountAfterLineDiscount(itemResult);
-
-    result.push(itemResult);
     return result;
   };
 
@@ -1272,27 +1272,25 @@ function OrderCreateProduct(props: PropType) {
                             break;
                         }
                         discount_value = Math.min(discount_value, singleItem.price);
-                        discount_rate = Math.min(discount_rate, 100);
-                        // let amountDiscount = discount_value
-                        //   ? singleItem.quantity * discount_value
-                        //   : 0;
-                        singleItem.discount_items = [
-                          {
-                            amount: singleItem.quantity * discount_value,
-                            value: discount_value,
-                            rate: discount_rate
-                              ? Math.round(discount_rate * 100) / 100
-                              : 0,
-                            reason: applyDiscountLineItem?.title || null,
-                            // discount_code,
-                          },
-                        ];
-                        singleItem.discount_value = getLineItemDiscountValue(singleItem);
-                        singleItem.discount_rate = getLineItemDiscountRate(singleItem);
-                        singleItem.discount_amount =
-                          getLineItemDiscountAmount(singleItem);
-                        singleItem.line_amount_after_line_discount =
-                          getLineAmountAfterLineDiscount(singleItem);
+                        if(discount_value > 0) {
+                          discount_rate = Math.min(discount_rate, 100);
+                          singleItem.discount_items = [
+                            {
+                              amount: singleItem.quantity * discount_value,
+                              value: discount_value,
+                              rate: discount_rate
+                                ? Math.round(discount_rate * 100) / 100
+                                : 0,
+                              reason: applyDiscountLineItem?.title || null,
+                            },
+                          ];
+                          singleItem.discount_value = getLineItemDiscountValue(singleItem);
+                          singleItem.discount_rate = getLineItemDiscountRate(singleItem);
+                          singleItem.discount_amount =
+                            getLineItemDiscountAmount(singleItem);
+                          singleItem.line_amount_after_line_discount =
+                            getLineAmountAfterLineDiscount(singleItem);
+                        }
                       } else {
                         removeDiscountItem(singleItem);
                       }
