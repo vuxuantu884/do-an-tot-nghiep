@@ -170,7 +170,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
     setVisibleCustomer(true);
-    setKeySearchCustomer("");
+    //setKeySearchCustomer("");
   };
   const OkConfirmCustomerEdit = () => {
     setModalAction("edit");
@@ -330,6 +330,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
     setVisibleCustomer(false);
+    setKeySearchCustomer("");
   };
 
   //#end region
