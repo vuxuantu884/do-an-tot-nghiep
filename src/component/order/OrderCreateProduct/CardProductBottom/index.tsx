@@ -63,6 +63,8 @@ function CardProductBottom(props: PropType) {
     handleRemoveAllDiscount,
   } = props;
 
+  console.log('isDisableOrderDiscount', isDisableOrderDiscount)
+
   // console.log('coupon33', coupon)
   // console.log('discountRate', discountRate);
   return (
