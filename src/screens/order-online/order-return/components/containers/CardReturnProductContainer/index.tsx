@@ -62,7 +62,7 @@ function CardReturnProductContainer(props: PropType) {
     if (!selectedVariant) return;
     let selectedVariantWithMaxQuantity: ReturnProductModel = {
       ...selectedVariant,
-      maxQuantity: selectedVariant.quantity,
+      maxQuantityCanBeReturned: selectedVariant.quantity,
     };
     let indexSelectedVariant = listReturnProducts.findIndex((single) => {
       return single.id === selectedVariantWithMaxQuantity.id;
@@ -74,8 +74,8 @@ function CardReturnProductContainer(props: PropType) {
     } else {
       let selectedVariant = result[indexSelectedVariant];
       if (
-        selectedVariant.maxQuantity &&
-        selectedVariant.quantity < selectedVariant.maxQuantity
+        selectedVariant.maxQuantityCanBeReturned &&
+        selectedVariant.quantity < selectedVariant.maxQuantityCanBeReturned
       ) {
         selectedVariant.quantity += 1;
       }
@@ -88,7 +88,7 @@ function CardReturnProductContainer(props: PropType) {
     }
     if (
       result.some((single) => {
-        return single.maxQuantity && single.quantity < single.maxQuantity;
+        return single.maxQuantityCanBeReturned && single.quantity < single.maxQuantityCanBeReturned;
       })
     ) {
       setIsCheckReturnAll(false);
@@ -121,7 +121,7 @@ function CardReturnProductContainer(props: PropType) {
         (single) => {
           return {
             ...single,
-            maxQuantity: single.quantity,
+            maxQuantityCanBeReturned: single.quantity,
           };
         }
       );
@@ -134,7 +134,7 @@ function CardReturnProductContainer(props: PropType) {
         return {
           ...single,
           quantity: 0,
-          maxQuantity: single.quantity,
+          maxQuantityCanBeReturned: single.quantity,
         };
       });
       if (setListReturnProducts) {
@@ -239,7 +239,7 @@ function CardReturnProductContainer(props: PropType) {
     }
     if (
       resultListReturnProducts.some((single) => {
-        return single.maxQuantity && single.quantity < single.maxQuantity;
+        return single.maxQuantityCanBeReturned && single.quantity < single.maxQuantityCanBeReturned;
       })
     ) {
       setIsCheckReturnAll(false);

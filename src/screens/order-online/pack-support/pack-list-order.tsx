@@ -75,7 +75,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       title: (
         <div className="productNameQuantityHeader">
           <span className="productNameWidth">Sản phẩm</span>
-          <span className="quantity quantityWidth">
+          <span className="mass massWidth">
             <span>Khối lượng</span>
           </span>
           <span className="quantity quantityWidth">
@@ -103,7 +103,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                       {item.variant}
                     </Link>
                   </div>
-                  <div className="quantity quantityWidth">
+                  <div className="mass massWidth">
                     <span>{item.net_weight ? item.net_weight : 0}</span>
                   </div>
                   <div className="quantity quantityWidth">
@@ -262,6 +262,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           columns={column}
           rowSelection={rowSelection}
           //pagination={false}
+          bordered
           className="row-padding"
         />
       </Card>
