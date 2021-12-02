@@ -27,7 +27,6 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-	AccountSearchAction,
 	ShipperGetListAction
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -48,7 +47,6 @@ import {
 	PaymentMethodGetList
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -88,13 +86,13 @@ import {
 	checkPaymentStatusToShow,
 	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPaymentRequest,
-	getTotalAmountAfferDiscount,
+	getTotalAmountAfterDiscount,
 	SumCOD,
 	SumWeightResponse,
 	TrackingCode
 } from "utils/AppUtils";
 import {
-	FulFillmentStatus, OrderStatus,
+	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
 	ShipmentMethodOption,
@@ -102,7 +100,6 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { DEFAULT_COMPANY } from "utils/Constants";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
@@ -149,7 +146,6 @@ export default function Order(props: PropType) {
   // const [shippingFeeInformedToCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
   //   null
   // );
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [tags, setTag] = useState<string>("");
@@ -158,6 +154,7 @@ export default function Order(props: PropType) {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+  const [assigneeCode, setAssigneeCode] = useState("")
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -342,6 +339,8 @@ export default function Order(props: PropType) {
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
+
+	console.log('setInitialForm', setInitialForm)
 
   const onChangeTag = useCallback(
     (value: []) => {
@@ -653,7 +652,7 @@ export default function Order(props: PropType) {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
 
@@ -755,13 +754,6 @@ export default function Order(props: PropType) {
       }
     }
   };
-
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -867,10 +859,6 @@ export default function Order(props: PropType) {
       dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
     }
   }, [dispatch, storeId]);
-
-  useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
 
   //windows offset
   useEffect(() => {
@@ -988,7 +976,7 @@ export default function Order(props: PropType) {
 						...initialForm,
             customer_note: response.customer_note,
             source_id: response.source_id,
-            assignee_code: `${response.assignee_code} - ${response.assignee}`,
+            assignee_code: response.assignee_code ? `${response.assignee_code} - ${response.assignee}` : null,
             store_id: response.store_id,
             items: responseItems,
             dating_ship: newDatingShip,
@@ -999,8 +987,8 @@ export default function Order(props: PropType) {
             url: response.url,
             note: response.note,
             tags: response.tags,
-						marketer_code: `${response.marketer_code} - ${response.marketer}`,
-						coordinator_code: `${response.coordinator_code} - ${response.coordinator}`,
+						marketer_code: response.marketer_code ? `${response.marketer_code} - ${response.marketer}` : null,
+						coordinator_code: response.coordinator_code ? `${response.coordinator_code} - ${response.coordinator}` :null,
             sub_status_code: response.sub_status_code,
 						automatic_discount: response.automatic_discount,
 					});
@@ -1039,6 +1027,9 @@ export default function Order(props: PropType) {
           setIsLoadForm(true);
           if(response?.discounts && response.discounts[0]?.discount_code) {
             setCoupon(response.discounts[0].discount_code)
+          }
+          if (response.assignee_code) {
+            setAssigneeCode(response.assignee_code);
           }
         }
       })
@@ -1312,6 +1303,7 @@ export default function Order(props: PropType) {
                     setPromotionId={setPromotionId}
                     orderDetail={OrderDetail}
                     configOrder={configOrder}
+                    assigneeCode={assigneeCode}
                   />
 
                   {OrderDetail !== null &&
@@ -2359,12 +2351,12 @@ export default function Order(props: PropType) {
                 </Col>
                 <Col md={6}>
                   <CreateOrderSidebar
-                    accounts={accounts}
                     tags={tags}
                     onChangeTag={onChangeTag}
                     customerId={customer?.id}
                     listOrderSubStatus={listOrderSubStatus}
 										form={form}
+                    setAssigneeCode={setAssigneeCode}
                   />
                 </Col>
               </Row>

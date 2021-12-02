@@ -66,7 +66,7 @@ import {
   findTaxInVariant,
   formatCurrency,
   getTotalAmount,
-  getTotalAmountAfferDiscount,
+  getTotalAmountAfterDiscount,
   getTotalDiscount,
   getTotalQuantity,
   haveAccess,
@@ -1087,7 +1087,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
                   fontWeight: 700,
                 }}
               >
-                {formatCurrency(getTotalAmountAfferDiscount(items))}
+                {formatCurrency(getTotalAmountAfterDiscount(items))}
               </div>
             </div>
           ) : (

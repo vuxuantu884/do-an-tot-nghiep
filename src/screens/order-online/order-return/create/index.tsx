@@ -7,7 +7,7 @@ import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { getListStoresSimpleAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
@@ -17,6 +17,7 @@ import {
   actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
 import { configOrderSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -50,7 +51,7 @@ import {
   checkIfOrderHasReturnedAll,
   getAmountPaymentRequest,
   getListItemsCanReturn,
-  getTotalAmountAfferDiscount,
+  getTotalAmountAfterDiscount,
   scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
@@ -172,6 +173,10 @@ const ScreenReturnCreate = (props: PropType) => {
   >([]);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
 
+  //Store
+  const [storeReturn,setStoreReturn]= useState<StoreResponse|null>(null);
+  const [listStoreReturn, setListStoreReturn]=useState<StoreResponse[]>([]);
+
   const initialForm: OrderRequest = {
     action: "", //finalized
     store_id: null,
@@ -226,8 +231,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
     listProducts.forEach((a) => {
-      let discountAmount = a.discount_items[0].value;
-      total = total + a.quantity * (a.price - discountAmount);
+      total = total + a.line_amount_after_line_discount;
     });
     return total;
   };
@@ -271,8 +275,14 @@ const ScreenReturnCreate = (props: PropType) => {
       let returnProduct: ReturnProductModel[] = listItemCanReturn.map((single) => {
         return {
           ...single,
-          maxQuantity: single.quantity,
+          maxQuantityCanBeReturned: single.quantity,
           quantity: 0,
+					discount_items: single.discount_items.map((discount) => {
+						return {
+							...discount,
+							amount: 0,
+						}
+					})
         };
       });
       console.log("returnProduct", returnProduct);
@@ -337,10 +347,11 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const handleSubmitFormReturn = () => {
     let formValue = form.getFieldsValue();
-
+   
     if (OrderDetail && listReturnProducts) {
+  
       let items = listReturnProducts.map((single) => {
-        const { maxQuantity, ...rest } = single;
+        const { maxQuantityCanBeReturned, ...rest } = single;
         return rest;
       });
       let itemsResult = items.filter((single) => {
@@ -373,6 +384,11 @@ const ScreenReturnCreate = (props: PropType) => {
       }
       let orderDetailResult: ReturnRequest = {
         ...OrderDetail,
+        store_id:storeReturn?storeReturn.id:null,
+        store:storeReturn?storeReturn.name:"",
+        store_code:storeReturn?storeReturn.code:"",
+        store_full_address:storeReturn?storeReturn.address:"",
+        store_phone_number:storeReturn?storeReturn.hotline:"",
         action: "",
         delivery_service_provider_id: null,
         delivery_fee: null,
@@ -402,8 +418,12 @@ const ScreenReturnCreate = (props: PropType) => {
     let checkIfHasReturnProduct = listReturnProducts.some((single) => {
       return single.quantity > 0;
     });
+    if(!storeReturn){
+      showError("Vui lòng chọn cửa hàng để trả!");
+      return;
+    }
     if (!checkIfHasReturnProduct) {
-      showError("Vui lòng chọn ít nhất 1 sản phẩm");
+      showError("Vui lòng chọn ít nhất 1 sản phẩmm");
       const element: any = document.getElementById("search_product");
       scrollAndFocusToDomElement(element);
       return;
@@ -432,7 +452,7 @@ const ScreenReturnCreate = (props: PropType) => {
           return single.quantity > 0;
         });
         if (!checkIfHasReturnProduct) {
-          showError("Vui lòng chọn ít nhất 1 sản phẩm");
+          showError("Vui lòng chọn ít nhất 1 sản phẩmm");
           const element: any = document.getElementById("search_product");
           scrollAndFocusToDomElement(element);
           return;
@@ -473,6 +493,10 @@ const ScreenReturnCreate = (props: PropType) => {
         let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
           return single.quantity > 0;
         });
+        if(!storeReturn){
+          showError("Vui lòng chọn cửa hàng để trả!");
+          return;
+        }
         if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
           showError("Vui lòng chọn ít nhất 1 sản phẩm mua!");
           const element: any = document.getElementById("search_product");
@@ -484,7 +508,7 @@ const ScreenReturnCreate = (props: PropType) => {
         }
         if (OrderDetail && listReturnProducts) {
           let items = listReturnProducts.map((single) => {
-            const { maxQuantity, ...rest } = single;
+            const { maxQuantityCanBeReturned, ...rest } = single;
             return rest;
           });
           let itemsResult = items.filter((single) => {
@@ -521,6 +545,11 @@ const ScreenReturnCreate = (props: PropType) => {
           }
           let orderDetailResult: ReturnRequest = {
             ...OrderDetail,
+            store_id:storeReturn?storeReturn.id:null,
+            store:storeReturn?storeReturn.name:"",
+            store_code:storeReturn?storeReturn.code:"",
+            store_full_address:storeReturn?storeReturn.address:"",
+            store_phone_number:storeReturn?storeReturn.hotline:"",
             action: "",
             delivery_service_provider_id: null,
             delivery_fee: null,
@@ -623,7 +652,7 @@ const ScreenReturnCreate = (props: PropType) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
-      getTotalAmountAfferDiscount(listExchangeProducts);
+      getTotalAmountAfterDiscount(listExchangeProducts);
 
 
 
@@ -879,9 +908,12 @@ const ScreenReturnCreate = (props: PropType) => {
       totalAmountReturnProducts,
       totalAmountExchange,
       totalAmountCustomerNeedToPay,
+      setStoreReturn,
+      storeReturn
     },
     isExchange,
     isStepExchange,
+    listStoreReturn
   };
 
   const renderIfOrderNotFinished = () => {
@@ -941,6 +973,7 @@ const ScreenReturnCreate = (props: PropType) => {
                       totalAmountReturn: totalAmountReturnProducts,
                     }}
                     configOrder={configOrder}
+                    assigneeCode={OrderDetail?.assignee_code ? OrderDetail?.assignee_code : "" }
                   />
                 )}
                 {!isExchange && (
@@ -1115,6 +1148,15 @@ const ScreenReturnCreate = (props: PropType) => {
   //     cauHinhInNhieuLienHoaDon: 3,
   //   });
   // }, []);
+
+  useEffect(() => {
+    dispatch(getListStoresSimpleAction((data:StoreResponse[])=>{
+      console.log("Store Data",data)
+      setListStoreReturn(data);
+    }))
+  }, [dispatch])
+
+  console.log("storeReturn index",storeReturn);
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

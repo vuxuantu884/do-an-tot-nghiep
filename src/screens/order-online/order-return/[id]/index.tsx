@@ -184,7 +184,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 _data.items.map((single) => {
                   return {
                     ...single,
-                    maxQuantity: single.quantity,
+                    maxQuantityCanBeReturned: single.quantity,
                   };
                 });
               setListReturnProducts(returnProductFormatted);

@@ -1,18 +1,16 @@
-import {InfoCircleOutlined, SearchOutlined} from "@ant-design/icons";
-import {Card, Form, FormInstance, Input, Select} from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import { Card, Form, FormInstance, Input, Select } from "antd";
 import AccountAutoComplete from "component/custom/AccountAutoComplete";
 import CustomInputTags from "component/custom/custom-input-tags";
 import UrlConfig from "config/url.config";
-import {AccountResponse} from "model/account/account.model";
-import {OrderResponse, OrderSubStatusResponse} from "model/response/order/order.response";
-import React, {useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import SidebarOrderHistory from "./SidebarOrderHistory";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   form: FormInstance<any>;
-  accounts: AccountResponse[];
   tags: string;
   levelOrder?: number;
   updateOrder?: boolean;
@@ -20,12 +18,11 @@ type PropType = {
   orderDetail?: OrderResponse | null;
   listOrderSubStatus?: OrderSubStatusResponse[];
   onChangeTag: (value: []) => void;
+  setAssigneeCode: (value: string) => void;
 };
 
 /**
  * sử dụng trong tạo đơn hàng, sửa đơn hàng, clone
- *
- * accounts: danh sách nhân viên
  *
  * leverOrder: phân quyền
  *
@@ -38,7 +35,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {accounts, onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form} =
+  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, setAssigneeCode} =
     props;
   const [defaultValueAssigneeCode, setDefaultValueAssigneeCode] = useState("");
   const [defaultValueCoordinatorCode, setDefaultValueCoordinatorCode] = useState("");
@@ -115,6 +112,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             formFieldName="assignee_code"
             defaultValue={defaultValueAssigneeCode}
 						key={defaultValueAssigneeCode}
+            handleSelect={setAssigneeCode}
           />
         </Form.Item>
         <Form.Item

@@ -200,7 +200,7 @@ function CardReturnProducts(props: PropType) {
             <div>
               <NumberInput
                 min={0}
-                max={record.maxQuantity}
+                max={record.maxQuantityCanBeReturned}
                 value={record.quantity}
                 // defaultValue={0}
                 onChange={(value: number | null) =>
@@ -211,7 +211,7 @@ function CardReturnProducts(props: PropType) {
                 minLength={0}
                 style={{ width: 100 }}
               />{" "}
-              / {record.maxQuantity}
+              / {record.maxQuantityCanBeReturned}
             </div>
           );
         }
