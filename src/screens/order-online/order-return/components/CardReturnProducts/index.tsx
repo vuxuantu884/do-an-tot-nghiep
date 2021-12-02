@@ -154,8 +154,8 @@ function CardReturnProducts(props: PropType) {
           className="single"
           style={{display: "flex", justifyContent: "space-between"}}
         >
-          <p>Chiết khấu/đơn hàng: </p>
-          <p style={{marginLeft: 20}}>{formatCurrency(Math.round(discountPerOrder))}</p>
+          <p style={{marginBottom: 0}}>Chiết khấu/đơn hàng: </p>
+          <p style={{marginLeft: 20, marginBottom: 0}}>{formatCurrency(Math.round(discountPerOrder))}</p>
         </div>
       </div>
     );
