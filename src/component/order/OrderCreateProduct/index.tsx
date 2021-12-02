@@ -1242,38 +1242,28 @@ function OrderCreateProduct(props: PropType) {
                       });
                       if (itemDiscount) {
                         let applyDiscountLineItem = itemDiscount.applied_discount;
-                        let discount_rate = 0;
                         let discount_value = 0;
                         // console.log("applyDiscountLineItem222", applyDiscountLineItem);
                         switch (applyDiscountLineItem?.value_type) {
                           case DISCOUNT_VALUE_TYPE.percentage:
-                            discount_rate = applyDiscountLineItem?.value
-                              ? applyDiscountLineItem?.value
-                              : 0;
-                            discount_value = discount_rate
-                              ? (discount_rate / 100) * singleItem.price
+                            discount_value = applyDiscountLineItem?.value
+                              ? (applyDiscountLineItem?.value / 100) * singleItem.price
                               : 0;
                             break;
                           case DISCOUNT_VALUE_TYPE.fixedAmount:
-                            discount_rate = applyDiscountLineItem?.value
-                              ? (applyDiscountLineItem?.value * 100) / singleItem.price
-                              : 0;
                             discount_value = applyDiscountLineItem?.value || 0;
                             break;
                           case DISCOUNT_VALUE_TYPE.fixedPrice:
                             discount_value = applyDiscountLineItem?.value
                               ? singleItem.price - applyDiscountLineItem?.value
                               : 0;
-                            discount_rate = discount_value
-                              ? (discount_value * 100) / singleItem.price
-                              : 0;
                             break;
                           default:
                             break;
                         }
-                        discount_value = Math.min(discount_value, singleItem.price);
                         if(discount_value > 0) {
-                          discount_rate = Math.min(discount_rate, 100);
+                          discount_value = Math.min(discount_value, singleItem.price);
+                          let discount_rate = (discount_value * 100) / singleItem.price;
                           singleItem.discount_items = [
                             {
                               amount: singleItem.quantity * discount_value,
