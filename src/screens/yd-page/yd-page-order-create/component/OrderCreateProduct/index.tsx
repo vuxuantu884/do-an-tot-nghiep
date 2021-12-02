@@ -1482,9 +1482,9 @@ function OrderCreateProduct(props: PropType) {
     [items]
   );
 
-  const onCancleConfirm = useCallback(() => {
-    setVisibleGift(false);
-  }, []);
+  // const onCancleConfirm = useCallback(() => {
+  //   setVisibleGift(false);
+  // }, []);
 
   const onOkConfirm = useCallback(() => {
     if (!items) {

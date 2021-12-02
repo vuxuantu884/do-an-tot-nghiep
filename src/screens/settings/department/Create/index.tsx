@@ -151,7 +151,7 @@ const DepartmentCreateScreen: React.FC = () => {
             </Col>
             <Col span={8}>
               <Form.Item name="address" label="Địa chỉ liên hệ">
-                <Input placeholder="Địa chỉ liên hệ" />
+                <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
               </Form.Item>
             </Col>
           </Row>
