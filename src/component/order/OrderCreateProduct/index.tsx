@@ -1,23 +1,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import {EditOutlined, LoadingOutlined, SearchOutlined} from "@ant-design/icons";
 import {
-	AutoComplete,
-	Button,
-	Card,
-	Checkbox,
-	Col,
-	Dropdown,
-	Form,
-	FormInstance,
-	Input,
-	Menu,
-	Row,
-	Select,
-	Space,
-	Table,
-	Tooltip
+  AutoComplete,
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  Dropdown,
+  Form,
+  FormInstance,
+  Input,
+  Menu,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tooltip,
 } from "antd";
-import { RefSelectProps } from "antd/lib/select";
+import {RefSelectProps} from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
@@ -25,80 +25,85 @@ import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
-import { AppConfig } from "config/app.config";
-import { HttpStatus } from "config/http-status.config";
-import { Type } from "config/type.config";
+import {AppConfig} from "config/app.config";
+import {HttpStatus} from "config/http-status.config";
+import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-	//getStoreSearchIdsAction ,
-	StoreGetListAction,
-	StoreSearchListAction
+  //getStoreSearchIdsAction ,
+  StoreGetListAction,
+  StoreSearchListAction,
 } from "domain/actions/core/store.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { splitOrderAction } from "domain/actions/order/order.action";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
+import {splitOrderAction} from "domain/actions/order/order.action";
 import {
-	SearchBarCode,
-	searchVariantsOrderRequestAction
+  SearchBarCode,
+  searchVariantsOrderRequestAction,
 } from "domain/actions/product/products.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import { InventoryResponse } from "model/inventory";
-import { OrderItemDiscountModel } from "model/other/order/order-model";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {PageResponse} from "model/base/base-metadata.response";
+import {StoreResponse} from "model/core/store.model";
+import {InventoryResponse} from "model/inventory";
+import {OrderItemDiscountModel} from "model/other/order/order-model";
+import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
-	OrderItemDiscountRequest,
-	OrderLineItemRequest,
-	SplitOrderRequest
+  OrderItemDiscountRequest,
+  OrderLineItemRequest,
+  SplitOrderRequest,
 } from "model/request/order.request";
 import {
-	DiscountRequestModel,
-	LineItemRequestModel
+  DiscountRequestModel,
+  LineItemRequestModel,
 } from "model/request/promotion.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { OrderConfig, OrderResponse } from "model/response/order/order.response";
+import {CustomerResponse} from "model/response/customer/customer.response";
+import {OrderConfig, OrderResponse} from "model/response/order/order.response";
 import {
-	ApplyCouponResponseModel,
-	SuggestDiscountResponseModel
+  ApplyCouponResponseModel,
+  SuggestDiscountResponseModel,
 } from "model/response/order/promotion.response";
-import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
+import {OrderConfigResponseModel} from "model/response/settings/order-settings.response";
 import React, {
-	createRef,
-	MutableRefObject,
-	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState
+  createRef,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {Link} from "react-router-dom";
 import DiscountGroup from "screens/order-online/component/discount-group";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
-import { applyDiscountService } from "service/promotion/discount/discount.service";
+import {applyDiscountService} from "service/promotion/discount/discount.service";
 import {
-	findAvatar,
-	findPrice,
-	findPriceInVariant,
-	findTaxInVariant,
-	formatCurrency,
-	getAccountCodeFromCodeAndName,
-	getTotalAmount,
-	getTotalAmountAfferDiscount,
-	getTotalDiscount,
-	getTotalQuantity,
-	haveAccess,
-	replaceFormatString
+  findAvatar,
+  findPrice,
+  findPriceInVariant,
+  findTaxInVariant,
+  formatCurrency,
+  getAccountCodeFromCodeAndName,
+  getLineAmountAfterLineDiscount,
+  getLineItemDiscountAmount,
+  getLineItemDiscountRate,
+  getLineItemDiscountValue,
+  getTotalAmount,
+  getTotalAmountAfterDiscount,
+  getTotalDiscount,
+  getTotalQuantity,
+  handleDelayActionWhenInsertTextInSearchInput,
+  haveAccess,
+  replaceFormatString,
 } from "utils/AppUtils";
-import { MoneyType } from "utils/Constants";
-import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import {MoneyType} from "utils/Constants";
+import {DISCOUNT_VALUE_TYPE} from "utils/Order.constants";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   storeId: number | null;
@@ -447,23 +452,17 @@ function OrderCreateProduct(props: PropType) {
   ) => {
     // delay khi thay đổi số lượng
     if (isAutomaticDiscount) {
-      if (inputRef.current) {
-        clearTimeout(inputRef.current);
-      }
-      inputRef.current = setTimeout(() => {
-        handleApplyDiscount(items);
-        return;
-      }, QUANTITY_DELAY_TIME);
+      handleDelayActionWhenInsertTextInSearchInput(
+        inputRef,
+        () => handleApplyDiscount(items),
+        QUANTITY_DELAY_TIME
+      );
     } else {
-      if (inputRef.current) {
-        clearTimeout(inputRef.current);
-      }
-      inputRef.current = setTimeout(() => {
-        if (couponInputText && items && items?.length > 0) {
-          handleApplyCouponWhenInsertCoupon(couponInputText, _items);
-          return;
-        }
-      }, QUANTITY_DELAY_TIME);
+      handleDelayActionWhenInsertTextInSearchInput(
+        inputRef,
+        () => handleApplyCouponWhenInsertCoupon(couponInputText, _items),
+        QUANTITY_DELAY_TIME
+      );
     }
   };
 
@@ -988,12 +987,12 @@ function OrderCreateProduct(props: PropType) {
     }
     value = Math.min(value, item.price);
     value = Math.round(value);
-    if(value < 0) {
+    if (value < 0) {
       value = 0;
     }
     let rate = Math.round((value / item.price) * 100 * 100) / 100;
     rate = Math.min(rate, 100);
-    
+
     const discountItem: OrderItemDiscountRequest = {
       rate,
       value,
@@ -1003,13 +1002,12 @@ function OrderCreateProduct(props: PropType) {
     };
     let itemResult = {
       ..._item,
-      discount_value: value,
-      discount_rate: rate,
-      amount: item.price * item.quantity,
-      discount_amount: value * item.quantity,
-      line_amount_after_line_discount: item.price - value,
       discount_items: [discountItem],
     };
+		itemResult.discount_value=getLineItemDiscountValue(itemResult);
+		itemResult.discount_rate=getLineItemDiscountRate(itemResult);
+		itemResult.discount_amount=getLineItemDiscountAmount(itemResult);
+		itemResult.line_amount_after_line_discount=getLineAmountAfterLineDiscount(itemResult);
 
     result.push(itemResult);
     return result;
@@ -1139,12 +1137,12 @@ function OrderCreateProduct(props: PropType) {
       let params: DiscountRequestModel = {
         order_id: orderDetail?.id || null,
         customer_id: customer?.id || null,
-				gender: customer?.gender || null,
-				customer_group_id: customer?.customer_group_id || null,
-				customer_loyalty_level_id: customer?.loyalty_level_id || null,
-				customer_type_id: customer?.type_id || null,
-				birthday_date: customer?.birthday || null,
-				wedding_date: customer?.wedding_date || null,
+        gender: customer?.gender || null,
+        customer_group_id: customer?.customer_group_id || null,
+        customer_loyalty_level_id: customer?.loyalty_level_id || null,
+        customer_type_id: customer?.type_id || null,
+        birthday_date: customer?.birthday || null,
+        wedding_date: customer?.wedding_date || null,
         store_id: form.getFieldValue("store_id"),
         sales_channel_name: "ADMIN",
         order_source_id: form.getFieldValue("source_id"),
@@ -1277,7 +1275,7 @@ function OrderCreateProduct(props: PropType) {
                         //   : 0;
                         singleItem.discount_items = [
                           {
-                            amount: discount_value,
+                            amount: singleItem.quantity * discount_value,
                             value: discount_value,
                             rate: discount_rate
                               ? Math.round(discount_rate * 100) / 100
@@ -1286,9 +1284,10 @@ function OrderCreateProduct(props: PropType) {
                             // discount_code,
                           },
                         ];
-                        singleItem.discount_rate = discount_rate;
-                        singleItem.discount_value = discount_value;
-                        singleItem.line_amount_after_line_discount = singleItem.quantity * (singleItem.price - discount_value);
+												singleItem.discount_value = getLineItemDiscountValue(singleItem);
+                        singleItem.discount_rate = getLineItemDiscountRate(singleItem);
+												singleItem.discount_amount = getLineItemDiscountAmount(singleItem);
+                        singleItem.line_amount_after_line_discount =getLineAmountAfterLineDiscount(singleItem);
                       } else {
                         removeDiscountItem(singleItem);
                       }
@@ -1404,22 +1403,25 @@ function OrderCreateProduct(props: PropType) {
       initQueryVariant.info = value;
       initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
       // console.log("initQueryVariant", initQueryVariant);
-      if (value.trim()) {
-        (async () => {
-          setSearchProducts(true);
-          try {
-            await dispatch(
-              searchVariantsOrderRequestAction(initQueryVariant, (data) => {
-                setResultSearchVariant(data);
-                setSearchProducts(false);
-                setIsShowProductSearch(true);
-              })
-            );
-          } catch {}
-        })();
-      } else {
-        setSearchProducts(false);
-      }
+			const handleSearchProduct = () => {
+				if (value.trim()) {
+					(async () => {
+						setSearchProducts(true);
+						try {
+							await dispatch(
+								searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+									setResultSearchVariant(data);
+									setSearchProducts(false);
+									setIsShowProductSearch(true);
+								})
+							);
+						} catch {}
+					})();
+				} else {
+					setSearchProducts(false);
+				}
+			};
+			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, ()=>handleSearchProduct() )
     },
     [form]
   );
@@ -1948,7 +1950,7 @@ function OrderCreateProduct(props: PropType) {
                     fontWeight: 700,
                   }}
                 >
-                  {formatCurrency(Math.round(getTotalAmountAfferDiscount(items)))}
+                  {formatCurrency(Math.round(getTotalAmountAfterDiscount(items)))}
                 </div>
               </div>
             ) : (
