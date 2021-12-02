@@ -54,7 +54,8 @@ import { useHistory } from "react-router-dom";
 import {
 	getAccountCodeFromCodeAndName,
 	getAmountPaymentRequest,
-	getTotalAmountAfferDiscount,
+	getTotalAmount,
+	getTotalAmountAfterDiscount,
 	scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
@@ -488,7 +489,17 @@ export default function Order() {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
+		values.tags = tags;
+    values.items = items.concat(itemGifts);
+    values.discounts = lstDiscount;
+    values.shipping_address = shippingAddress;
+    values.billing_address = billingAddress;
+    values.customer_id = customer?.id;
+    values.customer_ward = customer?.ward;
+    values.customer_district = customer?.district;
+    values.customer_city = customer?.city;
+    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -499,7 +510,7 @@ export default function Order() {
 
       values.shipping_fee_informed_to_customer = 0;
       values.action = OrderStatus.DRAFT;
-      values.total = orderAmount;
+      values.total = getTotalAmount(values.items);
       values.shipping_fee_informed_to_customer = 0;
     } else {
       //Nếu là đơn lưu và xác nhận
@@ -507,7 +518,7 @@ export default function Order() {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments.filter((payment) => payment.amount > 0);
-      values.total = orderAmount;
+      values.total = getTotalAmount(values.items);
       if (
         values?.fulfillments &&
         values.fulfillments.length > 0 &&
@@ -520,16 +531,7 @@ export default function Order() {
           discountValue;
       }
     }
-    values.tags = tags;
-    values.items = items.concat(itemGifts);
-    values.discounts = lstDiscount;
-    values.shipping_address = shippingAddress;
-    values.billing_address = billingAddress;
-    values.customer_id = customer?.id;
-    values.customer_ward = customer?.ward;
-    values.customer_district = customer?.district;
-    values.customer_city = customer?.city;
-    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");

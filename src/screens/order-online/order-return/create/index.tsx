@@ -51,7 +51,7 @@ import {
   checkIfOrderHasReturnedAll,
   getAmountPaymentRequest,
   getListItemsCanReturn,
-  getTotalAmountAfferDiscount,
+  getTotalAmountAfterDiscount,
   scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
@@ -652,7 +652,7 @@ const ScreenReturnCreate = (props: PropType) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
-      getTotalAmountAfferDiscount(listExchangeProducts);
+      getTotalAmountAfterDiscount(listExchangeProducts);
 
 
 

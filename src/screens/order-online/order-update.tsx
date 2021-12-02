@@ -86,7 +86,7 @@ import {
 	checkPaymentStatusToShow,
 	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPaymentRequest,
-	getTotalAmountAfferDiscount,
+	getTotalAmountAfterDiscount,
 	SumCOD,
 	SumWeightResponse,
 	TrackingCode
@@ -652,7 +652,7 @@ export default function Order(props: PropType) {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
 

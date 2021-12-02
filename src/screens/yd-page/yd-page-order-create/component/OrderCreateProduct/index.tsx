@@ -70,7 +70,7 @@ import {
 	formatCurrency,
 	getAccountCodeFromCodeAndName,
 	getTotalAmount,
-	// getTotalAmountAfferDiscount,
+	// getTotalAmountAfterDiscount,
 	getTotalDiscount,
 	getTotalQuantity,
 	haveAccess,

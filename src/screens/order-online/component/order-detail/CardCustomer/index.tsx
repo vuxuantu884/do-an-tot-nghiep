@@ -65,6 +65,7 @@ import UrlConfig from "config/url.config";
 import * as CONSTANTS from "utils/Constants";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
+import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 //#end region
 
 type CustomerCardProps = {
@@ -274,8 +275,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       setKeySearchCustomer(value);
       setSearchCustomer(true);
       initQueryCustomer.request = value.trim();
-      dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
-      setSearchCustomer(false);
+			const handleSearch = () => {
+				dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+				setSearchCustomer(false);
+			};
+			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, ()=>handleSearch() )
+      
     },
     [dispatch, typingTimer, setTypingTimer]
   );

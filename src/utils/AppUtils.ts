@@ -625,16 +625,6 @@ export const Products = {
   },
 };
 
-export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
-  let value = 0;
-  if (items.length > 0) {
-    if (items[0].amount !== null) {
-      value = items[0].amount;
-    }
-  }
-  return value;
-};
-
 export const getAmountPayment = (items: Array<OrderPaymentResponse> | null) => {
   let value = 0;
   if (items !== null) {
@@ -667,19 +657,39 @@ export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
   return total;
 };
 
+export const getLineItemDiscountValue = (lineItem: OrderLineItemRequest) => {
+	let total = 0;
+  lineItem.discount_items.forEach((a) => (total = total + a.value));
+  return total;
+};
+
+export const getLineItemDiscountAmount = (lineItem: OrderLineItemRequest) => {
+	let total = 0;
+  lineItem.discount_items.forEach((a) => (total = total + a.amount));
+  return total;
+};
+
+export const getLineItemDiscountRate = (lineItem: OrderLineItemRequest) => {
+  return lineItem.discount_value / lineItem.price;
+};
+
 export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
-  // console.log('getTotalDiscount =============+> ', items);
   items.forEach((a) => (total = total + a.discount_amount));
   return total;
 };
 
-export const getTotalAmountAfferDiscount = (
+export const getTotalAmountAfterDiscount = (
   items: Array<OrderLineItemRequest>
 ) => {
   let total = 0;
   items.forEach((a) => (total = total + a.line_amount_after_line_discount));
   return total;
+};
+
+
+export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) => {
+	return lineItem.amount - lineItem.discount_amount;
 };
 
 export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
@@ -1108,4 +1118,13 @@ export const getAccountCodeFromCodeAndName = (text: string | null | undefined) =
 		result = text.split(splitString)[0].trim();
 	} 
 	return result;
+};
+
+export const handleDelayActionWhenInsertTextInSearchInput = (inputRef: React.MutableRefObject<any>, func: (...arg: any) => void|any, delayTime: number = 500) => {
+	if (inputRef.current) {
+		clearTimeout(inputRef.current);
+	}
+	inputRef.current = setTimeout(() => {
+		func();
+	}, delayTime);
 };
