@@ -87,12 +87,12 @@ const CardListFilter: React.FC<CardListFilterProps> = (
 
       switch (value) {
         case "today":
-          startDateValue = moment();
-          endDateValue = moment();
+          startDateValue = moment().startOf("day");
+          endDateValue = moment().endOf("day");
           break;
         case "yesterday":
-          startDateValue = moment().subtract(1, "days");
-          endDateValue = moment().subtract(1, "days");
+          startDateValue = moment().startOf("day").subtract(1, "days");
+          endDateValue = moment().endOf("day").subtract(1, "days");
           break;
         case "thisWeek":
           startDateValue = moment().startOf("week");
@@ -133,19 +133,45 @@ const CardListFilter: React.FC<CardListFilterProps> = (
     [assignedDateClick]
   );
 
+  // handle select RangPicker
+  const setLocalStartDate = (dateString: string) => {
+    if (!dateString) {
+      return null;
+    }
+    const dateArray = dateString.split("-");
+    const day = dateArray[0];
+    const month = dateArray[1];
+    const year = dateArray[2];
+    const newDate = new Date(month + '-' + day + '-' + year);
+    return moment(newDate).startOf("day");
+  }
+
+  const setLocalEndDate = (dateString: string) => {
+    if (!dateString) {
+      return null;
+    }
+    const dateArray = dateString.split("-");
+    const day = dateArray[0];
+    const month = dateArray[1];
+    const year = dateArray[2];
+    const newDate = new Date(month + '-' + day + '-' + year);
+    return moment(newDate).endOf("day");
+  }
+
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
     switch (type) {
       case "assigned_date":
         setAssignedDateClick("");
-        const startDateUtc = dates ? dates[0] : null;
-        const endDateUtc = dates ? dates[1] : null;
-        setFromAssignedDate (startDateUtc);
-        setToAssignedDate (endDateUtc);
+        const startDate = setLocalStartDate(dateString[0]);
+        const endDate = setLocalEndDate(dateString[1]);
+        setFromAssignedDate (startDate);
+        setToAssignedDate (endDate);
         break;
       default:
         break;
     }
   }, []);
+  // end handle select RangPicker
   // end handle select date
 
 
