@@ -1,8 +1,8 @@
 import { Card, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
-import SidebarOrderDetailExtraInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailExtraInformation";
-import SidebarOrderDetailInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailInformation";
+import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
@@ -1074,8 +1074,8 @@ const ScreenReturnCreate = (props: PropType) => {
           isCanExchange={isCanExchange}
           isExchange={isExchange}
           isStepExchange={isStepExchange}
-          // handleIsStepExchange={setIsStepExchange}
-          handleIsStepExchange={(value: boolean) => handleIsStepExchange(value)}
+          setIsStepExchange={setIsStepExchange}
+          handleIsStepExchange={handleIsStepExchange}
         />
         <ModalConfirm
           onCancel={() => {

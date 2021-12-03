@@ -625,7 +625,7 @@ export const Products = {
   },
 };
 
-export const getAmountPayment = (items: Array<OrderPaymentResponse> | null) => {
+export const getAmountPayment = (items: Array<OrderPaymentResponse|OrderPaymentRequest> | null) => {
   let value = 0;
   if (items !== null) {
     if (items.length > 0) {

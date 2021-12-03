@@ -6,7 +6,7 @@ import UrlConfig from "config/url.config";
 import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import SidebarOrderHistory from "./SidebarOrderHistory";
+import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
 import { StyledComponent } from "./styles";
 
 type PropType = {
