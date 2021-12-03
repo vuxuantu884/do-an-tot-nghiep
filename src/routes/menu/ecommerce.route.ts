@@ -1,6 +1,7 @@
+import React from "react";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
-import React from "react";
+import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
 
 const Config = React.lazy(() => import("screens/ecommerce/config"));
 const EcommerceOrders = React.lazy(() => import("screens/ecommerce/orders"));
@@ -10,6 +11,10 @@ const Products = React.lazy(() => import("screens/ecommerce/products"));
 //@todo: implement later
 // const ForControl = React.lazy(() => import("screens/ecommerce/for-control"));
 // const Report = React.lazy(() => import("screens/ecommerce/report"));
+
+
+const ordersMappingViewPermission = [EcommerceOrderPermission?.orders_mapping_view];
+
 
 const ecommerce: Array<RouteMenu> = [
   {
@@ -33,6 +38,7 @@ const ecommerce: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
+    permissions: ordersMappingViewPermission
   },
   {
     path: `${UrlConfig.ECOMMERCE}/products`,

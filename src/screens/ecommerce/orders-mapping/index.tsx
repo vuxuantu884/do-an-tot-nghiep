@@ -5,11 +5,7 @@ import { Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import AllOrdersMapping from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMapping";
 
-import AuthWrapper from "component/authorization/AuthWrapper";
-import NoPermission from "screens/no-permission.screen";
-import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
-
-import { OrdersMappingStyled } from "./styles";
+import { OrdersMappingStyled } from "screens/ecommerce/orders-mapping/styles";
 
 const { TabPane } = Tabs;
 
@@ -20,8 +16,6 @@ const ORDER_TABS = {
   },
 }
 
-
-const ordersViewPermission = [EcommerceOrderPermission.orders_view];
 
 const OrdersMapping: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("all-orders");
@@ -46,20 +40,13 @@ const OrdersMapping: React.FC = () => {
       <ContentContainer
         title="Mapping đơn hàng sàn"
       >
-        <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
-          {(allowed: boolean) => (allowed ?
-            <>
-              <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
-                <TabPane tab={ORDER_TABS.all_orders.title} key={ORDER_TABS.all_orders.key} />
-              </Tabs>
-              
-              {activeTab === ORDER_TABS.all_orders.key &&
-                <AllOrdersMapping />
-              }
-              
-            </>
-          : <NoPermission />)}
-        </AuthWrapper>
+        <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
+          <TabPane tab={ORDER_TABS.all_orders.title} key={ORDER_TABS.all_orders.key} />
+        </Tabs>
+        
+        {activeTab === ORDER_TABS.all_orders.key &&
+          <AllOrdersMapping />
+        }
       </ContentContainer>
     </OrdersMappingStyled>
   );
