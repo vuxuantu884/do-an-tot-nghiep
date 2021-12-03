@@ -26,8 +26,8 @@ import {
 import {
   getCustomerDetailAction,
   CustomerGroups,
-  CustomerSearch,
   DeleteShippingAddress,
+  CustomerSearchSo,
 } from "domain/actions/customer/customer.action";
 import {getListSourceRequest} from "domain/actions/product/source.action";
 import {WardResponse} from "model/content/ward.model";
@@ -80,7 +80,6 @@ const initQueryCustomer: CustomerSearchQuery = {
   request: "",
   limit: 5,
   page: 1,
-  is_simple:1,
   gender: null,
   from_birthday: null,
   to_birthday: null,
@@ -205,7 +204,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           if (autoCompleteRef.current?.props && autoCompleteRef.current?.props.value) {
             initQueryCustomer.request = autoCompleteRef.current?.props.value;
             dispatch(
-              CustomerSearch(initQueryCustomer, (data: Array<CustomerResponse>) => {
+              CustomerSearchSo(initQueryCustomer, (data: Array<CustomerResponse>) => {
                 if (data && data.length !== 0) {
                   handleCustomer(data[0]);
                   //set Shipping Address
@@ -264,7 +263,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       setSearchCustomer(true);
       initQueryCustomer.request = value.trim();
       const handleSearch = () => {
-        dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+        dispatch(CustomerSearchSo(initQueryCustomer, setResultSearch));
         setSearchCustomer(false);
       };
       handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearch());
@@ -304,6 +303,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerConvertResultSearch = useMemo(() => {
     let options: any[] = [];
+    console.log("resultSearch",resultSearch)
     resultSearch.forEach((item: CustomerResponse, index: number) => {
       options.push({
         label: CustomerRenderSearchResult(item),
