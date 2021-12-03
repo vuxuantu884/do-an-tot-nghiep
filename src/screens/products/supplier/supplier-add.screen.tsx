@@ -293,7 +293,7 @@ const CreateSupplierScreen: React.FC = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọ nhân viên phụ trách",
+                    message: "Vui lòng chọn nhân viên phụ trách",
                   },
                 ]}
                 name="person_in_charge"

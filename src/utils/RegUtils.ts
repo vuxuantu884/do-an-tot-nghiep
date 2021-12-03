@@ -15,4 +15,5 @@ export const RegUtil = {
   WEBSITE_URL_2: /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\\.-]+)+[\w\-\\._~:/?#[\]@!\\$&'\\(\\)\\*\\+,;=.]+$/gm,
   ONLY_STRING: /^[a-zA-Z\b]+$/,
   BOTH_NUMBER_AND_STRING: /(?=.*[A-Z])(?=.*[0-9])/,
+  ONLY_NUMBER: /^[0-9]+$/,
 }

@@ -2,6 +2,7 @@ export enum DiscountMethod {
   FIXED_PRICE = "FIXED_PRICE",
   PERCENTAGE = "PERCENTAGE",
   QUANTITY = "QUANTITY",
+  TOTAL_BILL = "TOTAL_BILL",
 }
 export interface DiscountCreateModel {
   title: string;
