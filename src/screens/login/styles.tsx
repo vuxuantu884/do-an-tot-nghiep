@@ -70,6 +70,9 @@ export const StylesWrapper = styled.div`
     @media screen and (min-height: 800px) {
       margin-top: 100px; 
     }
+    @media screen and (max-height: 768px) {
+      margin-top: 0px !important;
+    }
     transform: translate(-50%,0px);
     -moz-transform: translate(-50%,0px);
     -webkit-transform: translate(-50%,0px);
@@ -95,6 +98,9 @@ export const StylesWrapper = styled.div`
       padding-top: 20px;
       font-family: auto;
       font-weight: 700px;
+      @media screen and (max-height: 768px) {
+        padding-top: 5px;
+      }
     }
     .fashion-tech{
       font-size: 13px;

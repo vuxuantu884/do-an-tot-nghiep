@@ -1,30 +1,30 @@
-import {SearchOutlined} from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import {
-  AutoComplete,
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Input,
-  Popover,
-  Row,
-  Table,
-  Tooltip,
+	AutoComplete,
+	Button,
+	Card,
+	Checkbox,
+	Col,
+	Input,
+	Popover,
+	Row,
+	Table,
+	Tooltip
 } from "antd";
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
-import {RefSelectProps} from "antd/lib/select";
-import {ColumnType} from "antd/lib/table";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { RefSelectProps } from "antd/lib/select";
+import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import NumberInput from "component/custom/number-input.custom";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import {OrderLineItemRequest} from "model/request/order.request";
-import {OrderResponse, ReturnProductModel} from "model/response/order/order.response";
-import React, {createRef, useCallback, useContext, useState} from "react";
-import {Link} from "react-router-dom";
+import { OrderLineItemRequest } from "model/request/order.request";
+import { OrderResponse, ReturnProductModel } from "model/response/order/order.response";
+import React, { createRef, useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import StoreReturnModel from "screens/order-online/modal/store-return.modal";
-import {formatCurrency, getTotalQuantity} from "utils/AppUtils";
-import {StyledComponent} from "./styles";
+import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   isDetailPage?: boolean;
@@ -99,30 +99,6 @@ function CardReturnProducts(props: PropType) {
       </React.Fragment>
     );
   };
-
-  const getProductDiscountPerProduct = (product: ReturnProductModel) => {
-    let discountPerProduct = 0;
-    product.discount_items.forEach((single) => {
-      discountPerProduct += single.value;
-    });
-    return discountPerProduct;
-  };
-
-  const getProductDiscountPerOrder = useCallback(
-    (product: ReturnProductModel) => {
-      let discountPerOrder = 0;
-			let totalDiscountRatePerOrder = 0;
-      OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
-        if (singleOrderDiscount?.rate) {
-          totalDiscountRatePerOrder = totalDiscountRatePerOrder + singleOrderDiscount.rate;
-        }
-      });
-			discountPerOrder =
-				(totalDiscountRatePerOrder * (product.price - product.discount_value))
-      return discountPerOrder;
-    },
-    [OrderDetail?.discounts]
-  );
 
   const renderPopOverPriceTitle = (price: number) => {
     return (
@@ -242,7 +218,7 @@ function CardReturnProducts(props: PropType) {
       key: "price",
       render: (value: number, record: ReturnProductModel, index: number) => {
         const discountPerProduct = getProductDiscountPerProduct(record);
-        const discountPerOrder = getProductDiscountPerOrder(record);
+        const discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
         const pricePerOrder = record.price - discountPerProduct - discountPerOrder;
         return (
           <Popover
@@ -268,7 +244,7 @@ function CardReturnProducts(props: PropType) {
         index: number
       ) => {
         const discountPerProduct = getProductDiscountPerProduct(record);
-        const discountPerOrder = getProductDiscountPerOrder(record);
+        const discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
