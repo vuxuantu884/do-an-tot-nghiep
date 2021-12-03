@@ -40,7 +40,8 @@ import {
   orderPutApi,
   putFulfillmentsPackApi,
   splitOrderService,
-  updateDeliveryConnectService
+  updateDeliveryConnectService,
+  updateOrderPartialService
 } from "service/order/order.service";
 import { getAmountPayment } from "utils/AppUtils";
 import { getPackInfo } from "utils/LocalStorageUtils";
@@ -904,6 +905,27 @@ function* getChannelsSaga(action:YodyAction){
   }
 }
 
+function* updateOrderPartial(action:YodyAction){
+  let { params, orderID, onSuccess } = action.payload;
+  try{
+    let response: BaseResponse<any> = yield call(updateOrderPartialService, params, orderID);
+    switch(response.code){
+      case HttpStatus.SUCCESS:
+        onSuccess()
+        showSuccess(`Sửa ghi chú thành công!`);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  }
+  catch(e){
+    showError(`Có lỗi khi lấy danh sách kênh! Vui lòng thử lại sau!`);
+  }
+}
 
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_DETAIL_ORDER_REQUEST,getDetailOrderSaga);
@@ -949,4 +971,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.SPLIT_ORDER, splitOrderSaga);
   yield takeLatest(OrderType.SOURCES_ECOMMERCE, getSourcesEcommerceSaga);
   yield takeLatest(OrderType.GET_CHANNELS, getChannelsSaga);
+  yield takeLatest(OrderType.UPDATE_ORDER_PARTIAL_REQUEST, updateOrderPartial);
 }
