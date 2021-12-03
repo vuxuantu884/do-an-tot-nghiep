@@ -305,35 +305,29 @@ const ListOrderScreen: React.FC = () => {
       width: nameQuantityWidth,
     },
     {
-      title: "Khách phải trả",
-      // dataIndex: "",
-      render: (record: any) => (
-        <>
-          <span>
-            <NumberFormat
-              value={record.total_line_amount_after_line_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          </span>
-          <br />
-          <span style={{ color: "#EF5B5B" }}>
-            {" "}
-            -
-            <NumberFormat
-              value={record.total_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          </span>
-        </>
-      ),
-      key: "customer.amount_money",
+      title: "Kho cửa hàng",
+      dataIndex: "store",
+      key: "store",
       visible: true,
-      align: "right",
-      width: "120px",
+      align: "center",
+    },
+    {
+      title: "Nguồn đơn hàng",
+      dataIndex: "source",
+      key: "source",
+      visible: true,
+      align: "center",
+    },
+    {
+      title: "Địa chỉ giao hàng",
+      render: (record: OrderResponse) =>
+				<div className="customer custom-td">
+					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
+        </div>
+        ,
+      key: "shipping_address",
+      visible: true,
+      width: 200,
     },
     {
       title: "HT Vận chuyển",
@@ -387,13 +381,7 @@ const ListOrderScreen: React.FC = () => {
       ),
       visible: true,
       align: "center",
-      width: 150,
-    },
-    {
-      title: "Ghi chú nội bộ",
-      dataIndex: "note",
-      key: "note",
-      visible: true,
+      width: 200,
     },
     {
       title: "Trạng thái đơn",
@@ -460,7 +448,7 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
-
+    
     {
       title: "Đóng gói",
       key: "packed_status",
@@ -488,6 +476,34 @@ const ListOrderScreen: React.FC = () => {
         if (record.fulfillments.length) {
           const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
           processIcon = newFulfillments[0].export_on ? "icon-full" : "icon-blank";
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
+      visible: true,
+      align: "center",
+      width: 100,
+    },
+    
+    {
+      title: "Trả hàng",
+      dataIndex: "return_status",
+      key: "return_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case "unreturned":
+            processIcon = "icon-blank";
+            break;
+          case "returned":
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;
         }
         return (
           <div className="text-center">
@@ -527,67 +543,47 @@ const ListOrderScreen: React.FC = () => {
       width: 110,
     },
     {
-      title: "Trả hàng",
-      dataIndex: "return_status",
-      key: "return_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "unreturned":
-            processIcon = "icon-blank";
-            break;
-          case "returned":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
+      title: "HT thanh toán",
+      dataIndex: "payments",
+      key: "payments.type",
+      render: (payments: Array<OrderPaymentModel>) =>
+        payments.map((payment) => {
+          return <Tag>{payment.payment_method}</Tag>;
+        }),
       visible: true,
       align: "center",
-      width: 100,
+      width: 160
     },
     {
-      title: "Tổng SL",
-      dataIndex: "items",
-      key: "item.quantity.total",
-      render: (items) => {
-        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
-
-        return items.reduce((total: number, item: any) => total + item.quantity, 0);
-      },
+      title: "Khách phải trả",
+      // dataIndex: "",
+      render: (record: any) => (
+        <>
+          <span>
+            <NumberFormat
+              value={record.total_line_amount_after_line_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+          <br />
+          <span style={{ color: "#EF5B5B" }}>
+            {" "}
+            -
+            <NumberFormat
+              value={record.total_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+        </>
+      ),
+      key: "customer.amount_money",
       visible: true,
-      align: "center",
-      width: 100,
-    },
-		{
-      title: "Địa chỉ giao hàng",
-      render: (record: OrderResponse) =>
-				<div className="customer custom-td">
-					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
-        </div>
-        ,
-      key: "shipping_address",
-      visible: true,
-      width: 200,
-    },
-    {
-      title: "Kho cửa hàng",
-      dataIndex: "store",
-      key: "store",
-      visible: true,
-    },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "source",
-      visible: true,
+      align: "right",
+      width: 150,
     },
     {
       title: "Khách đã trả",
@@ -634,18 +630,55 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
+    
     {
-      title: "HT thanh toán",
-      dataIndex: "payments",
-      key: "payments.type",
-      render: (payments: Array<OrderPaymentModel>) =>
-        payments.map((payment) => {
-          return <Tag>{payment.payment_method}</Tag>;
-        }),
+      title: "Ghi chú nội bộ",
+      dataIndex: "note",
+      key: "note",
+      visible: true,
+    },
+    {
+      title: "Ghi chú của khách",
+      dataIndex: "customer_note",
+      key: "customer_note",
+      visible: true,
+    },
+    {
+      title: "Tag",
+      dataIndex: "tags",
+      // render: (tags: Array<string>) => (
+      //   tags?.map(tag => {
+      //     return (
+      //       <Tag>{tag}</Tag>
+      //     )
+      //   })
+      // ),
+      key: "tags",
       visible: true,
       align: "center",
-      width: 160
     },
+    {
+      title: "Mã tham chiếu",
+      dataIndex: "reference_code",
+      key: "reference_code",
+      visible: true,
+    },
+    {
+      title: "Tổng SL",
+      dataIndex: "items",
+      key: "item.quantity.total",
+      render: (items) => {
+        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
+
+        return items.reduce((total: number, item: any) => total + item.quantity, 0);
+      },
+      visible: true,
+      align: "center",
+      width: 100,
+    },
+		
+    
+    
     {
       title: "Nhân viên bán hàng",
       render: (record) => <div>{`${record.assignee} - ${record.assignee_code}`}</div>,
@@ -674,32 +707,6 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "cancelled_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "cancelled_on",
-      visible: true,
-    },
-    
-    {
-      title: "Ghi chú của khách",
-      dataIndex: "customer_note",
-      key: "customer_note",
-      visible: true,
-    },
-    {
-      title: "Tag",
-      dataIndex: "tags",
-      // render: (tags: Array<string>) => (
-      //   tags?.map(tag => {
-      //     return (
-      //       <Tag>{tag}</Tag>
-      //     )
-      //   })
-      // ),
-      key: "tags",
-      visible: true,
-    },
-    {
-      title: "Mã tham chiếu",
-      dataIndex: "reference_code",
-      key: "reference_code",
       visible: true,
     },
   ]);

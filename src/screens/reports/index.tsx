@@ -19,7 +19,12 @@ function ReportYody (): JSX.Element {
 		embedUrl: '',
 		tokenType: models.TokenType.Embed,
 		accessToken: '',
-		settings: undefined,
+		settings: {
+      localeSettings: {
+        language: "vi",
+        formatLocale: "vi"
+      }
+    },
 	});
 	
   useEffect(() => {
@@ -31,7 +36,12 @@ function ReportYody (): JSX.Element {
       // ...sampleReportConfig,
       type: 'report',
       tokenType: models.TokenType.Embed,
-      settings: undefined,
+      settings: {
+        localeSettings: {
+          language: "vi",
+          formatLocale: "vi"
+        }
+      },
       embedUrl: data.embed_url,
       accessToken: data.token
     })));
