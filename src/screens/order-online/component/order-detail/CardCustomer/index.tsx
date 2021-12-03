@@ -170,7 +170,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
     setVisibleCustomer(true);
-    setKeySearchCustomer("");
+    //setKeySearchCustomer("");
   };
   const OkConfirmCustomerEdit = () => {
     setModalAction("edit");
@@ -211,7 +211,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             page: 1,
           };
 
-          if (autoCompleteRef.current?.props.value) {
+          if (autoCompleteRef.current?.props && autoCompleteRef.current?.props.value) {
             initQueryCustomer.request = autoCompleteRef.current?.props.value;
             dispatch(
               CustomerSearch(
@@ -330,6 +330,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
     setVisibleCustomer(false);
+    setKeySearchCustomer("");
   };
 
   //#end region
@@ -362,7 +363,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             }
           });
         }
-        // autoCompleteRef?.current?.blur();
+        if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur)
+          autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
         setDistrictId(resultSearch[index].district_id);
       }
