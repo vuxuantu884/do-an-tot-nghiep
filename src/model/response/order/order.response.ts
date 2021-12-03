@@ -150,7 +150,7 @@ export interface FulFillmentResponse {
   discount_rate: number | null;
   discount_value: number | null;
   discount_amount: number | null;
-  total_line_amount_after_line_discount: number | null;
+  total_line_amount_after_line_discount: number;
   shipment: ShipmentResponse | null | undefined;
   billing_address: BillingAddress | null;
   items: Array<OrderLineItemResponse>;
