@@ -247,7 +247,7 @@ const ScreenReturnDetail = (props: PropType) => {
             path: `${UrlConfig.HOME}`,
           },
           {
-            name: `Chi tiết đơn trả hàng ${id}`,
+            name: OrderDetail?.code ? `Chi tiết đơn trả hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
           },
         ]}
       >

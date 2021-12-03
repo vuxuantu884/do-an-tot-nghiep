@@ -18,7 +18,6 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
 import {useDispatch} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
-import ImageProduct from "screens/products/product/component/image-product.component";
 import {formatCurrency, generateQuery, Products} from "utils/AppUtils";
 import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {getQueryParams} from "utils/useQuery";
@@ -46,6 +45,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     },
     items: [],
   });
+
   const [expandRow, setExpandRow] = useState<Array<string> | undefined>();
   const [inventiryVariant, setInventiryVariant] = useState<
     Map<number, AllInventoryResponse[]>
@@ -70,11 +70,88 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     },
     [history, params]
-  );
+  );  
 
   let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>(
     []
   );
+
+  const [columnsDrill, setColumnsDrill] = useState<Array<ICustomTableColumType<InventoryResponse>>>([
+    {
+      title: "Kho hàng",
+      dataIndex: "store_id",
+      fixed: true,
+      width: 262,
+      render (value) {
+        return storeRef.current.get(value);
+      },
+    },{
+      dataIndex: "variant_prices",
+      align: "center",
+      width: 150,
+      fixed: true,
+      render: (value) => {
+        return <></>;
+      },
+    },
+    {
+      title: "Tổng tồn",
+      dataIndex: `on_hand`,
+      align: "center",
+      width: 150,
+      render: (value,record) => {
+        return <div>{record.on_hand+(record.on_way ?? 0)+record.transferring}</div> ;
+      },
+    },
+    {
+      title: "Tồn trong kho",
+      dataIndex: `on_hand`,
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Có thể bán",
+      dataIndex: `available`,
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Đang giao địch",
+      dataIndex: `committed`,
+      align: "center",
+      width: 150,
+    }, 
+    {
+      title: "Hàng tạm giữ",
+      dataIndex: `on_hold`,
+      align: "center",
+      width: 150,
+    },{
+      title: "Hàng lỗi",
+      dataIndex: `defect`,
+      align: "center",
+      width: 150,
+    },{
+      title: "Chờ nhập",
+      dataIndex: `in_coming`,
+      align: "center",
+      width: 150,
+    },{
+      title: "Hàng đang chuyển đến",
+      dataIndex: `transferring`,
+      align: "center",
+      width: 200,
+    },{
+      title: "Hàng đang chuyển đi",
+      dataIndex: `on_way`,
+      align: "center",
+      width: 200,
+    },{
+      title: "Hàng đang giao",
+      dataIndex: `shipping`,
+      align: "center",
+    }
+  ]);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
 
   const openColumn = useCallback(() => {
@@ -100,7 +177,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
 
   const ActionComponent = useChangeHeaderToAction(
-    "Ảnh",
+    "Sản phẩm",
     selected.length > 0,
     () => {},
     []
@@ -152,57 +229,113 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   useEffect(() => {
     setColumns([
       {
-        width: 100,
         title: <ActionComponent />,
         visible: true,
-        dataIndex: "url",
-        render: (value) => <ImageProduct path={value} isUpload={false} />,
-      },
-      {
-        title: `${selected.length > 0 ? "" : "Barcode"}`,
-        visible: true,
-        dataIndex: "barcode",
-      },
-      {
-        title: "Mã sản phẩm",
-        visible: true,
         dataIndex: "sku",
-        align: "center",
-        render: (value, record, index) => (
-          <div>
-            <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
-              {value}
-            </Link>
-          </div>
-        ),
-      },
+        align: "left",
+        fixed: "left",
+        width: 200,
+        render: (value, record, index) => {
+          return (
+            <div>
+                <div>
+                <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
+                    {record.sku}
+                  </Link>
+                </div>
+                <div>
+                {record.name}
+                </div>
+                <div>
+                {record.barcode}
+                </div>
+            </div>
+            )
+        }
+      }, 
       {
-        width: 300,
-        title: "Tên sản phẩm",
-        visible: true,
-        dataIndex: "name",
-        align: "center",
-      },
-      {
-        title: "Giá",
+        title: "Giá bán",
         visible: true,
         dataIndex: "variant_prices",
-        align: "right",
+        align: "center",
+        width: 150,
+        fixed: true,
         render: (value) => {
           let price = Products.findPrice(value, AppConfig.currency);
           return formatCurrency(price ? price.retail_price : 0);
         },
       },
       {
-        title: "Tồn theo trạng thái",
+        title: "Tổng tồn",
         visible: true,
-        dataIndex: `${params.status || "on_hand"}`,
-        align: "right",
+        dataIndex: `on_hand`,
+        align: "center",
+        width: 150,
+        render: (value,record) => {
+          return <div>{record.on_hand+(record.on_way ?? 0)+record.transferring}</div> ;
+        },
       },
+      {
+        title: "Tồn trong kho",
+        visible: true,
+        dataIndex: `on_hand`,
+        align: "center",
+        width: 150,
+      },
+      {
+        title: "Có thể bán",
+        visible: true,
+        dataIndex: `available`,
+        align: "center",
+        width: 150,
+      },
+      {
+        title: "Đang giao địch",
+        visible: true,
+        dataIndex: `committed`,
+        align: "center",
+        width: 150,
+      }, 
+      {
+        title: "Hàng tạm giữ",
+        visible: true,
+        dataIndex: `on_hold`,
+        align: "center",
+        width: 150,
+      },{
+        title: "Hàng lỗi",
+        visible: true,
+        dataIndex: `defect`,
+        align: "center",
+        width: 150,
+      },{
+        title: "Chờ nhập",
+        visible: true,
+        dataIndex: `in_coming`,
+        align: "center",
+        width: 150,
+      },{
+        title: "Hàng đang chuyển đến",
+        visible: true,
+        dataIndex: `transferring`,
+        align: "center",
+        width: 200,
+      },{
+        title: "Hàng đang chuyển đi",
+        visible: true,
+        dataIndex: `on_way`,
+        align: "center",
+        width: 200,
+      },{
+        title: "Hàng đang giao",
+        visible: true,
+        dataIndex: `shipping`,
+        align: "center",
+      }
     ]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, selected]);
+  }, [params, selected]); 
 
   useEffect(() => {
     setLoading(true);
@@ -235,10 +368,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         }}
       />
       <CustomTable
+        bordered
         isRowSelection
         isLoading={loading}
         dataSource={data.items}
-        scroll={{x: 900}}
+        scroll={{x: 2100}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         expandedRowKeys={expandRow} 
         onSelectedChange={onSelect} 
@@ -273,53 +407,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
           expandedRowRender: (record: VariantResponse, index, indent, expanded) => {
             return (
               <CustomTable
+                bordered 
                 dataSource={inventiryVariant.get(record.id) || []}
-                scroll={{y: 250}}
+                scroll={{x: 2100}}
                 pagination={false}
-                columns={[
-                  {
-                    title: "Kho hàng",
-                    dataIndex: "store_id",
-                    render (value) {
-                      return storeRef.current.get(value);
-                    },
-                  },
-                  {
-                    align: "right",
-                    title: "Tồn trong kho",
-                    dataIndex: "on_hand",
-                  },
-                  {
-                    align: "right",
-                    title: "Có thể bán",
-                    dataIndex: "available",
-                  },
-                  {
-                    align: "right",
-                    title: "Tạm giữ",
-                    dataIndex: "on_hold",
-                  },
-                  {
-                    align: "right",
-                    title: "Hàng lỗi",
-                    dataIndex: "defect",
-                  },
-                  {
-                    align: "right",
-                    title: "Chờ nhập",
-                    dataIndex: "in_coming",
-                  },
-                  {
-                    align: "right",
-                    title: "Đang chuyển đến",
-                    dataIndex: "transferring",
-                  },
-                  {
-                    align: "right",
-                    title: "Đang chuyển đi",
-                    dataIndex: "on_way",
-                  },
-                ]}
+                columns={columnsDrill}
               />
             );
           },
@@ -342,8 +434,37 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {
-          setShowSettingColumn(false);
+          setShowSettingColumn(false); 
           setColumns(data);
+          let columnsInRow = data.filter(e=>e.visible === true && e.dataIndex !== "sku").map(
+            (item: ICustomTableColumType<InventoryResponse>)=>{
+              return {
+                title: item.title,
+                dataIndex: item.dataIndex,
+                align: item.align,
+                width: item.width,
+                fixed: item.fixed ?? false, 
+                render: item.render
+              }
+            }
+          )
+          columnsInRow.unshift({
+            title: "Kho hàng",
+            dataIndex: "store_id",
+            align: 'left',
+            fixed: true,
+            width: 262,
+            render (value) {
+              return storeRef.current.get(value);
+            }
+          });
+          columnsInRow.forEach((e)=>{
+            if (e.dataIndex === "variant_prices") {
+              e.render = undefined;
+              e.title = "";
+            } 
+          });
+          setColumnsDrill(columnsInRow);
         }}
         data={columns}
       />

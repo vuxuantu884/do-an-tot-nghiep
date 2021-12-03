@@ -23,6 +23,7 @@ import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
+import { HttpStatus } from "config/http-status.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
@@ -782,7 +783,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}], "ADMIN");
       setLoadingAutomaticDiscount(false)
       if (item && checkingDiscountResponse &&
-        checkingDiscountResponse.code === 20000000 &&
+        checkingDiscountResponse.code === HttpStatus.SUCCESS &&
         checkingDiscountResponse.data.line_items.length
       ) {
         const suggested_discounts = checkingDiscountResponse.data.line_items.find(

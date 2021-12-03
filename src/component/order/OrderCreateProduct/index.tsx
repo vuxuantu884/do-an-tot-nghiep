@@ -141,6 +141,7 @@ type PropType = {
   fetchData?: () => void;
   returnOrderInformation?: {
     totalAmountReturn: number;
+    totalAmountExchangePlusShippingFee: number;
   };
 };
 
@@ -216,13 +217,13 @@ function OrderCreateProduct(props: PropType) {
     orderSourceId,
     customer,
     configOrder,
+    assigneeCode,
     setStoreId,
     setItems,
     fetchData,
     setDiscountValue,
     setDiscountRate,
     setCoupon,
-    assigneeCode,
   } = props;
   const dispatch = useDispatch();
   const [loadingAutomaticDiscount] = useState(false);
@@ -350,8 +351,10 @@ function OrderCreateProduct(props: PropType) {
   useEffect(() => {
     if (isAutomaticDiscount) {
       setIsDisableOrderDiscount(true);
+    } else {
+      setIsDisableOrderDiscount(false);
     }
-  }, []);
+  }, [isAutomaticDiscount]);
 
   useEffect(() => {
     if (
@@ -761,7 +764,7 @@ function OrderCreateProduct(props: PropType) {
             totalAmount={l.discount_items[0]?.amount ? l.discount_items[0]?.amount : 0}
             items={items}
             handleCardItems={onDiscountItem}
-            disabled={levelOrder > 3 || isAutomaticDiscount || coupon !== ""}
+            disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
           />
         </div>
       );
@@ -985,31 +988,32 @@ function OrderCreateProduct(props: PropType) {
         ? item.price - highestValueSuggestDiscount.value
         : 0;
     }
-    value = Math.min(value, item.price);
-    value = Math.round(value);
-    if (value < 0) {
-      value = 0;
+    if (value > 0) {
+      value = Math.min(value, item.price);
+      value = Math.round(value);
+      let rate = Math.round((value / item.price) * 100 * 100) / 100;
+      rate = Math.min(rate, 100);
+  
+      const discountItem: OrderItemDiscountRequest = {
+        rate,
+        value,
+        amount: value * item.quantity,
+        reason: highestValueSuggestDiscount.title,
+        promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
+      };
+      let itemResult = {
+        ..._item,
+        discount_items: [discountItem],
+      };
+      itemResult.discount_value = getLineItemDiscountValue(itemResult);
+      itemResult.discount_rate = getLineItemDiscountRate(itemResult);
+      itemResult.discount_amount = getLineItemDiscountAmount(itemResult);
+      itemResult.line_amount_after_line_discount =
+        getLineAmountAfterLineDiscount(itemResult);
+      result.push(itemResult);
+    } else {
+      result.push(_item);
     }
-    let rate = Math.round((value / item.price) * 100 * 100) / 100;
-    rate = Math.min(rate, 100);
-
-    const discountItem: OrderItemDiscountRequest = {
-      rate,
-      value,
-      amount: value * item.quantity,
-      reason: highestValueSuggestDiscount.title,
-      promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
-    };
-    let itemResult = {
-      ..._item,
-      discount_items: [discountItem],
-    };
-		itemResult.discount_value=getLineItemDiscountValue(itemResult);
-		itemResult.discount_rate=getLineItemDiscountRate(itemResult);
-		itemResult.discount_amount=getLineItemDiscountAmount(itemResult);
-		itemResult.line_amount_after_line_discount=getLineAmountAfterLineDiscount(itemResult);
-
-    result.push(itemResult);
     return result;
   };
 
@@ -1082,9 +1086,7 @@ function OrderCreateProduct(props: PropType) {
       order_source_id: form.getFieldValue("source_id"),
       assignee_code: getAccountCodeFromCodeAndName(assigneeCode),
       line_items: lineItems,
-      applied_discount: {
-        code: coupon,
-      },
+      applied_discount: null,
       taxes_included: true,
       tax_exempt: false,
     };
@@ -1123,6 +1125,7 @@ function OrderCreateProduct(props: PropType) {
     if (!_items || !coupon) {
       return;
     }
+		handleRemoveAllDiscount();
     coupon = coupon.trim();
     const lineItems: LineItemRequestModel[] = _items.map((single) => {
       return {
@@ -1239,55 +1242,45 @@ function OrderCreateProduct(props: PropType) {
                       });
                       if (itemDiscount) {
                         let applyDiscountLineItem = itemDiscount.applied_discount;
-                        let discount_rate = 0;
                         let discount_value = 0;
                         // console.log("applyDiscountLineItem222", applyDiscountLineItem);
                         switch (applyDiscountLineItem?.value_type) {
                           case DISCOUNT_VALUE_TYPE.percentage:
-                            discount_rate = applyDiscountLineItem?.value
-                              ? applyDiscountLineItem?.value
-                              : 0;
-                            discount_value = discount_rate
-                              ? (discount_rate / 100) * singleItem.price
+                            discount_value = applyDiscountLineItem?.value
+                              ? (applyDiscountLineItem?.value / 100) * singleItem.price
                               : 0;
                             break;
                           case DISCOUNT_VALUE_TYPE.fixedAmount:
-                            discount_rate = applyDiscountLineItem?.value
-                              ? (applyDiscountLineItem?.value * 100) / singleItem.price
-                              : 0;
                             discount_value = applyDiscountLineItem?.value || 0;
                             break;
                           case DISCOUNT_VALUE_TYPE.fixedPrice:
                             discount_value = applyDiscountLineItem?.value
                               ? singleItem.price - applyDiscountLineItem?.value
                               : 0;
-                            discount_rate = discount_value
-                              ? (discount_value * 100) / singleItem.price
-                              : 0;
                             break;
                           default:
                             break;
                         }
-                        discount_value = Math.min(discount_value, singleItem.price);
-                        discount_rate = Math.min(discount_rate, 100);
-                        // let amountDiscount = discount_value
-                        //   ? singleItem.quantity * discount_value
-                        //   : 0;
-                        singleItem.discount_items = [
-                          {
-                            amount: singleItem.quantity * discount_value,
-                            value: discount_value,
-                            rate: discount_rate
-                              ? Math.round(discount_rate * 100) / 100
-                              : 0,
-                            reason: applyDiscountLineItem?.title || null,
-                            // discount_code,
-                          },
-                        ];
-												singleItem.discount_value = getLineItemDiscountValue(singleItem);
-                        singleItem.discount_rate = getLineItemDiscountRate(singleItem);
-												singleItem.discount_amount = getLineItemDiscountAmount(singleItem);
-                        singleItem.line_amount_after_line_discount =getLineAmountAfterLineDiscount(singleItem);
+                        if(discount_value > 0) {
+                          discount_value = Math.min(discount_value, singleItem.price);
+                          let discount_rate = (discount_value * 100) / singleItem.price;
+                          singleItem.discount_items = [
+                            {
+                              amount: singleItem.quantity * discount_value,
+                              value: discount_value,
+                              rate: discount_rate
+                                ? Math.round(discount_rate * 100) / 100
+                                : 0,
+                              reason: applyDiscountLineItem?.title || null,
+                            },
+                          ];
+                          singleItem.discount_value = getLineItemDiscountValue(singleItem);
+                          singleItem.discount_rate = getLineItemDiscountRate(singleItem);
+                          singleItem.discount_amount =
+                            getLineItemDiscountAmount(singleItem);
+                          singleItem.line_amount_after_line_discount =
+                            getLineAmountAfterLineDiscount(singleItem);
+                        }
                       } else {
                         removeDiscountItem(singleItem);
                       }
@@ -1403,25 +1396,27 @@ function OrderCreateProduct(props: PropType) {
       initQueryVariant.info = value;
       initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
       // console.log("initQueryVariant", initQueryVariant);
-			const handleSearchProduct = () => {
-				if (value.trim()) {
-					(async () => {
-						setSearchProducts(true);
-						try {
-							await dispatch(
-								searchVariantsOrderRequestAction(initQueryVariant, (data) => {
-									setResultSearchVariant(data);
-									setSearchProducts(false);
-									setIsShowProductSearch(true);
-								})
-							);
-						} catch {}
-					})();
-				} else {
-					setSearchProducts(false);
-				}
-			};
-			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, ()=>handleSearchProduct() )
+      const handleSearchProduct = () => {
+        if (value.trim()) {
+          (async () => {
+            setSearchProducts(true);
+            try {
+              await dispatch(
+                searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+                  setResultSearchVariant(data);
+                  setSearchProducts(false);
+                  setIsShowProductSearch(true);
+                })
+              );
+            } catch {}
+          })();
+        } else {
+          setSearchProducts(false);
+        }
+      };
+      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
+        handleSearchProduct()
+      );
     },
     [form]
   );
@@ -1982,6 +1977,9 @@ function OrderCreateProduct(props: PropType) {
             couponInputText={couponInputText}
             setCouponInputText={setCouponInputText}
             handleRemoveAllDiscount={handleRemoveAllDiscount}
+            totalAmountExchangePlusShippingFee={
+              returnOrderInformation?.totalAmountExchangePlusShippingFee
+            }
           />
         )}
         {setDiscountValue && setDiscountRate && (
