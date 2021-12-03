@@ -1,19 +1,21 @@
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import imgDefault from "assets/icon/img-default.svg";
-import {CreateOrderReturnContext} from "contexts/order-return/create-order-return";
-import {actionGetOrderReturnCalculateRefund} from "domain/actions/order/order-return.action";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
+import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
 import {
-  OrderLineItemResponse,
-  ReturnProductModel,
+	OrderLineItemResponse,
+	ReturnProductModel
 } from "model/response/order/order.response";
-import {useCallback, useContext, useEffect, useMemo, useState} from "react";
-import {useDispatch} from "react-redux";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
-  formatCurrency,
-  getLineAmountAfterLineDiscount,
-  getLineItemDiscountAmount,
-  getLineItemDiscountRate,
-  getLineItemDiscountValue,
+	formatCurrency,
+	getLineAmountAfterLineDiscount,
+	getLineItemDiscountAmount,
+	getLineItemDiscountRate,
+	getLineItemDiscountValue,
+	getProductDiscountPerOrder,
+	getProductDiscountPerProduct
 } from "utils/AppUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
@@ -269,21 +271,6 @@ function CardReturnProductContainer(props: PropType) {
     checkIfIsCanReturn(resultListReturnProducts);
   };
 
-  const getProductDiscountPerOrder = useCallback(
-    (product: ReturnProductModel) => {
-      let discountPerOrder = 0;
-      OrderDetail?.discounts?.forEach((single) => {
-        if (single?.amount) {
-          discountPerOrder =
-            (single.amount * product.price) /
-            OrderDetail.total_line_amount_after_line_discount;
-        }
-      });
-      return discountPerOrder;
-    },
-    [OrderDetail?.discounts, OrderDetail?.total_line_amount_after_line_discount]
-  );
-
   // const pointAmountUsing = useMemo(() => {
   //   let result = 0;
   //   let paymentPointArray = OrderDetail?.payments?.filter((single) => {
@@ -317,22 +304,14 @@ function CardReturnProductContainer(props: PropType) {
       let totalPrice = 0;
       listReturnProducts.forEach((single) => {
         let discountPerProduct = getProductDiscountPerProduct(single);
-        let discountPerOrder = getProductDiscountPerOrder(single);
+        let discountPerOrder = getProductDiscountPerOrder(OrderDetail, single);
         let singleTotalPrice = single.price - discountPerProduct - discountPerOrder;
         totalPrice = totalPrice + single.quantity * singleTotalPrice;
       });
       return totalPrice;
     },
-    [getProductDiscountPerOrder]
+    [OrderDetail]
   );
-
-  const getProductDiscountPerProduct = (product: ReturnProductModel) => {
-    let discountPerProduct = 0;
-    product.discount_items.forEach((single) => {
-      discountPerProduct += single.value;
-    });
-    return discountPerProduct;
-  };
 
   const isShowProductSearch = () => {
     let result = true;

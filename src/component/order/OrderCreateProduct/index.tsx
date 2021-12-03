@@ -444,7 +444,7 @@ function OrderCreateProduct(props: PropType) {
       let _amount = totalAmount(_items);
       // setItems(_items);
       setAmount(_amount);
-      calculateChangeMoney(_items, _amount, discountRate, discountValue);
+      calculateChangeMoney(_items, _amount, 0, 0);
     },
     [items]
   );
@@ -1067,7 +1067,7 @@ function OrderCreateProduct(props: PropType) {
   const handleApplyDiscount = async (items: OrderLineItemRequest[] | undefined) => {
     console.log("items", items);
     isShouldUpdateDiscountRef.current = true;
-    if (!items || items.length === 0) {
+    if (!items || items.length === 0 || !isAutomaticDiscount) {
       return;
     }
     const lineItems: LineItemRequestModel[] = items.map((single) => {
@@ -1129,7 +1129,7 @@ function OrderCreateProduct(props: PropType) {
 
   const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
     isShouldUpdateCouponRef.current = true;
-    if (!_items || !coupon) {
+    if (!_items || _items?.length === 0 || !coupon) {
       return;
     }
 		handleRemoveAllDiscount();
@@ -1456,19 +1456,25 @@ function OrderCreateProduct(props: PropType) {
     rate: number,
     coupon: string
   ) => {
-    // console.log("items", items);
+		let _value = value;
+		let _rate = rate;
     if (items?.length === 0) {
       showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu!");
     } else {
       // setVisiblePickDiscount(false);
       setDiscountType(type);
-      setDiscountValue && setDiscountValue(value);
-      setDiscountRate && setDiscountRate(rate);
+			if(type === MoneyType.MONEY) {
+				_value = (Math.round(value));
+				_rate = (Math.round((value / amount) * 100 * 100) / 100);
+			} else if(type === MoneyType.PERCENT) {
+				_rate = Math.round(rate * 100) / 100;
+      	_value = Math.round((rate * amount) / 100);
+			}
       if (coupon) {
         handleApplyCouponWhenInsertCoupon(coupon);
       }
       if (items) {
-        calculateChangeMoney(items, amount, rate, value);
+        calculateChangeMoney(items, amount, _rate, _value);
       }
       showSuccess("Thêm chiết khấu thành công!");
       setCoupon && setCoupon("");
