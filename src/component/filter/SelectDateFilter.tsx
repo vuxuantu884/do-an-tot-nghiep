@@ -1,5 +1,5 @@
-import { SettingOutlined } from "@ant-design/icons";
 import { Button, DatePicker } from "antd";
+import { SettingOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { StyledSelectDateFilter } from "component/filter/StyledFilterComponent";
 
@@ -24,6 +24,9 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
     endDate,
   } = props;
 
+  const startDateValue = startDate ? moment(startDate).add(7, 'h'): null;
+  const endDateValue = endDate ? moment(endDate) : null;
+
   return (
     <StyledSelectDateFilter>
       <div className="select-date">
@@ -34,12 +37,14 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
           >
             Hôm qua
           </Button>
+
           <Button
             onClick={() => clickOptionDate(dateType, "today")}
             className={dateSelected === "today" ? "active-btn" : ""}
           >
             Hôm nay
           </Button>
+
           <Button
             onClick={() => clickOptionDate(dateType, "thisWeek")}
             className={dateSelected === "thisWeek" ? "active-btn" : ""}
@@ -55,12 +60,14 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
           >
             Tuần trước
           </Button>
+
           <Button
             onClick={() => clickOptionDate(dateType, "thisMonth")}
             className={dateSelected === "thisMonth" ? "active-btn" : ""}
           >
             Tháng này
           </Button>
+          
           <Button
             onClick={() => clickOptionDate(dateType, "lastMonth")}
             className={dateSelected === "lastMonth" ? "active-btn" : ""}
@@ -77,10 +84,7 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
         <DatePicker.RangePicker
           format="DD-MM-YYYY"
           style={{ width: "100%" }}
-          value={[
-            startDate ? moment(startDate, "DD-MM-YYYY") : null,
-            endDate ? moment(endDate, "DD-MM-YYYY") : null,
-          ]}
+          value={[startDateValue, endDateValue]}
           onChange={(date, dateString) =>
             onChangeRangeDate(date, dateString, dateType)
           }
