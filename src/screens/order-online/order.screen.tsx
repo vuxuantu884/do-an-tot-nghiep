@@ -412,7 +412,7 @@ export default function Order() {
     if (coupon) {
       listDiscountRequest.push({
         discount_code: coupon,
-          rate: discountRate,
+        rate: discountRate,
         value: discountValue,
         amount: discountValue,
         promotion_id: null,

@@ -1810,8 +1810,8 @@ export default function Order(props: PropType) {
                                     }
                                     showArrow={true}
                                     header={
-                                      <div className="saleorder-header-content">
-                                        <div className="saleorder-header-content__info">
+                                      <div className="saleorder-header-content" style={{display: "flex", width: "100%", padding: 0}}>
+                                        <div className="saleorder-header-content__info" style={{display: "flex", width: "100%"}}>
                                           <span
                                             className="text-field"
                                             style={{
@@ -1853,7 +1853,7 @@ export default function Order(props: PropType) {
                                             />}
                                         </div>
 
-                                        <div className="saleorder-header-content__date">
+                                        <div className="saleorder-header-content__date" style={{display: "flex", width: "100%", alignItems: "center"}}>
                                           {(fulfillment.status === FulFillmentStatus.CANCELLED ||
                                             fulfillment.status === FulFillmentStatus.RETURNING ||
                                             fulfillment.status === FulFillmentStatus.RETURNED) ?

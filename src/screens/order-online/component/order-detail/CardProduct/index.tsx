@@ -1346,16 +1346,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           onOkDiscountModal={onOkDiscountConfirm}
           visible={isVisiblePickDiscount}
         />
-
-        <PickDiscountModal
-          amount={amount}
-          type={discountType}
-          value={discountValue}
-          rate={discountRate}
-          onCancelDiscountModal={onCancelDiscountConfirm}
-          onOkDiscountModal={onOkDiscountConfirm}
-          visible={isVisiblePickDiscount}
-        />
         <InventoryModal
           isModalVisible={isInventoryModalVisible}
           setInventoryModalVisible={setInventoryModalVisible}
