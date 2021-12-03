@@ -113,7 +113,7 @@ export default function CustomerFilter(props: Props): ReactElement {
   return (
     <Card>
       {/* Đối tượng khách hàng áp dụng: */}
-      <Row gutter={12} style={{padding: "0px 16px"}}>
+      <Row gutter={12}>
         <Col span={24}>
           <Form.Item
             label={<b>Đối tượng khách hàng áp dụng:</b>}
