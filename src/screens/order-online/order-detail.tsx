@@ -3,6 +3,10 @@ import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import ActionHistory from "component/order/Sidebar/ActionHistory";
+import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
+import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
@@ -41,15 +45,11 @@ import {
   getAmountPayment,
   SumCOD
 } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import { FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
-import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
-import SidebarOrderDetailExtraInformation from "./component/order-detail/Sidebar/SidebarOrderDetailExtraInformation";
-import SidebarOrderDetailInformation from "./component/order-detail/Sidebar/SidebarOrderDetailInformation";
-import SidebarOrderHistory from "./component/order-detail/Sidebar/SidebarOrderHistory";
 import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
@@ -1063,7 +1063,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                 OrderDetail.payments?.length === 0 &&
                 (OrderDetail.fulfillments?.length === 0 ||
                   (OrderDetail?.fulfillments &&
-                    OrderDetail.fulfillments[0].shipment === null)) && (
+                    (OrderDetail.fulfillments[0].shipment === null || OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE))) && (
                   <UpdatePaymentCard
                   setPaymentMethod={onPaymentSelect}
                     setPayments={onPayments}

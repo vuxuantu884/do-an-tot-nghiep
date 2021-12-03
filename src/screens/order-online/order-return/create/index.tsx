@@ -1,8 +1,8 @@
 import { Card, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
-import SidebarOrderDetailExtraInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailExtraInformation";
-import SidebarOrderDetailInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailInformation";
+import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
@@ -60,6 +60,7 @@ import {
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
+  ShipmentMethod,
   ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
@@ -783,7 +784,7 @@ const ScreenReturnCreate = (props: PropType) => {
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
-          delivery_service_provider_type: "Shipper",
+          delivery_service_provider_type: ShipmentMethod.SHIPPER,
           shipper_code: value.shipper_code,
           shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
@@ -795,7 +796,7 @@ const ScreenReturnCreate = (props: PropType) => {
         };
 
       case ShipmentMethodOption.PICK_AT_STORE:
-        objShipment.delivery_service_provider_type = "pick_at_store";
+        objShipment.delivery_service_provider_type = ShipmentMethod.PICK_AT_STORE;
         let newCod = totalAmountExchange;
         if (shippingFeeInformedToCustomer !== null) {
           if (
@@ -816,7 +817,7 @@ const ScreenReturnCreate = (props: PropType) => {
         }
         return {
           ...objShipment,
-          delivery_service_provider_type: "pick_at_store",
+          delivery_service_provider_type: ShipmentMethod.PICK_AT_STORE,
           cod: newCod,
         };
 
@@ -859,7 +860,7 @@ const ScreenReturnCreate = (props: PropType) => {
     }
 
     if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-      request.delivery_type = "pick_at_store";
+      request.delivery_type = ShipmentMethod.PICK_AT_STORE;
     }
 
     if (
@@ -1074,8 +1075,8 @@ const ScreenReturnCreate = (props: PropType) => {
           isCanExchange={isCanExchange}
           isExchange={isExchange}
           isStepExchange={isStepExchange}
-          // handleIsStepExchange={setIsStepExchange}
-          handleIsStepExchange={(value: boolean) => handleIsStepExchange(value)}
+          setIsStepExchange={setIsStepExchange}
+          handleIsStepExchange={handleIsStepExchange}
         />
         <ModalConfirm
           onCancel={() => {

@@ -111,16 +111,17 @@ function CardReturnProducts(props: PropType) {
   const getProductDiscountPerOrder = useCallback(
     (product: ReturnProductModel) => {
       let discountPerOrder = 0;
-      OrderDetail?.discounts?.forEach((single) => {
-        if (single?.amount) {
-          discountPerOrder =
-            (single.amount * product.price) /
-            OrderDetail.total_line_amount_after_line_discount;
+			let totalDiscountRatePerOrder = 0;
+      OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
+        if (singleOrderDiscount?.rate) {
+          totalDiscountRatePerOrder = totalDiscountRatePerOrder + singleOrderDiscount.rate;
         }
       });
+			discountPerOrder =
+				(totalDiscountRatePerOrder * (product.price - product.discount_value))
       return discountPerOrder;
     },
-    [OrderDetail?.discounts, OrderDetail?.total_line_amount_after_line_discount]
+    [OrderDetail?.discounts]
   );
 
   const renderPopOverPriceTitle = (price: number) => {
