@@ -23,7 +23,6 @@ export const StylesWrapper = styled.div`
       top: 55%;
       left: 50%;
       transform: translate(-50%, -50%);
-      box-shadow: #dddddd 0 0 20px;
       -webkit-border-radius: 4px;
       -moz-border-radius: 4px;
       border-radius: 4px;

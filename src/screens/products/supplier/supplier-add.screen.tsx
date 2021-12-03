@@ -210,9 +210,22 @@ const CreateSupplierScreen: React.FC = () => {
         let lst: Array<BankInfo> =[];
         lst =[...lstBankInfo];
         lst.push({...bankInfo});
-        setLstBankInfo([...lst])
+        setLstBankInfo([...lst]);
+
+        setBankInfo({
+          bank_brand: null,
+          bank_number: null,
+          beneficiary_name: null,
+          bank_name: null
+        });
+        formSupplier.setFieldsValue({
+          bank_brand: null,
+          bank_number: null,
+          beneficiary_name: null,
+          bank_name: null
+        });
       }
-    },[bankInfo,validateBank, lstBankInfo]
+    },[bankInfo,validateBank, lstBankInfo, formSupplier]
   );
 
   //end memo
@@ -483,7 +496,7 @@ const CreateSupplierScreen: React.FC = () => {
               <Row>
                 <Col span={24}>
                   <Item label="Ngân hàng" name="bank_name">
-                    <Input placeholder="Nhập ngân hàng" onChange={(e)=>{
+                    <Input value={bankInfo.bank_name ?? undefined} placeholder="Nhập ngân hàng" onChange={(e)=>{
                       setBankInfo({...bankInfo,
                         bank_name: e.target.value})
                     }} maxLength={255} />
@@ -493,7 +506,7 @@ const CreateSupplierScreen: React.FC = () => {
               <Row>
                 <Col span={24}>
                   <Item name="bank_brand" label="Chi nhánh">
-                    <Input placeholder="Nhập chi nhánh" onChange={(e)=>{
+                    <Input value={bankInfo?.bank_brand ?? undefined} placeholder="Nhập chi nhánh" onChange={(e)=>{
                       setBankInfo({...bankInfo,
                         bank_brand: e.target.value})
                     }} maxLength={255} />
@@ -506,7 +519,7 @@ const CreateSupplierScreen: React.FC = () => {
                     label="Số tài khoản"
                     name="bank_number" 
                   >
-                    <Input placeholder="Nhập số tài khoản" onChange={(e)=>{
+                    <Input value={bankInfo?.bank_number ?? undefined} placeholder="Nhập số tài khoản" onChange={(e)=>{
                       setBankInfo({...bankInfo,
                         bank_number: e.target.value})
                     }} maxLength={20} />
@@ -516,7 +529,7 @@ const CreateSupplierScreen: React.FC = () => {
               <Row> 
                 <Col span={24}>
                   <Item name="beneficiary_name" label="Chủ tài khoản">
-                    <Input placeholder="Nhập chủ tài khoản" onChange={(e)=>{
+                    <Input value={bankInfo?.beneficiary_name ?? undefined} placeholder="Nhập chủ tài khoản" onChange={(e)=>{
                       setBankInfo({...bankInfo,
                         beneficiary_name: e.target.value})
                     }} maxLength={255} />
