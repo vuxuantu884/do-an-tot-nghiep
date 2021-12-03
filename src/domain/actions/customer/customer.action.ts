@@ -8,6 +8,10 @@ import {
   } from "model/response/customer/customer-group.response";
 //import { CustomerRequest, CustomerUpdateRequest } from 'model/request/customer.request';
 
+export const CustomerSearchSo = (query: CustomerSearchQuery, setData: (data: Array<CustomerResponse>) => void) => {
+  return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE_SO, { query, setData });
+}
+
 export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array<CustomerResponse>) => void) => {
     return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, { query, setData });
 }
