@@ -333,7 +333,26 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
-
+    {
+      title: "Nhân viên tạo đơn giao",
+      render: (record) => <div>{`${record.account? record.account : ''} - ${record.account_code}`}</div>,
+      key: "account_code",
+      visible: true,
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "shipment.note_to_shipper",
+      key: "note_to_shipper",
+      visible: true,
+    },
+    {
+      title: "Lý do huỷ giao",
+      dataIndex: "shipment.cancel_reason",
+      // render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
+      key: "cancel_date",
+      visible: true,
+    },
     {
       title: "Phí trả đối tác",
       dataIndex: "shipment",
@@ -364,13 +383,7 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
-    {
-      title: "Nhân viên tạo đơn giao",
-      render: (record) => <div>{`${record.account? record.account : ''} - ${record.account_code}`}</div>,
-      key: "account_code",
-      visible: true,
-      align: "center",
-    },
+    
     {
       title: "Ngày tạo đơn",
       dataIndex: "shipment.created_date",
@@ -380,9 +393,9 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "shipment.received_date",
+      dataIndex: "shipment.finished_order_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "received_date",
+      key: "finishedOrderOn",
       visible: true,
     },
     {
@@ -390,19 +403,6 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "shipment.cancel_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "cancel_date",
-      visible: true,
-    },
-    {
-      title: "Lý do huỷ giao",
-      dataIndex: "shipment.cancel_reason",
-      // render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
-      key: "cancel_date",
-      visible: true,
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "shipment.note_to_shipper",
-      key: "note_to_shipper",
       visible: true,
     },
     {
