@@ -55,9 +55,14 @@ const ECOMMERCE_ORDER_STATUS = [
   { name: "Đã huỷ", value: "CANCELLED" },
 ];
 
+type AllOrdersMappingProps = {
+  isReloadPage: boolean,
+}
 
-const EcommerceOrderSync: React.FC = () => {
+
+const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappingProps) => {
   const dispatch = useDispatch();
+  const { isReloadPage } = props;
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -241,6 +246,15 @@ const EcommerceOrderSync: React.FC = () => {
     getOrderMappingList();
   }, [getOrderMappingList]);
 
+  // reload page
+  useEffect(() => {
+    if (isReloadPage) {
+      getOrderMappingList();
+    }
+  }, [getOrderMappingList, isReloadPage]);
+  // end
+
+
   // handle get all shop list
   const updateAllShopList = useCallback((result) => {
     const shopList: any[] = [];
@@ -261,7 +275,7 @@ const EcommerceOrderSync: React.FC = () => {
   useEffect(() => {
     dispatch(getShopEcommerceList({}, updateAllShopList));
   }, [dispatch, updateAllShopList]);
-
+  // end
 
   return (
     <AllOrdersMappingStyled>
@@ -303,4 +317,4 @@ const EcommerceOrderSync: React.FC = () => {
   );
 };
 
-export default EcommerceOrderSync;
+export default AllOrdersMapping;
