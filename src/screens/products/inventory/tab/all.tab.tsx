@@ -23,10 +23,25 @@ import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {getQueryParams} from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
 import {TabProps} from "./tab.props";
+
+export interface SummaryInventory {
+  Sum_Total: number | 0;
+  Sum_On_hand: number | 0;
+  Sum_Available: number | 0; 
+  Sum_Committed: number | 0; 
+  Sum_On_hold: number | 0; 
+  Sum_Defect: number | 0; 
+  Sum_In_coming: number | 0; 
+  Sum_Transferring: number | 0; 
+  Sum_On_way: number | 0; 
+  Sum_Shipping: number | 0; 
+}
+
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const {stores} = props;
   const history = useHistory();
   const pageSizeOptions: Array<string> =["50","100"];
+  const [objSummaryTable, setObjSummaryTable] = useState<SummaryInventory>();
   
   const query = new URLSearchParams(history.location.hash.substring(2));
 
@@ -159,11 +174,43 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   }, []);
 
   const onSelect = useCallback((selectedRow: Array<InventoryResponse>) => {
+    let objSum: SummaryInventory = {
+      Sum_Total:  0,
+      Sum_On_hand: 0,
+      Sum_Available: 0, 
+      Sum_Committed: 0,
+      Sum_On_hold: 0,
+      Sum_Defect: 0, 
+      Sum_In_coming: 0,
+      Sum_Transferring:0,
+      Sum_On_way: 0,
+      Sum_Shipping: 0, 
+    };
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
       })
     );
+      if (selectedRow && selectedRow.length > 0) {
+        selectedRow.forEach((e)=>{ 
+          objSum.Sum_On_hand += e.on_hand;
+          objSum.Sum_Available += e.available ?? 0;
+          objSum.Sum_Committed += e.committed ?? 0;
+          objSum.Sum_On_hold += e.on_hold ?? 0;
+          objSum.Sum_Defect += e.defect ?? 0;
+          objSum.Sum_In_coming += e.in_coming ?? 0;
+          objSum.Sum_Transferring += e.transferring;
+          objSum.Sum_On_way += e.on_way ?? 0;
+          objSum.Sum_Shipping += e.shipping ?? 0;
+          const total = e.on_hand+ (e.on_way ?? 0) + e.transferring;
+          objSum.Sum_Total += total;
+        });
+
+        setObjSummaryTable({...objSum});
+      }else{
+        setObjSummaryTable({...{}as SummaryInventory });
+      }
+
   }, []);
 
   const onResult = useCallback((result: PageResponse<VariantResponse> | false) => {
@@ -181,7 +228,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     selected.length > 0,
     () => {},
     []
-  );
+  ); 
 
   const onSaveInventory = (
     result: Array<AllInventoryResponse>,
@@ -266,9 +313,25 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         },
       },
       {
-        title: "Tổng tồn",
+        title: "Danh mục",
+        visible: false,
+        dataIndex: "category",
+        align: "left",
+        fixed: true,
+        width: 100,
+        render: (value, row) => {
+          return <div>{row.product?.category}</div>
+        },
+      },
+      {
+        title: ()=>{
+          return <>
+            <div>Tổng tồn</div>
+            <div>{objSummaryTable?.Sum_Total && `(${objSummaryTable?.Sum_Total})`}</div>
+          </>
+        },
         visible: true,
-        dataIndex: `on_hand`,
+        dataIndex: `total`,
         align: "center",
         width: 150,
         render: (value,record) => {
@@ -276,58 +339,103 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         },
       },
       {
-        title: "Tồn trong kho",
+        title: ()=>{
+          return <>
+            <div>Tồn trong kho</div>
+            <div>{objSummaryTable?.Sum_On_hand && `(${objSummaryTable?.Sum_On_hand})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `on_hand`,
         align: "center",
         width: 150,
       },
       {
-        title: "Có thể bán",
+        title: ()=>{
+          return <>
+            <div>Có thể bán</div>
+            <div>{objSummaryTable?.Sum_Available && `(${objSummaryTable?.Sum_Available})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `available`,
         align: "center",
         width: 150,
       },
       {
-        title: "Đang giao địch",
+        title: ()=>{
+          return <>
+            <div>Đang giao địch</div>
+            <div>{objSummaryTable?.Sum_Committed && `(${objSummaryTable?.Sum_Committed})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `committed`,
         align: "center",
         width: 150,
       }, 
       {
-        title: "Hàng tạm giữ",
+        title: ()=>{
+          return <>
+            <div>Hàng tạm giữ</div>
+            <div>{objSummaryTable?.Sum_On_hold && `(${objSummaryTable?.Sum_On_hold})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `on_hold`,
         align: "center",
         width: 150,
       },{
-        title: "Hàng lỗi",
+        title: ()=>{
+          return <>
+            <div>Hàng lỗi</div>
+            <div>{objSummaryTable?.Sum_Defect && `(${objSummaryTable?.Sum_Defect})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `defect`,
         align: "center",
         width: 150,
       },{
-        title: "Chờ nhập",
+        title: ()=>{
+          return <>
+            <div>Chờ nhập</div>
+            <div>{objSummaryTable?.Sum_In_coming && `(${objSummaryTable?.Sum_In_coming})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `in_coming`,
         align: "center",
         width: 150,
       },{
-        title: "Hàng đang chuyển đến",
+        title: ()=>{
+          return <>
+            <div>Hàng đang chuyển đến</div>
+            <div>{objSummaryTable?.Sum_Transferring && `(${objSummaryTable?.Sum_Transferring})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `transferring`,
         align: "center",
         width: 200,
       },{
-        title: "Hàng đang chuyển đi",
+        title: ()=>{
+          return <>
+            <div>Hàng đang chuyển đi</div>
+            <div>{objSummaryTable?.Sum_On_way && `(${objSummaryTable?.Sum_On_way})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `on_way`,
         align: "center",
         width: 200,
       },{
-        title: "Hàng đang giao",
+        title: ()=>{
+          return <>
+            <div>Hàng đang giao</div>
+            <div>{objSummaryTable?.Sum_Shipping && `(${objSummaryTable?.Sum_Shipping})`}</div>
+          </>
+        },
         visible: true,
         dataIndex: `shipping`,
         align: "center",
@@ -335,7 +443,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     ]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, selected]); 
+  }, [params, selected, objSummaryTable]); 
 
   useEffect(() => {
     setLoading(true);
@@ -372,7 +480,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         isRowSelection
         isLoading={loading}
         dataSource={data.items}
-        scroll={{x: 2100}}
+        scroll={{x: 2200}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         expandedRowKeys={expandRow} 
         onSelectedChange={onSelect} 
@@ -459,7 +567,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
             }
           });
           columnsInRow.forEach((e)=>{
-            if (e.dataIndex === "variant_prices") {
+            if (e.dataIndex === "variant_prices" || e.dataIndex === "category") {
               e.render = undefined;
               e.title = "";
             } 
