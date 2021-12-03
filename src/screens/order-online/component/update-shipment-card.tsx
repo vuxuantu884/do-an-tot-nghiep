@@ -559,6 +559,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.shipping_fee_informed_to_customer -
         getAmountPayment(props.OrderDetail.payments);
     } else {
+			console.log('takeHelperValue', takeHelperValue)
       if (takeHelperValue > 0) {
         value.cod = takeHelperValue;
       }
@@ -571,6 +572,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
 
     FulFillmentRequest.shipment = value;
+		
     if (props.shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.shipping_fee_informed_to_customer =
         props.shippingFeeInformedCustomer;
@@ -589,6 +591,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       fulfillment: FulFillmentRequest,
       action: OrderStatus.FINALIZED,
     };
+		
     if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !thirdPL.service) {
       showError("Vui lòng chọn đơn vị vận chuyển!");
     } else {
@@ -627,11 +630,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       return (
         (props.OrderDetail?.fulfillments[0].total
           ? props.OrderDetail?.fulfillments[0].total
-          : 0) +
-        props.shippingFeeInformedCustomer -
-        props.totalPaid! -
-        // (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
-        (props.OrderDetail?.total_discount ? props.OrderDetail?.total_discount : 0)
+          : 0) -
+        props.totalPaid! 
       );
     } else if (props.OrderDetail?.total_line_amount_after_line_discount) {
       return (
@@ -639,13 +639,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           ? props.OrderDetail?.total_line_amount_after_line_discount
           : 0) +
         props.shippingFeeInformedCustomer -
-        props.totalPaid! -
-        // (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
-        (props.OrderDetail?.discounts &&
-        props.OrderDetail?.discounts.length > 0 &&
-        props.OrderDetail?.discounts[0].amount
-          ? props.OrderDetail?.discounts[0].amount
-          : 0)
+        props.totalPaid!
       );
     }
   };
