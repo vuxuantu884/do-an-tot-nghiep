@@ -136,10 +136,9 @@ const CardListFilter: React.FC<CardListFilterProps> = (
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
     switch (type) {
       case "assigned_date":
-        debugger
         setAssignedDateClick("");
-        const startDateUtc = dates[0];
-        const endDateUtc = dates[1];
+        const startDateUtc = dates ? dates[0] : null;
+        const endDateUtc = dates ? dates[1] : null;
         setFromAssignedDate (startDateUtc);
         setToAssignedDate (endDateUtc);
         break;

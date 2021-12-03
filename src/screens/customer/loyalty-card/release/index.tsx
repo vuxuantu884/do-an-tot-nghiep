@@ -28,11 +28,11 @@ const LoyaltyCardRelease = () => {
     },
     items: [],
   });
+
   const pageColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
       visible: true,
-      fixed: "left",
       align: "center",
       render: (value: any, item: any, index: number) => <div>{(data.metadata.page - 1) * data.metadata.limit + index + 1}</div>,
       width: '72px'
@@ -40,7 +40,6 @@ const LoyaltyCardRelease = () => {
     {
       title: "Tên đợt",
       visible: true,
-      fixed: "left",
       render: (value: any) => <div style={{color: '#2A2A86'}}>{value.name}</div>,
     },
     {
@@ -52,13 +51,11 @@ const LoyaltyCardRelease = () => {
       title: "Người tạo",
       dataIndex: "created_by",
       visible: true,
-      fixed: "left"
     },
     {
       title: "Số lượng thẻ",
       dataIndex: "success",
       visible: true,
-      fixed: "left"
     },
     {
       title: "",
@@ -166,6 +163,7 @@ const LoyaltyCardRelease = () => {
             columns={pageColumns}
             rowKey={(item: any) => item.id}
           />
+          
           <ErrorLogs
             visible={openErrorLogModal}
             onOk={closeErrorLogModal}
