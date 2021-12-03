@@ -22,20 +22,20 @@ import { LoyaltyCardReleaseResponse } from 'model/response/loyalty/release/loyal
 import { LoyaltyCardReleaseSearch } from 'domain/actions/loyalty/release/loyalty-release.action';
 import { CustomerCardListRequest } from 'model/request/customer.request';
 
-const CARD_STATUS = {
-  ASSIGNED: {
+const CARD_STATUS = [
+  {
     title: 'Đã được gán',
     value: 'ASSIGNED'
   },
-  ACTIVE: {
+  {
     title: 'Kích hoạt',
     value: 'ACTIVE'
   },
-  INACTIVE: {
+  {
     title: 'Đã khóa',
     value: 'INACTIVE'
   }
-}
+]
 
 const initParams: CustomerCardListRequest = {
   page: 1,
@@ -65,12 +65,9 @@ const LoyaltyCards = () => {
 
   const [cardReleaseList, setCardReleaseList] = useState<any>([]);
 
-  const getCardStatus = (card: LoyaltyCardResponse) => {
-    if (card.status === 'ACTIVE') {
-      return card.customer_id ? CARD_STATUS.ASSIGNED : CARD_STATUS.ACTIVE
-    } else {
-      return CARD_STATUS.INACTIVE
-    }
+  const getCard = (card: LoyaltyCardResponse) => {
+    const cardFound = CARD_STATUS.find(item => item.value === card.status);
+    return cardFound;
   }
 
   const RenderActionColumn = (value: any, row: any, index: number) => {
@@ -155,7 +152,6 @@ const LoyaltyCards = () => {
     {
       title: "STT",
       visible: true,
-      fixed: "left",
       align: "center",
       render: (value: any, item: any, index: number) => <div>{(data.metadata.page - 1) * data.metadata.limit + index + 1}</div>,
       width: "72px"
@@ -164,33 +160,28 @@ const LoyaltyCards = () => {
       title: "Mã thẻ",
       dataIndex: "card_number",
       visible: true,
-      fixed: "left"
     },
     {
       title: "Khách hàng",
       dataIndex: "customer_name",
       visible: true,
-      fixed: "left"
     },
     {
       title: "Đợt phát hành",
       dataIndex: "release_name",
       visible: true,
-      fixed: "left"
     },
     {
       title: "Ngày gán",
       visible: true,
-      fixed: "left",
       render: (value: any) => <div>{value.assigned_date && moment(value.assigned_date).format(DATE_FORMAT.DDMMYY_HHmm)}</div>
     },
     {
       title: "Trạng thái",
       visible: true,
-      fixed: "left",
       align: "center",
       render: (value: any) => (
-        <div className={`card card__${getCardStatus(value).value}`}>{getCardStatus(value).title}</div>
+        <div className={`card card__${getCard(value)?.value}`}>{getCard(value)?.title}</div>
       ),
       width: "160px"
     },

@@ -21,7 +21,8 @@ const LoyaltyCardPage = () => {
     not: false,
   });
 
-  const [activeTab, setActiveTab] = useState<string>('1')
+  const [activeTab, setActiveTab] = useState<string>('1');
+
   return (
     <StyledCustomerCard>
       <ContentContainer
@@ -35,7 +36,7 @@ const LoyaltyCardPage = () => {
                   size="large"
                   icon={<img src={mathPlusIcon} style={{ marginRight: 8 }} alt="" />}
                 >
-                  Thêm mới thẻ khách hàng
+                  Thêm mới đợt phát hành
                 </Button>
               </Link>
             }
