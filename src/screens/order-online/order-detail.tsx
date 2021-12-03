@@ -45,7 +45,7 @@ import {
   getAmountPayment,
   SumCOD
 } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import { FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
@@ -1063,7 +1063,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                 OrderDetail.payments?.length === 0 &&
                 (OrderDetail.fulfillments?.length === 0 ||
                   (OrderDetail?.fulfillments &&
-                    OrderDetail.fulfillments[0].shipment === null)) && (
+                    (OrderDetail.fulfillments[0].shipment === null || OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE))) && (
                   <UpdatePaymentCard
                   setPaymentMethod={onPaymentSelect}
                     setPayments={onPayments}
