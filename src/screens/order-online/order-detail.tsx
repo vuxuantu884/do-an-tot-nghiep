@@ -1082,7 +1082,10 @@ const OrderDetail = (props: PropType) => {
 
               {/* Chưa thanh toán đơn nháp*/}
               {OrderDetail &&
-                OrderDetail.payments?.length === 0 && (
+                OrderDetail.payments?.length === 0 &&
+                (OrderDetail.fulfillments?.length === 0 ||
+                  (OrderDetail?.fulfillments &&
+                    OrderDetail.fulfillments[0].shipment === null)) && (
                   <UpdatePaymentCard
                     setPaymentMethod={onPaymentSelect}
                     setPayments={onPayments}

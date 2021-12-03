@@ -1464,11 +1464,11 @@ function OrderCreateProduct(props: PropType) {
       // setVisiblePickDiscount(false);
       setDiscountType(type);
 			if(type === MoneyType.MONEY) {
-				_value = (Math.round(value));
-				_rate = (Math.round((value / amount) * 100 * 100) / 100);
+				_value = value;
+				_rate = (value / amount) * 100;
 			} else if(type === MoneyType.PERCENT) {
-				_rate = Math.round(rate * 100) / 100;
-      	_value = Math.round((rate * amount) / 100);
+				_rate = rate;
+      	_value = (rate * amount) / 100;
 			}
       if (coupon) {
         handleApplyCouponWhenInsertCoupon(coupon);
