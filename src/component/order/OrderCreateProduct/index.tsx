@@ -252,8 +252,8 @@ function OrderCreateProduct(props: PropType) {
   const [changeMoney, setChangeMoney] = useState<number>(0);
   // console.log("items333333333333", items);
   // console.log("coupon", coupon);
-  const [isShowProductSearch, setIsShowProductSearch] = useState(false);
-  const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
+  const [isShowProductSearch, setIsShowProductSearch] = useState(true);
+  const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
   // const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
   let isAutomaticDiscount = form.getFieldValue("automatic_discount");
 
@@ -1394,6 +1394,9 @@ function OrderCreateProduct(props: PropType) {
     async (value: string) => {
       setIsInputSearchProductFocus(true);
       setKeySearchVariant(value);
+			if(!isShowProductSearch || !isInputSearchProductFocus) {
+				return;
+			}
       if (orderConfig?.allow_choose_item && value) {
         await form?.validateFields(["store_id"]).catch(() => {
           return;
@@ -1594,6 +1597,7 @@ function OrderCreateProduct(props: PropType) {
 
   const onInputSearchProductFocus = () => {
     setIsInputSearchProductFocus(true);
+		autoCompleteRef.current?.focus()
   };
 
   const onInputSearchProductBlur = () => {
@@ -1828,10 +1832,11 @@ function OrderCreateProduct(props: PropType) {
                 onSearch={onChangeProductSearch}
                 options={convertResultSearchVariant}
                 maxLength={255}
-                open={isShowProductSearch && isInputSearchProductFocus}
+                // open={isShowProductSearch && isInputSearchProductFocus}
                 onFocus={onInputSearchProductFocus}
                 onBlur={onInputSearchProductBlur}
                 disabled={levelOrder > 3 || loadingAutomaticDiscount}
+								defaultActiveFirstOption
                 dropdownRender={(menu) => (
                   <div>
                     {/* <div
