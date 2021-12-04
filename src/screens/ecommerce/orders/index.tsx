@@ -106,7 +106,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
-  sub_status_id: [],
+  sub_status_code: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
