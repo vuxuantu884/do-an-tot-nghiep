@@ -274,10 +274,10 @@ export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
   return supplierConverted;
 };
 
-export const formatCurrency = (currency: number | string | boolean): string => {
+export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {
   try {
     let format = currency.toString();
-    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
   } catch (e) {
     return "";
   }
