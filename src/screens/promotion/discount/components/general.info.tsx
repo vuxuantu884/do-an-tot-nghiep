@@ -13,6 +13,7 @@ import {
 import {DiscountFormModel, DiscountMethod} from "model/promotion/discount.create.model";
 import moment from "moment";
 import React, {useEffect, useMemo, useState} from "react";
+import { CustomerContitionFormlStyle } from "screens/promotion/shared/condition.style";
 import CustomerFilter from "screens/promotion/shared/cusomer-condition.form";
 import {DATE_FORMAT} from "../../../../utils/DateUtils";
 import CustomInput from "../../../customer/common/customInput";
@@ -23,7 +24,7 @@ import TotalBillDiscount from "./total-bill-discount";
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
 
-const priorityOptions = [
+export const priorityOptions = [
   {
     value: 1,
     label: "Số 1 (cao nhất)",
@@ -62,7 +63,7 @@ const priorityOptions = [
   },
 ];
 
-const dayOfWeekOptions = [
+export const dayOfWeekOptions = [
   {
     value: "SUN",
     label: "Chủ nhật",
@@ -92,6 +93,13 @@ const dayOfWeekOptions = [
     label: "Thứ 7",
   },
 ];
+export const getDays = () => {
+  let days = [];
+  for (let i = 1; i <= 31; i++) {
+    days.push({key: `${i}`, value: `Ngày ${i}`});
+  }
+  return days;
+};
 const GeneralInfo = (props: any) => {
   const {
     form,
@@ -122,14 +130,6 @@ const GeneralInfo = (props: any) => {
   useEffect(() => {
     form.resetFields(["entitlements"]);
   }, [discountMethod, form]);
-
-  const getDays = () => {
-    let days = [];
-    for (let i = 1; i <= 31; i++) {
-      days.push({key: `${i}`, value: `Ngày ${i}`});
-    }
-    return days;
-  };
 
   return (
     <Row gutter={24} className="general-info">
@@ -277,19 +277,15 @@ const GeneralInfo = (props: any) => {
         </Card>
       </Col>
       <Col span={6}>
-        <Card>
+        <CustomerContitionFormlStyle>
+        <Card
+          title={
+            <span>
+              Thời gian áp dụng <span className="required-field">*</span>
+            </span>
+          }
+        >
           <Row gutter={6}>
-            <Col span={24}>
-              <div className="ant-col ant-form-item-label" style={{width: "100%"}}>
-                <label
-                  htmlFor="discount_add_starts_date"
-                  className="ant-form-item-required"
-                >
-                  <b>Thời gian áp dụng:</b>
-                </label>
-              </div>
-            </Col>
-
             <Col span={12}>
               <Form.Item
                 name="starts_date"
@@ -389,12 +385,11 @@ const GeneralInfo = (props: any) => {
             </Row>
           ) : null}
         </Card>
-        <Card>
+        <Card title="Cửa hàng áp dụng">
           <Row gutter={12}>
             <Col span={24}>
               <Form.Item
-                name="prerequisite_store_ids"
-                label={<b>Cửa hàng áp dụng:</b>}
+                name="prerequisite_store_ids" 
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
                 <Select
@@ -425,12 +420,11 @@ const GeneralInfo = (props: any) => {
             </Col>
           </Row>
         </Card>
-        <Card>
+        <Card title="Kênh bán hàng áp dụng">
           <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 name="prerequisite_sales_channel_names"
-                label={<b>Kênh bán hàng áp dụng:</b>}
                 rules={[
                   {required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"},
                 ]}
@@ -462,12 +456,11 @@ const GeneralInfo = (props: any) => {
             </Col>
           </Row>
         </Card>
-        <Card>
+        <Card title="Nguồn đơn hàng áp dụng">
           <Row gutter={12}>
             <Col span={24}>
               <Form.Item
-                name="prerequisite_order_source_ids"
-                label={<b>Nguồn đơn hàng áp dụng:</b>}
+                name="prerequisite_order_source_ids" 
                 rules={[
                   {required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"},
                 ]}
@@ -501,6 +494,7 @@ const GeneralInfo = (props: any) => {
         </Card>
         {/* Đối tượng khách hàng áp dụng */}
         <CustomerFilter form={form} />
+      </CustomerContitionFormlStyle>
       </Col>
     </Row>
   );
