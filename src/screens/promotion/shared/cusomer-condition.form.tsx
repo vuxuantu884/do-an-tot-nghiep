@@ -15,7 +15,7 @@ import {LoyaltyRankSearch} from "domain/actions/loyalty/rank/loyalty-rank.action
 import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
 import {LoyaltyRankResponse} from "model/response/loyalty/ranking/loyalty-rank.response";
-import { Gender } from "model/response/promotion/discount/list-discount.response";
+import {Gender} from "model/response/promotion/discount/list-discount.response";
 import React, {ReactElement, useCallback, useEffect, useMemo} from "react";
 import {useDispatch} from "react-redux";
 import {DATE_FORMAT} from "utils/DateUtils";
@@ -111,14 +111,17 @@ export default function CustomerFilter(props: Props): ReactElement {
   }, [dispatch]);
 
   return (
-    <Card>
+    <Card
+      title={
+        <span>
+          Đối tượng khách hàng áp dụng <span className="required-field">*</span>
+        </span>
+      }
+    >
       {/* Đối tượng khách hàng áp dụng: */}
       <Row gutter={12}>
         <Col span={24}>
-          <Form.Item
-            label={<b>Đối tượng khách hàng áp dụng:</b>}
-            name={CustomerFilterField.customer_selection}
-          >
+          <Form.Item name={CustomerFilterField.customer_selection}>
             <Space direction="horizontal">
               <Switch defaultChecked={checkedAll} onChange={(e) => handleCheckedAll(e)} />
               {"Áp dụng toàn bộ khách hàng"}
@@ -136,8 +139,15 @@ export default function CustomerFilter(props: Props): ReactElement {
                   },
                 ]}
                 help={false}
+                colon={false}
+                labelCol={{span: 24}}
               >
-                <Select placeholder="Chọn giới tính" showArrow mode="multiple" maxTagCount="responsive">
+                <Select
+                  placeholder="Chọn giới tính"
+                  showArrow
+                  mode="multiple"
+                  maxTagCount="responsive"
+                >
                   {genderOptions.map((option) => (
                     <Option key={option.value} value={option.value}>
                       {option.label}
@@ -148,8 +158,16 @@ export default function CustomerFilter(props: Props): ReactElement {
 
               <Row gutter={6}>
                 <Col span={24}>
-                  <div className=" ant-form-item-label" style={{width: "100%"}}>
-                    <label>Ngày sinh:</label>
+                  <div
+                    className="ant-form-item-label-no-colon"
+                    style={{width: "100%", textAlign: "left", height: "32px"}}
+                  >
+                    <label
+                      htmlFor={CustomerFilterField.starts_birthday}
+                      style={{fontWeight: 500, color: "black"}}
+                    >
+                      Ngày sinh
+                    </label>
                   </div>
                 </Col>
                 <Col span={12}>
@@ -167,10 +185,6 @@ export default function CustomerFilter(props: Props): ReactElement {
                       placeholder="Từ ngày"
                       showTime={{format: DATE_FORMAT.DDMM}}
                       format={DATE_FORMAT.DDMM}
-                      // disabledDate={(currentDate) =>
-                      //   currentDate.isBefore(moment()) ||
-                      //   (form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false)
-                      // }
                       showNow={false}
                     />
                   </Form.Item>
@@ -186,15 +200,10 @@ export default function CustomerFilter(props: Props): ReactElement {
                     help={false}
                   >
                     <DatePicker
-                      // disabled={disabledEndDate}
                       style={{width: "100%"}}
                       placeholder="Đến ngày"
                       showTime={{format: DATE_FORMAT.DDMM}}
                       format={DATE_FORMAT.DDMM}
-                      // disabledDate={(currentDate) =>
-                      //   currentDate.isBefore(moment()) ||
-                      //   (form.getFieldValue("starts_date") && currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
-                      // }
                     />
                   </Form.Item>
                 </Col>
@@ -202,8 +211,16 @@ export default function CustomerFilter(props: Props): ReactElement {
 
               <Row gutter={6}>
                 <Col span={24}>
-                  <div className=" ant-form-item-label" style={{width: "100%"}}>
-                    <label>Ngày cướI:</label>
+                  <div
+                    className="ant-form-item-label-no-colon"
+                    style={{width: "100%", textAlign: "left", height: "32px"}}
+                  >
+                    <label
+                      style={{fontWeight: 500, color: "black"}}
+                      htmlFor={CustomerFilterField.starts_wedding_day}
+                    >
+                      Ngày cưới
+                    </label>
                   </div>
                 </Col>
                 <Col span={12}>
@@ -221,10 +238,6 @@ export default function CustomerFilter(props: Props): ReactElement {
                       placeholder="Từ ngày"
                       showTime={{format: DATE_FORMAT.DDMM}}
                       format={DATE_FORMAT.DDMM}
-                      // disabledDate={(currentDate) =>
-                      //   currentDate.isBefore(moment()) ||
-                      //   (form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false)
-                      // }
                       showNow={false}
                     />
                   </Form.Item>
@@ -240,15 +253,10 @@ export default function CustomerFilter(props: Props): ReactElement {
                     ]}
                   >
                     <DatePicker
-                      // disabled={disabledEndDate}
                       style={{width: "100%"}}
                       placeholder="Đến ngày"
                       showTime={{format: DATE_FORMAT.DDMM}}
                       format={DATE_FORMAT.DDMM}
-                      // disabledDate={(currentDate) =>
-                      //   currentDate.isBefore(moment()) ||
-                      //   (form.getFieldValue("starts_date") && currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
-                      // }
                       showNow={false}
                     />
                   </Form.Item>
@@ -263,6 +271,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   },
                 ]}
                 help={false}
+                labelCol={{span: 24}}
               >
                 <Select
                   placeholder="Chọn nhóm khách hàng"
@@ -289,6 +298,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   },
                 ]}
                 help={false}
+                labelCol={{span: 24}}
               >
                 <Select
                   mode="multiple"
