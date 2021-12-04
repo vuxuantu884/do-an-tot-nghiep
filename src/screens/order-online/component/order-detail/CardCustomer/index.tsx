@@ -504,6 +504,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               style={{width: "100%"}}
               onSearch={CustomerChangeSearch}
               options={CustomerConvertResultSearch}
+							defaultActiveFirstOption
               dropdownRender={(menu) => (
                 <div className="dropdown-custom">
                   <Button

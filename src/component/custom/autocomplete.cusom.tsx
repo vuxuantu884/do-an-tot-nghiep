@@ -15,6 +15,7 @@ interface CustomAutoCompleteType {
   onSearch?: (value: string) => void;
   options?: any[];
   loading?: boolean;
+  defaultActiveFirstOption?: boolean;
   onSelect?: (value: string) => void;
   showAdd?: boolean;
   textAdd?: string;
@@ -93,6 +94,7 @@ export default class CustomAutoComplete extends Component<
         dropdownClassName={this.props.dropdownClassName}
         onSearch={this.onSearch}
         options={this.props.options}
+				defaultActiveFirstOption = {this.props.defaultActiveFirstOption ? this.props.defaultActiveFirstOption : true}
         dropdownRender={(menu) => (
           <div className="dropdown-custom">
             {this.props.showAdd && (
