@@ -577,7 +577,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
             dataIndex: "store_id",
             align: 'left',
             fixed: true,
-            width: 262,
+            width: 270,
             render (value) {
               return storeRef.current.get(value);
             }
