@@ -9,7 +9,7 @@ import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom"; 
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams } from "utils/useQuery";
@@ -163,13 +163,22 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       title: "SL thay đổi",
       visible: true,
       dataIndex: "quantity",
-      render: (value) => (parseInt(value) > 0 ? `+${value}` : value),
+      render: (value) => {
+        let newValue = parseInt(value),
+              text: string = formatCurrency(newValue,".");
+
+        if (newValue && parseInt(value) > 0) {
+          text = `+${text}`;
+        }
+        return text;
+      } 
     },
     {
       align: "right",
       title: "Tồn trong kho",
       visible: true,
       dataIndex: "on_hand",
+      render: (value) => formatCurrency(value,".")
     },
     {
       title: "Kho hàng",

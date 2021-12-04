@@ -132,7 +132,7 @@
                             height: 40px;
                             line-height: 40px;
                             color: $white;
-                            padding-left: 16px !important;
+                            padding-left: 20px !important;
                             &>.ant-menu-title-content {
                                 margin-left: 13px;
                                 font-weight: 500;
@@ -203,7 +203,7 @@
                             }
                         }
                         .ant-menu-submenu-title {
-                            padding-left: 16px !important;
+                            padding-left: 20px !important;
                         }
                         &-submenu {
                             padding: 0;
@@ -228,6 +228,7 @@
                                     }
                                     .ant-menu-item-icon {
                                         color: #434362;
+                                        text-align: right;
                                     }
                                     &:hover {
                                         color: $white;
@@ -276,6 +277,7 @@
                                 }
                                 .ant-menu-item-icon {
                                     color: rgba($white, $alpha: 0.5);
+                                    text-align: right;
                                 }
                                 &:hover,
                                 &-open {

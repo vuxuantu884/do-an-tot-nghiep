@@ -5,6 +5,7 @@ import {AppConfig} from "config/app.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
 import {searchVariantsRequestAction} from "domain/actions/product/products.action";
+import { HeaderSummary } from "hook/filter/HeaderSummary";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -23,7 +24,6 @@ import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {getQueryParams} from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
 import {TabProps} from "./tab.props";
-
 export interface SummaryInventory {
   Sum_Total: number | 0;
   Sum_On_hand: number | 0;
@@ -35,7 +35,7 @@ export interface SummaryInventory {
   Sum_Transferring: number | 0; 
   Sum_On_way: number | 0; 
   Sum_Shipping: number | 0; 
-}
+} 
 
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const {stores} = props;
@@ -115,7 +115,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       align: "center",
       width: 150,
       render: (value,record) => {
-        return <div>{record.on_hand+(record.on_way ?? 0)+record.transferring}</div> ;
+        return <div>{formatCurrency(record.on_hand+(record.on_way ?? 0)+record.transferring, ".")}</div> ;
       },
     },
     {
@@ -123,48 +123,74 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       dataIndex: `on_hand`,
       align: "center",
       width: 150,
+      render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     },
     {
       title: "Có thể bán",
       dataIndex: `available`,
       align: "center",
       width: 150,
+      render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     },
     {
       title: "Đang giao địch",
       dataIndex: `committed`,
       align: "center",
-      width: 150,
+      width: 150, render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     }, 
     {
       title: "Hàng tạm giữ",
       dataIndex: `on_hold`,
       align: "center",
       width: 150,
+      render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     },{
       title: "Hàng lỗi",
       dataIndex: `defect`,
       align: "center",
       width: 150,
+      render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     },{
       title: "Chờ nhập",
       dataIndex: `in_coming`,
       align: "center",
       width: 150,
+      render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     },{
       title: "Hàng đang chuyển đến",
       dataIndex: `transferring`,
       align: "center",
       width: 200,
+      render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     },{
       title: "Hàng đang chuyển đi",
       dataIndex: `on_way`,
       align: "center",
       width: 200,
+      render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     },{
       title: "Hàng đang giao",
       dataIndex: `shipping`,
       align: "center",
+      render: (value) => {
+        return <div> {formatCurrency(value,".")}</div> ;
+      },
     }
   ]);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
@@ -228,8 +254,8 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     selected.length > 0,
     () => {},
     []
-  ); 
-
+  );
+  
   const onSaveInventory = (
     result: Array<AllInventoryResponse>,
     variant_ids: Array<number>
@@ -271,12 +297,13 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       debouncedSearch(keyword)
     },
     [debouncedSearch]
-  )
+  )  
 
   useEffect(() => {
     setColumns([
       {
         title: <ActionComponent />,
+        titleCustom: "Sản phẩm",
         visible: true,
         dataIndex: "sku",
         align: "left",
@@ -302,6 +329,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       }, 
       {
         title: "Giá bán",
+        titleCustom: "Giá bán",
         visible: true,
         dataIndex: "variant_prices",
         align: "center",
@@ -309,11 +337,12 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         fixed: true,
         render: (value) => {
           let price = Products.findPrice(value, AppConfig.currency);
-          return formatCurrency(price ? price.retail_price : 0);
+          return formatCurrency(price ? price.retail_price : 0,'.');
         },
       },
       {
         title: "Danh mục",
+        titleCustom: "Danh mục",
         visible: false,
         dataIndex: "category",
         align: "left",
@@ -324,126 +353,113 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         },
       },
       {
-        title: ()=>{
-          return <>
-            <div>Tổng tồn</div>
-            <div>{objSummaryTable?.Sum_Total && `(${objSummaryTable?.Sum_Total})`}</div>
-          </>
-        },
+        title: HeaderSummary(objSummaryTable?.Sum_Total,"Tổng tồn"), 
+        titleCustom: "Tổng tồn",
         visible: true,
         dataIndex: `total`,
         align: "center",
         width: 150,
         render: (value,record) => {
-          return <div>{record.on_hand+(record.on_way ?? 0)+record.transferring}</div> ;
+          return <div> {formatCurrency(record.on_hand+(record.on_way ?? 0)+record.transferring,".")}</div> ;
         },
       },
       {
-        title: ()=>{
-          return <>
-            <div>Tồn trong kho</div>
-            <div>{objSummaryTable?.Sum_On_hand && `(${objSummaryTable?.Sum_On_hand})`}</div>
-          </>
-        },
+        title: HeaderSummary(objSummaryTable?.Sum_On_hand,"Tồn trong kho"),
+        titleCustom: "Tổng tồn",
         visible: true,
         dataIndex: `on_hand`,
         align: "center",
         width: 150,
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
+        },
       },
       {
-        title: ()=>{
-          return <>
-            <div>Có thể bán</div>
-            <div>{objSummaryTable?.Sum_Available && `(${objSummaryTable?.Sum_Available})`}</div>
-          </>
-        },
+        title: HeaderSummary(objSummaryTable?.Sum_Available,"Có thể bán"),
+        titleCustom: "Có thể bán",
         visible: true,
         dataIndex: `available`,
         align: "center",
         width: 150,
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
+        },
       },
       {
-        title: ()=>{
-          return <>
-            <div>Đang giao địch</div>
-            <div>{objSummaryTable?.Sum_Committed && `(${objSummaryTable?.Sum_Committed})`}</div>
-          </>
-        },
+        title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao địch"),
+        titleCustom: "Đang giao địch",
         visible: true,
         dataIndex: `committed`,
         align: "center",
         width: 150,
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
+        },
       }, 
       {
-        title: ()=>{
-          return <>
-            <div>Hàng tạm giữ</div>
-            <div>{objSummaryTable?.Sum_On_hold && `(${objSummaryTable?.Sum_On_hold})`}</div>
-          </>
-        },
+        title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Hàng tạm giữ"),
+        titleCustom: "Hàng tạm giữ",
         visible: true,
         dataIndex: `on_hold`,
         align: "center",
         width: 150,
-      },{
-        title: ()=>{
-          return <>
-            <div>Hàng lỗi</div>
-            <div>{objSummaryTable?.Sum_Defect && `(${objSummaryTable?.Sum_Defect})`}</div>
-          </>
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
         },
+      },{
+        title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi"), 
+        titleCustom: "Hàng lỗi",
         visible: true,
         dataIndex: `defect`,
         align: "center",
         width: 150,
-      },{
-        title: ()=>{
-          return <>
-            <div>Chờ nhập</div>
-            <div>{objSummaryTable?.Sum_In_coming && `(${objSummaryTable?.Sum_In_coming})`}</div>
-          </>
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
         },
+      },{
+        title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập"),
+        titleCustom: "Chờ nhập",
         visible: true,
         dataIndex: `in_coming`,
         align: "center",
         width: 150,
-      },{
-        title: ()=>{
-          return <>
-            <div>Hàng đang chuyển đến</div>
-            <div>{objSummaryTable?.Sum_Transferring && `(${objSummaryTable?.Sum_Transferring})`}</div>
-          </>
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
         },
+      },{
+        title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng đang chuyển đến"),
+        titleCustom: "Hàng đang chuyển đến",
         visible: true,
         dataIndex: `transferring`,
         align: "center",
         width: 200,
-      },{
-        title: ()=>{
-          return <>
-            <div>Hàng đang chuyển đi</div>
-            <div>{objSummaryTable?.Sum_On_way && `(${objSummaryTable?.Sum_On_way})`}</div>
-          </>
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
         },
+      },{
+        title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng đang chuyển đi"),
+        titleCustom: "Hàng đang chuyển đi",
         visible: true,
         dataIndex: `on_way`,
         align: "center",
         width: 200,
-      },{
-        title: ()=>{
-          return <>
-            <div>Hàng đang giao</div>
-            <div>{objSummaryTable?.Sum_Shipping && `(${objSummaryTable?.Sum_Shipping})`}</div>
-          </>
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
         },
+      },{
+        title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Hàng đang giao"),
+        titleCustom: "Hàng đang giao",
         visible: true,
         dataIndex: `shipping`,
         align: "center",
+        render: (value) => {
+          return <div> {formatCurrency(value,".")}</div> ;
+        },
       }
     ]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, selected, objSummaryTable]); 
+  }, [params, selected, objSummaryTable, HeaderSummary]); 
 
   useEffect(() => {
     setLoading(true);

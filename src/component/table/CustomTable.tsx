@@ -18,6 +18,7 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
   visible?: boolean;
+  titleCustom?: string
 }
 
 export interface ICustomTablePaginationConfig {
