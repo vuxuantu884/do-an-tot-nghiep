@@ -101,7 +101,7 @@ const initQuery: OrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
-  sub_status_id: [],
+  sub_status_code: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
@@ -995,7 +995,16 @@ const ListOrderScreen: React.FC = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
-    dispatch(PaymentMethodGetList(setListPaymentMethod));
+    dispatch(PaymentMethodGetList(
+      (data) => {
+        data.push({
+          name: 'COD',
+          code: 'cod',
+          id: 0
+        })
+        setListPaymentMethod(data)
+      }
+    ));
     dispatch(
       actionFetchListOrderProcessingStatus(
         {},
