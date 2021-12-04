@@ -106,7 +106,7 @@ function CardProductBottom(props: PropType) {
                     calculateChangeMoney(items, amount, 0, 0);
                   }}
                 >
-                  {discountRate !== 0 ? discountRate : 0}%{" "}
+                  {discountRate !== 0 ? Math.round(discountRate*100)/100 : 0}%{" "}
                 </Tag>
               )}
             </Space>

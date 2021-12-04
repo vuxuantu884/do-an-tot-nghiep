@@ -12,7 +12,7 @@ import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
@@ -50,6 +50,7 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { ShipmentMethod } from "utils/Constants";
+import EditNote from "./component/edit-note";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const ACTION_ID = {
@@ -163,6 +164,15 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  let data1: any = {
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  }
 
   const status_order = [
     { name: "Nháp", value: "draft" },
@@ -256,7 +266,7 @@ const ListOrderScreen: React.FC = () => {
 				</div>,
       key: "customer",
       visible: true,
-      width: 200,
+      width: 150,
     },
     {
       title: (
@@ -304,20 +314,14 @@ const ListOrderScreen: React.FC = () => {
       align: "left",
       width: nameQuantityWidth,
     },
-    {
-      title: "Kho cửa hàng",
-      dataIndex: "store",
-      key: "store",
-      visible: true,
-      align: "center",
-    },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "source",
-      visible: true,
-      align: "center",
-    },
+    // {
+    //   title: "Kho cửa hàng",
+    //   dataIndex: "store",
+    //   key: "store",
+    //   visible: true,
+    //   align: "center",
+    // },
+    
     {
       title: "Địa chỉ giao hàng",
       render: (record: OrderResponse) =>
@@ -327,7 +331,7 @@ const ListOrderScreen: React.FC = () => {
         ,
       key: "shipping_address",
       visible: true,
-      width: 200,
+      width: 190,
     },
     {
       title: "HT Vận chuyển",
@@ -360,7 +364,7 @@ const ListOrderScreen: React.FC = () => {
         return ""
       },
       visible: true,
-      width: 150,
+      width: 140,
       align: "center",
     },
     {
@@ -381,7 +385,7 @@ const ListOrderScreen: React.FC = () => {
       ),
       visible: true,
       align: "center",
-      width: 200,
+      width: 160,
     },
     {
       title: "Trạng thái đơn",
@@ -447,8 +451,16 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
+      width:"150px"
     },
-    
+    {
+      title: "Nguồn đơn hàng",
+      dataIndex: "source",
+      key: "source",
+      visible: true,
+      align: "center",
+      width:"130px"
+    },
     {
       title: "Đóng gói",
       key: "packed_status",
@@ -630,18 +642,29 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
-    
     {
       title: "Ghi chú nội bộ",
-      dataIndex: "note",
+      render: (record) => 
+        <EditNote note={record.note} onOk={(newNote) => {
+          console.log('newNote', newNote);
+          editNote(newNote, 'note', record.id)
+        }} />
+      ,
       key: "note",
       visible: true,
+      align: "center",
     },
     {
       title: "Ghi chú của khách",
-      dataIndex: "customer_note",
+      render: (record) => 
+        <EditNote note={record.customer_note} onOk={(newNote) => {
+          console.log('newNote', newNote);
+          editNote(newNote, 'customer_note', record.id)
+        }} />
+      ,
       key: "customer_note",
       visible: true,
+      align: "center",
     },
     {
       title: "Tag",
@@ -681,7 +704,7 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Nhân viên bán hàng",
-      render: (record) => <div>{`${record.assignee} - ${record.assignee_code}`}</div>,
+      render: (record) => <div>{`${record.assignee_code} - ${record.assignee}`}</div>,
       key: "assignee",
       visible: true,
       align: "center",
@@ -689,7 +712,7 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên tạo đơn",
-      render: (record) => <div>{`${record.account} - ${record.account_code}`}</div>,
+      render: (record) => <div>{`${record.account_code} - ${record.account}`}</div>,
       key: "account",
       visible: true,
       align: "center",
@@ -906,7 +929,10 @@ const ListOrderScreen: React.FC = () => {
     setTableLoading(false);
     setIsFilter(false);
     if (!!result) {
+      console.log('result result result', result);
       setData(result);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      data1 = result
     }
   }, []);
 
@@ -922,10 +948,48 @@ const ListOrderScreen: React.FC = () => {
     setAccounts(data.items);
   };
 
+  const onSuccessEditNote = useCallback((newNote, noteType, orderID) => {
+    console.log('ok ok');
+    const indexOrder = data1.items.findIndex((item: any) => item.id === orderID)
+    const newItems = [...data1.items]
+    console.log('data', data1);
+    if (indexOrder > -1) {
+      const newItem: any = newItems[indexOrder]
+      newItems.splice(indexOrder, 1, {
+        ...newItem,
+        note: noteType === 'note' ? newNote : newItem.note,
+        customer_note: noteType === 'customer_note' ? newNote : newItem.customer_note
+      })
+    }
+    const newData = {
+      ...data1,
+      items: newItems
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    data1 = newData
+    setData(newData)
+  }, [data1]);
+  const editNote = useCallback((newNote, noteType, orderID) => {
+    console.log('newNote, noteType, orderID', newNote, noteType, orderID);
+    let params:any = {}
+    if (noteType === 'note') {
+      params.note = newNote
+    }
+    if (noteType === 'customer_note') {
+      params.customer_note = newNote
+    }
+    dispatch(updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID)))
+  }, [dispatch, onSuccessEditNote]);
+
   useEffect(() => {
     setTableLoading(true);
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
+
+  useEffect(() => {
+    console.log('data change', data);
+    
+  }, [data]);
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));

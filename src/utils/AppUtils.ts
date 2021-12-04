@@ -25,6 +25,7 @@ import {
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
+	ReturnProductModel,
 } from "model/response/order/order.response";
 import {
   OrderLineItemRequest,
@@ -625,7 +626,7 @@ export const Products = {
   },
 };
 
-export const getAmountPayment = (items: Array<OrderPaymentResponse> | null) => {
+export const getAmountPayment = (items: Array<OrderPaymentResponse|OrderPaymentRequest> | null) => {
   let value = 0;
   if (items !== null) {
     if (items.length > 0) {
@@ -1128,3 +1129,26 @@ export const handleDelayActionWhenInsertTextInSearchInput = (inputRef: React.Mut
 		func();
 	}, delayTime);
 };
+
+export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
+	let discountPerProduct = 0;
+	product.discount_items.forEach((single) => {
+		discountPerProduct += single.value;
+	});
+	return discountPerProduct;
+};
+
+export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: ReturnProductModel) => {
+	let discountPerOrder = 0;
+	let totalDiscountRatePerOrder = 0;
+	OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
+		if (singleOrderDiscount?.rate) {
+			totalDiscountRatePerOrder = totalDiscountRatePerOrder + singleOrderDiscount.rate;
+		}
+	});
+	console.log('totalDiscountRatePerOrder', totalDiscountRatePerOrder);
+	product.discount_value = getLineItemDiscountValue(product)
+	discountPerOrder =
+		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
+	return discountPerOrder;
+}

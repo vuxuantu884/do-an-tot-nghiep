@@ -1,6 +1,6 @@
 import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
-import SidebarOrderDetailExtraInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import UrlConfig from "config/url.config";
 import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";

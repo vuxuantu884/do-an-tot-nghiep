@@ -34,11 +34,9 @@ function PickDiscountModal (props: PropType) {
 
   const onchangeDiscount = (value: number) => {
     if (_type === "money") {
-      setValue(Math.round(value * 100) / 100);
-      setRate(Math.round((value / props.amount) * 100 * 100) / 100);
+      setValue(value);
     } else {
-      setRate(Math.round(value * 100) / 100);
-      setValue(Math.round(((value * props.amount) / 100) * 100) / 100);
+      setRate(value);
     }
   };
   const handleEnterToSubmit = (key: any) => {

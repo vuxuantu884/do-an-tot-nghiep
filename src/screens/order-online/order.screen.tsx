@@ -2,7 +2,7 @@ import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
+import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
@@ -412,7 +412,7 @@ export default function Order() {
     if (coupon) {
       listDiscountRequest.push({
         discount_code: coupon,
-          rate: discountRate,
+        rate: discountRate,
         value: discountValue,
         amount: discountValue,
         promotion_id: null,

@@ -18,6 +18,7 @@ import {DATE_FORMAT} from "../../../../utils/DateUtils";
 import CustomInput from "../../../customer/common/customInput";
 import "../discount.scss";
 import FixedPriceSelection from "./FixedPriceSelection";
+import TotalBillDiscount from "./total-bill-discount";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
@@ -140,7 +141,7 @@ const GeneralInfo = (props: any) => {
             </div>
           }
         >
-          <Row gutter={30} style={{padding: "16px 16px"}}>
+          <Row gutter={30}>
             <Col span={12}>
               <CustomInput
                 name="title"
@@ -236,17 +237,22 @@ const GeneralInfo = (props: any) => {
           </Row>
         </Card>
         <Card>
-          <Row gutter={30} style={{padding: "16px 16px"}}>
+          <Row gutter={30}>
             <Col span={24}>
               <Form.Item name="entitled_method" label={<b>Phương thức chiết khấu</b>}>
                 <Select
                   defaultValue={DiscountMethod.FIXED_PRICE}
                   onChange={(value) => {
                     setDiscountMethod(value);
-                    if (value === DiscountMethod.FIXED_PRICE) {
-                      const formData = form.getFieldsValue(true);
-                      formData.entitlements.forEach((item: DiscountFormModel) => {
+                    const formData = form.getFieldsValue(true);
+                    console.log(formData);
+                    if (value === DiscountMethod.FIXED_PRICE.toString()) {
+                      formData?.entitlements?.forEach((item: DiscountFormModel) => {
                         item["prerequisite_quantity_ranges.value_type"] = "FIXED_AMOUNT";
+                      });
+                    } else if (value === DiscountMethod.QUANTITY.toString()) {
+                      formData?.entitlements?.forEach((item: DiscountFormModel) => {
+                        item["prerequisite_quantity_ranges.value_type"] = "PERCENTAGE";
                       });
                     }
                   }}
@@ -255,17 +261,24 @@ const GeneralInfo = (props: any) => {
                   <Option value={DiscountMethod.QUANTITY}>
                     Chiết khấu theo từng sản phẩm
                   </Option>
+                  {/* <Option value={DiscountMethod.TOTAL_BILL}>
+                    Chiết khấu theo đơn hàng
+                  </Option> */}
                 </Select>
               </Form.Item>
             </Col>
             {/* Phương thức chiết khấu */}
-            <FixedPriceSelection form={form} discountMethod={discountMethod} />
+            {discountMethod === DiscountMethod.TOTAL_BILL ? (
+              <TotalBillDiscount form={form} />
+            ) : (
+              <FixedPriceSelection form={form} discountMethod={discountMethod} />
+            )}
           </Row>
         </Card>
       </Col>
       <Col span={6}>
         <Card>
-          <Row gutter={6} style={{padding: "0px 16px"}}>
+          <Row gutter={6}>
             <Col span={24}>
               <div className="ant-col ant-form-item-label" style={{width: "100%"}}>
                 <label
@@ -337,7 +350,7 @@ const GeneralInfo = (props: any) => {
             </Space> */}
           </Row>
           {showTimeAdvance ? (
-            <Row gutter={12} style={{padding: "0px 16px"}}>
+            <Row gutter={12}>
               <Col span={24}>
                 <Form.Item
                   label={<b>Chỉ áp dụng trong các khung giờ:</b>}
@@ -377,7 +390,7 @@ const GeneralInfo = (props: any) => {
           ) : null}
         </Card>
         <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+          <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 name="prerequisite_store_ids"
@@ -413,7 +426,7 @@ const GeneralInfo = (props: any) => {
           </Row>
         </Card>
         <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+          <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 name="prerequisite_sales_channel_names"
@@ -450,7 +463,7 @@ const GeneralInfo = (props: any) => {
           </Row>
         </Card>
         <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+          <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 name="prerequisite_order_source_ids"
