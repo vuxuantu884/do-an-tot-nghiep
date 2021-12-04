@@ -266,7 +266,7 @@ const ListOrderScreen: React.FC = () => {
 				</div>,
       key: "customer",
       visible: true,
-      width: 200,
+      width: 150,
     },
     {
       title: (
@@ -314,20 +314,14 @@ const ListOrderScreen: React.FC = () => {
       align: "left",
       width: nameQuantityWidth,
     },
-    {
-      title: "Kho cửa hàng",
-      dataIndex: "store",
-      key: "store",
-      visible: true,
-      align: "center",
-    },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "source",
-      visible: true,
-      align: "center",
-    },
+    // {
+    //   title: "Kho cửa hàng",
+    //   dataIndex: "store",
+    //   key: "store",
+    //   visible: true,
+    //   align: "center",
+    // },
+    
     {
       title: "Địa chỉ giao hàng",
       render: (record: OrderResponse) =>
@@ -337,7 +331,7 @@ const ListOrderScreen: React.FC = () => {
         ,
       key: "shipping_address",
       visible: true,
-      width: 200,
+      width: 190,
     },
     {
       title: "HT Vận chuyển",
@@ -370,7 +364,7 @@ const ListOrderScreen: React.FC = () => {
         return ""
       },
       visible: true,
-      width: 150,
+      width: 140,
       align: "center",
     },
     {
@@ -391,7 +385,7 @@ const ListOrderScreen: React.FC = () => {
       ),
       visible: true,
       align: "center",
-      width: 200,
+      width: 160,
     },
     {
       title: "Trạng thái đơn",
@@ -457,8 +451,16 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
+      width:"150px"
     },
-    
+    {
+      title: "Nguồn đơn hàng",
+      dataIndex: "source",
+      key: "source",
+      visible: true,
+      align: "center",
+      width:"130px"
+    },
     {
       title: "Đóng gói",
       key: "packed_status",
@@ -702,7 +704,7 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Nhân viên bán hàng",
-      render: (record) => <div>{`${record.assignee} - ${record.assignee_code}`}</div>,
+      render: (record) => <div>{`${record.assignee_code} - ${record.assignee}`}</div>,
       key: "assignee",
       visible: true,
       align: "center",
@@ -710,7 +712,7 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên tạo đơn",
-      render: (record) => <div>{`${record.account} - ${record.account_code}`}</div>,
+      render: (record) => <div>{`${record.account_code} - ${record.account}`}</div>,
       key: "account",
       visible: true,
       align: "center",
