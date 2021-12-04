@@ -60,7 +60,7 @@ const InventoryScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Sản phẩm",
+          name: "Kho hàng",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
