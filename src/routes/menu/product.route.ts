@@ -73,7 +73,7 @@ const product: Array<RouteMenu> = [
   {
     path: UrlConfig.VARIANTS,
     exact: true,
-    title: "Danh sách sản phẩm",
+    title: "Sản phẩm",
     icon: "icon-dot",
     component: Product,
     key: "submenu21",
@@ -197,7 +197,7 @@ const product: Array<RouteMenu> = [
   {
     path: "submenu23",
     exact: true,
-    title: "Cấu hình thuộc tính",
+    title: "Thuộc tính",
     subTitle: "Cấu hình thuộc tính",
     icon: "icon-dot",
     component: Category,

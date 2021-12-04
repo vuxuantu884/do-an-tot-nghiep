@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Card, Tabs, Form, Button } from "antd";
+import { Card, Tabs, Form, Button, Dropdown, Menu } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
@@ -23,7 +23,7 @@ import {
   ecommerceConfigInfoAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import EcommerceModal from "screens/ecommerce/common/ecommerce-custom-modal";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import { ecommerceConfigDeleteAction } from "domain/actions/ecommerce/ecommerce.actions"
 
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -33,9 +33,14 @@ import useAuthorization from "hook/useAuthorization";
 import SyncEcommerce from "screens/ecommerce/config/tab/sync-ecommerce"
 import SettingConfig from "screens/ecommerce/config/tab/setting-config";
 
-import { PlusOutlined } from "@ant-design/icons";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { StyledComponent } from "screens/ecommerce/config/styles";
+import { DownOutlined } from "@ant-design/icons";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import tikiIcon from "assets/icon/e-tiki.svg";
+import shopeeIcon from "assets/icon/e-shopee.svg";
+import lazadaIcon from "assets/icon/e-lazada.svg";
+import sendoIcon from "assets/icon/e-sendo.svg";
+
 
 const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
@@ -59,6 +64,8 @@ const EcommerceConfig: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<string>("sync");
   const history = useHistory();
+  
+  const [isLoading, setIsLoading] = useState(false);
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [configData, setConfigData] = React.useState<Array<EcommerceResponse>>(
@@ -74,7 +81,11 @@ const EcommerceConfig: React.FC = () => {
   const [modalShopInfo, setModalShopInfo] = React.useState<EcommerceResponse>()
 
   const reloadConfigData = React.useCallback(() => {
-    dispatch(ecommerceConfigGetAction(setConfigData))
+    setIsLoading(true);
+    dispatch(ecommerceConfigGetAction((responseData) => {
+      setIsLoading(false);
+      setConfigData(responseData);
+    }));
   }, [dispatch])
 
   const handleShowDeleteModal = (item: any) => {
@@ -110,6 +121,13 @@ const EcommerceConfig: React.FC = () => {
   );
 
   // link to ecommerce
+  // tiki
+  const handleConnectTiki = React.useCallback(() => {
+    showWarning("Chức năng này làm sau bạn nhé!");
+  }, []);
+  // end
+
+  // shopee
   const redirectCallback = React.useCallback((value: any) => {
     if (value) {
       window.open(`${value}`, "_self");
@@ -119,6 +137,21 @@ const EcommerceConfig: React.FC = () => {
   const handleConnectEcommerce = React.useCallback(() => {
     dispatch(ecommerceConnectAction(redirectCallback));
   }, [dispatch, redirectCallback]);
+  // end
+
+  
+  // lazada
+  const handleConnectLazada = React.useCallback(() => {
+    showWarning("Chức năng này làm sau bạn nhé!");
+  }, []);
+  //end
+
+  // lazada
+  const handleConnectSendo = React.useCallback(() => {
+    showWarning("Chức năng này làm sau bạn nhé!");
+  }, []);
+  //end
+  // end link to ecommerce
 
   const configInfoCallback = React.useCallback(
     (value: any) => {
@@ -138,7 +171,11 @@ const EcommerceConfig: React.FC = () => {
   
   // get all ecommerce
   React.useEffect(() => {
-    dispatch(ecommerceConfigGetAction(setConfigData));
+    setIsLoading(true);
+    dispatch(ecommerceConfigGetAction((responseData) => {
+      setIsLoading(false);
+      setConfigData(responseData);
+    }));
   }, [dispatch]);
   
   const accountChangeSearch = React.useCallback(
@@ -174,91 +211,142 @@ const EcommerceConfig: React.FC = () => {
     }
   }, [history.location.hash]);
 
+  //Thêm kết nối sàn mới
+  const ECOMMERCE_LIST = useMemo(() => [
+    {
+      title: "Kết nối Tiki",
+      icon: tikiIcon,
+      key: "tiki",
+      action: handleConnectTiki
+    },
+    {
+      title: "Kết nối Shopee",
+      icon: shopeeIcon,
+      key: "shopee",
+      action: handleConnectEcommerce
+    },
+    {
+      title: "Kết nối Lazada",
+      icon: lazadaIcon,
+      key: "lazada",
+      action: handleConnectLazada
+    },
+    {
+      title: "Kết nối Sendo",
+      icon: sendoIcon,
+      key: "sendo",
+      action: handleConnectSendo
+    }
+  ], [handleConnectEcommerce, handleConnectLazada, handleConnectSendo, handleConnectTiki]);
+
+  const ecommerceList = (
+    <Menu>
+      {ECOMMERCE_LIST?.map((ecommerce: any) => (
+        <Menu.Item key={ecommerce.key} onClick={ecommerce.action}>
+          {/* <div onClick={handleConnectEcommerce}> */}
+            <img
+              src={ecommerce.icon}
+              alt={ecommerce.key}
+              style={{ marginRight: "10px" }}
+            />
+            <span>{ecommerce.title}</span>
+          {/* </div> */}
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+  //Kết thúc
+
 
   return (
-    <ContentContainer
-      title="SÀN THƯƠNG MẠI ĐIỆN TỬ"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Sàn TMĐT",
-          path: `${UrlConfig.ECOMMERCE}`,
-        },
-        {
-          name: "Cấu hình",
-        },
-      ]}
-      extra={
-        <>
-          {activeTab === "sync" && allowShopsConnect && (
-            <Button
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<PlusOutlined />}
-              onClick={handleConnectEcommerce}
-            >
-              Thêm kết nối mới
-            </Button>
-          )}
-        </>
-      }
-    >
-      <AuthWrapper acceptPermissions={shopsReadPermission} passThrough>
-        {(allowed: boolean) => (allowed ?
-          <StyledComponent>
-            <Card>
-              <Tabs
-                activeKey={activeTab}
-                onChange={(active) => {
-                  history.replace(`${history.location.pathname}#${active}`);
-                  reloadConfigData();
-                  setConfigFromEcommerce(undefined)
-                }}
+    <StyledComponent>
+      <ContentContainer
+        title="SÀN THƯƠNG MẠI ĐIỆN TỬ"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Sàn TMĐT",
+            path: `${UrlConfig.ECOMMERCE}`,
+          },
+          {
+            name: "Cấu hình",
+          },
+        ]}
+        extra={
+          <>
+            {activeTab === "sync" && allowShopsConnect &&
+              <Dropdown
+                overlay={ecommerceList}
+                trigger={["click"]}
+                disabled={isLoading}
+                className="connect-ecommerce-dropdown"
               >
-                <TabPane tab="Đồng bộ sàn" key="sync">
-                  <SyncEcommerce
-                    configData={configData}
-                    setConfigToView={setConfigToView}
-                    reloadConfigData={reloadConfigData}
-                    showDeleteModal={handleShowDeleteModal}
-                  />
-                </TabPane>
-                <TabPane tab="Cài đặt cấu hình" key="setting">
-                  <SettingConfig
-                    listStores={stores}
-                    accounts={accounts}
-                    accountChangeSearch={accountChangeSearch}
-                    form={configForm}
-                    configData={configData}
-                    configToView={configToView}
-                    reloadConfigData={reloadConfigData}
-                    setConfigToView={setConfigToView}
-                    configFromEcommerce={configFromEcommerce}
-                    setConfigFromEcommerce={setConfigFromEcommerce}
-                    showDeleteModal={handleShowDeleteModal}
-                    storeChangeSearch={storeChangeSearch}
-                  />
-                </TabPane>
-              </Tabs>
-            </Card>
-    
-            <EcommerceModal
-              onCancel={() => setIsShowDeleteModal(false)}
-              onOk={onOkDeleteEcommerce}
-              visible={isShowDeleteModal}
-              okText="Đồng ý"
-              cancelText="Hủy"
-              title=""
-              text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
-              icon={DeleteIcon}
-            />
-          </StyledComponent>
-          : <NoPermission />)}
-      </AuthWrapper>
-    </ContentContainer>
+                <Button size="large">
+                  <span>Thêm kết nối mới</span>
+                  <DownOutlined />
+                </Button>
+              </Dropdown>
+            }
+          </>
+        }
+      >
+        <AuthWrapper acceptPermissions={shopsReadPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <>
+              <Card>
+                <Tabs
+                  activeKey={activeTab}
+                  onChange={(active) => {
+                    history.replace(`${history.location.pathname}#${active}`);
+                    reloadConfigData();
+                    setConfigFromEcommerce(undefined)
+                  }}
+                >
+                  <TabPane tab="Đồng bộ sàn" key="sync">
+                    <SyncEcommerce
+                      configData={configData}
+                      setConfigToView={setConfigToView}
+                      reloadConfigData={reloadConfigData}
+                      showDeleteModal={handleShowDeleteModal}
+                    />
+                  </TabPane>
+                  <TabPane tab="Cài đặt cấu hình" key="setting">
+                    <SettingConfig
+                      listStores={stores}
+                      accounts={accounts}
+                      accountChangeSearch={accountChangeSearch}
+                      form={configForm}
+                      configData={configData}
+                      configToView={configToView}
+                      reloadConfigData={reloadConfigData}
+                      setConfigToView={setConfigToView}
+                      configFromEcommerce={configFromEcommerce}
+                      setConfigFromEcommerce={setConfigFromEcommerce}
+                      showDeleteModal={handleShowDeleteModal}
+                      storeChangeSearch={storeChangeSearch}
+                    />
+                  </TabPane>
+                </Tabs>
+              </Card>
+      
+              <EcommerceModal
+                onCancel={() => setIsShowDeleteModal(false)}
+                onOk={onOkDeleteEcommerce}
+                visible={isShowDeleteModal}
+                okText="Đồng ý"
+                cancelText="Hủy"
+                title=""
+                text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
+                icon={DeleteIcon}
+              />
+            </>
+            : <NoPermission />)}
+        </AuthWrapper>
+      </ContentContainer>
+    </StyledComponent>
   );
 };
 

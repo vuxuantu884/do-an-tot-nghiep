@@ -8,7 +8,6 @@ import { PageResponse } from 'model/base/base-metadata.response';
 import { LoyaltyCardResponse } from 'model/response/loyalty/card/loyalty-card.response';
 import moment from 'moment';
 import { DATE_FORMAT } from 'utils/DateUtils';
-import { BaseQuery } from 'model/base/base.query';
 import { useDispatch } from 'react-redux';
 import { LoyaltyCardLock, LoyaltyCardSearch } from 'domain/actions/loyalty/card/loyalty-card.action';
 import AssignCustomer from '../component/assign-customer/AssignCustomer';
@@ -18,27 +17,43 @@ import NoPermission from 'screens/no-permission.screen';
 import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
 import useAuthorization from 'hook/useAuthorization';
 
-const CARD_STATUS = {
-  ASSIGNED: {
+import CardListFilter from 'screens/customer/loyalty-card/card-list/CardListFilter';
+import { LoyaltyCardReleaseResponse } from 'model/response/loyalty/release/loyalty-card-release.response';
+import { LoyaltyCardReleaseSearch } from 'domain/actions/loyalty/release/loyalty-release.action';
+import { CustomerCardListRequest } from 'model/request/customer.request';
+
+const CARD_STATUS = [
+  {
     title: 'Đã được gán',
     value: 'ASSIGNED'
   },
-  ACTIVE: {
+  {
     title: 'Kích hoạt',
     value: 'ACTIVE'
   },
-  INACTIVE: {
+  {
     title: 'Đã khóa',
     value: 'INACTIVE'
   }
-}
+]
+
+const initParams: CustomerCardListRequest = {
+  page: 1,
+  limit: 30,
+  sort_column: 'id',
+  sort_type: 'desc',
+  request: '',
+  from_assigned_date: '',
+  to_assigned_date: '',
+  statuses: [],
+  release_ids: []
+};
 
 const viewCardListPermission = [LoyaltyPermission.cards_read];
 const assignCardPermission = [LoyaltyPermission.cards_assignment];
 const lockCardPermission = [LoyaltyPermission.cards_lock];
 
 const LoyaltyCards = () => {
-  const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [data, setData] = useState<PageResponse<LoyaltyCardResponse>>({
     metadata: {
       limit: 30,
@@ -47,12 +62,12 @@ const LoyaltyCards = () => {
     },
     items: [],
   });
-  const getCardStatus = (card: LoyaltyCardResponse) => {
-    if (card.status === 'ACTIVE') {
-      return card.customer_id ? CARD_STATUS.ASSIGNED : CARD_STATUS.ACTIVE
-    } else {
-      return CARD_STATUS.INACTIVE
-    }
+
+  const [cardReleaseList, setCardReleaseList] = useState<any>([]);
+
+  const getCard = (card: LoyaltyCardResponse) => {
+    const cardFound = CARD_STATUS.find(item => item.value === card.status);
+    return cardFound;
   }
 
   const RenderActionColumn = (value: any, row: any, index: number) => {
@@ -137,7 +152,6 @@ const LoyaltyCards = () => {
     {
       title: "STT",
       visible: true,
-      fixed: "left",
       align: "center",
       render: (value: any, item: any, index: number) => <div>{(data.metadata.page - 1) * data.metadata.limit + index + 1}</div>,
       width: "72px"
@@ -146,33 +160,28 @@ const LoyaltyCards = () => {
       title: "Mã thẻ",
       dataIndex: "card_number",
       visible: true,
-      fixed: "left"
     },
     {
       title: "Khách hàng",
       dataIndex: "customer_name",
       visible: true,
-      fixed: "left"
     },
     {
       title: "Đợt phát hành",
       dataIndex: "release_name",
       visible: true,
-      fixed: "left"
     },
     {
       title: "Ngày gán",
       visible: true,
-      fixed: "left",
       render: (value: any) => <div>{value.assigned_date && moment(value.assigned_date).format(DATE_FORMAT.DDMMYY_HHmm)}</div>
     },
     {
       title: "Trạng thái",
       visible: true,
-      fixed: "left",
       align: "center",
       render: (value: any) => (
-        <div className={`card card__${getCardStatus(value).value}`}>{getCardStatus(value).title}</div>
+        <div className={`card card__${getCard(value)?.value}`}>{getCard(value)?.title}</div>
       ),
       width: "160px"
     },
@@ -184,57 +193,106 @@ const LoyaltyCards = () => {
     }
   ]
 
-  const [query, setQuery] = useState<BaseQuery>({
-    page: 1,
-    limit: 30,
-    sort_column: 'id',
-    sort_type: 'desc'
-  });
+  const [params, setParams] = useState<CustomerCardListRequest>({ ...initParams });
 
   const dispatch = useDispatch()
+  
+  const [isLoading, setIsLoading] = useState(false);
+
   const [isShowAssignCustomerModal, setIsShowAssignCustomerModal] = useState<boolean>(false)
   const [selectedItem, setSelectedItem] = useState<LoyaltyCardResponse>()
   const [isShowLockConfirmModal, setIsShowLockConfirmModal] = useState<boolean>(false)
 
+
+  const onFilter = useCallback(
+    (values) => {
+      const filterParams = { ...params, ...values, page: 1 };
+      setParams(filterParams);
+    },
+    [params]
+  );
+
+  const onClearFilter = useCallback(() => {
+    setParams(initParams);
+  }, []);
+
   const fetchData = useCallback((data: PageResponse<LoyaltyCardResponse>) => {
-    setData(data)
-    setTableLoading(false)
+    setIsLoading(false);
+    if (!!data) {
+      setData(data);
+    }
   }, [])
+
+
 
   const onPageChange = useCallback(
     (page, limit) => {
-      setQuery({ ...query, page, limit });
+      setParams({ ...params, page, limit });
+      window.scrollTo(0, 0);
     },
-    [query]
+    [params]
   );
 
   const refreshData = useCallback(() => {
-    dispatch(LoyaltyCardSearch(query, fetchData));
-  }, [dispatch, fetchData, query])
+    setIsLoading(true);
+    dispatch(LoyaltyCardSearch(params, fetchData));
+  }, [dispatch, fetchData, params])
 
   useEffect(() => {
-    dispatch(LoyaltyCardSearch(query, fetchData));
-  }, [dispatch, fetchData, query]);
+    setIsLoading(true);
+    dispatch(LoyaltyCardSearch(params, fetchData));
+  }, [dispatch, fetchData, params]);
+
+  // Get card release list
+  const updateCardRelease = useCallback((data: PageResponse<LoyaltyCardReleaseResponse>) => {
+    setIsLoading(false);
+    if (!!data) {
+      setCardReleaseList(data.items);
+    }
+  }, [])
+
+  useEffect(() => {
+    const cardReleaseParams = {
+      sort_column: 'id',
+      sort_type: 'desc',
+      limit: 100,
+      page: 1,
+    };
+    setIsLoading(true);
+    dispatch(LoyaltyCardReleaseSearch(cardReleaseParams, updateCardRelease));
+  }, [dispatch, updateCardRelease]);
+  // end
 
   return (
     <div className="loyalty-cards-list">
       <AuthWrapper acceptPermissions={viewCardListPermission} passThrough>
         {(allowed: boolean) => (allowed ?
-          <CustomTable
-            isLoading={tableLoading}
-            sticky={{ offsetScroll: 5 }}
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            dataSource={data.items}
-            columns={pageColumns}
-            rowKey={(item: any) => item.id}
-          />
+          <>
+            <CardListFilter
+              isLoading={isLoading}
+              params={params}
+              initParams={initParams}
+              onClearFilter={onClearFilter}
+              onFilter={onFilter}
+              cardReleaseList={cardReleaseList}
+            />
+            
+            <CustomTable
+              isLoading={isLoading}
+              sticky={{ offsetScroll: 5 }}
+              pagination={{
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
+              }}
+              dataSource={data.items}
+              columns={pageColumns}
+              rowKey={(item: any) => item.id}
+            />
+          </>
           : <NoPermission />)
         }
       </AuthWrapper>

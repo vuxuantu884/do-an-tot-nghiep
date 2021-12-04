@@ -1,6 +1,7 @@
 import { BaseQuery } from "../base/base.query";
 
 export interface CustomerSearchQuery extends BaseQuery {
+  is_simple?:number|null;
   request: string | null;
   gender: string | null;
   phone?: string | null;

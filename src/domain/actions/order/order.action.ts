@@ -443,3 +443,7 @@ export const getSourcesEcommerce = (setData: (data: Array<SourceEcommerceRespons
 export const getChannels=(typeId:number, setData:(data:ChannelsResponse[])=>void)=>{
   return BaseAction(OrderType.GET_CHANNELS,{typeId,setData});
 }
+
+export const updateOrderPartial = (params: any, orderID: number, onSuccess: () => void)=> {
+  return BaseAction(OrderType.UPDATE_ORDER_PARTIAL_REQUEST, {params, orderID, onSuccess});
+}

@@ -7,7 +7,7 @@ import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
-import { getListStoresSimpleAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { getListStoresSimpleAction, StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
@@ -315,8 +315,9 @@ const ScreenReturnCreate = (props: PropType) => {
           setDiscountRate(discountRate);
         }
       }
+      dispatch(StoreDetailAction(_data.store_id?_data.store_id:0, setStoreReturn))
     }
-  }, []);
+  }, [dispatch]);
 
   const ChangeShippingFeeInformedToCustomer = (value: number | null) => {
     form.setFieldsValue({ shipping_fee_informed_to_customer: value });

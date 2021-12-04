@@ -6,32 +6,21 @@ import { Card } from "antd";
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
-import {
-  OrderModel,
-} from "model/order/order.model";
+import { OrderModel, } from "model/order/order.model";
 import { AccountResponse } from "model/account/account.model";
-
+import { PageResponse } from "model/base/base-metadata.response";
+import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import { getOrderMappingListAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
 
-
-import { PageResponse } from "model/base/base-metadata.response";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable";
 import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/component/AllOrdersMappingFilter";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import NoPermission from "screens/no-permission.screen";
-import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
 
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
-
-import useAuthorization from "hook/useAuthorization";
-import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
-import { StyledStatus } from "screens/ecommerce/common/commonStyle";
-import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 
 
 const initQuery: GetOrdersMappingQuery = {
@@ -48,13 +37,9 @@ const initQuery: GetOrdersMappingQuery = {
 
 const CORE_ORDER_STATUS = [
   { name: "Nháp", value: "draft", className: "gray-status" },
-  { name: "Đóng gói", value: "packed", className: "blue-status" },
-  { name: "Xuất kho", value: "shipping", className: "blue-status" },
   { name: "Đã xác nhận", value: "finalized", className: "blue-status" },
-  { name: "Hoàn thành", value: "completed", className: "green-status" },
   { name: "Kết thúc", value: "finished", className: "green-status" },
-  { name: "Đã huỷ", value: "cancelled", className: "red-status" },
-  { name: "Đã hết hạn", value: "expired", className: "red-status" },
+  { name: "Hủy đơn", value: "cancel", className: "red-status" },
 ];
 
 const ECOMMERCE_ORDER_STATUS = [
@@ -66,16 +51,14 @@ const ECOMMERCE_ORDER_STATUS = [
   { name: "Đã huỷ", value: "CANCELLED" },
 ];
 
-const ordersViewPermission = [EcommerceOrderPermission.orders_view];
+type AllOrdersMappingProps = {
+  isReloadPage: boolean,
+}
 
 
-const EcommerceOrderSync: React.FC = () => {
+const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappingProps) => {
   const dispatch = useDispatch();
-
-  const [allowOrdersView] = useAuthorization({
-    acceptPermissions: ordersViewPermission,
-    not: false,
-  });
+  const { isReloadPage } = props;
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -256,10 +239,17 @@ const EcommerceOrderSync: React.FC = () => {
 
 
   useEffect(() => {
-    if (allowOrdersView) {
+    getOrderMappingList();
+  }, [getOrderMappingList]);
+
+  // reload page
+  useEffect(() => {
+    if (isReloadPage) {
       getOrderMappingList();
     }
-  }, [allowOrdersView, getOrderMappingList]);
+  }, [getOrderMappingList, isReloadPage]);
+  // end
+
 
   // handle get all shop list
   const updateAllShopList = useCallback((result) => {
@@ -279,54 +269,48 @@ const EcommerceOrderSync: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (allowOrdersView) {
-      dispatch(getShopEcommerceList({}, updateAllShopList));
-    }
-  }, [allowOrdersView, dispatch, updateAllShopList]);
-
+    dispatch(getShopEcommerceList({}, updateAllShopList));
+  }, [dispatch, updateAllShopList]);
+  // end
 
   return (
     <AllOrdersMappingStyled>
-      <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
-        {(allowed: boolean) => (allowed ?
-          <Card>
-            <AllOrdersMappingFilter
-              isLoading={isLoading}
-              params={params}
-              selectedRowKeys={selectedRowKeys}
-              initQuery={initQuery}
-              onClearFilter={onClearFilter}
-              onFilter={onFilter}
-              shopList={allShopList}
-            />
-  
-            <CustomTable
-              // isRowSelection
-              bordered
-              isLoading={isLoading}
-              showColumnSetting={true}
-              pagination={
-                isLoading
-                  ? false
-                  : {
-                      pageSize: data.metadata.limit,
-                      total: data.metadata.total,
-                      current: data.metadata.page,
-                      showSizeChanger: true,
-                      onChange: onPageChange,
-                      onShowSizeChange: onPageChange,
-                    }
-              }
-              onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-              dataSource={data.items}
-              columns={columns}
-              rowKey={(item: OrderModel) => item.id}
-            />
-          </Card>
-          : <NoPermission />)}
-      </AuthWrapper>
+      <Card>
+        <AllOrdersMappingFilter
+          isLoading={isLoading}
+          params={params}
+          selectedRowKeys={selectedRowKeys}
+          initQuery={initQuery}
+          onClearFilter={onClearFilter}
+          onFilter={onFilter}
+          shopList={allShopList}
+        />
+
+        <CustomTable
+          // isRowSelection
+          bordered
+          isLoading={isLoading}
+          showColumnSetting={true}
+          pagination={
+            isLoading
+              ? false
+              : {
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }
+          }
+          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+          dataSource={data.items}
+          columns={columns}
+          rowKey={(item: OrderModel) => item.id}
+        />
+      </Card>
     </AllOrdersMappingStyled>
   );
 };
 
-export default EcommerceOrderSync;
+export default AllOrdersMapping;

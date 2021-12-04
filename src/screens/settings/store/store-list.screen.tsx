@@ -131,6 +131,12 @@ const StoreListScreen: React.FC = () => {
       visible: true,
     },
     {
+      title: "Bộ phận",
+      dataIndex: "department", 
+      visible: true,
+      width: 180,
+    },
+    {
       title: "Loại",
       dataIndex: "type_name",
       visible: true,
@@ -388,7 +394,7 @@ const StoreListScreen: React.FC = () => {
               isRowSelection
               showColumnSetting={true}
               isLoading={loading}
-              scroll={{x: 1300}}
+              scroll={{x: 1480}}
               pagination={{
                 pageSize: data.metadata.limit,
                 total: data.metadata.total,

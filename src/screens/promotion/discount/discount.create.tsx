@@ -4,13 +4,13 @@ import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import {getListChannelRequest} from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
 import {ChannelResponse} from "model/response/product/channel.response";
-import { CustomerSelectionOption } from "model/response/promotion/discount/list-discount.response";
+import {CustomerSelectionOption} from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import React, {useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {useHistory} from "react-router-dom";
 import {PROMO_TYPE} from "utils/Constants";
-import { DATE_FORMAT } from "utils/DateUtils";
+import {DATE_FORMAT} from "utils/DateUtils";
 import ContentContainer from "../../../component/container/content.container";
 import {HttpStatus} from "../../../config/http-status.config";
 import UrlConfig from "../../../config/url.config";
@@ -21,7 +21,7 @@ import {StoreResponse} from "../../../model/core/store.model";
 import {SourceResponse} from "../../../model/response/order/source.response";
 import {createPriceRule} from "../../../service/promotion/discount/discount.service";
 import {showError, showSuccess} from "../../../utils/ToastUtils";
-import { CustomerFilterField } from "../shared/cusomer-condition.form"; 
+import {CustomerFilterField} from "../shared/cusomer-condition.form";
 import GeneralInfo from "./components/general.info";
 import "./discount.scss";
 
@@ -67,7 +67,7 @@ const CreateDiscountPage = () => {
       : null;
     body.starts_date = values.starts_date.format();
     body.ends_date = values.ends_date?.format() || null;
-    body.entitlements = values.entitlements.map((entitlement: any) => {
+    body.entitlements = values?.entitlements?.map((entitlement: any) => {
       return {
         entitled_variant_ids: entitlement.entitled_variant_ids || null,
         entitled_category_ids: null,
@@ -91,64 +91,87 @@ const CreateDiscountPage = () => {
 
     // ==Đối tượng khách hàng==
     // Áp dụng tất cả
-    body.customer_selection = values.customer_selection ? CustomerSelectionOption.ALL : CustomerSelectionOption.PREREQUISITE;
+    body.customer_selection = values.customer_selection
+      ? CustomerSelectionOption.ALL
+      : CustomerSelectionOption.PREREQUISITE;
 
     //Giới tính khách hàng
     body.prerequisite_genders = values.prerequisite_genders;
 
     //Ngày sinh khách hàng
-    const startsBirthday = values[CustomerFilterField.starts_birthday] ?  moment(values[CustomerFilterField.starts_birthday]): null;
-    const endsBirthday = values[CustomerFilterField.ends_birthday] ?  moment(values[CustomerFilterField.ends_birthday]) : null;
-     if (startsBirthday || endsBirthday) {
-       body.prerequisite_birthday_duration = {
-         starts_mmdd_key: startsBirthday
-           ? Number(
-               (startsBirthday.month() + 1).toString().padStart(2, "0") +
-                 startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-             )
-           : null,
-         ends_mmdd_key: endsBirthday
-           ? Number(
-               (endsBirthday.month() + 1).toString().padStart(2, "0") +
-                 endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-             )
-           : null,
-       };
-     } else {
-       body.prerequisite_birthday_duration = null;
-     }
- 
-     //==Ngày cưới khách hàng
-     const startsWeddingDays = values[CustomerFilterField.starts_wedding_day] ?  moment(values[CustomerFilterField.starts_wedding_day]): null;
-    const endsWeddingDays = values[CustomerFilterField.ends_wedding_day] ?  moment(values[CustomerFilterField.ends_wedding_day]) : null;
+    const startsBirthday = values[CustomerFilterField.starts_birthday]
+      ? moment(values[CustomerFilterField.starts_birthday])
+      : null;
+    const endsBirthday = values[CustomerFilterField.ends_birthday]
+      ? moment(values[CustomerFilterField.ends_birthday])
+      : null;
+    if (startsBirthday || endsBirthday) {
+      body.prerequisite_birthday_duration = {
+        starts_mmdd_key: startsBirthday
+          ? Number(
+              (startsBirthday.month() + 1).toString().padStart(2, "0") +
+                startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+            )
+          : null,
+        ends_mmdd_key: endsBirthday
+          ? Number(
+              (endsBirthday.month() + 1).toString().padStart(2, "0") +
+                endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+            )
+          : null,
+      };
+    } else {
+      body.prerequisite_birthday_duration = null;
+    }
 
-     if (startsWeddingDays || endsWeddingDays) {
-       body.prerequisite_wedding_duration = {
-         starts_mmdd_key: startsWeddingDays
-           ? Number(
-               (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
-               startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-             )
-           : null,
-         ends_mmdd_key: endsWeddingDays
-           ? Number(
-               (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
-               endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-             )
-           : null,
-       };
-     } else {
-       body.prerequisite_wedding_duration = null;
-     }
+    //==Ngày cưới khách hàng
+    const startsWeddingDays = values[CustomerFilterField.starts_wedding_day]
+      ? moment(values[CustomerFilterField.starts_wedding_day])
+      : null;
+    const endsWeddingDays = values[CustomerFilterField.ends_wedding_day]
+      ? moment(values[CustomerFilterField.ends_wedding_day])
+      : null;
+
+    if (startsWeddingDays || endsWeddingDays) {
+      body.prerequisite_wedding_duration = {
+        starts_mmdd_key: startsWeddingDays
+          ? Number(
+              (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
+                startsWeddingDays
+                  .format(DATE_FORMAT.DDMM)
+                  .substring(0, 2)
+                  .padStart(2, "0")
+            )
+          : null,
+        ends_mmdd_key: endsWeddingDays
+          ? Number(
+              (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
+                endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+            )
+          : null,
+      };
+    } else {
+      body.prerequisite_wedding_duration = null;
+    }
 
     //Nhóm khách hàng
     body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids;
 
     //Hạng khách hàng
-    body.prerequisite_customer_loyalty_level_ids = values.prerequisite_customer_loyalty_level_ids;
+    body.prerequisite_customer_loyalty_level_ids =
+      values.prerequisite_customer_loyalty_level_ids;
 
     //Nhân viên phụ trách
     body.prerequisite_assignee_codes = values.prerequisite_assignee_codes;
+
+    //==Chiết khấu nâng cao theo đơn hàng==
+    //Điều kiện chung
+ 
+    body.rule = {
+      ...values.rule,
+      conditions: values.conditions,
+    };
+
     return body;
   };
 
@@ -173,10 +196,10 @@ const CreateDiscountPage = () => {
   let activeDiscout = true;
   const handleSubmit = async (values: any) => {
     try {
-      const body = transformData(values);
-      body.activated = activeDiscout;
-      const createResponse = await createPriceRule(body);
-      handleCreateSuccess(createResponse);
+    const body = transformData(values);
+    body.activated = activeDiscout;
+    const createResponse = await createPriceRule(body);
+    handleCreateSuccess(createResponse);
     } catch (error: any) {
       showError(error.message);
     }
@@ -223,7 +246,7 @@ const CreateDiscountPage = () => {
       <Form
         form={discountForm}
         name="discount_add"
-        onFinish={(values: any)=>handleSubmit(values)}
+        onFinish={(values: any) => handleSubmit(values)}
         onFinishFailed={({errorFields}) => handleSubmitFail(errorFields)}
         layout="vertical"
         scrollToFirstError
