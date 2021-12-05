@@ -32,6 +32,7 @@ import moment from "moment";
 import {showError} from "utils/ToastUtils";
 import {DATE_FORMAT} from "../../../../utils/DateUtils";
 import CustomerFilter from "../../shared/cusomer-condition.form"
+import { CustomerContitionFormlStyle } from "screens/promotion/shared/condition.style";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
@@ -431,19 +432,14 @@ const GeneralCreate = (props: any) => {
       </Col>
       {/* left side */}
       <Col span={6}>
+      <CustomerContitionFormlStyle>
         {/* Thời gian áp dụng: */}
-        <Card>
-          <Row gutter={6} style={{padding: "0px 16px"}}>
-            <Col span={24}>
-              <div className="ant-col ant-form-item-label" style={{width: "100%"}}>
-                <label
-                  htmlFor="discount_add_starts_date"
-                  className="ant-form-item-required"
-                >
-                  <b>Thời gian áp dụng:</b>
-                </label>
-              </div>
-            </Col>
+        <Card title={
+            <span>
+              Thời gian áp dụng <span className="required-field">*</span>
+            </span>
+          }>
+          <Row gutter={6}>
             <Col span={12}>
               <Form.Item
                 name="starts_date"
@@ -562,13 +558,12 @@ const GeneralCreate = (props: any) => {
           ) : null}
         </Card>
         {/* Cửa hàng áp dụng: */}
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Cửa hàng áp dụng">
+          <Row gutter={12} >
             <Col span={24}>
               {
                 <Form.Item
                   name="prerequisite_store_ids"
-                  label={<b>Cửa hàng áp dụng:</b>}
                   rules={[
                     {required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"},
                   ]}
@@ -607,12 +602,11 @@ const GeneralCreate = (props: any) => {
           </Row>
         </Card>
         {/* Kênh bán hàng áp dụng: */}
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Kênh bán hàng áp dụng">
+          <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 name="prerequisite_sales_channel_names"
-                label={<b>Kênh bán hàng áp dụng:</b>}
                 rules={[
                   {required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"},
                 ]}
@@ -644,12 +638,11 @@ const GeneralCreate = (props: any) => {
           </Row>
         </Card>
         {/* Nguồn đơn hàng áp dụng: */}
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Nguồn đơn hàng áp dụng">
+          <Row gutter={12} >
             <Col span={24}>
               <Form.Item
                 name="prerequisite_order_source_ids"
-                label={<b>Nguồn đơn hàng áp dụng:</b>}
                 rules={[
                   {required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"},
                 ]}
@@ -685,6 +678,7 @@ const GeneralCreate = (props: any) => {
         </Card>
         {/* Đối tượng khách hàng áp dụng */}
         <CustomerFilter form={form} />
+        </CustomerContitionFormlStyle>
       </Col>
     </Row>
   );

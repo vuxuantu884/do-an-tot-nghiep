@@ -63,6 +63,13 @@ export interface InventoryParams {
   id: string;
 }
 
+const ShipmentStatus = {
+  CONFIRMED: "confirmed",
+  TRANSFERRING: "transferring",
+  RECEIVED: "received",
+  CANCELED: "canceled"
+}
+
 const DetailTicket: FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
@@ -135,7 +142,8 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
-        setDataShipment(result.shipment);
+        setDataShipment(result.shipment); 
+        setIsVisibleInventoryShipment(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -516,10 +524,10 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value, row, index: number) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status || data?.shipment.status === 'confirmed') {
+        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status || data?.shipment.status === ShipmentStatus.CONFIRMED) {
           return value ? value : 0;
         }
-        else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && data.shipment.status === 'transferring') {
+        else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && data.shipment.status === ShipmentStatus.TRANSFERRING) {
           return <NumberInput
             isFloat={false}
             id={`item-quantity-${index}`}
@@ -608,7 +616,7 @@ const DetailTicket: FC = () => {
   }
 
   const onReload = useCallback(()=>{
-    dispatch(getDetailInventoryTransferAction(idNumber, onResult)); 
+    dispatch(getDetailInventoryTransferAction(idNumber, onResult));  
   },[dispatch,idNumber,onResult])
 
   useEffect(() => {
@@ -868,7 +876,7 @@ const DetailTicket: FC = () => {
                         )}}
                       />
                       {
-                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  data.shipment.status === 'transferring' && (
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  data.shipment.status === ShipmentStatus.TRANSFERRING && (
                           <div className="inventory-transfer-action">
                             <AuthWrapper 
                               acceptPermissions={[InventoryTransferPermission.receive]}
@@ -965,7 +973,8 @@ const DetailTicket: FC = () => {
                     }
                     {
                       ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && data.shipment !==null) && (
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) 
+                        && (data.shipment !== null && (data.shipment.status === ShipmentStatus.CONFIRMED || data.shipment.status === ShipmentStatus.TRANSFERRING)) ) && (
                         <div className="inventory-transfer-action">
                           <AuthWrapper 
                             acceptPermissions={[ShipmentInventoryTransferPermission.delete]}

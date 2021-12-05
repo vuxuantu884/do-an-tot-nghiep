@@ -60,7 +60,7 @@ const InventoryScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Sản phẩm",
+          name: "Kho hàng",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
@@ -75,7 +75,7 @@ const InventoryScreen: React.FC = () => {
           onChange={(active) => history.replace(active)}
           renderTabBar={RenderTabBar}
         >
-          <TabPane tab="Toàn hệ thống" key={InventoryTabUrl.ALL}>
+          <TabPane tab="Tồn kho" key={InventoryTabUrl.ALL}>
             <AllTab stores={stores} current={activeTab} />
           </TabPane>
           <TabPane tab="Lịch sử tồn kho" key={InventoryTabUrl.HISTORIES}>

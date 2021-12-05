@@ -274,10 +274,10 @@ export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
   return supplierConverted;
 };
 
-export const formatCurrency = (currency: number | string | boolean): string => {
+export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {
   try {
     let format = currency.toString();
-    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
   } catch (e) {
     return "";
   }
@@ -708,23 +708,16 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
         items.payments.forEach((a) => (value = value + a.paid_amount));
       }
     }
-  }
-
-  if (
-    items?.total_line_amount_after_line_discount +
-      (items?.fulfillments &&
+    // tính thêm tiền cod
+    if(items?.fulfillments &&
       items?.fulfillments.length > 0 &&
       items?.fulfillments[0].shipment &&
-      items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        ? items?.fulfillments[0].shipment &&
-          items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        : 0) -
-      (items?.discounts &&
-      items?.discounts.length > 0 &&
-      items?.discounts[0].amount
-        ? items?.discounts[0].amount
-        : 0) <=
-    value
+      items?.fulfillments[0].shipment.cod) {
+          value = value + items?.fulfillments[0].shipment.cod
+        }
+  }
+  if (
+    items?.total <= value
   ) {
     return 1; //đã thanh toán
   } else {

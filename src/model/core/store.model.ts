@@ -55,6 +55,7 @@ export interface StoreQuery extends BaseQuery {
     to_begin_date?: Date|'',
     to_square?: number|'',
     type: string|'',
+    ids?: Array<number>| Array<string>,
   }
 
   export interface BaseStoreRequest {

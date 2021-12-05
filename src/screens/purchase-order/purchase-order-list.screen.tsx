@@ -1,6 +1,5 @@
 import { Button, Card, Row, Space } from "antd";
 import exportIcon from "assets/icon/export.svg";
-import importIcon from "assets/icon/import.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
@@ -486,14 +485,14 @@ const PurchaseOrderListScreen: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <Button
+              {/* <Button
                 className="light"
                 size="large"
                 icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
                 onClick={() => {}}
               >
                 Nhập file
-              </Button>
+              </Button> */}
               <Button
                 className="light"
                 size="large"

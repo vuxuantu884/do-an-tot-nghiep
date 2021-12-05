@@ -131,6 +131,12 @@ const StoreListScreen: React.FC = () => {
       visible: true,
     },
     {
+      title: "Bộ phận",
+      dataIndex: "department", 
+      visible: true,
+      width: 180,
+    },
+    {
       title: "Loại",
       dataIndex: "type_name",
       visible: true,
@@ -160,7 +166,15 @@ const StoreListScreen: React.FC = () => {
       width: 100,
       align: "center",
       visible: true,
-      sorter: true,
+      sorter: (curentRecord, nextRecord) => {
+        if (curentRecord.rank_name > nextRecord.rank_name) {
+          return 1;
+        }
+        if (curentRecord.rank_name < nextRecord.rank_name) {
+          return -1;
+        }
+        return 0;
+      },
     },
     {
       title: "Người tạo",
@@ -388,7 +402,7 @@ const StoreListScreen: React.FC = () => {
               isRowSelection
               showColumnSetting={true}
               isLoading={loading}
-              scroll={{x: 1300}}
+              scroll={{x: 1480}}
               pagination={{
                 pageSize: data.metadata.limit,
                 total: data.metadata.total,

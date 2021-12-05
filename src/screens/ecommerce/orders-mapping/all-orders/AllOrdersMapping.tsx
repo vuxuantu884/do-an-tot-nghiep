@@ -37,13 +37,9 @@ const initQuery: GetOrdersMappingQuery = {
 
 const CORE_ORDER_STATUS = [
   { name: "Nháp", value: "draft", className: "gray-status" },
-  { name: "Đóng gói", value: "packed", className: "blue-status" },
-  { name: "Xuất kho", value: "shipping", className: "blue-status" },
   { name: "Đã xác nhận", value: "finalized", className: "blue-status" },
-  { name: "Hoàn thành", value: "completed", className: "green-status" },
   { name: "Kết thúc", value: "finished", className: "green-status" },
-  { name: "Đã huỷ", value: "cancelled", className: "red-status" },
-  { name: "Đã hết hạn", value: "expired", className: "red-status" },
+  { name: "Hủy đơn", value: "cancel", className: "red-status" },
 ];
 
 const ECOMMERCE_ORDER_STATUS = [
