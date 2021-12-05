@@ -916,11 +916,7 @@ const OrderDetail = (props: PropType) => {
                       </div>
                     )}
 
-                    {((OrderDetail?.fulfillments &&
-                      OrderDetail?.fulfillments.length > 0 &&
-                      OrderDetail?.fulfillments[0].shipment &&
-                      OrderDetail?.fulfillments[0].shipment.cod !== null) ||
-                      (checkPaymentAll(OrderDetail) !== 1 &&
+                    {((checkPaymentAll(OrderDetail) !== 1 &&
                         isShowPaymentPartialPayment === false &&
                         checkPaymentStatusToShow(OrderDetail) !== 1)) && (
                       <div className="text-right">
@@ -938,7 +934,7 @@ const OrderDetail = (props: PropType) => {
                               disabledBottomActions)
                           }
                         >
-                          Thanh toán
+                          Thanh toán 4
                         </Button>
                       </div>
                     )}
