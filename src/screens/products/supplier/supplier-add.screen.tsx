@@ -399,7 +399,7 @@ const CreateSupplierScreen: React.FC = () => {
             <Row gutter={50}>
               <Col span={12}>
                 <Item label="Quốc gia" name="country_id">
-                  <Select disabled className="selector" placeholder="Chọn quốc gia">
+                  <Select className="selector" placeholder="Chọn quốc gia">
                     {countries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -559,7 +559,7 @@ const CreateSupplierScreen: React.FC = () => {
                   </Select>
                 </Item>
               </Col> 
-              <Col span={12}>
+              {/* <Col span={12}>
                 <Item
                   label="Chứng chỉ"
                   name="certifications"
@@ -571,6 +571,28 @@ const CreateSupplierScreen: React.FC = () => {
                   }
                 >
                   <Input multiple type="file" placeholder="Tên danh mục" />
+                </Item>
+              </Col> */}
+              <Col span={12}>
+                <Item label="Số lượng đặt hàng tối thiểu">
+                  <Input.Group className="ip-group" compact>
+                    <Item name="moq" noStyle>
+                      <NumberInput
+                        placeholder="Nhập số lượng"
+                        isFloat
+                        style={{width: "70%"}}
+                      />
+                    </Item>
+                    <Item name="moq_unit" noStyle>
+                      <Select className="selector-group" style={{width: "30%"}}>
+                        {moq_unit?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Item>
+                  </Input.Group>
                 </Item>
               </Col>
             </Row>
@@ -608,35 +630,12 @@ const CreateSupplierScreen: React.FC = () => {
                 </Item>
               </Col> 
               <Col span={12}>
-                <Item label="Số lượng đặt hàng tối thiểu">
-                  <Input.Group className="ip-group" compact>
-                    <Item name="moq" noStyle>
-                      <NumberInput
-                        placeholder="Nhập số lượng"
-                        isFloat
-                        style={{width: "70%"}}
-                      />
-                    </Item>
-                    <Item name="moq_unit" noStyle>
-                      <Select className="selector-group" style={{width: "30%"}}>
-                        {moq_unit?.map((item) => (
-                          <Option key={item.value} value={item.value}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Input.Group>
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24}>
                 <Item label="Ghi chú" name="note">
                   <Input placeholder="Nhập ghi chú" maxLength={255} />
                 </Item>
               </Col>
             </Row>
+            
           </Card>
           </Col>
         </Row>   

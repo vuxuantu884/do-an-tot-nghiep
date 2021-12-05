@@ -142,7 +142,8 @@ const DetailTicket: FC = () => {
           setDataTable(result.line_items);
         }
         setData(result);
-        setDataShipment(result.shipment);
+        setDataShipment(result.shipment); 
+        setIsVisibleInventoryShipment(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -615,7 +616,7 @@ const DetailTicket: FC = () => {
   }
 
   const onReload = useCallback(()=>{
-    dispatch(getDetailInventoryTransferAction(idNumber, onResult)); 
+    dispatch(getDetailInventoryTransferAction(idNumber, onResult));  
   },[dispatch,idNumber,onResult])
 
   useEffect(() => {

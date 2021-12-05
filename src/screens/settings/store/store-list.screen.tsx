@@ -166,7 +166,15 @@ const StoreListScreen: React.FC = () => {
       width: 100,
       align: "center",
       visible: true,
-      sorter: true,
+      sorter: (curentRecord, nextRecord) => {
+        if (curentRecord.rank_name > nextRecord.rank_name) {
+          return 1;
+        }
+        if (curentRecord.rank_name < nextRecord.rank_name) {
+          return -1;
+        }
+        return 0;
+      },
     },
     {
       title: "Người tạo",

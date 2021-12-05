@@ -189,8 +189,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
           break;
-        case 'sub_status_id':
-          onFilter && onFilter({...params, sub_status_id: []});
+        case 'sub_status_code':
+          onFilter && onFilter({...params, sub_status_code: []});
           break;
         case 'fulfillment_status':
           onFilter && onFilter({...params, fulfillment_status: []});
@@ -264,7 +264,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
-      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
+      sub_status_code: Array.isArray(params.sub_status_code) ? params.sub_status_code : [params.sub_status_code],
       fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
@@ -386,15 +386,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.sub_status_id.length) {
+    if (initialValues.sub_status_code.length) {
       let textStatus = ""
       
-      initialValues.sub_status_id.forEach((i: any) => {
-        const findStatus = subStatus?.find(item => item.id.toString() === i.toString())
+      initialValues.sub_status_code.forEach((i: any) => {
+        const findStatus = subStatus?.find(item => item.code.toString() === i.toString())
         textStatus = findStatus ? textStatus + findStatus.sub_status + "; " : textStatus
       })
       list.push({
-        key: 'sub_status_id',
+        key: 'sub_status_code',
         name: 'Trạng thái xử lý đơn',
         value: textStatus
       })
@@ -572,7 +572,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     // console.log('filters list', list);
     return list
-  }, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_id, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes, initialValues.account_codes, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, accounts, listPaymentMethod, serviceType, deliveryService]);
+  }, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes, initialValues.account_codes, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, accounts, listPaymentMethod, serviceType, deliveryService]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -813,7 +813,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             
               <Col span={8} xxl={6}>
                 <p>Trạng thái xử lý đơn</p>
-                <Item name="sub_status_id">
+                <Item name="sub_status_code">
                   <CustomSelect
                     mode="multiple"
                     showArrow allowClear
@@ -826,7 +826,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     maxTagCount='responsive'
                   >
                     {subStatus?.map((item: any) => (
-                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                      <CustomSelect.Option key={item.id} value={item.code.toString()}>
                         {item.sub_status}
                       </CustomSelect.Option>
                     ))}

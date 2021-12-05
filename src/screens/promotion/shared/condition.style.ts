@@ -17,3 +17,8 @@ export const CustomerContitionDetailStyle = styled.div`
     }
   }
 `;
+
+export const CustomerContitionFormlStyle = styled.div`
+.required-field{
+  color: red;
+}`

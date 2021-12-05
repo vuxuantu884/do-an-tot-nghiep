@@ -2,6 +2,7 @@ import {FilterOutlined} from "@ant-design/icons";
 import {Button, Col, DatePicker, Form, FormInstance, Input, Row, Select} from "antd";
 import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
+import StoreSearchSelect from "component/custom/select-search/store-select";
 import {MenuAction} from "component/table/ActionButton";
 import {AccountSearchQuery} from "model/account/account.model";
 import {DepartmentResponse} from "model/account/department.model";
@@ -29,7 +30,6 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
     listDepartment,
     listPosition,
     listStatus,
-    listStore,
     onClearFilter,
     onFilter,
   } = props;
@@ -66,22 +66,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
           <Form.Item name="info" className="search" style={{minWidth: 200}}>
             <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã nhân viên" />
           </Form.Item>
-          <Form.Item name="store_ids">
-            <Select
-              showArrow
-              allowClear
-              placeholder="Cửa hàng"
-              style={{
-                width: 250,
-              }}
-            >
-              {listStore?.map((item) => (
-                <Select.Option key={item.id} value={item.id}>
-                  {item.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+          <StoreSearchSelect name="store_ids" label="" style={{width: 250}}/>
           <Form.Item name="department_ids">
             <Select
               showSearch

@@ -14,14 +14,7 @@ type CustomInputProps = {
   loyaltyUsageRules?: any;
   isDisable?: boolean;
 };
-const color: any = {
-  "KH mới": "#00F000",
-  "KH cũ": "#F5C4C4",
-  "Vip S": "#cccccc",
-  "Vip G": "#F0F000",
-  "Vip R": "#FF0000",
-  "Vip D": "#007FFF",
-};
+
 function CustomInput(props: CustomInputProps) {
   const {
     name,
@@ -64,7 +57,7 @@ function CustomInput(props: CustomInputProps) {
       <Input
         suffix={
           customer ? (
-            <span style={{ backgroundColor: `${color[rankLvl()]}` }}>
+            <span style={{ fontWeight: 600, color: "#2a2a86" }}>
               {rankLvl() ? `${rankLvl() || ""}: ${loyaltyPoint?.point || 0} điểm` : "Chưa có hạng"}
             </span>
           ) : null
