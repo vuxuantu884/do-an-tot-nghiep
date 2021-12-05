@@ -254,9 +254,7 @@ function OrderCreateProduct(props: PropType) {
   // console.log("coupon", coupon);
   const [isShowProductSearch, setIsShowProductSearch] = useState(true);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
-  // const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
-  let isAutomaticDiscount = form.getFieldValue("automatic_discount");
-
+  const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
@@ -347,6 +345,10 @@ function OrderCreateProduct(props: PropType) {
       window.removeEventListener("keypress", eventKeyPress);
     };
   }, [eventKeyPress]);
+
+  useEffect(() => {
+    setIsAutomaticDiscount(form.getFieldValue("automatic_discount"))
+  }, [])
 
   useEffect(() => {
     if (isAutomaticDiscount) {
@@ -1064,12 +1066,13 @@ function OrderCreateProduct(props: PropType) {
     return result;
   };
 
-  const handleApplyDiscount = async (items: OrderLineItemRequest[] | undefined) => {
+  const handleApplyDiscount = async (items: OrderLineItemRequest[] | undefined, _isAutomaticDiscount: boolean = isAutomaticDiscount) => {
     console.log("items", items);
     isShouldUpdateDiscountRef.current = true;
-    if (!items || items.length === 0 || !isAutomaticDiscount) {
+    if (!items || items.length === 0 || !_isAutomaticDiscount) {
       return;
     }
+    handleRemoveAllDiscount();
     const lineItems: LineItemRequestModel[] = items.map((single) => {
       return {
         original_unit_price: single.price,
@@ -1701,15 +1704,16 @@ function OrderCreateProduct(props: PropType) {
             <Form.Item name="automatic_discount" valuePropName="checked">
               <Checkbox
                 disabled={levelOrder > 3}
-                checked={isAutomaticDiscount}
+                value={isAutomaticDiscount}
                 onChange={(e) => {
                   if (e.target.checked) {
                     setCoupon && setCoupon("");
-                    handleRemoveAllDiscount();
-                    handleApplyDiscount(items);
+                    handleApplyDiscount(items, true);
+                    setIsAutomaticDiscount(true);
                   } else {
                     setIsDisableOrderDiscount(false);
                     handleRemoveAllDiscount();
+                    setIsAutomaticDiscount(false);
                   }
                 }}
               >
