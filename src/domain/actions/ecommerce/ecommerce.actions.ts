@@ -104,8 +104,9 @@ export const ecommerceConfigDeleteAction = (
 };
 // connect to ecommerce
 
-export const ecommerceConnectAction = (setData: (result: any) => void) => {
+export const ecommerceConnectAction = (ecommerceId: number, setData: (result: any) => void) => {
   return BaseAction(EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST, {
+    ecommerceId,
     setData,
   });
 };
