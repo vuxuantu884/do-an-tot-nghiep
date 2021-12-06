@@ -121,6 +121,23 @@ const EcommerceConfig: React.FC = () => {
   );
 
   // link to ecommerce
+  const redirectCallback = React.useCallback((value: any) => {
+    if (value) {
+      window.open(`${value}`, "_self");
+    }
+  }, []);
+
+  const handleConnectEcommerce = React.useCallback((ecommerceId) => {
+    dispatch(ecommerceConnectAction(ecommerceId, redirectCallback));
+  }, [dispatch, redirectCallback]);
+
+  const ECOMMERCE_ID = {
+    shopee: 1,
+    lazada: 2,
+    tiki: 3,
+    sendo: 4
+  }
+
   // tiki
   const handleConnectTiki = React.useCallback(() => {
     showWarning("Chức năng này làm sau bạn nhé!");
@@ -128,22 +145,16 @@ const EcommerceConfig: React.FC = () => {
   // end
 
   // shopee
-  const redirectCallback = React.useCallback((value: any) => {
-    if (value) {
-      window.open(`${value}`, "_self");
-    }
-  }, []);
-
-  const handleConnectEcommerce = React.useCallback(() => {
-    dispatch(ecommerceConnectAction(redirectCallback));
-  }, [dispatch, redirectCallback]);
+  const handleConnectShopee = React.useCallback(() => {
+    handleConnectEcommerce(ECOMMERCE_ID.shopee);
+  }, [ECOMMERCE_ID.shopee, handleConnectEcommerce]);
   // end
 
   
   // lazada
   const handleConnectLazada = React.useCallback(() => {
-    showWarning("Chức năng này làm sau bạn nhé!");
-  }, []);
+    handleConnectEcommerce(ECOMMERCE_ID.lazada);
+  }, [ECOMMERCE_ID.lazada, handleConnectEcommerce]);
   //end
 
   // lazada
@@ -164,7 +175,8 @@ const EcommerceConfig: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (initQueryConnect.shop_id && initQueryConnect.code) {
+    if (initQueryConnect.code) {
+      showSuccess('Đã kết nối gian hàng.')
       dispatch(ecommerceConfigInfoAction(initQueryConnect, configInfoCallback));
     }
   }, [initQueryConnect, configInfoCallback, dispatch]);
@@ -223,7 +235,7 @@ const EcommerceConfig: React.FC = () => {
       title: "Kết nối Shopee",
       icon: shopeeIcon,
       key: "shopee",
-      action: handleConnectEcommerce
+      action: handleConnectShopee
     },
     {
       title: "Kết nối Lazada",
@@ -237,20 +249,18 @@ const EcommerceConfig: React.FC = () => {
       key: "sendo",
       action: handleConnectSendo
     }
-  ], [handleConnectEcommerce, handleConnectLazada, handleConnectSendo, handleConnectTiki]);
+  ], [handleConnectLazada, handleConnectSendo, handleConnectShopee, handleConnectTiki]);
 
   const ecommerceList = (
     <Menu>
       {ECOMMERCE_LIST?.map((ecommerce: any) => (
         <Menu.Item key={ecommerce.key} onClick={ecommerce.action}>
-          {/* <div onClick={handleConnectEcommerce}> */}
-            <img
-              src={ecommerce.icon}
-              alt={ecommerce.key}
-              style={{ marginRight: "10px" }}
-            />
-            <span>{ecommerce.title}</span>
-          {/* </div> */}
+          <img
+            src={ecommerce.icon}
+            alt={ecommerce.key}
+            style={{ marginRight: "10px" }}
+          />
+          <span>{ecommerce.title}</span>
         </Menu.Item>
       ))}
     </Menu>

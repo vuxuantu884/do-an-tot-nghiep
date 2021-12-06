@@ -131,10 +131,11 @@ function* getFpageCustomerSaga(action: YodyAction) {
 }
 // connect to the eccommerce
 function* ecommerceConnectSaga(action: YodyAction) {
-  let { setData } = action.payload;
+  let { ecommerceId, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
-      ecommerceConnectSyncApi
+      ecommerceConnectSyncApi,
+      ecommerceId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

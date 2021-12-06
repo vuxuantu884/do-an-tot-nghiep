@@ -69,8 +69,8 @@ const ecommerceDeleteApi = (id: number): Promise<BaseResponse<EcommerceResponse>
 };
 // end
 // config sync connect screen
-const ecommerceConnectSyncApi = (): Promise<BaseResponse<String>> => {
-  let link = `${ApiConfig.ECOMMERCE}/shops/connect`;
+const ecommerceConnectSyncApi = (ecommerceId: number): Promise<BaseResponse<String>> => {
+  let link = `${ApiConfig.ECOMMERCE}/shops/connect/${ecommerceId}`;
   return BaseAxios.get(link);
 };
 
