@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Form, Input } from "antd";
+import {formatCurrency} from "../../../../utils/AppUtils";
 
 type CustomInputProps = {
   name: string;
@@ -58,7 +59,7 @@ function CustomInput(props: CustomInputProps) {
         suffix={
           customer ? (
             <span style={{ fontWeight: 600, color: "#2a2a86" }}>
-              {rankLvl() ? `${rankLvl() || ""}: ${loyaltyPoint?.point || 0} điểm` : "Chưa có hạng"}
+              {rankLvl() ? `${rankLvl() || ""}: ${formatCurrency(loyaltyPoint?.point) || 0} điểm` : "Chưa có hạng"}
             </span>
           ) : null
         }
