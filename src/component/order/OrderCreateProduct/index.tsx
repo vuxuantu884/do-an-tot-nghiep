@@ -1094,7 +1094,7 @@ function OrderCreateProduct(props: PropType) {
       store_id: form.getFieldValue("store_id"),
       sales_channel_name: "ADMIN",
       order_source_id: form.getFieldValue("source_id"),
-      assignee_code: getAccountCodeFromCodeAndName(assigneeCode),
+      assignee_code: customer?.responsible_staff_code || null,
       line_items: lineItems,
       applied_discount: null,
       taxes_included: true,
@@ -1159,7 +1159,7 @@ function OrderCreateProduct(props: PropType) {
         store_id: form.getFieldValue("store_id"),
         sales_channel_name: "ADMIN",
         order_source_id: form.getFieldValue("source_id"),
-        assignee_code: getAccountCodeFromCodeAndName(assigneeCode),
+        assignee_code: customer?.responsible_staff_code || null,
         line_items: lineItems,
         applied_discount: {
           code: coupon,
