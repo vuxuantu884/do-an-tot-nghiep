@@ -74,7 +74,7 @@ const EcommerceConfig: React.FC = () => {
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false)
   const [configToView, setConfigToView] = React.useState<EcommerceResponse | undefined>();
   const [initQueryConnect] = React.useState<EcommerceSearchQuery>({
-    shop_id: connectQuery.get("shop_id"),
+    shop_id: connectQuery.get("shop_id") || null,
     code: connectQuery.get("code"),
   });
   const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse  | undefined>() 
