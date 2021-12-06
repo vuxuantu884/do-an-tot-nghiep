@@ -615,6 +615,7 @@ const OrderDetail = (props: PropType) => {
                   totalAmountReturnToCustomer={
                     OrderDetail?.order_return_origin.total_amount
                   }
+									OrderDetail={OrderDetail}
                 />
               )}
 
