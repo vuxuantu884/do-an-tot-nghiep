@@ -18,6 +18,7 @@ interface Props extends FormItemProps {
   mode?: "multiple" | "tags" | undefined;
   key?: "code" | "id";
   defaultValue?: string | number | string[];
+  maxTagCount?: number | "responsive";
 }
 
 AccountSelect.defaultProps = {
@@ -42,6 +43,7 @@ function AccountSelect({
   key,
   queryAccount,
   defaultValue,
+  maxTagCount,
   ...restFormProps
 }: Props): ReactElement {
   const dispatch = useDispatch();
@@ -86,7 +88,6 @@ function AccountSelect({
 
     if (!defaultValue && form) {
       value = form.getFieldValue(name);
-      
     }
 
     if (mode === "multiple" && Array.isArray(value)) {
@@ -99,7 +100,13 @@ function AccountSelect({
   }, [handleChangeAccountSearch, queryAccount?.info, mode, defaultValue, form, name]);
 
   return (
-    <Form.Item label={label} name={name} rules={rules}  labelCol={{span: 24, offset: 0}} {...restFormProps}>
+    <Form.Item
+      label={label}
+      name={name}
+      rules={rules}
+      labelCol={{span: 24, offset: 0}}
+      {...restFormProps}
+    >
       <Select
         mode={mode}
         placeholder={placeholder}
@@ -108,11 +115,14 @@ function AccountSelect({
         showSearch
         allowClear
         loading={accountList?.isLoading}
-        onSearch={(value) => onSearchAccount(value || "")}
+        onSearch={(value) => onSearchAccount(value.trim() || "")}
         onClear={() => onSearchAccount("")}
-        maxTagCount="responsive"
+        maxTagCount={maxTagCount}
         defaultValue={defaultValue}
         notFoundContent="Không có dữ liệu"
+        filterOption={(input, option) =>
+          option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
+        }
       >
         {accountList?.items?.map((account) => (
           <Option key={account.code} value={account[key || "code"]}>
