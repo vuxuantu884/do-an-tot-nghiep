@@ -8,7 +8,9 @@ import FacebookIcon from "assets/icon/facebook.svg";
 import InstagramIcon from "assets/icon/instagram.svg";
 import ZaloIcon from "assets/icon/zalo.svg";
 
-import {AppConfig} from "../../config/app.config";
+import {AppConfig} from "config/app.config";
+import {useQuery} from "utils/useQuery";
+import {getYdpageSource, setYdpageSource} from "utils/LocalStorageUtils";
 
 const YDPAGE_URL = AppConfig.ydPageUrl;
 const allSource = {
@@ -17,9 +19,13 @@ const allSource = {
 const YDpage: React.FC = () => {
   const goToFacebookYDpage = () => {
     setSource(allSource.FACEBOOK);
+    setYdpageSource(allSource.FACEBOOK);
   };
 
-  const [source, setSource] = useState<String>();
+  const queryString = useQuery();
+  const fbCode = queryString.get("code");
+
+  const [source, setSource] = useState<String | null>(getYdpageSource());
   return (
     <StyledYDpage>
       {!source && (
@@ -72,11 +78,19 @@ const YDpage: React.FC = () => {
           </div>
         </ContentContainer>
       )}
-      {source === allSource.FACEBOOK && (
+      {source === allSource.FACEBOOK && !fbCode && (
         <iframe
           className="ydpage-iframe"
           title="ydpage"
           src={YDPAGE_URL}
+          style={{width: "100%", height: "100%"}}
+        ></iframe>
+      )}
+      {source === allSource.FACEBOOK && fbCode && (
+        <iframe
+          className="ydpage-iframe"
+          title="ydpage"
+          src={`${YDPAGE_URL}auth/facebook/callback?code=${fbCode}`}
           style={{width: "100%", height: "100%"}}
         ></iframe>
       )}
