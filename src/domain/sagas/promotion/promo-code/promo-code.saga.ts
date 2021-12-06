@@ -13,12 +13,11 @@ import {
 } from '../../../../service/promotion/promo-code/promo-code.service';
 import {YodyAction} from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
-import {call, put} from "@redux-saga/core/effects";
+import {call, put, takeLatest} from "@redux-saga/core/effects";
 import {HttpStatus} from "../../../../config/http-status.config";
 import {unauthorizedAction} from "../../../actions/auth/auth.action";
 import {showError} from "../../../../utils/ToastUtils";
-import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {takeLatest} from "typed-redux-saga";
+import {PageResponse} from "../../../../model/base/base-metadata.response"; 
 import {PromoCodeType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
 

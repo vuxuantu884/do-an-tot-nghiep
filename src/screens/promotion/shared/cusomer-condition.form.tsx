@@ -76,7 +76,6 @@ export default function CustomerFilter(props: Props): ReactElement {
     const customerFields = _.cloneDeep(
       form.getFieldsValue(Object.values(CustomerFilterField))
     );
-    console.log("customerFields", customerFields);
 
     delete customerFields[CustomerFilterField.customer_selection];
     if (
@@ -146,7 +145,8 @@ export default function CustomerFilter(props: Props): ReactElement {
                   placeholder="Chọn giới tính"
                   showArrow
                   mode="multiple"
-                  maxTagCount="responsive"
+                  showSearch={false}
+                  style={{height: "auto"}}
                 >
                   {genderOptions.map((option) => (
                     <Option key={option.value} value={option.value}>
@@ -186,6 +186,17 @@ export default function CustomerFilter(props: Props): ReactElement {
                       showTime={{format: DATE_FORMAT.DDMM}}
                       format={DATE_FORMAT.DDMM}
                       showNow={false}
+                      disabledDate={(currentDate) => {
+                        const cur = currentDate.set({
+                          hour: 12,
+                        });
+                        const endDay = form
+                          .getFieldValue(CustomerFilterField.ends_birthday)
+                          ?.set({
+                            hour: 0,
+                          });
+                        return cur > endDay;
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -204,6 +215,17 @@ export default function CustomerFilter(props: Props): ReactElement {
                       placeholder="Đến ngày"
                       showTime={{format: DATE_FORMAT.DDMM}}
                       format={DATE_FORMAT.DDMM}
+                      disabledDate={(currentDate) => {
+                        const cur = currentDate.set({
+                          hour: 0,
+                        });
+                        const start = form
+                          .getFieldValue(CustomerFilterField.starts_birthday)
+                          ?.set({
+                            hour: 12,
+                          });
+                        return start > cur;
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -239,6 +261,17 @@ export default function CustomerFilter(props: Props): ReactElement {
                       showTime={{format: DATE_FORMAT.DDMM}}
                       format={DATE_FORMAT.DDMM}
                       showNow={false}
+                      disabledDate={(currentDate) => {
+                        const cur = currentDate.set({
+                          hour: 12,
+                        });
+                        const endDay = form
+                          .getFieldValue(CustomerFilterField.ends_wedding_day)
+                          ?.set({
+                            hour: 0,
+                          });
+                        return cur > endDay;
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -258,6 +291,17 @@ export default function CustomerFilter(props: Props): ReactElement {
                       showTime={{format: DATE_FORMAT.DDMM}}
                       format={DATE_FORMAT.DDMM}
                       showNow={false}
+                      disabledDate={(currentDate) => {
+                        const cur = currentDate.set({
+                          hour: 0,
+                        });
+                        const start = form
+                          .getFieldValue(CustomerFilterField.starts_wedding_day)
+                          ?.set({
+                            hour: 12,
+                          });
+                        return start > cur;
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -280,7 +324,6 @@ export default function CustomerFilter(props: Props): ReactElement {
                   showSearch
                   allowClear
                   mode="multiple"
-                  maxTagCount="responsive"
                 >
                   {groups.map((group) => (
                     <Option key={group.id} value={group.id}>
@@ -306,8 +349,11 @@ export default function CustomerFilter(props: Props): ReactElement {
                   showArrow
                   optionFilterProp="children"
                   showSearch
-                  maxTagCount="responsive"
                   allowClear
+                  filterOption={(input, option) =>
+                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                    0
+                  }
                 >
                   {rankFiltered.map((type) => (
                     <Option key={type.id} value={type.id}>
@@ -328,6 +374,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   },
                 ]}
                 help={false}
+                maxTagCount={undefined}
               />
             </>
           )}
