@@ -74,7 +74,7 @@ const EcommerceConfig: React.FC = () => {
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false)
   const [configToView, setConfigToView] = React.useState<EcommerceResponse | undefined>();
   const [initQueryConnect] = React.useState<EcommerceSearchQuery>({
-    shop_id: connectQuery.get("shop_id") || null,
+    shop_id: connectQuery.get("shop_id") || "",
     code: connectQuery.get("code"),
   });
   const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse  | undefined>() 
@@ -177,7 +177,8 @@ const EcommerceConfig: React.FC = () => {
   React.useEffect(() => {
     if (initQueryConnect.code) {
       showSuccess('Đã kết nối gian hàng.')
-      dispatch(ecommerceConfigInfoAction(initQueryConnect, configInfoCallback));
+      const generatedParams = `shop_id=${initQueryConnect.shop_id}&code=${initQueryConnect.code}`;
+      dispatch(ecommerceConfigInfoAction(generatedParams, configInfoCallback));
     }
   }, [initQueryConnect, configInfoCallback, dispatch]);
   

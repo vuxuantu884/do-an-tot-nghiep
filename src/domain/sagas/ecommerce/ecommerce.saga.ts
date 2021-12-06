@@ -156,11 +156,11 @@ function* ecommerceConnectSaga(action: YodyAction) {
 }
 
 function* ecommerceGetConfigInfoSaga(action: YodyAction) {
-  let { query, setData } = action.payload;
+  let { params, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
       ecommerceGetConfigInfoApi,
-      query
+      params
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
