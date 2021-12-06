@@ -708,13 +708,6 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
         items.payments.forEach((a) => (value = value + a.paid_amount));
       }
     }
-    // tính thêm tiền cod
-    if(items?.fulfillments &&
-      items?.fulfillments.length > 0 &&
-      items?.fulfillments[0].shipment &&
-      items?.fulfillments[0].shipment.cod) {
-          value = value + items?.fulfillments[0].shipment.cod
-        }
   }
   if (
     items?.total <= value
