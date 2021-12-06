@@ -76,10 +76,11 @@ function YDPageCRM() {
       setLoyaltyCard( loyaltyCardData);
     }
   }, [customer, setLoyaltyCard]);
+
   React.useEffect(() => {
     if (customer?.id) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      dispatch(LoyaltyCardSearch({ customer_id: customer.id, status: "ACTIVE"}, updateLoyaltyCard));
+      dispatch(LoyaltyCardSearch({ customer_id: customer.id, statuses: ["ASSIGNED"]}, updateLoyaltyCard));
     } else {
       setLoyaltyPoint(null);
       setLoyaltyCard(null);
