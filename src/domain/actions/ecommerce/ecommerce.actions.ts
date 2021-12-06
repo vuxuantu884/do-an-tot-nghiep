@@ -104,18 +104,19 @@ export const ecommerceConfigDeleteAction = (
 };
 // connect to ecommerce
 
-export const ecommerceConnectAction = (setData: (result: any) => void) => {
+export const ecommerceConnectAction = (ecommerceId: number, setData: (result: any) => void) => {
   return BaseAction(EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST, {
+    ecommerceId,
     setData,
   });
 };
 
 export const ecommerceConfigInfoAction = (
-  query: any,
+  params: any,
   setData: (result: EcommerceResponse) => void
 ) => {
   return BaseAction(EcommerceType.GET_ECOMMERCE_CONFIG_INFO_REQUEST, {
-    query,
+    params,
     setData,
   });
 };

@@ -20,7 +20,7 @@ import CustomInput from "../../../customer/common/customInput";
 import "../discount.scss";
 import FixedPriceSelection from "./FixedPriceSelection";
 import TotalBillDiscount from "./total-bill-discount";
-
+import _ from "lodash";
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
 
@@ -248,11 +248,13 @@ const GeneralInfo = (props: any) => {
                     console.log(formData);
                     if (value === DiscountMethod.FIXED_PRICE.toString()) {
                       formData?.entitlements?.forEach((item: DiscountFormModel) => {
-                        item["prerequisite_quantity_ranges.value_type"] = "FIXED_AMOUNT";
+                        const  temp ={ "prerequisite_quantity_ranges.value_type" :"FIXED_AMOUNT"};
+                        _.merge(item, temp);
                       });
                     } else if (value === DiscountMethod.QUANTITY.toString()) {
                       formData?.entitlements?.forEach((item: DiscountFormModel) => {
-                        item["prerequisite_quantity_ranges.value_type"] = "PERCENTAGE";
+                        const  temp ={ "prerequisite_quantity_ranges.value_type" :"PERCENTAGE"};
+                        _.merge(item, temp);
                       });
                     }
                   }}
@@ -261,14 +263,14 @@ const GeneralInfo = (props: any) => {
                   <Option value={DiscountMethod.QUANTITY}>
                     Chiết khấu theo từng sản phẩm
                   </Option>
-                  {/* <Option value={DiscountMethod.TOTAL_BILL}>
+                  <Option value={DiscountMethod.ORDER_THRESHOLD}>
                     Chiết khấu theo đơn hàng
-                  </Option> */}
+                  </Option>
                 </Select>
               </Form.Item>
             </Col>
             {/* Phương thức chiết khấu */}
-            {discountMethod === DiscountMethod.TOTAL_BILL ? (
+            {discountMethod === DiscountMethod.ORDER_THRESHOLD ? (
               <TotalBillDiscount form={form} />
             ) : (
               <FixedPriceSelection form={form} discountMethod={discountMethod} />

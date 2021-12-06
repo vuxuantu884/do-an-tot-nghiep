@@ -77,7 +77,7 @@ const FieldSelectOptions = [
   },
   {
     label: "Danh mục sản phẩm",
-    value: "categories",
+    value: "category_name",
     valueComponent: (name: string | Array<any>, rules: Rule[]) => (
       <CategorySearchSelect
         placeholder="Danh mục sản phẩm"
@@ -89,7 +89,7 @@ const FieldSelectOptions = [
   },
   {
     label: "Tag sản phẩm",
-    value: "tag",
+    value: "product_tag",
     valueComponent: (name: string | Array<any>, rules: Rule[]) => (
       <Form.Item name={name} rules={rules}>
         <Input placeholder="Tag sản phẩm" />
@@ -98,14 +98,14 @@ const FieldSelectOptions = [
   },
   {
     label: "Kích cỡ",
-    value: "size",
+    value: "product_size",
     valueComponent: (name: string | Array<any>, rules: Rule[]) => (
       <SizeSearchSelect placeholder="Kích cỡ" name={name} rules={rules} label="" />
     ),
   },
   {
     label: "Màu sắc",
-    value: "color",
+    value: "option_color",
     valueComponent: (name: string | Array<any>, rules: Rule[]) => (
       <ColorSelectSearch
         placeholder="Màu sắc"
@@ -118,7 +118,7 @@ const FieldSelectOptions = [
   },
   {
     label: "Giá trị đơn hàng",
-    value: "bill_value",
+    value: "subtotal",
     valueComponent: (name: string | Array<any>, rules: Rule[]) => (
       <Form.Item name={name} rules={rules}>
         <Input placeholder="Giá trị đơn hàng" />
@@ -359,7 +359,6 @@ export default function TotalBillDiscount(props: Props): ReactElement {
               >
                 <Radio value={DiscountValueType.FIXED_AMOUNT}>Chiết khấu đ</Radio>
                 <Radio value={DiscountValueType.PERCENTAGE}>Chiết khấu %</Radio>
-                <Radio value={DiscountValueType.FIXED_PRICE}>Chiết khấu cố định</Radio>
               </Radio.Group>
             </Form.Item>
             <Form.Item

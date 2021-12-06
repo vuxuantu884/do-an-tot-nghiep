@@ -134,7 +134,7 @@ const CustomerDetail = () => {
     
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      dispatch(LoyaltyCardSearch({ customer_id: customer.id, status: "ACTIVE"}, updateLoyaltyCard));
+      dispatch(LoyaltyCardSearch({ customer_id: customer.id, statuses: ["ASSIGNED"]}, updateLoyaltyCard));
     } else {
       setLoyaltyPoint(null);
     }

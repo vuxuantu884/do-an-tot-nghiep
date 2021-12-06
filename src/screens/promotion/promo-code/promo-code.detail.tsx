@@ -15,7 +15,6 @@ import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
   bulkDisablePriceRules,
   bulkEnablePriceRules,
-  deletePriceRulesById,
   getVariants,
   promoGetDetail,
 } from "domain/actions/promotion/discount/discount.action";
@@ -30,7 +29,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {VscError} from "react-icons/all";
 import {RiUpload2Line} from "react-icons/ri";
 import {useDispatch} from "react-redux";
-import {useHistory, useParams} from "react-router";
+import { useParams} from "react-router";
 import {Link} from "react-router-dom";
 import {showSuccess} from "utils/ToastUtils";
 import {getQueryParams, useQuery} from "utils/useQuery";
@@ -119,7 +118,6 @@ const csvColumnMapping: any = {
 };
 
 const PromotionDetailScreen: React.FC = () => {
-  const history = useHistory();
   const dispatch = useDispatch();
   const token = getToken() || "";
 
@@ -256,15 +254,15 @@ const PromotionDetailScreen: React.FC = () => {
   }, [dispatch, idNumber, onResult]);
 
   // section DELETE by Id
-  function onDelete() {
-    dispatch(showLoading());
-    dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
-  }
-  const onDeleteSuccess = useCallback(() => {
-    dispatch(hideLoading());
-    showSuccess("Xóa thành công");
-    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
-  }, [dispatch, history]);
+  // function onDelete() {
+  //   dispatch(showLoading());
+  //   dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
+  // }
+  // const onDeleteSuccess = useCallback(() => {
+  //   dispatch(hideLoading());
+  //   showSuccess("Xóa thành công");
+  //   history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
+  // }, [dispatch, history]);
 
   // section EDIT item
   const onEdit = useCallback(() => {
@@ -336,8 +334,8 @@ const PromotionDetailScreen: React.FC = () => {
           id: "discount",
           name: "Thông tin khuyến mãi",
           value: renderDiscountInfo(
-            data.entitlements[0].prerequisite_quantity_ranges[0].value,
-            data.entitlements[0].prerequisite_quantity_ranges[0].value_type
+            data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value,
+            data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type
           ),
           position: "right",
           key: "7",
@@ -724,11 +722,11 @@ const PromotionDetailScreen: React.FC = () => {
         back="Quay lại danh sách đợt phát hành"
         rightComponent={
           <Space>
-            {allowCancelPromoCode ? (
+            {/* {allowCancelPromoCode ? (
               <Button disabled onClick={onDelete} style={{color: "#E24343"}}>
                 Xoá
               </Button>
-            ) : null}
+            ) : null} */}
             {allowUpdatePromoCode ? (
               <Button disabled onClick={onEdit}>
                 Sửa
