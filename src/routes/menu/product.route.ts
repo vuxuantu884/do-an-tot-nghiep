@@ -69,6 +69,17 @@ const ProductBarcodeScreen = React.lazy(
   () => import("screens/products/product/BarcodeProductScreen")
 );
 
+//product Collection 
+const Collection = React.lazy(
+  () => import("screens/products/collection")
+);
+const CollectionAdd = React.lazy(
+  () => import("screens/products/collection/create")
+);
+const CollectionUpdate = React.lazy(
+  () => import("screens/products/collection/update")
+);
+
 const product: Array<RouteMenu> = [
   {
     path: UrlConfig.VARIANTS,
@@ -246,7 +257,7 @@ const product: Array<RouteMenu> = [
             pathIgnore: ["create"],
           },
         ],
-      },
+      }, 
       {
         path: UrlConfig.MATERIALS,
         exact: true,
@@ -364,6 +375,47 @@ const product: Array<RouteMenu> = [
           },
         ],
       },
+      {
+        path: UrlConfig.COLLECTIONS,
+        exact: true,
+        title: "Nhóm hàng",
+        icon: "icon-dot",
+        component: Collection,
+        key: "submenu235",
+        isShow: true,
+        header: null,
+        permissions: [ProductPermission.collections_read],
+        subMenu: [
+          {
+            path: `${UrlConfig.COLLECTIONS}/create`,
+            exact: true,
+            title: "Thêm nhóm hàng",
+            icon: "icon-dot",
+            component: CollectionAdd,
+            key: "submenu2351",
+            isShow: true,
+            header: null,
+            permissions: [ProductPermission.collections_create],
+            subMenu: [],
+          },
+          {
+            path: `${UrlConfig.COLLECTIONS}/:id`,
+            exact: true,
+            title: "Sửa nhóm hàng",
+            icon: "icon-dot",
+            component: CollectionUpdate,
+            key: "submenu2352",
+            isShow: true,
+            header: null,
+            permissions: [
+              ProductPermission.collections_read,
+              ProductPermission.collections_update,
+            ],
+            subMenu: [],
+            pathIgnore: ["create"],
+          },
+        ],
+      },
     ],
   },
   {
@@ -372,7 +424,7 @@ const product: Array<RouteMenu> = [
     title: "Nhà cung cấp",
     icon: "icon-dot",
     component: ListSupplier,
-    key: "submenu235",
+    key: "submenu236",
     isShow: true,
     header: null,
     permissions: [SuppliersPermissions.READ],
@@ -383,7 +435,7 @@ const product: Array<RouteMenu> = [
         title: "Thêm mới nhà cung cấp",
         icon: "icon-dot",
         component: SupplierCreateScreen,
-        key: "submenu2351",
+        key: "submenu2361",
         isShow: true,
         header: null,
         subMenu: [],
@@ -395,7 +447,7 @@ const product: Array<RouteMenu> = [
         title: "Sửa nhà cung cấp",
         icon: "icon-dot",
         component: SupplierUpdateScreen,
-        key: "submenu2352",
+        key: "submenu2362",
         isShow: true,
         header: null,
         subMenu: [],
