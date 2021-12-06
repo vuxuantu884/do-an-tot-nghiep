@@ -72,7 +72,7 @@ const GeneralInformation = (props: any) => {
     form.setFieldsValue({note: ""});
   };
 
-  const deleteNote = (note: any, e: any) => {
+  const deleteNote = (note: any) => {
     handleNote.delete(note, customerId);
   };
 
@@ -414,7 +414,7 @@ const GeneralInformation = (props: any) => {
                         ? {marginBottom: "3px", transform: "rotate(180deg)"}
                         : {marginBottom: "3px"}
                     }
-                  ></img>
+                  />
                   <span style={{marginLeft: "5px"}}>
                     {showDetail ? "Xem thêm" : "Thu gọn"}
                   </span>
@@ -434,7 +434,7 @@ const GeneralInformation = (props: any) => {
                     height: 1,
                     backgroundColor: "#E5E5E5",
                   }}
-                ></div>
+                />
               </Col>
             </Row>
           </Card>
@@ -475,7 +475,7 @@ const GeneralInformation = (props: any) => {
                         {!isDisable && (
                           <img
                             alt="delete"
-                            onClick={(e: any) => deleteNote(note, e)}
+                            onClick={() => deleteNote(note)}
                             style={{
                               width: 20,
                               float: "right",
