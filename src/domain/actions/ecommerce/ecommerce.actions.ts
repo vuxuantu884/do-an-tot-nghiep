@@ -112,11 +112,11 @@ export const ecommerceConnectAction = (ecommerceId: number, setData: (result: an
 };
 
 export const ecommerceConfigInfoAction = (
-  query: any,
+  params: any,
   setData: (result: EcommerceResponse) => void
 ) => {
   return BaseAction(EcommerceType.GET_ECOMMERCE_CONFIG_INFO_REQUEST, {
-    query,
+    params,
     setData,
   });
 };

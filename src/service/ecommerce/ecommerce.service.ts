@@ -74,10 +74,7 @@ const ecommerceConnectSyncApi = (ecommerceId: number): Promise<BaseResponse<Stri
   return BaseAxios.get(link);
 };
 
-const ecommerceGetConfigInfoApi = (
-  query: any
-): Promise<BaseResponse<EcommerceResponse>> => {
-  let params = generateQuery(query);
+const ecommerceGetConfigInfoApi = (params: any): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/info?${params}`;
   return BaseAxios.get(link);
 };
