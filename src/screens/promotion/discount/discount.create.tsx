@@ -166,11 +166,13 @@ const CreateDiscountPage = () => {
 
     //==Chiết khấu nâng cao theo đơn hàng==
     //Điều kiện chung
- 
-    body.rule = {
+
+    const rule = {
       ...values.rule,
       conditions: values.conditions,
     };
+
+    body.rule = JSON.parse(JSON.stringify(rule));
 
     return body;
   };
@@ -196,10 +198,10 @@ const CreateDiscountPage = () => {
   let activeDiscout = true;
   const handleSubmit = async (values: any) => {
     try {
-    const body = transformData(values);
-    body.activated = activeDiscout;
-    const createResponse = await createPriceRule(body);
-    handleCreateSuccess(createResponse);
+      const body = transformData(values);
+      body.activated = activeDiscout;
+      const createResponse = await createPriceRule(body);
+      handleCreateSuccess(createResponse);
     } catch (error: any) {
       showError(error.message);
     }
