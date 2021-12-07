@@ -356,6 +356,14 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                     <span className="fw-500">: {configDetail?.id || "---"}</span>
                   </Col>
                 </Row>
+                {configDetail?.email &&
+                  <Row>
+                    <Col span={5}>Email</Col>
+                    <Col span={19}>
+                      <span className="fw-500">: {configDetail.email}</span>
+                    </Col>
+                  </Row>
+                }
               </div>
             </Col>
           </Row>
@@ -442,6 +450,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Form.Item
                 label={<span>Nhân viên bán hàng</span>}
                 name="assign_account_code"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn nhân viên bán hàng",
+                  },
+                ]}
               >
                 <Select
                   disabled={!configDetail || !allowShopsUpdate}
@@ -463,6 +477,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Form.Item
                 label={<span>Nguồn đơn hàng</span>}
                 name="source_id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn nguồn đơn hàng",
+                  },
+                ]}
               >
                 <Select
                   disabled={!configDetail || !allowShopsUpdate}
@@ -516,6 +536,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   disabled={!configDetail || !allowShopsUpdate}
                   onChange={handleStoreChange}
                   mode="multiple"
+                  maxTagCount='responsive'
                   className="dropdown-rule"
                   showArrow
                   showSearch
@@ -549,9 +570,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   placeholder="Chọn kiểu đồng bộ tồn kho"
                   disabled={!configDetail || !allowShopsUpdate}
                 >
-                  <Option value={"auto"}>
-                    <span>Tự động</span>
-                  </Option>
+                  <Option value={"auto"}>Tự động</Option>
                   <Option value={"manual"}>Thủ công</Option>
                 </Select>
               </Form.Item>
@@ -580,20 +599,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Form.Item
                 label={<span>Kiểu đồng bộ đơn hàng</span>}
                 name="order_sync"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn kiểu đồng bộ đơn hàng",
-                  },
-                ]}
               >
                 <Select
                   placeholder="Chọn kiểu đồng bộ đơn hàng"
                   disabled={!configDetail || !allowShopsUpdate}
                 >
-                  <Option value={"auto"}>
-                    <span>Tự động</span>
-                  </Option>
+                  <Option value={"auto"}>Tự động</Option>
                   <Option value={"manual"}>Thủ công</Option>
                 </Select>
               </Form.Item>
