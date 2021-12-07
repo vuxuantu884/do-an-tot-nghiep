@@ -599,6 +599,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Form.Item
                 label={<span>Kiểu đồng bộ đơn hàng</span>}
                 name="order_sync"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn kiểu đồng bộ đơn hàng",
+                  },
+                ]}
               >
                 <Select
                   placeholder="Chọn kiểu đồng bộ đơn hàng"
