@@ -2,7 +2,7 @@ import { FormInstance } from "antd";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { AccountResponse } from "model/account/account.model";
-import React, { MutableRefObject, useCallback, useMemo, useRef, useState } from "react";
+import React, { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountApi } from "service/accounts/account.service";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
@@ -15,6 +15,7 @@ type PropType = {
   form: FormInstance<any>;
   formFieldName: string;
   defaultValue?: string;
+  storeAccountData: AccountResponse[];
   handleSelect?: (value: string) => void;
 };
 
@@ -25,7 +26,7 @@ const AutoCompleteForwardRef = React.forwardRef((props:any, ref:React.ForwardedR
 ));
 
 function AccountAutoComplete(props: PropType) {
-  const {placeholder, form, formFieldName, defaultValue, handleSelect} = props;
+  const {placeholder, form, formFieldName, defaultValue, storeAccountData, handleSelect} = props;
 
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [data, setData] = useState<Array<AccountResponse>>([]);
@@ -62,13 +63,13 @@ function AccountAutoComplete(props: PropType) {
           .finally(() => {
             setLoadingSearch(false);
           });
-      } else {
-        setData([]);
-      }
+      } else if(value === "") {
+				setData(storeAccountData)
+			} 
     };
-
+		
 		handleDelayActionWhenInsertTextInSearchInput(inputRef, ()=>getAccounts(value));
-  }, [dispatch]);
+  }, [dispatch, storeAccountData]);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -82,17 +83,23 @@ function AccountAutoComplete(props: PropType) {
         value: `${item.code} - ${item.full_name}`,
       });
     });
+		console.log('data', data)
     return options;
   }, [data]);
 
   const onSelect = (value: string) => {
-		console.log('value', value)
     form.setFieldsValue({
       [formFieldName]: value,
     });
     setLoadingSearch(false);
     handleSelect && handleSelect(value);
   };
+
+	useEffect(() => {
+		if(data.length === 0 && storeAccountData.length > 0) {
+			setData(storeAccountData);
+		}
+	}, [data.length, storeAccountData])
 
   return (
     <StyledComponent>
