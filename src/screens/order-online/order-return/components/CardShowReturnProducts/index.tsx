@@ -4,50 +4,31 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import UrlConfig from "config/url.config";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
-  OrderLineItemResponse,
-  ReturnProductModel,
+	OrderLineItemResponse,
+	OrderResponse,
+	ReturnProductModel
 } from "model/response/order/order.response";
-import React, { useCallback } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
+import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   listReturnProducts: OrderLineItemResponse[];
-  discountRate?: number | null;
   pointUsing?: number;
   totalAmountReturnToCustomer: number | undefined;
   isDetailPage?: boolean;
+	OrderDetail?: OrderResponse | null;
 };
 
 function CardShowReturnProducts(props: PropType) {
   const {
     listReturnProducts,
-    discountRate,
+		OrderDetail,
     pointUsing,
     totalAmountReturnToCustomer,
     isDetailPage = false,
   } = props;
-
-  const getProductDiscountPerOrder = useCallback(
-    (product: OrderLineItemResponse) => {
-      let discountPerOrder = 0;
-      let discountPerProduct = getProductDiscountPerProduct(product);
-      if (discountRate) {
-        discountPerOrder = ((product.price - discountPerProduct) * discountRate) / 100;
-      }
-      return discountPerOrder;
-    },
-    [discountRate]
-  );
-
-  const getProductDiscountPerProduct = (product: OrderLineItemResponse) => {
-    let discountPerProduct = 0;
-    product.discount_items.forEach((single) => {
-      discountPerProduct += single.value;
-    });
-    return discountPerProduct;
-  };
 
   const renderPopOverPriceTitle = (price: number) => {
     return (
@@ -145,7 +126,7 @@ function CardShowReturnProducts(props: PropType) {
       key: "price",
       render: (value: number, record: ReturnProductModel, index: number) => {
         let discountPerProduct = getProductDiscountPerProduct(record);
-        let discountPerOrder = getProductDiscountPerOrder(record);
+        let discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
         return (
           <Popover
             content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}
@@ -172,7 +153,7 @@ function CardShowReturnProducts(props: PropType) {
         index: number
       ) => {
         let discountPerProduct = getProductDiscountPerProduct(record);
-        let discountPerOrder = getProductDiscountPerOrder(record);
+				let discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(

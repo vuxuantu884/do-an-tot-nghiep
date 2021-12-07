@@ -3,6 +3,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import {getListChannelRequest} from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
+import _ from "lodash";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {CustomerSelectionOption} from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
@@ -166,12 +167,17 @@ const CreateDiscountPage = () => {
 
     //==Chiết khấu nâng cao theo đơn hàng==
     //Điều kiện chung
- 
-    body.rule = {
+
+    const rule = {
       ...values.rule,
       conditions: values.conditions,
     };
 
+    if (_.isEmpty(JSON.parse(JSON.stringify(rule)))) {
+      body.rule = null; 
+    } else {
+      body.rule = rule;
+    }
     return body;
   };
 
@@ -196,10 +202,10 @@ const CreateDiscountPage = () => {
   let activeDiscout = true;
   const handleSubmit = async (values: any) => {
     try {
-    const body = transformData(values);
-    body.activated = activeDiscout;
-    const createResponse = await createPriceRule(body);
-    handleCreateSuccess(createResponse);
+      const body = transformData(values);
+      body.activated = activeDiscout;
+      const createResponse = await createPriceRule(body);
+      handleCreateSuccess(createResponse);
     } catch (error: any) {
       showError(error.message);
     }
@@ -231,7 +237,7 @@ const CreateDiscountPage = () => {
         },
         {
           name: "Khuyến mại",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION}`,
         },
         {
           name: "Chiết khấu",

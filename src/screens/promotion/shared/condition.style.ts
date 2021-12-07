@@ -19,6 +19,10 @@ export const CustomerContitionDetailStyle = styled.div`
 `;
 
 export const CustomerContitionFormlStyle = styled.div`
-.required-field{
-  color: red;
-}`
+  .required-field {
+    color: red;
+  }
+  .ant-select-selector {
+    height: unset !important;
+  }
+`;

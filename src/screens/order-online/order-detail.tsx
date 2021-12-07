@@ -615,6 +615,7 @@ const OrderDetail = (props: PropType) => {
                   totalAmountReturnToCustomer={
                     OrderDetail?.order_return_origin.total_amount
                   }
+                  OrderDetail={OrderDetail}
                 />
               )}
 
@@ -647,8 +648,9 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
-                OrderDetail?.payments &&
-                OrderDetail?.payments?.length > 0 && (
+                ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
+                  (OrderDetail.fulfillments &&
+                    OrderDetail.fulfillments[0]?.shipment?.cod)) && (
                   <Card
                     title={
                       <Space>
@@ -916,163 +918,32 @@ const OrderDetail = (props: PropType) => {
                       </div>
                     )}
 
-                    {((checkPaymentAll(OrderDetail) !== 1 &&
+                    {(OrderDetail?.fulfillments &&
+                      OrderDetail?.fulfillments.length > 0 &&
+                      OrderDetail?.fulfillments[0].shipment &&
+                      OrderDetail?.fulfillments[0].shipment.cod !== null) ||
+                      (checkPaymentAll(OrderDetail) !== 1 &&
                         isShowPaymentPartialPayment === false &&
-                        checkPaymentStatusToShow(OrderDetail) !== 1)) && (
-                      <div className="text-right">
-                        <Divider style={{margin: "10px 0"}} />
-                        <Button
-                          type="primary"
-                          className="ant-btn-outline fixed-button"
-                          onClick={() => setShowPaymentPartialPayment(true)}
-                          style={{marginTop: 10}}
-                          // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
-                          disabled={
-                            OrderDetail.source_code !== "POS" &&
-                            (stepsStatusValue === OrderStatus.CANCELLED ||
-                              stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                              disabledBottomActions)
-                          }
-                        >
-                          Thanh toán 4
-                        </Button>
-                      </div>
-                    )}
-                  </Card>
-                )}
-
-              {/* COD toàn phần */}
-              {OrderDetail &&
-                OrderDetail.fulfillments &&
-                OrderDetail.fulfillments.length > 0 &&
-                OrderDetail.fulfillments[0].shipment &&
-                OrderDetail.fulfillments[0].shipment?.cod ===
-                  (OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-                    ? OrderDetail?.fulfillments[0].shipment
-                        .shipping_fee_informed_to_customer
-                    : 0) +
-                    OrderDetail?.total_line_amount_after_line_discount -
-                    (OrderDetail?.discounts &&
-                    OrderDetail?.discounts.length > 0 &&
-                    OrderDetail?.discounts[0].amount
-                      ? OrderDetail?.discounts[0].amount
-                      : 0) &&
-                checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                  <Card
-                    title={
-                      <Space>
-                        <div className="d-flex">
-                          <span className="title-card">THANH TOÁN</span>
-                        </div>
-                        {checkPaymentStatusToShow(OrderDetail) === 1 && (
-                          <Tag
-                            className="orders-tag orders-tag-success"
-                            style={{
-                              backgroundColor: "rgba(39, 174, 96, 0.1)",
-                              color: "#27AE60",
-                            }}
-                          >
-                            Đã thanh toán
-                          </Tag>
-                        )}
-                      </Space>
-                    }
-                  >
-                    <div style={{marginBottom: 20}}>
-                      <Row>
-                        <Col span={12}>
-                          <span className="text-field margin-right-40">
-                            Đã thanh toán:
-                          </span>
-                          <b>0</b>
-                        </Col>
-                        <Col span={12}>
-                          <span className="text-field margin-right-40">
-                            Còn phải trả:
-                          </span>
-                          <b style={{color: "red"}}>0</b>
-                        </Col>
-                      </Row>
-                    </div>
-                    <Divider style={{margin: "0px"}} />
-                    <div style={{padding: "20px 20px 0 20px"}}>
-                      <Collapse
-                        className="orders-timeline"
-                        defaultActiveKey={["1"]}
-                        ghost
-                      >
-                        <Panel
-                          className={
-                            OrderDetail?.fulfillments[0].status !== "shipped"
-                              ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
-                              : "orders-timeline-custom orders-dot-fullCod-status"
-                          }
-                          showArrow={false}
-                          header={
-                            <div
-                              style={{
-                                color: "#222222",
-                                paddingTop: 4,
-                                fontWeight: 500,
-                              }}
+                        checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                          <div className="text-right">
+                            <Divider style={{margin: "10px 0"}} />
+                            <Button
+                              type="primary"
+                              className="ant-btn-outline fixed-button"
+                              onClick={() => setShowPaymentPartialPayment(true)}
+                              style={{marginTop: 10}}
+                              // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
+                              disabled={
+                                OrderDetail.source_code !== "POS" &&
+                                (stepsStatusValue === OrderStatus.CANCELLED ||
+                                  stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                                  disabledBottomActions)
+                              }
                             >
-                              COD
-                              <Tag
-                                className="orders-tag orders-tag-warning"
-                                style={{marginLeft: 10}}
-                              >
-                                Đang chờ thu
-                              </Tag>
-                              <b
-                                style={{
-                                  marginLeft: "200px",
-                                  color: "#222222",
-                                }}
-                              >
-                                {OrderDetail.fulfillments
-                                  ? formatCurrency(
-                                      OrderDetail.fulfillments[0].shipment?.cod
-                                    )
-                                  : 0}
-                              </b>
-                            </div>
-                          }
-                          key="1"
-                        >
-                          <Row gutter={24}>
-                            {OrderDetail?.payments &&
-                              OrderDetail?.payments.map((item, index) => (
-                                <Col span={12} key={item.id}>
-                                  <p className="text-field">{item.payment_method}</p>
-                                  <p>{formatCurrency(item.paid_amount)}</p>
-                                </Col>
-                              ))}
-                          </Row>
-                        </Panel>
-                      </Collapse>
-                    </div>
-                    {OrderDetail?.payments !== null
-                      ? OrderDetail?.payments.map(
-                          (item, index) =>
-                            OrderDetail.total !== null &&
-                            OrderDetail.total - item.paid_amount !== 0 && (
-                              <div className="padding-24 text-right">
-                                <Button
-                                  key={index}
-                                  type="primary"
-                                  className="ant-btn-outline fixed-button"
-                                  disabled={
-                                    stepsStatusValue === OrderStatus.CANCELLED ||
-                                    stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                                    disabledBottomActions
-                                  }
-                                >
-                                  Thanh toán
-                                </Button>
-                              </div>
-                            )
-                        )
-                      : "Chưa thanh toán"}
+                              Thanh toán
+                            </Button>
+                          </div>
+                        ))}
                   </Card>
                 )}
 

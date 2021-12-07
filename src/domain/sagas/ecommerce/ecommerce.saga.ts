@@ -131,10 +131,11 @@ function* getFpageCustomerSaga(action: YodyAction) {
 }
 // connect to the eccommerce
 function* ecommerceConnectSaga(action: YodyAction) {
-  let { setData } = action.payload;
+  let { ecommerceId, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
-      ecommerceConnectSyncApi
+      ecommerceConnectSyncApi,
+      ecommerceId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -155,11 +156,11 @@ function* ecommerceConnectSaga(action: YodyAction) {
 }
 
 function* ecommerceGetConfigInfoSaga(action: YodyAction) {
-  let { query, setData } = action.payload;
+  let { params, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
       ecommerceGetConfigInfoApi,
-      query
+      params
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

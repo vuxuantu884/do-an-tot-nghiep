@@ -8,7 +8,8 @@ const loyaltyCard = React.lazy(() => import ("screens/customer/loyalty-card"))
 const uploadLoyaltyCard = React.lazy(() => import ("screens/customer/loyalty-card/upload"))
 const rank = React.lazy(() => import ("screens/customer/ranking/index"))
 const createRank = React.lazy(() => import ("screens/customer/ranking/component/create/index"))
-const pointAdjustment = React.lazy(() => import ("screens/customer/point-adjustment/index"))
+const PointAdjustment = React.lazy(() => import ("screens/customer/point-adjustment/PointAdjustment"))
+const CreatePointAdjustment = React.lazy(() => import ("screens/customer/point-adjustment/CreatePointAdjustment"))
 
 const customers: Array<RouteMenu> = [
   {
@@ -95,22 +96,22 @@ const customers: Array<RouteMenu> = [
     exact: true,
     title: "Phiếu điều chỉnh",
     icon: 'icon-dot',
-    component: pointAdjustment,
+    component: PointAdjustment,
     key: "submenu158",
     isShow: true,
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.CUSTOMER}/point-adjustments/:id`,
+        path: `${UrlConfig.CUSTOMER}/point-adjustments/create`,
         exact: true,
-        title: "Điều chỉnh điểm",
+        title: "Tạo mới phiếu điều chỉnh",
         icon: 'icon-dot',
-        component: pointAdjustment,
-        key: "submenu1581",
+        component: CreatePointAdjustment,
+        key: "create_point_adjustment",
         isShow: true,
         header: null,
         subMenu: [],
-      },
+      }
     ],
   },
 ]

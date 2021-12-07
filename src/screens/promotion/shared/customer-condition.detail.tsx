@@ -100,10 +100,10 @@ export default function CustomerConditionDetail(props: DiscountResponse): ReactE
         prerequisite_genders && prerequisite_genders?.length > 0
           ? prerequisite_genders
               ?.map((item: string) => {
-                if (item === Gender.MALE) {
+                if (item.toLocaleLowerCase() === Gender.MALE.toLocaleLowerCase()) {
                   return "Nam";
                 }
-                if (item === Gender.FEMALE) {
+                if (item.toLocaleLowerCase() === Gender.FEMALE.toLocaleLowerCase()) {
                   return "Nữ";
                 } else {
                   return "Khác";
