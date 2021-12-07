@@ -975,7 +975,7 @@ export default function Order(props: PropType) {
 						...initialForm,
             customer_note: response.customer_note,
             source_id: response.source_id,
-            assignee_code: response.assignee_code ? `${response.assignee_code} - ${response.assignee}` : null,
+            assignee_code: "YD9915",
             store_id: response.store_id,
             items: responseItems,
             dating_ship: newDatingShip,

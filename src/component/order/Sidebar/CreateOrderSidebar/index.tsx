@@ -88,21 +88,6 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
     }
   };
 
-  useEffect(() => {
-    let assigneeCode = form.getFieldValue("assignee_code");
-    let coordinatorCode = form.getFieldValue("coordinator_code");
-    let marketerCode = form.getFieldValue("marketer_code");
-		console.log('marketerCode', marketerCode)
-    if (assigneeCode) {
-      setDefaultValueAssigneeCode(assigneeCode);
-    }
-    if (marketerCode) {
-      setDefaultValueMarketerCode(marketerCode);
-    }
-    if (coordinatorCode) {
-      setDefaultValueCoordinatorCode(coordinatorCode);
-    }
-  }, [form]);
 
 	useEffect(() => {
 		if(!storeId) {
@@ -131,6 +116,40 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
 			})
 	}, [dispatch, storeId])
 
+	useEffect(() => {
+		if(storeAccountData.some((single) => single.code === "YD9915")) {
+			return;
+		}
+		searchAccountApi({
+			info: "YD9915",
+		})
+			.then((response) => {
+				if (response) {
+					switch (response.code) {
+						case HttpStatus.SUCCESS:
+							if (storeAccountData.length > 0) {
+								let abc = [...storeAccountData]
+								abc.push(response.data.items[0]);
+								setStoreAccountData(abc);
+							}
+							break;
+						case HttpStatus.UNAUTHORIZED:
+							dispatch(unauthorizedAction());
+							break;
+						default:
+							response.errors.forEach((e) => showError(e));
+							break;
+					}
+				}
+			})
+			.catch((error) => {
+				console.log("error", error);
+			})
+  }, [dispatch, form, storeAccountData]);
+
+
+	
+
   return (
     <StyledComponent>
       <Card title="THÔNG TIN ĐƠN HÀNG">
@@ -144,14 +163,20 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             },
           ]}
         >
-          <AccountAutoComplete
-            placeholder="Tìm theo họ tên hoặc mã nhân viên"
-            form={form}
-            formFieldName="assignee_code"
-            defaultValue={defaultValueAssigneeCode}
-						key={defaultValueAssigneeCode}
-						storeAccountData={storeAccountData}
-          />
+          <Select
+        showSearch
+        allowClear
+        optionFilterProp="children"
+        // onSearch={(value) => onSearch(value)}
+				// key={Math.random()}
+      >
+        {storeAccountData.length > 0 &&
+          storeAccountData.map((c) => (
+            <Select.Option key={c.id} value={c.code}>
+              {`${c.code} - ${c.full_name}`}
+            </Select.Option>
+          ))}
+      </Select>
         </Form.Item>
         <Form.Item
           label="Nhân viên marketing"
@@ -163,14 +188,20 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             },
           ]}
         >
-          <AccountAutoComplete
-            placeholder="Tìm theo họ tên hoặc mã nhân viên"
-            form={form}
-            formFieldName="marketer_code"
-            defaultValue={defaultValueMarketerCode}
-						key={defaultValueMarketerCode}
-						storeAccountData={storeAccountData}
-          />
+          <Select
+        showSearch
+        allowClear
+        optionFilterProp="children"
+        // onSearch={(value) => onSearch(value)}
+				// key={Math.random()}
+      >
+        {storeAccountData.length > 0 &&
+          storeAccountData.map((c) => (
+            <Select.Option key={c.id} value={c.code}>
+              {`${c.code} - ${c.full_name}`}
+            </Select.Option>
+          ))}
+      </Select>
         </Form.Item>
         <Form.Item label="Nhân viên điều phối" name="coordinator_code">
           <AccountAutoComplete
@@ -178,7 +209,6 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             form={form}
             formFieldName="coordinator_code"
             defaultValue={defaultValueCoordinatorCode}
-						key={defaultValueCoordinatorCode}
 						storeAccountData={storeAccountData}
           />
         </Form.Item>
