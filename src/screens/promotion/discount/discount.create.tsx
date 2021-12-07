@@ -3,6 +3,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import {getListChannelRequest} from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
+import _ from "lodash";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {CustomerSelectionOption} from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
@@ -172,8 +173,11 @@ const CreateDiscountPage = () => {
       conditions: values.conditions,
     };
 
-    body.rule = JSON.parse(JSON.stringify(rule));
-
+    if (_.isEmpty(JSON.parse(JSON.stringify(rule)))) {
+      body.rule = null; 
+    } else {
+      body.rule = rule;
+    }
     return body;
   };
 
@@ -233,7 +237,7 @@ const CreateDiscountPage = () => {
         },
         {
           name: "Khuyến mại",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION}`,
         },
         {
           name: "Chiết khấu",

@@ -81,7 +81,7 @@ const AccountUpdatePassScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý người dùng",
+          name: "Thông tin cá nhân",
           path: UrlConfig.ACCOUNTS,
         },
         {
@@ -127,7 +127,7 @@ const AccountUpdatePassScreen: React.FC = () => {
             rightComponent={
               <Space>
                 {allowUpdateAcc && <Button loading={loading} htmlType="submit" type="primary">
-                    Lưu lại
+                    Đặt lại mật khẩu
                   </Button> }
               </Space>
             }
