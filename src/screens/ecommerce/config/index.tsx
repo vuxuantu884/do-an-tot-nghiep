@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Card, Tabs, Form, Button, Dropdown, Menu } from "antd";
+import { Card, Tabs, Form, Button, Dropdown, Menu, Modal } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
@@ -33,13 +33,14 @@ import useAuthorization from "hook/useAuthorization";
 import SyncEcommerce from "screens/ecommerce/config/tab/sync-ecommerce"
 import SettingConfig from "screens/ecommerce/config/tab/setting-config";
 
-import { StyledComponent } from "screens/ecommerce/config/styles";
+import { StyledComponent, StyledConfirmUpdateShopModal } from "screens/ecommerce/config/styles";
 import { DownOutlined } from "@ant-design/icons";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
+import connectedShopIcon from "assets/icon/connected_shop.svg";
 
 
 const { TabPane } = Tabs;
@@ -77,8 +78,9 @@ const EcommerceConfig: React.FC = () => {
     shop_id: connectQuery.get("shop_id") || "",
     code: connectQuery.get("code"),
   });
-  const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse  | undefined>() 
+  const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse | undefined>()
   const [modalShopInfo, setModalShopInfo] = React.useState<EcommerceResponse>()
+  const [isConfirmUpdateShop, setIsConfirmUpdateShop] = useState(false);
 
   const reloadConfigData = React.useCallback(() => {
     setIsLoading(true);
@@ -93,18 +95,18 @@ const EcommerceConfig: React.FC = () => {
     setIsShowDeleteModal(true)
   }
   const deleteCallback = React.useCallback((value: any) => {
-    if(value) {
+    if (value) {
       showSuccess("Xóa gian hàng thành công")
       reloadConfigData()
       setConfigToView(undefined);
       history.replace(`${history.location.pathname}#sync`);
     }
-  },[reloadConfigData, history])
+  }, [reloadConfigData, history])
 
   const onOkDeleteEcommerce = React.useCallback(() => {
     setIsShowDeleteModal(false)
-    if(modalShopInfo) dispatch(ecommerceConfigDeleteAction(modalShopInfo?.id, deleteCallback))
-  },[deleteCallback, dispatch, modalShopInfo])
+    if (modalShopInfo) dispatch(ecommerceConfigDeleteAction(modalShopInfo?.id, deleteCallback))
+  }, [deleteCallback, dispatch, modalShopInfo])
 
 
   const storeChangeSearch = React.useCallback(() => { }, []);
@@ -165,18 +167,23 @@ const EcommerceConfig: React.FC = () => {
   // end link to ecommerce
 
   const configInfoCallback = React.useCallback(
-    (value: any) => {
-      if (value) {
-        setConfigFromEcommerce(value);
-        history.replace(`${history.location.pathname}#setting`);
+    (data: any) => {
+      if (data) {
+        setConfigFromEcommerce(data);
+        const shop = configData?.find((item: any) => item.id === data.id);
+        if (shop) {
+          setIsConfirmUpdateShop(true);
+        } else {
+          history.replace(`${history.location.pathname}#setting`);
+        }
       }
     },
-    [history]
+    [configData, history]
   );
 
+  //listening callback after connect shop
   React.useEffect(() => {
     if (initQueryConnect.code) {
-      showSuccess('Đã kết nối gian hàng.')
       const generatedParams = `shop_id=${initQueryConnect.shop_id}&code=${initQueryConnect.code}`;
       dispatch(ecommerceConfigInfoAction(generatedParams, configInfoCallback));
     }
@@ -353,6 +360,32 @@ const EcommerceConfig: React.FC = () => {
                 text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
                 icon={DeleteIcon}
               />
+
+              {isConfirmUpdateShop &&
+                <Modal
+                  visible={isConfirmUpdateShop}
+                  onCancel={() => {
+                    setConfigFromEcommerce(undefined);
+                    setIsConfirmUpdateShop(false);
+                  }}
+                  okText="Đồng ý"
+                  onOk={() => {
+                    setIsConfirmUpdateShop(false);
+                    history.replace(`${history.location.pathname}#setting`);
+                  }}
+                >
+                  <StyledConfirmUpdateShopModal>
+                    <div className="confirm-update-shop">
+                      <div className="image"><img src={connectedShopIcon} alt="connectedShopIcon" /></div>
+                      <div>
+                        <div className="title">Gian hàng đã tồn tại trên hệ thống</div>
+                        <div>Bạn có muốn chỉnh sửa cấu hình gian hàng không?</div>
+                      </div>
+                    </div>
+                  </StyledConfirmUpdateShopModal>
+                </Modal>
+              }
+              
             </>
             : <NoPermission />)}
         </AuthWrapper>
