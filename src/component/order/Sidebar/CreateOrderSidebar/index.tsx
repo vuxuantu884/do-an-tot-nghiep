@@ -25,7 +25,6 @@ type PropType = {
   orderDetail?: OrderResponse | null;
   listOrderSubStatus?: OrderSubStatusResponse[];
   onChangeTag: (value: []) => void;
-  setAssigneeCode: (value: string) => void;
 };
 
 /**
@@ -42,7 +41,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, setAssigneeCode, storeId} =
+  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, storeId} =
     props;
 
 	const dispatch = useDispatch()
@@ -151,7 +150,6 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             formFieldName="assignee_code"
             defaultValue={defaultValueAssigneeCode}
 						key={defaultValueAssigneeCode}
-            handleSelect={setAssigneeCode}
 						storeAccountData={storeAccountData}
           />
         </Form.Item>
