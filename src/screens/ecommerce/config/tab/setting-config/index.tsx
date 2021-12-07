@@ -25,21 +25,10 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
-
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
 import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
+import iconMap from "screens/ecommerce/common/ecommerce-icon";
 import { StyledConfig } from "screens/ecommerce/config/tab/setting-config/styles";
-
-const iconMap: any = {
-  shopee: shopeeIcon,
-  lazada: lazadaIcon,
-  tiki: tikiIcon,
-  sendo: sendoIcon,
-};
 
 const { Option } = Select;
 
@@ -305,7 +294,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                       {
                         <img
                           style={{ marginRight: 8, paddingBottom: 4 }}
-                          src={iconMap[configFromEcommerce.ecommerce]}
+                          src={iconMap[configFromEcommerce.ecommerce.toLowerCase()]}
                           alt=""
                         />
                       }
@@ -322,7 +311,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                         {
                           <img
                             style={{ marginRight: 8, paddingBottom: 4 }}
-                            src={iconMap[item.ecommerce]}
+                            src={iconMap[item.ecommerce.toLowerCase()]}
                             alt=""
                           />
                         }

@@ -276,6 +276,7 @@ const YDPageCustomerDetail = (props: any) => {
         district_id: null,
         ward_id: null,
         full_address: null,
+        card_number: null
       };
       customerForm.setFieldsValue(field);
     }
@@ -351,7 +352,7 @@ const YDPageCustomerDetail = (props: any) => {
     };
     dispatch(UpdateCustomer(customer?.id, processValue, setResultUpdate));
   };
-  const handleSubmitFail = (errorInfo: any) => {};
+  const handleSubmitFail = () => {};
 
   const reloadPage = () => {
     getCustomerWhenPhoneChange(customer?.phone);
