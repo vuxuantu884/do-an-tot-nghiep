@@ -2,23 +2,29 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import { Card, Form, FormInstance, Input, Select } from "antd";
 import AccountAutoComplete from "component/custom/AccountAutoComplete";
 import CustomInputTags from "component/custom/custom-input-tags";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { AccountResponse } from "model/account/account.model";
 import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
+import { searchAccountApi } from "service/accounts/account.service";
+import { showError } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   form: FormInstance<any>;
   tags: string;
   levelOrder?: number;
+  storeId?: number|null;
   updateOrder?: boolean;
   customerId?: number | undefined;
   orderDetail?: OrderResponse | null;
   listOrderSubStatus?: OrderSubStatusResponse[];
   onChangeTag: (value: []) => void;
-  setAssigneeCode: (value: string) => void;
 };
 
 /**
@@ -35,11 +41,16 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, setAssigneeCode} =
+  const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, storeId} =
     props;
+
+	const dispatch = useDispatch()
   const [defaultValueAssigneeCode, setDefaultValueAssigneeCode] = useState("");
   const [defaultValueCoordinatorCode, setDefaultValueCoordinatorCode] = useState("");
   const [defaultValueMarketerCode, setDefaultValueMarketerCode] = useState("");
+
+	const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
+
   const renderSplitOrder = () => {
     const splitCharacter = "-";
     if (!orderDetail?.linked_order_code) {
@@ -93,6 +104,33 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
     }
   }, [form]);
 
+	useEffect(() => {
+		if(!storeId) {
+			return;
+		}
+		searchAccountApi({
+			store_ids: [storeId],
+		})
+			.then((response) => {
+				if (response) {
+					switch (response.code) {
+						case HttpStatus.SUCCESS:
+							setStoreAccountData(response.data.items);
+							break;
+						case HttpStatus.UNAUTHORIZED:
+							dispatch(unauthorizedAction());
+							break;
+						default:
+							response.errors.forEach((e) => showError(e));
+							break;
+					}
+				}
+			})
+			.catch((error) => {
+				console.log("error", error);
+			})
+	}, [dispatch, storeId])
+
   return (
     <StyledComponent>
       <Card title="THÔNG TIN ĐƠN HÀNG">
@@ -112,7 +150,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             formFieldName="assignee_code"
             defaultValue={defaultValueAssigneeCode}
 						key={defaultValueAssigneeCode}
-            handleSelect={setAssigneeCode}
+						storeAccountData={storeAccountData}
           />
         </Form.Item>
         <Form.Item
@@ -121,7 +159,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
           rules={[
             {
               required: true,
-              message: "Vui lòng chọn nhân viên marketing",
+              message: "Vui lòng chọn nhân viên marketing!",
             },
           ]}
         >
@@ -131,6 +169,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             formFieldName="marketer_code"
             defaultValue={defaultValueMarketerCode}
 						key={defaultValueMarketerCode}
+						storeAccountData={storeAccountData}
           />
         </Form.Item>
         <Form.Item label="Nhân viên điều phối" name="coordinator_code">
@@ -140,6 +179,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             formFieldName="coordinator_code"
             defaultValue={defaultValueCoordinatorCode}
 						key={defaultValueCoordinatorCode}
+						storeAccountData={storeAccountData}
           />
         </Form.Item>
         <Form.Item

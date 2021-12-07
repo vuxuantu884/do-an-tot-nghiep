@@ -20,10 +20,10 @@ import eyeOutline from "assets/icon/eye_outline.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
@@ -154,7 +154,6 @@ export default function Order(props: PropType) {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-  const [assigneeCode, setAssigneeCode] = useState("")
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -1028,9 +1027,6 @@ export default function Order(props: PropType) {
           if(response?.discounts && response.discounts[0]?.discount_code) {
             setCoupon(response.discounts[0].discount_code)
           }
-          if (response.assignee_code) {
-            setAssigneeCode(response.assignee_code);
-          }
         }
       })
     );
@@ -1303,7 +1299,6 @@ export default function Order(props: PropType) {
                     setPromotionId={setPromotionId}
                     orderDetail={OrderDetail}
                     configOrder={configOrder}
-                    assigneeCode={assigneeCode}
                   />
 
                   {OrderDetail !== null &&
@@ -2356,7 +2351,7 @@ export default function Order(props: PropType) {
                     customerId={customer?.id}
                     listOrderSubStatus={listOrderSubStatus}
 										form={form}
-                    setAssigneeCode={setAssigneeCode}
+                    storeId={storeId}
                   />
                 </Col>
               </Row>

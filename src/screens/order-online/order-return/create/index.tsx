@@ -1004,7 +1004,6 @@ const ScreenReturnCreate = (props: PropType) => {
 											totalAmountExchangePlusShippingFee
                     }}
                     configOrder={configOrder}
-                    assigneeCode={OrderDetail?.assignee_code ? OrderDetail?.assignee_code : "" }
                     discountRate={discountRate}
                     setDiscountRate={setDiscountRate}
                     discountValue={discountValue}

@@ -36,6 +36,7 @@ import { discountSaga } from "./promotion/discount/discount.saga";
 import { GoodsReceiptsSaga } from "./goods-receipts/goods-receipts.saga";
 import { moduleSaga } from "./auth/module.saga";
 import { promoCodeSaga } from "./promotion/promo-code/promo-code.saga";
+import { collectionSaga } from "./product/collection.saga";
 
 function* rootSaga() {
   yield all([
@@ -43,6 +44,7 @@ function* rootSaga() {
     bootstrapSaga(),
     authSaga(),
     categorySaga(),
+    collectionSaga(),
     productSaga(),
     materialSaga(),
     storeSaga(),
