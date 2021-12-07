@@ -1,5 +1,6 @@
 export interface PurchaseOrderLineItem {
   id?: number;
+  barcode: string;
   code?: string;
   sku: string;
   variant_id: number;
@@ -45,6 +46,7 @@ export interface Vat {
 export interface PurchaseOrderLineItemDraft {
   id?: number;
   code?: string;
+  barcode: string;
   line_item_id?: number;
   sku: string;
   variant: string;
