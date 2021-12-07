@@ -47,6 +47,7 @@ const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
+let isConnectedShop = false;
 
 const shopsReadPermission = [EcommerceConfigPermission.shops_read];
 const shopsConnectPermission = [EcommerceConfigPermission.shops_connect];
@@ -183,7 +184,8 @@ const EcommerceConfig: React.FC = () => {
 
   //listening callback after connect shop
   React.useEffect(() => {
-    if (initQueryConnect.code) {
+    if (initQueryConnect.code && !isConnectedShop) {
+      isConnectedShop = true;
       const generatedParams = `shop_id=${initQueryConnect.shop_id}&code=${initQueryConnect.code}`;
       dispatch(ecommerceConfigInfoAction(generatedParams, configInfoCallback));
     }
