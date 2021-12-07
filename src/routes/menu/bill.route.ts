@@ -2,6 +2,8 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
+import CustomerDuplicate from "screens/order-online/duplicate.screen";
+import OrderDuplicate from "screens/order-online/order-duplicate";
 import OrderUpdate from "screens/order-online/order-update";
 import PackDetail from "screens/order-online/pack-detail";
 import PackSupportScreen from "screens/order-online/pack-support.screen";
@@ -131,6 +133,29 @@ const bill: Array<RouteMenu> = [
     ],
   },
   {
+    path: `${UrlConfig.ORDERS_DUPLICATE}`,
+    exact: true,
+    title: "Danh sách đơn trùng",
+    icon: "icon-dot",
+    component: CustomerDuplicate,
+    key: "order-duplicate",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.ORDERS_DUPLICATE}/order`,
+        exact: true,
+        title: "Danh sách đơn trùng",
+        icon: "icon-dot",
+        component: OrderDuplicate,
+        key: "order-duplicate",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      }
+    ],
+  },
+  {
     path: `/orders-pack-support`,
     exact: true,
     title: "Hỗ trợ đóng gói",
@@ -176,6 +201,7 @@ const bill: Array<RouteMenu> = [
     ],
     permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
   },
+  
 ];
 
 export default bill;
