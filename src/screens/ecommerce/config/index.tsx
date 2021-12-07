@@ -79,6 +79,7 @@ const EcommerceConfig: React.FC = () => {
     shop_id: connectQuery.get("shop_id") || "",
     code: connectQuery.get("code"),
   });
+  const [isGetAllShop, setIsGetAllShop] = React.useState(false);
   const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse | undefined>()
   const [modalShopInfo, setModalShopInfo] = React.useState<EcommerceResponse>()
   const [isConfirmUpdateShop, setIsConfirmUpdateShop] = useState(false);
@@ -167,6 +168,17 @@ const EcommerceConfig: React.FC = () => {
   //end
   // end link to ecommerce
 
+  // get all ecommerce
+  React.useEffect(() => {
+    setIsLoading(true);
+    dispatch(ecommerceConfigGetAction((responseData) => {
+      setIsLoading(false);
+      setIsGetAllShop(true);
+      setConfigData(responseData);
+    }));
+  }, [dispatch]);
+  //end
+
   const configInfoCallback = React.useCallback(
     (data: any) => {
       if (data) {
@@ -184,21 +196,12 @@ const EcommerceConfig: React.FC = () => {
 
   //listening callback after connect shop
   React.useEffect(() => {
-    if (initQueryConnect.code && !isConnectedShop) {
+    if (initQueryConnect.code && !isConnectedShop && isGetAllShop) {
       isConnectedShop = true;
       const generatedParams = `shop_id=${initQueryConnect.shop_id}&code=${initQueryConnect.code}`;
       dispatch(ecommerceConfigInfoAction(generatedParams, configInfoCallback));
     }
-  }, [initQueryConnect, configInfoCallback, dispatch]);
-  
-  // get all ecommerce
-  React.useEffect(() => {
-    setIsLoading(true);
-    dispatch(ecommerceConfigGetAction((responseData) => {
-      setIsLoading(false);
-      setConfigData(responseData);
-    }));
-  }, [dispatch]);
+  }, [initQueryConnect, configInfoCallback, dispatch, isGetAllShop]);
   
   const accountChangeSearch = React.useCallback(
     (value) => {
