@@ -1192,6 +1192,7 @@ export default function Order() {
                       customerId={customer?.id}
 											form={form}
 											setAssigneeCode={setAssigneeCode}
+											storeId={storeId}
                     />
                   </Col>
                 </Row>

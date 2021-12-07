@@ -2357,6 +2357,7 @@ export default function Order(props: PropType) {
                     listOrderSubStatus={listOrderSubStatus}
 										form={form}
                     setAssigneeCode={setAssigneeCode}
+                    storeId={storeId}
                   />
                 </Col>
               </Row>
