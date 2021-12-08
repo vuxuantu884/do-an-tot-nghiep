@@ -33,3 +33,7 @@ export const showError = (msg: string) => {
 export const showWarning = (msg: string) => {
   cogoToast.warn(msg, option)
 }
+
+export const showInfo = (msg: string) => {
+	cogoToast.info(msg, option)
+  }
