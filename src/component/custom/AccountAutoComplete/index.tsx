@@ -1,124 +1,111 @@
-import { FormInstance } from "antd";
+import { FormInstance, Select } from "antd";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { AccountResponse } from "model/account/account.model";
-import React, { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+	MutableRefObject,
+	useCallback,
+	useEffect, useRef
+} from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountApi } from "service/accounts/account.service";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
-import CustomAutoComplete from "../autocomplete.cusom";
-import { StyledComponent } from "./styles";
 
 type PropType = {
   placeholder: string;
   form: FormInstance<any>;
   formFieldName: string;
-  defaultValue?: string;
-  storeAccountData: AccountResponse[];
-  handleSelect?: (value: string) => void;
+  initValue?: string;
+  dataToSelect: AccountResponse[];
+  initDataToSelect: AccountResponse[];
+  setDataToSelect: (value: AccountResponse[]) => void;
 };
 
-const AutoCompleteForwardRef = React.forwardRef((props:any, ref:React.ForwardedRef<any>) => (
-  <div ref={ref}>
-    {props.children}
-  </div>
-));
-
 function AccountAutoComplete(props: PropType) {
-  const {placeholder, form, formFieldName, defaultValue, storeAccountData, handleSelect} = props;
-
-  const [loadingSearch, setLoadingSearch] = useState(false);
-  const [data, setData] = useState<Array<AccountResponse>>([]);
+  const {
+    placeholder,
+    form,
+    formFieldName,
+    initValue,
+    dataToSelect,
+		initDataToSelect,
+    setDataToSelect,
+		...rest
+  } = props;
   const inputRef: MutableRefObject<any> = useRef();
-  const autoCompleteRef: MutableRefObject<any> = useRef();
-	const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-  const onSearch = useCallback((value: string) => {
-    const getAccounts = (value: string) => {
-      if (value.trim() !== "" && value.length >= 3) {
-        setLoadingSearch(true);
-        searchAccountApi({
-          info: value,
-          limit: undefined,
-        })
-          .then((response) => {
-            if (response) {
-							switch (response.code) {
-								case HttpStatus.SUCCESS:
-									setData(response.data.items);
-									break;
-								case HttpStatus.UNAUTHORIZED:
-									dispatch(unauthorizedAction());
-									break;
-								default:
-									response.errors.forEach((e) => showError(e));
-									break;
-							}
-            }
+  const onSearch = useCallback(
+    (value: string) => {
+      const getAccounts = (value: string) => {
+        if (value.trim() !== "" && value.length >= 3) {
+          searchAccountApi({
+            info: value,
+            limit: undefined,
           })
-          .catch((error) => {
-            console.log("error", error);
-          })
-          .finally(() => {
-            setLoadingSearch(false);
-          });
-      } else if(value === "") {
-				setData(storeAccountData)
-			} 
-    };
-		
-		handleDelayActionWhenInsertTextInSearchInput(inputRef, ()=>getAccounts(value));
-  }, [dispatch, storeAccountData]);
+            .then((response) => {
+              if (response) {
+                switch (response.code) {
+                  case HttpStatus.SUCCESS:
+                    setDataToSelect(response.data.items);
+                    break;
+                  case HttpStatus.UNAUTHORIZED:
+                    dispatch(unauthorizedAction());
+                    break;
+                  default:
+                    response.errors.forEach((e) => showError(e));
+                    break;
+                }
+              }
+            })
+            .catch((error) => {
+              console.log("error", error);
+            })
+        } else if (value === "") {
+          setDataToSelect(initDataToSelect)
+        }
+      };
 
-  const renderResult = useMemo(() => {
-    let options: any[] = [];
-    data.forEach((item: AccountResponse, index: number) => {
-      options.push({
-        label: (
-          <React.Fragment>
-            {item.code} - {item.full_name}
-          </React.Fragment>
-        ),
-        value: `${item.code} - ${item.full_name}`,
-      });
-    });
-		console.log('data', data)
-    return options;
-  }, [data]);
+      handleDelayActionWhenInsertTextInSearchInput(inputRef, () => getAccounts(value));
+    },
+    [setDataToSelect, dispatch, initDataToSelect]
+  );
 
-  const onSelect = (value: string) => {
-    form.setFieldsValue({
-      [formFieldName]: value,
-    });
-    setLoadingSearch(false);
-    handleSelect && handleSelect(value);
-  };
+	const onClear = useCallback(
+		() => {
+			console.log('22');
+			console.log('initDataToSelect', initDataToSelect)
+			setDataToSelect(initDataToSelect)
+		},
+		[initDataToSelect, setDataToSelect],
+	)
 
 	useEffect(() => {
-		if(data.length === 0 && storeAccountData.length > 0) {
-			setData(storeAccountData);
+		if(initValue) {
+			form.setFieldsValue({
+				[formFieldName]: initValue
+			})
 		}
-	}, [data.length, storeAccountData])
+	}, [initValue, form, formFieldName, dataToSelect])
 
   return (
-    <StyledComponent>
-			<AutoCompleteForwardRef ref={autoCompleteRef}>
-				<CustomAutoComplete
-					loading={loadingSearch}
-					placeholder={placeholder}
-					onSearch={onSearch}
-					style={{width: "100%"}}
-					showAdd={false}
-					onSelect={onSelect}
-					options={renderResult}
-					isFillInputWithTextSelected
-					defaultValue={defaultValue}
-					defaultActiveFirstOption
-				/>
-
-			</AutoCompleteForwardRef>
-    </StyledComponent>
+		<Select
+			showSearch
+			onSearch={onSearch}
+			onClear={onClear}
+			allowClear
+			optionFilterProp="children"
+			placeholder={placeholder}
+			{...rest}
+		>
+			{dataToSelect.length > 0 &&
+				dataToSelect.map((account) => (
+					<Select.Option key={account.id} value={account.code}>
+						{`${account.code} - ${account.full_name}`}
+					</Select.Option>
+				))}
+		</Select>
   );
 }
 

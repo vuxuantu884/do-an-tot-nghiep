@@ -220,8 +220,7 @@ export default function Order() {
     tags: "",
     customer_note: "",
     account_code: userReducer.account?.code,
-    // assignee_code: userReducer.account?.code || null,
-		assignee_code: `${userReducer.account?.code} - ${userReducer.account?.full_name}`,
+    assignee_code: userReducer.account?.code || null,
     marketer_code: null,
     coordinator_code: null,
     customer_id: null,
@@ -480,9 +479,6 @@ export default function Order() {
   const onFinish = (values: OrderRequest) => {
     values.channel_id = DEFAULT_CHANNEL_ID;
     values.company_id = DEFAULT_COMPANY.company_id;
-		values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
-		values.marketer_code = getAccountCodeFromCodeAndName(values.marketer_code);
-		values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
