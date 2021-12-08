@@ -1,0 +1,48 @@
+
+@import "assets/css/variable";
+
+  .fulfillment-detail {
+    .fulfillment-info {
+      .ant-card-body {
+        display: flex;
+        justify-content: space-between;
+        .details {
+          width: 50%;
+          padding: 0px 20px;
+          .detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            .name {
+              width: 50%;
+              color: '#737373';
+            }
+            .value {
+              width: 50%;
+              color: '#222222',
+            }
+          }
+        }
+        
+      }
+      
+    }
+    .info {
+      width: 100%;
+      .detail {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        .name {
+          width: 50%;
+          color: '#737373';
+        }
+        .value {
+          width: 50%;
+          color: '#222222',
+        }
+      }
+    }
+    
+  }
+
