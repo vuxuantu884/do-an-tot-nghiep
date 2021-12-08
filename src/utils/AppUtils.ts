@@ -32,7 +32,6 @@ import {
   OrderPaymentRequest,
 } from "model/request/order.request";
 import { RegUtil } from "./RegUtils";
-import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { ErrorGHTK } from "./Constants";
 import { UploadFile } from "antd/lib/upload/interface";
@@ -262,16 +261,6 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     code: size.code, 
   };
   return sizeConvert;
-};
-
-export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
-  let goods: Array<string> = [];
-  supplier.goods.forEach((good) => goods.push(good.value));
-  let supplierConverted: SupplierDetail = {
-    ...supplier,
-    goods: goods,
-  };
-  return supplierConverted;
 };
 
 export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {

@@ -1,10 +1,9 @@
-import { ProductPermission } from "config/permissions/product.permission";
-import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
+import {ProductPermission} from "config/permissions/product.permission";
+import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
-import { RouteMenu } from "model/other";
+import {RouteMenu} from "model/other";
 import React from "react";
 import ColorUpdateScreen from "screens/products/color/color-update.screen";
-
 
 const Category = React.lazy(
   () => import("screens/products/category/category-list.screen")
@@ -24,9 +23,7 @@ const ListMaterial = React.lazy(
 const AddMaterial = React.lazy(
   () => import("screens/products/materials/material-add.screen")
 );
-const SizeListScreen = React.lazy(
-  () => import("screens/products/size/size-list.screen")
-);
+const SizeListScreen = React.lazy(() => import("screens/products/size/size-list.screen"));
 const SizeCreateScreen = React.lazy(
   () => import("screens/products/size/size-create.screen")
 );
@@ -36,6 +33,10 @@ const SizeUpdateScreen = React.lazy(
 const ListSupplier = React.lazy(
   () => import("screens/products/supplier/supplier-list.screen")
 );
+const ViewSupplier = React.lazy(
+  () => import("screens/products/supplier/supplier-view.screen")
+);
+
 const AddCategory = React.lazy(
   () => import("screens/products/category/category-add.screen")
 );
@@ -53,9 +54,7 @@ const ColorCreateScreen = React.lazy(
 );
 
 //Product
-const Product = React.lazy(
-  () => import("screens/products/product/ProductSearchScreen")
-);
+const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
 const ProductDetailScreen = React.lazy(
   () => import("screens/products/product/ProductDetailScreen")
 );
@@ -79,7 +78,11 @@ const product: Array<RouteMenu> = [
     key: "submenu21",
     isShow: true,
     header: null,
-    permissions:[ProductPermission.read, ProductPermission.read_variant, ProductPermission.read_histories],
+    permissions: [
+      ProductPermission.read,
+      ProductPermission.read_variant,
+      ProductPermission.read_histories,
+    ],
     subMenu: [
       {
         path: `${UrlConfig.PRODUCT}/create`,
@@ -390,7 +393,7 @@ const product: Array<RouteMenu> = [
         permissions: [SuppliersPermissions.CREATE],
       },
       {
-        path: `${UrlConfig.SUPPLIERS}/:id`,
+        path: `${UrlConfig.SUPPLIERS}/:id/update`,
         exact: true,
         title: "Sửa nhà cung cấp",
         icon: "icon-dot",
@@ -402,6 +405,19 @@ const product: Array<RouteMenu> = [
         pathIgnore: ["create"],
         permissions: [SuppliersPermissions.UPDATE, SuppliersPermissions.READ],
       },
+      {
+        path: `${UrlConfig.SUPPLIERS}/:id`,
+        exact: false,
+        title: "Chi tiết nhà cung cấp",
+        icon: "icon-dot",
+        component: ViewSupplier,
+        key: "submenu2351",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [SuppliersPermissions.READ],
+      },
+      
     ],
   },
 ];
