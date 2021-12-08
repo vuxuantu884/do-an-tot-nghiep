@@ -48,6 +48,7 @@ const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
 let isConnectedShop = false;
+let connectedShopList: Array<EcommerceResponse> = [];
 
 const shopsReadPermission = [EcommerceConfigPermission.shops_read];
 const shopsConnectPermission = [EcommerceConfigPermission.shops_connect];
@@ -175,6 +176,7 @@ const EcommerceConfig: React.FC = () => {
       setIsLoading(false);
       setIsGetAllShop(true);
       setConfigData(responseData);
+      connectedShopList = responseData;
     }));
   }, [dispatch]);
   //end
@@ -183,7 +185,7 @@ const EcommerceConfig: React.FC = () => {
     (data: any) => {
       if (data) {
         setConfigFromEcommerce(data);
-        const shop = configData?.find((item: any) => item.id === data.id);
+        const shop = connectedShopList?.find((item: any) => item.id === data.id);
         if (shop) {
           setIsConfirmUpdateShop(true);
         } else {
@@ -191,7 +193,7 @@ const EcommerceConfig: React.FC = () => {
         }
       }
     },
-    [configData, history]
+    [history]
   );
 
   //listening callback after connect shop
