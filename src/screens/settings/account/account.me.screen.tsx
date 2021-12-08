@@ -16,11 +16,13 @@ import TitleCustom from "component/tag/TitleCustom";
 import { EditOutlined, LockOutlined, SolutionOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { AccountMeStyle } from "./account.me.style";
 import RowDetail from "screens/products/product/component/RowDetail";
-import { AccountResponse } from "model/account/account.model";
+import { AccountRequest, AccountResponse } from "model/account/account.model";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import {getAccountMeAction } from "domain/actions/account/account.action";
+import {AccountUpdateAction, getAccountMeAction } from "domain/actions/account/account.action";
 import { Link } from "react-router-dom";
-import { showInfo } from "utils/ToastUtils";
+import CustomModal from "component/modal/CustomModal";
+import MeContact from "./components/me-contact";
+import { showSuccess } from "utils/ToastUtils";
 
 type OrtherInfoType ={
   departments: string|null,
@@ -37,6 +39,7 @@ const AccountMeScreen: React.FC = () => {
   const listGender = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.gender
   );
+  const [isShowUpdate, setIsShowUpdate] =useState<boolean>(false); 
 
   const backAction = ()=>{    
     history.push(UrlConfig.HOME);
@@ -46,18 +49,31 @@ const AccountMeScreen: React.FC = () => {
     (data: AccountResponse) => {
       if (data) {
         setUser(data); 
-        
         setObjOrther({
           departments: data.account_jobs?.map(({department})=>department).toString(),
           jobs: data.account_jobs?.map(({position})=>position).toString(),
           permissions: data.permissions?.modules?.map(e=>e.name).toString(),
-          stores: data.account_stores?.map(({store})=>store).toString()
+          stores: data.account_stores?.map(({store})=>store).toString(),
         })
       }
       
     },
     [setUser]
-  );
+  ); 
+
+  const updateMeContact = useCallback((data: AccountRequest)=>{
+     let accountUpdate = {...user,
+      district_id:data.district_id,
+      mobile: data.mobile, 
+      address: data.address };
+
+       if (user?.id) {
+        dispatch(AccountUpdateAction(user.id, user ?? accountUpdate,  ()=>{
+          showSuccess("Cập nhật thông tin liên hệ thành công");
+          setIsShowUpdate(false);
+        }));
+       }
+  },[user, dispatch]);
 
   useEffect(() => {
       dispatch(getAccountMeAction(setAccount));
@@ -103,7 +119,7 @@ const AccountMeScreen: React.FC = () => {
                 icon={<SolutionOutlined />} 
                 text="THÔNG TIN LIÊN HỆ"/>}
                 extra={<Button color="#1890ff" type="link" onClick={()=>{
-                  showInfo("Tính năng đang phát triển");
+                  setIsShowUpdate(true);
                 }}><EditOutlined /> Đổi thông tin liên hệ</Button>}>   
               <RowDetail title="Số điện thoại" value={user?.mobile ?? "---"}/>
               <RowDetail title="Khu vực" value={user?.district ?? "---"}/>
@@ -124,6 +140,18 @@ const AccountMeScreen: React.FC = () => {
           backAction={backAction}
         />
       </AccountMeStyle>
+      <CustomModal
+        updateText="Lưu lại"
+        visible={isShowUpdate}
+        onCreate={() => {}}
+        onEdit={(formValues: AccountRequest) => updateMeContact(formValues)}
+        onDelete={()=>{}}
+        onCancel={() => setIsShowUpdate(false)}
+        modalAction="onlyedit"
+        componentForm={MeContact}
+        formItem={user}
+        modalTypeText="thông tin liên hệ"
+      />
     </ContentContainer>
   );
 }; 
