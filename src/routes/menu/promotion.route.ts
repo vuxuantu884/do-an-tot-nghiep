@@ -25,6 +25,10 @@ const promoCodeDetail = React.lazy(
 const promoCodeList = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.list")
 );
+const PromoCodeUpdate = React.lazy( 
+  () => import("screens/promotion/promo-code/promo-code.update")
+);
+
 // const GiftCreate = React.lazy(() => import("screens/promotion/gift/gift.create"));
 // const GiftList = React.lazy(() => import("screens/promotion/gift/gift.list"));
 
@@ -170,6 +174,18 @@ const promotion: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         permissions: [PromoPermistion.CREATE],
+      },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id/update`,
+        exact: true,
+        title: "Sửa khuyến mãi",
+        icon: "icon-dot",
+        component: PromoCodeUpdate,
+        key: "submenu1074",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id`,
