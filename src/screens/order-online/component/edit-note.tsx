@@ -46,13 +46,13 @@ const EditNote: React.FC<EditNoteProps> = (
             </div>
           </div>
         }
-        title="Sửa ghi chú nội bộ"
+        title="Sửa ghi chú"
         trigger="click"
         visible={visible}
         onVisibleChange={handleVisibleChange}
         
       >
-        <EditOutlined style={{ marginLeft: 10}}/>
+        <EditOutlined style={{ marginLeft: 10}} title="Sửa ghi chú"/>
       </Popover>
     </div>
   );

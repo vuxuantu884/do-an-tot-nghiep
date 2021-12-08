@@ -45,6 +45,7 @@ import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ShipmentMethod } from "utils/Constants";
 
 const ACTION_ID = {
 	delete: 1,
@@ -110,7 +111,7 @@ const initQuery: ShipmentSearchQuery = {
   cancel_reason: [],
 };
 
-const ListOrderScreen: React.FC = () => {
+const ShipmentsScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -206,7 +207,13 @@ const ListOrderScreen: React.FC = () => {
         (
           <div className="customer">
             <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {record.customer}
+							<Link
+								target="_blank"
+								to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+								className="primary"
+							>
+								{record.customer}
+							</Link>
             </div>
             {record.shipment && record.shipment.shipping_address && (<div>
               <div className="p-b-3">{record.shipment.shipping_address.phone}</div>
@@ -276,7 +283,7 @@ const ListOrderScreen: React.FC = () => {
       title: "HT Vận Chuyển",
       render: (record: any) => {
         switch (record.shipment?.delivery_service_provider_type) {
-          case "external_service":
+          case ShipmentMethod.EXTERNAL_SERVICE:
             const service_id = record.shipment.delivery_service_provider_id;
             const service = delivery_services.find((service) => service.id === service_id);
             return (
@@ -288,9 +295,9 @@ const ListOrderScreen: React.FC = () => {
                 />
               )
             );
-          case "Shipper":
+					case ShipmentMethod.SHIPPER:
             return `Đối tác - ${record.shipment.shipper_code} - ${record.shipment.shipper_name}`;
-          case "pick_at_store":
+					case ShipmentMethod.PICK_AT_STORE:
             return `Nhận tại - ${record.store}`;
           default: return ""
         }
@@ -327,44 +334,53 @@ const ListOrderScreen: React.FC = () => {
 
     {
       title: "Tổng SL sản phẩm",
-      dataIndex: "items",
-      render: (items?) => items?.length,
+      dataIndex: "total_quantity",
       key: "total_quantity",
       visible: true,
       align: "center",
     },
     {
       title: "Nhân viên tạo đơn giao",
-      render: (record) => <div>{`${record.account? record.account : ''} - ${record.account_code}`}</div>,
+			render: (value: string, record: ShipmentModel) => {
+				return <div>
+					<Link
+						target="_blank"
+						to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}
+						className="primary"
+					>
+						{`${record.account? record.account : ''} - ${record.account_code}`}
+					</Link>{" "}
+				</div>
+			},
       key: "account_code",
       visible: true,
       align: "center",
     },
     {
       title: "Ghi chú",
-      dataIndex: "shipment.note_to_shipper",
-      key: "note_to_shipper",
+      key: "note_order",
       visible: true,
     },
     {
       title: "Lý do huỷ giao",
       dataIndex: "shipment.cancel_reason",
-      // render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
       key: "cancel_date",
+      render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
       visible: true,
     },
     {
       title: "Phí trả đối tác",
-      dataIndex: "shipment",
-      render: (shipment?) => (
-        <NumberFormat
-          value={shipment?.shipping_fee_paid_to_three_pls}
+      key: "shipping_fee_paid_to_three_pls",
+			render: (value: string, record: ShipmentModel) => {
+				return (
+					<NumberFormat
+          value={record.shipment?.shipping_fee_paid_to_three_pls}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
         />
-      ),
-      key: "shipping_fee_paid_to_three_pls",
+				)
+			},
       visible: true,
       align: "center",
     },
@@ -377,31 +393,47 @@ const ListOrderScreen: React.FC = () => {
 
     {
       title: "Ngày giao hàng",
-      dataIndex: "shipment",
-      render: (shipment: any) => <div>{ConvertUtcToLocalDate(shipment.received_date)}</div>,
-      key: "shipped_on",
       visible: true,
+			render: (value: string, record: ShipmentModel) => {
+				if(record.shipped_on) {
+					return <div>{ConvertUtcToLocalDate(record.shipped_on)}</div>
+				}
+				return ""
+			},
+			key: "shipped_on",
       align: "center",
     },
     
     {
       title: "Ngày tạo đơn",
-      dataIndex: "shipment.created_date",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "shipped_on",
+			render: (value: string, record: ShipmentModel) => {
+				if(record.created_date) {
+					return <div>{ConvertUtcToLocalDate(record.created_date)}</div>
+				}
+				return ""
+			},
+      key: "created_date",
       visible: true,
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "shipment.finished_order_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "finishedOrderOn",
+			render: (value: string, record: ShipmentModel) => {
+				if(record.finished_order_on) {
+					return <div>{ConvertUtcToLocalDate(record.finished_order_on)}</div>
+				}
+				return ""
+			},
+      key: "finished_order_on",
       visible: true,
     },
     {
       title: "Ngày huỷ đơn",
-      dataIndex: "shipment.cancel_date",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string, record: ShipmentModel) => {
+				if(record.cancel_date) {
+					return <div>{ConvertUtcToLocalDate(record.cancel_date)}</div>
+				}
+				return ""
+			},
       key: "cancel_date",
       visible: true,
     },
@@ -409,18 +441,27 @@ const ListOrderScreen: React.FC = () => {
       title: "Tỉnh thành",
       dataIndex: "shipment.shipping_address.city",
       key: "city",
+			render: (value: string, record: ShipmentModel) => {
+				return record.shipment.shipping_address?.city;
+			},
       visible: true,
     },
     {
       title: "Quận huyện",
       dataIndex: "shipment.shipping_address.district",
       key: "district",
+			render: (value: string, record: ShipmentModel) => {
+				return record.shipment.shipping_address?.district;
+			},
       visible: true,
     },
     {
       title: "Trạng thái đối soát",
       dataIndex: "shipment.reference_status",
       key: "reference_status",
+			render: (value: string, record: ShipmentModel) => {
+				return record.shipment.reference_status;
+			},
       visible: true,
     },
   ]);
@@ -742,4 +783,4 @@ const ListOrderScreen: React.FC = () => {
   );
 };
 
-export default ListOrderScreen;
+export default ShipmentsScreen;
