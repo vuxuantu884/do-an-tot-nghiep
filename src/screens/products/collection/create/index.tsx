@@ -40,7 +40,7 @@ const AddCollection: React.FC = () => {
 
   const onSuccess = useCallback((result: CollectionResponse) => {
     showSuccess('Thêm nhóm hàng thành công');
-    history.push(`${UrlConfig.COLLECTIONS}/${result.id}`);
+    history.push(`${UrlConfig.COLLECTIONS}`);
   }, [history]);
 
   const onFinish = useCallback(
