@@ -220,7 +220,7 @@ export default function Order() {
     tags: "",
     customer_note: "",
     account_code: userReducer.account?.code,
-    assignee_code: "YD9915",
+    assignee_code: userReducer.account?.code || null,
     marketer_code: null,
     coordinator_code: null,
     customer_id: null,
