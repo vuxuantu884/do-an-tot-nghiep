@@ -61,8 +61,9 @@ const GroupUpdate: React.FC = () => {
       setLoading(false);
       setDetail(result);
       showSuccess('Sửa nhóm hàng thành công');
+      history.push(`${UrlConfig.COLLECTIONS}`);
     }
-  }, []);
+  }, [history]);
   const onFinish = useCallback(
     (values: CollectionUpdateRequest) => {
       setLoading(true);
