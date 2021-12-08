@@ -14,6 +14,9 @@ import {
 
 type SelectAreaFilterProps = {
   formCustomerFilter: any;
+  setProvincesListProps: any;
+  setDistrictsListProps: any;
+  setWardsListProps: any;
 };
 
 let tempWardsList: any[] = [];
@@ -25,7 +28,10 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   props: SelectAreaFilterProps
 ) => {
   const {
-    formCustomerFilter
+    formCustomerFilter,
+    setProvincesListProps,
+    setDistrictsListProps,
+    setWardsListProps
   } = props;
 
   const dispatch = useDispatch();
@@ -39,9 +45,10 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
     dispatch(
       CityByCountryAction(VietNamId, (response) => {
         setProvincesList(response);
+        setProvincesListProps(response);
       })
     );
-  }, [dispatch]);
+  }, [dispatch, setProvincesListProps]);
   
 
   useEffect(() => {
@@ -52,6 +59,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   const updateDistrictsList = (response: any) => {
     const newDistrictsList = [...districtsList].concat(response);
     setDistrictsList(newDistrictsList);
+    setDistrictsListProps(newDistrictsList);
   };
 
   const getDistrictByProvince = (provinceId: any) => {
@@ -78,7 +86,8 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   const removeDistrictByProvinceId = (provinceId: number) => {
     const newDistrictsList = districtsList?.filter((item: any) => item.city_id !== provinceId);
     setDistrictsList(newDistrictsList);
-    
+    setDistrictsListProps(newDistrictsList);
+
     const districtsDeselectedList = districtsSelectedList?.filter((item: any) => item.city_id === provinceId);
     const newDistrictsSelectedList = districtsSelectedList?.filter((item: any) => item.city_id !== provinceId);
     districtsSelectedList = newDistrictsSelectedList;
@@ -102,7 +111,9 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   const handleClearProvince = () => {
     formCustomerFilter.setFieldsValue({ district: undefined, ward: undefined })
     setDistrictsList([]);
+    setDistrictsListProps([]);
     setWardsList([]);
+    setWardsListProps([]);
     tempWardsList = [];
     wardsSelectedList = [];
     districtsSelectedList = [];
@@ -114,6 +125,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   const updateWardsList = (response: any) => {
     const newWardsList = [...wardsList].concat(response);
     setWardsList(newWardsList);
+    setWardsListProps(newWardsList);
     tempWardsList = newWardsList;
   };
 
@@ -141,6 +153,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   const removeWardsByDistrictId = (districtId: number) => {
     const newWardsList = tempWardsList?.filter((item: any) => item.district_id !== districtId);
     setWardsList(newWardsList);
+    setWardsListProps(newWardsList);
     tempWardsList = newWardsList;
 
     wardsSelectedList = wardsSelectedList?.filter((item: any) => item.district_id !== districtId);
@@ -160,6 +173,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   const handleClearDistrict = () => {
     formCustomerFilter.setFieldsValue({ ward: undefined })
     setWardsList([]);
+    setWardsListProps([]);
     tempWardsList = [];
     wardsSelectedList = [];
     districtsSelectedList = [];
