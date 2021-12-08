@@ -82,7 +82,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
       if (value.length >= 3) {
         setLoadingSearch(true);
         dispatch(
-          SupplierSearchAction({ query: value, status: "active" }, onResult)
+          SupplierSearchAction({ condition: value, status: "active" }, onResult)
         );
       } else {
         setData([]);
@@ -103,18 +103,20 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     (value: string) => {
       let index = data.findIndex((item) => item.id.toString() === value);
       var supplier = data[index];
+      let indexAddress = supplier.addresses.findIndex(address => address.is_default);
+      let indexContact = supplier.contacts.findIndex(contact => contact.is_default);
       let supplierAddress: PurchaseAddress = {
-        name: supplier.contact_name,
-        email: supplier.email,
-        phone: supplier.phone,
-        tax_code: supplier.tax_code,
-        country_id: supplier.country_id,
-        country: supplier.country_name,
-        city_id: supplier.city_id,
-        city: supplier.city_name,
-        district_id: supplier.district_id,
-        district: supplier.district_name,
-        full_address: supplier.address,
+        name: indexContact !== -1 ? supplier.contacts[indexContact].name : '',
+        email: indexContact !== -1 ? supplier.contacts[indexContact].email : '',
+        phone: indexContact !== -1 ? supplier.contacts[indexContact].phone : '',
+        tax_code: indexContact !== -1 ? supplier.contacts[indexContact].phone : '',
+        country_id: indexAddress !== -1 ? supplier.addresses[indexAddress].country_id : undefined,
+        country: indexAddress !== -1 ? supplier.addresses[indexAddress].country : '',
+        city_id: indexAddress !== -1 ? supplier.addresses[indexAddress].city_id : undefined,
+        city: indexAddress !== -1 ? supplier.addresses[indexAddress].city : '',
+        district_id: indexAddress !== -1 ? supplier.addresses[indexAddress].district_id : undefined,
+        district: indexAddress !== -1 ? supplier.addresses[indexAddress].district : '',
+        full_address: indexAddress !== -1 ? supplier.addresses[indexAddress].address : '',
       };
       formMain.setFieldsValue({
         supplier_id: value,
@@ -157,18 +159,20 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   }, []);
   const OkSupplierAddModal = useCallback(
     (supplierItem: SupplierResponse) => {
+      let indexAddress = supplierItem.addresses.findIndex(address => address.is_default);
+      let indexContact = supplierItem.contacts.findIndex(contact => contact.is_default);
       let supplierAddress: PurchaseAddress = {
-        name: supplierItem.contact_name,
-        email: supplierItem.email,
-        phone: supplierItem.phone,
-        tax_code: supplierItem.tax_code,
-        country_id: supplierItem.country_id,
-        country: supplierItem.country_name,
-        city_id: supplierItem.city_id,
-        city: supplierItem.city_name,
-        district_id: supplierItem.district_id,
-        district: supplierItem.district_name,
-        full_address: supplierItem.address,
+        name: indexContact !== -1 ? supplierItem.contacts[indexContact].name : '',
+        email: indexContact !== -1 ? supplierItem.contacts[indexContact].email : '',
+        phone: indexContact !== -1 ? supplierItem.contacts[indexContact].phone : '',
+        tax_code: indexContact !== -1 ? supplierItem.contacts[indexContact].phone : '',
+        country_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country_id : undefined,
+        country: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country : '',
+        city_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].city_id : undefined,
+        city: indexAddress !== -1 ? supplierItem.addresses[indexAddress].city : '',
+        district_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].district_id : undefined,
+        district: indexAddress !== -1 ? supplierItem.addresses[indexAddress].district : '',
+        full_address: indexAddress !== -1 ? supplierItem.addresses[indexAddress].address : '',
       };
       formMain.setFieldsValue({
         supplier_id: supplierItem.id,
