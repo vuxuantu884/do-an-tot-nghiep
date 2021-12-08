@@ -3,7 +3,7 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
-const ListFulfillmentScreen = React.lazy(
+const ShipmentsScreen = React.lazy(
   () => import("screens/order-online/list-shipments")
 );
 
@@ -35,8 +35,8 @@ const shipments: Array<RouteMenu> = [
     exact: true,
     title: "Danh sách đơn giao",
     icon: "icon-dot",
-    component: ListFulfillmentScreen,
-    key: "shipments",
+    component: ShipmentsScreen,
+    key: "submenu66",
     isShow: true,
     header: null,
     permissions: [ODERS_PERMISSIONS.VIEW],

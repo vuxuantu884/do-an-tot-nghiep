@@ -20,9 +20,10 @@ type PropType = {
   dataToSelect: AccountResponse[];
   initDataToSelect: AccountResponse[];
   setDataToSelect: (value: AccountResponse[]) => void;
+	[res:string]: any;
 };
 
-function AccountAutoComplete(props: PropType) {
+function AccountSearchSelect(props: PropType) {
   const {
     placeholder,
     form,
@@ -33,6 +34,7 @@ function AccountAutoComplete(props: PropType) {
     setDataToSelect,
 		...rest
   } = props;
+	console.log('initDataToSelect', initDataToSelect)
   const inputRef: MutableRefObject<any> = useRef();
   const dispatch = useDispatch();
 
@@ -74,8 +76,6 @@ function AccountAutoComplete(props: PropType) {
 
 	const onClear = useCallback(
 		() => {
-			console.log('22');
-			console.log('initDataToSelect', initDataToSelect)
 			setDataToSelect(initDataToSelect)
 		},
 		[initDataToSelect, setDataToSelect],
@@ -109,4 +109,4 @@ function AccountAutoComplete(props: PropType) {
   );
 }
 
-export default AccountAutoComplete;
+export default AccountSearchSelect;
