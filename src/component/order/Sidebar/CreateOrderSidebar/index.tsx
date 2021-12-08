@@ -1,6 +1,6 @@
 import {InfoCircleOutlined} from "@ant-design/icons";
 import {Card, Form, FormInstance, Input, Select} from "antd";
-import AccountAutoComplete from "component/custom/AccountAutoComplete";
+import AccountSearchSelect from "component/custom/AccountSearchSelect";
 import CustomInputTags from "component/custom/custom-input-tags";
 import {HttpStatus} from "config/http-status.config";
 import UrlConfig from "config/url.config";
@@ -224,7 +224,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             },
           ]}
         >
-          <AccountAutoComplete
+          <AccountSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
             form={form}
             formFieldName="assignee_code"
@@ -244,7 +244,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             },
           ]}
         >
-          <AccountAutoComplete
+          <AccountSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
             form={form}
             formFieldName="marketer_code"
@@ -258,7 +258,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           label="Nhân viên điều phối"
           name="coordinator_code"
         >
-          <AccountAutoComplete
+          <AccountSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
             form={form}
             formFieldName="coordinator_code"
