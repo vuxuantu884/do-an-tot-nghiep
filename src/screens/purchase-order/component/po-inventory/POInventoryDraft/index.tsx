@@ -148,9 +148,9 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
       {
         title: "Cửa hàng nhận",
         dataIndex: "store_id",
-        width: 'auto',
+        width: 200,
         render: (value, record, index) => (
-          <Select
+            <Select
             onChange={(value1: number) => onChangeStore(value1, index)}
             value={value}
             showSearch
