@@ -27,3 +27,45 @@ export const StyledSelectDateFilter = styled.div`
     }
   }
 `;
+
+export const StyledStatus = styled.div`
+  .green-status {
+    background: #F0FCF5;
+    color: #27AE60;
+    border-radius: 100px;
+    padding: 5px 15px;
+    margin: 0px auto;
+  }
+
+  .red-status {
+    background: rgba(226, 67, 67, 0.1);
+    color: #E24343;
+    border-radius: 100px;
+    padding: 5px 15px;
+    margin: 0px auto;
+  }
+  
+  .yellow-status {
+    background: #FFFAF0;
+    color: #FCAF17;
+    border-radius: 100px;
+    padding: 5px 15px;
+    margin: 0px auto;
+  }
+
+  .blue-status {
+    background: rgba(42, 42, 134, 0.1);
+    color: #2A2A86;
+    border-radius: 100px;
+    padding: 5px 15px;
+    margin: 0px auto;
+  }
+
+  .gray-status {
+    background: rgba(102, 102, 102, 0.1);
+    color: #666666;
+    border-radius: 100px;
+    padding: 5px 15px;
+    margin: 0px auto;
+  }
+`;

@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Tooltip } from "antd";
+import { Button, Card, Form, Input } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
@@ -17,11 +17,15 @@ import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ProductPermission } from "config/permissions/product.permission";
+import useAuthorization from "hook/useAuthorization";
+import "assets/css/custom-filter.scss";
 
-const actions: Array<MenuAction> = [
+const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
@@ -130,8 +134,11 @@ const ListMaterial: React.FC = () => {
     setSelected(selectedRow);
   }, []);
   const onFinish = useCallback(
-    (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+    (values: MaterialQuery) => {
+      let newPrams = { ...params, ...values, 
+        info: values.info?.trim(),  
+        description: values.description?.trim(),
+        page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.MATERIALS}?${queryParam}`);
@@ -140,10 +147,15 @@ const ListMaterial: React.FC = () => {
   );
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
+      let newPrams = { ...params, 
+        info: params.info?.trim(),  
+        description: params.description?.trim(),
+        page: page,
+        limit: size } as MaterialQuery; 
+
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+
+      setPrams({ ...newPrams });
       history.replace(`${UrlConfig.MATERIALS}?${queryParam}`);
     },
     [history, params]
@@ -161,18 +173,26 @@ const ListMaterial: React.FC = () => {
     },
     [onDelete, onUpdate]
   );
-  const menuFilter = useMemo(() => {
-    return actions.filter((item) => {
-      if (selected.length === 0) {
-        return item.id !== 1 && item.id !== 2;
-      }
-      if (selected.length > 1) {
-        return item.id !== 1;
-      }
 
+  const [canDeleteMaterials] = useAuthorization({
+    acceptPermissions: [ProductPermission.materials_delete],
+  });
+  const [canUpdateMaterials] = useAuthorization({
+    acceptPermissions: [ProductPermission.materials_update],
+  });
+
+  const menuFilter = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === 1) {
+        return selected.length === 1 && canUpdateMaterials;
+      }
+      if (item.id === 2) {
+        return canDeleteMaterials;
+      }
       return true;
     });
-  }, [selected]);
+  }, [selected, canDeleteMaterials, canUpdateMaterials]);
+
   useEffect(() => {
     setLoading(true);
     dispatch(getMaterialAction(params, onGetSuccess));
@@ -194,44 +214,42 @@ const ListMaterial: React.FC = () => {
           name: "Chất liệu",
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.MATERIALS}/create`} />}
+      extra={<AuthWrapper acceptPermissions={[ProductPermission.materials_create]}>
+        <ButtonCreate child="Thêm chất liệu" path={`${UrlConfig.MATERIALS}/create`} />
+        </AuthWrapper>}
     >
       <Card>
-        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-          <Form onFinish={onFinish} initialValues={params} layout="inline">
-            <Item name="info">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Tên/Mã/ID nhân viên"
-              />
-            </Item>
-            <Item name="component">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Thành phần"
-              />
-            </Item>
-            <Item name="description">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Ghi chú"
-              />
-            </Item>
-            <Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Item>
-            <Item>
-              <Tooltip overlay="Lưu bộ lọc" placement="top">
-                <Button icon={<StarOutlined />} />
-              </Tooltip>
-            </Item>
-          </Form>
-        </CustomFilter>
+        <div className="custom-filter">
+          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+            <Form onFinish={onFinish} initialValues={params} layout="inline">
+              <Item name="info" className="input-search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Tên/Mã/ID nhân viên"
+                />
+              </Item>
+              <Item name="component">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 200 }}
+                  placeholder="Thành phần"
+                />
+              </Item>
+              <Item name="description">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 200 }}
+                  placeholder="Ghi chú"
+                />
+              </Item>
+              <Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Item> 
+            </Form>
+          </CustomFilter>
+        </div>
         <CustomTable
           isRowSelection
           isLoading={loading}

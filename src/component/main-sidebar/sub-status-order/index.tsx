@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 import { OrderStatus } from "utils/Constants";
 
 type PropType = {
-  subStatusId?: number | null;
+  subStatusCode?: string | undefined;
   status?: string | null;
   orderId?: number;
   fulfillments?: FulFillmentResponse[] | null;
@@ -20,17 +20,18 @@ type PropType = {
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId, fulfillments, subStatusId, handleUpdateSubStatus } = props;
+  const { status, orderId, fulfillments, subStatusCode, handleUpdateSubStatus } = props;
   const dispatch = useDispatch();
   const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
     []
   );
-  const [valueSubStatusId, setValueSubStatusId] = useState<number | undefined>(undefined);
+  const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
-  const handleChange = (statusId: number) => {
+  const handleChange = (sub_status_code: string) => {
+    
     if (orderId) {
-      setValueSubStatusId(statusId);
-      dispatch(setSubStatusAction(orderId, statusId, handleUpdateSubStatus));
+      setValueSubStatusCode(sub_status_code);
+      dispatch(setSubStatusAction(orderId, sub_status_code, handleUpdateSubStatus));
     }
   };
 
@@ -65,8 +66,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           //   {
           //     id: 1,
           //     status: "Chờ xác nhận",
-          //     company_id: DEFAULT_FORM_VALUE.company_id,
-          //     company: DEFAULT_FORM_VALUE.company,
+          //     company_id: DEFAULT_COMPANY.company_id,
+          //     company: DEFAULT_COMPANY.company,
           //     sub_status: "Chờ xác nhận",
           //     note: "",
           //     is_active: true,
@@ -82,10 +83,10 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   }, [dispatch, fulfillments, status]);
 
   useEffect(() => {
-    if (subStatusId) {
-      setValueSubStatusId(subStatusId);
+    if (subStatusCode) {
+      setValueSubStatusCode(subStatusCode);
     }
-  }, [subStatusId]);
+  }, [subStatusCode]);
 
   return (
     <Card title="Xử lý đơn hàng">
@@ -99,13 +100,13 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         }
         onChange={handleChange}
         notFoundContent="Không tìm thấy trạng thái phụ"
-        defaultValue={valueSubStatusId}
+        value={valueSubStatusCode}
         key={Math.random()}
       >
         {listOrderSubStatus &&
           listOrderSubStatus.map((single) => {
             return (
-              <Select.Option value={single.id} key={single.id}>
+              <Select.Option value={single.code} key={single.code}>
                 {single.sub_status}
               </Select.Option>
             );

@@ -14,7 +14,7 @@ import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 import { Link } from "react-router-dom";
 
 const ACTIONS_INDEX = {
@@ -109,7 +109,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-  const [tableLoading, setTableLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(true);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   let dataQuery: InventoryTransferLogSearchQuery = {
     ...initQuery,
@@ -150,7 +150,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
 
         const dataItem = JSON.parse(value);
         
-        return <Link to={`${UrlConfig.INVENTORY_TRANSFER}/${dataItem?.id}`}>{dataItem?.code}</Link>
+        return <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${dataItem?.id}`}>{dataItem?.code}</Link>
       }
     },
     {
@@ -170,6 +170,18 @@ const HistoryInventoryTransferTab: React.FC = () => {
       dataIndex: "updated_by",
       visible: true,
       align: "center",
+      render: (value: string, item: InventoryTransferLog, index: number) => {
+        return (
+          <>
+          <div>
+            <b>{item.created_by ?? ""}</b>
+          </div>
+          <div>
+            {item.created_name ?? ""}
+          </div>
+        </>
+        );
+      },
     },
     {
       title: "Log ID",
@@ -251,7 +263,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}#2?${queryParam}`);
+      history.push(`${InventoryTransferTabUrl.HISTORIES}?${queryParam}`);
     },
     [history, params]
   );
@@ -260,7 +272,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
     () => {
       setPrams(initQuery);
       let queryParam = generateQuery(initQuery);
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}#2?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_TRANSFERS}#2?${queryParam}`);
     },
     [history]
   );

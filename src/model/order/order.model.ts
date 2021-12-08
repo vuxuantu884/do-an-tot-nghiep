@@ -77,6 +77,7 @@ export interface OrderSearchQuery {
   code: string | null;
   store_ids: [];
   source_ids: Array<any> | [];
+  variant_ids: [];
   customer_ids: Array<number>;
   issued_on_min: string | null;
   issued_on_max: string | null;
@@ -97,7 +98,7 @@ export interface OrderSearchQuery {
   cancelled_on_max: string | null;
   cancelled_on_predefined: string | null;
   order_status: [];
-  sub_status_id?: [];
+  sub_status_code?: [];
   fulfillment_status: [];
   payment_status: [];
   return_status: [];
@@ -116,6 +117,6 @@ export interface OrderSearchQuery {
 }
 
 export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
-  ecommerce_shop_ids: [];
+  ecommerce_shop_ids: any[];
   channel_id: number | undefined;
 }

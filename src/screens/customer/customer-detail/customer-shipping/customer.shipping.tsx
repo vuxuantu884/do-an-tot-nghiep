@@ -26,6 +26,7 @@ type CustomerShippingAddressInfoProps = {
   customerDetailState: string;
   modalAction: modalActionType;
   isShowModalShipping: boolean;
+  allowUpdateCustomer: boolean;
   setIsShowModalShipping: (value: boolean) => void;
   setModalAction: (value: modalActionType) => void;
 };
@@ -40,6 +41,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
       setModalAction,
       modalAction,
       isShowModalShipping,
+      allowUpdateCustomer,
       setIsShowModalShipping,
     } = props;
     const [modalSingleShippingAddress, setModalShippingAddress] =
@@ -157,6 +159,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
             <Checkbox
               checked={item.default}
               onClick={(value) => handleShippingDefault(value, item)}
+              disabled={!allowUpdateCustomer}
             />
           );
         },
@@ -231,7 +234,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
       },
     };
     return (
-      <Row style={{ marginTop: 16 }}>
+      <Row>
         <Col span={24}>
           <CustomTable
             showColumnSetting={false}

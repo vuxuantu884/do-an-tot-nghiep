@@ -43,16 +43,29 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import ExportModal from "./modal/export.modal";
 import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+
+const ACTION_ID = {
+	delete: 1,
+	export: 2,
+	printShipment: 3,
+}
 
 const actions: Array<MenuAction> = [
   {
-    id: 1,
+    id: ACTION_ID.delete,
     name: "Xóa",
     icon:<DeleteOutlined />
   },
   {
-    id: 2,
+    id: ACTION_ID.export,
     name: "Export",
+    icon:<ExportOutlined />
+  },
+	{
+    id: ACTION_ID.printShipment,
+    name: "In phiếu giao hàng",
     icon:<ExportOutlined />
   },
 ];
@@ -85,6 +98,7 @@ const initQuery: ShipmentSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   print_status: [],
+  pushing_status: [],
   store_ids: [],
   source_ids: [],
   account_codes: [],
@@ -118,13 +132,14 @@ const ListOrderScreen: React.FC = () => {
   const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>(
     []
   );
-  let deliveryServices: any[] = []
+  let delivery_services: Array<DeliveryServiceResponse> = []
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        deliveryServices = response
-        // setDeliveryServices(response);
+        delivery_services = response
+        setDeliveryServices(response)
       })
     );
   }, [dispatch]);
@@ -201,7 +216,7 @@ const ListOrderScreen: React.FC = () => {
         ),
       key: "customer",
       visible: true,
-      width: "5%",
+      width: 200,
     },
     {
       title: (
@@ -255,19 +270,15 @@ const ListOrderScreen: React.FC = () => {
       ),
       key: "cod",
       visible: true,
-      align: "right",
+      align: "center",
     },
     {
-      title: "HTVC",
+      title: "HT Vận Chuyển",
       render: (record: any) => {
         switch (record.shipment?.delivery_service_provider_type) {
           case "external_service":
             const service_id = record.shipment.delivery_service_provider_id;
-            console.log('deliveryServices', deliveryServices);
-            
-            const service = deliveryServices.find((service) => service.id === service_id);
-            console.log('service', service);
-            
+            const service = delivery_services.find((service) => service.id === service_id);
             return (
               service && (
                 <img
@@ -286,7 +297,7 @@ const ListOrderScreen: React.FC = () => {
       },
       key: "shipment.type",
       visible: true,
-      width: "3.5%",
+      width: 140,
       align: "center",
     },
     {
@@ -311,7 +322,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: "4.3%",
+      width: 180,
     },
 
     {
@@ -322,13 +333,40 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
-
+    {
+      title: "Nhân viên tạo đơn giao",
+      render: (record) => <div>{`${record.account? record.account : ''} - ${record.account_code}`}</div>,
+      key: "account_code",
+      visible: true,
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "shipment.note_to_shipper",
+      key: "note_to_shipper",
+      visible: true,
+    },
+    {
+      title: "Lý do huỷ giao",
+      dataIndex: "shipment.cancel_reason",
+      // render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
+      key: "cancel_date",
+      visible: true,
+    },
     {
       title: "Phí trả đối tác",
       dataIndex: "shipment",
-      render: (shipment?) => shipment?.shipping_fee_paid_to_three_pls,
+      render: (shipment?) => (
+        <NumberFormat
+          value={shipment?.shipping_fee_paid_to_three_pls}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      ),
       key: "shipping_fee_paid_to_three_pls",
       visible: true,
+      align: "center",
     },
     // {
     //   title: "Khách đã trả",
@@ -345,67 +383,44 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
-    {
-      title: "Nhân viên tạo đơn giao",
-      dataIndex: "account_code",
-      key: "account_code",
-      visible: true,
-      align: "center",
-    },
+    
     {
       title: "Ngày tạo đơn",
-      dataIndex: "created_date",
+      dataIndex: "shipment.created_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "shipped_on",
       visible: true,
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "received_on",
+      dataIndex: "shipment.finished_order_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "received_on",
+      key: "finishedOrderOn",
       visible: true,
     },
     {
       title: "Ngày huỷ đơn",
-      dataIndex: "cancel_date",
+      dataIndex: "shipment.cancel_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "cancel_date",
       visible: true,
     },
     {
-      title: "Lý do huỷ giao",
-      dataIndex: "shipment",
-      render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
-      key: "cancel_date",
-      visible: true,
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "shipment.note_to_shipper",
-      key: "note_to_shipper",
-      visible: true,
-    },
-    {
       title: "Tỉnh thành",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && shipping_address.city,
+      dataIndex: "shipment.shipping_address.city",
       key: "city",
       visible: true,
     },
     {
       title: "Quận huyện",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && shipping_address.district,
+      dataIndex: "shipment.shipping_address.district",
       key: "district",
       visible: true,
     },
     {
       title: "Trạng thái đối soát",
-      dataIndex: "reference_code",
-      key: "reference_code",
+      dataIndex: "shipment.reference_status",
+      key: "reference_status",
       visible: true,
     },
   ]);
@@ -445,9 +460,12 @@ const ListOrderScreen: React.FC = () => {
   const [statusExport, setStatusExport] = useState<number>(1);
 
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
+  const [selectedRow, setSelectedRow] = useState([]);
+	
   const onSelectedChange = useCallback((selectedRow) => {
     const selectedRowCodes = selectedRow.map((row: any) => row.code);
     setSelectedRowCodes(selectedRowCodes);
+		setSelectedRow(selectedRow);
   }, []);
 
   const onExport = useCallback((optionExport, typeExport) => {
@@ -537,7 +555,25 @@ const ListOrderScreen: React.FC = () => {
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
 
-  const onMenuClick = useCallback((index: number) => {}, []);
+  const onMenuClick = useCallback((index: number) => {
+		switch (index) {
+			case ACTION_ID.printShipment:
+				console.log('selectedRow', selectedRow)
+				let params = {
+					action: "print",
+					ids: selectedRow.map((single:ShipmentModel) => single.order_id),
+					"print-type": "shipment",
+					"print-dialog": true,
+				};
+				const queryParam = generateQuery(params);
+				const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          window.open(printPreviewUrl, "_blank");
+				break;
+		
+			default:
+				break;
+		}
+	}, [selectedRow]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<ShipmentModel> | false) => {
@@ -590,32 +626,40 @@ const ListOrderScreen: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={
-                  <img src={importIcon} style={{ marginRight: 8 }} alt="" />
-                }
-                onClick={() => {}}
-              >
-                Nhập file
-              </Button>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={
-                  <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
-                }
-                // onClick={onExport}
-                onClick={() => {
-                  setShowExportModal(true);
-                }}
-              >
-                Xuất file
-              </Button>
-              <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                  onClick={() => {}}
+                  disabled={!isPassed}
+                >
+                  Nhập file
+                </Button>}
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                  // onClick={onExport}
+                  onClick={() => {
+                    console.log("export");
+                    setShowExportModal(true);
+                  }}
+                  disabled={!isPassed}
+                >
+                  Xuất file
+                </Button>}
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                {(isPassed: boolean) => 
+                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />}
+              </AuthWrapper>
             </Space>
           </Row>
         }
@@ -639,7 +683,7 @@ const ListOrderScreen: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630 }}
+            scroll={{ x: 3630 * columnFinal.length/(columns.length ? columns.length : 1)}}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,

@@ -15,9 +15,11 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { scrollAndFocusToDomElement } from "utils/AppUtils";
 import { optionAllCities, VietNamId } from "utils/Constants";
 import { LAYOUT_CREATE_AND_DETAIL } from "utils/OrderSettings.constants";
 import { showError } from "utils/ToastUtils";
+import _ from "lodash";
 import OrderSettingInformation from "../OrderSettingInformation";
 import OrderSettingValue from "../OrderSettingValue";
 import SelectThirdPartyLogistic from "../SelectThirdPartyLogistic";
@@ -40,6 +42,11 @@ function LayoutEditAndDetail(props: PropType) {
   const [list3rdPartyLogistic, setList3rdPartyLogistic] = useState<
     DeliveryServiceResponse[]
   >([]);
+
+  const checkIfSettingHasSameValue = (arr: any[]) => {
+    let cloneArr = [...arr];
+    return _.uniqWith(cloneArr, _.isEqual).length !== arr.length; 
+  };
 
   const handleSubmitForm = (action: string) => {
     form
@@ -76,6 +83,15 @@ function LayoutEditAndDetail(props: PropType) {
           ),
         };
         console.log("formValueFormatted", formValueFormatted);
+        console.log('formValue.shipping_fee_configs', formValueFormatted.shipping_fee_configs)
+        if(checkIfSettingHasSameValue(formValueFormatted.shipping_fee_configs)) {
+          let element = document.getElementById("orderSettingValue");
+          if(element) {
+            scrollAndFocusToDomElement(element);
+          }
+          showError("Trùng cài đặt!");
+          return;
+        }
 
         if (action === LAYOUT_CREATE_AND_DETAIL.create) {
           dispatch(

@@ -191,7 +191,8 @@
 
 .btn-payment-method {
   button {
-    font-size: 17px;
+    // font-size: 17px;
+    align-items: center;
   }
   .ant-btn-primary {
     background: #2a2a86;
@@ -206,7 +207,8 @@
 }
 
 .btn-list-method {
-  padding: 20px 0 25px 0;
+  // padding: 20px 0 25px 0;
+  padding: 10px 0 20px 0;
 }
 
 .ant {
@@ -393,7 +395,7 @@
       }
       &:first-child {
         &::before {
-          top: 0;
+          top: 6px;
         }
       }
       .ant-collapse-content-box {
@@ -405,7 +407,7 @@
       .ant-collapse-header {
         position: unset !important;
         display: inline-flex;
-        flex-direction: row-reverse;
+        // flex-direction: row-reverse;
         align-items: center;
         width: auto;
         color: $primary-color !important;
@@ -962,7 +964,7 @@
     & > div {
       &:first-child {
         & > div {
-          width: 220px;
+          // width: 220px;
           display: flex;
           align-items: center;
           & > div {
@@ -1009,6 +1011,9 @@
   .ant-modal-header {
     padding: 27px 27.5px 21px 30px;
   }
+  .ant-modal-body {
+    padding: 0;
+  }
   .orders-cancel-option {
     width: 100%;
     .ant-select {
@@ -1024,7 +1029,7 @@
     }
   }
   .ant-modal-title {
-    & > div {
+    .title {
       display: flex;
       div {
         margin-left: 25px;
@@ -1046,9 +1051,9 @@
       }
     }
   }
-  .ant-modal-body {
-    padding: 0;
-  }
+  // .ant-modal-body {
+  //   padding: 0;
+  // }
   .ant-modal-footer {
     box-shadow: none;
     border: none;
@@ -1167,7 +1172,7 @@
       }
     }
   }
-  .ant-btn-default {
+  .btn-list-method .ant-btn-default {
     background: #ffff;
     border: 1px solid #e5e5e5;
     border-radius: 3px;
@@ -1305,6 +1310,22 @@
       //   left: -4px;
       //   border-radius: 50%;
       // }
+			&.currentTimeline {
+				&:after {
+					background-color: $green !important;
+				}
+				b, i, span {
+					color: $green !important;
+				}
+				&.hasError {
+					&:after {
+						background-color: $red !important;
+					}
+					b, i, span {
+						color: $red !important;
+					}
+				}
+			}
     }
     .orders-timeline-custom.order-shipment-dot-default {
       &::before {
@@ -1313,25 +1334,31 @@
     }
     .orders-timeline-custom.order-shipment-dot-active {
       &::before {
-        background-color: #27ae60;
+        background-color: $green;
       }
     }
     .orders-timeline-custom.order-shipment-dot-cancelled {
-      &::before {
-        background-color: #e24343;
-      }
+      // &::before {
+        .saleorder-header-content {
+          .text-field {
+            color: #e24343 !important;
+          }
+        }
+        // background-color: #e24343;
+      // }
     }
     .ant-collapse-header {
       display: flex;
       flex-direction: row;
+      align-items: center;
       .saleorder-header-arrow {
         width: 30px;
         margin: 0;
       }
       div {
-        display: flex;
-        width: 100%;
-        padding: 0;
+        // display: flex;
+        // width: 100%;
+        // padding: 0;
         & > div {
           &:first-child {
           }
@@ -1606,6 +1633,7 @@
     .orderPaymentItem {
       display: flex;
       justify-content: space-between;
+      width: 100%;
       .amount {
         font-weight: 500;
       }

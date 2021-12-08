@@ -24,6 +24,8 @@ import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
 import { InventoryTransferLogSearchQuery, Store } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
+import ButtonSetting from "component/table/ButtonSetting";
+import "assets/css/custom-filter.scss";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -111,11 +113,18 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
   const onChangeRangeDate = useCallback(
     (dates, dateString, type) => {
+      let fromDateString = null;
+      let toDateString = null;
+    
+      if (dates) {
+        fromDateString = dates[0].hours(0).minutes(0).seconds(0) ?? null;
+        toDateString = dates[1].hours(23).minutes(59).seconds(59) ?? null;
+      }
       switch(type) {
         case 'create_date':
           setCreateDateClick('')
-          setIsFromCreatedDate(moment(dateString[0], 'DD-MM-YYYY'))
-          setIsToCreatedDate(moment(dateString[1], 'DD-MM-YYYY'))
+          setIsFromCreatedDate(fromDateString)
+          setIsToCreatedDate(toDateString)
           break;
         default: break
       }
@@ -265,11 +274,23 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     let list = []
     if (initialValues.action.length) {
       let textAction = ""
+
+      if (initialValues.action.length > 1) {
         
-      initialValues.action.forEach(actionValue => {
-        const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
-        textAction = status ? textAction + status.name + ";" : textAction
-      })
+        initialValues.action.forEach(actionValue => {
+          const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
+          textAction = status ? textAction + status.name + "; " : textAction
+        })
+
+      } else if (initialValues.action.length === 1) {
+        
+        initialValues.action.forEach(actionValue => {
+          const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
+          textAction = status ? textAction + status.name : textAction
+        })
+
+      }
+
       list.push({
         key: 'action',
         name: 'Trạng thái',
@@ -278,10 +299,23 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     }
     if (initialValues.updated_by.length) {
       let textAccount = ""
+      
+      if (initialValues.updated_by.length > 1) {
+        
       initialValues.updated_by.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
+
+      } else if (initialValues.updated_by.length === 1) {
+  
+        initialValues.updated_by.forEach(i => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
+
+      }
+
       list.push({
         key: 'updated_by',
         name: 'Người sửa',
@@ -302,24 +336,21 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     
   return (
     <InventoryFiltersWrapper>
+      <div className="custom-filter"> 
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-          <Row gutter={20} className="row-filter">
-          <Col flex="200px">
             <Item
               name="from_store_id"
               className="select-item"
             >
               <Select
+                style={{width: '200px'}}
                 placeholder="Kho gửi"
                 showArrow
                 showSearch
+                allowClear
+                onClear={() => formSearchRef?.current?.submit()}
               >
-                <Option
-                  value={""}
-                >
-                  Chọn kho gửi
-                </Option>
                 {Array.isArray(stores) &&
                   stores.length > 0 &&
                   stores.map((item, index) => (
@@ -332,23 +363,19 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                   ))}
               </Select>
             </Item>
-          </Col>
-          <Col flex="200px">
             <Item
               name="to_store_id"
               className="select-item"
             >
               <Select
+                style={{width: '180px'}}
                 placeholder="Kho nhận"
                 showArrow
                 showSearch
                 optionFilterProp="children"
+                allowClear
+                onClear={() => formSearchRef?.current?.submit()}
               >
-                <Option
-                  value={""}
-                >
-                  Chọn kho nhận
-                </Option>
                 {Array.isArray(stores) &&
                   stores.length > 0 &&
                   stores.map((item, index) => (
@@ -361,8 +388,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                   ))}
               </Select>
             </Item >
-          </Col>
-          <Col flex="auto">
             <Item name="condition" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
@@ -374,26 +399,18 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 }}
               />
             </Item>
-          </Col>
-          <Col flex="80px">
             <Item>
-              <Button type="primary" loading={loadingFilter} htmlType="submit">
+              <Button style={{width: '80px'}} type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
               </Button>
             </Item>
-          </Col>
-          <Col flex="180px">
             <Item>
-              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              <Button style={{width: '180px'}} icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
-          </Col>
-          <Col flex="60px">
-            <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
-          </Col>
-          </Row>
+            <ButtonSetting onClick={onShowColumnSetting} />
         </Form>
       </CustomFilter>
-
+      </div>
       <BaseFilter
         onClearFilter={onClearFilterClick}
         onFilter={onFilterClick}

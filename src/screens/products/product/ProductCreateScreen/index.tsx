@@ -213,14 +213,14 @@ const ProductCreateScreen: React.FC = () => {
 
   const onCategoryChange = useCallback(
     (value: number) => {
-      let categoryIndex = listCategory.findIndex((item) => item.id === value);
-      if (categoryIndex !== -1) {
-        form.setFieldsValue({
-          code: listCategory[categoryIndex].code,
-        });
-      }
+      // let categoryIndex = listCategory.findIndex((item) => item.id === value);
+      // if (categoryIndex !== -1) {
+      //   form.setFieldsValue({
+      //     code: listCategory[categoryIndex].code,
+      //   });
+      // }
     },
-    [form, listCategory]
+    []
   );
 
   const listVariantsFilter = useCallback(
@@ -662,7 +662,7 @@ const ProductCreateScreen: React.FC = () => {
                           placeholder="Chọn danh mục"
                           suffix={
                             <Button
-                              style={{ width: 37, height: 37 }}
+                              style={{ width: 37, height: 37, padding: 0 }}
                               icon={<PlusOutlined />}
                               onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`)}
                             />
@@ -779,7 +779,7 @@ const ProductCreateScreen: React.FC = () => {
                           onChange={onMaterialChange}
                           suffix={
                             <Button
-                              style={{ width: 37, height: 37 }}
+                              style={{ width: 37, height: 37, padding: 0 }}
                               icon={<PlusOutlined />}
                               onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.MATERIALS}/create`)}
                             />
@@ -1075,8 +1075,8 @@ const ProductCreateScreen: React.FC = () => {
                               </Col>
                               <Col md={3}>
                                 <Item
-                                  name={[name, "whole_sale_price"]}
-                                  fieldKey={[fieldKey, "whole_sale_price"]}
+                                  name={[name, "wholesale_price"]}
+                                  fieldKey={[fieldKey, "wholesale_price"]}
                                   label="Giá buôn"
                                   tooltip={{
                                     title: () => (
@@ -1124,8 +1124,8 @@ const ProductCreateScreen: React.FC = () => {
                               </Col>
                               <Col md={3}>
                                 <Item
-                                  name={[name, "wholesale_price"]}
-                                  fieldKey={[fieldKey, "wholesale_price"]}
+                                  name={[name, "cost_price"]}
+                                  fieldKey={[fieldKey, "cost_price"]}
                                   label="Giá vốn"
                                   tooltip={{
                                     title: () => (
@@ -1379,7 +1379,7 @@ const ProductCreateScreen: React.FC = () => {
                   loading={loadingSaveButton}
                   type="primary"
                 >
-                  Thêm sản phẩm
+                  Tạo sản phẩm
                 </Button>
               </Space>
             }

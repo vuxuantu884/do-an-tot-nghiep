@@ -1,3 +1,9 @@
+export enum DiscountMethod {
+  FIXED_PRICE = "FIXED_PRICE",
+  PERCENTAGE = "PERCENTAGE",
+  QUANTITY = "QUANTITY",
+  ORDER_THRESHOLD = "ORDER_THRESHOLD",
+}
 export interface DiscountCreateModel {
   title: string;
   description: string | null;
@@ -10,7 +16,7 @@ export interface DiscountCreateModel {
   prerequisite_days: Array<number> | [];
   prerequisite_store_ids: Array<number> | [];
   prerequisite_sales_channel_names: Array<string> | [];
-  prerequisite_order_sources_ids: Array<number> | [];
+  prerequisite_order_source_ids: Array<number> | [];
   customer_selection: boolean | false;
   prerequisite_gender: Array<string> | [];
   prerequisite_customer_group_ids: Array<number> | [];
@@ -44,4 +50,29 @@ export interface Entitlement {
 export interface EntitleRange {
   greater_than_or_equal_to: number | null;
   less_than_or_equal_to: number | null;
+  allocation_limit?: number;
+  value_type?: string;
+  value?: number;
+}
+
+export interface VariantEntitlementsResponse {
+  discount_type: DiscountMethod;
+  discount_value: number;
+  index: number;
+  limit: number;
+  min_quantity: number;
+  price: number;
+  quantity: number;
+  sku: string;
+  variant_id: number;
+  variant_title: number;
+}
+
+export interface DiscountFormModel {
+  variants: Array<VariantEntitlementsResponse>;
+  entitled_variant_ids: Array<number>;
+  "prerequisite_quantity_ranges.allocation_limit": number,
+        "prerequisite_quantity_ranges.greater_than_or_equal_to": number,
+        "prerequisite_quantity_ranges.value_type":  "FIXED_PRICE" | "FIXED_AMOUNT" |  string,
+        "prerequisite_quantity_ranges.value": number,
 }

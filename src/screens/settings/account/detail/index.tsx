@@ -1,8 +1,8 @@
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
-import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
+import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig from "config/url.config";
-import { AccountGetByIdtAction } from "domain/actions/account/account.action";
+import { AccountGetByCodeAction } from "domain/actions/account/account.action";
 import { AccountResponse } from "model/account/account.model";
 import React, { useCallback, useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -20,29 +20,7 @@ enum TabName {
   DETAIL_TAB = "DETAIL_TAB",
   PERMISSION_TAB = "PERMISSION_TAB",
 }
-const dumyPerrmission = { // dumy => need to remove
-  user_id: "e85cfc75-460e-4f1a-bea7-0d8ac6cf1837",
-  modules: [
-    {
-      id: 1,
-      description: "àdadsf",
-      name: "Tạo",
-      version: 1,
-      code: "AUTHS",
-      permissions: [
-        {
-          id: 23,
-          role_id: 22,
-          module_code: "AUTHS",
-          name: "Tạo",
-          code: "CREATE",
-          store_id: 1,
-          version: 1,
-        },
-      ],
-    },
-  ],
-};
+
 function AccountDetail() {
   const dispatch = useDispatch();
   const {code} = useParams<{code: string}>();
@@ -60,18 +38,13 @@ function AccountDetail() {
     [setAccountInfo]
   );
 
-  useEffect(() => {
-    let data: any = {};
-    data.permissions = dumyPerrmission;
-    setAccountInfo && setAccountInfo(data);
-    dispatch(AccountGetByIdtAction(code, setAccount));
-  }, [code, setAccount, dispatch, setAccountInfo]);
+  const getAccountData = useCallback(() => {
+    dispatch(AccountGetByCodeAction(code, setAccount));
+  }, [dispatch, code, setAccount]);
 
-  const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-    <StickyUnderNavbar>
-      <DefaultTabBar {...props} />
-    </StickyUnderNavbar>
-  );
+  useEffect(() => {
+    getAccountData();
+  }, [getAccountData]);
 
   return (
     <ContentContainer
@@ -92,19 +65,14 @@ function AccountDetail() {
     >
       <AccountDetailStyle>
         <Card className="card-tab">
-          <Tabs
-            style={{overflow: "initial"}}
-            // activeKey={activeTab}
-            // onChange={(active) =>
-            //   history.replace(`${history.location.pathname}#${active}`)
-            // }
-            renderTabBar={renderTabBar}
+          <Tabs style={{overflow: "initial"}} 
+          renderTabBar={RenderTabBar}
           >
             <TabPane tab="Thông tin cơ bản" key={TabName.DETAIL_TAB}>
               <AccountViewTab />
             </TabPane>
             <TabPane tab="Thông tin phân quyền" key={TabName.PERMISSION_TAB}>
-              <AccountPermissionTab />
+              <AccountPermissionTab getAccountData={getAccountData}/>
             </TabPane>
           </Tabs>
         </Card>

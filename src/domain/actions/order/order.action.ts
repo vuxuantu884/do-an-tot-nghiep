@@ -14,39 +14,40 @@ import {
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   // UpdatePaymentRequest,
-  VTPFeeRequest,
+  VTPFeeRequest
 } from "model/request/order.request";
 import {
   createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
+  deleteDeliveryMappedStoreReQuestModel
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   ActionLogDetailResponse,
-  OrderActionLogResponse,
+  OrderActionLogResponse
 } from "model/response/order/action-log.response";
 import {
+  ChannelsResponse,
   DeliveryMappedStoreType,
   DeliveryServiceResponse,
   DeliveryTransportTypesResponse,
   ErrorLogResponse,
-  GHNFeeResponse,
-  OrderConfig,
-  OrderResponse,
+  GHNFeeResponse, OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse,
+  VTPFeeResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceEcommerceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import { OrderType } from "../../types/order.type";
 
 export const orderCreateAction = (
   request: OrderRequest,
-  setData: (data: OrderResponse) => void
+  setData: (data: OrderResponse) => void,
+  onError: () => void
 ) => {
-  return BaseAction(OrderType.CREATE_ORDER_REQUEST, { request, setData });
+  return BaseAction(OrderType.CREATE_ORDER_REQUEST, { request, setData, onError });
 };
 
 export const orderUpdateAction = (
@@ -58,7 +59,7 @@ export const orderUpdateAction = (
   return BaseAction(OrderType.UPDATE_ORDER_REQUEST, { id, request, setData, onError });
 };
 
-export const orderFpageCreateAction = (
+export const orderYDPpageCreateAction = (
   request: OrderRequest,
   setData: (data: OrderResponse) => void,
   setDisable: (data: any) => void
@@ -251,7 +252,7 @@ export const getListSubStatusAction = (
 
 export const setSubStatusAction = (
   order_id: number,
-  statusId: number,
+  statusCode: string,
   handleData: () => void,
   action: string = "Chuyển trạng thái phụ"
 ) => {
@@ -259,12 +260,16 @@ export const setSubStatusAction = (
     type: OrderType.SET_SUB_STATUS,
     payload: {
       order_id,
-      statusId,
+      statusCode,
       action,
       handleData,
     },
   };
 };
+
+export const getDetailOrder=(orderId:any,setData:(data:OrderResponse)=>void)=>{
+  return BaseAction(OrderType.GET_DETAIL_ORDER_REQUEST,{orderId, setData})
+}
 
 export const getListOrderAction = (
   query: OrderSearchQuery,
@@ -348,20 +353,20 @@ export const getListChannelRequest = (
 };
 
 export const getListReasonRequest = (
-  setData: (data: Array<{ id: number; name: string }>) => void
+  setData: (data: Array<{ id: number, name: string, sub_reasons: any[] }>) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
 };
 
 export const cancelOrderRequest = (
-  id: number, reason_id: number, reason: string,
+  id: number, reason_id: number, sub_reason_id: number, reason: string,
   onSuccess: (success: any) => void,
   onError: (error: any) => void
 ) => {
-  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, reason_id, reason, onSuccess, onError });
+  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, reason_id, sub_reason_id, reason, onSuccess, onError });
 };
 
-export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
+export const configOrderSaga = (setData: (data: OrderConfigResponseModel) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
 
@@ -433,4 +438,12 @@ export const splitOrderAction = (
 
 export const getSourcesEcommerce = (setData: (data: Array<SourceEcommerceResponse>) => void) => {
   return BaseAction(OrderType.SOURCES_ECOMMERCE, { setData });
+}
+
+export const getChannels=(typeId:number, setData:(data:ChannelsResponse[])=>void)=>{
+  return BaseAction(OrderType.GET_CHANNELS,{typeId,setData});
+}
+
+export const updateOrderPartial = (params: any, orderID: number, onSuccess: () => void)=> {
+  return BaseAction(OrderType.UPDATE_ORDER_PARTIAL_REQUEST, {params, orderID, onSuccess});
 }

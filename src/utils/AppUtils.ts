@@ -25,6 +25,7 @@ import {
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
+	ReturnProductModel,
 } from "model/response/order/order.response";
 import {
   OrderLineItemRequest,
@@ -258,8 +259,7 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     updated_name: size.updated_name,
     updated_date: size.updated_date,
     version: size.version,
-    code: size.code,
-    category_ids: ids,
+    code: size.code, 
   };
   return sizeConvert;
 };
@@ -274,10 +274,10 @@ export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
   return supplierConverted;
 };
 
-export const formatCurrency = (currency: number | string | boolean): string => {
+export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {
   try {
     let format = currency.toString();
-    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
   } catch (e) {
     return "";
   }
@@ -626,17 +626,7 @@ export const Products = {
   },
 };
 
-export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
-  let value = 0;
-  if (items.length > 0) {
-    if (items[0].amount !== null) {
-      value = items[0].amount;
-    }
-  }
-  return value;
-};
-
-export const getAmountPayment = (items: Array<OrderPaymentResponse> | null) => {
+export const getAmountPayment = (items: Array<OrderPaymentResponse|OrderPaymentRequest> | null) => {
   let value = 0;
   if (items !== null) {
     if (items.length > 0) {
@@ -668,18 +658,39 @@ export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
   return total;
 };
 
-export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
-  let total = 0;
-  items.forEach((a) => (total = total + a.discount_amount * a.quantity));
+export const getLineItemDiscountValue = (lineItem: OrderLineItemRequest) => {
+	let total = 0;
+  lineItem.discount_items.forEach((a) => (total = total + a.value));
   return total;
 };
 
-export const getTotalAmountAfferDiscount = (
+export const getLineItemDiscountAmount = (lineItem: OrderLineItemRequest) => {
+	let total = 0;
+  lineItem.discount_items.forEach((a) => (total = total + a.amount));
+  return total;
+};
+
+export const getLineItemDiscountRate = (lineItem: OrderLineItemRequest) => {
+  return lineItem.discount_value / lineItem.price;
+};
+
+export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
+  let total = 0;
+  items.forEach((a) => (total = total + a.discount_amount));
+  return total;
+};
+
+export const getTotalAmountAfterDiscount = (
   items: Array<OrderLineItemRequest>
 ) => {
   let total = 0;
   items.forEach((a) => (total = total + a.line_amount_after_line_discount));
   return total;
+};
+
+
+export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) => {
+	return lineItem.amount - lineItem.discount_amount;
 };
 
 export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
@@ -698,22 +709,30 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       }
     }
   }
-
   if (
-    items?.total_line_amount_after_line_discount +
-      (items?.fulfillments &&
-      items?.fulfillments.length > 0 &&
-      items?.fulfillments[0].shipment &&
-      items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        ? items?.fulfillments[0].shipment &&
-          items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        : 0) -
-      (items?.discounts &&
-      items?.discounts.length > 0 &&
-      items?.discounts[0].amount
-        ? items?.discounts[0].amount
-        : 0) <=
-    value
+    items?.total <= value
+  ) {
+    return 1; //đã thanh toán
+  } else {
+    if (value === 0) {
+      return -1; //chưa thanh toán
+    } else {
+      return 0; //thanh toán 1 phần
+    }
+  }
+};
+
+export const checkPaymentStatus = (payments: any, orderAmount: number) => {
+  let value = 0;
+  if (payments !== null) {
+    if (payments !== null) {
+      if (payments.length > 0) {
+        payments.forEach((a: any) => (value = value + a.paid_amount));
+      }
+    }
+  }
+  if (
+    value >= orderAmount
   ) {
     return 1; //đã thanh toán
   } else {
@@ -758,7 +777,7 @@ export const checkPaymentAll = (items: OrderResponse) => {
   let cod = SumCOD(items);
 
   let totalPay = value + cod;
-  if (items.total === totalPay) {
+  if (items?.total === totalPay) {
     return 1;
   } else {
     return 0;
@@ -780,10 +799,8 @@ export const checkPaymentAll = (items: OrderResponse) => {
 export const getDateLastPayment = (items: any) => {
   let value: Date | undefined;
   if (items !== null) {
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a: any) => (value = a.created_date));
-      }
+    if (items.length > 0) {
+      items.forEach((a: any) => (value = a.created_date));
     }
   }
   return value;
@@ -793,8 +810,8 @@ export const getDateLastPayment = (items: any) => {
 export const getShippingAddressDefault = (items: CustomerResponse | null) => {
   let objShippingAddress = null;
   if (items !== null) {
-    for (let i = 0; i < items.shipping_addresses.length; i++) {
-      if (items.shipping_addresses[i].default === true) {
+    for (let i = 0; i < items.shipping_addresses?.length; i++) {
+      if (items.shipping_addresses[i].default) {
         objShippingAddress = items.shipping_addresses[i];
       }
     }
@@ -947,3 +964,177 @@ export const getServiceName = (item: OrderResponse) => {
     }
   }
 };
+
+export const scrollAndFocusToDomElement = (element?: HTMLElement) => {
+  if (!element) {
+    return;
+  }
+  element.focus();
+  const y = element.getBoundingClientRect()?.top + window.pageYOffset + -250;
+  window.scrollTo({top: y, behavior: "smooth"});
+};
+
+// lấy danh sách sản phẩm đã đổi
+export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return [];
+  }
+  if(!OrderDetail?.order_returns || OrderDetail?.order_returns?.length === 0) {
+    return []
+  }
+  let orderReturnItems:OrderLineItemResponse[] = [];
+
+  for (const singleReturn of OrderDetail.order_returns) {
+     //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
+     for (const singleReturnItem of singleReturn.items) {
+       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id);
+
+       if(index > -1) {
+         let duplicatedItem = {...orderReturnItems[index]};
+        duplicatedItem.quantity = duplicatedItem.quantity + singleReturnItem.quantity;
+        orderReturnItems[index] = duplicatedItem;
+       } else {
+         orderReturnItems.push(singleReturnItem);
+       }
+
+     }
+  }
+  return orderReturnItems;
+};
+
+// kiểm tra xem đã trả hết hàng chưa
+export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return false;
+  }
+  let result = false;
+  let orderReturnItems = getListReturnedOrders(OrderDetail)
+  console.log('orderReturnItems', orderReturnItems)
+  // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về false
+  if( orderReturnItems.length > 0) {
+    let checkIfNotReturnAll = false;
+    for (const singleItem of OrderDetail.items) {
+      console.log('singleItem', singleItem)
+      let selectedItem = orderReturnItems.find((item) => item.variant_id === singleItem.variant_id);
+      console.log('selectedItem', selectedItem)
+      if(!selectedItem) {
+        checkIfNotReturnAll = true;
+        break;
+      }
+      if(selectedItem.quantity < singleItem.quantity) {
+        checkIfNotReturnAll = true;
+        break;
+      }
+      checkIfNotReturnAll = false;
+    }
+    console.log('checkIfNotReturnAll', checkIfNotReturnAll)
+    result = !checkIfNotReturnAll;
+  }
+  console.log('result', result)
+  return result;
+}
+// lấy danh sách còn có thể đổi trả
+export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return [];
+  }
+  let result:OrderLineItemResponse[] = [];
+  let orderReturnItems = getListReturnedOrders(OrderDetail);
+  console.log('orderReturnItems', orderReturnItems)
+  for (const singleOrder of OrderDetail.items) {
+    let duplicatedItem = orderReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
+    if(duplicatedItem) {
+      let clone = {...duplicatedItem}
+      if(singleOrder.quantity - duplicatedItem.quantity > 0) {
+        clone.quantity = singleOrder.quantity - clone.quantity;
+        result.push(clone)
+
+      }
+    }
+    else {
+      result.push(singleOrder);
+    }
+  }
+  console.log('result', result)
+ return result;
+}
+
+export const customGroupBy = (array:any, groupBy:any) => {
+  let groups = {};
+  array.forEach((o: any) => {
+    const group:string = groupBy.map((e: any) => `{"${e}": "${o[e]}"}`);
+    // @ts-ignore
+    groups[group] = groups[group] || [];
+    const e = Object.assign({}, o);
+    groupBy.forEach((g:string) => {
+      // @ts-ignore
+      groups[group][g] = e[g];
+      delete e[g];
+    })
+    // @ts-ignore
+    groups[group].push(e);
+  });
+  return Object.keys(groups).map((group) => {
+    // @ts-ignore
+    const r = {variants: groups[group]};
+    groupBy.forEach((b: string) => {
+      // @ts-ignore
+      r[b] = groups[group][b];
+      // @ts-ignore
+      delete groups[group][b]
+    })
+    return r;
+  });
+};
+
+
+export const handleDisplayCoupon = (coupon: string, numberCouponCharactersShowedBeforeAndAfter: number = 2) => {
+  if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
+    const firstCharacters = coupon.substring(0,numberCouponCharactersShowedBeforeAndAfter);
+    const lastCharacters = coupon.substring(coupon.length - numberCouponCharactersShowedBeforeAndAfter,coupon.length);
+    return `${firstCharacters}***${lastCharacters}`;
+  } else {
+    return `${coupon}***${coupon}`;
+  }
+};
+
+export const getAccountCodeFromCodeAndName = (text: string | null | undefined) => {
+	const splitString = "-"
+	let result = null;
+	if(text) {
+		result = text.split(splitString)[0].trim();
+	} 
+	return result;
+};
+
+export const handleDelayActionWhenInsertTextInSearchInput = (inputRef: React.MutableRefObject<any>, func: (...arg: any) => void|any, delayTime: number = 500) => {
+	if (inputRef.current) {
+		clearTimeout(inputRef.current);
+	}
+	inputRef.current = setTimeout(() => {
+		func();
+	}, delayTime);
+};
+
+export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
+	let discountPerProduct = 0;
+	product.discount_items.forEach((single) => {
+		discountPerProduct += single.value;
+	});
+	return discountPerProduct;
+};
+
+export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: ReturnProductModel) => {
+	let discountPerOrder = 0;
+	let totalDiscountRatePerOrder = 0;
+	OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
+		if (singleOrderDiscount?.rate) {
+			totalDiscountRatePerOrder = totalDiscountRatePerOrder + singleOrderDiscount.rate;
+		}
+	});
+	console.log('totalDiscountRatePerOrder', totalDiscountRatePerOrder);
+	product.discount_value = getLineItemDiscountValue(product)
+	discountPerOrder =
+		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
+	return discountPerOrder;
+}

@@ -4,22 +4,50 @@ cache:
     - .npm/
 
 variables:
-  SERVICE_PATH: /unicorn/admin
+  SERVICE_PATH: /admin
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 stages:
   - docker_build
   - deploy
 
-docker build:
+docker build dev:
   stage: docker_build
   tags:
   - build-yody-tag
   only:
     - develop
+  variables:
+    PREFIX: dev
+    DOCKER_FILE: Dockerfile
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
+docker build uat:
+  stage: docker_build
+  tags:
+  - build-yody-tag
+  only:
     - uat
   variables:
-    DOCKER_FILE: Dockerfile
+    PREFIX: uat
+    DOCKER_FILE: Dockerfile-uat
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
+docker build production:
+  stage: docker_build
+  tags:
+  - build-yody-tag
+  only:
+    - master
+  variables:
+    PREFIX: prod
+    DOCKER_FILE: Dockerfile-production
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
@@ -27,12 +55,15 @@ docker build:
 
 deploy to dev:
   stage: deploy
+  cache: {}
   tags:
     - nonprod-deploy
   only:
     - develop
+  when: manual
   variables:
-    HOST: dev.yody.io
+    PREFIX: dev
+    HOST: dev.unicorn.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
     SERVICE_NAME: yody-app-admin
@@ -42,15 +73,35 @@ deploy to dev:
 
 deploy to uat:
   stage: deploy
+  cache: {}
   when: manual
   tags:
     - nonprod-deploy
   only:
     - uat
   variables:
-    HOST: uat.yody.io
+    PREFIX: uat
+    HOST: uat.unicorn.yody.io
     NAMESPACE: uat
     ENVIRONMENT: uat
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/deploy.sh app-admin
+
+deploy to production:
+  stage: deploy
+  when: manual
+  cache: {}
+  tags:
+    - production
+  only:
+    - master
+  variables:
+    PREFIX: prod
+    HOST: unicorn.yody.io
+    NAMESPACE: production
+    ENVIRONMENT: production
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:

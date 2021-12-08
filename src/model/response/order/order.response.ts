@@ -32,6 +32,10 @@ export interface OrderResponse extends BaseObject {
   customer: string | null;
   customer_phone_number: string | null;
   customer_email: string | null;
+  customer_address: string | null;
+  customer_ward: string | null;
+  customer_district: string | null;
+  customer_city: string | null;
   fulfillment_status: string | null;
   packed_status: string | null;
   received_status: string | null;
@@ -64,17 +68,20 @@ export interface OrderResponse extends BaseObject {
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status?: string;
   sub_status_id?: number | null;
+  sub_status_code?: string;
   reason_name?: string;
   return_date?: string;
   receive_date?: string;
   order_code?: string;
   order_id?: number;
+  order_returns?: Array<OrderResponse>;
   order_return_origin?: OrderReturnModel;
   point_refund?: number;
   money_refund?: number;
   shipment: ShipmentResponse | null | undefined;
   linked_order_code: string | null;
   ecommerce_shop_name: string | null;
+	automatic_discount?: boolean;
 }
 
 export interface OrderLineItemResponse {
@@ -87,6 +94,7 @@ export interface OrderLineItemResponse {
   show_note: boolean;
   variant_barcode: string;
   product_type: string;
+  product_code?: string;
   quantity: number;
   price: number;
   amount: number;
@@ -110,7 +118,7 @@ export interface OrderLineItemResponse {
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {
-  maxQuantity: number;
+  maxQuantityCanBeReturned: number;
 }
 
 export interface FulFillmentResponse {
@@ -142,7 +150,7 @@ export interface FulFillmentResponse {
   discount_rate: number | null;
   discount_value: number | null;
   discount_amount: number | null;
-  total_line_amount_after_line_discount: number | null;
+  total_line_amount_after_line_discount: number;
   shipment: ShipmentResponse | null | undefined;
   billing_address: BillingAddress | null;
   items: Array<OrderLineItemResponse>;
@@ -158,6 +166,7 @@ export interface OrderDiscountResponse {
   promotion_id: number | null;
   reason: string | null;
   source: string | null;
+  discount_code: string | null;
 }
 
 // export interface OrderItemDiscountResponse {
@@ -227,9 +236,12 @@ export interface ShippingAddress {
 }
 
 export interface ShipmentResponse extends BaseObject {
+  delivery_service_provider_code: string | null;
   delivery_service_provider_id: number | null;
+  delivery_service_provider_name: string | null;
   delivery_service_provider_type: string | null;
   delivery_transport_type: string | null;
+  insurance_fee: number | null;
   shipper_code: string | null;
   shipper_name: string | null;
   handover_id: number | null;
@@ -345,8 +357,8 @@ export interface StoreCustomResponse extends BaseObject {
   country_name: string;
   city_id: number;
   city_name: string;
-  group_id: number;
-  group_name: string;
+  department: string;
+  department_id: number,
   status: string;
   status_name: string;
   zip_code: string;
@@ -355,17 +367,17 @@ export interface StoreCustomResponse extends BaseObject {
   ward_id: number;
   ward_name: string;
   address: string;
-  full_address: string;
   hotline: string;
-  manager_code: string;
+  vm:string;
   vm_code: string;
-  finder_code: string;
   mail: string;
   begin_date: string;
   number_of_account: number;
   accounts: Array<any>;
   is_saleable: boolean;
   is_stocktaking: boolean;
+  type: string;
+  type_name: string;
 }
 
 export interface OrderSubStatusResponse {
@@ -374,6 +386,7 @@ export interface OrderSubStatusResponse {
   company_id: number;
   company: string;
   sub_status: string;
+  code: string;
   status: string;
   note: string;
   is_active: boolean;
@@ -389,7 +402,9 @@ export interface TrackingLogFulfillmentResponse extends BaseObject {
   raw_data: string;
   action_date: string;
   deleted: boolean;
-  shipping_status: string;
+  shipping_status: string|null;
+  status: string;
+  partner_note: string|null;
 }
 
 export interface ErrorLogResponse extends BaseObject {
@@ -404,11 +419,16 @@ export interface ErrorLogResponse extends BaseObject {
 
 export interface OrderReturnModel extends OrderResponse {
   received: boolean;
+  total_amount: number;
 }
 
 export interface OrderReturnReasonModel {
   id: number;
   name: string;
+  sub_reasons: {
+    id: number;
+    name: string;
+  }[]
 }
 
 export interface OrderConfig extends BaseObject {
@@ -418,4 +438,15 @@ export interface OrderConfig extends BaseObject {
 export interface OrderProductListModel extends OrderLineItemResponse {
   pick: number;
   color: string;
+}
+
+export interface ChannelTypeResponse{
+  id:number;
+  code:string;
+  name:string
+}
+
+export interface ChannelsResponse extends BaseObject{
+  name:string;
+  channel_type:ChannelTypeResponse;
 }

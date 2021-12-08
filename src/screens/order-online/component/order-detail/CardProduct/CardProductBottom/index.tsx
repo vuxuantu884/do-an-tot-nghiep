@@ -106,7 +106,7 @@ function CardProductBottom(props: PropType) {
                     calculateChangeMoney(items, amount, 0, 0);
                   }}
                 >
-                  {discountRate !== 0 ? discountRate : 0}%{" "}
+                  {discountRate !== 0 ? Math.round(discountRate*100)/100 : 0}%{" "}
                 </Tag>
               )}
             </Space>
@@ -145,6 +145,12 @@ function CardProductBottom(props: PropType) {
                   onClose={() => {
                     setDiscountRate(0);
                     setDiscountValue(0);
+                    items?.forEach(item => item.discount_items = [{
+                      rate: 0,
+                      value: 0,
+                      amount: 0,
+                      reason: '',
+                    }])
                   }}
                 >
                   {coupon}{" "}

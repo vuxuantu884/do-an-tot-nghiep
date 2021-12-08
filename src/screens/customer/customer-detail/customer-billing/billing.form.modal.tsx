@@ -42,7 +42,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
-  // const DEFAULT_FORM_VALUE = {
+  // const DEFAULT_COMPANY = {
   //   company_id: 1,
   //   company: "YODY",
   // };

@@ -1,22 +1,25 @@
-import React from 'react';
-import { RouteMenu } from "model/other";
-import setting from './setting.route';
-import product from './product.route';
-import bill from './bill.route';
 import UrlConfig from 'config/url.config';
-import customers from "./customer.route"
-import shipments from "./shipment.route"
-import ecommerce from "./ecommerce.route"
+import { RouteMenu } from "model/other";
+import React from 'react';
+import bill from './bill.route';
+import customers from "./customer.route";
+import ecommerce from "./ecommerce.route";
+import { inventory } from "./inventory.route";
+import product from './product.route';
 import promotion from './promotion.route';
-import {inventory} from "./inventory.route";
-
+import { AdminPermission } from 'config/permissions/admin.permission';
+import setting from './setting.route';
+import shipments from "./shipment.route";
+import reports from "./reports.route";
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
-const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"))
-const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"))
+const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"));
+const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"));
+const ReportOrders = React.lazy(() => import ("screens/reports/report-orders"));
+const YDpage = React.lazy(() => import ("screens/YDpage/YDpage"));
 
 const menu: Array<RouteMenu> = [
   {
@@ -43,7 +46,7 @@ const menu: Array<RouteMenu> = [
 
   },
   {
-    path: "/inventory-transfer",
+    path: "/inventory-transfers",
     exact: true,
     title: "Kho hàng",
     icon: 'icon-inventory',
@@ -109,15 +112,15 @@ const menu: Array<RouteMenu> = [
     subMenu: ecommerce,
   },
   {
-    path: "/report",
+    path: "/reports",
     exact: true,
     title: "Báo cáo",
     icon: 'icon-report',
-    component: null,
+    component: ReportOrders,
     key: "9",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: reports,
   },
   {
     path: "/setting",
@@ -131,7 +134,7 @@ const menu: Array<RouteMenu> = [
     subMenu: setting,
   },
   {
-    path: "/unicorn/pos",
+    path: "/pos",
     exact: true,
     title: "Bán hàng tại quầy",
     icon: 'icon-sale',
@@ -140,7 +143,19 @@ const menu: Array<RouteMenu> = [
     isShow: false,
     header: null,
     subMenu: [],
+    permissions: [AdminPermission.all],
+  },
+  {
+    path: UrlConfig.YDPAGE,
+    exact: true,
+    title: "Bán hàng trên YDPage",
+    icon: 'icon-YDpage',
+    component: YDpage,
+    key: "YDpage",
+    isShow: true,
+    header: null,
+    subMenu: [],
   },
 ]
 
-export default menu;
+export default menu; 

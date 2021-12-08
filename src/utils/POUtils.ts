@@ -28,13 +28,14 @@ const POUtils = {
       let price = price_response !== null ? price_response.import_price : 0;
       let newItem: PurchaseOrderLineItem = {
         sku: variant.sku,
+        barcode: variant.barcode,
         variant_id: variant.id,
         product_id: variant.product_id,
         product: variant.product.name,
         variant: variant.name,
         product_type: variant.product.product_type,
         quantity: 1,
-        price: price,
+        price: price ?? 0,
         amount: price,
         note: "",
         type: Type.NORMAL,
@@ -289,6 +290,7 @@ const POUtils = {
     let result: Array<PurchaseProcumentLineItem> = [];
     data.forEach((item) => {
       result.push({
+        barcode: item.barcode,
         line_item_id: item.position,
         code: item.code,
         sku: item.sku,
@@ -345,6 +347,7 @@ const POUtils = {
         );
         if (index === -1) {
           newProcumentLineItem.push({
+            barcode: lineItem.barcode,
             line_item_id: lineItem.position,
             code: lineItem.code,
             sku: lineItem.sku,

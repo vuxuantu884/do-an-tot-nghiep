@@ -24,3 +24,13 @@ export interface PostEcommerceOrderQuery {
   create_time_from: number | null;
   create_time_to: number | null;
 }
+
+export interface GetOrdersMappingQuery extends BaseQuery {
+  ecommerce_order_code: string | null;
+  core_order_code: string | null;
+  connected_status: string | null;
+  created_date_from: number | null;
+  created_date_to: number | null;
+  ecommerce_order_statuses: Array<any> | null;
+  shop_ids: Array<any> | null;
+}

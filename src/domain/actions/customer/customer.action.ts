@@ -8,6 +8,10 @@ import {
   } from "model/response/customer/customer-group.response";
 //import { CustomerRequest, CustomerUpdateRequest } from 'model/request/customer.request';
 
+export const CustomerSearchSo = (query: CustomerSearchQuery, setData: (data: Array<CustomerResponse>) => void) => {
+  return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE_SO, { query, setData });
+}
+
 export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array<CustomerResponse>) => void) => {
     return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, { query, setData });
 }
@@ -16,7 +20,7 @@ export const CustomerSearchByPhone = (query: FpageCustomerSearchQuery, setData: 
   return BaseAction(CustomerType.CUSTOMER_SEARCH_BY_PHONE, { query, setData });
 }
 
-export const CustomerList = (query: CustomerSearchQuery, setData: (data: any) => void) => {
+export const getCustomerListAction = (query: CustomerSearchQuery, setData: (data: any) => void) => {
     return BaseAction(CustomerType.CUSTOMER_LIST, { query, setData });
 }
 
@@ -79,7 +83,7 @@ export const actionAddCustomerGroup = (
     };
   };
 
-export const CustomerDetail = (id: number|null, setData: (data: CustomerResponse) => void) => {
+export const getCustomerDetailAction = (id: number|null, setData: (data: CustomerResponse) => void) => {
     return BaseAction(CustomerType.CUSTOMER_DETAIL, { id, setData });
 }
 

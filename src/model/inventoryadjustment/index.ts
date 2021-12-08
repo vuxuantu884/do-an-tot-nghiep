@@ -5,19 +5,22 @@ export interface InventoryAdjustmentSearchQuery {
   page: number;
   limit: number;
   condition: string | null, 
-  adjusted_store_id: number | null,
-  status: [],
+  adjusted_store_id: number | null, 
+  status: [] | null, 
+  audit_type: [] | null,
   from_total_variant: number | null,
   to_total_variant: number | null,
   from_total_quantity: number | null,
   to_total_quantity: number | null,
   from_total_amount: number | null,
   to_total_amount: number | null,
-  created_by: [],
+  created_name: string[] | null,
   from_created_date: string|null,
   to_created_date: string|null,
-  from_inventoryadjustment_date: string|null,
-  to_inventoryadjustment_date: string|null,
+  from_audited_date: string|null,
+  to_audited_date: string|null,
+  from_adjusted_date: string|null,
+  to_adjusted_date: string|null,
 }
 
 export type StoreStatus = {
@@ -64,7 +67,7 @@ export interface LineItemAdjustment {
   real_on_hand: number,
   on_hand_adj: number | null,
   on_hand_adj_dis: string | null,
-  
+  note: string|null
 }
 
 export interface FileUrl {
@@ -79,6 +82,7 @@ export interface InventoryAdjustmentDetailItem {
   version: number;
   created_by: string;
   created_name: string;
+  created_code: string;
   created_date: Date;
   updated_by: string;
   audit_type: string;
@@ -98,6 +102,7 @@ export interface InventoryAdjustmentDetailItem {
   adjusted_date: Date;
   finished_date: Date;
   adjusted_by: string;
+  adjusted_code: string;
   total_on_hand: number;
   total_real_on_hand: number;
   total_excess: number;

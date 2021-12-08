@@ -13,6 +13,8 @@ function CustomInput(props: any) {
     disabled,
     type,
     upperCase,
+    restFormItem,
+    className
   } = props;
 
   const [value, setValue] = useState<string>("");
@@ -34,6 +36,8 @@ function CustomInput(props: any) {
       name={name}
       label={<div>{label}</div>}
       rules={[{ required: isRequired, message: `${message}` }]}
+      {...restFormItem}
+      className={className}
     >
       {type === "textarea" ? (
         <Input.TextArea

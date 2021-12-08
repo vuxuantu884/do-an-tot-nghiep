@@ -1,5 +1,4 @@
 import {
-  Space,
   Button,
   Card,
   Col,
@@ -34,6 +33,11 @@ import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/url.config';
 import { RegUtil } from 'utils/RegUtils';
 import { showSuccess } from 'utils/ToastUtils';
+import AuthWrapper from 'component/authorization/AuthWrapper';
+import { ProductPermission } from 'config/permissions/product.permission';
+import BottomBarContainer from 'component/container/bottom-bar.container';
+import ModalConfirm, { ModalConfirmProps } from 'component/modal/ModalConfirm';
+import { CompareObject } from 'utils/CompareObject';
 
 const {TreeNode} = TreeSelect;
 
@@ -63,10 +67,14 @@ const CategoryUpdate: React.FC = () => {
     }
     return [];
   }, [bootstrapReducer]);
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  }); 
+
   const onSuccess = useCallback((result: CategoryResponse) => {
     setLoading(false);
     setDetail(result);
-    showSuccess('Sửa danh mục thành công')
+    showSuccess('Sửa danh mục thành công');
   }, []);
   const onFinish = useCallback(
     (values: CategoryUpdateRequest) => {
@@ -74,10 +82,8 @@ const CategoryUpdate: React.FC = () => {
       dispatch(categoryUpdateAction(idNumber, values, onSuccess));
     },
     [dispatch, idNumber, onSuccess]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
+
   const onGetDetailSuccess = useCallback((data: false|CategoryResponse) => {
     setLoadingData(false)
     if(!data) {
@@ -86,6 +92,27 @@ const CategoryUpdate: React.FC = () => {
       setDetail(data);
     }
   }, []);
+
+  const backAction = ()=>{ 
+    if (!CompareObject(formRef.current?.getFieldsValue(),detail)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
+
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(getCategoryRequestAction({}, setCategories));
@@ -203,18 +230,20 @@ const CategoryUpdate: React.FC = () => {
                 </Col>
               </Row>
           </Card>
-          <div className="margin-top-10" style={{textAlign: 'right'}}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
-              <Button loading={loading} htmlType="submit" type="primary">
-                Lưu
-              </Button>
-            </Space>
-          </div>
+          <BottomBarContainer
+            back={"Quay lại danh sách"}
+            backAction={backAction}
+            rightComponent={
+              <AuthWrapper acceptPermissions={[ProductPermission.categories_update]}>
+                <Button loading={loading} htmlType="submit" type="primary">
+                  Lưu lại
+                </Button>
+              </AuthWrapper>
+            }
+          /> 
         </Form>
-      )}
+      )} 
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

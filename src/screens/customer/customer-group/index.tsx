@@ -1,35 +1,57 @@
-import { PlusOutlined } from "@ant-design/icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom";
 import { Button, Card, Dropdown, Menu } from "antd";
-import deleteIcon from "assets/icon/deleteIcon.svg";
-import editIcon from "assets/icon/edit.svg";
-import threeDot from "assets/icon/three-dot.svg";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import { PlusOutlined } from "@ant-design/icons";
+
+import UrlConfig from "config/url.config";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import UrlConfig from "config/url.config";
+import { CustomerGroupPermission } from "config/permissions/customer.permission";
 import {
   actionAddCustomerGroup,
   actionDeleteCustomerGroup,
   actionEditCustomerGroup,
   actionFetchListCustomerGroup
 } from "domain/actions/customer/customer.action";
+import useAuthorization from "hook/useAuthorization";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
 import {
   CustomerGroupModel,
   CustomerGroupResponseModel
 } from "model/response/customer/customer-group.response";
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
 import FormCustomerGroup from "screens/customer/customer-group/group.form.modal";
+import NoPermission from "screens/no-permission.screen";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import CustomerModal from "../customer-modal";
-import { StyledComponent } from "./styles";
+import CustomerModal from "screens/customer/customer-modal";
+import { StyledComponent } from "screens/customer/customer-group/styles";
 
+import deleteIcon from "assets/icon/deleteIcon.svg";
+import editIcon from "assets/icon/edit.svg";
+import threeDot from "assets/icon/three-dot.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+
+
+const createCustomerGroupPermission = [CustomerGroupPermission.groups_create];
+const viewCustomerGroupPermission = [CustomerGroupPermission.groups_read];
+const updateCustomerGroupPermission = [CustomerGroupPermission.groups_update];
+const deleteCustomerGroupPermission = [CustomerGroupPermission.groups_delete];
 
 const SettingCustomerGroup: React.FC = () => {
+
+  const [allowViewCustomerGroup] = useAuthorization({
+    acceptPermissions: viewCustomerGroupPermission,
+    not: false,
+  });
+
+  const [allowCreateCustomerGroup] = useAuthorization({
+    acceptPermissions: createCustomerGroupPermission,
+    not: false,
+  });
+
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModal, setIsShowModal] = useState(false);
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
@@ -47,7 +69,86 @@ const SettingCustomerGroup: React.FC = () => {
   const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
     useState<any>(null);
 
+  
+  const RenderActionColumn = (value: any, row: any, index: number) => {
+    const [allowUpdateCustomerGroup] = useAuthorization({
+      acceptPermissions: updateCustomerGroupPermission,
+      not: false,
+    });
 
+    const [allowDeleteCustomerGroup] = useAuthorization({
+      acceptPermissions: deleteCustomerGroupPermission,
+      not: false,
+    });
+    
+    const isShowAction = allowUpdateCustomerGroup || allowDeleteCustomerGroup;
+    
+    const menu = (
+      <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+        {allowUpdateCustomerGroup &&
+          <Menu.Item key="1">
+            <Button
+              icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
+              type="text"
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+              }}
+              onClick={() => {
+                setModalSingleServiceSubStatus(row);
+                setModalAction("edit");
+                setIsShowModal(true);
+              }}
+            >
+              Chỉnh sửa
+            </Button>
+          </Menu.Item>
+        }
+        
+        {allowDeleteCustomerGroup &&
+          <Menu.Item key="2">
+            <Button
+              icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
+              type="text"
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+                color: "red",
+              }}
+              onClick={() => {
+                setModalSingleServiceSubStatus(row);
+                setIsShowConfirmDelete(true);
+              }}
+            >
+              Xóa
+            </Button>
+          </Menu.Item>
+        }
+      </Menu>
+    );
+
+    return (
+      <>
+        {isShowAction &&
+          <Dropdown
+            overlay={menu}
+            trigger={["click"]}
+            placement="bottomRight"
+          >
+            <Button
+              type="text"
+              className="p-0 ant-btn-custom"
+              icon={<img src={threeDot} alt=""></img>}
+            ></Button>
+          </Dropdown>
+        }
+      </>
+    );
+  }
 
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
@@ -113,78 +214,7 @@ const SettingCustomerGroup: React.FC = () => {
       visible: true,
       width: "5%",
       className: "saleorder-product-card-action ",
-      render: (value, row, index) => {
-        const menu = (
-          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-            <Menu.Item key="1">
-              <Button
-                icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={() => {
-                  setModalSingleServiceSubStatus(row);
-                  setModalAction("edit");
-                  setIsShowModal(true);
-                }}
-              >
-                Chỉnh sửa
-              </Button>
-            </Menu.Item>
-            <Menu.Item key="2">
-              <Button
-                icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                  color: "red",
-                }}
-                onClick={() => {
-                  setModalSingleServiceSubStatus(row);
-                  setIsShowConfirmDelete(true);
-                }}
-              >
-                Xóa
-              </Button>
-            </Menu.Item>
-          </Menu>
-        );
-        return (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
-          >
-            <div
-              className="site-input-group-wrapper saleorder-input-group-wrapper"
-              style={{
-                borderRadius: 5,
-              }}
-            >
-              <Dropdown
-                overlay={menu}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
-                <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-              </Dropdown>
-            </div>
-          </div>
-        );
-      },
+      render: (value, row, index) => RenderActionColumn(value, row, index)
     },
   ];
 
@@ -213,18 +243,22 @@ const SettingCustomerGroup: React.FC = () => {
 
   const addCustomerGroup = () => {
     return (
-      <Button
-        type="primary"
-        className="ant-btn-outline ant-btn-primary"
-        size="large"
-        onClick={() => {
-          setModalAction("create");
-          setIsShowModal(true);
-        }}
-        icon={<PlusOutlined />}
-      >
-        Thêm nhóm khách hàng
-      </Button>
+      <>
+        {allowCreateCustomerGroup &&
+          <Button
+            type="primary"
+            className="ant-btn-outline ant-btn-primary"
+            size="large"
+            onClick={() => {
+              setModalAction("create");
+              setIsShowModal(true);
+            }}
+            icon={<PlusOutlined />}
+          >
+            Thêm nhóm khách hàng
+          </Button>
+        }
+      </>
     );
   };
 
@@ -285,6 +319,10 @@ const SettingCustomerGroup: React.FC = () => {
     /**
      * when dispatch action, call function (handleData) to handle data
      */
+    if (!allowViewCustomerGroup) {
+      return;
+    }
+
     setTableLoading(true);
     dispatch(
       actionFetchListCustomerGroup(
@@ -296,7 +334,7 @@ const SettingCustomerGroup: React.FC = () => {
         }
       )
     );
-  }, [dispatch, params]);
+  }, [allowViewCustomerGroup, dispatch, params]);
 
   return (
     <StyledComponent>
@@ -313,36 +351,34 @@ const SettingCustomerGroup: React.FC = () => {
         ]}
         extra={addCustomerGroup()}
       >
-        {listCustomerGroup && (
-          <Card style={{ padding: "35px 15px" }} className="customer-group-table">
-            <CustomTable
-              isRowSelection
-              isLoading={tableLoading}
-              showColumnSetting={false}
-              scroll={{ x: 1080 }}
-              pagination={{
-                pageSize: params.limit,
-                total: total,
-                current: params.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              dataSource={listCustomerGroup}
-              columns={columnFinal()}
-              rowKey={(item: VariantResponse) => item.id}
-              // onRow={(record: CustomerGroupModel) => {
-              //   return {
-              //     onClick: (event) => {
-              //       setModalSingleServiceSubStatus(record);
-              //       setModalAction("edit");
-              //       setIsShowModal(true);
-              //     }, // click row
-              //   };
-              // }}
-            />
-          </Card>
-        )}
+        <AuthWrapper acceptPermissions={viewCustomerGroupPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <>
+              {listCustomerGroup && (
+                <Card>
+                  <CustomTable
+                    isRowSelection
+                    isLoading={tableLoading}
+                    showColumnSetting={false}
+                    scroll={{ x: 1080 }}
+                    pagination={{
+                      pageSize: params.limit,
+                      total: total,
+                      current: params.page,
+                      showSizeChanger: true,
+                      onChange: onPageChange,
+                      onShowSizeChange: onPageChange,
+                    }}
+                    dataSource={listCustomerGroup}
+                    columns={columnFinal()}
+                    rowKey={(item: VariantResponse) => item.id}
+                  />
+                </Card>
+              )}
+            </>
+            : <NoPermission />)}
+        </AuthWrapper>
+        
         {/* <ModalDeleteConfirm
           visible={isShowConfirmDelete}
           onOk={() => handleForm.delete()}

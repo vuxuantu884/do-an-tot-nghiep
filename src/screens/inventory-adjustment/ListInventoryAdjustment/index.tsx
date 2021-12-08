@@ -1,7 +1,9 @@
 import {  Row, Space } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
-import UrlConfig from "config/url.config"; 
+import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
+import UrlConfig from "config/url.config";
 import InventoryAdjustment from "./InventoryAdjustment";
 import { StylesWrapper } from "./styles";
 
@@ -13,7 +15,7 @@ const ListInventoryAdjustments: React.FC = () => {
         title="Kiểm kho"
         breadcrumb={[
           {
-            name: "Tổng quản",
+            name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {
@@ -27,7 +29,11 @@ const ListInventoryAdjustments: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <ButtonCreate child="Thêm phiếu kiểm" path={`${UrlConfig.INVENTORY_ADJUSTMENT}/create`} />
+              <AuthWrapper
+                acceptPermissions={[InventoryAdjustmentPermission.create]}
+              >
+                <ButtonCreate child="Thêm phiếu kiểm" path={`${UrlConfig.INVENTORY_ADJUSTMENTS}/create`} />
+              </AuthWrapper>
             </Space>
           </Row>
         }

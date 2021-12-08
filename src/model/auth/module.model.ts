@@ -2,10 +2,10 @@ import {BaseQuery} from "model/base/base.query";
 import {PermissionsAuthorize} from "./permission.model";
 export interface ModuleAuthorize {
   id: number;
-  description: string;
+  description?: string;
   code: string;
   name: string;
-  check_store: boolean;
+  check_store?: boolean;
   version?: number;
   permissions: Array<PermissionsAuthorize>;
 }

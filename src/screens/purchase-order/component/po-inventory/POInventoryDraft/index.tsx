@@ -56,6 +56,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
         });
       });
       newProcumentLineItem.push({
+        barcode: item.barcode,
         accepted_quantity: 0,
         code: item.code,
         line_item_id: item.position,
@@ -142,16 +143,14 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
         width: 50,
         title: "Stt",
         align: "center",
-        fixed: "left",
         render: (value, record, index) => index + 1,
       },
       {
-        width: 250,
         title: "Cửa hàng nhận",
         dataIndex: "store_id",
-        fixed: "left",
+        width: 200,
         render: (value, record, index) => (
-          <Select
+            <Select
             onChange={(value1: number) => onChangeStore(value1, index)}
             value={value}
             showSearch
@@ -251,7 +250,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   ...columns,
                   {
                     title: "",
-                    fixed: procument_items?.length > 1 && "right",
+                    // fixed: procument_items?.length > 0 && "right",
                     width: 40,
                     render: (value: string, item, index: number) =>
                       procument_items.length > 1 && (
@@ -276,7 +275,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                     })
                   })
                   return (
-                    <Table.Summary fixed>
+                    <Table.Summary>
                       <Table.Summary.Row>
                         <Table.Summary.Cell
                           index={0}
@@ -379,14 +378,12 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   width: 50,
                   title: "Stt",
                   align: "center",
-                  fixed: "left",
                   render: (value, record, index) => index + 1,
                 },
                 {
                   width: 250,
                   title: "Cửa hàng nhận",
                   dataIndex: "store",
-                  fixed: "left",
                   render: (value, record, index) => value,
                 },
                 {

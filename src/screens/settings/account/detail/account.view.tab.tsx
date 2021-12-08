@@ -1,15 +1,17 @@
-import { Button, Divider, Space } from "antd";
-import { ColumnProps } from "antd/lib/table";
+import {Button, Divider, Space} from "antd";
+import {ColumnProps} from "antd/lib/table";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import CustomTable from "component/table/CustomTable";
+import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
-import { AccountJobResponse } from "model/account/account.model";
-import React, { useContext } from "react";
-import { RiEditLine } from "react-icons/ri";
-import { useHistory } from "react-router";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { AccountDetailContext } from "../provider/account.detail.provider";
+import useAuthorization from "hook/useAuthorization";
+import {AccountJobResponse} from "model/account/account.model";
+import {useContext, useMemo} from "react";
+import {RiEditLine} from "react-icons/ri";
+import {useHistory} from "react-router";
+import {OFFSET_HEADER_TABLE} from "utils/Constants";
+import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
+import {AccountDetailContext} from "../provider/account.detail.provider";
 
 type Job = {
   department: string;
@@ -18,11 +20,11 @@ type Job = {
 const JobColumn: Array<ColumnProps<Job>> = [
   {
     title: "Bộ phận",
-    dataIndex: "department_name",
+    dataIndex: "department",
   },
   {
     title: "Vị trí",
-    dataIndex: "position_name",
+    dataIndex: "position",
   },
 ];
 
@@ -31,17 +33,18 @@ function AccountViewTab() {
   const detailContext = useContext(AccountDetailContext);
   const {accountInfo, userCode} = detailContext;
 
-  // const stores = useMemo(() =>
-  // {
-  //   // get role_name from accountInfo?.account_roles and join with ', '
-  //   if (accountInfo?.account_stores) {
-  //     return accountInfo.account_stores.map((role) => role.store).join(", ");
-  //   }else{
-  //     return "";
-  //   }
-  // }
-  // , [accountInfo])
-  const stores = "";
+  const allowUpdateAcc = useAuthorization({
+    acceptPermissions: [AccountPermissions.UPDATE]
+  });
+
+  const stores = useMemo(() => {
+    // get role_name from accountInfo?.account_roles and join with ', '
+    if (accountInfo?.account_stores) {
+      return accountInfo.account_stores.map((role) => role.store).join(", ");
+    } else {
+      return "";
+    }
+  }, [accountInfo]);
   return (
     <div className="padding-top-20">
       <table className="table-detail">
@@ -51,7 +54,7 @@ function AccountViewTab() {
               <span className="account-title">Nhóm phân quyền </span>
             </td>
             <td>
-              {/* <b>: {roleName}</b> */}
+              <b>: {accountInfo?.role_name}</b>
             </td>
             <td>
               <span className="account-title">Tên đăng nhập </span>
@@ -132,10 +135,15 @@ function AccountViewTab() {
         rightComponent={
           <Space>
             <Button
-              onClick={() => history.push(`${UrlConfig.ACCOUNTS}/edit/${userCode}`)}
+              onClick={() => history.push(`${UrlConfig.ACCOUNTS}/${userCode}/update`)}
             >
               <div style={{display: "flex", alignItems: "center"}}>
-                <RiEditLine color="#757575" style={{width: "15px"}} /> &nbsp; Chỉnh sửa
+                {allowUpdateAcc ? (
+                  <>
+                    <RiEditLine color="#757575" style={{width: "15px"}} /> &nbsp; Chỉnh
+                    sửa
+                  </>
+                ) : null}
               </div>
             </Button>
           </Space>

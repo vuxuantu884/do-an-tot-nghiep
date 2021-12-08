@@ -156,7 +156,7 @@ export const PoFinancialStatus = {
   CANCELLED: "cancelled",
 };
 
-export const DEFAULT_FORM_VALUE = {
+export const DEFAULT_COMPANY = {
   company: "YODY",
   company_id: 1,
 };
@@ -179,4 +179,12 @@ export const ProcurementStatusName = {
 export const PROMO_TYPE = {
   MANUAL: "MANUAL",
   AUTOMATIC: "AUTOMATIC",
+};
+
+export const POS = {
+  source_code: "POS"
+};
+
+export const SHIPPING_REQUIREMENT = {
+  default: "open_try"
 };

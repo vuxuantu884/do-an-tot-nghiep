@@ -27,15 +27,16 @@ import {
   addFpagePhone,
   deleteFpagePhone,
   setFpageDefaultPhone,
+  getOrderMappingListApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import { FpageCustomerResponse } from "model/response/ecommerce/fpage.response";
+import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
 
 function* addFpagePhoneSaga(action: YodyAction) {
   let { userId, phone, setData } = action.payload;
   try {
-    const response: BaseResponse<FpageCustomerResponse> = yield call(
+    const response: BaseResponse<YDPageCustomerResponse> = yield call(
       addFpagePhone,
       userId,
       phone
@@ -59,7 +60,7 @@ function* addFpagePhoneSaga(action: YodyAction) {
 function* deleteFpagePhoneSaga(action: YodyAction) {
   let { userId, phone, setData } = action.payload;
   try {
-    const response: BaseResponse<FpageCustomerResponse> = yield call(
+    const response: BaseResponse<YDPageCustomerResponse> = yield call(
       deleteFpagePhone,
       userId,
       phone
@@ -83,7 +84,7 @@ function* deleteFpagePhoneSaga(action: YodyAction) {
 function* setFpageDefaultPhoneSaga(action: YodyAction) {
   let { userId, phone, setData } = action.payload;
   try {
-    const response: BaseResponse<FpageCustomerResponse> = yield call(
+    const response: BaseResponse<YDPageCustomerResponse> = yield call(
       setFpageDefaultPhone,
       userId,
       phone
@@ -107,7 +108,7 @@ function* setFpageDefaultPhoneSaga(action: YodyAction) {
 function* getFpageCustomerSaga(action: YodyAction) {
   let { userId, setData } = action.payload;
   try {
-    const response: BaseResponse<FpageCustomerResponse> = yield call(
+    const response: BaseResponse<YDPageCustomerResponse> = yield call(
       getFpageCustomer,
       userId
     );
@@ -130,10 +131,11 @@ function* getFpageCustomerSaga(action: YodyAction) {
 }
 // connect to the eccommerce
 function* ecommerceConnectSaga(action: YodyAction) {
-  let { setData } = action.payload;
+  let { ecommerceId, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
-      ecommerceConnectSyncApi
+      ecommerceConnectSyncApi,
+      ecommerceId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -154,11 +156,11 @@ function* ecommerceConnectSaga(action: YodyAction) {
 }
 
 function* ecommerceGetConfigInfoSaga(action: YodyAction) {
-  let { query, setData } = action.payload;
+  let { params, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
       ecommerceGetConfigInfoApi,
-      query
+      params
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -537,6 +539,34 @@ function* postEcommerceOrderSaga(action: YodyAction) {
   }
 }
 
+//ecommerce get order mapping list saga
+function* getOrderMappingListSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      getOrderMappingListApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
@@ -594,4 +624,8 @@ export function* ecommerceSaga() {
 
   //ecommerce order takeLatest
   yield takeLatest(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, postEcommerceOrderSaga);
+
+  //ecommerce get order mapping list
+  yield takeLatest(EcommerceType.GET_ORDER_MAPPING_LIST_REQUEST, getOrderMappingListSaga);
+
 }

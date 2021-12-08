@@ -3,6 +3,11 @@ import { CustomModalFormModel } from "model/modal/modal.model";
 import { useEffect } from "react";
 import * as CONSTANTS from "utils/Constants";
 import CustomInput from "screens/customer/common/customInput";
+import { CustomerGroupPermission } from "config/permissions/customer.permission";
+import useAuthorization from "hook/useAuthorization";
+
+
+const updateCustomerGroupPermission = [CustomerGroupPermission.groups_update];
 
 type FormValueType = {
   code: string;
@@ -16,6 +21,12 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
 ) => {
   const { modalAction, formItem, form, visible } = props;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
+
+  const [allowUpdateCustomerGroup] = useAuthorization({
+    acceptPermissions: updateCustomerGroupPermission,
+    not: false,
+  });
+  
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
       ? {
@@ -66,14 +77,15 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
               />
             </Form.Item> */}
             <CustomInput
-                name="name"
-                label="Tên nhóm khách hàng:"
-                form={form}
-                message="Vui lòng nhập tên nhóm khách hàng"
-                placeholder="Nhập tên nhóm khách hàng"
-                isRequired={true}
-                maxLength={255}
-              />
+              name="name"
+              label="Tên nhóm khách hàng:"
+              form={form}
+              message="Vui lòng nhập tên nhóm khách hàng"
+              placeholder="Nhập tên nhóm khách hàng"
+              isRequired={true}
+              maxLength={255}
+              disabled={!isCreateForm && !allowUpdateCustomerGroup}
+            />
             <Form.Item
               name="note"
               label={<b>Mô tả:</b>}
@@ -83,6 +95,7 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
                 maxLength={500}
                 rows={10}
                 placeholder="Nhập mô tả"
+                disabled={!isCreateForm && !allowUpdateCustomerGroup}
               />
             </Form.Item>
           </Col>

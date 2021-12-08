@@ -1,6 +1,6 @@
 import BaseAction from 'base/base.action';
 import BaseResponse from 'base/base.response';
-import { LoyaltyPointsType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType } from 'domain/types/loyalty.type';
+import { LoyaltyPointsAdjustmentType, LoyaltyPointsType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType } from 'domain/types/loyalty.type';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { BaseQuery } from 'model/base/base.query';
 import { CreateLoyaltyAccumulationRequest } from 'model/request/loyalty/create-loyalty-accumulation.request';
@@ -54,6 +54,15 @@ const subtractLoyaltyPoint = (customerId: number, params: UpdateLoyaltyPoint, se
   return BaseAction(LoyaltyPointsType.SUBTRACT_LOYALTY_POINT, { customerId, params, setData, onError });
 }
 
+const getLoyaltyAdjustPointAction = (customerId: number, setData: (data: any) => void, onError: () => void) => {
+  return BaseAction(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, { customerId, setData, onError });
+}
+
+export const getPointAdjustmentListAction = (query: any, callback: (data: BaseResponse<any>) => void) => {
+  return BaseAction(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST, { query, callback });
+}
+
+
 export {
   createLoyaltyAccumulationProgram,
   getLoyaltyAccumulationProgram,
@@ -65,5 +74,6 @@ export {
   getListLoyaltyAccumulationProgram,
   getLoyaltyPoint,
   addLoyaltyPoint,
-  subtractLoyaltyPoint
+  subtractLoyaltyPoint,
+  getLoyaltyAdjustPointAction
 };

@@ -14,7 +14,7 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
   const { modalAction, formItem, form, visible } = props;
 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
-  // const DEFAULT_FORM_VALUE = {
+  // const DEFAULT_COMPANY = {
   //   company_id: 1,
   //   company: "YODY",
   // };

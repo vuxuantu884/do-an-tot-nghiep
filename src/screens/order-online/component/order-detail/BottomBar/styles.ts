@@ -13,5 +13,8 @@ export const StyledComponent = styled.div`
     right: 0;
     z-index: 99;
     transition: all 0.2s;
+    @media screen and (max-width: 1439px) {
+      left: ${200 + 20}px;
+    }
   }
 `;

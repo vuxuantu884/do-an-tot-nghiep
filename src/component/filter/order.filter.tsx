@@ -11,7 +11,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
@@ -25,6 +25,8 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import DebounceSelect from "./component/debounce-select";
+import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 
 type OrderFilterProps = {
   params: OrderSearchQuery;
@@ -43,6 +45,21 @@ type OrderFilterProps = {
 };
 
 const { Item } = Form;
+
+async function searchVariants(input: any) {
+  try {
+    const result = await searchVariantsApi({info: input})
+    return result.data.items.map(item => {
+      return {
+        label: item.name,
+        value: item.id.toString()
+      }
+    })
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 
 const OrderFilter: React.FC<OrderFilterProps> = (
   props: OrderFilterProps
@@ -112,6 +129,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   ], []);
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string}[]>([]);
+
   const onChangeOrderOptions = useCallback((e) => {
     console.log('ok lets go', e.target.value);
     onFilter && onFilter({...params, is_online: e.target.value});
@@ -170,8 +189,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
           break;
-        case 'sub_status_id':
-          onFilter && onFilter({...params, sub_status_id: []});
+        case 'sub_status_code':
+          onFilter && onFilter({...params, sub_status_code: []});
           break;
         case 'fulfillment_status':
           onFilter && onFilter({...params, fulfillment_status: []});
@@ -188,6 +207,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'price':
           onFilter && onFilter({...params, price_min: null, price_max: null});
           break;
+        case 'variant_ids':
+          onFilter && onFilter({...params, variant_ids: []});
+          break;  
         case 'payment_method':
           onFilter && onFilter({...params, payment_method_ids: []});
           break;
@@ -242,7 +264,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
-      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
+      sub_status_code: Array.isArray(params.sub_status_code) ? params.sub_status_code : [params.sub_status_code],
       fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
@@ -250,6 +272,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
       shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
+      variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
   }}, [params])
@@ -270,7 +293,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
       if (!error) {
         setVisible(false);
-        if (values?.price_min > values?.price_max) {
+        if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
           values = {
             ...values,
             price_min: values?.price_max,
@@ -363,15 +386,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.sub_status_id.length) {
+    if (initialValues.sub_status_code.length) {
       let textStatus = ""
       
-      initialValues.sub_status_id.forEach((i: any) => {
-        const findStatus = subStatus?.find(item => item.id.toString() === i.toString())
+      initialValues.sub_status_code.forEach((i: any) => {
+        const findStatus = subStatus?.find(item => item.code.toString() === i.toString())
         textStatus = findStatus ? textStatus + findStatus.sub_status + "; " : textStatus
       })
       list.push({
-        key: 'sub_status_id',
+        key: 'sub_status_code',
         name: 'Trạng thái xử lý đơn',
         value: textStatus
       })
@@ -414,6 +437,19 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     //     value: textStatus
     //   })
     // }
+    if (initialValues.variant_ids.length) {
+      let textVariant = ""
+      
+      console.log('optionsVariant', optionsVariant)
+      optionsVariant.forEach(i => {
+        textVariant = textVariant + i.label + "; "
+      })
+      list.push({
+        key: 'variant_ids',
+        name: 'Sản phẩm',
+        value: textVariant
+      })
+    }
 
     if (initialValues.assignee_codes.length) {
       let textAccount = ""
@@ -442,7 +478,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.price_min || initialValues.price_max) {
-      let textPrice = (initialValues.price_min ? initialValues.price_min : " ?? ") + " ~ " + (initialValues.price_max ? initialValues.price_max : " ?? ")
+      let textPrice = (initialValues.price_min ? `${initialValues.price_min} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : " 0 ") + " ~ " + (initialValues.price_max ? `${initialValues.price_max} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : " ?? ")
       list.push({
         key: 'price',
         name: 'Tổng tiền',
@@ -536,7 +572,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, listPaymentMethod, status, subStatus]);
+  }, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes, initialValues.account_codes, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, accounts, listPaymentMethod, serviceType, deliveryService]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -561,6 +597,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   useLayoutEffect(() => {
     window.addEventListener('resize', () => setVisible(false))
   }, []);
+
+  useEffect(() => {
+    if (params.variant_ids.length) {
+      (async () => {
+        let variants: any = [];
+        await Promise.all(
+          params.variant_ids.map(async (variant_id) => {
+            try {
+              const result = await getVariantApi(variant_id)
+
+              variants.push({
+                label: result.data.name,
+                value: result.data.id.toString()
+              })
+            } catch {}
+          })
+        );
+        console.log('variants', variants);
+        setOptionsVariant(variants)
+      })()
+    }
+  }, [params.variant_ids]);
 
   return (
     <div>
@@ -755,7 +813,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             
               <Col span={8} xxl={6}>
                 <p>Trạng thái xử lý đơn</p>
-                <Item name="sub_status_id">
+                <Item name="sub_status_code">
                   <CustomSelect
                     mode="multiple"
                     showArrow allowClear
@@ -768,7 +826,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     maxTagCount='responsive'
                   >
                     {subStatus?.map((item: any) => (
-                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                      <CustomSelect.Option key={item.id} value={item.code.toString()}>
                         {item.sub_status}
                       </CustomSelect.Option>
                     ))}
@@ -864,6 +922,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
                     <InputNumber
                       className="price_min"
+                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       placeholder="Từ"
                       min="0"
                       max="100000000"
@@ -874,6 +933,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item name="price_max" style={{width: '45%', marginBottom: 0}}>
                     <InputNumber
                       className="site-input-right price_max"
+                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       placeholder="Đến"
                       min="0"
                       max="1000000000"
@@ -963,12 +1023,27 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   maxTagCount='responsive'
                 >
                   {deliveryService?.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id}>
+                    <CustomSelect.Option key={item.id} value={item.id.toString()}>
                       {item.name}
                     </CustomSelect.Option>
                   ))}
                 </CustomSelect>
                 </Item>
+              </Col>
+              <Col span={8} xxl={6}>
+                <p>Sản phẩm</p>
+                <Item name="variant_ids">
+                  <DebounceSelect
+                    mode="multiple" showArrow maxTagCount='responsive'
+                    placeholder="Tìm kiếm sản phẩm" allowClear
+                    fetchOptions={searchVariants}
+                    optionsVariant={optionsVariant}
+                    style={{
+                      width: '100%',
+                    }}
+                  />
+                </Item>
+                
               </Col>
               <Col span={8} xxl={6}>
                 <p>Tags</p>

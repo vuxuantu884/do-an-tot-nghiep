@@ -10,6 +10,7 @@ type SelectDateFilterProps = {
   dateSelected: string;
   startDate: any;
   endDate: any;
+  isUTC?: boolean | false;
 };
 
 const SelectDateFilter: React.FC<SelectDateFilterProps> = (
@@ -22,6 +23,7 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
     dateSelected,
     startDate,
     endDate,
+    isUTC,
   } = props;
 
   return (
@@ -70,19 +72,36 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
 
         <span style={{ margin: "10px 0" }}>
           <SettingOutlined style={{ marginRight: "5px" }} />
-          Tùy chọn khoảng thời gian tạo:
+          Tùy chọn khoảng thời gian:
         </span>
-        <DatePicker.RangePicker
-          format="DD-MM-YYYY"
-          style={{ width: "100%" }}
-          value={[
-            startDate ? moment(startDate, "DD-MM-YYYY") : null,
-            endDate ? moment(endDate, "DD-MM-YYYY") : null,
-          ]}
-          onChange={(date, dateString) =>
-            onChangeRangeDate(date, dateString, dateType)
-          }
-        />
+        {!isUTC &&
+          <DatePicker.RangePicker
+            format="DD-MM-YYYY"
+            style={{ width: "100%" }}
+            value={[
+              startDate ? moment(startDate, "DD-MM-YYYY") : null,
+              endDate ? moment(endDate, "DD-MM-YYYY") : null,
+            ]}
+            onChange={(date, dateString) =>
+              onChangeRangeDate(date, dateString, dateType)
+            }
+          />
+        }
+
+        {isUTC &&
+          <DatePicker.RangePicker
+            format="DD-MM-YYYY"
+            style={{ width: "100%" }}
+            value={[
+              startDate ? moment(new Date(startDate), "DD-MM-YYYY") : null,
+              endDate ? moment(new Date(endDate), "DD-MM-YYYY") : null,
+            ]}
+            onChange={(date, dateString) =>
+              onChangeRangeDate(date, dateString, dateType)
+            }
+          />
+        }
+        
       </div>
     </StyledSelectDateFilter>
   );

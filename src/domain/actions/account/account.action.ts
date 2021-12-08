@@ -42,7 +42,7 @@ export const ShipperGetListAction = (
   return BaseAction(AccountType.GET_LIST_SHIPPER_REQUEST, { setData }); 
 };
 
-export const AccountGetByIdtAction = (
+export const AccountGetByCodeAction = (
   code: string,
   setData: (data: AccountResponse) => void
 ) => {
@@ -67,6 +67,15 @@ export const AccountUpdateAction = (
     setData,
   });
 };
+export const AccountUpdatePassAction = (
+  request: AccountRequest | AccountResponse,
+  setData: (data: AccountResponse) => void
+) => {
+  return BaseAction(AccountType.UPDATE_PASSS_REQUEST, {
+    request,
+    setData,
+  });
+};
 
 export const AccountDeleteAction = (
   id: number,
@@ -76,4 +85,11 @@ export const AccountDeleteAction = (
     id,
     deleteCallback,
   });
+};
+
+export const powerBIEmbededAction = (
+  params: any,
+  setData: (data: any) => void
+) => {
+  return BaseAction(AccountType.POWER_BI_EMBEDED_REQUEST, { params, setData });
 };

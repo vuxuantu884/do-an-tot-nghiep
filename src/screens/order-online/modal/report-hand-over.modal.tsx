@@ -2,39 +2,38 @@ import { Modal, Form, Select, FormInstance, Row, Col } from "antd";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useCallback, useContext, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
 
 import { Input } from "antd";
-import { createGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
+import { useContext, useMemo } from "react";
 const { TextArea } = Input;
 
 type ReportHandOverModalProps = {
   handleOk: () => void;
   handleCancel: () => void;
+  handSubmit:(value:any)=>void;
   visible: boolean;
   formRef: React.RefObject<FormInstance<any>>;
+  goodsReceiptsForm:any;
 };
 const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
   props: ReportHandOverModalProps
 ) => {
-  const { handleCancel, visible, formRef } = props;
+  const { handleCancel, visible, formRef,goodsReceiptsForm,handleOk,handSubmit } = props;
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
-
-  const dispatch = useDispatch();
-  const [goodsReceiptsForm] = Form.useForm();
+  //const dispatch = useDispatch();
 
   const orderPackContextData = useContext(OrderPackContext);
 
   const listStores = orderPackContextData.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
-  const listGoodsReceipts= orderPackContextData.listGoodsReceipts;
-  const listSourcesEcommerce=orderPackContextData.listSourcesEcommerce;
-  const data=orderPackContextData.data;
+  const listGoodsReceiptsType= orderPackContextData.listGoodsReceiptsType;
+  const listChannels=orderPackContextData.listChannels;
+  //const data=orderPackContextData.data;
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -49,32 +48,15 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
     return newData;
   }, [listStores, userReducer.account]);
 
-  const onOk=()=>{
-    goodsReceiptsForm.submit();
-  }
 
-  const handSubmit = useCallback((value:any) => {
-    let codes: any[] = [];
-    
-    data.items.forEach(function (i: any) {
-      codes.push(i.code);
-    });
 
-    let param={
-      ...value,
-      codes:codes
-    }
-    dispatch(createGoodsReceipts(param, (value:any)=>{
-      console.log("Goods",value)
-    }));
-  },[dispatch, data])
 
   return (
     <>
       <Modal
         title="Tạo biên bản bàn giao"
         visible={visible}
-        onOk={onOk}
+        onOk={handleOk}
         onCancel={handleCancel}
       >
         <Form layout="vertical" form={goodsReceiptsForm} ref={formRef} onFinish={handSubmit}>
@@ -124,7 +106,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Hãng vận chuyển"
-                name="hvc"
+                name="delivery_service_id"
                 rules={[
                   {
                     required: true,
@@ -196,7 +178,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {listGoodsReceipts.map((item, index) => (
+                  {listGoodsReceiptsType.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -239,7 +221,10 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {listSourcesEcommerce.map((item, index) => (
+                  <Select.Option key={-1} value={-1}>
+                      Mặc định
+                  </Select.Option>
+                  {listChannels.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -248,62 +233,17 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
               </Form.Item>
             </Col>
           </Row>
-
-          {/* <Row gutter={24}>
-            <Col md={24}>
-              <Form.Item
-                label="ID đơn hàng"
-                name="codes"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn kiểu biên bản",
-                  },
-                ]}
-              >
-                <Select
-                  className="select-with-search"
-                  showSearch
-                  allowClear
-                  mode="multiple"
-                  style={{ width: "100%" }}
-                  placeholder="Chọn ID đơn hàng/ Mã hãng vận chuyển"
-                  notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                    console.log(value);
-                  }}
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
-                >
-                  {testAraay.map((item, index) => (
-                    <Select.Option key={index.toString()} value={item.id}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row> */}
-
           <Row gutter={24}>
             <Col md={24}>
               <Form.Item
                 label="Mô tả:"
                 name="description"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập mô tả",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng nhập mô tả",
+                //   },
+                // ]}
               >
                 <TextArea
                   rows={4}

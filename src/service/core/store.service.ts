@@ -1,3 +1,4 @@
+import { PageResponse } from 'model/base/base-metadata.response';
 import { StoreResponse } from "model/core/store.model";
 import BaseResponse from "base/base.response";
 import BaseAxios from "base/base.axios";
@@ -28,4 +29,9 @@ const getListStoreSimple = (): Promise<BaseResponse<Array<StoreResponse>>> => {
   return BaseAxios.get(link);
 };
 
-export { getListStore, getStoreDetail, getListStoreSimple, getSearchListStore };
+const getStoreSearchIdsApi=(ids:number[]):Promise<BaseResponse<PageResponse<StoreResponse>>>=>{
+  let link=`${ApiConfig.CORE}/stores?ids=${ids}&limit=1000`;
+  return BaseAxios.get(link);
+}
+
+export { getListStore, getStoreDetail, getListStoreSimple, getSearchListStore,getStoreSearchIdsApi };

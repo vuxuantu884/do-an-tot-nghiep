@@ -1,6 +1,6 @@
 import { Button, Card, Row, Space } from "antd";
 import exportIcon from "assets/icon/export.svg";
-import importIcon from "assets/icon/import.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -11,11 +11,12 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { PODeleteAction, PoSearchAction } from "domain/actions/po/po.action";
-import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import useAuthorization from "hook/useAuthorization";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -46,7 +47,12 @@ const supplierQuery: AccountSearchQuery = {
 const rdQuery: AccountSearchQuery = {
   department_ids: [AppConfig.RD_DEPARTMENT],
 };
-
+const actionsDefault: Array<MenuAction> = [
+  {
+    id: 1,
+    name: "Xóa",
+  },
+];
 const PurchaseOrderListScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -131,28 +137,26 @@ const PurchaseOrderListScreen: React.FC = () => {
     }
   }, []);
 
-  let actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Xóa",
-    },
-  ];
-
-  const ActionComponent = useChangeHeaderToAction(
-    "ID đơn hàng",
-    selected?.length > 0,
-    onMenuClick,
-    actions
-  );
+  const [canDeletePO] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.delete],
+  });
+  const actions = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === 1) {
+        return canDeletePO;
+      }
+      return false;
+    });
+  }, [canDeletePO]);
 
   const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = [
     {
-      title: <ActionComponent />,
+      title: "ID đơn hàng",
       dataIndex: "code",
       render: (value: string, i: PurchaseOrder) => {
         return (
           <> 
-            <Link to={`${UrlConfig.PURCHASE_ORDER}/${i.id}`} style={{fontWeight: 500}}>
+            <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{fontWeight: 500}}>
               {value}
             </Link>
             <br />
@@ -374,18 +378,13 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<PurchaseOrder>>>(defaultColumns);
 
-  useEffect(() => {
-    setColumn(defaultColumns);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
-
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({...params});
-      history.replace(`${UrlConfig.PURCHASE_ORDER}?${queryParam}`);
+      history.replace(`${UrlConfig.PURCHASE_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
@@ -395,7 +394,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.PURCHASE_ORDER}?${queryParam}`);
+      history.push(`${UrlConfig.PURCHASE_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
@@ -480,20 +479,20 @@ const PurchaseOrderListScreen: React.FC = () => {
           },
           {
             name: "Đặt hàng",
-            path: `${UrlConfig.PURCHASE_ORDER}`,
+            path: `${UrlConfig.PURCHASE_ORDERS}`,
           },
         ]}
         extra={
           <Row>
             <Space>
-              <Button
+              {/* <Button
                 className="light"
                 size="large"
                 icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
                 onClick={() => {}}
               >
                 Nhập file
-              </Button>
+              </Button> */}
               <Button
                 className="light"
                 size="large"
@@ -505,7 +504,9 @@ const PurchaseOrderListScreen: React.FC = () => {
               >
                 Xuất file
               </Button>
-              <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
+                <ButtonCreate child="Thêm đơn đặt hàng" path={`${UrlConfig.PURCHASE_ORDERS}/create`} />
+              </AuthWrapper>
             </Space>
           </Row>
         }

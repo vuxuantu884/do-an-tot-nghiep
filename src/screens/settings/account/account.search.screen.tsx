@@ -1,23 +1,25 @@
-import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
-import { Card, Switch, Tag } from "antd";
+import {DeleteOutlined} from "@ant-design/icons";
+import {Card, Switch, Tag} from "antd";
+import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import {MenuAction} from "component/table/ActionButton";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { HttpStatus } from "config/http-status.config";
+import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
   AccountDeleteAction,
   AccountSearchAction,
   AccountUpdateAction,
-  DepartmentGetListAction,
   PositionGetListAction,
 } from "domain/actions/account/account.action";
 import {StoreGetListAction} from "domain/actions/core/store.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import useAuthorization from "hook/useAuthorization";
 import {
   AccountResponse,
-  AccountRolesResponse,
   AccountSearchQuery,
   AccountStoreResponse,
 } from "model/account/account.model";
@@ -26,24 +28,26 @@ import {PositionResponse} from "model/account/position.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import {StoreResponse} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
-import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
-import {generateQuery} from "utils/AppUtils";
+import NoPermission from "screens/no-permission.screen";
+import { getDepartmentAllApi } from "service/accounts/account.service";
+import {convertDepartment, generateQuery} from "utils/AppUtils";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showSuccess} from "utils/ToastUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 import {getQueryParams, useQuery} from "utils/useQuery";
 import {SearchContainer} from "./account.search.style";
-const actions: Array<MenuAction> = [
+
+const ACTIONS_INDEX = {
+  DELETE: 1,
+};
+
+const actionsDefault: Array<MenuAction> = [
   {
-    id:1,
-    name: "Export",
-    icon:<ExportOutlined />
-  },
-  {
-    id: 2,
+    id: ACTIONS_INDEX.DELETE,
     name: "Xóa",
-    icon:<DeleteOutlined />
+    icon: <DeleteOutlined />,
   },
 ];
 
@@ -62,6 +66,27 @@ const ListAccountScreen: React.FC = () => {
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accountSelected, setAccountSelected] = useState<Array<AccountResponse>>([]);
+
+  //phân quyền
+  const [allowReadAcc] = useAuthorization({
+    acceptPermissions: [AccountPermissions.READ],
+  });
+  const [allowCreateAcc] = useAuthorization({
+    acceptPermissions: [AccountPermissions.CREATE],
+  }); 
+  const [allowDeleteAcc] = useAuthorization({
+    acceptPermissions: [AccountPermissions.DELETE],
+  });
+
+  const actions = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === ACTIONS_INDEX.DELETE) {
+        return allowDeleteAcc;
+      }
+      return false;
+    });
+  }, [allowDeleteAcc]);
+
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.account_status;
   });
@@ -202,14 +227,7 @@ const ListAccountScreen: React.FC = () => {
     {
       title: "Phân quyền",
       width: 200,
-      dataIndex: "account_roles",
-      render: (values: Array<AccountRolesResponse>) => (
-        <span>
-          {values?.map((item) => {
-            return <Tag color="blue">{item.role_name}</Tag>;
-          })}
-        </span>
-      ),
+      dataIndex: "role_name",
     },
     {
       title: "Ngày tạo",
@@ -252,7 +270,23 @@ const ListAccountScreen: React.FC = () => {
 
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(DepartmentGetListAction(setDepartment));
+      getDepartmentAllApi()
+      .then((response: BaseResponse<DepartmentResponse[]>) => {
+        switch (response.code) {
+          case HttpStatus.SUCCESS:
+            if (response.data) {
+              let array: any = convertDepartment(response.data);
+              setDepartment(array);
+            }
+            break;
+          default:
+            response.errors.forEach((e) => showError(e));
+            break;
+        }
+      })
+      .catch((error) => {
+        showError("Có lỗi khi lấy danh sách phòng ban!");
+      });
       dispatch(PositionGetListAction(setPosition));
       dispatch(StoreGetListAction(setStore));
     }
@@ -260,52 +294,62 @@ const ListAccountScreen: React.FC = () => {
     dispatch(AccountSearchAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
   return (
-    <ContentContainer
-      title="Quản lý người dùng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Quản lý người dùng",
-        },
-      ]}
-      extra={<ButtonCreate path={`${UrlConfig.ACCOUNTS}/create`} />}
-    >
-      <SearchContainer>
-        <Card>
-          <AccountFilter
-            onMenuClick={onMenuClick}
-            actions={actions}
-            onFilter={onFilter}
-            params={params}
-            listDepartment={listDepartment}
-            listPosition={listPosition}
-            listStatus={listStatus}
-            listStore={listStore}
-          />
-          <CustomTable
-            isRowSelection
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            onSelectedChange={onSelect}
-            isLoading={tableLoading}
-            dataSource={data.items}
-            columns={columns}
-            rowKey={(item: AccountResponse) => item.id}
-            scroll={{x: 1500}}
-            sticky={{offsetScroll: 5, offsetHeader: 55}}
-          />
-        </Card>
-      </SearchContainer>
-    </ContentContainer>
+    <>
+      {allowReadAcc ? (
+        <ContentContainer
+          title="Quản lý người dùng"
+          breadcrumb={[
+            {
+              name: "Tổng quan",
+              path: UrlConfig.HOME,
+            },
+            {
+              name: "Quản lý người dùng",
+            },
+          ]}
+          extra={
+            !allowCreateAcc ? null : (
+              <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
+            ) 
+          }
+        >
+          <SearchContainer>
+            <Card>
+              <AccountFilter
+                onMenuClick={onMenuClick}
+                actions={actions}
+                onFilter={onFilter}
+                params={params}
+                listDepartment={listDepartment}
+                listPosition={listPosition}
+                listStatus={listStatus}
+                listStore={listStore}
+              />
+              <CustomTable
+                isRowSelection
+                pagination={{
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                onSelectedChange={onSelect}
+                isLoading={tableLoading}
+                dataSource={data.items}
+                columns={columns}
+                rowKey={(item: AccountResponse) => item.id}
+                scroll={{x: 1500}}
+                sticky={{offsetScroll: 5, offsetHeader: 55}}
+              />
+            </Card>
+          </SearchContainer>
+        </ContentContainer>
+      ) : (
+        <NoPermission />
+      )}
+    </>
   );
 };
 

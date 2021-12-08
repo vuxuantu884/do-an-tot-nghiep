@@ -37,7 +37,7 @@ function* getOrderActionLogsSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy danh sách bản ghi đơn hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -65,7 +65,7 @@ function* getActionLogDetailsSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy thông tin chi tiết bản ghi đơn hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }

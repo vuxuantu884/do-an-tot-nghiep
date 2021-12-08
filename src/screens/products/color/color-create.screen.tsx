@@ -7,7 +7,6 @@ import {
   Input,
   Row,
   Select,
-  Space,
 } from "antd";
 import { ColorCreateRequest, ColorResponse } from "model/product/color.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -23,6 +22,7 @@ import UrlConfig from "config/url.config";
 import ColorUpload from "./color-upload.component";
 import { showSuccess } from "utils/ToastUtils";
 import { RegUtil } from "utils/RegUtils";
+import BottomBarContainer from "component/container/bottom-bar.container";
 
 let initialRequest: ColorCreateRequest = {
   code: "",
@@ -55,16 +55,15 @@ const ColorCreateScreen: React.FC = () => {
     },
     [history]
   );
+
   const onFinish = useCallback(
     (values: ColorCreateRequest) => {
       setLoadingSaveButton(true);
       dispatch(colorCreateAction(values, createCallback));
     },
     [dispatch, createCallback]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
+
   useEffect(() => {
     dispatch(getColorAction({ is_main_color: 1 }, setSelector));
     return () => {};
@@ -184,21 +183,15 @@ const ColorCreateScreen: React.FC = () => {
               </Row>
             </Col>
           </Row>
-        </Card>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
-          <Space size={12}>
-            <Button type="default" onClick={onCancel}>
-              Hủy
-            </Button>
-            <Button
-              htmlType="submit"
-              type="primary"
-              loading={loadingSaveButton}
-            >
-              Lưu
-            </Button>
-          </Space>
-        </div>
+        </Card> 
+        <BottomBarContainer
+          back={"Quay lại danh sách"}
+          rightComponent={
+             <Button loading={loadingSaveButton} htmlType="submit" type="primary">
+               Tạo màu sắc
+             </Button>
+          }
+        /> 
       </Form>
     </ContentContainer>
   );

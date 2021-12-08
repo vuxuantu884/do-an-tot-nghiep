@@ -1,25 +1,28 @@
-import { Button, Card, Col, Form, Row } from "antd";
+import {Button, Card, Col, Form, Row, Space} from "antd";
 import Editor from "component/ckeditor";
-import ModalConfirm from "component/modal/ModalConfirm";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { PrintPermissions } from "config/permissions/setting.permisssion";
 import UrlConfig from "config/url.config";
 import {
   actionCreatePrinter,
   actionFetchListPrinterVariables,
 } from "domain/actions/printer/printer.action";
-import { listKeywordsModel } from "model/editor/editor.model";
+import useAuthorization from "hook/useAuthorization";
+import {listKeywordsModel} from "model/editor/editor.model";
 import {
   BasePrinterModel,
   FormPrinterModel,
   PrinterVariableResponseModel,
 } from "model/response/printer.response";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Prompt } from "react-router";
-import { useHistory } from "react-router-dom";
-import { DEFAULT_FORM_VALUE } from "utils/Constants";
+import React, {useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch} from "react-redux";
+import {Prompt} from "react-router";
+import {useHistory} from "react-router-dom";
+import {DEFAULT_COMPANY} from "utils/Constants";
 import FormFilter from "../FormFilter";
 import Preview from "../preview";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   id?: string;
@@ -29,7 +32,7 @@ type PropType = {
 };
 
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
-  const { id, type, formValue, isPrint } = props;
+  const {id, type, formValue, isPrint} = props;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
@@ -39,6 +42,15 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
   const history = useHistory();
+  
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
+  const [dataOrigin, setDataOrigin] = useState<FormPrinterModel>();
+
+  const [allowCreatePrint] = useAuthorization({
+    acceptPermissions: [PrintPermissions.CREATE],
+  }); 
 
   const [printerVariables, setPrinterVariables] = useState<PrinterVariableResponseModel>(
     {}
@@ -129,8 +141,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           }
         : {
             name: null,
-            company: DEFAULT_FORM_VALUE.company,
-            company_id: DEFAULT_FORM_VALUE.company_id,
+            company: DEFAULT_COMPANY.company,
+            company_id: DEFAULT_COMPANY.company_id,
             is_default: false,
             print_size: null,
             store: null,
@@ -155,15 +167,31 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         })
       );
     });
-  };
-
-  const handleClickExit = () => {
-    setIsShowModalConfirm(true);
-    setIsShowPrompt(false);
-  };
+  }; 
 
   const handleEditorToolbarHeight = (height: number) => {
     setPreviewHeaderHeight(height);
+  };
+
+  const backAction = ()=>{  
+    if (JSON.stringify(form.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          history.push(UrlConfig.PRINTER);
+          setIsShowPrompt(false);
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.push(UrlConfig.PRINTER);
+      setIsShowPrompt(false);
+    }
   };
 
   useEffect(() => {
@@ -171,6 +199,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       setHtmlContent(formValue.template);
       setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);
+      setDataOrigin(form.getFieldsValue());
       // setIsEditorLoad(true);
     }
   }, [form, formValue, initialFormValue, isEdit, type]);
@@ -201,9 +230,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       Object.entries(allValues).sort().toString()
     ) {
       setIsShowPrompt(false);
-    } else {
-      setIsShowPrompt(true);
-    }
+    } 
+    // else {
+    //   setIsShowPrompt(true);
+    // }
   };
 
   useEffect(() => {
@@ -242,7 +272,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         <Row gutter={20}>
           {isCanEditFormHeader && (
             <Col span={12}>
-              <Card style={{ height: "100%" }}>
+              <Card style={{height: "100%"}}>
                 <React.Fragment>
                   {(!isEdit || selectedPrintSize) && (
                     <Form.Item name="template">
@@ -260,7 +290,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Col>
           )}
           <Col span={isCanEditFormHeader ? 12 : 24}>
-            <Card style={{ padding: "15px 15px", height: "100%" }}>
+            <Card style={{padding: "15px 15px", height: "100%"}}>
               <div className="printContent" ref={componentRef}>
                 <Preview
                   isPrint={isPrint}
@@ -280,23 +310,19 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           </Col>
         </Row>
         {isCanEditFormHeader && (
-          <div className="groupButtons">
-            <Button
-              onClick={() => {
-                handleClickExit();
-              }}
-            >
-              Thoát
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                handleSubmitForm();
-              }}
-            >
-              {isEdit ? "Lưu" : "Thêm mới"}
-            </Button>
-          </div>
+          <BottomBarContainer
+            back="Quay lại danh sách"
+            backAction={backAction}
+            rightComponent={
+              <Space>
+                {allowCreatePrint && <Button  onClick={() => {
+                  handleSubmitForm();
+                }} type="primary">
+                  {isEdit ? "Lưu lại" : "Tạo mẫu in"}
+                  </Button> }
+              </Space>
+            }
+          /> 
         )}
       </Form>
       <ModalConfirm
@@ -313,6 +339,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       {isShowPrompt && (
         <Prompt message="Bạn có chắc chắn muốn thoát? Toàn bộ thay đổi của bạn sẽ không được ghi nhận." />
       )}
+      
+      <ModalConfirm {...modalConfirm} />
     </StyledComponent>
   );
 };

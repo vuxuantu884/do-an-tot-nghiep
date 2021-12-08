@@ -10,4 +10,18 @@ export const globalCssLayoutOutsideComponent = css`
     max-height: 42px;
     line-height: 21px;
   }
+  .ant-select-selection-item {
+    .hideInSelect {
+      display: none;
+    }
+    
+  }
+  .ant-select-item-option  {
+    .hideInDropdown {
+      display: none;
+    }
+    .itemParent {
+      font-weight: 500;
+    }
+  }
 `;

@@ -16,9 +16,10 @@ type PickManyProductModalType = {
   visible: boolean;
   isTransfer?: boolean;
   onCancel: () => void;
-  selected: Array<VariantResponse>;
+  selected: Array<any>;
   onSave: (result: Array<VariantResponse>) => void;
   storeID?: number;
+  emptyText?:string
 };
 
 let initQuery = {
@@ -43,7 +44,6 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const [query, setQuery] = useState<VariantSearchQuery>(
     props.storeID ? initQueryHasStoreID : initQuery
   );
-
   const onResultSuccess = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
       if (!!result) {
@@ -83,12 +83,17 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const fillAll = useCallback(
     (checked: boolean) => {
       if (checked) {
-        if (data) setSelection(data?.items);
+        if (data) setSelection(selection.concat(data?.items));
       } else {
-        setSelection([]);
+        const tempSelection = [...selection];
+        data?.items.forEach(item => {
+          const removedIndex = tempSelection.findIndex(s => s.id === item.id)
+          tempSelection.splice(removedIndex, 1);
+        })
+        setSelection([...tempSelection]);
       }
     },
-    [data, setSelection]
+    [data, selection]
   );
 
   useEffect(() => {
@@ -136,7 +141,8 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       <Divider />
       <Checkbox
         style={{ marginLeft: 12 }}
-        checked={selection.length === data?.metadata.limit}
+        // checked={selection.length === data?.metadata.limit}
+        checked={data?.items.every(item => selection.findIndex(s => s.id === item.id) > -1)}
         onChange={(e) => {
           fillAll(e.target.checked);
         }}
@@ -148,7 +154,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         <div className="modal-product-list">
           <List
             locale={{
-              emptyText: "Không có dữ liệu",
+              emptyText: props.emptyText ? props.emptyText : "Không có dữ liệu",
             }}
             className="product"
             style={{ maxHeight: 280, overflow: "auto" }}
@@ -158,7 +164,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
               <ProductItem
                 isTransfer={props.isTransfer}
                 checked={
-                  selection.findIndex((item1) => item.id === item1.id) !== -1
+                  selection.findIndex((item1) => item.id === (item1.variant_id ?? item1.id)) !== -1
                 }
                 showCheckBox={true}
                 data={item}

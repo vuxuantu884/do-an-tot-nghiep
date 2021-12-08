@@ -1,23 +1,14 @@
-import CustomTable from "component/table/CustomTable";
 import React, { useState } from "react";
-import actionColumn from "../../actions/action.column";
-import { StyledHeader, StyledComponent } from "./styles";
 import { Button } from "antd";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
-import { useHistory } from "react-router-dom";
-import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import successIcon from "assets/icon/success_2.svg";
 import moment from "moment";
+import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import CustomTable from "component/table/CustomTable";
+import actionColumn from "screens/ecommerce/config/actions/action.column";
+import { useHistory } from "react-router-dom";
+import successIcon from "assets/icon/success_2.svg";
+import iconMap from "screens/ecommerce/common/ecommerce-icon";
+import { StyledHeader, StyledComponent } from "screens/ecommerce/config/tab/sync-ecommerce/styles";
 
-const iconMap: any = {
-  shopee: shopeeIcon,
-  lazada: lazadaIcon,
-  tiki: tikiIcon,
-  sendo: sendoIcon,
-};
 type SyncEcommerceProps = {
   configData: any;
   setConfigToView: (value: EcommerceResponse) => void;
@@ -61,40 +52,21 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={iconMap[v.ecommerce]} alt=""></img>;
+        return <img src={iconMap[v.ecommerce.toLowerCase()]} alt=""/>;
       },
     },
-    // {
-    //   title: "Shop ID | Tên shop",
-    //   visible: true,
-    //   render: (l: any, v: any, i: any) => {
-    //     return <div>
-    //       <span>{v.ecommerce_id}</span>
-    //       <span>{v.ecommerce}</span>
-    //     </div>;
-    //   },
-    // },
     {
       title: "Tên gian hàng",
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span
-            style={{ color: " #2a2a86", cursor: "pointer" }}
-            onClick={() => handleUpdate(v)}
-          >
+          <span className="link" onClick={() => handleUpdate(v)}>
             {v.name}
           </span>
         );
       },
     },
     { title: "Cửa hàng", visible: true, dataIndex: "store" },
-    // {
-    //   title: "Đồng bộ sản phẩm",
-    //   visible: true,
-    //   align: "center",
-    //   dataIndex: "product_sync",
-    // },
     {
       title: "Nhân viên bán hàng",
       visible: true,
@@ -123,28 +95,28 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
     },
     {
       title: "Sàn Tiki",
-      icon: tikiIcon,
+      icon: iconMap.tiki,
       id: "tiki",
       isActive: false,
       key: 2,
     },
     {
       title: "Sàn Shopee",
-      icon: shopeeIcon,
+      icon: iconMap.shopee,
       id: "shopee",
       isActive: false,
       key: 3,
     },
     {
       title: "Sàn Lazada",
-      icon: lazadaIcon,
+      icon: iconMap.lazada,
       id: "lazada",
       isActive: false,
       key: 4,
     },
     {
       title: "Sàn Sendo",
-      icon: sendoIcon,
+      icon: iconMap.sendo,
       id: "sendo",
       isActive: false,
       key: 5,
@@ -186,14 +158,6 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
           columns={columns}
           dataSource={configDataFiltered}
           pagination={false}
-          // pagination={{
-          //   pageSize: data.metadata.limit,
-          //   total: data.metadata.total,
-          //   current: data.metadata.page,
-          //   showSizeChanger: true,
-          //   onChange: onPageChange,
-          //   onShowSizeChange: onPageChange,
-          // }}
           rowKey={(data) => data.id}
         />
       </div>

@@ -4,23 +4,24 @@ import { useDispatch } from "react-redux";
 import { Tabs, Button, Modal } from "antd";
 import { DownloadOutlined } from "@ant-design/icons"
 
-import { PageResponse } from "model/base/base-metadata.response";
-import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import TotalItemsEcommerce from "./tab/total-items-ecommerce";
-import ConnectedItems from "./tab/connected-items";
-import NotConnectedItems from "./tab/not-connected-items";
-import UpdateProductDataModal from "./component/UpdateProductDataModal";
+import TotalItemsEcommerce from "screens/ecommerce/products/tab/total-items-ecommerce";
+import ConnectedItems from "screens/ecommerce/products/tab/connected-items";
+import NotConnectedItems from "screens/ecommerce/products/tab/not-connected-items";
+import UpdateProductDataModal from "screens/ecommerce/products/component/UpdateProductDataModal";
 
 import {
   postProductEcommerceList,
-  getProductEcommerceList
 } from "domain/actions/ecommerce/ecommerce.actions";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
+import useAuthorization from "hook/useAuthorization";
 
 import checkCircleIcon from "assets/icon/check-circle.svg";
 
-import { StyledComponent } from "./styles";
+import { StyledComponent } from "screens/ecommerce/products/styles";
 
 const { TabPane } = Tabs;
 
@@ -39,10 +40,19 @@ const PRODUCT_TAB = {
   }
 }
 
+const productsReadPermission = [EcommerceProductPermission.products_read];
+const productsDownloadPermission = [EcommerceProductPermission.products_download];
+
+
 const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const [allowProductsDownload] = useAuthorization({
+    acceptPermissions: productsDownloadPermission,
+    not: false,
+  });
 
   const [isLoading, setIsLoading] = useState(false);
   const [isShowGetProductModal, setIsShowGetProductModal] = useState(false);
@@ -51,61 +61,22 @@ const Products: React.FC = () => {
   const [itemsUpdated, setItemsUpdated] = useState(0);
   const [itemsNotConnected, setItemsNotConnected] = useState(0);
 
-  const [tableLoading, setTableLoading] = useState(false);
-  const [variantData, setVariantData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-
-  const [query,] = useState<ProductEcommerceQuery>({
-    page: 1,
-    limit: 30,
-    ecommerce_id: null,
-    shop_ids: [],
-    connect_status: null,
-    update_stock_status: null,
-    sku_or_name_core: "",
-    sku_or_name_ecommerce: "",
-    connected_date_from: null,
-    connected_date_to: null,
-  });
-
-  const updateVariantData = useCallback((result: PageResponse<any> | false) => {
-    setTableLoading(false);
-    if (!!result) {
-      setVariantData(result);
-    }
-  }, []);
-
-  const getProductUpdated = useCallback((queryRequest: any) => {
-    setTableLoading(true);
-    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
-  }, [dispatch, updateVariantData]);
 
   useEffect(() => {
-    const requestQuery = { ...query };
     switch (history.location.hash) {
       case "#total-item":
-        requestQuery.connect_status = null;
         setActiveTab(PRODUCT_TAB.total.key);
         break;
       case "#connected-item":
-        requestQuery.connect_status = "connected";
         setActiveTab(PRODUCT_TAB.connected.key);
         break;
       case "#not-connected-item":
-        requestQuery.connect_status = "waiting";
         setActiveTab(PRODUCT_TAB.notConnected.key);
         break;
       default: break;
     }
 
-    getProductUpdated(requestQuery);
-  }, [getProductUpdated, history.location.hash, query]);
+  }, [history.location.hash]);
 
   // handle get product from ecommerce
   const handleGetProductsFromEcommerce = () => {
@@ -164,46 +135,42 @@ const Products: React.FC = () => {
         ]}
         extra={
           <>
-            <Button
-              onClick={handleGetProductsFromEcommerce}
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<DownloadOutlined />}
-            >
-              Tải sản phẩm từ sàn về
-            </Button>
+            {allowProductsDownload &&
+              <Button
+                onClick={handleGetProductsFromEcommerce}
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<DownloadOutlined />}
+              >
+                Tải sản phẩm từ sàn về
+              </Button>
+            }
           </>
         }
       >
-        <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
-          <TabPane tab={PRODUCT_TAB.total.title} key={PRODUCT_TAB.total.key} />
-          <TabPane tab={PRODUCT_TAB.connected.title} key={PRODUCT_TAB.connected.key} />
-          <TabPane tab={PRODUCT_TAB.notConnected.title} key={PRODUCT_TAB.notConnected.key} />
-        </Tabs>
-        
-        {activeTab === PRODUCT_TAB.total.key &&
-          <TotalItemsEcommerce
-            tableLoading={tableLoading}
-            variantData={variantData}
-            getProductUpdated={getProductUpdated}
-          />
-        }
-        
-        {activeTab === PRODUCT_TAB.connected.key &&
-          <ConnectedItems
-            tableLoading={tableLoading}
-            variantData={variantData}
-            getProductUpdated={getProductUpdated}
-          />
-        }
-        
-        {activeTab === PRODUCT_TAB.notConnected.key &&
-          <NotConnectedItems
-            tableLoading={tableLoading}
-            variantData={variantData}
-            getProductUpdated={getProductUpdated}
-          />
-        }
+        <AuthWrapper acceptPermissions={productsReadPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <>
+              <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
+                <TabPane tab={PRODUCT_TAB.total.title} key={PRODUCT_TAB.total.key} />
+                <TabPane tab={PRODUCT_TAB.connected.title} key={PRODUCT_TAB.connected.key} />
+                <TabPane tab={PRODUCT_TAB.notConnected.title} key={PRODUCT_TAB.notConnected.key} />
+              </Tabs>
+              
+              {activeTab === PRODUCT_TAB.total.key &&
+                <TotalItemsEcommerce />
+              }
+              
+              {activeTab === PRODUCT_TAB.connected.key &&
+                <ConnectedItems />
+              }
+              
+              {activeTab === PRODUCT_TAB.notConnected.key &&
+                <NotConnectedItems />
+              }
+            </>
+          : <NoPermission />)}
+        </AuthWrapper>
       </ContentContainer>
 
       {isShowGetProductModal &&

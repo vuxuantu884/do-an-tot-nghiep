@@ -155,6 +155,7 @@ export const StyledWrapper = styled.div`
 
   .ant-card-body {
     padding: 0 20px;
+    padding-bottom: 20px;
   }
   .ant-tabs-nav {
     padding: 0;
@@ -168,5 +169,21 @@ export const StyledWrapper = styled.div`
   }
   .audit_by{
     font-weight: 500;
+  }
+  .row-detail {
+    margin-bottom: 15px;
+    font-size: 14px;
+    width: 100%; 
+    .label {
+      color: #666666;
+    } 
+    .dot{
+      float: right;
+      margin-right: 10px;
+    }
+    .data {
+      color: #222222;
+      font-weight:500;
+    }
   }
 `;

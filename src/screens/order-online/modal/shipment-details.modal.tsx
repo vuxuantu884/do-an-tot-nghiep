@@ -55,7 +55,7 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
       title: <span><span>Thành tiền </span><span style={{color: '#737373', fontWeight: 400}}> đ</span></span>,
       render: (record: any) => (
         <NumberFormat
-          value={100000}
+          value={record.price * record.quantity}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -72,7 +72,7 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
       visible={visible}
       centered
       title={[
-        <span style={{fontWeight: 600, fontSize: 16}}>Chi tiết đơn hàng {shipmentDetails.code}</span>
+        <span style={{fontWeight: 600, fontSize: 16}}>Chi tiết đơn giao hàng {shipmentDetails.code}</span>
       ]}
       width={700}
       footer={[
@@ -133,7 +133,7 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
             <div>Phí giao hàng:</div>
             <div style={{ color: "#2A2A86" }}>
               <NumberFormat
-                value={shipmentDetails?.shipment?.delivery_fee ? shipmentDetails.shipment.delivery_fee : 0}
+                value={shipmentDetails?.shipment?.shipping_fee_informed_to_customer ? shipmentDetails.shipment.shipping_fee_informed_to_customer : 0}
                 className="foo"
                 displayType={"text"}
                 thousandSeparator={true}

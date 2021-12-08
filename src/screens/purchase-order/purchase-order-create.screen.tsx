@@ -38,6 +38,8 @@ import moment from "moment";
 import POStep from "./component/po-step";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import BottomBarContainer from "component/container/bottom-bar.container";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 const POCreateScreen: React.FC = () => {
   let now = moment();
@@ -133,7 +135,7 @@ const POCreateScreen: React.FC = () => {
     (result: PurchaseOrder) => {
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
-        history.push(`${UrlConfig.PURCHASE_ORDER}/${result.id}`);
+        history.push(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`);
       } else {
         setLoadingSaveButton(false);
         setLoadingDraftButton(false);
@@ -205,7 +207,7 @@ const POCreateScreen: React.FC = () => {
         },
         {
           name: "Đặt hàng",
-          path: `${UrlConfig.PURCHASE_ORDER}`,
+          path: `${UrlConfig.PURCHASE_ORDERS}`,
         },
         {
           name: "Tạo mới đơn đặt hàng",
@@ -298,8 +300,9 @@ const POCreateScreen: React.FC = () => {
                   formMain.submit();
                 }}
               >
-                Lưu nháp
+                Tạo nháp
               </Button>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
               <Button
                 disabled={loadingDraftButton}
                 type="primary"
@@ -310,8 +313,9 @@ const POCreateScreen: React.FC = () => {
                   formMain.submit();
                 }}
               >
-                Lưu và duyệt
+                Tạo và xác nhận
               </Button>
+              </AuthWrapper>
             </React.Fragment>
           }
         />

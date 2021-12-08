@@ -25,6 +25,8 @@ import procument from "assets/icon/procument.svg";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import POEditDraftProcurementModal from "../modal/POEditDraftProcurementModal";
 import { PoUpdateAction } from "domain/actions/po/po.action";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
@@ -344,23 +346,27 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               status !== POStatus.CANCELLED &&
               receive_status !== ProcumentStatus.FINISHED &&
               receive_status !== ProcumentStatus.CANCELLED && (
-                <Button
-                  onClick={() => {
-                    setEditProcument(false);
-                    setPOItem(line_items);
-                    setStoreExpect(expect_store_id);
-                    setVisible(true);
-                  }}
-                  style={{
-                    alignItems: "center",
-                    display: "flex",
-                  }}
-                  icon={<AiOutlinePlus size={16} />}
-                  type="primary"
-                  className="create-button-custom ant-btn-outline fixed-button"
+                <AuthWrapper
+                  acceptPermissions={[PurchaseOrderPermission.procurements_create]}
                 >
-                  Tạo phiếu nhập kho nháp
-                </Button>
+                  <Button
+                    onClick={() => {
+                      setEditProcument(false);
+                      setPOItem(line_items);
+                      setStoreExpect(expect_store_id);
+                      setVisible(true);
+                    }}
+                    style={{
+                      alignItems: "center",
+                      display: "flex",
+                    }}
+                    icon={<AiOutlinePlus size={16} />}
+                    type="primary"
+                    className="create-button-custom ant-btn-outline fixed-button"
+                  >
+                    Tạo phiếu nhập kho nháp
+                  </Button>
+                </AuthWrapper>
               )
             );
           }}

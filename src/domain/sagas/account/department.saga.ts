@@ -6,6 +6,7 @@ import { DepartmentType } from "domain/types/account.type";
 import { DepartmentResponse } from "model/account/department.model";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { departmentCreateApi, departmentDetailApi, departmentSearchApi, departmentUpdateApi } from "service/accounts/department.service";
+import { showError } from "utils/ToastUtils";
 
 function* searchSaga(action: YodyAction) {
   let {  onResult } = action.payload;
@@ -65,6 +66,7 @@ function* createSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
+        response.errors.forEach((e) => showError(e));
         onResult(false);
         break;
     }
@@ -87,6 +89,7 @@ function* updateSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
+        response.errors.forEach((e) => showError(e));
         onResult(false);
         break;
     }

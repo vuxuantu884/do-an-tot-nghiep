@@ -58,7 +58,7 @@ export const StyledUpdateProductDataModal = styled.div`
 //common product style
 export const StyledProductFilter = styled.div`
   .filter {
-    overflow-x: scroll;
+    overflow-x: auto;
     .ant-form {
       display: flex;
     }
@@ -82,11 +82,13 @@ export const StyledProductFilter = styled.div`
   .shoppe-search {
     margin-right: 10px;
     min-width: 230px;
+    flex-grow: 1;
   }
 
   .yody-search {
     margin-right: 10px;
     min-width: 200px;
+    flex-grow: 1;
   }
 
   .render-shop-list {
@@ -104,40 +106,6 @@ export const StyledProductFilter = styled.div`
         }
       }
     }
-  }
-`;
-
-export const StyledProductConnectStatus = styled.div`
-  .success-status {
-    background: #F0FCF5;
-    color: #27AE60;
-    border-radius: 100px;
-    padding: 5px 15px;
-    margin: 0px auto;
-  }
-
-  .error-status {
-    background: rgba(226, 67, 67, 0.1);
-    color: #E24343;
-    border-radius: 100px;
-    padding: 5px 15px;
-    margin: 0px auto;
-  }
-  
-  .warning-status {
-    background: #FFFAF0;
-    color: #FCAF17;
-    border-radius: 100px;
-    padding: 5px 15px;
-    margin: 0px auto;
-  }
-
-  .not-connect-status {
-    background: rgba(42, 42, 134, 0.1);
-    color: #2A2A86;
-    border-radius: 100px;
-    padding: 5px 15px;
-    margin: 0px auto;
   }
 `;
 

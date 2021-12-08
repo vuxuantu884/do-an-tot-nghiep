@@ -1,15 +1,27 @@
-import {Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
-import React, {useState} from "react";
+import {Checkbox, Col, Form, Input, InputNumber, Row, Select, Tooltip} from "antd";
+import React, {useCallback, useState} from "react";
 import "../promo-code.scss";
 import NumberInput from "component/custom/number-input.custom";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
 const ChooseDiscount = (props: any) => {
   const {form} = props;
   const [typeUnit, setTypeUnit] = useState("PERCENTAGE");
   const [isUsageLimit, setIsUsageLimit] = useState(false);
-  const [isUsageLimitPerCus, setIsUsageLimitPerCus] = useState(false);
+  const [isUsageLimitPerCus, setIsUsageLimitPerCus] = useState(true);
+
+  const formatDiscountValue = useCallback((value: number | undefined) => {
+    if (typeUnit !== "FIXED_AMOUNT") {
+      const floatIndex = value?.toString().indexOf(".") || -1;
+      if (floatIndex > 0) {
+        return `${value}`.slice(0, floatIndex + 3)
+      }
+      return `${value}`
+    } else {
+      return formatCurrency(`${value}`.replaceAll(".", ""))
+    }
+  }, [typeUnit])
 
   return (
     <Col span={24}>
@@ -31,35 +43,30 @@ const ChooseDiscount = (props: any) => {
                 name="value"
                 noStyle
               >
-                <NumberInput
-                  onBlur={() => {
-                    form.submit();
-                  }}
-                  isFloat={typeUnit === 'PERCENTAGE'}
-                  className="product-item-discount-input"
-                  style={{ width: "65%", textAlign: "right" }}
-                  placeholder="Nhập giá trị khuyến mãi"
-                  format={(a) => formatCurrency(a)}
-                  replace={(a) => replaceFormatString(a)}
-                  min={0}
-                  default={0}
-                  maxLength={typeUnit === "FIXED_AMOUNT" ? 15 : 3}
-                  max={typeUnit === "FIXED_AMOUNT" ? 9999999 : 100}
-                />
+              <InputNumber
+                style={{textAlign: "end", borderRadius: "0px", width: "65%"}}
+                min={1}
+                max={typeUnit === "FIXED_AMOUNT" ? 999999999 : 100}
+                step={typeUnit === "FIXED_AMOUNT" ? 1: 0.01}
+                formatter={(value) => formatDiscountValue(value)}
+              />
               </Form.Item>
               <Form.Item name="value_type" noStyle>
                 <Select
                   placeholder="Đơn vị"
                   style={{ width: "70px" }}
-                  defaultValue={"PERCENTAGE"}
+                  // defaultValue={"PERCENTAGE"}
                   value={typeUnit}
                   onChange={(value: string) => {
                     setTypeUnit(value);
-                    form.setFieldsValue({value_type: value})
+                    form.setFieldsValue({
+                      value_type: value,
+                      value: 0
+                    })
                   }}
                 >
-                  <Select.Option key='percent' value="PERCENTAGE"> {"%"} </Select.Option>
-                  <Select.Option key='percent' value="FIXED_AMOUNT"> {"đ"} </Select.Option>
+                  <Select.Option key='PERCENTAGE' value="PERCENTAGE"> {"%"} </Select.Option>
+                  <Select.Option key='FIXED_AMOUNT' value="FIXED_AMOUNT"> {"đ"} </Select.Option>
                 </Select>
               </Form.Item>
             </Input.Group>
@@ -67,7 +74,7 @@ const ChooseDiscount = (props: any) => {
         </Col>
         {/* Mỗi mã được sử dụng */}
         <Col span={8}>
-          <Form.Item 
+          <Form.Item
             label="Mỗi mã được sử dụng:"
             name="usage_limit"
             rules={[
@@ -78,13 +85,9 @@ const ChooseDiscount = (props: any) => {
             ]}
           >
             <NumberInput
-              style={{
-                textAlign: "right",
-                width: "100%",
-                color: "#222222",
-              }}
-              maxLength={999999999999999}
+              maxLength={11}
               minLength={0}
+              min={0}
               disabled={isUsageLimit}
             />
           </Form.Item>
@@ -120,29 +123,29 @@ const ChooseDiscount = (props: any) => {
         </Col>
         {/* Mỗi khách được sử dụng tối đa */}
         <Col span={8}>
-          <Form.Item 
+          <Form.Item
             name="usage_limit_per_customer"
             label="Mỗi khách được sử dụng tối đa:"
           >
             <NumberInput
-              style={{
-                textAlign: "right",
-                width: "100%",
-                color: "#222222",
-              }}
+              maxLength={11}
               minLength={0}
+              min={0}
               disabled={isUsageLimitPerCus}
             />
           </Form.Item>
         </Col>
         <Col span={5}>
         <Form.Item label=" ">
-            <Checkbox onChange={value => {
-              setIsUsageLimitPerCus(value.target.checked);
-              form.setFieldsValue({
-                usage_limit_per_customer: null
-              });
-            }}> Không giới hạn </Checkbox>
+            <Checkbox
+              defaultChecked={true}
+              onChange={value => {
+                setIsUsageLimitPerCus(value.target.checked);
+                form.setFieldsValue({
+                  usage_limit_per_customer: null
+                });
+              }}
+            > Không giới hạn </Checkbox>
         </Form.Item>
         </Col>
       </Row>
@@ -150,8 +153,8 @@ const ChooseDiscount = (props: any) => {
       <Row gutter={30} style={{padding: "0 16px 0"}}>
         <Checkbox> Áp dụng chung với các mã khuyến mại khác&nbsp;&nbsp;
           <Tooltip title="Bao gồm chiết khấu khách hàng, chiết khấu tích điểm, chiết khấu tự nhập cho đơn hàng và chương trình khuyến mãi">
-            <InfoCircleOutlined /> 
-          </Tooltip> 
+            <InfoCircleOutlined />
+          </Tooltip>
         </Checkbox>
       </Row>
     </Col>

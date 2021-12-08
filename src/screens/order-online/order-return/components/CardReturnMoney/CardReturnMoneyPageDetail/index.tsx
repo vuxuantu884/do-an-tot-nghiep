@@ -35,10 +35,10 @@ function CardReturnMoneyPageDetail(props: PropType) {
           Hoàn tiền
           {payments && payments.length > 0 && (
             <Tag
+							color="success"
               className="orders-tag orders-tag-success"
               style={{
-                backgroundColor: "rgba(39, 174, 96, 0.1)",
-                color: "#27AE60",
+								marginLeft: 10,
               }}
             >
               Đã thanh toán

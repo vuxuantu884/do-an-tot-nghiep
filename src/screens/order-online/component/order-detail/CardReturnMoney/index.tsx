@@ -30,7 +30,7 @@ function CardReturnMoney(props: PropType) {
     return (
       <React.Fragment>
         <span className="title-card">
-          Hoàn tiền
+          Hoàn tiền {" "}
           {payments && payments.length > 0 && (
             <Tag
               className="orders-tag orders-tag-success"
@@ -103,7 +103,7 @@ function CardReturnMoney(props: PropType) {
   return (
     <StyledComponent>
       <Card className="margin-top-20" title={renderCardTitle()}>
-        <div className="padding-24">
+        <div>
           {renderPayments()}
           {isShowPaymentMethod && (
             <ReturnMoneySelect

@@ -1,6 +1,5 @@
-import { EyeInvisibleOutlined, EyeTwoTone, PlusOutlined } from "@ant-design/icons";
+import {EyeInvisibleOutlined, EyeTwoTone, PlusOutlined} from "@ant-design/icons";
 import {
-  Affix,
   Button,
   Card,
   Col,
@@ -14,44 +13,54 @@ import {
   Select,
   Space,
   Switch,
-  Table
+  Table,
+  TreeSelect
 } from "antd";
 import deleteIcon from "assets/icon/delete.svg";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
-  AccountGetByIdtAction, AccountUpdateAction, DepartmentGetListAction,
-  PositionGetListAction
+  AccountGetByCodeAction,
+  AccountUpdateAction,
+  DepartmentGetListAction,
+  PositionGetListAction,
 } from "domain/actions/account/account.action";
-import { RoleGetListAction } from "domain/actions/auth/role.action";
+import {RoleGetListAction} from "domain/actions/auth/role.action";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction
+  DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import {StoreGetListAction} from "domain/actions/core/store.action";
+import useAuthorization from "hook/useAuthorization";
 import {
   AccountJobReQuest,
   AccountJobResponse,
   AccountRequest,
-  AccountResponse, AccountStoreResponse,
-  AccountView
+  AccountResponse,
+  AccountStoreResponse,
+  AccountView,
 } from "model/account/account.model";
-import { DepartmentResponse } from "model/account/department.model";
-import { PositionResponse } from "model/account/position.model";
-import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
-import { CountryResponse } from "model/content/country.model";
-import { CityView, DistrictResponse } from "model/content/district.model";
-import { StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {DepartmentResponse, DepartmentView} from "model/account/department.model";
+import {PositionResponse} from "model/account/position.model";
+import {RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
+import {CountryResponse} from "model/content/country.model";
+import {CityView, DistrictResponse} from "model/content/district.model";
+import {StoreResponse} from "model/core/store.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import moment from "moment";
-import { RuleObject } from "rc-field-form/lib/interface";
-import { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { useParams } from "react-router-dom";
-import { convertDistrict } from "utils/AppUtils";
-import { PASSWORD_RULES } from "./account.rules";
+import {RuleObject} from "rc-field-form/lib/interface";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {useParams} from "react-router-dom";
+import {convertDepartment, convertDistrict} from "utils/AppUtils";
+import { CompareObject } from "utils/CompareObject";
+import {RegUtil} from "utils/RegUtils";
+import {PASSWORD_RULES} from "./account.rules";
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -80,7 +89,7 @@ const AccountUpdateScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.gender
   );
 
-  const listStoreRoot = useRef<Array<AccountStoreResponse>>(); 
+  const listStoreRoot = useRef<Array<AccountStoreResponse>>();
   const idNumber = useRef<number>(0);
 
   //State
@@ -90,11 +99,19 @@ const AccountUpdateScreen: React.FC = () => {
   const [status, setStatus] = useState<string>("active");
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listRole, setRole] = useState<Array<RoleResponse>>();
-  const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
-  const [accountDetail, setAccountDetail] = useState<AccountView | null>(null);
-  const [isSelectAllStore, setIsSelectAllStore] = useState(false);
+  const [accountDetail, setAccountDetail] = useState<AccountView>();
+  const [isSelectAllStore, setIsSelectAllStore] = useState(false); 
+  const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
+  const [listDepartment, setDepartment] = useState<Array<DepartmentView>>();
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
   //EndState
+
+  const allowUpdateAcc = useAuthorization({
+    acceptPermissions: [AccountPermissions.UPDATE],
+  });
 
   //Callback
 
@@ -116,6 +133,8 @@ const AccountUpdateScreen: React.FC = () => {
     listJob.push({
       department_id: 0,
       position_id: 0,
+      position_name: "",
+      department_name: "",
       key: Number(moment().format("x")),
     });
     setAccountJob(listJob);
@@ -157,29 +176,45 @@ const AccountUpdateScreen: React.FC = () => {
   );
   const onUpdateSuccess = useCallback(
     (data: AccountResponse) => {
-      history.push(UrlConfig.ACCOUNTS);
+      history.push(UrlConfig.ACCOUNTS + "/" + userCode);
     },
-    [history]
+    [history, userCode]
   );
   const onFinish = useCallback(
     (values: AccountView) => {
-      let accStores: Array<AccountStoreResponse> = []; 
+      let accStores: Array<AccountStoreResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
-      values.account_stores.forEach((el: number) => {
-        let checkSote = listStoreRoot.current?.find((rr) => rr.store_id === el);
-        accStores.push({
-          store_id: el,
-          id: checkSote?.id,
-        });
+      console.log(listAccountSelected);
+
+      listStore?.forEach((el: StoreResponse) => {
+        if (values.account_stores.includes(el.id)) {
+          accStores.push({
+            store_id: el.id,
+            store: el.name,
+          });
+        }
       });
-     
+
       listAccountSelected.forEach((el: AccountJobReQuest) => {
-        accJobs.push({
-          department_id: el.department_id,
-          position_id: el.position_id,
-        });
+        if (el.department_id && el.position_id) {
+          const department_name = listDepartment?.find(
+            (item) => item.id === el.department_id
+          )?.name;
+
+          const position_name = listPosition?.find(
+            (item) => item.id === el.position_id
+          )?.name;
+
+          accJobs.push({
+            department_id: el.department_id,
+            position_id: el.position_id,
+            department_name,
+            position_name,
+          });
+        }
       });
+
       let accountModel: AccountRequest = {
         full_name: values.full_name,
         gender: values.gender,
@@ -198,17 +233,25 @@ const AccountUpdateScreen: React.FC = () => {
         account_jobs: [...accJobs],
         version: values.version,
       };
+
       if (idNumber) {
         dispatch(AccountUpdateAction(idNumber.current, accountModel, onUpdateSuccess));
       }
     },
-    [dispatch, idNumber, listaccountJob, onUpdateSuccess]
+    [
+      dispatch,
+      idNumber,
+      listaccountJob,
+      onUpdateSuccess,
+      listStore,
+      listDepartment,
+      listPosition,
+    ]
   );
-  const onCancel = useCallback(() => history.goBack(), [history]);
   const setAccount = useCallback((data: AccountResponse) => {
     let storeIds: Array<number> = [];
     listStoreRoot.current = data.account_stores;
-    // listRolesRoot.current = data.account_roles;
+
     data.account_stores?.forEach((item) => {
       if (item.store_id) {
         storeIds.push(item.store_id);
@@ -220,6 +263,8 @@ const AccountUpdateScreen: React.FC = () => {
       jobs.push({
         position_id: item.position_id,
         department_id: item.department_id,
+        position_name: item.position_name || "",
+        department_name: item.department_name || "",
         key: Number(moment().format("x")) + index,
       });
     });
@@ -238,9 +283,10 @@ const AccountUpdateScreen: React.FC = () => {
       district_id: data.district_id,
       city_id: data.city_id,
       account_stores: storeIds,
-      role_id: data.role_id, 
+      role_id: data.role_id,
       status: data.status,
       version: data.version,
+      permissions: data.permissions,
     };
     idNumber.current = data.id;
     setStatus(accountView.status);
@@ -271,22 +317,21 @@ const AccountUpdateScreen: React.FC = () => {
       render: (text: string, item: AccountJobReQuest, index: number) => {
         return (
           <div>
-            <Select
-              placeholder="Chọn bộ phận"
-              className="selector"
-              allowClear
-              showArrow
-              optionFilterProp="children"
-              onChange={(value) => onChangeDepartment(value, index, item.id)}
+            <TreeSelect
               style={{width: "100%"}}
-              defaultValue={item.department_id === 0 ? undefined : item.position_id}
-            >
-              {listDepartment?.map((item) => (
-                <Option key={item.id} value={item.id}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
+               placeholder="Chọn bộ phận"
+               treeDefaultExpandAll
+               className="selector"
+               onChange={(value) => onChangeDepartment(value, index)}
+               allowClear
+               showSearch
+                defaultValue={item.department_id || undefined}
+                treeNodeFilterProp='title'
+             >
+               {listDepartmentTree?.map((item, index) => (
+                 <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+               ))}
+             </TreeSelect>  
           </div>
         );
       },
@@ -301,10 +346,11 @@ const AccountUpdateScreen: React.FC = () => {
               className="selector"
               allowClear
               showArrow
+              showSearch
               optionFilterProp="children"
               onChange={(value) => onChangePosition(value, index, item.id)}
               style={{width: "100%"}}
-              defaultValue={item.position_id === 0 ? undefined : item.position_id}
+              defaultValue={item.position_id || undefined}
             >
               {listPosition?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -334,19 +380,50 @@ const AccountUpdateScreen: React.FC = () => {
     },
   ];
 
+  const backAction = ()=>{    
+    delete accountDetail?.permissions;
+    
+    if (!CompareObject(formRef.current?.getFieldsValue(),accountDetail)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
+
   useEffect(() => {
     setIsSelectAllStore(listStore?.length === accountDetail?.account_stores.length);
   }, [accountDetail, listStore]);
 
   useEffect(() => {
-    dispatch(DepartmentGetListAction(setDepartment));
+    dispatch(
+      DepartmentGetListAction((result) => {
+        if (result) {
+          setDepartmentTree(result);
+          let array: Array<DepartmentView> = convertDepartment(result);
+          setDepartment(array);
+        }
+      })
+    ); 
     dispatch(PositionGetListAction(setPosition));
     dispatch(RoleGetListAction(initRoleQuery, setRole));
     dispatch(StoreGetListAction(setStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
-    dispatch(AccountGetByIdtAction(userCode, setAccount));
+    dispatch(AccountGetByCodeAction(userCode, setAccount));
   }, [dispatch, setDataDistrict, userCode, setAccount]);
+
   if (accountDetail == null) {
     return (
       <Card>
@@ -403,11 +480,23 @@ const AccountUpdateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Tên đăng nhập"
-                  name="user_name"
-                  rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
+                  label="Mã nhân viên"
+                  name="code"
+                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  normalize={(value: string) => (value || "").toUpperCase()}
                 >
-                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
+                  <Input
+                    className="r-5"
+                    placeholder="VD: YD0000"
+                    size="large"
+                    disabled
+                    onChange={(e) =>
+                      formRef.current?.setFieldsValue({
+                        user_name: e.target.value.toUpperCase(),
+                      })
+                    }
+                    autoComplete="new-password"
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -433,11 +522,16 @@ const AccountUpdateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Mã nhân viên"
-                  name="code"
-                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  label="Tên đăng nhập"
+                  name="user_name"
+                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
                 >
-                  <Input className="r-5" placeholder="VD: YD0000" size="large" />
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập tên đăng nhập"
+                    size="large"
+                    disabled
+                  />
                 </Item>
               </Col>
 
@@ -475,7 +569,8 @@ const AccountUpdateScreen: React.FC = () => {
                   rules={[
                     ({getFieldValue}) => ({
                       validator(_: RuleObject, value: string) {
-                        if (!value || getFieldValue("password") === value) {
+                        const password = getFieldValue("password");
+                        if (password === value || (!value && !password)) {
                           return Promise.resolve();
                         }
                         return Promise.reject(new Error("Nhập lại mật khẩu không đúng"));
@@ -496,7 +591,13 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[{required: true, message: "Vui lòng nhập số điện thoại"}]}
+                  rules={[
+                    {required: true, message: "Vui lòng nhập số điện thoại"},
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại không đúng định dạng",
+                    },
+                  ]}
                 >
                   <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
                 </Item>
@@ -548,13 +649,13 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Ngày sinh"
                   name="birthday"
                   // rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
-                >              
+                >
                   <CustomDatepicker style={{width: "100%"}} placeholder="20/01/2021" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  name="roles"
+                  name="role_id"
                   label="Nhóm phân quyền"
                   rules={[
                     {
@@ -564,10 +665,11 @@ const AccountUpdateScreen: React.FC = () => {
                   ]}
                 >
                   <Select
-                    placeholder="Chọn cửa hàng"
+                    placeholder="Chọn nhóm quyền"
                     className="selector"
                     allowClear
                     showArrow
+                    showSearch
                     optionFilterProp="children"
                     maxTagCount="responsive"
                   >
@@ -596,7 +698,10 @@ const AccountUpdateScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Khu vực" name="district_id">
                   <Select
+                    allowClear
+                    showArrow
                     showSearch
+                    optionFilterProp="children"
                     onSelect={onSelectDistrict}
                     className="selector"
                     placeholder="Chọn khu vực"
@@ -663,20 +768,36 @@ const AccountUpdateScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-        <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{textAlign: "right"}}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
-              <Button htmlType="submit" type="primary">
-                Lưu
-              </Button>
-            </Space>
-          </div>
-        </Affix>
+        <BottomBarContainer
+            back="Quay lại"
+            backAction={backAction}
+            rightComponent={
+              <Space>
+                  {allowUpdateAcc ? (
+                <Button htmlType="submit" type="primary">
+                  Lưu lại
+                </Button>
+              ) : null}
+              </Space>
+            }
+          /> 
       </Form>
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
+  );
+};
+
+const TreeDepartment = (item: DepartmentResponse) => {
+  return (
+    <TreeSelect.TreeNode value={item.id} title={item.name}>
+      {item.children.length > 0 && (
+        <React.Fragment>
+          {item.children.map((item, index) => (
+            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+          ))}
+        </React.Fragment>
+      )}
+    </TreeSelect.TreeNode>
   );
 };
 

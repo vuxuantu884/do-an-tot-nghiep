@@ -4,7 +4,7 @@ import editIcon from "assets/icon/edit.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import { StyledMenu, StyledDropDown } from "./styles";
 
-const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) => {
+const actionColumn = (handleUpdate: any, handleDelete: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
@@ -14,21 +14,9 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
       const menu = (
         <StyledMenu>
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-          { handleStatus && 
-            <Menu.Item key="1">
-              <Button
-                icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
-                type="text"
-                className=""
-                onClick={() => handleStatus(item)}
-              >
-                Ngừng áp dụng
-              </Button>
-            </Menu.Item>
-          }
-
-          <Menu.Item key="2">
+          <Menu.Item key="3">
             <Button
+              disabled
               icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
               type="text"
               className=""
@@ -38,8 +26,9 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
             </Button>
           </Menu.Item>
 
-          <Menu.Item key="3">
+          <Menu.Item key="4">
             <Button
+              disabled
               icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
               type="text"
               className=""

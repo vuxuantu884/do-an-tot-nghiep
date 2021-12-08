@@ -59,7 +59,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
             title={
               <Space>
                 <div className="d-flex">
-                  <span className="title-card">THANH TOÁN 29</span>
+                  <span className="title-card">THANH TOÁN</span>
                 </div>
                 {checkPaymentStatusToShow(OrderDetail) === -1 && (
                   <Tag className="orders-tag orders-tag-default">Chưa thanh toán 2</Tag>
@@ -192,7 +192,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
                         }
                         key="100"
                       >
-                        {isShowPaymentPartialPayment && OrderDetail !== null && (
+                        {/* {isShowPaymentPartialPayment && OrderDetail !== null && (
                           <UpdatePaymentCard
                             setSelectedPaymentMethod={onPaymentSelect}
                             setVisibleUpdatePayment={setVisibleUpdatePayment}
@@ -221,7 +221,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
                               setReload(true);
                             }}
                           />
-                        )}
+                        )} */}
                       </Panel>
                     )}
                     {OrderDetail?.fulfillments &&
@@ -339,7 +339,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
             title={
               <Space>
                 <div className="d-flex">
-                  <span className="title-card">THANH TOÁN 2</span>
+                  <span className="title-card">THANH TOÁN</span>
                 </div>
                 {checkPaymentStatusToShow(OrderDetail) === 1 && (
                   <Tag
@@ -440,7 +440,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
         )}
 
       {/* Chưa thanh toán đơn nháp*/}
-      {OrderDetail &&
+      {/* {OrderDetail &&
         OrderDetail.payments?.length === 0 &&
         (OrderDetail.fulfillments?.length === 0 ||
           (OrderDetail?.fulfillments &&
@@ -465,7 +465,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
               setReload(true);
             }}
           />
-        )}
+        )} */}
 
       {/*--- end payment ---*/}
     </StyledComponent>

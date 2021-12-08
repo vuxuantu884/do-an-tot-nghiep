@@ -1,14 +1,14 @@
 import styled from "styled-components";
 
 export const StyledConfig = styled.div`
-.ecommerce-user-detail{
-  border: 1px solid #e5e5e5;
-  padding: 7px 15px;
-  margin-bottom: 20px;
-  .ant-col{
-    margin: 5px 0;
+  .ecommerce-user-detail{
+    border: 1px solid #e5e5e5;
+    padding: 7px 15px;
+    margin-bottom: 20px;
+    .ant-col{
+      margin: 5px 0;
+    }
   }
-}
   .ant-row {
     width: 100%;
   }
@@ -49,15 +49,22 @@ export const StyledConfig = styled.div`
       color: #666666;
     }
   }
-  .customer-bottom-button{
-    margin-left: -50px;
-    button:first-child{
-      color: red
+  .config-setting-footer{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    
+    .delete-shop-btn {
+      color: red;
+      border: 1px solid rgb(226, 67, 67);
+      background: #FFFFFF;
     }
   }
+
   .ant-form-item-label{
     display: -webkit-inline-box;
   }
+
   button{
     display: flex;
     align-items: center;

@@ -2,6 +2,7 @@ import {FilterOutlined} from "@ant-design/icons";
 import {Button, Col, DatePicker, Form, FormInstance, Input, Row, Select} from "antd";
 import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
+import StoreSearchSelect from "component/custom/select-search/store-select";
 import {MenuAction} from "component/table/ActionButton";
 import {AccountSearchQuery} from "model/account/account.model";
 import {DepartmentResponse} from "model/account/department.model";
@@ -29,7 +30,6 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
     listDepartment,
     listPosition,
     listStatus,
-    listStore,
     onClearFilter,
     onFilter,
   } = props;
@@ -66,38 +66,35 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
           <Form.Item name="info" className="search" style={{minWidth: 200}}>
             <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã nhân viên" />
           </Form.Item>
-          <Form.Item name="store_ids">
-            <Select
-              showArrow
-              allowClear
-              placeholder="Cửa hàng"
-              style={{
-                minWidth: 200,
-                width: "100%",
-              }}
-            >
-              {listStore?.map((item) => (
-                <Select.Option key={item.id} value={item.id}>
-                  {item.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+          <StoreSearchSelect name="store_ids" label="" style={{width: 250}}/>
           <Form.Item name="department_ids">
             <Select
+              showSearch
               allowClear
               showArrow
-              placeholder="Bộ phận"
+              placeholder="Chọn bộ phận"
+              optionFilterProp="title"  
               style={{
-                minWidth: 200,
-                width: "100%",
+                width: 250,
               }}
             >
-              {listDepartment?.map((item) => (
-                <Select.Option key={item.id} value={item.id}>
-                  {item.name}
-                </Select.Option>
-              ))}
+             {listDepartment &&
+                  listDepartment.map((single: any) => {
+                    return (
+                      <Select.Option value={single.id} key={single.id} title={single.name}>
+                        <span
+                          className="hideInSelect"
+                          style={{paddingLeft: +18 * single.level}}
+                        ></span>
+                        {single?.parent?.name && (
+                          <span className="hideInDropdown">
+                            {single?.parent?.name} -{" "}
+                          </span>
+                        )}
+                        <span  className={`${single.level === 0 && "itemParent"}`}>{single.name}</span>
+                      </Select.Option>
+                    );
+                  })}
             </Select>
           </Form.Item>
           <Form.Item>

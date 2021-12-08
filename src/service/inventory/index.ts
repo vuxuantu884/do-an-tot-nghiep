@@ -7,6 +7,7 @@ import {
   HistoryInventoryResponse,
   InventoryQuery,
   InventoryResponse,
+  InventoryVariantListQuery,
 } from "model/inventory";
 import { LogisticGateAwayResponse } from "model/inventory/transfer";
 import { generateQuery } from "utils/AppUtils";
@@ -52,10 +53,38 @@ const inventoryGetDetailVariantIdsApi = (
   return BaseAxios.get(link);
 };
 
+const inventoryGetDetailVariantIdsExtApi = (
+  variant_id: number[],
+  store_id: number | null
+): Promise<BaseResponse<Array<InventoryResponse>>> => {
+  let queryString = "";
+  if (store_id) queryString += `store_id=${store_id}&`;
+  if (variant_id.length>0)
+  {
+    variant_id.forEach(function (value,index) {
+      queryString += `variant_ids=${value}`
+      if(index<variant_id.length-1)
+        queryString += `&`
+    });
+  }
+  let link = `${ApiConfig.INVENTORY}/inventories?is_detail=true&${queryString}`;
+  return BaseAxios.get(link);
+};
+
+const getInventoryByVariantsApi = (
+  query: InventoryVariantListQuery
+): Promise<BaseResponse<AllInventoryResponse>> => {
+  let params = generateQuery(query);
+  let url = `${ApiConfig.INVENTORY}/inventories?${params}`;
+  return BaseAxios.get(url);
+};
+
 export {
   inventoryGetApi,
   inventoryGetDetailApi,
   inventoryGetHistoryApi,
   inventoryGetDetailVariantIdsApi,
-  logisticGateAwayGetApi
+  logisticGateAwayGetApi,
+  inventoryGetDetailVariantIdsExtApi,
+  getInventoryByVariantsApi
 };

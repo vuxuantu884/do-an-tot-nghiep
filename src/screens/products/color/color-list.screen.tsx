@@ -26,8 +26,12 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ProductPermission } from "config/permissions/product.permission";
+import useAuthorization from "hook/useAuthorization";
+import "assets/css/custom-filter.scss";
 
-const action: Array<MenuAction> = [
+const actionDefault: Array<MenuAction> = [
   {
     id: 0,
     name: "Xóa",
@@ -123,10 +127,24 @@ const ColorListScreen: React.FC = () => {
       visible: false,
     },
   ]);
+
+  const [canDeleteColor] = useAuthorization({acceptPermissions: [ProductPermission.colors_delete]});
+
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+  
+  const actions = useMemo(() => {
+    return actionDefault.filter((item) => {
+      if (item.id === 0) {
+        return canDeleteColor;
+      } else {
+        return true;
+      }
+    });
+  }, [canDeleteColor]);
+
   const searchColorCallback = useCallback(
     (listResult: PageResponse<ColorResponse>) => {
       setTableLoading(false);
@@ -168,8 +186,12 @@ const ColorListScreen: React.FC = () => {
     );
   }, []);
   const onFinish = useCallback(
-    (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+    (values: ColorSearchQuery) => {
+      let newPrams = { ...params, ...values,
+         info: values.info?.trim(),
+         hex_code: values.hex_code?.trim(),
+         page: 1 };
+
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.COLORS}?${queryParam}`);
@@ -178,10 +200,14 @@ const ColorListScreen: React.FC = () => {
   );
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
+      let newPrams = { ...params,
+        info: params.info?.trim(),
+        hex_code: params.hex_code?.trim(),
+        page: page, 
+        limit: size };
+    
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+      setPrams({ ...newPrams });
       history.replace(`${UrlConfig.COLORS}?${queryParam}`);
     },
     [history, params]
@@ -219,48 +245,53 @@ const ColorListScreen: React.FC = () => {
           name: "Màu sắc",
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.COLORS}/create`} />}
+      extra={
+        <AuthWrapper acceptPermissions={[ProductPermission.colors_create]}>
+          <ButtonCreate child="Thêm màu sắc" path={`${UrlConfig.COLORS}/create`} />
+        </AuthWrapper>
+      }
     >
       <Card>
-        <CustomFilter menu={action} onMenuClick={onMenuClick}>
-          <Form
-            className="form-search"
-            size="middle"
-            onFinish={onFinish}
-            initialValues={params}
-            layout="inline"
-          >
-            <Form.Item name="info">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Tên/Mã màu sắc"
-              />
-            </Form.Item>
-            <Form.Item name="parent_id">
-              <Select placeholder="Chọn màu chủ đạo" style={{ width: 200 }}>
-                <Option value="">Chọn màu chủ đạo</Option>
-                {listMainColor.items.map((item) => (
-                  <Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item name="hex_code">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Mã hex"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Form.Item>
-          </Form>
-        </CustomFilter>
+        <div className="custom-filter">
+          <CustomFilter menu={actions} onMenuClick={onMenuClick}>
+            <Form
+              className="form-search"
+              size="middle"
+              onFinish={onFinish}
+              initialValues={params}
+              layout="inline"
+            >
+              <Form.Item name="info" className="input-search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Tên/Mã màu sắc"
+                />
+              </Form.Item>
+              <Form.Item name="parent_id">
+                <Select placeholder="Chọn màu chủ đạo" style={{width: 200}}>
+                  <Option value="">Chọn màu chủ đạo</Option>
+                  {listMainColor.items.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item name="hex_code">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{width: 200}}
+                  placeholder="Mã hex"
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Form.Item>
+            </Form>
+          </CustomFilter>
+        </div>
         <CustomTable
           isRowSelection
           pagination={{

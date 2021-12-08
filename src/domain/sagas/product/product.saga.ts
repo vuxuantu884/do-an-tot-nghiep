@@ -4,7 +4,7 @@ import {
   ProductResponse,
   VariantResponse,
 } from "model/product/product.model";
-import { call, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
+import { call, delay, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -125,6 +125,7 @@ function* productWrapperUpdateSaga(action: YodyAction) {
 function* searchVariantOrderSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
+		yield delay(500);
     if (query.info.length >= 3) {
       let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
         searchVariantsApi,
@@ -145,7 +146,7 @@ function* searchVariantOrderSaga(action: YodyAction) {
       }
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi lấy dữ liệu tồn kho sản phẩm! Vui lòng thử lại sau!");
   }
 }
 

@@ -7,7 +7,7 @@ import {Col, Input, Row, Space, Table} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import {PurchaseOrderLineItem} from "model/purchase-order/purchase-item.model";
 import {Link} from "react-router-dom";
-import UrlConfig from "config/url.config";
+import { InventoryTabUrl } from "config/url.config";
 import _ from "lodash";
 import {useDispatch} from "react-redux";
 import {updateItemOnlineInventoryAction} from "domain/actions/inventory/inventory-adjustment.action";
@@ -15,10 +15,13 @@ import {showSuccess} from "utils/ToastUtils";
 import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "screens/inventory-adjustment/constants";
 import {SearchOutlined} from "@ant-design/icons";
 import {ICustomTableColumType} from "component/table/CustomTable";
+import useAuthorization from "hook/useAuthorization";
+import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 const {TextArea} = Input;
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
+  dataLinesItem: Array<LineItemAdjustment>;
 };
 
 export interface Summary {
@@ -31,13 +34,15 @@ export interface Summary {
 const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   props: propsInventoryAdjustment
 ) => {
-  const [editReason, setEditReason] = useState<boolean | any>(false);
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
   const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
+  
+  const [editReason, setEditReason] = useState<boolean | any>(false);
+
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
     TotalMiss: 0,
@@ -48,7 +53,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   const [keySearch, setKeySearch] = useState<string>("");
   const dispatch = useDispatch();
 
-  const {data} = props;
+  const {data, dataLinesItem} = props;
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
@@ -71,22 +76,35 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     [keySearch, dataTable]
   );
 
-  const onChangeReason = (value: string | null, index: number) => {
-    let dataEdit =
-      (searchVariant && searchVariant.length > 0) || keySearch !== ""
-        ? [...searchVariant]
-        : [...dataTable];
+  //phân quyền
+  const [allowUpdate] = useAuthorization({
+    acceptPermissions: [InventoryAdjustmentPermission.update],
+  });
 
-    const dataTableClone = _.cloneDeep(dataEdit);
-    dataTableClone[index].note = value;
-    setEditReason(true);
+  const onChangeReason = useCallback(
+    (value: string | null, row: LineItemAdjustment, index: number) => {
+      const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
 
-    if (searchVariant && (searchVariant.length > 0 || keySearch !== "")) {
-      setSearchVariant(dataTableClone);
-    } else {
+      dataTableClone.forEach((item) => {
+        if (item.id === row.id) {
+          value = value ?? "";
+          item.note = value;
+        }
+      }); 
+
+      let dataEdit =
+        (searchVariant && searchVariant.length > 0) || keySearch !== ""
+          ? [...dataTableClone]
+          : null;
+
       setDataTable(dataTableClone);
-    }
-  };
+      setSearchVariant(dataTableClone);
+      setEditReason(true);
+
+      onEnterFilterVariant(dataEdit);
+    },
+    [searchVariant, keySearch, dataTable, onEnterFilterVariant]
+  );
 
   const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
     let totalExcess = 0,
@@ -143,7 +161,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
+                to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
               >
                 {record.sku}
               </Link>
@@ -230,31 +248,28 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       dataIndex: "note",
       align: "left",
       width: 200,
-      render: (value: string, row, index: number) => {
-        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED) {
+      render: (value: string, row: LineItemAdjustment, index: number) => {
+        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
           return (
             <TextArea
               placeholder="Lý do lệch tồn"
               id={`item-reason-${index}`}
               value={value ? value : ""}
-              onChange={(event) => {
-                let value =
-                  event.target.value && event.target.value !== ""
-                    ? event.target.value
-                    : "";
-                onChangeReason(value, index);
+              maxLength={250}
+              onChange={(e) => {
+                onChangeReason(e.target.value, row, index);
               }}
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
+                  row.note = event.currentTarget.value;
+
                   dispatch(
-                    updateItemOnlineInventoryAction(
-                      data?.id,
-                      dataTable[index],
-                      (result) => {
+                    updateItemOnlineInventoryAction(data?.id, row, (result) => {
+                      if (result) {
                         showSuccess("Nhập lý do thành công.");
                       }
-                    )
+                    })
                   );
                 }
               }}
@@ -281,10 +296,10 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   ];
 
   useEffect(() => {
-    setDataTable(data.line_items);
-    setSearchVariant(data.line_items);
-    drawColumns(data.line_items);
-  }, [data, drawColumns]);
+    setDataTable(dataLinesItem);
+    setSearchVariant(dataLinesItem);
+    drawColumns(dataLinesItem);
+  }, [dataLinesItem, drawColumns]);
 
   return (
     <>

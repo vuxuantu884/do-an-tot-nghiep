@@ -16,10 +16,13 @@ const CustomModal = (props: CustomModalType) => {
     formItem,
     modalTypeText,
     componentForm: ComponentForm,
+    createText,
+    updateText,
     ...args
   } = props;
   const [form] = Form.useForm();
   const isCreateModal = modalAction === "create";
+  const isOnlyEdit = modalAction === "onlyedit";
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
   const [visibleForm, setVisibleForm] = useState(false);
   const formAction = {
@@ -39,8 +42,11 @@ const CustomModal = (props: CustomModalType) => {
       setIsShowConfirmDelete(false);
     },
     edit: () => {
-      setVisibleForm(false);
-      onEdit(form.getFieldsValue());
+      form.validateFields().then(()=> {
+        setVisibleForm(false);
+        onEdit(form.getFieldsValue());
+        
+      })
     },
   };
 
@@ -63,33 +69,35 @@ const CustomModal = (props: CustomModalType) => {
               type="primary"
               onClick={() => formAction.create()}
             >
-              Thêm
+             {createText ?? "Thêm"}
             </Button>
           </div>
         );
       }
       return (
-        <div className="footer footer__edit">
-          <div className="footer__left">
-            <Button
-              key="delete"
-              type="primary"
-              danger
-              onClick={() => setIsShowConfirmDelete(true)}
-            >
-              Xóa
-            </Button>
-          </div>
+        <div className="footer footer__edit"> 
+           <div className="footer__left">
+             {
+                !isOnlyEdit &&  <Button
+                key="delete"
+                type="primary"
+                danger
+                onClick={() => setIsShowConfirmDelete(true)}
+              >
+                Xóa
+              </Button>
+             }
+          </div> 
           <div className="footer__right">
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
-              Thoát
+              Đóng
             </Button>
             <Button
               key="save"
               type="primary"
               onClick={() => formAction.edit()}
             >
-              Lưu
+               {updateText ?? "Lưu"}
             </Button>
           </div>
         </div>

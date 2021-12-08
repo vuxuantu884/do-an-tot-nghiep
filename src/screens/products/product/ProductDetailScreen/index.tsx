@@ -2,8 +2,10 @@ import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Image, Row, Spin, Switch, Tabs } from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import {
   inventoryGetDetailAction,
@@ -80,7 +82,7 @@ const ProductDetailScreen: React.FC = () => {
   });
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
+    history.push(`${UrlConfig.PRODUCT}/${idNumber}/update`);
   }, [history, idNumber]);
   const onResult = useCallback((result: ProductResponse | false) => {
     setLoading(false);
@@ -334,39 +336,41 @@ const tab= document.getElementById("tab");
                   extra={
                     <div className="extra-cards status">
                       <b>Trạng thái:</b>
-                      <Switch
-                        style={{ marginLeft: 10 }}
-                        checked={data.status === "active"}
-                        onChange={(checked) => {
-                          let newData = { ...data };
-                          newData.status = checked ? "active" : "inactive";
-                          newData.variants.forEach((item) => {
-                            item.status = checked ? "active" : "inactive";
-                            if (!checked) {
-                              item.saleable = checked;
-                            }
-                          });
-                          newData.variants = getFirstProductAvatarByVariantResponse(newData.variants);
-                          setLoadingSwitch(true);
-                          dispatch(
-                            productUpdateAction(idNumber, newData, (result) => {
-                              setLoadingSwitch(false);
-                              if (result) {
-                                setData(result);
-                                showSuccess("Cập nhật trạng thái thành công");
+                      
+                        <Switch
+                          style={{marginLeft: 10}}
+                          checked={data.status === "active"}
+                          onChange={(checked) => {
+                            let newData = {...data};
+                            newData.status = checked ? "active" : "inactive";
+                            newData.variants.forEach((item) => {
+                              item.status = checked ? "active" : "inactive";
+                              if (!checked) {
+                                item.saleable = checked;
                               }
-                            })
-                          );
-                        }}
-                        className="ant-switch-success"
-                        defaultChecked
-                      />
+                            });
+                            newData.variants = getFirstProductAvatarByVariantResponse(
+                              newData.variants
+                            );
+                            setLoadingSwitch(true);
+                            dispatch(
+                              productUpdateAction(idNumber, newData, (result) => {
+                                setLoadingSwitch(false);
+                                if (result) {
+                                  setData(result);
+                                  showSuccess("Cập nhật trạng thái thành công");
+                                }
+                              })
+                            );
+                          }}
+                          className="ant-switch-success"
+                          defaultChecked
+                        />
+                      
                       <label
-                        style={{ marginLeft: 10 }}
+                        style={{marginLeft: 10}}
                         className={
-                          data.status === "active"
-                            ? "text-success"
-                            : "text-error"
+                          data.status === "active" ? "text-success" : "text-error"
                         }
                       >
                         {statusValue}
@@ -375,10 +379,7 @@ const tab= document.getElementById("tab");
                         <div className="loading-view">
                           <Spin
                             indicator={
-                              <Loading3QuartersOutlined
-                                style={{ fontSize: 28 }}
-                                spin
-                              />
+                              <Loading3QuartersOutlined style={{fontSize: 28}} spin />
                             }
                           />
                         </div>
@@ -408,7 +409,7 @@ const tab= document.getElementById("tab");
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={5}>
-                        <div className="title" style={{ color: "#666666" }}>
+                        <div className="title" style={{color: "#666666"}}>
                           Mô tả
                         </div>
                       </Col>
@@ -444,6 +445,7 @@ const tab= document.getElementById("tab");
                 </Card>
               </Col>
             </Row>
+            <AuthWrapper acceptPermissions={[ProductPermission.read_variant]}>
             <Row gutter={24}>
               <Col span={24}>
                 <Card className="card">
@@ -461,9 +463,10 @@ const tab= document.getElementById("tab");
                           );
                         }}
                         loading={loadingVariant}
-                        productData={data} 
+                        productData={data}
                       />
                     </Col>
+
                     <Col className="right" span={24} md={17}>
                       {currentVariant !== null && (
                         <React.Fragment>
@@ -472,12 +475,14 @@ const tab= document.getElementById("tab");
                               <b>THÔNG TIN PHIÊN BẢN</b>
                             </div>
                             <div className="header-view-right">
-                              <Switch
-                                onChange={onChangeChecked}
-                                className="ant-switch-success"
-                                disabled={data.status === "inactive"}
-                                checked={currentVariant.saleable}
-                              />
+                            
+                                <Switch
+                                  onChange={onChangeChecked}
+                                  className="ant-switch-success"
+                                  disabled={data.status === "inactive"}
+                                  checked={currentVariant.saleable}
+                                />
+                             
                               <label className="label-switch">
                                 {currentVariant.saleable
                                   ? "Cho phép bán"
@@ -500,14 +505,8 @@ const tab= document.getElementById("tab");
                                   title="Tên sản phẩm"
                                   value={currentVariant.name}
                                 />
-                                <RowDetail
-                                  title="Màu sắc"
-                                  value={currentVariant.color}
-                                />
-                                <RowDetail
-                                  title="Size"
-                                  value={currentVariant.size}
-                                />
+                                <RowDetail title="Màu sắc" value={currentVariant.color} />
+                                <RowDetail title="Size" value={currentVariant.size} />
                                 <RowDetail
                                   title="Kích thước (Dài, Rộng, Cao) "
                                   value={renderSize}
@@ -523,8 +522,7 @@ const tab= document.getElementById("tab");
                               </Col>
                               <Col className="view-right" span={24} md={10}>
                                 <div className="image-view">
-                                  {currentVariant.variant_images.length ===
-                                  0 ? (
+                                  {currentVariant.variant_images.length === 0 ? (
                                     <img
                                       className="item-default"
                                       src={variantdefault}
@@ -532,12 +530,9 @@ const tab= document.getElementById("tab");
                                     />
                                   ) : (
                                     <React.Fragment>
-                                      {currentVariant.variant_images.length ===
-                                      1 ? (
+                                      {currentVariant.variant_images.length === 1 ? (
                                         <Image
-                                          src={
-                                            currentVariant.variant_images[0].url
-                                          }
+                                          src={currentVariant.variant_images[0].url}
                                           alt=""
                                         />
                                       ) : (
@@ -549,9 +544,7 @@ const tab= document.getElementById("tab");
                                             slidesToShow={1}
                                             slidesToScroll={1}
                                             arrows={false}
-                                            className={classNames(
-                                              "image-slider"
-                                            )}
+                                            className={classNames("image-slider")}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
@@ -568,10 +561,8 @@ const tab= document.getElementById("tab");
                                             ref={(slider2) => setNav2(slider2)}
                                             infinite={true}
                                             slidesToShow={
-                                              currentVariant.variant_images
-                                                .length < 3
-                                                ? currentVariant.variant_images
-                                                    .length
+                                              currentVariant.variant_images.length < 3
+                                                ? currentVariant.variant_images.length
                                                 : 3
                                             }
                                             slidesToScroll={1}
@@ -579,17 +570,13 @@ const tab= document.getElementById("tab");
                                             focusOnSelect={true}
                                             className={classNames(
                                               "image-thumbnail",
-                                              currentVariant.variant_images
-                                                .length === 2 && "image-2"
+                                              currentVariant.variant_images.length ===
+                                                2 && "image-2"
                                             )}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
-                                                <img
-                                                  key={index}
-                                                  src={item.url}
-                                                  alt=""
-                                                />
+                                                <img key={index} src={item.url} alt="" />
                                               )
                                             )}
                                           </Slider>
@@ -605,7 +592,7 @@ const tab= document.getElementById("tab");
                                 <Spin
                                   indicator={
                                     <Loading3QuartersOutlined
-                                      style={{ fontSize: 28 }}
+                                      style={{fontSize: 28}}
                                       spin
                                     />
                                   }
@@ -620,34 +607,42 @@ const tab= document.getElementById("tab");
                 </Card>
               </Col>
             </Row>
+            </AuthWrapper>
             <Row gutter={24}>
               <Col span={24}>
                 <div id="tab" ref={tabRef}>
-                  <Card className="card">  
-                  <Tabs style={{ overflow: "initial" }} defaultActiveKey={activeTab} onTabClick={onTabClick}>
-                    <Tabs.TabPane tab="Danh sách tồn kho" key={TabName.INVENTORY}>
-                      <TabProductInventory
-                        onChange={onChangeDataInventory}
-                        data={dataInventory}
-                      />
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="Lịch sử tồn kho" key={TabName.HISTORY}>
-                      <TabProductHistory
-                        onChange={onChangeDataHistory}
-                        data={dataHistory}
-                      />
-                    </Tabs.TabPane>
-                  </Tabs>
-                </Card>
-                  </div>
-               
+                  <Card className="card">
+                    <Tabs
+                      style={{overflow: "initial"}}
+                      defaultActiveKey={activeTab}
+                      onTabClick={onTabClick}
+                    >
+                      <Tabs.TabPane tab="Danh sách tồn kho" key={TabName.INVENTORY}>
+                        <TabProductInventory
+                          onChange={onChangeDataInventory}
+                          data={dataInventory}
+                        />
+                      </Tabs.TabPane>
+                      <Tabs.TabPane tab="Lịch sử tồn kho" key={TabName.HISTORY}>
+                        <TabProductHistory
+                          onChange={onChangeDataHistory}
+                          data={dataHistory}
+                        />
+                      </Tabs.TabPane>
+                    </Tabs>
+                  </Card>
+                </div>
               </Col>
             </Row>
           </React.Fragment>
         )}
         <BottomBarContainer
-          back="Quay lại sản phẩm"
-          rightComponent={<Button onClick={onEdit}>Chỉnh sửa thông tin</Button>}
+          back="Quay lại danh sách"
+          rightComponent={
+            <AuthWrapper acceptPermissions={[ProductPermission.update]}>
+              <Button onClick={onEdit}>Sửa sản phẩm</Button>
+            </AuthWrapper>
+          }
         />
       </ContentContainer>
     </StyledComponent>
