@@ -1,4 +1,4 @@
-import BaseAxios from "base/base-supplier.axios"
+import BaseAxios from "base/base.axios"
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config"
 import { SupplierQuery, SupplierUpdateRequest, SupplierCreateRequest, SupplierResponse, SupplierAddress, SupplierContact, SupplierPayment } from "model/core/supplier.model";
