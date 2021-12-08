@@ -41,9 +41,10 @@
             
             .ant-form.ant-form-inline {
               display: flex;
-              justify-content: space-between;
+              // justify-content: space-between;
+              justify-content: flex-end;
               .ant-form-item {
-                margin-right: 0;
+                // margin-right: 0;
 
               }
               @media screen and (min-width: 1400px) {
