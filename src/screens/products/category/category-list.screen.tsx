@@ -122,7 +122,7 @@ const Category = () => {
   const onFinish = useCallback(
     (values: CategoryQuery) => {
       let query = generateQuery(values);
-
+      
       const newValues = {...values, query: values.query?.trim()};
       setPrams({ ...newValues });
       return history.replace(`${UrlConfig.CATEGORIES}?${query}`);

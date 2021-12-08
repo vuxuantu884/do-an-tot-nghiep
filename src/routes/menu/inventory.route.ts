@@ -125,7 +125,7 @@ export const inventory: Array<RouteMenu> = [
   {
     path: `${ProcurementTabUrl.TODAY}`,
     exact: true,
-    title: "Phiếu nhập kho",
+    title: "Nhập kho",
     icon: "icon-dot",
     component: ProcurementScreen,
     key: "submenu25",
@@ -136,7 +136,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${ProcurementTabUrl.ALL}`,
         exact: true,
-        title: "Phiếu nhập kho",
+        title: "Nhập kho",
         icon: "icon-dot",
         component: ProcurementScreen,
         key: "submenu25",
@@ -148,7 +148,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${ProcurementTabUrl.TODAY}`,
         exact: true,
-        title: "Phiếu nhập kho",
+        title: "Nhập kho",
         icon: "icon-dot",
         component: ProcurementScreen,
         key: "submenu25",

@@ -92,7 +92,7 @@ const pageColumns: Array<ICustomTableColumType<any>> = [
   },
 ];
 
-const PointAdjustment = () => {
+const CreatePointAdjustment = () => {
   const history = useHistory();
   const query = useQuery();
   const formRef = createRef<FormInstance>();
@@ -404,19 +404,7 @@ const PointAdjustment = () => {
                       />
                     </Col>
                   </Row>
-                  <Row
-                    gutter={24}
-                    className="footer-controller"
-                    style={{
-                      position: "fixed",
-                      textAlign: "right",
-                      width: "calc(100% - 240px)",
-                      height: "55px",
-                      bottom: "0%",
-                      backgroundColor: "#FFFFFF",
-                      marginLeft: "-60px",
-                    }}
-                  >
+                  <Row className="footer-controller">
                     <Col span={6} className="back">
                       <div className="back-wrapper" onClick={() => history.goBack()}>
                         <svg
@@ -460,4 +448,4 @@ const PointAdjustment = () => {
   );
 };
 
-export default PointAdjustment;
+export default CreatePointAdjustment;

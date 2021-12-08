@@ -56,6 +56,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
         });
       });
       newProcumentLineItem.push({
+        barcode: item.barcode,
         accepted_quantity: 0,
         code: item.code,
         line_item_id: item.position,
@@ -147,9 +148,9 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
       {
         title: "Cửa hàng nhận",
         dataIndex: "store_id",
-        width: 'auto',
+        width: 200,
         render: (value, record, index) => (
-          <Select
+            <Select
             onChange={(value1: number) => onChangeStore(value1, index)}
             value={value}
             showSearch
