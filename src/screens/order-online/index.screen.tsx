@@ -10,9 +10,9 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountSearchAction, ShipperGetListAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
@@ -50,6 +50,7 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { ShipmentMethod } from "utils/Constants";
+import EditNote from "./component/edit-note";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const ACTION_ID = {
@@ -100,7 +101,7 @@ const initQuery: OrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
-  sub_status_id: [],
+  sub_status_code: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
@@ -136,6 +137,7 @@ const ListOrderScreen: React.FC = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+	const [listShippers, setListShippers] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
@@ -163,6 +165,15 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  let data1: any = {
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  }
 
   const status_order = [
     { name: "Nháp", value: "draft" },
@@ -256,7 +267,7 @@ const ListOrderScreen: React.FC = () => {
 				</div>,
       key: "customer",
       visible: true,
-      width: 200,
+      width: 150,
     },
     {
       title: (
@@ -304,36 +315,24 @@ const ListOrderScreen: React.FC = () => {
       align: "left",
       width: nameQuantityWidth,
     },
+    // {
+    //   title: "Kho cửa hàng",
+    //   dataIndex: "store",
+    //   key: "store",
+    //   visible: true,
+    //   align: "center",
+    // },
+    
     {
-      title: "Khách phải trả",
-      // dataIndex: "",
-      render: (record: any) => (
-        <>
-          <span>
-            <NumberFormat
-              value={record.total_line_amount_after_line_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          </span>
-          <br />
-          <span style={{ color: "#EF5B5B" }}>
-            {" "}
-            -
-            <NumberFormat
-              value={record.total_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          </span>
-        </>
-      ),
-      key: "customer.amount_money",
+      title: "Địa chỉ giao hàng",
+      render: (record: OrderResponse) =>
+				<div className="customer custom-td">
+					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
+        </div>
+        ,
+      key: "shipping_address",
       visible: true,
-      align: "right",
-      width: "120px",
+      width: 190,
     },
     {
       title: "HT Vận chuyển",
@@ -366,7 +365,7 @@ const ListOrderScreen: React.FC = () => {
         return ""
       },
       visible: true,
-      width: 150,
+      width: 140,
       align: "center",
     },
     {
@@ -387,13 +386,7 @@ const ListOrderScreen: React.FC = () => {
       ),
       visible: true,
       align: "center",
-      width: 150,
-    },
-    {
-      title: "Ghi chú nội bộ",
-      dataIndex: "note",
-      key: "note",
-      visible: true,
+      width: 160,
     },
     {
       title: "Trạng thái đơn",
@@ -459,8 +452,16 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
+      width:"150px"
     },
-
+    {
+      title: "Nguồn đơn hàng",
+      dataIndex: "source",
+      key: "source",
+      visible: true,
+      align: "center",
+      width:"130px"
+    },
     {
       title: "Đóng gói",
       key: "packed_status",
@@ -488,6 +489,34 @@ const ListOrderScreen: React.FC = () => {
         if (record.fulfillments.length) {
           const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
           processIcon = newFulfillments[0].export_on ? "icon-full" : "icon-blank";
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
+      visible: true,
+      align: "center",
+      width: 100,
+    },
+    
+    {
+      title: "Trả hàng",
+      dataIndex: "return_status",
+      key: "return_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case "unreturned":
+            processIcon = "icon-blank";
+            break;
+          case "returned":
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;
         }
         return (
           <div className="text-center">
@@ -527,67 +556,47 @@ const ListOrderScreen: React.FC = () => {
       width: 110,
     },
     {
-      title: "Trả hàng",
-      dataIndex: "return_status",
-      key: "return_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "unreturned":
-            processIcon = "icon-blank";
-            break;
-          case "returned":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
+      title: "HT thanh toán",
+      dataIndex: "payments",
+      key: "payments.type",
+      render: (payments: Array<OrderPaymentModel>) =>
+        payments.map((payment) => {
+          return <Tag>{payment.payment_method}</Tag>;
+        }),
       visible: true,
       align: "center",
-      width: 100,
+      width: 160
     },
     {
-      title: "Tổng SL",
-      dataIndex: "items",
-      key: "item.quantity.total",
-      render: (items) => {
-        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
-
-        return items.reduce((total: number, item: any) => total + item.quantity, 0);
-      },
+      title: "Khách phải trả",
+      // dataIndex: "",
+      render: (record: any) => (
+        <>
+          <span>
+            <NumberFormat
+              value={record.total_line_amount_after_line_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+          <br />
+          <span style={{ color: "#EF5B5B" }}>
+            {" "}
+            -
+            <NumberFormat
+              value={record.total_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+        </>
+      ),
+      key: "customer.amount_money",
       visible: true,
-      align: "center",
-      width: 100,
-    },
-		{
-      title: "Địa chỉ giao hàng",
-      render: (record: OrderResponse) =>
-				<div className="customer custom-td">
-					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
-        </div>
-        ,
-      key: "shipping_address",
-      visible: true,
-      width: 200,
-    },
-    {
-      title: "Kho cửa hàng",
-      dataIndex: "store",
-      key: "store",
-      visible: true,
-    },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "source",
-      visible: true,
+      align: "right",
+      width: 150,
     },
     {
       title: "Khách đã trả",
@@ -635,20 +644,80 @@ const ListOrderScreen: React.FC = () => {
       align: "center",
     },
     {
-      title: "HT thanh toán",
-      dataIndex: "payments",
-      key: "payments.type",
-      render: (payments: Array<OrderPaymentModel>) =>
-        payments.map((payment) => {
-          return <Tag>{payment.payment_method}</Tag>;
-        }),
+      title: "Ghi chú nội bộ",
+      render: (record) => 
+        <EditNote note={record.note} onOk={(newNote) => {
+          console.log('newNote', newNote);
+          editNote(newNote, 'note', record.id)
+        }} />
+      ,
+      key: "note",
       visible: true,
       align: "center",
-      width: 160
     },
     {
+      title: "Ghi chú của khách",
+      render: (record) => 
+        <EditNote note={record.customer_note} onOk={(newNote) => {
+          console.log('newNote', newNote);
+          editNote(newNote, 'customer_note', record.id)
+        }} />
+      ,
+      key: "customer_note",
+      visible: true,
+      align: "center",
+    },
+    {
+      title: "Tag",
+      dataIndex: "tags",
+      // render: (tags: Array<string>) => (
+      //   tags?.map(tag => {
+      //     return (
+      //       <Tag>{tag}</Tag>
+      //     )
+      //   })
+      // ),
+      key: "tags",
+      visible: true,
+      align: "center",
+    },
+    {
+      title: "Mã tham chiếu",
+      dataIndex: "reference_code",
+      key: "reference_code",
+      visible: true,
+    },
+    {
+      title: "Tổng SL",
+      dataIndex: "items",
+      key: "item.quantity.total",
+      render: (items) => {
+        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
+
+        return items.reduce((total: number, item: any) => total + item.quantity, 0);
+      },
+      visible: true,
+      align: "center",
+      width: 100,
+    },
+		
+    
+    
+    {
       title: "Nhân viên bán hàng",
-      render: (record) => <div>{`${record.assignee} - ${record.assignee_code}`}</div>,
+      render: (record) => {
+				return (
+					<div>
+						<Link
+							target="_blank"
+							to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}
+							className="primary"
+						>
+							{`${record.assignee_code} - ${record.assignee}`}
+						</Link>{" "}
+					</div>
+				)
+			},
       key: "assignee",
       visible: true,
       align: "center",
@@ -656,7 +725,19 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên tạo đơn",
-      render: (record) => <div>{`${record.account} - ${record.account_code}`}</div>,
+			render: (record) => {
+				return (
+					<div>
+						<Link
+							target="_blank"
+							to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}
+							className="primary"
+						>
+							{`${record.assignee_code} - ${record.assignee}`}
+						</Link>{" "}
+					</div>
+				)
+			},
       key: "account",
       visible: true,
       align: "center",
@@ -674,32 +755,6 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "cancelled_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "cancelled_on",
-      visible: true,
-    },
-    
-    {
-      title: "Ghi chú của khách",
-      dataIndex: "customer_note",
-      key: "customer_note",
-      visible: true,
-    },
-    {
-      title: "Tag",
-      dataIndex: "tags",
-      // render: (tags: Array<string>) => (
-      //   tags?.map(tag => {
-      //     return (
-      //       <Tag>{tag}</Tag>
-      //     )
-      //   })
-      // ),
-      key: "tags",
-      visible: true,
-    },
-    {
-      title: "Mã tham chiếu",
-      dataIndex: "reference_code",
-      key: "reference_code",
       visible: true,
     },
   ]);
@@ -899,7 +954,10 @@ const ListOrderScreen: React.FC = () => {
     setTableLoading(false);
     setIsFilter(false);
     if (!!result) {
+      console.log('result result result', result);
       setData(result);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      data1 = result
     }
   }, []);
 
@@ -915,16 +973,63 @@ const ListOrderScreen: React.FC = () => {
     setAccounts(data.items);
   };
 
+  const onSuccessEditNote = useCallback((newNote, noteType, orderID) => {
+    console.log('ok ok');
+    const indexOrder = data1.items.findIndex((item: any) => item.id === orderID)
+    const newItems = [...data1.items]
+    console.log('data', data1);
+    if (indexOrder > -1) {
+      const newItem: any = newItems[indexOrder]
+      newItems.splice(indexOrder, 1, {
+        ...newItem,
+        note: noteType === 'note' ? newNote : newItem.note,
+        customer_note: noteType === 'customer_note' ? newNote : newItem.customer_note
+      })
+    }
+    const newData = {
+      ...data1,
+      items: newItems
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    data1 = newData
+    setData(newData)
+  }, [data1]);
+  const editNote = useCallback((newNote, noteType, orderID) => {
+    console.log('newNote, noteType, orderID', newNote, noteType, orderID);
+    let params:any = {}
+    if (noteType === 'note') {
+      params.note = newNote
+    }
+    if (noteType === 'customer_note') {
+      params.customer_note = newNote
+    }
+    dispatch(updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID)))
+  }, [dispatch, onSuccessEditNote]);
+
   useEffect(() => {
     setTableLoading(true);
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
   useEffect(() => {
+    console.log('data change', data);
+    
+  }, [data]);
+
+  useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
-    dispatch(PaymentMethodGetList(setListPaymentMethod));
+    dispatch(PaymentMethodGetList(
+      (data) => {
+        data.push({
+          name: 'COD',
+          code: 'cod',
+          id: 0
+        })
+        setListPaymentMethod(data)
+      }
+    ));
     dispatch(
       actionFetchListOrderProcessingStatus(
         {},
@@ -933,6 +1038,10 @@ const ListOrderScreen: React.FC = () => {
         }
       )
     );
+  }, [dispatch]);
+
+	useEffect(() => {
+    dispatch(ShipperGetListAction(setListShippers));
   }, [dispatch]);
 
   return (
@@ -1000,6 +1109,7 @@ const ListOrderScreen: React.FC = () => {
             listSource={listSource}
             listStore={listStore}
             accounts={accounts}
+            listShippers={listShippers}
             deliveryService={deliveryServices}
             listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}

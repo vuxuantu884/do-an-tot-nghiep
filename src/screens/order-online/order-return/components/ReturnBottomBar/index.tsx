@@ -9,7 +9,8 @@ type PropType = {
   isCanExchange: boolean;
   isExchange: boolean;
   isStepExchange: boolean;
-  handleIsStepExchange: (value: boolean) => void;
+  setIsStepExchange: (value: boolean) => void;
+	handleIsStepExchange: (value: boolean) => void;
 };
 
 function ReturnBottomBar(props: PropType) {
@@ -19,7 +20,8 @@ function ReturnBottomBar(props: PropType) {
     onCancel,
     isExchange,
     isStepExchange,
-    handleIsStepExchange,
+    setIsStepExchange,
+		handleIsStepExchange
   } = props;
 
   const renderReturnButtons = () => {
@@ -65,6 +67,14 @@ function ReturnBottomBar(props: PropType) {
           </Button>
         )}
         {isStepExchange && (
+					<React.Fragment>
+						<Button
+            onClick={() => {
+              setIsStepExchange(false);
+            }}
+          >
+            Quay lại
+          </Button>
           <Button
             type="primary"
             onClick={() => {
@@ -73,6 +83,7 @@ function ReturnBottomBar(props: PropType) {
           >
             Trả và đổi hàng
           </Button>
+					</React.Fragment>
         )}
       </React.Fragment>
     );

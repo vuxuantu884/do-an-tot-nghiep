@@ -75,6 +75,8 @@ function OrderPayments(props: PropType): JSX.Element {
     return totalAmountOrder - totalAmountPayment;
   }, [totalAmountOrder, totalAmountPayment]);
 
+	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+
   const handleInputPoint = (index: number, point: number) => {
     payments[index].point = point;
     payments[index].amount = point * usageRate;

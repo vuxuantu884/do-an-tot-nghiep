@@ -120,6 +120,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       let procurement_items = form.getFieldValue(
         POProcumentField.procurement_items
       );
+      debugger
       let newProcumentItem = procurement_items.find(
         (item: PurchaseProcumentLineItem) => item.sku === sku
       );

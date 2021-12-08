@@ -1,6 +1,6 @@
 import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
-import SidebarOrderDetailExtraInformation from "component/order/CreateOrder/CreateOrderSidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import UrlConfig from "config/url.config";
 import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
@@ -184,7 +184,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 _data.items.map((single) => {
                   return {
                     ...single,
-                    maxQuantity: single.quantity,
+                    maxQuantityCanBeReturned: single.quantity,
                   };
                 });
               setListReturnProducts(returnProductFormatted);
@@ -247,7 +247,7 @@ const ScreenReturnDetail = (props: PropType) => {
             path: `${UrlConfig.HOME}`,
           },
           {
-            name: `Chi tiết đơn trả hàng ${id}`,
+            name: OrderDetail?.code ? `Chi tiết đơn trả hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
           },
         ]}
       >
@@ -267,10 +267,10 @@ const ScreenReturnDetail = (props: PropType) => {
                 />
                 <CardShowReturnProducts
                   listReturnProducts={listReturnProducts}
-                  discountRate={OrderDetail?.order_discount_rate}
                   pointUsing={OrderDetail?.point_refund}
                   totalAmountReturnToCustomer={totalAmountReturnToCustomer}
                   isDetailPage
+									OrderDetail={OrderDetail}
                 />
                 <CardReturnMoneyPageDetail
                   listPaymentMethods={listPaymentMethods}

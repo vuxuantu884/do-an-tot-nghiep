@@ -375,7 +375,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments[0].shipment &&
       props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
       props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
-        "pick_at_store"
+        ShipmentMethod.PICK_AT_STORE
     ) {
       fulfillmentTypeOrderRequest(1);
     } else if (
@@ -385,7 +385,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         props.OrderDetail?.fulfillments[0].shipment &&
         props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
         props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type ===
-          "pick_at_store")
+          ShipmentMethod.PICK_AT_STORE)
     ) {
       fulfillmentTypeOrderRequest(2);
     } else if (
@@ -394,7 +394,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
       props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
-        "pick_at_store"
+        ShipmentMethod.PICK_AT_STORE
     ) {
       fulfillmentTypeOrderRequest(3);
     } else if (
@@ -404,7 +404,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         props.OrderDetail?.fulfillments[0].shipment &&
         props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.PACKED &&
         props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type ===
-          "pick_at_store")
+          ShipmentMethod.PICK_AT_STORE)
     ) {
       fulfillmentTypeOrderRequest(4);
     }
@@ -418,7 +418,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
       props.OrderDetail?.fulfillments[0].shipment.delivery_service_provider_type ===
-        "pick_at_store"
+        ShipmentMethod.PICK_AT_STORE
     ) {
       let money = props.OrderDetail.total;
       props.OrderDetail?.payments?.forEach((p) => {
@@ -524,15 +524,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     value.office_time = props.officeTime;
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-        value.delivery_service_provider_type = "Shipper";
+        value.delivery_service_provider_type = ShipmentMethod.SHIPPER;
       }
       if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-        value.delivery_service_provider_type = "pick_at_store";
+        value.delivery_service_provider_type = ShipmentMethod.PICK_AT_STORE;
       }
 
       if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
         value.delivery_service_provider_id = thirdPL.delivery_service_provider_id;
-        value.delivery_service_provider_type = "external_service";
+        value.delivery_service_provider_type = ShipmentMethod.EXTERNAL_SERVICE;
         value.delivery_service_provider_code = thirdPL.delivery_service_provider_code;
         value.delivery_service_provider_name = thirdPL.delivery_service_provider_name;
         // delivery_transport_type = serviceName
@@ -559,6 +559,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.shipping_fee_informed_to_customer -
         getAmountPayment(props.OrderDetail.payments);
     } else {
+			console.log('takeHelperValue', takeHelperValue)
       if (takeHelperValue > 0) {
         value.cod = takeHelperValue;
       }
@@ -571,6 +572,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
 
     FulFillmentRequest.shipment = value;
+		
     if (props.shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.shipping_fee_informed_to_customer =
         props.shippingFeeInformedCustomer;
@@ -589,6 +591,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       fulfillment: FulFillmentRequest,
       action: OrderStatus.FINALIZED,
     };
+		
     if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !thirdPL.service) {
       showError("Vui lòng chọn đơn vị vận chuyển!");
     } else {
@@ -627,11 +630,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       return (
         (props.OrderDetail?.fulfillments[0].total
           ? props.OrderDetail?.fulfillments[0].total
-          : 0) +
-        props.shippingFeeInformedCustomer -
-        props.totalPaid! -
-        // (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
-        (props.OrderDetail?.total_discount ? props.OrderDetail?.total_discount : 0)
+          : 0) -
+        props.totalPaid! 
       );
     } else if (props.OrderDetail?.total_line_amount_after_line_discount) {
       return (
@@ -639,13 +639,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           ? props.OrderDetail?.total_line_amount_after_line_discount
           : 0) +
         props.shippingFeeInformedCustomer -
-        props.totalPaid! -
-        // (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
-        (props.OrderDetail?.discounts &&
-        props.OrderDetail?.discounts.length > 0 &&
-        props.OrderDetail?.discounts[0].amount
-          ? props.OrderDetail?.discounts[0].amount
-          : 0)
+        props.totalPaid!
       );
     }
   };
@@ -1049,7 +1043,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     key="1"
                   >
                     {fulfillment.shipment?.delivery_service_provider_type ===
-                    "pick_at_store" ? (
+                    ShipmentMethod.PICK_AT_STORE ? (
                       <div>
                         <Row gutter={24}>
                           <Col md={12}>
@@ -1108,7 +1102,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             <Col span={14}>
                               <b>
                                 {/* Lấy ra đối tác */}
-                                {(fulfillment.shipment?.delivery_service_provider_type === "external_service"
+                                {(fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE
                                   || fulfillment.shipment?.delivery_service_provider_type === "shopee") && (
                                     renderDeliveryPartner(fulfillment.shipment)
                                   // <img
@@ -1122,7 +1116,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 )}
 
                                 {fulfillment.shipment?.delivery_service_provider_type ===
-                                  "Shipper" &&
+                                  ShipmentMethod.SHIPPER &&
                                   shipper &&
                                   shipper.find(
                                     (s) => fulfillment.shipment?.shipper_code === s.code
@@ -1132,7 +1126,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           </Row>
                         </Col>
 
-                        {CheckShipmentType(props.OrderDetail!) === "external_service" && (
+                        {CheckShipmentType(props.OrderDetail!) === ShipmentMethod.EXTERNAL_SERVICE && (
                           <Col md={12}>
                             <Row gutter={30}>
                               <Col span={10}>
@@ -1185,7 +1179,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           </Row>
                         </Col>
                         {renderPushingStatusWhenDeliverPartnerFailed()}
-                        {CheckShipmentType(props.OrderDetail!) === "external_service" && (
+                        {CheckShipmentType(props.OrderDetail!) === ShipmentMethod.EXTERNAL_SERVICE && (
                           <Col md={12}>
                             <Row gutter={30}>
                               <Col span={10}>
@@ -1268,7 +1262,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </Panel>
                       </Collapse>
                     </Row>
-                    {(CheckShipmentType(props.OrderDetail!) === "external_service" ||
+                    {(CheckShipmentType(props.OrderDetail!) === ShipmentMethod.EXTERNAL_SERVICE ||
                       CheckShipmentType(props.OrderDetail!) === "shopee") &&
                       fulfillment.status !== FulFillmentStatus.CANCELLED &&
                       fulfillment.status !== FulFillmentStatus.RETURNING &&
@@ -1517,7 +1511,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               props.OrderDetail?.fulfillments.length > 0 &&
               props.OrderDetail?.fulfillments[0].shipment &&
               props.OrderDetail?.fulfillments[0].shipment
-                .delivery_service_provider_type === "pick_at_store" && !checkIfOrderHasReturnedAll(OrderDetail) ? (
+                .delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE && !checkIfOrderHasReturnedAll(OrderDetail) ? (
                 <Button
                   onClick={cancelFullfilment}
                   loading={cancelShipment}
@@ -1557,7 +1551,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment &&
             props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !==
-              "pick_at_store" && (
+              ShipmentMethod.PICK_AT_STORE && (
               <Button
                 type="primary"
                 style={{marginLeft: "10px", padding: "0 25px"}}
@@ -1575,7 +1569,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type ===
-              "pick_at_store" && (
+              ShipmentMethod.PICK_AT_STORE && (
               <Button
                 type="primary"
                 style={{marginLeft: "10px"}}
@@ -1604,7 +1598,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !==
-              "pick_at_store" && (
+              ShipmentMethod.PICK_AT_STORE && (
               <Button
                 type="primary"
                 style={{marginLeft: "10px", padding: "0 25px"}}
@@ -1633,7 +1627,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type ===
-              "pick_at_store" && (
+              ShipmentMethod.PICK_AT_STORE && (
               <Button
                 type="primary"
                 style={{marginLeft: "10px", padding: "0 25px"}}

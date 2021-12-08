@@ -232,7 +232,7 @@ const PackUpdate: React.FC = () => {
       render: (value: string, i: GoodsReceiptsInfoOrderModel) => {
         return (
           <React.Fragment>
-            <div style={{padding: "5px 0"}}>
+            <div style={{padding: "5px 10px"}}>
               <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${i.customer_id}`}>
                 {value}
               </Link>

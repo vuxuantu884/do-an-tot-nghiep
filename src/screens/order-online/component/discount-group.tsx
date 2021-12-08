@@ -1,7 +1,7 @@
 import { Input, InputNumber, Select, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 
 type DiscountGroupProps = {
@@ -39,17 +39,21 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
         v= Math.round(v);
       }
       let _items = [...items];
-      let _item = _items[props.index].discount_items[0];
+      let _item = _items[props.index];
+			let _itemDiscount = _item.discount_items[0];
       let _price = _items[props.index].price;
       if (selected === MoneyType.MONEY) {
-        _item.value = v;
-        _item.rate = Math.round((v / _price) * 100 * 100) / 100;
-        _item.amount = v;
+        _itemDiscount.value = v;
+        _itemDiscount.rate = (v / _price) * 100;
+       
       } else {
-        _item.value = (v * _price) / 100;
-        _item.rate = v;
-        _item.amount = (v * _price) / 100;
+        _itemDiscount.value = Math.round((v * _price) / 100);
+        _itemDiscount.rate = v;
       }
+			_itemDiscount.amount =  _itemDiscount.value * _item.quantity;
+			_item.discount_value = getLineItemDiscountValue(_item);
+			_item.discount_amount = getLineItemDiscountAmount(_item);
+			_item.discount_rate = getLineItemDiscountRate(_item);
       props.handleCardItems(_items);
     },
     [items, props, selected]
@@ -92,7 +96,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
         <div className="d-flex justify-content-end yody-table-discount-converted">
           <Text type="danger">
             {selected === MoneyType.MONEY
-              ? props.discountRate + "%"
+							? (Math.round(props.discountRate * 100) / 100) + "%"
               : formatCurrency(props.discountValue)}
           </Text>
         </div>

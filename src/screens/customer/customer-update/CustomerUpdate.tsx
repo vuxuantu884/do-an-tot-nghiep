@@ -46,9 +46,7 @@ const CustomerUpdate = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  
   const [customer, setCustomer] = React.useState<any>();
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
@@ -60,7 +58,6 @@ const CustomerUpdate = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {

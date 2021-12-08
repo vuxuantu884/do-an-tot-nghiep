@@ -29,6 +29,7 @@ interface HistoryInventoryFilterProps {
   onFilter?: (values: InventoryQuery) => void;
   onClearFilter?: () => void;
   openColumn: () => void;
+  onChangeKeySearch: (value: string) => void;
 }
 
 function tagRender(props: any) {
@@ -172,6 +173,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                 prefix={<img src={search} alt="" />}
                 style={{width: "100%"}}
                 placeholder="Tìm kiếm sản phẩm theo SKU"
+                onChange={(e)=>{props.onChangeKeySearch(e.target.value)}}
               />
             </Item>
             <Item name={HistoryInventoryQueryField.store_ids} className="store">

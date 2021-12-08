@@ -46,6 +46,7 @@ export interface AccountSearchQuery extends BaseQuery {
   role_id?: Array<number>;
   store_ids?: Array<number>;
   status?:string
+  codes?: Array<string>
 }
 
 export interface AccountJobResponse {

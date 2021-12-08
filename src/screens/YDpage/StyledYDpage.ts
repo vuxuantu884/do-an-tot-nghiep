@@ -15,25 +15,24 @@ export const StyledYDpage = styled.div`
       align-items: center;
       justify-content: center;
       width: 40%;
-      background-color: #FFF7E7;
+      background-color: #fff7e7;
       .title {
         margin-bottom: 40px;
         .label {
           font-weight: bold;
           font-size: 36px;
           line-height: 59px;
-          color: #2A2A86;
+          color: #2a2a86;
           text-transform: uppercase;
         }
         .description {
           font-size: 24px;
-          color: #2A2A86;
+          color: #2a2a86;
         }
       }
       .image {
         margin: 0 auto;
       }
-      
     }
     .right-body {
       flex-grow: 1;
@@ -68,6 +67,11 @@ export const StyledYDpage = styled.div`
         margin-right: 60px;
       }
     }
-    
+  }
+  .ydpage-iframe {
+    border: none;
+    margin-left: -20px;
+    width: calc(100% + 40px) !important;
+    height: calc(100% + 55px) !important;
   }
 `;

@@ -484,3 +484,10 @@ export const changeOrderStatusToPickedService = (
   const params = orderIdTexts.join("&");
   return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/picked?${params}`);
 };
+
+export const updateOrderPartialService = (
+  params: any,
+  orderID: number,
+): Promise<BaseResponse<ChannelResponse[]>> => {
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders/partial/${orderID}`, params);
+};

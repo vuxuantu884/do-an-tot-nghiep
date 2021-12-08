@@ -10,7 +10,6 @@ import { useHistory, useRouteMatch} from "react-router";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams } from "utils/useQuery";
 import AllTab from "./tab/all.tab";
-import DetailTab from "./tab/detail.tab";
 import HistoryTab from "./tab/history.tab"; 
 
 const { TabPane } = Tabs; 
@@ -35,10 +34,6 @@ const InventoryScreen: React.FC = () => {
         case  InventoryTabUrl.ALL:
           history.replace(redirectUrl);
           setActiveTab(InventoryTabUrl.ALL);
-          break;
-        case  InventoryTabUrl.DETAIL:
-          history.replace(redirectUrl);
-          setActiveTab(InventoryTabUrl.DETAIL);
           break;
         case InventoryTabUrl.HISTORIES:
           history.replace(redirectUrl);
@@ -65,7 +60,7 @@ const InventoryScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Sản phẩm",
+          name: "Kho hàng",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
@@ -80,11 +75,8 @@ const InventoryScreen: React.FC = () => {
           onChange={(active) => history.replace(active)}
           renderTabBar={RenderTabBar}
         >
-          <TabPane tab="Toàn hệ thống" key={InventoryTabUrl.ALL}>
+          <TabPane tab="Tồn kho" key={InventoryTabUrl.ALL}>
             <AllTab stores={stores} current={activeTab} />
-          </TabPane>
-          <TabPane tab="Chi tiết" key={InventoryTabUrl.DETAIL}>
-            <DetailTab stores={stores} current={activeTab} />
           </TabPane>
           <TabPane tab="Lịch sử tồn kho" key={InventoryTabUrl.HISTORIES}>
             <HistoryTab stores={stores} current={activeTab} />

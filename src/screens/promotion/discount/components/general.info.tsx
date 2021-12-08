@@ -13,15 +13,18 @@ import {
 import {DiscountFormModel, DiscountMethod} from "model/promotion/discount.create.model";
 import moment from "moment";
 import React, {useEffect, useMemo, useState} from "react";
+import { CustomerContitionFormlStyle } from "screens/promotion/shared/condition.style";
+import CustomerFilter from "screens/promotion/shared/cusomer-condition.form";
 import {DATE_FORMAT} from "../../../../utils/DateUtils";
 import CustomInput from "../../../customer/common/customInput";
 import "../discount.scss";
 import FixedPriceSelection from "./FixedPriceSelection";
-
+import TotalBillDiscount from "./total-bill-discount";
+import _ from "lodash";
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
 
-const priorityOptions = [
+export const priorityOptions = [
   {
     value: 1,
     label: "Số 1 (cao nhất)",
@@ -60,7 +63,7 @@ const priorityOptions = [
   },
 ];
 
-const dayOfWeekOptions = [
+export const dayOfWeekOptions = [
   {
     value: "SUN",
     label: "Chủ nhật",
@@ -90,6 +93,13 @@ const dayOfWeekOptions = [
     label: "Thứ 7",
   },
 ];
+export const getDays = () => {
+  let days = [];
+  for (let i = 1; i <= 31; i++) {
+    days.push({key: `${i}`, value: `Ngày ${i}`});
+  }
+  return days;
+};
 const GeneralInfo = (props: any) => {
   const {
     form,
@@ -121,14 +131,6 @@ const GeneralInfo = (props: any) => {
     form.resetFields(["entitlements"]);
   }, [discountMethod, form]);
 
-  const getDays = () => {
-    let days = [];
-    for (let i = 1; i <= 31; i++) {
-      days.push({key: `${i}`, value: `Ngày ${i}`});
-    }
-    return days;
-  };
-
   return (
     <Row gutter={24} className="general-info">
       <Col span={18}>
@@ -139,7 +141,7 @@ const GeneralInfo = (props: any) => {
             </div>
           }
         >
-          <Row gutter={30} style={{padding: "16px 16px"}}>
+          <Row gutter={30}>
             <Col span={12}>
               <CustomInput
                 name="title"
@@ -235,17 +237,24 @@ const GeneralInfo = (props: any) => {
           </Row>
         </Card>
         <Card>
-          <Row gutter={30} style={{padding: "16px 16px"}}>
+          <Row gutter={30}>
             <Col span={24}>
               <Form.Item name="entitled_method" label={<b>Phương thức chiết khấu</b>}>
                 <Select
                   defaultValue={DiscountMethod.FIXED_PRICE}
                   onChange={(value) => {
                     setDiscountMethod(value);
-                    if (value === DiscountMethod.FIXED_PRICE) {
-                      const formData = form.getFieldsValue(true);
-                      formData.entitlements.forEach((item: DiscountFormModel) => {
-                        item["prerequisite_quantity_ranges.value_type"] = "FIXED_AMOUNT";
+                    const formData = form.getFieldsValue(true);
+                    console.log(formData);
+                    if (value === DiscountMethod.FIXED_PRICE.toString()) {
+                      formData?.entitlements?.forEach((item: DiscountFormModel) => {
+                        const  temp ={ "prerequisite_quantity_ranges.value_type" :"FIXED_AMOUNT"};
+                        _.merge(item, temp);
+                      });
+                    } else if (value === DiscountMethod.QUANTITY.toString()) {
+                      formData?.entitlements?.forEach((item: DiscountFormModel) => {
+                        const  temp ={ "prerequisite_quantity_ranges.value_type" :"PERCENTAGE"};
+                        _.merge(item, temp);
                       });
                     }
                   }}
@@ -254,28 +263,31 @@ const GeneralInfo = (props: any) => {
                   <Option value={DiscountMethod.QUANTITY}>
                     Chiết khấu theo từng sản phẩm
                   </Option>
+                  <Option value={DiscountMethod.ORDER_THRESHOLD}>
+                    Chiết khấu theo đơn hàng
+                  </Option>
                 </Select>
               </Form.Item>
             </Col>
             {/* Phương thức chiết khấu */}
-            <FixedPriceSelection form={form} discountMethod={discountMethod} />
+            {discountMethod === DiscountMethod.ORDER_THRESHOLD ? (
+              <TotalBillDiscount form={form} />
+            ) : (
+              <FixedPriceSelection form={form} discountMethod={discountMethod} />
+            )}
           </Row>
         </Card>
       </Col>
       <Col span={6}>
-        <Card>
-          <Row gutter={6} style={{padding: "0px 16px"}}>
-            <Col span={24}>
-              <div className="ant-col ant-form-item-label" style={{width: "100%"}}>
-                <label
-                  htmlFor="discount_add_starts_date"
-                  className="ant-form-item-required"
-                >
-                  <b>Thời gian áp dụng:</b>
-                </label>
-              </div>
-            </Col>
-
+        <CustomerContitionFormlStyle>
+        <Card
+          title={
+            <span>
+              Thời gian áp dụng <span className="required-field">*</span>
+            </span>
+          }
+        >
+          <Row gutter={6}>
             <Col span={12}>
               <Form.Item
                 name="starts_date"
@@ -336,7 +348,7 @@ const GeneralInfo = (props: any) => {
             </Space> */}
           </Row>
           {showTimeAdvance ? (
-            <Row gutter={12} style={{padding: "0px 16px"}}>
+            <Row gutter={12}>
               <Col span={24}>
                 <Form.Item
                   label={<b>Chỉ áp dụng trong các khung giờ:</b>}
@@ -375,12 +387,11 @@ const GeneralInfo = (props: any) => {
             </Row>
           ) : null}
         </Card>
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Cửa hàng áp dụng">
+          <Row gutter={12}>
             <Col span={24}>
               <Form.Item
-                name="prerequisite_store_ids"
-                label={<b>Cửa hàng áp dụng:</b>}
+                name="prerequisite_store_ids" 
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
                 <Select
@@ -411,12 +422,11 @@ const GeneralInfo = (props: any) => {
             </Col>
           </Row>
         </Card>
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Kênh bán hàng áp dụng">
+          <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 name="prerequisite_sales_channel_names"
-                label={<b>Kênh bán hàng áp dụng:</b>}
                 rules={[
                   {required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"},
                 ]}
@@ -448,12 +458,11 @@ const GeneralInfo = (props: any) => {
             </Col>
           </Row>
         </Card>
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Nguồn đơn hàng áp dụng">
+          <Row gutter={12}>
             <Col span={24}>
               <Form.Item
-                name="prerequisite_order_source_ids"
-                label={<b>Nguồn đơn hàng áp dụng:</b>}
+                name="prerequisite_order_source_ids" 
                 rules={[
                   {required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"},
                 ]}
@@ -485,6 +494,9 @@ const GeneralInfo = (props: any) => {
             </Col>
           </Row>
         </Card>
+        {/* Đối tượng khách hàng áp dụng */}
+        <CustomerFilter form={form} />
+      </CustomerContitionFormlStyle>
       </Col>
     </Row>
   );

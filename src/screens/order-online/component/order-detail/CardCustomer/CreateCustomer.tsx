@@ -61,7 +61,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     handleChangeCustomer,
     ShippingAddressChange,
     keySearchCustomer,
-    CustomerDeleteInfo,
+    CustomerDeleteInfo
   } = props;
 
   const dispatch = useDispatch();
@@ -229,7 +229,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       areas,
       shippingFormRef,
       isVisibleShipping,
-      ShippingAddressChange,
+      ShippingAddressChange
     ]
   );
 
@@ -273,7 +273,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const onOkPress = useCallback(() => {
     customerForm.submit();
   }, [customerForm]);
-
+  
   return (
     <>
       <Form

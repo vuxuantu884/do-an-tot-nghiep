@@ -30,6 +30,9 @@ const AccountCreateScreen = React.lazy(
 const AccountUpdateScreen = React.lazy(
   () => import("screens/settings/account/account.update.screen")
 );
+const AccountUpdatePassScreen = React.lazy(
+  () => import("screens/settings/account/account.update.pass.screen")
+);
 
 //store
 const StoreCreateScreen = React.lazy(
@@ -118,6 +121,17 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [AccountPermissions.UPDATE],
+      }, {
+        path: `${UrlConfig.ACCOUNTS}/me/update-password`,
+        exact: true,
+        title: "Đặt lại mật khẩu",
+        icon: "icon-dot",
+        component: AccountUpdatePassScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
         permissions: [AccountPermissions.UPDATE],
       },
       {

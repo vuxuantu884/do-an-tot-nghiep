@@ -29,7 +29,7 @@ import {VariantResponse} from "../../../../model/product/product.model";
 import {formatCurrency} from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
-import { DiscountMethodStyled } from "./style";
+import {DiscountMethodStyled} from "./style";
 
 const Option = Select.Option;
 
@@ -166,14 +166,9 @@ const FixedPriceGroup = (props: any) => {
 
   const onDeleteItem = useCallback(
     (index: number) => {
-      console.log("entitlementForm", JSON.stringify(entitlementForm[name].variants));
-      console.log("selectedProduct", JSON.stringify(selectedProduct));
-
       selectedProduct.splice(index, 1);
       setSelectedProduct([...selectedProduct]);
       entitlementForm[name].variants.splice(index, 1);
-
-      console.log("entitlementForm after", entitlementForm[name].variants);
     },
     [selectedProduct, entitlementForm, name]
   );
@@ -267,20 +262,20 @@ const FixedPriceGroup = (props: any) => {
         <Col span={9}>
           <Input.Group compact style={{display: "flex", alignItems: "stretch"}}>
             <DiscountMethodStyled>
-            <Form.Item
-              name={[name, "prerequisite_quantity_ranges.value"]}
-              label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
-              style={{flex: "1 1 auto"}}
-              rules={[{required: true, message: "Cần nhập chiết khấu"}]}
-            >
-              <InputNumber
-                style={{textAlign: "end", borderRadius: "0px"}}
-                min={1}
-                max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
-                step={discountType === "FIXED_AMOUNT" ? 1 : 0.01}
-                formatter={(value) => formatDiscountValue(value)}
-              />
-            </Form.Item>
+              <Form.Item
+                name={[name, "prerequisite_quantity_ranges.value"]}
+                label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
+                style={{flex: "1 1 auto"}}
+                rules={[{required: true, message: "Cần nhập chiết khấu"}]}
+              >
+                <InputNumber
+                  style={{textAlign: "end", borderRadius: "0px"}}
+                  min={1}
+                  max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
+                  step={discountType === "FIXED_AMOUNT" ? 1 : 0.01}
+                  formatter={(value) => formatDiscountValue(value)}
+                />
+              </Form.Item>
             </DiscountMethodStyled>
             <Form.Item name={[name, "prerequisite_quantity_ranges.value_type"]} label=" ">
               <Select
@@ -294,17 +289,17 @@ const FixedPriceGroup = (props: any) => {
                   setDiscountType(value);
                 }}
                 defaultValue={
-                  discountMethod === "FIXED_PRICE" ? "FIXED_AMOUNT" : "PERCENTAGE" 
+                  discountMethod === "FIXED_PRICE" ? "FIXED_AMOUNT" : "PERCENTAGE"
                 }
-              > <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>
-                  đ
-                </Option>
+              >
                 {discountMethod !== "FIXED_PRICE" && (
                   <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>
                     %
                   </Option>
-                ) }
-               
+                )}
+                <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>
+                  đ
+                </Option>
               </Select>
             </Form.Item>
           </Input.Group>

@@ -1,85 +1,86 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {DownOutlined, EditOutlined, LoadingOutlined, SearchOutlined,} from "@ant-design/icons";
+import { DownOutlined, EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
-  AutoComplete,
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Dropdown,
-  Form,
-  FormInstance,
-  Input,
-  Menu,
-  Popover,
-  Row,
-  Select,
-  Table,
-  Tooltip,
+	AutoComplete,
+	Button,
+	Card,
+	Checkbox,
+	Col,
+	Dropdown,
+	Form,
+	FormInstance,
+	Input,
+	Menu,
+	Popover,
+	Row,
+	Select,
+	Table,
+	Tooltip
 } from "antd";
-import {RefSelectProps} from "antd/lib/select";
+import { RefSelectProps } from "antd/lib/select";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
+import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
-import {AppConfig} from "config/app.config";
-import {Type} from "config/type.config";
+import { AppConfig } from "config/app.config";
+import { HttpStatus } from "config/http-status.config";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import {StoreGetListAction, StoreSearchListAction,} from "domain/actions/core/store.action";
+import { StoreGetListAction, StoreSearchListAction } from "domain/actions/core/store.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 // import {splitOrderAction} from "domain/actions/order/order.action";
-import {SearchBarCode, searchVariantsOrderRequestAction,} from "domain/actions/product/products.action";
-import {PageResponse} from "model/base/base-metadata.response";
-import {StoreResponse} from "model/core/store.model";
-import {InventoryResponse} from "model/inventory";
-import {OrderItemDiscountModel} from "model/other/order/order-model";
-import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {OrderItemDiscountRequest, OrderLineItemRequest} from "model/request/order.request";
-import {OrderConfig, OrderResponse} from "model/response/order/order.response";
-import {OrderConfigResponseModel} from "model/response/settings/order-settings.response";
+import { SearchBarCode, searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
+import { OrderItemDiscountModel } from "model/other/order/order-model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderItemDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
+import { DiscountRequestModel, LineItemRequestModel } from "model/request/promotion.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { OrderConfig, OrderResponse } from "model/response/order/order.response";
 import { ApplyCouponResponseModel, SuggestDiscountResponseModel } from "model/response/order/promotion.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, {
-  createRef,
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
+	createRef,
+	MutableRefObject,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState
 } from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import DiscountGroup from "screens/yd-page/yd-page-order-create/component/discount-group";
 import AddGiftModal from "screens/yd-page/yd-page-order-create/modal/add-gift.modal";
 import InventoryModal from "screens/yd-page/yd-page-order-create/modal/inventory.modal";
 import PickDiscountModal from "screens/yd-page/yd-page-order-create/modal/pick-discount.modal";
 import {
-  applyDiscountService
+	applyDiscountService
 } from "service/promotion/discount/discount.service";
 import {
-  findAvatar,
-  findPrice,
-  findPriceInVariant,
-  findTaxInVariant,
-  formatCurrency,
-  getTotalAmount,
-  // getTotalAmountAfferDiscount,
-  getTotalDiscount,
-  getTotalQuantity,
-  haveAccess,
-  replaceFormatString,
+	findAvatar,
+	findPrice,
+	findPriceInVariant,
+	findTaxInVariant,
+	formatCurrency,
+	getAccountCodeFromCodeAndName,
+	getTotalAmount,
+	// getTotalAmountAfterDiscount,
+	getTotalDiscount,
+	getTotalQuantity,
+	haveAccess,
+	replaceFormatString
 } from "utils/AppUtils";
-import {MoneyType} from "utils/Constants";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { MoneyType } from "utils/Constants";
+import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
-import {StyledComponent} from "./styles";
-import {CouponRequestModel, LineItemRequestModel} from "model/request/promotion.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
-import BaseResponse from "base/base.response";
-import {HttpStatus} from "config/http-status.config";
-import {DISCOUNT_VALUE_TYPE} from "utils/Order.constants";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   storeId: number | null;
@@ -1035,12 +1036,19 @@ function OrderCreateProduct(props: PropType) {
         variant_id: single.variant_id,
       };
     });
-		let params: CouponRequestModel = {
+		let params: DiscountRequestModel = {
 			order_id: orderDetail?.id || null,
 			customer_id: customer?.id || null,
+			gender: customer?.gender || null,
+			customer_group_id: customer?.customer_group_id || null,
+			customer_loyalty_level_id: customer?.loyalty_level_id || null,
+			customer_type_id: customer?.type_id || null,
+			birthday_date: customer?.birthday || null,
+			wedding_date: customer?.wedding_date || null,
 			store_id: form.getFieldValue("store_id"),
 			sales_channel_name: "ADMIN",
 			order_source_id: form.getFieldValue("source_id"),
+      assignee_code: getAccountCodeFromCodeAndName(form.getFieldValue("assignee_code")),
 			line_items: lineItems,
 			applied_discount: {
 				code: coupon,
@@ -1093,12 +1101,19 @@ function OrderCreateProduct(props: PropType) {
       };
     });
     if (!isAutomaticDiscount) {
-      let params: CouponRequestModel = {
+      let params: DiscountRequestModel = {
         order_id: orderDetail?.id || null,
         customer_id: customer?.id || null,
+				gender: customer?.gender || null,
+				customer_group_id: customer?.customer_group_id || null,
+				customer_loyalty_level_id: customer?.loyalty_level_id || null,
+				customer_type_id: customer?.type_id || null,
+				birthday_date: customer?.birthday || null,
+				wedding_date: customer?.wedding_date || null,
         store_id: form.getFieldValue("store_id"),
         sales_channel_name: "ADMIN",
         order_source_id: form.getFieldValue("source_id"),
+        assignee_code: getAccountCodeFromCodeAndName(form.getFieldValue("assignee_code")),
         line_items: lineItems,
         applied_discount: {
           code: coupon,
@@ -1467,9 +1482,9 @@ function OrderCreateProduct(props: PropType) {
     [items]
   );
 
-  const onCancleConfirm = useCallback(() => {
-    setVisibleGift(false);
-  }, []);
+  // const onCancleConfirm = useCallback(() => {
+  //   setVisibleGift(false);
+  // }, []);
 
   const onOkConfirm = useCallback(() => {
     if (!items) {

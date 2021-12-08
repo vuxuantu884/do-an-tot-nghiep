@@ -95,11 +95,14 @@ const SizeListScreen: React.FC = () => {
   ];
 
   const onPageChange = useCallback(
-    (size, page) => {
-      params.page = page - 1;
-      params.limit = size;
+    (page, size) => {
+      const newParams = {...params, 
+        code: params.code?.trim(),
+        page: page,
+        limit: size}
       let queryParam = generateQuery(params);
-      setPrams({...params});
+     
+      setPrams({...newParams});
       history.replace(`${UrlConfig.SIZES}?${queryParam}`);
     },
     [history, params]
@@ -116,6 +119,8 @@ const SizeListScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: SizeQuery) => {
       let query = generateQuery(values);
+
+      values= {...values, code: values.code?.trim() }
       setPrams({...values});
       return history.replace(`${UrlConfig.SIZES}?${query}`);
     },

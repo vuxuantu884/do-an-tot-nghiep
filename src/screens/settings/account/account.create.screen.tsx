@@ -58,6 +58,7 @@ import {useHistory} from "react-router";
 import {convertDepartment, convertDistrict} from "utils/AppUtils";
 import {RegUtil} from "utils/RegUtils";
 import {showSuccess, showWarning} from "utils/ToastUtils";
+import TreeDepartment from "../department/component/TreeDepartment";
 import {PASSWORD_RULES} from "./account.rules";
 const {Item, List} = Form;
 const {Option, OptGroup} = Select;
@@ -680,20 +681,6 @@ const AccountCreateScreen: React.FC = () => {
       </Form>
     </ContentContainer>
   );
-};
-
-const TreeDepartment = (item: DepartmentResponse) => {
-  return (
-    <TreeSelect.TreeNode value={item.id} title={item.name}>
-      {item.children.length > 0 && (
-        <React.Fragment>
-          {item.children.map((item, index) => (
-            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-          ))}
-        </React.Fragment>
-      )}
-    </TreeSelect.TreeNode>
-  );
-};
+}; 
 
 export default AccountCreateScreen;

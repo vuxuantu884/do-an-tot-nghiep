@@ -1,53 +1,45 @@
+import {CheckCircleOutlined, LoadingOutlined} from "@ant-design/icons";
 import {Button, Card, Col, Divider, message, Modal, Row, Space} from "antd";
-import BottomBarContainer from "component/container/bottom-bar.container";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useHistory, useParams} from "react-router";
-import {Link} from "react-router-dom";
-import VoucherIcon from "assets/img/voucher.svg";
+import Dragger from "antd/lib/upload/Dragger";
+import DiscountIcon from "assets/icon/discount.svg";
+import UserIcon from "assets/icon/user-icon.svg";
+import CloseIcon from "assets/icon/x-close-red.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
-import CloseIcon from "assets/icon/x-close-red.svg";
-import UserIcon from "assets/icon/user-icon.svg";
-import DiscountIcon from "assets/icon/discount.svg";
-import CustomModal from "./components/CustomModal";
-import Dragger from "antd/lib/upload/Dragger";
-import moment from "moment";
-import "./promo-code.scss";
-import {RiUpload2Line} from "react-icons/ri";
+import VoucherIcon from "assets/img/voucher.svg";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import ContentContainer from "component/container/content.container";
+import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import UrlConfig from "config/url.config";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
   bulkDisablePriceRules,
   bulkEnablePriceRules,
-  deletePriceRulesById, getVariants,
+  getVariants,
   promoGetDetail,
 } from "domain/actions/promotion/discount/discount.action";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
-import {DATE_FORMAT} from "utils/DateUtils";
 import {
   addPromoCode,
   getListPromoCode,
 } from "domain/actions/promotion/promo-code/promo-code.action";
-import {StoreGetListAction} from "domain/actions/core/store.action";
-import {getListSourceRequest} from "domain/actions/product/source.action";
-import {StoreResponse} from "model/core/store.model";
-import {SourceResponse} from "model/response/order/source.response";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {showSuccess} from "utils/ToastUtils";
-import Countdown from "react-countdown";
-import {getQueryParams, useQuery} from "utils/useQuery";
-import {AppConfig} from "../../../config/app.config";
-import _ from "lodash";
-import {getToken} from "../../../utils/LocalStorageUtils";
-import {CheckCircleOutlined, LoadingOutlined} from "@ant-design/icons";
-import {getListChannelRequest} from "../../../domain/actions/order/order.action";
-import {ChannelResponse} from "../../../model/response/product/channel.response";
-import {formatCurrency} from "../../../utils/AppUtils";
-import {VscError} from "react-icons/all";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
+import _ from "lodash";
+import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
+import React, {useCallback, useEffect, useState} from "react";
+import {VscError} from "react-icons/all";
+import {RiUpload2Line} from "react-icons/ri";
+import {useDispatch} from "react-redux";
+import { useParams} from "react-router";
+import {Link} from "react-router-dom";
+import {showSuccess} from "utils/ToastUtils";
+import {getQueryParams, useQuery} from "utils/useQuery";
 import CustomTable from "../../../component/table/CustomTable";
+import {AppConfig} from "../../../config/app.config";
+import {formatCurrency} from "../../../utils/AppUtils";
+import {getToken} from "../../../utils/LocalStorageUtils";
+import GeneralConditionDetail from "../shared/general-condition.detail";
+import CustomModal from "./components/CustomModal";
+import "./promo-code.scss";
 
 export interface ProductParams {
   id: string;
@@ -126,7 +118,6 @@ const csvColumnMapping: any = {
 };
 
 const PromotionDetailScreen: React.FC = () => {
-  const history = useHistory();
   const dispatch = useDispatch();
   const token = getToken() || "";
 
@@ -140,9 +131,6 @@ const PromotionDetailScreen: React.FC = () => {
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [data, setData] = useState<DiscountResponse | null>(null);
-  const [listStore, setListStore] = useState<Array<StoreResponse>>();
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
@@ -154,7 +142,7 @@ const PromotionDetailScreen: React.FC = () => {
   const [dataVariants, setDataVariants] = useState<any | null>(null);
   const [entitlements, setEntitlements] = useState<Array<any>>([]);
   const [minOrderSubtotal, setMinOrderSubtotal] = useState(0);
-  const [applyFor, setApplyFor] = useState("Sản phẩm")
+  const [applyFor, setApplyFor] = useState("Sản phẩm");
 
   //phân quyền
   const [allowCancelPromoCode] = useAuthorization({
@@ -167,7 +155,6 @@ const PromotionDetailScreen: React.FC = () => {
     acceptPermissions: [PromoPermistion.UPDATE],
   });
 
-
   const handleResponse = useCallback((result: any | false) => {
     setLoading(false);
     if (!result) {
@@ -177,11 +164,7 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, []);
 
-
   useEffect(() => {
-    dispatch(StoreGetListAction(setListStore));
-    dispatch(getListSourceRequest(setListSource));
-    dispatch(getListChannelRequest(setListChannel));
     dispatch(getVariants(idNumber, handleResponse));
   }, [dispatch, handleResponse, idNumber]);
 
@@ -238,25 +221,28 @@ const PromotionDetailScreen: React.FC = () => {
     return result;
   };
 
-  const mergeVariants = useCallback((sourceData: Array<any>) => {
-    return sourceData.map((s) => {
-      const variant = dataVariants.find((v: any) => v.variant_id === s.id);
-      if (variant) {
-        s.title = variant.variant_title;
-        s.sku = variant.sku;
-      }
-      return s;
-    });
-  }, [dataVariants]);
+  const mergeVariants = useCallback(
+    (sourceData: Array<any>) => {
+      return sourceData.map((s) => {
+        const variant = dataVariants.find((v: any) => v.variant_id === s.id);
+        if (variant) {
+          s.title = variant.variant_title;
+          s.sku = variant.sku;
+        }
+        return s;
+      });
+    },
+    [dataVariants]
+  );
 
   useEffect(() => {
     if (dataVariants && data && data.entitlements.length > 0) {
       if (data.prerequisite_subtotal_range?.greater_than_or_equal_to)
-        setMinOrderSubtotal(data.prerequisite_subtotal_range?.greater_than_or_equal_to)
-      const flattenData:Array<any> = spreadData(data);
-      const listEntitlements:Array<any> = mergeVariants(flattenData);
+        setMinOrderSubtotal(data.prerequisite_subtotal_range?.greater_than_or_equal_to);
+      const flattenData: Array<any> = spreadData(data);
+      const listEntitlements: Array<any> = mergeVariants(flattenData);
       if (!listEntitlements || listEntitlements.length === 0) {
-        setApplyFor("Tất cả sản phẩm")
+        setApplyFor("Tất cả sản phẩm");
       }
       setEntitlements(listEntitlements);
     }
@@ -268,15 +254,15 @@ const PromotionDetailScreen: React.FC = () => {
   }, [dispatch, idNumber, onResult]);
 
   // section DELETE by Id
-  function onDelete() {
-    dispatch(showLoading());
-    dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
-  }
-  const onDeleteSuccess = useCallback(() => {
-    dispatch(hideLoading());
-    showSuccess("Xóa thành công");
-    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
-  }, [dispatch, history]);
+  // function onDelete() {
+  //   dispatch(showLoading());
+  //   dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
+  // }
+  // const onDeleteSuccess = useCallback(() => {
+  //   dispatch(hideLoading());
+  //   showSuccess("Xóa thành công");
+  //   history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
+  // }, [dispatch, history]);
 
   // section EDIT item
   const onEdit = useCallback(() => {
@@ -348,8 +334,8 @@ const PromotionDetailScreen: React.FC = () => {
           id: "discount",
           name: "Thông tin khuyến mãi",
           value: renderDiscountInfo(
-            data.entitlements[0].prerequisite_quantity_ranges[0].value,
-            data.entitlements[0].prerequisite_quantity_ranges[0].value_type
+            data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value,
+            data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type
           ),
           position: "right",
           key: "7",
@@ -359,49 +345,6 @@ const PromotionDetailScreen: React.FC = () => {
       return details;
     }
   }, [data]);
-
-  // @ts-ignore
-  const renderer = ({days, hours, minutes, seconds, completed}) => {
-    if (completed) {
-      // Render a complete state
-      return <span>Kết thúc chương trình</span>;
-    } else {
-      // Render a countdown
-      return (
-        <span style={{color: "#FCAF17", fontWeight: 500}}>
-          {days > 0 ? `${days} Ngày` : ""} {hours}:{minutes}
-        </span>
-      );
-    }
-  };
-
-  const timeApply = [
-    {
-      name: "Từ",
-      value:
-        data?.starts_date && moment(data.starts_date).format(DATE_FORMAT.DDMMYY_HHmm),
-      key: "1",
-    },
-    {
-      name: "Đến",
-      value: data?.ends_date && moment(data.ends_date).format(DATE_FORMAT.DDMMYY_HHmm),
-      key: "2",
-    },
-    {
-      name: "Còn",
-      value: data?.ends_date ? (
-        <Countdown
-          zeroPadTime={2}
-          zeroPadDays={2}
-          date={moment(data?.ends_date).toDate()}
-          renderer={renderer}
-        />
-      ) : (
-        "---"
-      ),
-      key: "3",
-    },
-  ];
 
   // section ADD Code
   function handleAddManual(value: any) {
@@ -495,7 +438,7 @@ const PromotionDetailScreen: React.FC = () => {
       align: "center",
       dataIndex: "minimum",
     },
-  ]
+  ];
 
   return (
     <ContentContainer
@@ -745,220 +688,33 @@ const PromotionDetailScreen: React.FC = () => {
                 }
               >
                 <Space size={"large"} direction={"vertical"} style={{width: "100%"}}>
-                <Row>
-                  <Col span={12}>
-                    <span style={{fontWeight: 500}}>
-                      Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}₫
-                    </span>
-                  </Col>
-                  <Col span={12}>
-                    <span style={{fontWeight: 500}}>
-                      Áp dụng cho : {applyFor}
-                    </span>
-                  </Col>
-                </Row>
-                  {entitlements.length > 0 ? <CustomTable
-                    dataSource={entitlements}
-                    columns={entitlements.length > 1 ? columns : columns.filter((column:any) => column.title !== "STT")}
-                    pagination={false}
-                  /> : ""}
+                  <Row>
+                    <Col span={12}>
+                      <span style={{fontWeight: 500}}>
+                        Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}₫
+                      </span>
+                    </Col>
+                    <Col span={12}>
+                      <span style={{fontWeight: 500}}>Áp dụng cho : {applyFor}</span>
+                    </Col>
+                  </Row>
+                  {entitlements.length > 0 ? (
+                    <CustomTable
+                      dataSource={entitlements}
+                      columns={
+                        entitlements.length > 1
+                          ? columns
+                          : columns.filter((column: any) => column.title !== "STT")
+                      }
+                      pagination={false}
+                    />
+                  ) : (
+                    ""
+                  )}
                 </Space>
               </Card>
             </Col>
-            <Col span={24} md={6}>
-              {/* Thời gian áp dụng */}
-              <Card className="card">
-                <Row>
-                  <Col
-                    span={24}
-                    style={{
-                      paddingBottom: 16,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Thời gian áp dụng:
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          color: "#E24343",
-                        }}
-                      >
-                        *
-                      </span>
-                    </span>
-                  </Col>
-                  {timeApply &&
-                    timeApply.map((detail: any, index: number) => (
-                      <Col
-                        key={index}
-                        span={24}
-                        style={{
-                          display: "flex",
-                          marginBottom: 10,
-                          color: "#222222",
-                        }}
-                      >
-                        <Col
-                          span={5}
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            padding: "0 4px 0 0",
-                          }}
-                        >
-                          <span style={{color: "#666666"}}>{detail.name}</span>
-                          <span style={{fontWeight: 600}}>:</span>
-                        </Col>
-                        <Col span={17} style={{paddingLeft: 0}}>
-                          <span
-                            style={{
-                              wordWrap: "break-word",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {detail.value ? detail.value : "---"}
-                          </span>
-                        </Col>
-                      </Col>
-                    ))}
-                </Row>
-              </Card>
-              {/* Cửa hàng áp dụng */}
-              <Card className="card">
-                <Row>
-                  <Col
-                    span={24}
-                    style={{
-                      paddingBottom: 16,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Cửa hàng áp dụng:
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          color: "#E24343",
-                        }}
-                      >
-                        *
-                      </span>
-                    </span>
-                  </Col>
-                  <Col span={24}>
-                    {data?.prerequisite_store_ids.length > 0 ? (
-                      <ul
-                        style={{
-                          padding: "0 16px",
-                        }}
-                      >
-                        {listStore &&
-                          data.prerequisite_store_ids.map((id) => (
-                            <li>{listStore.find((store) => store.id === id)?.name}</li>
-                          ))}
-                      </ul>
-                    ) : (
-                      "Áp dụng toàn bộ"
-                    )}
-                  </Col>
-                </Row>
-              </Card>
-              {/* Kênh bán áp dụng */}
-              <Card className="card">
-                <Row>
-                  <Col
-                    span={24}
-                    style={{
-                      paddingBottom: 16,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Kênh bán áp dụng:
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          color: "#E24343",
-                        }}
-                      >
-                        *
-                      </span>
-                    </span>
-                  </Col>
-                  <Col span={24}>
-                    {data?.prerequisite_sales_channel_names.length > 0 ? (
-                      <ul
-                        style={{
-                          padding: "0 16px",
-                        }}
-                      >
-                        {listChannel &&
-                          data.prerequisite_sales_channel_names.map((code) => (
-                            <li>
-                              {listChannel.find((channel) => channel.code === code)?.name}
-                            </li>
-                          ))}
-                      </ul>
-                    ) : (
-                      "Áp dụng toàn bộ"
-                    )}
-                  </Col>
-                </Row>
-              </Card>
-              {/* Nguồn đơn hàng áp dụng */}
-              <Card className="card">
-                <Row>
-                  <Col
-                    span={24}
-                    style={{
-                      paddingBottom: 16,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Nguồn đơn hàng áp dụng:
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          color: "#E24343",
-                        }}
-                      >
-                        *
-                      </span>
-                    </span>
-                  </Col>
-                  <Col span={24}>
-                    {data?.prerequisite_order_source_ids.length > 0 ? (
-                      <ul
-                        style={{
-                          padding: "0 16px",
-                        }}
-                      >
-                        {listSource &&
-                          data.prerequisite_order_source_ids.map((id) => (
-                            <li>{listSource.find((source) => source.id === id)?.name}</li>
-                          ))}
-                      </ul>
-                    ) : (
-                      "Áp dụng toàn bộ"
-                    )}
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
+            <GeneralConditionDetail data={data} />
           </Row>
         </React.Fragment>
       )}
@@ -966,11 +722,11 @@ const PromotionDetailScreen: React.FC = () => {
         back="Quay lại danh sách đợt phát hành"
         rightComponent={
           <Space>
-            {allowCancelPromoCode ? (
+            {/* {allowCancelPromoCode ? (
               <Button disabled onClick={onDelete} style={{color: "#E24343"}}>
                 Xoá
               </Button>
-            ) : null}
+            ) : null} */}
             {allowUpdatePromoCode ? (
               <Button disabled onClick={onEdit}>
                 Sửa
@@ -1077,16 +833,18 @@ const PromotionDetailScreen: React.FC = () => {
                 multiple={false}
                 showUploadList={false}
                 beforeUpload={(file) => {
-                  if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-                    setUploadStatus("error")
-                    setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"])
+                  if (
+                    file.type !==
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  ) {
+                    setUploadStatus("error");
+                    setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
                     return false;
                   }
-                  setUploadStatus("uploading")
-                  setUploadError([])
+                  setUploadStatus("uploading");
+                  setUploadError([]);
                   return true;
                 }}
-
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/${idNumber}/discount-codes/read-file`}
                 headers={{Authorization: `Bearer ${token}`}}
                 onChange={(info) => {
@@ -1100,7 +858,7 @@ const PromotionDetailScreen: React.FC = () => {
                           "index"
                         ).sort((a: any, b: any) => a.index - b.index);
                         setCodeErrorsResponse([...errors]);
-                      }else{
+                      } else {
                         setCodeErrorsResponse([]);
                       }
                       setImportTotal(response.data.total);

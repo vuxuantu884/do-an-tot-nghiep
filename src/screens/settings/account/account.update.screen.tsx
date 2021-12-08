@@ -489,6 +489,7 @@ const AccountUpdateScreen: React.FC = () => {
                     className="r-5"
                     placeholder="VD: YD0000"
                     size="large"
+                    disabled
                     onChange={(e) =>
                       formRef.current?.setFieldsValue({
                         user_name: e.target.value.toUpperCase(),

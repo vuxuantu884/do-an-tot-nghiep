@@ -31,6 +31,8 @@ import {CloseOutlined} from "@ant-design/icons";
 import moment from "moment";
 import {showError} from "utils/ToastUtils";
 import {DATE_FORMAT} from "../../../../utils/DateUtils";
+import CustomerFilter from "../../shared/cusomer-condition.form"
+import { CustomerContitionFormlStyle } from "screens/promotion/shared/condition.style";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
@@ -192,9 +194,7 @@ const GeneralCreate = (props: any) => {
         <Card
           title={
             <div className="d-flex">
-              <span className="title-card">
-                THÔNG TIN CHUNG
-              </span>
+              <span className="title-card">THÔNG TIN CHUNG</span>
             </div>
           }
         >
@@ -242,16 +242,15 @@ const GeneralCreate = (props: any) => {
           <Row gutter={30} style={{padding: "0px 16px"}}>
             {/* Loại khuyến mãi */}
             <Col span={24}>
-              <Form.Item
-                name="sale_type"
-                label={<b>Loại khuyến mãi</b>}
-              >
+              <Form.Item name="sale_type" label={<b>Loại khuyến mãi</b>}>
                 <Select
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
                 >
-                  <Option key="SALE_CODE" value={"SALE_CODE"}>Mã giảm giá</Option>
+                  <Option key="SALE_CODE" value={"SALE_CODE"}>
+                    Mã giảm giá
+                  </Option>
                   {/* <Option value={"GIFT_CODE"}>Mã quà tặng</Option> */}
                 </Select>
               </Form.Item>
@@ -262,15 +261,16 @@ const GeneralCreate = (props: any) => {
         <Card
           title={
             <div className="d-flex">
-              <span className="title-card">
-                ĐIỀU KIỆN MUA HÀNG
-              </span>
+              <span className="title-card">ĐIỀU KIỆN MUA HÀNG</span>
             </div>
           }
         >
           <Row gutter={30} style={{padding: "0px 16px"}}>
             <Col span={12}>
-              <Form.Item label="Đơn hàng có giá trị từ:" name={"prerequisite_subtotal_range_min"}>
+              <Form.Item
+                label="Đơn hàng có giá trị từ:"
+                name={"prerequisite_subtotal_range_min"}
+              >
                 <InputNumber
                   style={{
                     textAlign: "right",
@@ -282,156 +282,164 @@ const GeneralCreate = (props: any) => {
                   min={0}
                   value={prerequisiteSubtotal}
                   onChange={(value: any) => setPrerequisiteSubtotal(value)}
-                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="product_type"
-                label={<b>Áp dụng cho:</b>}
-              >
+              <Form.Item name="product_type" label={<b>Áp dụng cho:</b>}>
                 <Select onChange={(value: string) => setProduct(value)}>
                   {/* <Option value={"CHOOSE_OPTION"}>Chọn điều kiện</Option> */}
-                  <Option key="PRODUCT" value={"PRODUCT"}>Sản phẩm</Option>
+                  <Option key="PRODUCT" value={"PRODUCT"}>
+                    Sản phẩm
+                  </Option>
                   {/* <Option value={"CATEGORY_PRODUCT"}>Danh mục sản phẩm</Option> */}
                 </Select>
               </Form.Item>
             </Col>
-            {product === "PRODUCT" &&
-            <>
-              <Col span={18}>
-                <Input.Group className="display-flex">
-                  <CustomAutoComplete
-                    key={`product_search`}
-                    id="#product_search"
-                    dropdownClassName="product"
-                    placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
-                    onSearch={onSearch}
-                    dropdownMatchSelectWidth={456}
-                    style={{width: "100%"}}
-                    onSelect={onSelectProduct}
-                    options={renderResult}
-                    ref={productSearchRef}
-                    disabled={isProduct}
-                    textEmpty={"Không có kết quả"}
-                  />
-                </Input.Group>
-              </Col>
-              <Col span={6}>
-                <Form.Item>
-                  <Checkbox onChange={(value) => {
-                    setIsProduct(value.target.checked);
-                    setSelectedProduct([]);
-                  }}> Tất cả sản phẩm </Checkbox>
-                </Form.Item>
-              </Col>
-              <Col span={24}>
-                <Form.Item name="entitlements">
-                  <Table
-                    className="product-table"
-                    rowKey={(record) => record.id}
-                    rowClassName="product-table-row"
-                    columns={[
-                      {
-                        title: "Sản phẩm",
-                        className: "ant-col-info",
-                        dataIndex: "variant",
-                        align: "left",
-                        width: "40%",
-                        render: (
-                          value: string,
-                          item,
-                          index: number,
-                        ) => {
-                          return (
-                            <div>
+            {product === "PRODUCT" && (
+              <>
+                <Col span={18}>
+                  <Input.Group className="display-flex">
+                    <CustomAutoComplete
+                      key={`product_search`}
+                      id="#product_search"
+                      dropdownClassName="product"
+                      placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
+                      onSearch={onSearch}
+                      dropdownMatchSelectWidth={456}
+                      style={{width: "100%"}}
+                      onSelect={onSelectProduct}
+                      options={renderResult}
+                      ref={productSearchRef}
+                      disabled={isProduct}
+                      textEmpty={"Không có kết quả"}
+                    />
+                  </Input.Group>
+                </Col>
+                <Col span={6}>
+                  <Form.Item>
+                    <Checkbox
+                      onChange={(value) => {
+                        setIsProduct(value.target.checked);
+                        setSelectedProduct([]);
+                      }}
+                    >
+                      {" "}
+                      Tất cả sản phẩm{" "}
+                    </Checkbox>
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="entitlements">
+                    <Table
+                      className="product-table"
+                      rowKey={(record) => record.id}
+                      rowClassName="product-table-row"
+                      columns={[
+                        {
+                          title: "Sản phẩm",
+                          className: "ant-col-info",
+                          dataIndex: "variant",
+                          align: "left",
+                          width: "40%",
+                          render: (value: string, item, index: number) => {
+                            return (
                               <div>
-                                <div className="product-item-sku">
-                                  <Link
-                                    target="_blank"
-                                    to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`}
-                                  >
-                                    {item.sku}
-                                  </Link>
-                                </div>
-                                <div className="product-item-name">
+                                <div>
+                                  <div className="product-item-sku">
+                                    <Link
+                                      target="_blank"
+                                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`}
+                                    >
+                                      {item.sku}
+                                    </Link>
+                                  </div>
+                                  <div className="product-item-name">
                                     <span className="product-item-name-detail">
                                       {item.name}
                                     </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
+                            );
+                          },
                         },
-                      },
-                      {
-                        title: "Số lượng tối thiểu",
-                        className: "ant-col-info",
-                        align: "center",
-                        width: "10%",
-                        render: (
-                          value: string,
-                          item,
-                          index: number,
-                        ) => {
-                          return (
-                            <div>
-                              <Form.Item
-                                name={index + `min_value`}
-                                rules={[{required: true, message: "Cần nhập số lượng tối thiếu"}]}
-                              >
-                                <NumberInput onChange={(value) => {
-                                  if (selectedProduct) {
-                                    let entitlementFields = form.getFieldValue("entitlements");
-                                    let entitlement = entitlementFields.find((ele: any) => ele.entitled_variant_ids.includes(item.id));
-                                    entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to = value;
-                                    form.setFieldsValue({entitlements: entitlementFields});
-                                  }
-                                }} />
-                              </Form.Item>
-                            </div>
-                          );
+                        {
+                          title: "Số lượng tối thiểu",
+                          className: "ant-col-info",
+                          align: "center",
+                          width: "10%",
+                          render: (value: string, item, index: number) => {
+                            return (
+                              <div>
+                                <Form.Item
+                                  name={index + `min_value`}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Cần nhập số lượng tối thiếu",
+                                    },
+                                  ]}
+                                >
+                                  <NumberInput
+                                    onChange={(value) => {
+                                      if (selectedProduct) {
+                                        let entitlementFields =
+                                          form.getFieldValue("entitlements");
+                                        let entitlement = entitlementFields.find(
+                                          (ele: any) =>
+                                            ele.entitled_variant_ids.includes(item.id)
+                                        );
+                                        entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to =
+                                          value;
+                                        form.setFieldsValue({
+                                          entitlements: entitlementFields,
+                                        });
+                                      }
+                                    }}
+                                  />
+                                </Form.Item>
+                              </div>
+                            );
+                          },
                         },
-                      },
-                      {
-                        className: "ant-col-info",
-                        align: "right",
-                        width: "10%",
-                        render: (value: string, item, index: number) => (
-                          <Row justify={"center"}>
-                            <CloseOutlined
-                              onClick={() => onDeleteItem(index)}
-                              className="product-item-delete"
-                              style={{fontSize: "22px"}}
-                            />
-                          </Row>
-                        ),
-                      },
-                    ]}
-                    dataSource={selectedProduct}
-                    tableLayout="fixed"
-                    pagination={false}
-                  />
-                </Form.Item>
-              </Col>
-            </>
-            }
+                        {
+                          className: "ant-col-info",
+                          align: "right",
+                          width: "10%",
+                          render: (value: string, item, index: number) => (
+                            <Row justify={"center"}>
+                              <CloseOutlined
+                                onClick={() => onDeleteItem(index)}
+                                className="product-item-delete"
+                                style={{fontSize: "22px"}}
+                              />
+                            </Row>
+                          ),
+                        },
+                      ]}
+                      dataSource={selectedProduct}
+                      tableLayout="fixed"
+                      pagination={false}
+                    />
+                  </Form.Item>
+                </Col>
+              </>
+            )}
           </Row>
         </Card>
       </Col>
       {/* left side */}
       <Col span={6}>
+      <CustomerContitionFormlStyle>
         {/* Thời gian áp dụng: */}
-        <Card>
-          <Row gutter={6} style={{padding: "0px 16px"}}>
-            <Col span={24}>
-              <div className="ant-col ant-form-item-label" style={{width: "100%"}}>
-                <label htmlFor="discount_add_starts_date" className="ant-form-item-required">
-                  <b>Thời gian áp dụng:</b>
-                </label>
-              </div>
-            </Col>
+        <Card title={
+            <span>
+              Thời gian áp dụng <span className="required-field">*</span>
+            </span>
+          }>
+          <Row gutter={6}>
             <Col span={12}>
               <Form.Item
                 name="starts_date"
@@ -440,11 +448,13 @@ const GeneralCreate = (props: any) => {
                 <DatePicker
                   style={{width: "100%"}}
                   placeholder="Từ ngày"
-                  showTime={{ format: 'HH:mm' }}
+                  showTime={{format: "HH:mm"}}
                   format={DATE_FORMAT.DDMMYY_HHmm}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment()) ||
-                    (form.getFieldValue("ends_date") ? currentDate.valueOf() > form.getFieldValue("ends_date") : false)
+                    (form.getFieldValue("ends_date")
+                      ? currentDate.valueOf() > form.getFieldValue("ends_date")
+                      : false)
                   }
                   showNow={true}
                 />
@@ -452,173 +462,223 @@ const GeneralCreate = (props: any) => {
             </Col>
             <Col span={12}>
               <Form.Item name="ends_date">
-              <DatePicker
+                <DatePicker
                   disabled={disabledEndDate}
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
-                  showTime={{ format: 'HH:mm' }}
+                  showTime={{format: "HH:mm"}}
                   format={DATE_FORMAT.DDMMYY_HHmm}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment()) ||
-                    (form.getFieldValue("starts_date") && currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
+                    (form.getFieldValue("starts_date") &&
+                      currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
                   }
                   showNow={false}
                 />
               </Form.Item>
             </Col>
             <Space direction="horizontal">
-              <Switch onChange={value => {
-                if (value) {
-                  form.resetFields(['ends_date'])
-                }
-                setDisabledEndDate(value)
-              }}/>
+              <Switch
+                onChange={(value) => {
+                  if (value) {
+                    form.resetFields(["ends_date"]);
+                  }
+                  setDisabledEndDate(value);
+                }}
+              />
               {"Không cần ngày kết thúc"}
             </Space>
             <Divider />
             <Space direction="horizontal">
-              <Checkbox
+              {/* <Checkbox
                 defaultChecked={false}
                 // onChange={(value) => setShowTimeAdvance(value.target.checked)}
                 style={{paddingBottom: "20px"}}
               >
                 Hiển thị nâng cao
-              </Checkbox>
+              </Checkbox> */}
             </Space>
           </Row>
-          {showTimeAdvance ? <Row gutter={12} style={{padding: "0px 16px"}}>
-            <Col span={24}>
-              <Form.Item
-                label={<b>Chỉ áp dụng trong các khung giờ:</b>}
-                name="prerequisite_time"
-              >
-                <TimeRangePicker placeholder={["Từ", "Đến"]} style={{width: "100%"}} />
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item
-                label={<b>Chỉ áp dụng các ngày trong tuần:</b>}
-                name="prerequisite_weekdays"
-              >
-                <Select placeholder="Chọn ngày" mode="multiple">
-                  <Option key="SUN" value={"SUN"}>Chủ nhật</Option>
-                  <Option key="MON" value={"MON"}>Thứ 2</Option>
-                  <Option key="TUE" value={"TUE"}>Thứ 3</Option>
-                  <Option key="WED" value={"WED"}>Thứ 4</Option>
-                  <Option key="THU" value={"THU"}>Thứ 5</Option>
-                  <Option key="FRI" value={"FRI"}>Thứ 6</Option>
-                  <Option key="SAT" value={"SAT"}>Thứ 7</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item
-                label={<b>Chỉ áp dụng các ngày trong tháng:</b>}
-                name="prerequisite_days"
-                style={{marginBottom: "5px"}}
-              >
-
-                <Select placeholder="Chọn ngày" mode="multiple">
-                  {getDays().map(day => <Option key={day.key} value={day.key}>{day.value}</Option>)}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row> : null}
+          {showTimeAdvance ? (
+            <Row gutter={12} style={{padding: "0px 16px"}}>
+              <Col span={24}>
+                <Form.Item
+                  label={<b>Chỉ áp dụng trong các khung giờ:</b>}
+                  name="prerequisite_time"
+                >
+                  <TimeRangePicker placeholder={["Từ", "Đến"]} style={{width: "100%"}} />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  label={<b>Chỉ áp dụng các ngày trong tuần:</b>}
+                  name="prerequisite_weekdays"
+                >
+                  <Select placeholder="Chọn ngày" mode="multiple">
+                    <Option key="SUN" value={"SUN"}>
+                      Chủ nhật
+                    </Option>
+                    <Option key="MON" value={"MON"}>
+                      Thứ 2
+                    </Option>
+                    <Option key="TUE" value={"TUE"}>
+                      Thứ 3
+                    </Option>
+                    <Option key="WED" value={"WED"}>
+                      Thứ 4
+                    </Option>
+                    <Option key="THU" value={"THU"}>
+                      Thứ 5
+                    </Option>
+                    <Option key="FRI" value={"FRI"}>
+                      Thứ 6
+                    </Option>
+                    <Option key="SAT" value={"SAT"}>
+                      Thứ 7
+                    </Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  label={<b>Chỉ áp dụng các ngày trong tháng:</b>}
+                  name="prerequisite_days"
+                  style={{marginBottom: "5px"}}
+                >
+                  <Select placeholder="Chọn ngày" mode="multiple">
+                    {getDays().map((day) => (
+                      <Option key={day.key} value={day.key}>
+                        {day.value}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+          ) : null}
         </Card>
         {/* Cửa hàng áp dụng: */}
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Cửa hàng áp dụng">
+          <Row gutter={12} >
             <Col span={24}>
-              <Form.Item
-                name="prerequisite_store_ids"
-                label={<b>Cửa hàng áp dụng:</b>}
-                rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
-              >
-                <Select
-                  disabled={allStore}
-                  placeholder="Chọn chi nhánh"
-                  mode="multiple"
-                  className="ant-select-selector-min-height"
-                  filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
+              {
+                <Form.Item
+                  name="prerequisite_store_ids"
+                  rules={[
+                    {required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"},
+                  ]}
                 >
-                  {listStore?.map((store: any, index: number) => <Option key={index}
-                                                                         value={store.id}>{store.name}</Option>)}
-                </Select>
-              </Form.Item>
+                  <Select
+                    disabled={allStore}
+                    placeholder="Chọn chi nhánh"
+                    mode="multiple"
+                    className="ant-select-selector-min-height"
+                    filterOption={(input, option) =>
+                      option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {listStore?.map((store: any, index: number) => (
+                      <Option key={index} value={store.id}>
+                        {store.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              }
               <Space direction="horizontal">
                 <Switch
-                defaultChecked={true}
-                onChange={value => {
-                  form.setFieldsValue({
-                    prerequisite_store_ids: undefined,
-                  });
-                  form.validateFields(["prerequisite_store_ids"]);
-                  setAllStore(value);
-                }} />
+                  defaultChecked={true}
+                  onChange={(value) => {
+                    form.setFieldsValue({
+                      prerequisite_store_ids: undefined,
+                    });
+                    form.validateFields(["prerequisite_store_ids"]);
+                    setAllStore(value);
+                  }}
+                />
                 {"Áp dụng toàn bộ"}
               </Space>
             </Col>
           </Row>
         </Card>
         {/* Kênh bán hàng áp dụng: */}
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Kênh bán hàng áp dụng">
+          <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 name="prerequisite_sales_channel_names"
-                label={<b>Kênh bán hàng áp dụng:</b>}
-                rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
+                rules={[
+                  {required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"},
+                ]}
               >
-                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple"
-                        className="ant-select-selector-min-height">
-                  {listChannel?.map((store: any, index: number) => <Option key={index}
-                                                                           value={store.name}>{store.name}</Option>)}
+                <Select
+                  disabled={allChannel}
+                  placeholder="Chọn kênh bán hàng"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                >
+                  {listChannel?.map((store: any, index: number) => (
+                    <Option key={index} value={store.name}>
+                      {store.name}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch
-                defaultChecked={true}
-                onChange={value => {
-                  setAllChannel(value);
-                  form.validateFields(["prerequisite_sales_channel_names"]);
-                }} />
+                  defaultChecked={true}
+                  onChange={(value) => {
+                    setAllChannel(value);
+                    form.validateFields(["prerequisite_sales_channel_names"]);
+                  }}
+                />
                 {"Áp dụng toàn bộ"}
               </Space>
             </Col>
           </Row>
         </Card>
         {/* Nguồn đơn hàng áp dụng: */}
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+        <Card title="Nguồn đơn hàng áp dụng">
+          <Row gutter={12} >
             <Col span={24}>
               <Form.Item
                 name="prerequisite_order_source_ids"
-                label={<b>Nguồn đơn hàng áp dụng:</b>}
-                rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
+                rules={[
+                  {required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"},
+                ]}
               >
-                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple"
-                        className="ant-select-selector-min-height">
-                  {listSource?.map((source: any, index: number) => <Option key={index}
-                                                                           value={source.id}>{source.name}</Option>)}
+                <Select
+                  disabled={allSource}
+                  placeholder="Chọn nguồn đơn hàng"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                >
+                  {listSource?.map((source: any, index: number) => (
+                    <Option key={index} value={source.id}>
+                      {source.name}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch
-                defaultChecked={true}
-                onChange={value => {
-                  form.validateFields(["prerequisite_order_source_ids"]);
-                  form.setFieldsValue({
-                    prerequisite_order_source_ids: undefined,
-                  });
-                  setAllSource(value);
-                }} />
+                  defaultChecked={true}
+                  onChange={(value) => {
+                    form.validateFields(["prerequisite_order_source_ids"]);
+                    form.setFieldsValue({
+                      prerequisite_order_source_ids: undefined,
+                    });
+                    setAllSource(value);
+                  }}
+                />
                 {"Áp dụng toàn bộ"}
               </Space>
             </Col>
           </Row>
         </Card>
+        {/* Đối tượng khách hàng áp dụng */}
+        <CustomerFilter form={form} />
+        </CustomerContitionFormlStyle>
       </Col>
     </Row>
   );

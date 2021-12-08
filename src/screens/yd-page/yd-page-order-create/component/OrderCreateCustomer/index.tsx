@@ -65,6 +65,7 @@ import UrlConfig from "config/url.config";
 import * as CONSTANTS from "utils/Constants";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
+import {formatCurrency} from "../../../../../utils/AppUtils";
 //#end region
 
 type CustomerCardProps = {
@@ -570,7 +571,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   >
                     {loyaltyPoint?.point === undefined
                       ? "0"
-                      : loyaltyPoint?.point}
+                      : formatCurrency(loyaltyPoint.point || 0)}
                   </Typography.Text>
                 </span>
               </Col>

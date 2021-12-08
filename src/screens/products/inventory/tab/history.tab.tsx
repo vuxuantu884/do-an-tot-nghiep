@@ -3,12 +3,13 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { inventoryGetHistoryAction } from "domain/actions/inventory/inventory.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom"; 
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams } from "utils/useQuery";
@@ -162,13 +163,22 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       title: "SL thay đổi",
       visible: true,
       dataIndex: "quantity",
-      render: (value) => (parseInt(value) > 0 ? `+${value}` : value),
+      render: (value) => {
+        let newValue = parseInt(value),
+              text: string = formatCurrency(newValue,".");
+
+        if (newValue && parseInt(value) > 0) {
+          text = `+${text}`;
+        }
+        return text;
+      } 
     },
     {
       align: "right",
       title: "Tồn trong kho",
       visible: true,
       dataIndex: "on_hand",
+      render: (value) => formatCurrency(value,".")
     },
     {
       title: "Kho hàng",
@@ -223,7 +233,23 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, history.location.search])
+  }, [selected, history.location.search]);
+
+  const debouncedSearch = React.useMemo(() =>
+  _.debounce((keyword: string) => {
+    setLoading(true);
+    const temps = {...params,condition: keyword?.trim() };
+    dispatch(inventoryGetHistoryAction(temps, onResult));
+  }, 300),
+  [dispatch, params, onResult]
+) 
+
+  const onChangeKeySearch = useCallback(
+    (keyword: string) => {
+      debouncedSearch(keyword)
+    },
+    [debouncedSearch]
+  )
 
   useEffect(() => {
     setLoading(true);
@@ -239,6 +265,9 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         actions={[]}
         onClearFilter={() => { }}
         listStore={stores}
+        onChangeKeySearch={(value: string)=>{
+          onChangeKeySearch(value);
+        }}
       />
       <CustomTable
         isLoading={loading}

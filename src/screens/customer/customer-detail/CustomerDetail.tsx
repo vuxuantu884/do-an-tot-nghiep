@@ -134,7 +134,7 @@ const CustomerDetail = () => {
     
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      dispatch(LoyaltyCardSearch({ customer_id: customer.id, status: "ACTIVE"}, updateLoyaltyCard));
+      dispatch(LoyaltyCardSearch({ customer_id: customer.id, statuses: ["ASSIGNED"]}, updateLoyaltyCard));
     } else {
       setLoyaltyPoint(null);
     }
@@ -197,60 +197,68 @@ const CustomerDetail = () => {
     const _detail = [
       {
         name: "Tổng đơn hàng",
-        value: purchaseIfo?.total_finished_order,
+        value: purchaseIfo?.total_finished_order || null,
       },
       {
         name: "Cửa hàng mua đầu",
-        value: purchaseIfo?.store_of_first_order,
+        value: purchaseIfo?.store_of_first_order || null,
       },
       {
         name: "Số đơn trả",
         value:
-          <NumberFormat
-            value={purchaseIfo?.total_returned_order}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          purchaseIfo?.total_returned_order ?
+            <NumberFormat
+              value={purchaseIfo?.total_returned_order}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : null
       },
       {
         name: "Tiền tích luỹ",
         value:
-          <NumberFormat
-            value={purchaseIfo?.total_paid_amount}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          purchaseIfo?.total_paid_amount ?
+            <NumberFormat
+              value={purchaseIfo?.total_paid_amount}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : null
       },
       {
         name: "Ngày mua đầu",
-        value: <span>{ConvertUtcToLocalDate(purchaseIfo?.first_order_time, DATE_FORMAT.DDMMYYY)}</span>
+        value: purchaseIfo?.first_order_time ? <span>{ConvertUtcToLocalDate(purchaseIfo?.first_order_time, DATE_FORMAT.DDMMYYY)}</span> : null
       },
       {
         name: "Tổng giá trị đơn trả",
         value:
-          <NumberFormat
-            value={purchaseIfo?.total_refunded_amount}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          purchaseIfo?.total_refunded_amount ?
+            <NumberFormat
+              value={purchaseIfo?.total_refunded_amount}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : null
       },
       {
         name: "Số ngày chưa mua",
-        value: purchaseIfo?.number_of_days_without_purchase,
+        value: purchaseIfo?.number_of_days_without_purchase || null,
       },
       {
         name: "Cửa hàng mua cuối",
-        value: purchaseIfo?.store_of_last_order,
+        value: purchaseIfo?.store_of_last_order || null,
       },
       
       {
         name: "Số tiền cần nâng hạng",
         value:
-          <NumberFormat
-            value={purchaseIfo?.remain_amount_to_level_up}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          purchaseIfo?.remain_amount_to_level_up ?
+            <NumberFormat
+              value={purchaseIfo?.remain_amount_to_level_up}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : null
       },
       {
         name: 
@@ -269,15 +277,17 @@ const CustomerDetail = () => {
               </Tooltip>
             </div>,
         value:
-          <NumberFormat
-            value={Math.round(purchaseIfo?.average_order_value)}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          purchaseIfo?.average_order_value ?
+            <NumberFormat
+              value={Math.round(purchaseIfo?.average_order_value)}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+            : null
       },
       {
         name: "Ngày mua cuối",
-        value: <span>{ConvertUtcToLocalDate(purchaseIfo?.last_order_time, DATE_FORMAT.DDMMYYY)}</span>
+        value: purchaseIfo?.last_order_time ? <span>{ConvertUtcToLocalDate(purchaseIfo?.last_order_time, DATE_FORMAT.DDMMYYY)}</span> : null
       }
     ];
 
@@ -410,12 +420,12 @@ const CustomerDetail = () => {
       switch (menuId) {
         case 1:
           history.replace(
-            `${UrlConfig.CUSTOMER}/point-adjustments?customer_ids=${customer?.id}&type=add`
+            `${UrlConfig.CUSTOMER}/point-adjustments/create?customer_ids=${customer?.id}&type=add`
           );
           break;
         case 2:
           history.replace(
-            `${UrlConfig.CUSTOMER}/point-adjustments?customer_ids=${customer?.id}&type=subtract`
+            `${UrlConfig.CUSTOMER}/point-adjustments/create?customer_ids=${customer?.id}&type=subtract`
           );
           break;
         case 3:

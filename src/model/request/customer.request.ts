@@ -7,6 +7,13 @@ interface BaseObject {
   operator_kc_id: string | null;
 }
 
+interface BaseRequest {
+  page?: number,
+  limit?: number,
+  sort_column?: string, 
+  sort_type?: string,
+}
+
 export interface CustomerBillingAddress extends BaseObject {
   id: number;
   is_default: boolean;
@@ -225,4 +232,12 @@ export class CustomerModel implements CustomerRequest {
 
 export interface CustomerUpdateRequest extends CustomerRequest {
   shopping_histories: Array<any>;
+}
+
+export interface CustomerCardListRequest extends BaseRequest {
+  request: string;
+  from_assigned_date: string;
+  to_assigned_date: string; 
+  statuses: Array<any>;
+  release_ids: Array<any>;
 }

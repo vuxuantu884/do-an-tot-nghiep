@@ -192,7 +192,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       //let shippingAddress = customerItem.shipping_addresses.find((p:any) => p.is_default === true);
       let area = areas.find((area: any) => area.id === value.district_id);
       
-      if (!shippingAddress) {
+      if (shippingAddress) {
 
         let param = {
           ...shippingAddress,

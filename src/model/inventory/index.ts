@@ -1,5 +1,6 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
+import { ProductResponse } from "model/product/product.model";
 
 
 export interface InventoryResponse extends BaseObject {
@@ -25,6 +26,7 @@ export interface InventoryResponse extends BaseObject {
   shipping: number;
   retail_price: number;
   import_price: number;
+  product: ProductResponse | null
 }
 
 export interface InventoryQuery extends BaseQuery {

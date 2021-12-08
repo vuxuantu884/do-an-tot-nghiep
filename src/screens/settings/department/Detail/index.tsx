@@ -8,7 +8,7 @@ import UrlConfig from "config/url.config";
 import {departmentDetailAction} from "domain/actions/account/department.action";
 import useAuthorization from "hook/useAuthorization";
 import {DepartmentResponse} from "model/account/department.model";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch} from "react-redux";
 import {useHistory, useParams} from "react-router-dom";
 import RowDetail from "screens/settings/store/RowDetail";
@@ -24,19 +24,39 @@ const DepartmentCreateScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [data, setData] = useState<DepartmentResponse | null>(null);
+  const [data, setData] = useState<DepartmentResponse | null>(null); 
+  
+ 
+  const convertDepTree =useCallback((item:DepartmentResponse): Array<DataNode> =>{
+    let arr= [] as Array<DataNode>;
+    let node= {} as DataNode;
+    node= {
+      title: item.name,
+      key: item.id
+    };
+    
+    if (item.children.length > 0) { 
+      let childs =  [] as Array<DataNode>;
+      item.children.forEach((i)=>{
+       const c = convertDepTree(i);
+       childs = [...childs,...c];
+      }); 
+      node = {...node, children: childs};
+    }
+    arr.push(node);
+    return arr;
+  },[])    
+
   const dataChildren = useMemo(() => {
-    let dataNode: Array<DataNode> = [];
-    if (data !== null) {
+    let dataNode: Array<DataNode> = []; 
+    if (data !== null) { 
       data.children.forEach((item) => {
-        dataNode.push({
-          title: item.name,
-          key: item.id,
-        });
-      });
+        const temp = convertDepTree(item);
+        dataNode = [...dataNode, ...temp];
+      }); 
     }
     return dataNode;
-  }, [data]);
+  }, [data, convertDepTree]);
 
   //phân quyền
   const [allowUpdateDep] = useAuthorization({
@@ -102,6 +122,7 @@ const DepartmentCreateScreen: React.FC = () => {
             <Col md={8} span={8}>
               <Card title="Sơ đồ tổ chức">
                 <Tree
+                  showLine={{showLeafIcon: false}}
                   defaultExpandAll
                   defaultSelectedKeys={["0-0-0"]}
                   switcherIcon={<DownOutlined />}

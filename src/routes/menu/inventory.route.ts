@@ -42,7 +42,7 @@ export const inventory: Array<RouteMenu> = [
   {
     path: `${InventoryTabUrl.ALL}`,
     exact: true,
-    title: "Danh sách tồn",
+    title: "Tồn kho",
     icon: "icon-dot",
     component: InventoryScreen,
     key: "submenu24",
@@ -51,7 +51,7 @@ export const inventory: Array<RouteMenu> = [
     subMenu: [{
       path: `${InventoryTabUrl.DETAIL}`,
       exact: true,
-      title: "Danh sách tồn",
+      title: "Tồn khon",
       icon: "icon-dot",
       component: InventoryScreen,
       key: "submenu24",
@@ -62,7 +62,7 @@ export const inventory: Array<RouteMenu> = [
     {
       path: `${InventoryTabUrl.HISTORIES}`,
       exact: true,
-      title: "Danh sách tồn",
+      title: "Tồn kho",
       icon: "icon-dot",
       component: InventoryScreen,
       key: "submenu24",
@@ -125,7 +125,7 @@ export const inventory: Array<RouteMenu> = [
   {
     path: `${ProcurementTabUrl.TODAY}`,
     exact: true,
-    title: "Phiếu nhập kho",
+    title: "Nhập kho",
     icon: "icon-dot",
     component: ProcurementScreen,
     key: "submenu25",
@@ -136,7 +136,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${ProcurementTabUrl.ALL}`,
         exact: true,
-        title: "Phiếu nhập kho",
+        title: "Nhập kho",
         icon: "icon-dot",
         component: ProcurementScreen,
         key: "submenu25",
@@ -148,7 +148,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${ProcurementTabUrl.TODAY}`,
         exact: true,
-        title: "Phiếu nhập kho",
+        title: "Nhập kho",
         icon: "icon-dot",
         component: ProcurementScreen,
         key: "submenu25",

@@ -26,6 +26,7 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
 import "assets/css/custom-filter.scss";
+import CustomSelect from "component/custom/select.custom";
 
 const actions: Array<MenuAction> = [
   {
@@ -54,7 +55,7 @@ const Category = () => {
   const query = useQuery();
   let getParams: CategoryQuery = getQueryParams(query);
   if (!getParams.goods) {
-    getParams.goods = "";
+    getParams.goods = undefined;
   }
   const [params, setPrams] = useState<CategoryQuery>(getParams);
   const [data, setData] = useState<Array<CategoryView>>([]);
@@ -77,12 +78,7 @@ const Category = () => {
       render: (text: string, item: CategoryView) => {
         return <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{text}</Link>;
       },
-    },
-    {
-      title: "Ngành hàng",
-      dataIndex: "goods_name",
-    },
-
+    }, 
     {
       title: "Danh mục",
       dataIndex: "name",
@@ -110,6 +106,10 @@ const Category = () => {
       ),
     },
     {
+      title: "Ngành hàng",
+      dataIndex: "goods_name",
+    },
+    {
       title: "Thuộc danh mục",
       dataIndex: "parent",
       render: (item: CategoryParent) => (item != null ? item.name : ""),
@@ -122,7 +122,9 @@ const Category = () => {
   const onFinish = useCallback(
     (values: CategoryQuery) => {
       let query = generateQuery(values);
-      setPrams({ ...values });
+      
+      const newValues = {...values, query: values.query?.trim()};
+      setPrams({ ...newValues });
       return history.replace(`${UrlConfig.CATEGORIES}?${query}`);
     },
     [history]
@@ -228,18 +230,19 @@ const Category = () => {
                 />
               </Item>
               <Item name="goods">
-                <Select
+                <CustomSelect
+                  allowClear
+                  placeholder="Chọn ngành hàng"
                   style={{
                     width: 200,
                   }}
                 >
-                  <Select.Option value="">Ngành hàng</Select.Option>
                   {goods.map((item, index) => (
                     <Select.Option key={index} value={item.value}>
                       {item.name}
                     </Select.Option>
                   ))}
-                </Select>
+                </CustomSelect>
               </Item>
               <Item>
                 <Button htmlType="submit" type="primary">

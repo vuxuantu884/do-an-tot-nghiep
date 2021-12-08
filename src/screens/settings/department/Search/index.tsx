@@ -4,7 +4,6 @@ import ButtonCreate from "component/header/ButtonCreate";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {searchDepartmentAction} from "domain/actions/account/department.action";
-import {DepartmentView} from "model/account/department.model";
 import {useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {Link} from "react-router-dom";
@@ -13,19 +12,21 @@ import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { DepartmentView } from "model/account/department.model";
 
 const DepartmentSearchScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [data, setData] = useState<Array<DepartmentView>>([]);
+  const [data, setData] = useState<Array<DepartmentView>>([]); 
+  
   //phân quyền
   const [allowReadDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.READ],
   });
   const [allowCreateDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.CREATE],
-  });
+  }); 
 
   useEffect(() => {
     setLoading(true);
@@ -69,10 +70,12 @@ const DepartmentSearchScreen: React.FC = () => {
               isLoading={loading}
               pagination={false}
               isRowSelection
+              scroll={{x: 1480}}
               columns={[
                 {
                   title: "Mã bộ phận",
                   dataIndex: "code",
+                  width: 120,
                   render: (text: string, item: DepartmentView) => {
                     return <Link to={`${UrlConfig.DEPARTMENT}/${item.id}`}>{text}</Link>;
                   },
@@ -106,31 +109,35 @@ const DepartmentSearchScreen: React.FC = () => {
                 {
                   title: "Số điện thoại",
                   dataIndex: "mobile",
+                  width: '120px'
                 },
                 {
                   title: "Địa chỉ",
                   dataIndex: "address",
+                  width: 200
                 },
                 {
                   title: "Quản lý",
                   dataIndex: "manager",
-                  render: (value, record: DepartmentView) =>
-                    value === null ? (
-                      ""
-                    ) : (
+                  width: 120,
+                  render: (value, record: DepartmentView) => (
+                    value === null ? ("") : (
                       <Link
                         to={`${UrlConfig.ACCOUNTS}/${record.manager_code}`}
                       >{`${record.manager_code} - ${value}`}</Link>
-                    ),
+                    )
+                  )
                 },
                 {
                   title: "Người tạo",
                   dataIndex: "created_by",
+                  width: 120
                 },
                 {
                   title: "Ngày tạo",
                   dataIndex: "created_date",
                   render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+                  width: 120
                 }
               ]}
             />

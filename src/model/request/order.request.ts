@@ -43,14 +43,20 @@ export interface OrderRequest {
   channel_id?: number | null;
   finalized?: boolean;
   sub_status_code?: string; 
+	automatic_discount?: boolean;
 }
 
 export interface ReturnRequest extends OrderRequest {
   reason_id: number;
   reason_name: string | null;
+  reason: string | null;
   sub_reason_id: string|null;
   received: boolean;
   order_returns?: any[];
+  store:string;
+  store_code:string;
+  store_phone_number:string;
+  store_full_address:string;
 }
 
 export interface ExchangeRequest extends OrderRequest {

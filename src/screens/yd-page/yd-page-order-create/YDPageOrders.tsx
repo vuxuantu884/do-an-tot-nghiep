@@ -40,7 +40,7 @@ import React, {createRef, useCallback, useEffect, useMemo, useState} from "react
 import {useDispatch, useSelector} from "react-redux";
 import {
   getAmountPaymentRequest,
-  getTotalAmountAfferDiscount,
+  getTotalAmountAfterDiscount,
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import {
@@ -70,7 +70,6 @@ import {LoyaltyPoint} from "../../../model/response/loyalty/loyalty-points.respo
 import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
 import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
 import {OrderModel} from "../../../model/order/order.model";
-
 
 let typeButton = "";
 
@@ -517,7 +516,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {

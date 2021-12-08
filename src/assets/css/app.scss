@@ -504,7 +504,10 @@ label {
         padding: 0 240px 0 32px;
     }
     &.collapse {
-        margin-left: -23px;
+        margin-left: -20px;
+				@media screen and (max-width: 1439px) {
+					padding: 0 96px 0 32px;
+			}
     }
     &__left {
         display: flex;

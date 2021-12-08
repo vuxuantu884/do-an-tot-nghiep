@@ -134,8 +134,11 @@ const ListMaterial: React.FC = () => {
     setSelected(selectedRow);
   }, []);
   const onFinish = useCallback(
-    (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+    (values: MaterialQuery) => {
+      let newPrams = { ...params, ...values, 
+        info: values.info?.trim(),  
+        description: values.description?.trim(),
+        page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.MATERIALS}?${queryParam}`);
@@ -144,10 +147,15 @@ const ListMaterial: React.FC = () => {
   );
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
+      let newPrams = { ...params, 
+        info: params.info?.trim(),  
+        description: params.description?.trim(),
+        page: page,
+        limit: size } as MaterialQuery; 
+
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+
+      setPrams({ ...newPrams });
       history.replace(`${UrlConfig.MATERIALS}?${queryParam}`);
     },
     [history, params]

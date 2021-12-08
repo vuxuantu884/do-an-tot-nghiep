@@ -13,12 +13,11 @@ import {
 } from '../../../../service/promotion/promo-code/promo-code.service';
 import {YodyAction} from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
-import {call, put} from "@redux-saga/core/effects";
+import {call, put, takeLatest} from "@redux-saga/core/effects";
 import {HttpStatus} from "../../../../config/http-status.config";
 import {unauthorizedAction} from "../../../actions/auth/auth.action";
 import {showError} from "../../../../utils/ToastUtils";
-import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {takeLatest} from "typed-redux-saga";
+import {PageResponse} from "../../../../model/base/base-metadata.response"; 
 import {PromoCodeType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
 
@@ -154,7 +153,6 @@ function* updatePromoCodeByIdAct(action: YodyAction) {
 }
 
 function* addPromoCodeManualAct(action: YodyAction) {
-  console.log('addPromoCodeManualAct - action : ', action);
   const { priceRuleId, body, addCallBack } = action.payload;
   try {
     const response: BaseResponse<PromoCodeResponse> = yield call(
@@ -164,20 +162,22 @@ function* addPromoCodeManualAct(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        addCallBack(true)
+        addCallBack(true);
         break;
       case HttpStatus.UNAUTHORIZED:
-        addCallBack(false)
+        addCallBack(false);
         yield put(unauthorizedAction());
         break;
       default:
-        addCallBack(false)
         response.errors.forEach((e) => showError(e));
+        addCallBack(false);
         break;
     }
-  } catch (error) {
-    addCallBack(false)
-    showError("Có lỗi vui lòng thử lại sau");
+  } catch (error: any) {
+    if(typeof error?.response.data.message === 'string') {
+    showError(error?.response.data.message || "Có lỗi vui lòng thử lại sau");
+    }
+    addCallBack(false);
   }
 }
 

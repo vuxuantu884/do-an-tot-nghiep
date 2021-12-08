@@ -7,6 +7,13 @@ export interface GoodsObj {
   name: string
 }
 
+export interface BankInfo {
+  bank_brand: string|null,
+  bank_name: string|null,
+  bank_number: string|null,
+  beneficiary_name: string|null
+}
+
 export interface SupplierResponse extends BaseObject {
   name: string,
   type: string,
@@ -130,7 +137,8 @@ export interface SupplierCreateRequest {
   status: string,
   tax_code: string|null,
   type: string,
-  website: string|null
+  website: string|null,
+  bank_info: Array<BankInfo>|null
 }
 
 export interface SupplierUpdateRequest extends SupplierCreateRequest {

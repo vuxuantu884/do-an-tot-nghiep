@@ -9,8 +9,8 @@ import { DepartmentResponse } from 'model/account/department.model';
 import { PositionResponse } from 'model/account/position.model';
 
 export const getAccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/detail`);
-}
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/me`);
+} 
 
 export const loginApi = (request: AuthenRequest): Promise<BaseResponse<LoginResponse>> => {
   return BaseAxios.post(`${ApiConfig.ACCOUNTS}/accounts/login`, request);
@@ -63,4 +63,8 @@ export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {
     access_level: 'View',
     allow_save_as: 'false'
   });
+}
+
+export const accountUpdatePassScreenService = (request: AccountRequest): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.put(`${ApiConfig.ACCOUNTS}/me/update-password`, request)
 }

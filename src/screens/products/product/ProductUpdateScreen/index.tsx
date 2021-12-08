@@ -763,7 +763,7 @@ const ProductDetailScreen: React.FC = () => {
                               placeholder="Chọn danh mục"
                               suffix={
                                 <Button
-                                  style={{width: 37, height: 37}}
+                                  style={{width: 37, height: 37, padding: 0}}
                                   icon={<PlusOutlined />}
                                   onClick={() =>
                                     window.open(

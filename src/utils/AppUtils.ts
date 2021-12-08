@@ -25,6 +25,7 @@ import {
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
+	ReturnProductModel,
 } from "model/response/order/order.response";
 import {
   OrderLineItemRequest,
@@ -273,10 +274,10 @@ export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
   return supplierConverted;
 };
 
-export const formatCurrency = (currency: number | string | boolean): string => {
+export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {
   try {
     let format = currency.toString();
-    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
   } catch (e) {
     return "";
   }
@@ -625,17 +626,7 @@ export const Products = {
   },
 };
 
-export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
-  let value = 0;
-  if (items.length > 0) {
-    if (items[0].amount !== null) {
-      value = items[0].amount;
-    }
-  }
-  return value;
-};
-
-export const getAmountPayment = (items: Array<OrderPaymentResponse> | null) => {
+export const getAmountPayment = (items: Array<OrderPaymentResponse|OrderPaymentRequest> | null) => {
   let value = 0;
   if (items !== null) {
     if (items.length > 0) {
@@ -667,19 +658,39 @@ export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
   return total;
 };
 
-export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
-  let total = 0;
-  // console.log('getTotalDiscount =============+> ', items);
-  items.forEach((a) => (total = total + a.discount_amount * a.quantity));
+export const getLineItemDiscountValue = (lineItem: OrderLineItemRequest) => {
+	let total = 0;
+  lineItem.discount_items.forEach((a) => (total = total + a.value));
   return total;
 };
 
-export const getTotalAmountAfferDiscount = (
+export const getLineItemDiscountAmount = (lineItem: OrderLineItemRequest) => {
+	let total = 0;
+  lineItem.discount_items.forEach((a) => (total = total + a.amount));
+  return total;
+};
+
+export const getLineItemDiscountRate = (lineItem: OrderLineItemRequest) => {
+  return lineItem.discount_value / lineItem.price;
+};
+
+export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
+  let total = 0;
+  items.forEach((a) => (total = total + a.discount_amount));
+  return total;
+};
+
+export const getTotalAmountAfterDiscount = (
   items: Array<OrderLineItemRequest>
 ) => {
   let total = 0;
   items.forEach((a) => (total = total + a.line_amount_after_line_discount));
   return total;
+};
+
+
+export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) => {
+	return lineItem.amount - lineItem.discount_amount;
 };
 
 export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
@@ -698,22 +709,8 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       }
     }
   }
-
   if (
-    items?.total_line_amount_after_line_discount +
-      (items?.fulfillments &&
-      items?.fulfillments.length > 0 &&
-      items?.fulfillments[0].shipment &&
-      items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        ? items?.fulfillments[0].shipment &&
-          items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        : 0) -
-      (items?.discounts &&
-      items?.discounts.length > 0 &&
-      items?.discounts[0].amount
-        ? items?.discounts[0].amount
-        : 0) <=
-    value
+    items?.total <= value
   ) {
     return 1; //đã thanh toán
   } else {
@@ -1100,3 +1097,44 @@ export const handleDisplayCoupon = (coupon: string, numberCouponCharactersShowed
     return `${coupon}***${coupon}`;
   }
 };
+
+export const getAccountCodeFromCodeAndName = (text: string | null | undefined) => {
+	const splitString = "-"
+	let result = null;
+	if(text) {
+		result = text.split(splitString)[0].trim();
+	} 
+	return result;
+};
+
+export const handleDelayActionWhenInsertTextInSearchInput = (inputRef: React.MutableRefObject<any>, func: (...arg: any) => void|any, delayTime: number = 500) => {
+	if (inputRef.current) {
+		clearTimeout(inputRef.current);
+	}
+	inputRef.current = setTimeout(() => {
+		func();
+	}, delayTime);
+};
+
+export const getProductDiscountPerProduct = (product: ReturnProductModel) => {
+	let discountPerProduct = 0;
+	product.discount_items.forEach((single) => {
+		discountPerProduct += single.value;
+	});
+	return discountPerProduct;
+};
+
+export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: ReturnProductModel) => {
+	let discountPerOrder = 0;
+	let totalDiscountRatePerOrder = 0;
+	OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
+		if (singleOrderDiscount?.rate) {
+			totalDiscountRatePerOrder = totalDiscountRatePerOrder + singleOrderDiscount.rate;
+		}
+	});
+	console.log('totalDiscountRatePerOrder', totalDiscountRatePerOrder);
+	product.discount_value = getLineItemDiscountValue(product)
+	discountPerOrder =
+		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
+	return discountPerOrder;
+}

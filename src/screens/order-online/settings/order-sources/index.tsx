@@ -233,16 +233,18 @@ function OrderSources(props: PropsType) {
     [history, queryParams]
   );
 
-  const handleDeleteMultiOrderSource = () => {
+  const handleDeleteMultiOrderSource = () => { 
     showLoading();
     if (rowSelectedObject.length > 0) {
       let channel_ids: number[] = [];
       let source_ids: number[] = [];
       rowSelectedObject.forEach((single) => {
-        if (single.is_channel) {
-          channel_ids.push(single.id);
-        } else {
-          source_ids.push(single.id);
+        if (single) {
+          if (single.is_channel) {
+            channel_ids.push(single.id);
+          } else {
+            source_ids.push(single.id);
+          }
         }
       });
       deleteMultiOrderSourceService(source_ids, channel_ids)
@@ -250,6 +252,7 @@ function OrderSources(props: PropsType) {
           switch (response.code) {
             case HttpStatus.SUCCESS:
               showSuccess("Xóa danh sách thành công!");
+              setRowSelectedObject([]);
               setTableLoading(true);
               gotoFirstPage();
               setTableLoading(false);
@@ -272,7 +275,7 @@ function OrderSources(props: PropsType) {
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
-        case 1:
+        case ACTIONS_INDEX.DELETE:
           setIsShowConfirmDelete(true);
       }
     },

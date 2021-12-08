@@ -2,52 +2,49 @@ import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import {
-  getLoyaltyPoint,
-  getLoyaltyRate,
-  getLoyaltyUsage
+	getLoyaltyPoint,
+	getLoyaltyRate,
+	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-  configOrderSaga,
-  DeliveryServicesGetList,
-  orderCreateAction,
-  OrderDetailAction,
-  PaymentMethodGetList
+	configOrderSaga,
+	DeliveryServicesGetList,
+	orderCreateAction,
+	OrderDetailAction,
+	PaymentMethodGetList
 } from "domain/actions/order/order.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  BillingAddress,
-  FulFillmentRequest,
-  OrderDiscountRequest,
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-  OrderRequest,
-  ShipmentRequest,
-  ShippingAddress
+	BillingAddress,
+	FulFillmentRequest,
+	OrderDiscountRequest,
+	OrderLineItemRequest,
+	OrderPaymentRequest,
+	OrderRequest,
+	ShipmentRequest,
+	ShippingAddress
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  DeliveryServiceResponse, OrderConfig,
-  OrderResponse,
-  StoreCustomResponse
+	DeliveryServiceResponse, OrderConfig,
+	OrderResponse,
+	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
@@ -55,18 +52,19 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
-  getAmountPaymentRequest,
-  getTotalAmountAfferDiscount,
-  scrollAndFocusToDomElement
+	getAmountPaymentRequest,
+	getTotalAmount,
+	getTotalAmountAfterDiscount,
+	scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
-  DEFAULT_COMPANY,
-  OrderStatus,
-  PaymentMethodCode,
-  PaymentMethodOption,
-  ShipmentMethod,
-  ShipmentMethodOption,
-  TaxTreatment
+	DEFAULT_COMPANY,
+	OrderStatus,
+	PaymentMethodCode,
+	PaymentMethodOption,
+	ShipmentMethod,
+	ShipmentMethodOption,
+	TaxTreatment
 } from "utils/Constants";
 import { DEFAULT_CHANNEL_ID } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -121,7 +119,6 @@ export default function Order() {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
   >(0);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTags] = useState<string>("");
   const formRef = createRef<FormInstance>();
@@ -130,6 +127,7 @@ export default function Order() {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   // const [listOrderConfigs, setListOrderConfigs] =
   //   useState<OrderConfigResponseModel | null>(null);
@@ -239,6 +237,7 @@ export default function Order() {
     billing_address: null,
     payments: [],
     channel_id: null,
+		automatic_discount: true,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -261,7 +260,7 @@ export default function Order() {
     let shipmentRequest = createShipmentRequest(value);
     let request: FulFillmentRequest = {
       store_id: value.store_id,
-      account_code: userReducer.account?.code,
+      account_code: `${userReducer.account?.code}`,
       assignee_code: value.assignee_code,
       delivery_type: "",
       stock_location_id: null,
@@ -409,7 +408,7 @@ export default function Order() {
     if (coupon) {
       listDiscountRequest.push({
         discount_code: coupon,
-          rate: discountRate,
+        rate: discountRate,
         value: discountValue,
         amount: discountValue,
         promotion_id: null,
@@ -475,6 +474,7 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
+
   const onFinish = (values: OrderRequest) => {
     values.channel_id = DEFAULT_CHANNEL_ID;
     values.company_id = DEFAULT_COMPANY.company_id;
@@ -482,7 +482,17 @@ export default function Order() {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
+		values.tags = tags;
+    values.items = items.concat(itemGifts);
+    values.discounts = lstDiscount;
+    values.shipping_address = shippingAddress;
+    values.billing_address = billingAddress;
+    values.customer_id = customer?.id;
+    values.customer_ward = customer?.ward;
+    values.customer_district = customer?.district;
+    values.customer_city = customer?.city;
+    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -493,7 +503,7 @@ export default function Order() {
 
       values.shipping_fee_informed_to_customer = 0;
       values.action = OrderStatus.DRAFT;
-      values.total = orderAmount;
+      values.total = getTotalAmount(values.items);
       values.shipping_fee_informed_to_customer = 0;
     } else {
       //Nếu là đơn lưu và xác nhận
@@ -501,7 +511,7 @@ export default function Order() {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments.filter((payment) => payment.amount > 0);
-      values.total = orderAmount;
+      values.total = getTotalAmount(values.items);
       if (
         values?.fulfillments &&
         values.fulfillments.length > 0 &&
@@ -514,16 +524,7 @@ export default function Order() {
           discountValue;
       }
     }
-    values.tags = tags;
-    values.items = items.concat(itemGifts);
-    values.discounts = lstDiscount;
-    values.shipping_address = shippingAddress;
-    values.billing_address = billingAddress;
-    values.customer_id = customer?.id;
-    values.customer_ward = customer?.ward;
-    values.customer_district = customer?.district;
-    values.customer_city = customer?.city;
-    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -604,13 +605,6 @@ export default function Order() {
       }
     }
   };
-
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -626,13 +620,12 @@ export default function Order() {
   }, [dispatch, storeId]);
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setDeliveryServices(response);
       })
     );
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch]);
 
   //windows offset
   useEffect(() => {
@@ -772,6 +765,7 @@ export default function Order() {
                 note: response.note,
                 tags: response.tags,
                 channel_id: response.channel_id,
+								automatic_discount: response.automatic_discount,
               });
               form.resetFields();
               // load lại form sau khi set initialValue
@@ -1181,10 +1175,11 @@ export default function Order() {
                   </Col>
                   <Col md={6}>
                     <CreateOrderSidebar
-                      accounts={accounts}
                       tags={tags}
                       onChangeTag={onChangeTag}
                       customerId={customer?.id}
+											form={form}
+											storeId={storeId}
                     />
                   </Col>
                 </Row>

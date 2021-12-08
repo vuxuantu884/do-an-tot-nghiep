@@ -419,7 +419,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setVisible(false);
   }, [formAdvanceFilter, advanceFilters]);
   const onResetFilter = useCallback(() => {
-    // debugger;
     let fields = formAdvanceFilter.getFieldsValue(true);
     console.log(fields);
     for (let key in fields) {

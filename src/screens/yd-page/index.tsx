@@ -76,17 +76,18 @@ function YDPageCRM() {
       setLoyaltyCard( loyaltyCardData);
     }
   }, [customer, setLoyaltyCard]);
+
   React.useEffect(() => {
     if (customer?.id) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      dispatch(LoyaltyCardSearch({ customer_id: customer.id, status: "ACTIVE"}, updateLoyaltyCard));
+      dispatch(LoyaltyCardSearch({ customer_id: customer.id, statuses: ["ASSIGNED"]}, updateLoyaltyCard));
     } else {
       setLoyaltyPoint(null);
       setLoyaltyCard(null);
     }
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
     dispatch(getLoyaltyRate(setLoyaltyRate));
-  }, [dispatch, customer, updateLoyaltyCard]);
+  }, [dispatch, customer, updateLoyaltyCard, setLoyaltyCard]);
 
   useEffect(() => {
     if (userId) {
@@ -155,14 +156,14 @@ function YDPageCRM() {
     },
     [querySearchOrderFpage, setQuerySearchOrderFpage]
   );
-  const searchByPhoneCallback = (value: any) => {
+  const searchByPhoneCallback = useCallback((value: any) => {
     if (value) {
       setCustomer(value);
       setVisibleCustomer(true)
       setDistrictId(value.district_id)
       if(value.shipping_addresses?.length > 0){
-          const address = value.shipping_addresses.find((item: any) => item.default)
-          setShippingAddress(address)
+        const address = value.shipping_addresses.find((item: any) => item.default)
+        setShippingAddress(address)
       }
       if(value.billing_addresses){
         const billing = value.billing_addresses.find((item: any) => item.default)
@@ -170,8 +171,10 @@ function YDPageCRM() {
       }
     } else {
       setCustomer(null);
+      setLoyaltyCard(null)
+      setVisibleCustomer(false)
     }
-  };
+  }, [])
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
     if (data) {
       setOrderHistory(data.items);
@@ -198,7 +201,7 @@ function YDPageCRM() {
         dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
       }
     },
-    [dispatch]
+    [dispatch, searchByPhoneCallback]
   );
   //Render result search
   const handleOnchangeTabs = React.useCallback((value: string) => {
@@ -208,7 +211,7 @@ function YDPageCRM() {
 
   const handleCustomerById = React.useCallback((id: number | null) => {
     dispatch(getCustomerDetailAction(id, searchByPhoneCallback));
-  }, [dispatch])
+  }, [dispatch, searchByPhoneCallback])
 
   return (
     <div className="yd-page-customer-relationship">

@@ -10,6 +10,7 @@ import {
   Row,
   Select,
   Space,
+  TreeSelect
 } from "antd";
 import StoreTooltip from "assets/icon/store-tooltip.png";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -20,10 +21,10 @@ import CustomSelect from "component/custom/select.custom";
 import {AppConfig} from "config/app.config";
 import UrlConfig from "config/url.config";
 import {AccountSearchAction} from "domain/actions/account/account.action";
+import { departmentDetailAction } from "domain/actions/account/department.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
-  GroupGetAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import {
@@ -33,10 +34,10 @@ import {
   StoreValidateAction,
 } from "domain/actions/core/store.action";
 import {AccountResponse} from "model/account/account.model";
+import { DepartmentResponse } from "model/account/department.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import {CountryResponse} from "model/content/country.model";
 import {DistrictResponse} from "model/content/district.model";
-import {GroupResponse} from "model/content/group.model";
 import {WardResponse} from "model/content/ward.model";
 import {StoreRankResponse} from "model/core/store-rank.model";
 import {
@@ -50,6 +51,7 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {RegUtil} from "utils/RegUtils";
+import TreeDepartment from "../department/component/TreeDepartment";
 
 const {Item} = Form;
 const {Panel} = Collapse;
@@ -75,7 +77,8 @@ const initRequest: StoreCreateRequest = {
   is_saleable: true,
   is_stocktaking: false,
   type: null,
-  merchendiser_code: null,
+  vm_code: null,
+  department_id: null
 };
 
 const StoreCreateScreen: React.FC = () => {
@@ -89,8 +92,8 @@ const StoreCreateScreen: React.FC = () => {
   const [cityViews, setCityView] = useState<Array<DistrictResponse>>([]);
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
-  const [groups, setGroups] = useState<Array<GroupResponse>>([]);
   const [type, setType] = useState<Array<StoreTypeRequest>>([]);
+  const [lstDepartment, setLstDepartment] = useState<Array<DepartmentResponse>>();
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
@@ -158,8 +161,16 @@ const StoreCreateScreen: React.FC = () => {
     [dispatch, onCreateSuccess]
   );
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (data) setAccounts(data.items);
+  const onResult = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (data) {
+      setAccounts(data.items);
+    };
+  }, []); 
+
+   const onResDepartment = useCallback((data: DepartmentResponse | false) => {
+    if (data && data.children) {
+      setLstDepartment(data.children);
+    };
   }, []);
 
   useEffect(() => {
@@ -167,17 +178,19 @@ const StoreCreateScreen: React.FC = () => {
       dispatch(CountryGetAllAction(setCountries));
       dispatch(DistrictGetByCountryAction(DefaultCountry, setCityView));
       dispatch(StoreRankAction(setStoreRank));
-      dispatch(GroupGetAction(setGroups));
       dispatch(StoreGetTypeAction(setType));
       dispatch(
         AccountSearchAction(
-          {department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"},
-          setDataAccounts
+          {department_ids: [AppConfig.WM_DEPARTMENT], status: "active"},
+          onResult
         )
+      );
+      dispatch(
+        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT, onResDepartment)
       );
     }
     firstload.current = true;
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch, onResult, onResDepartment]);
 
   return (
     <ContentContainer
@@ -339,21 +352,7 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col> 
               </Row> 
-              <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập diện tích cửa hàng",
-                      },
-                    ]}
-                    label="Diện tích cửa hàng (m²)"
-                    name="square"
-                  >
-                    <NumberInput placeholder="Nhập diện tích cửa hàng" />
-                  </Item>
-                </Col>
+              <Row gutter={50}> 
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
                     rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
@@ -374,33 +373,42 @@ const StoreCreateScreen: React.FC = () => {
                     </Select>
                   </Item>
                 </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item 
+                    label="Diện tích cửa hàng (m²)"
+                    name="square"
+                  >
+                    <NumberInput placeholder="Nhập diện tích cửa hàng" />
+                  </Item>
+                </Col>
               </Row>
             </Card>
           </Col>
           <Col span={6}>
             <Card title="Thông tin tình trạng">
               <Row>
-              <Space key="a" size={15}> 
-                <Item name="status" label="Trạng thái">
-                  <Select
-                    onChange={(value) => {
-                      if (value === "inactive") {
-                        console.log(formMain.getFieldsValue(true));
-                        formMain.setFieldsValue({
-                          is_saleable: false,
-                        });
-                      }
-                    }}
-                    style={{width: 180}}
-                  >
-                    {storeStatusList?.map((item) => (
-                      <Option key={item.value} value={item.value}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Space>
+                 <Col span={24}>
+                    <Item name="status" 
+                      rules={[{required: true, message: "Vui lòng chọn trạng thái."}]}
+                      label="Trạng thái">
+                      <Select
+                        onChange={(value) => {
+                          if (value === "inactive") {
+                            console.log(formMain.getFieldsValue(true));
+                            formMain.setFieldsValue({
+                              is_saleable: false,
+                            });
+                          }
+                        }}
+                      >
+                        {storeStatusList?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Item>
+                 </Col>
               </Row>
               <Row>
               <Item
@@ -456,13 +464,7 @@ const StoreCreateScreen: React.FC = () => {
             <div className="padding-20">
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn phân cấp cửa hàng",
-                      },
-                    ]}
+                  <Item 
                     tooltip={{
                       overlayStyle: {
                         backgroundColor: "transparent",
@@ -484,7 +486,6 @@ const StoreCreateScreen: React.FC = () => {
                     name="rank"
                   >
                     <Select>
-                      <Option value={""}>Chọn phân cấp</Option>
                       {storeRanks.map((i, index) => (
                         <Option key={i.id} value={i.id}>
                           {i.code}
@@ -495,18 +496,22 @@ const StoreCreateScreen: React.FC = () => {
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
-                    rules={[{required: true, message: "Vui lòng chọn trực thuộc"}]}
-                    label="Trực thuộc"
-                    name="group_id"
-                  >
-                    <Select placeholder="Chọn trực thuộc">
-                      {groups.map((i, index) => (
-                        <Option key={i.id} value={i.id}>
-                          {i.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
+                      label="Trực thuộc"
+                      name="department_id"
+                    >
+                        <TreeSelect
+                          placeholder="Chọn trực thuộc"
+                          treeDefaultExpandAll
+                          className="selector"
+                          allowClear
+                          showSearch
+                          treeNodeFilterProp='title'
+                        >
+                          {lstDepartment?.map((item, index) => (
+                            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+                          ))}
+                        </TreeSelect> 
+                    </Item>
                 </Col>
               </Row>
               <Row gutter={50}>
@@ -528,7 +533,7 @@ const StoreCreateScreen: React.FC = () => {
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
                     label="VM phụ trách"
-                    name="merchendiser_code"
+                    name="vm_code"
                     tooltip={{
                       title: "Visual Merchandiser phụ trách",
                       icon: <InfoCircleOutlined />,
@@ -565,6 +570,6 @@ const StoreCreateScreen: React.FC = () => {
       </Form>
     </ContentContainer>
   );
-};
+}; 
 
 export default StoreCreateScreen;

@@ -1,5 +1,21 @@
 import {BaseObject} from "model/base/base.response";
 
+export enum Gender {
+  MALE = "MALE",
+  FEMALE ="FEMALE",
+  OTHER = "OTHER"
+}
+
+export enum CustomerSelectionOption {
+  ALL = "ALL",
+  PREREQUISITE = "PREREQUISITE",
+}
+export interface DateDuration  {
+  starts_mmdd_key?:number;
+  ends_mmdd_key?:number;
+  starts_day?:number;
+  ends_day?:number;
+}
 export interface DiscountResponse extends BaseObject {
   disabled: boolean;
   description: string;
@@ -25,6 +41,13 @@ export interface DiscountResponse extends BaseObject {
   total_usage_count: number;
   prerequisite_subtotal_range: PrerequisiteSubtotalRange;
   async_allocation_count?: number;
+  customer_selection: CustomerSelectionOption;
+  prerequisite_genders?: Array<string>;
+  prerequisite_birthday_duration?: DateDuration;
+  prerequisite_wedding_duration?: DateDuration;
+  prerequisite_customer_group_ids?: Array<number>;
+  prerequisite_customer_loyalty_level_ids?: Array<number>;
+  prerequisite_assignee_codes?: Array<string>;
 }
 
 export interface PrerequisiteSubtotalRange {

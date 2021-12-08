@@ -103,6 +103,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
         });
       });
       newProcumentLineItem.push({
+        barcode: item.barcode,
         accepted_quantity: 0,
         code: item.code,
         line_item_id: item.position,

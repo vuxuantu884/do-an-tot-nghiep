@@ -2,6 +2,10 @@ import styled from "styled-components";
 
 
 export const StyledCustomerCard = styled.div`
+  .page-header {
+    height: 80px;
+  }
+
   .customer-card {
     .ant-card-body {
       padding-top: 0;

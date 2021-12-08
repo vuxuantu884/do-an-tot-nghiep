@@ -8,6 +8,7 @@ import { StyledComponent } from "./styles";
 type PropType = {
   levelOrder?: number;
   orderAmount: number;
+  totalAmountExchangePlusShippingFee?: number;
   items: OrderLineItemRequest[] | undefined;
   discountRate?: number;
   discountValue?: number;
@@ -23,6 +24,7 @@ type PropType = {
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
   setCoupon?: (value: string) => void;
+  setCouponInputText?: (value: string) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -39,6 +41,7 @@ function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
     orderAmount,
+    totalAmountExchangePlusShippingFee,
     items,
     discountRate,
     discountValue,
@@ -56,8 +59,11 @@ function CardProductBottom(props: PropType) {
     setDiscountValue,
     calculateChangeMoney,
     setCoupon,
+    setCouponInputText,
     handleRemoveAllDiscount,
   } = props;
+
+  console.log('isDisableOrderDiscount', isDisableOrderDiscount)
 
   // console.log('coupon33', coupon)
   // console.log('discountRate', discountRate);
@@ -111,7 +117,7 @@ function CardProductBottom(props: PropType) {
                     calculateChangeMoney(items, amount, 0, 0);
                   }}
                 >
-                  {discountRate ? discountRate : 0}%{" "}
+                  {discountRate ? Math.round(discountRate*100)/100 : 0}%{" "}
                 </Tag>
               )}
             </Space>
@@ -152,6 +158,7 @@ function CardProductBottom(props: PropType) {
                     setDiscountValue && setDiscountValue(0);
                     handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
+                    setCouponInputText && setCouponInputText("");
                   }}
                 >
                   {couponInputText ? (
@@ -197,7 +204,7 @@ function CardProductBottom(props: PropType) {
               <Divider className="margin-top-5 margin-bottom-5" />
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng mua:</strong>
-                <strong>{formatCurrency(orderAmount)}</strong>
+                <strong>{totalAmountExchangePlusShippingFee && formatCurrency(totalAmountExchangePlusShippingFee)}</strong>
               </Row>
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng trả:</strong>

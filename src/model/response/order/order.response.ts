@@ -81,6 +81,7 @@ export interface OrderResponse extends BaseObject {
   shipment: ShipmentResponse | null | undefined;
   linked_order_code: string | null;
   ecommerce_shop_name: string | null;
+	automatic_discount?: boolean;
 }
 
 export interface OrderLineItemResponse {
@@ -117,7 +118,7 @@ export interface OrderLineItemResponse {
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {
-  maxQuantity: number;
+  maxQuantityCanBeReturned: number;
 }
 
 export interface FulFillmentResponse {
@@ -149,7 +150,7 @@ export interface FulFillmentResponse {
   discount_rate: number | null;
   discount_value: number | null;
   discount_amount: number | null;
-  total_line_amount_after_line_discount: number | null;
+  total_line_amount_after_line_discount: number;
   shipment: ShipmentResponse | null | undefined;
   billing_address: BillingAddress | null;
   items: Array<OrderLineItemResponse>;
@@ -356,8 +357,8 @@ export interface StoreCustomResponse extends BaseObject {
   country_name: string;
   city_id: number;
   city_name: string;
-  group_id: number;
-  group_name: string;
+  department: string;
+  department_id: number,
   status: string;
   status_name: string;
   zip_code: string;
@@ -366,21 +367,17 @@ export interface StoreCustomResponse extends BaseObject {
   ward_id: number;
   ward_name: string;
   address: string;
-  full_address: string;
   hotline: string;
-  manager_code: string;
+  vm:string;
   vm_code: string;
-  finder_code: string;
   mail: string;
   begin_date: string;
   number_of_account: number;
   accounts: Array<any>;
   is_saleable: boolean;
   is_stocktaking: boolean;
-  type: string,
-  type_name: string,
-  merchandiser_code:string,
-  merchandiser:string,
+  type: string;
+  type_name: string;
 }
 
 export interface OrderSubStatusResponse {

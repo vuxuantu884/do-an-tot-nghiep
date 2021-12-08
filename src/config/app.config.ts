@@ -1,21 +1,26 @@
 const abc = () => {
-  console.log('process.env', process.env);
-  return null
+  console.log("process.env", process.env);
+  return null;
 };
+
 export const AppConfig = {
   test: abc(),
-  baseUrl: process.env.REACT_APP_BASE_URL || 'http://localhost:3004',
+  baseUrl: process.env.REACT_APP_BASE_URL || "http://localhost:3004",
   timeOut: process.env.REACT_APP_TIME_OUT
     ? parseInt(process.env.REACT_APP_TIME_OUT)
     : 20000,
   production: process.env.REACT_APP_PRODUCTION,
+  ydPageUrl: process.env.REACT_APP_YDPAGE_URL,
   currency: "VNĐ",
   price_type: "retail_price",
   import_price: "import_price",
   channel_id: 1,
   DEFAULT_PAYMENT: 1,
   WIN_DEPARTMENT: 213,
+  WM_DEPARTMENT: 225,
+  BUSINESS_DEPARTMENT: 12,
   RD_DEPARTMENT: 15,
+  FASHION_INDUSTRY: "fashion",
   CONTENT_SERVICE: process.env.REACT_APP_CONTENT_SERVICE,
   PRODUCT_SERVICE: process.env.REACT_APP_PRODUCT_SERVICE,
   CORE_SERVICE: process.env.REACT_APP_CORE_SERVICE,
@@ -31,7 +36,8 @@ export const AppConfig = {
   ECOMMERCE_SERVICE: process.env.REACT_APP_ECOMMERCE_SERVICE,
   LOGISTIC_GATEWAY_SERVICE: process.env.REACT_APP_LOGISTIC_GATEWAY_SERVICE,
   INVENTORY_ADJUSTMENT_SERVICE: process.env.REACT_APP_INVENTORY_ADJUSTMENT_SERVICE,
-  PROMOTION_SERVICE: process.env.REACT_APP_PROMOTION_SERVICE || 'promotion-service',
+  PROMOTION_SERVICE: process.env.REACT_APP_PROMOTION_SERVICE || "promotion-service",
   ENTITLEMENTS_TEMPLATE_URL: process.env.REACT_APP_PROMOTIONS_ENTITLEMENTS_TEMPLATE_URL,
-  DISCOUNT_CODES_TEMPLATE_URL: process.env.REACT_APP_PROMOTIONS_DISCOUNT_CODES_TEMPLATE_URL
+  DISCOUNT_CODES_TEMPLATE_URL:
+    process.env.REACT_APP_PROMOTIONS_DISCOUNT_CODES_TEMPLATE_URL,
 };

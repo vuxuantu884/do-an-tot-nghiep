@@ -57,7 +57,8 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 
 import { StyledComponent } from "screens/ecommerce/products/tab/connected-items/styles";
 import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
-import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
+import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
@@ -397,11 +398,11 @@ const ConnectedItems: React.FC = () => {
       width: "150px",
       render: (item: any, v: any, i: any) => {
         return (
-          <StyledProductConnectStatus>
-            {item.connect_status === "connected" && (
-              <span className="success-status">Thành công</span>
-            )}
-          </StyledProductConnectStatus>
+          <StyledStatus>
+            {item.connect_status === "connected" && 
+              <div className="green-status" style={{ width: 120 }}>Thành công</div>
+            }
+          </StyledStatus>
         );
       },
     },
@@ -413,12 +414,11 @@ const ConnectedItems: React.FC = () => {
             <Tooltip
               overlay="Kết quả đồng bộ tồn kho lần gần nhất"
               placement="top"
-              trigger="click"
               color="blue"
             >
               <img
                 src={warningCircleIcon}
-                style={{ marginLeft: 5, cursor: "pointer" }}
+                style={{ marginLeft: 5 }}
                 alt=""
               />
             </Tooltip>
@@ -430,21 +430,23 @@ const ConnectedItems: React.FC = () => {
       width: "150px",
       render: (item: any, v: any, i: any) => {
         return (
-          <StyledProductConnectStatus>
+          <StyledStatus>
             {item.sync_stock_status === "done" && (
               <Tooltip title={convertDateTimeFormat(item.updated_date)}>
-                <span className="success-status">Thành công</span>
+                <div className="green-status" style={{ width: 120 }}>Thành công</div>
               </Tooltip>
             )}
+
             {item.sync_stock_status === "error" && (
               <Tooltip title="error">
-                <span className="error-status">Thất bại</span>
+                <div className="red-status" style={{ width: 120 }}>Thất bại</div>
               </Tooltip>
             )}
+
             {item.sync_stock_status === "in_progress" && (
-              <span className="warning-status">Đang xử lý</span>
+              <div className="yellow-status" style={{ width: 120 }}>Đang xử lý</div>
             )}
-          </StyledProductConnectStatus>
+          </StyledStatus>
         );
       },
     },

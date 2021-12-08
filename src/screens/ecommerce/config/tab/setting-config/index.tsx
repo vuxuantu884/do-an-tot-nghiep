@@ -25,21 +25,10 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
-
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
 import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
+import iconMap from "screens/ecommerce/common/ecommerce-icon";
 import { StyledConfig } from "screens/ecommerce/config/tab/setting-config/styles";
-
-const iconMap: any = {
-  shopee: shopeeIcon,
-  lazada: lazadaIcon,
-  tiki: tikiIcon,
-  sendo: sendoIcon,
-};
 
 const { Option } = Select;
 
@@ -305,7 +294,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                       {
                         <img
                           style={{ marginRight: 8, paddingBottom: 4 }}
-                          src={iconMap[configFromEcommerce.ecommerce]}
+                          src={iconMap[configFromEcommerce.ecommerce.toLowerCase()]}
                           alt=""
                         />
                       }
@@ -322,7 +311,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                         {
                           <img
                             style={{ marginRight: 8, paddingBottom: 4 }}
-                            src={iconMap[item.ecommerce]}
+                            src={iconMap[item.ecommerce.toLowerCase()]}
                             alt=""
                           />
                         }
@@ -356,6 +345,14 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                     <span className="fw-500">: {configDetail?.id || "---"}</span>
                   </Col>
                 </Row>
+                {configDetail?.email &&
+                  <Row>
+                    <Col span={5}>Email</Col>
+                    <Col span={19}>
+                      <span className="fw-500">: {configDetail.email}</span>
+                    </Col>
+                  </Row>
+                }
               </div>
             </Col>
           </Row>
@@ -442,6 +439,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Form.Item
                 label={<span>Nhân viên bán hàng</span>}
                 name="assign_account_code"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn nhân viên bán hàng",
+                  },
+                ]}
               >
                 <Select
                   disabled={!configDetail || !allowShopsUpdate}
@@ -463,6 +466,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Form.Item
                 label={<span>Nguồn đơn hàng</span>}
                 name="source_id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn nguồn đơn hàng",
+                  },
+                ]}
               >
                 <Select
                   disabled={!configDetail || !allowShopsUpdate}
@@ -516,6 +525,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   disabled={!configDetail || !allowShopsUpdate}
                   onChange={handleStoreChange}
                   mode="multiple"
+                  maxTagCount='responsive'
                   className="dropdown-rule"
                   showArrow
                   showSearch
@@ -549,9 +559,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   placeholder="Chọn kiểu đồng bộ tồn kho"
                   disabled={!configDetail || !allowShopsUpdate}
                 >
-                  <Option value={"auto"}>
-                    <span>Tự động</span>
-                  </Option>
+                  <Option value={"auto"}>Tự động</Option>
                   <Option value={"manual"}>Thủ công</Option>
                 </Select>
               </Form.Item>
@@ -591,9 +599,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   placeholder="Chọn kiểu đồng bộ đơn hàng"
                   disabled={!configDetail || !allowShopsUpdate}
                 >
-                  <Option value={"auto"}>
-                    <span>Tự động</span>
-                  </Option>
+                  <Option value={"auto"}>Tự động</Option>
                   <Option value={"manual"}>Thủ công</Option>
                 </Select>
               </Form.Item>

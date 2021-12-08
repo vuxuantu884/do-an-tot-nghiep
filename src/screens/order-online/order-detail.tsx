@@ -1,55 +1,61 @@
-import { Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag } from "antd";
+import {Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag} from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import ActionHistory from "component/order/Sidebar/ActionHistory";
+import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
+import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { StoreDetailAction } from "domain/actions/core/store.action";
-import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
-import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
+import {AccountSearchAction} from "domain/actions/account/account.action";
+import {StoreDetailAction} from "domain/actions/core/store.action";
+import {getCustomerDetailAction} from "domain/actions/customer/customer.action";
+import {getLoyaltyPoint, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
+import {actionSetIsReceivedOrderReturn} from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
   confirmDraftOrderAction,
   getListReasonRequest,
   OrderDetailAction,
   PaymentMethodGetList,
-  UpdatePaymentAction
+  UpdatePaymentAction,
 } from "domain/actions/order/order.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { thirdPLModel } from "model/order/shipment.model";
-import { OrderSettingsModel } from "model/other/order/order-model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {thirdPLModel} from "model/order/shipment.model";
+import {OrderSettingsModel} from "model/other/order/order-model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   OrderPaymentRequest,
-  UpdateOrderPaymentRequest
+  UpdateOrderPaymentRequest,
 } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import {CustomerResponse} from "model/response/customer/customer.response";
+import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
+import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
+import {OrderResponse, StoreCustomResponse} from "model/response/order/order.response";
+import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory, useParams} from "react-router-dom";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,
   formatCurrency,
   getAmountPayment,
-  SumCOD
+  SumCOD,
 } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
+import {
+  FulFillmentStatus,
+  OrderStatus,
+  PaymentMethodCode,
+  PaymentMethodOption,
+  ShipmentMethodOption,
+} from "utils/Constants";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {showSuccess} from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
-import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
-import SidebarOrderDetailExtraInformation from "./component/order-detail/Sidebar/SidebarOrderDetailExtraInformation";
-import SidebarOrderDetailInformation from "./component/order-detail/Sidebar/SidebarOrderDetailInformation";
-import SidebarOrderHistory from "./component/order-detail/Sidebar/SidebarOrderHistory";
 import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
@@ -57,7 +63,7 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
-const { Panel } = Collapse;
+const {Panel} = Collapse;
 
 type PropType = {
   id?: string;
@@ -101,7 +107,9 @@ const OrderDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
-  const [reasons, setReasons] = useState<Array<{ id: number; name: string, sub_reasons: any[] }>>([]);
+  const [reasons, setReasons] = useState<
+    Array<{id: number; name: string; sub_reasons: any[]}>
+  >([]);
   // đổi hàng
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
@@ -115,7 +123,7 @@ const OrderDetail = (props: PropType) => {
     Array<LoyaltyUsageResponse>
   >([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  console.log('isDisablePostPayment', isDisablePostPayment)
+  console.log("isDisablePostPayment", isDisablePostPayment);
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -158,13 +166,13 @@ const OrderDetail = (props: PropType) => {
             payment_method: returnMoneyMethod.name,
             amount: -Math.abs(
               customerNeedToPayValue -
-              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
             ),
             reference: "",
             source: "",
             paid_amount: -Math.abs(
               customerNeedToPayValue -
-              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
             ),
             return_amount: 0.0,
             status: "paid",
@@ -300,9 +308,8 @@ const OrderDetail = (props: PropType) => {
       } else {
         setIsShowConfirmOrderButton(false);
       }
-      if(_data.order_return_origin?.total_amount) {
-        setTotalAmountReturnProducts(_data.order_return_origin?.total_amount)
-
+      if (_data.order_return_origin?.total_amount) {
+        setTotalAmountReturnProducts(_data.order_return_origin?.total_amount);
       }
     }
   }, []);
@@ -313,17 +320,26 @@ const OrderDetail = (props: PropType) => {
 
   const onSuccessCancel = () => {
     setReload(true);
-    setVisibleCancelModal(false)
+    setVisibleCancelModal(false);
   };
 
   const onError = () => {
     // setReload(true)
-    setVisibleCancelModal(false)
+    setVisibleCancelModal(false);
   };
 
   const handleCancelOrder = useCallback(
     (reason_id: string, sub_reason_id: string, reason: string) => {
-      dispatch(cancelOrderRequest(OrderId, Number(reason_id), Number(sub_reason_id), reason, onSuccessCancel, onError));
+      dispatch(
+        cancelOrderRequest(
+          OrderId,
+          Number(reason_id),
+          Number(sub_reason_id),
+          reason,
+          onSuccessCancel,
+          onError
+        )
+      );
     },
     [OrderId, dispatch]
   );
@@ -369,7 +385,7 @@ const OrderDetail = (props: PropType) => {
           console.log("response", response);
           // handleReload();
           setReload(true);
-        },)
+        })
       );
     }
   };
@@ -463,8 +479,8 @@ const OrderDetail = (props: PropType) => {
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
         (OrderDetail?.discounts &&
-          OrderDetail?.discounts.length > 0 &&
-          OrderDetail?.discounts[0].amount
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
           ? OrderDetail?.discounts[0].amount
           : 0)
       );
@@ -473,8 +489,8 @@ const OrderDetail = (props: PropType) => {
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
         (OrderDetail?.discounts &&
-          OrderDetail?.discounts.length > 0 &&
-          OrderDetail?.discounts[0].amount
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
           ? OrderDetail?.discounts[0].amount
           : 0)
       );
@@ -495,12 +511,13 @@ const OrderDetail = (props: PropType) => {
     returnMoneyField: [{returnMoneyMethod: undefined, returnMoneyNote: undefined}],
   };
 
-  const totalAmountCustomerNeedToPay = (OrderDetail?.total_line_amount_after_line_discount || 0) +
-  shippingFeeInformedCustomer;
-console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
+  const totalAmountCustomerNeedToPay =
+    (OrderDetail?.total_line_amount_after_line_discount || 0) +
+    shippingFeeInformedCustomer;
+  console.log("totalAmountCustomerNeedToPay111", totalAmountCustomerNeedToPay);
 
   const onSelectShipment = (value: number) => {
-    console.log('value', value)
+    console.log("value", value);
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
@@ -534,7 +551,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
       );
     }
   };
-  console.log(renderShipment)
+  console.log(renderShipment);
 
   useEffect(() => {
     window.addEventListener("scroll", scroll);
@@ -566,7 +583,9 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
           name: "Đơn hàng",
         },
         {
-          name: `Đơn hàng ${OrderDetail?.code}`,
+          name: OrderDetail?.code
+            ? `Đơn hàng ${OrderDetail?.code}`
+            : "Đang tải dữ liệu...",
         },
       ]}
       extra={
@@ -596,6 +615,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                   totalAmountReturnToCustomer={
                     OrderDetail?.order_return_origin.total_amount
                   }
+                  OrderDetail={OrderDetail}
                 />
               )}
 
@@ -611,25 +631,26 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
 
               {OrderDetail?.order_return_origin?.items &&
                 customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
-                0 && (
+                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                  0 && (
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}
                     returnMoneyAmount={Math.abs(
                       customerNeedToPayValue -
-                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
                     )}
                     isShowPaymentMethod={true}
-                    setIsShowPaymentMethod={() => { }}
+                    setIsShowPaymentMethod={() => {}}
                     handleReturnMoney={handleReturnMoney}
                   />
                 )}
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
-                OrderDetail?.payments &&
-                OrderDetail?.payments?.length > 0 && (
+                ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
+                  (OrderDetail.fulfillments &&
+                    OrderDetail.fulfillments[0]?.shipment?.cod)) && (
                   <Card
                     title={
                       <Space>
@@ -678,23 +699,23 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                           <span className="text-field margin-right-40">
                             {customerNeedToPayValue -
                               (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) >=
-                              0
+                            0
                               ? `Còn phải trả:`
                               : `Hoàn tiền cho khách:`}
                           </span>
                           <b style={{color: "red"}}>
                             {OrderDetail?.fulfillments &&
-                              OrderDetail?.fulfillments.length > 0 &&
-                              OrderDetail?.fulfillments[0].shipment?.cod
+                            OrderDetail?.fulfillments.length > 0 &&
+                            OrderDetail?.fulfillments[0].shipment?.cod
                               ? 0
                               : formatCurrency(
-                                Math.abs(
-                                  customerNeedToPayValue -
-                                  (OrderDetail?.total_paid
-                                    ? OrderDetail?.total_paid
-                                    : 0)
-                                )
-                              )}
+                                  Math.abs(
+                                    customerNeedToPayValue -
+                                      (OrderDetail?.total_paid
+                                        ? OrderDetail?.total_paid
+                                        : 0)
+                                  )
+                                )}
                           </b>
                         </Col>
                       </Row>
@@ -709,7 +730,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                             ghost
                           >
                             {OrderDetail.total === SumCOD(OrderDetail) &&
-                              OrderDetail.total === OrderDetail.total_paid ? (
+                            OrderDetail.total === OrderDetail.total_paid ? (
                               ""
                             ) : (
                               <>
@@ -738,7 +759,9 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                                                   ? "Hoàn tiền cho khách"
                                                   : payment.payment_method}
                                               </b>
-                                              <span style={{marginLeft: 12}}>{payment.reference}</span>
+                                              <span style={{marginLeft: 12}}>
+                                                {payment.reference}
+                                              </span>
                                               {payment.payment_method_id === 5 && (
                                                 <span style={{marginLeft: 10}}>
                                                   {payment.amount / 1000} điểm
@@ -787,7 +810,9 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                                   <UpdatePaymentCard
                                     setPaymentMethod={onPaymentSelect}
                                     setVisibleUpdatePayment={setVisibleUpdatePayment}
-                                    setShowPaymentPartialPayment={setShowPaymentPartialPayment}
+                                    setShowPaymentPartialPayment={
+                                      setShowPaymentPartialPayment
+                                    }
                                     setPayments={onPayments}
                                     // setTotalPaid={setTotalPaid}
                                     orderDetail={OrderDetail}
@@ -800,8 +825,8 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                                       OrderDetail.total_line_amount_after_line_discount -
                                       getAmountPayment(OrderDetail.payments) -
                                       (OrderDetail?.discounts &&
-                                        OrderDetail?.discounts.length > 0 &&
-                                        OrderDetail?.discounts[0].amount
+                                      OrderDetail?.discounts.length > 0 &&
+                                      OrderDetail?.discounts[0].amount
                                         ? OrderDetail?.discounts[0].amount
                                         : 0)
                                     }
@@ -838,7 +863,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                                           <b>
                                             COD
                                             {OrderDetail.fulfillments[0].status !==
-                                              "shipped" ? (
+                                            "shipped" ? (
                                               <Tag
                                                 className="orders-tag orders-tag-warning"
                                                 style={{marginLeft: 10}}
@@ -861,26 +886,26 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                                           </b>
                                           <span className="amount">
                                             {OrderDetail !== null &&
-                                              OrderDetail?.fulfillments
+                                            OrderDetail?.fulfillments
                                               ? formatCurrency(
-                                                OrderDetail.fulfillments[0].shipment
-                                                  ?.cod
-                                              )
+                                                  OrderDetail.fulfillments[0].shipment
+                                                    ?.cod
+                                                )
                                               : 0}
                                           </span>
                                         </div>
                                         <div className="orderPaymentItem__right">
                                           {OrderDetail?.fulfillments[0].status ===
                                             "shipped" && (
-                                              <div>
-                                                <span className="date">
-                                                  {ConvertUtcToLocalDate(
-                                                    OrderDetail?.updated_date,
-                                                    "DD/MM/YYYY HH:mm"
-                                                  )}
-                                                </span>
-                                              </div>
-                                            )}
+                                            <div>
+                                              <span className="date">
+                                                {ConvertUtcToLocalDate(
+                                                  OrderDetail?.updated_date,
+                                                  "DD/MM/YYYY HH:mm"
+                                                )}
+                                              </span>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     </>
@@ -910,151 +935,15 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                               // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
                               disabled={
                                 OrderDetail.source_code !== "POS" &&
-                               ( stepsStatusValue === OrderStatus.CANCELLED ||
-                                stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                                disabledBottomActions)
+                                (stepsStatusValue === OrderStatus.CANCELLED ||
+                                  stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                                  disabledBottomActions)
                               }
                             >
                               Thanh toán
                             </Button>
                           </div>
                         ))}
-                  </Card>
-                )}
-
-              {/* COD toàn phần */}
-              {OrderDetail &&
-                OrderDetail.fulfillments &&
-                OrderDetail.fulfillments.length > 0 &&
-                OrderDetail.fulfillments[0].shipment &&
-                OrderDetail.fulfillments[0].shipment?.cod ===
-                (OrderDetail?.fulfillments[0].shipment
-                  .shipping_fee_informed_to_customer
-                  ? OrderDetail?.fulfillments[0].shipment
-                    .shipping_fee_informed_to_customer
-                  : 0) +
-                OrderDetail?.total_line_amount_after_line_discount -
-                (OrderDetail?.discounts &&
-                  OrderDetail?.discounts.length > 0 &&
-                  OrderDetail?.discounts[0].amount
-                  ? OrderDetail?.discounts[0].amount
-                  : 0) &&
-                checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                  <Card
-                    title={
-                      <Space>
-                        <div className="d-flex">
-                          <span className="title-card">THANH TOÁN</span>
-                        </div>
-                        {checkPaymentStatusToShow(OrderDetail) === 1 && (
-                          <Tag
-                            className="orders-tag orders-tag-success"
-                            style={{
-                              backgroundColor: "rgba(39, 174, 96, 0.1)",
-                              color: "#27AE60",
-                            }}
-                          >
-                            Đã thanh toán
-                          </Tag>
-                        )}
-                      </Space>
-                    }
-                  >
-                    <div style={{marginBottom: 20}}>
-                      <Row>
-                        <Col span={12}>
-                          <span className="text-field margin-right-40">
-                            Đã thanh toán:
-                          </span>
-                          <b>0</b>
-                        </Col>
-                        <Col span={12}>
-                          <span className="text-field margin-right-40">
-                            Còn phải trả:
-                          </span>
-                          <b style={{color: "red"}}>0</b>
-                        </Col>
-                      </Row>
-                    </div>
-                    <Divider style={{margin: "0px"}} />
-                    <div style={{padding: "20px 20px 0 20px"}}>
-                      <Collapse
-                        className="orders-timeline"
-                        defaultActiveKey={["1"]}
-                        ghost
-                      >
-                        <Panel
-                          className={
-                            OrderDetail?.fulfillments[0].status !== "shipped"
-                              ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
-                              : "orders-timeline-custom orders-dot-fullCod-status"
-                          }
-                          showArrow={false}
-                          header={
-                            <div
-                              style={{
-                                color: "#222222",
-                                paddingTop: 4,
-                                fontWeight: 500,
-                              }}
-                            >
-                              COD
-                              <Tag
-                                className="orders-tag orders-tag-warning"
-                                style={{marginLeft: 10}}
-                              >
-                                Đang chờ thu
-                              </Tag>
-                              <b
-                                style={{
-                                  marginLeft: "200px",
-                                  color: "#222222",
-                                }}
-                              >
-                                {OrderDetail.fulfillments
-                                  ? formatCurrency(
-                                    OrderDetail.fulfillments[0].shipment?.cod
-                                  )
-                                  : 0}
-                              </b>
-                            </div>
-                          }
-                          key="1"
-                        >
-                          <Row gutter={24}>
-                            {OrderDetail?.payments &&
-                              OrderDetail?.payments.map((item, index) => (
-                                <Col span={12} key={item.id}>
-                                  <p className="text-field">{item.payment_method}</p>
-                                  <p>{formatCurrency(item.paid_amount)}</p>
-                                </Col>
-                              ))}
-                          </Row>
-                        </Panel>
-                      </Collapse>
-                    </div>
-                    {OrderDetail?.payments !== null
-                      ? OrderDetail?.payments.map(
-                        (item, index) =>
-                          OrderDetail.total !== null &&
-                          OrderDetail.total - item.paid_amount !== 0 && (
-                            <div className="padding-24 text-right">
-                              <Button
-                                key={index}
-                                type="primary"
-                                className="ant-btn-outline fixed-button"
-                                disabled={
-                                  stepsStatusValue === OrderStatus.CANCELLED ||
-                                  stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                                  disabledBottomActions
-                                }
-                              >
-                                Thanh toán
-                              </Button>
-                            </div>
-                          )
-                      )
-                      : "Chưa thanh toán"}
                   </Card>
                 )}
 
@@ -1065,7 +954,7 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                   (OrderDetail?.fulfillments &&
                     OrderDetail.fulfillments[0].shipment === null)) && (
                   <UpdatePaymentCard
-                  setPaymentMethod={onPaymentSelect}
+                    setPaymentMethod={onPaymentSelect}
                     setPayments={onPayments}
                     paymentMethod={paymentMethod}
                     shipmentMethod={shipmentMethod}
@@ -1079,9 +968,9 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                     // đơn POS vẫn cho thanh toán tiếp khi chưa thanh toán đủ
                     disabled={
                       OrderDetail.source_code !== "POS" &&
-                     (stepsStatusValue === OrderStatus.CANCELLED ||
-                      stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                      disabledBottomActions)
+                      (stepsStatusValue === OrderStatus.CANCELLED ||
+                        stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                        disabledBottomActions)
                     }
                     reload={() => {
                       setReload(true);
@@ -1110,8 +999,8 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
                   OrderDetail?.total_paid
                     ? OrderDetail?.total_paid
                     : paymentMethod === 2
-                    // ? totalPaid
-                    ? 0
+                    ? // ? totalPaid
+                      0
                     : 0
                 }
                 officeTime={officeTime}
@@ -1187,7 +1076,9 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
         visible={visibleCancelModal}
         orderCode={OrderDetail?.code}
         onCancel={() => setVisibleCancelModal(false)}
-        onOk={(reason_id: string, sub_reason_id: string, reason: string) => handleCancelOrder(reason_id, sub_reason_id, reason)}
+        onOk={(reason_id: string, sub_reason_id: string, reason: string) =>
+          handleCancelOrder(reason_id, sub_reason_id, reason)
+        }
         reasons={reasons}
       />
     </ContentContainer>

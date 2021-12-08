@@ -25,7 +25,10 @@ function OrderReturnReason(props: PropType): React.ReactElement {
       if (!value) {
         return;
       }
-      form.setFieldsValue({reason: ""})
+			if(+value!==OTHER_REASON_ID) {
+				form.setFieldsValue({reason: null});
+			}
+      form.setFieldsValue({sub_reason_id: null});
       setReasonID(+value);
       const reasonDetails = listOrderReturnReason.find(
         (reason: any) => reason.id === value
@@ -46,7 +49,11 @@ function OrderReturnReason(props: PropType): React.ReactElement {
       return <div>Vui lòng chọn lý do hủy đơn!</div>;
     } else if (reasonSubs.length > 0) {
       return (
-        <Form.Item label="Chọn lý do chi tiết" name="sub_reason_id">
+        <Form.Item
+          label="Chọn lý do chi tiết"
+          name="sub_reason_id"
+          rules={[{required: true, message: "Vui lòng chọn lý do chi tiết!"}]}
+        >
           <CustomSelect
             showSearch
             placeholder="Chọn lý do chi tiết"
@@ -70,9 +77,9 @@ function OrderReturnReason(props: PropType): React.ReactElement {
         </Form.Item>
       );
     } else {
-      if(reasonID === OTHER_REASON_ID) {
+      if (reasonID === OTHER_REASON_ID) {
         return (
-          <Form.Item label="Lý do khác">
+          <Form.Item label="Lý do khác" name="reason">
             <Input.TextArea
               onChange={(e) => form.setFieldsValue({reason: e.target.value})}
               style={{width: "100%", height: "80px"}}
@@ -80,14 +87,13 @@ function OrderReturnReason(props: PropType): React.ReactElement {
             />
           </Form.Item>
         );
-
       }
     }
   };
 
   return (
     <StyledComponent>
-      <Card 
+      <Card
         title={
           <React.Fragment>
             Lý do đổi/trả hàng
@@ -123,9 +129,6 @@ function OrderReturnReason(props: PropType): React.ReactElement {
           </Select>
         </Form.Item>
         {renderSubReason()}
-        <Form.Item noStyle hidden name="reason">
-          <Input />
-        </Form.Item>
       </Card>
     </StyledComponent>
   );

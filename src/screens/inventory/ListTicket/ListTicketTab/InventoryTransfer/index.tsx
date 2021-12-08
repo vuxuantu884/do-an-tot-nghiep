@@ -33,7 +33,6 @@ import {
   CopyOutlined,
   ExportOutlined,
   FormOutlined,
-  ImportOutlined,
   PaperClipOutlined,
   PrinterOutlined,
   StopOutlined,
@@ -126,9 +125,6 @@ const InventoryTransferTab: React.FC = () => {
   );
 
   //phân quyền
-  const [allowImportFromExcel] = useAuthorization({
-    acceptPermissions: [InventoryTransferPermission.import],
-  });
   const [allowCancel] = useAuthorization({
     acceptPermissions: [InventoryTransferPermission.cancel],
   });
@@ -140,12 +136,12 @@ const InventoryTransferTab: React.FC = () => {
   });
 
   const actions: Array<MenuAction> = [
-    {
-      id: ACTIONS_INDEX.ADD_FORM_EXCEL,
-      name: "Thêm mới từ Excel",
-      icon: <ImportOutlined />,
-      disabled: !allowImportFromExcel,
-    },
+    // {
+    //   id: ACTIONS_INDEX.ADD_FORM_EXCEL,
+    //   name: "Thêm mới từ Excel",
+    //   icon: <ImportOutlined />,
+    //   disabled: !allowImportFromExcel,
+    // },
     {
       id: ACTIONS_INDEX.WATCH_MANY_TICKET,
       name: "Xem nhiều phiếu",
@@ -461,9 +457,9 @@ const InventoryTransferTab: React.FC = () => {
         case ACTIONS_INDEX.PRINT:
           printTicketAction(index);
           break;
-        case ACTIONS_INDEX.ADD_FORM_EXCEL:
-          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`);
-          break;
+        // case ACTIONS_INDEX.ADD_FORM_EXCEL:
+        //   history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`);
+        //   break;
         case ACTIONS_INDEX.MAKE_COPY:
           history.push(
             `${UrlConfig.INVENTORY_TRANSFERS}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`

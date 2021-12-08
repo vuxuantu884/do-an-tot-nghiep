@@ -1,6 +1,7 @@
 import { Button, Card, Col, FormInstance, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
+import OrderPayments from "component/order/OrderPayments";
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { UpdatePaymentAction } from "domain/actions/order/order.action";
 import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/order.request";
@@ -151,10 +152,10 @@ function UpdatePaymentCard(props: PropType) {
     setShowPaymentPartialPayment && setShowPaymentPartialPayment(false);
   };
 
-  const renderPaymentMethod = () => {
-    return (
+	const renderFullPaymentMethod = () => {
+		return (
       <div className="create-order-payment 222">
-        <OrderCreatePayments
+				<OrderCreatePayments
           setPaymentMethod={setPaymentMethod}
           payments={paymentData}
           setPayments={setPaymentData}
@@ -165,39 +166,62 @@ function UpdatePaymentCard(props: PropType) {
           listPaymentMethod={listPaymentMethods}
           isDisablePostPayment={isDisablePostPayment}
         />
-				{paymentMethod === PaymentMethodOption.PREPAYMENT && (
-					<Row gutter={24} style={{marginTop: "20px"}}>
-						<Col xs={24} lg={24}>
-							<div>
-								<Button
-									type="primary"
-									className="ant-btn-outline fixed-button text-right"
-									style={{float: "right", padding: "0 25px"}}
-									htmlType="submit"
-									onClick={ShowConfirmPayment}
-									loading={createPayment}
-								>
-									Tạo thanh toán
-								</Button>
-								<Button
-									type="default"
-									className={`ant-btn-outline fixed-button text-right ${
-										createPayment ? "disabled-cancel" : ""
-									}`}
-									style={{
-										float: "right",
-										marginRight: "10px",
-										padding: "0 25px",
-									}}
-									onClick={cancelPayment}
-									disabled={createPayment}
-								>
-									Hủy
-								</Button>
-							</div>
-						</Col>
-					</Row>
-				)}
+				{renderButtons()}
+      </div>
+    ); 
+	};
+
+	const renderButtons = () => {
+		let html = null;
+		if(paymentMethod === PaymentMethodOption.PREPAYMENT) {
+			html = (
+				<Row gutter={24} style={{marginTop: "20px"}}>
+					<Col xs={24} lg={24}>
+						<div>
+							<Button
+								type="primary"
+								className="ant-btn-outline fixed-button text-right"
+								style={{float: "right", padding: "0 25px"}}
+								htmlType="submit"
+								onClick={ShowConfirmPayment}
+								loading={createPayment}
+							>
+								Tạo thanh toán
+							</Button>
+							<Button
+								type="default"
+								className={`ant-btn-outline fixed-button text-right ${
+									createPayment ? "disabled-cancel" : ""
+								}`}
+								style={{
+									float: "right",
+									marginRight: "10px",
+									padding: "0 25px",
+								}}
+								onClick={cancelPayment}
+								disabled={createPayment}
+							>
+								Hủy
+							</Button>
+						</div>
+					</Col>
+				</Row>
+			)
+		}
+		return html;
+	};
+
+  const renderOnlyPaymentMethod = () => {
+    return (
+      <div className="create-order-payment 222">
+				<OrderPayments
+					payments={paymentData}
+					setPayments={setPaymentData}
+					totalAmountOrder={amount}
+					loyaltyRate={loyaltyRate}
+					listPaymentMethod={listPaymentMethods}
+				/>
+				{renderButtons()}
       </div>
     );
   };
@@ -233,7 +257,7 @@ function UpdatePaymentCard(props: PropType) {
         title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
         text={textValue}
       />
-      {props.showPartialPayment && renderPaymentMethod()}
+      {props.showPartialPayment && renderOnlyPaymentMethod()}
       {props.showPartialPayment === false && (
         <Card
           className="margin-top-20 orders-update-payment"
@@ -243,7 +267,7 @@ function UpdatePaymentCard(props: PropType) {
             </div>
           }
         >
-          {props.isVisibleUpdatePayment === true && renderPaymentMethod()}
+          {props.isVisibleUpdatePayment === true && renderFullPaymentMethod()}
 
           {props.isVisibleUpdatePayment === false && (
             <div>

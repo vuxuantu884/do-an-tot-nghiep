@@ -20,14 +20,13 @@ import eyeOutline from "assets/icon/eye_outline.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-	AccountSearchAction,
 	ShipperGetListAction
 } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -48,7 +47,6 @@ import {
 	PaymentMethodGetList
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -87,14 +85,14 @@ import {
 	checkPaymentStatus,
 	checkPaymentStatusToShow,
 	CheckShipmentType,
-	formatCurrency, getAmountPaymentRequest,
-	getTotalAmountAfferDiscount,
+	formatCurrency, getAccountCodeFromCodeAndName, getAmountPaymentRequest,
+	getTotalAmountAfterDiscount,
 	SumCOD,
 	SumWeightResponse,
 	TrackingCode
 } from "utils/AppUtils";
 import {
-	FulFillmentStatus, OrderStatus,
+	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
 	ShipmentMethodOption,
@@ -102,7 +100,6 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { DEFAULT_COMPANY } from "utils/Constants";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 // import CardProduct from "./component/order-detail/CardProduct";
@@ -149,7 +146,6 @@ export default function Order(props: PropType) {
   // const [shippingFeeInformedToCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
   //   null
   // );
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [tags, setTag] = useState<string>("");
@@ -337,10 +333,13 @@ export default function Order(props: PropType) {
     payments: [],
     channel_id: null,
     finalized: false,
+		automatic_discount: true,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
+
+	console.log('setInitialForm', setInitialForm)
 
   const onChangeTag = useCallback(
     (value: []) => {
@@ -645,11 +644,14 @@ export default function Order(props: PropType) {
 
   const onFinish = (values: OrderRequest) => {
     if (!OrderDetail) return;
+		values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
+		values.marketer_code = getAccountCodeFromCodeAndName(values.marketer_code);
+		values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
 
@@ -751,13 +753,6 @@ export default function Order(props: PropType) {
       }
     }
   };
-
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -864,10 +859,6 @@ export default function Order(props: PropType) {
     }
   }, [dispatch, storeId]);
 
-  useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
-
   //windows offset
   useEffect(() => {
     window.addEventListener("scroll", scroll);
@@ -895,9 +886,9 @@ export default function Order(props: PropType) {
     });
   }, []);
 
-  const fetchData = () => {
+  const fetchData = () =>  {
     dispatch(
-      OrderDetailAction(id, (res) => {
+      OrderDetailAction(id, async (res) => {
         const response = {
           ...res,
           // ffm des id
@@ -978,10 +969,10 @@ export default function Order(props: PropType) {
 
           setItems(responseItems);
           setOrderAmount(
-            response.total - (response.shipping_fee_informed_to_customer || 0)
+            response.total_line_amount_after_line_discount - (response.shipping_fee_informed_to_customer || 0)
           );
-          setInitialForm({
-            ...initialForm,
+					form.setFieldsValue({
+						...initialForm,
             customer_note: response.customer_note,
             source_id: response.source_id,
             assignee_code: response.assignee_code,
@@ -995,10 +986,11 @@ export default function Order(props: PropType) {
             url: response.url,
             note: response.note,
             tags: response.tags,
-            marketer_code: response.marketer_code,
-            coordinator_code: response.coordinator_code,
+						marketer_code: response.marketer_code ? response.marketer_code : null,
+						coordinator_code: response.coordinator_code ? response.coordinator_code :null,
             sub_status_code: response.sub_status_code,
-          });
+						automatic_discount: response.automatic_discount,
+					});
           let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
           if (
             response.fulfillments &&
@@ -1813,8 +1805,8 @@ export default function Order(props: PropType) {
                                     }
                                     showArrow={true}
                                     header={
-                                      <div className="saleorder-header-content">
-                                        <div className="saleorder-header-content__info">
+                                      <div className="saleorder-header-content" style={{display: "flex", width: "100%", padding: 0}}>
+                                        <div className="saleorder-header-content__info" style={{display: "flex", width: "100%"}}>
                                           <span
                                             className="text-field"
                                             style={{
@@ -1856,7 +1848,7 @@ export default function Order(props: PropType) {
                                             />}
                                         </div>
 
-                                        <div className="saleorder-header-content__date">
+                                        <div className="saleorder-header-content__date" style={{display: "flex", width: "100%", alignItems: "center"}}>
                                           {(fulfillment.status === FulFillmentStatus.CANCELLED ||
                                             fulfillment.status === FulFillmentStatus.RETURNING ||
                                             fulfillment.status === FulFillmentStatus.RETURNED) ?
@@ -2354,11 +2346,12 @@ export default function Order(props: PropType) {
                 </Col>
                 <Col md={6}>
                   <CreateOrderSidebar
-                    accounts={accounts}
                     tags={tags}
                     onChangeTag={onChangeTag}
                     customerId={customer?.id}
                     listOrderSubStatus={listOrderSubStatus}
+										form={form}
+                    storeId={storeId}
                   />
                 </Col>
               </Row>

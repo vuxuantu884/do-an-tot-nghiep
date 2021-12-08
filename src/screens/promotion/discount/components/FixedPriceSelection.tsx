@@ -157,8 +157,7 @@ const FixedPriceSelection = (props: any) => {
           >
             Huỷ
           </Button>,
-
-          <Button key="link" type="primary" onClick={() => handleImportEntitlements()}>
+          <Button key="link" type="primary" onClick={() => handleImportEntitlements()} disabled={uploadStatus === "error"}>
             Nhập file
           </Button>,
         ]}

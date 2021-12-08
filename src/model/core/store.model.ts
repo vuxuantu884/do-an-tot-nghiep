@@ -11,8 +11,8 @@ export interface StoreResponse extends BaseObject {
   country_name: string,
   city_id: number,
   city_name: string,
-  group_id: number,
-  group_name: string
+  department_id: number,
+  department: string,
   status: string,
   status_name: string,
   zip_code: string,
@@ -21,11 +21,9 @@ export interface StoreResponse extends BaseObject {
   ward_id: number,
   ward_name: string,
   address: string,
-  full_address: string,
   hotline: string,
-  manager_code: string,
+  vm:string,
   vm_code: string,
-  finder_code: string,
   mail: string,
   begin_date: string,
   number_of_account: number,
@@ -34,8 +32,6 @@ export interface StoreResponse extends BaseObject {
   is_stocktaking: boolean,
   type: string,
   type_name: string, 
-  merchandiser_code:string,
-  merchandiser:string,
 }
 
 export interface StoreQuery extends BaseQuery {
@@ -59,6 +55,7 @@ export interface StoreQuery extends BaseQuery {
     to_begin_date?: Date|'',
     to_square?: number|'',
     type: string|'',
+    ids?: Array<number>| Array<string>,
   }
 
   export interface BaseStoreRequest {
@@ -81,7 +78,8 @@ export interface StoreQuery extends BaseQuery {
     is_saleable: boolean,
     is_stocktaking: boolean,
     type: string|null,
-    merchendiser_code: string|null
+    vm_code: string|null,
+    department_id: number|null
   }
   
   export interface StoreCreateRequest extends BaseStoreRequest {
