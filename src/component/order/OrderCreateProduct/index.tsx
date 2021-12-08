@@ -1611,8 +1611,8 @@ function OrderCreateProduct(props: PropType) {
       showError("Vui lòng điền số lượng tách đơn!");
       return;
     }
-    if (items && splitOrderNumber > items?.length) {
-      showError("Số lượng tách đơn không được lớn hơn số lượng loại sản phẩm!");
+    if (items && splitOrderNumber > getTotalQuantity(items)) {
+      showError("Số lượng tách đơn không được lớn hơn số lượng sản phẩm!");
       return;
     }
     if (splitOrderNumber < 2 || splitOrderNumber > 20) {

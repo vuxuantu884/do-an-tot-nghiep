@@ -2,10 +2,10 @@ import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -52,7 +52,6 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
-	getAccountCodeFromCodeAndName,
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
