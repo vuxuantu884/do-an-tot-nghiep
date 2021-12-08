@@ -1,25 +1,25 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
-import { Card, Form, FormInstance, Input, Select } from "antd";
+import {InfoCircleOutlined} from "@ant-design/icons";
+import {Card, Form, FormInstance, Input, Select} from "antd";
 import AccountAutoComplete from "component/custom/AccountAutoComplete";
 import CustomInputTags from "component/custom/custom-input-tags";
-import { HttpStatus } from "config/http-status.config";
+import {HttpStatus} from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { AccountResponse } from "model/account/account.model";
-import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import {unauthorizedAction} from "domain/actions/auth/auth.action";
+import {AccountResponse} from "model/account/account.model";
+import {OrderResponse, OrderSubStatusResponse} from "model/response/order/order.response";
+import React, {useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {Link} from "react-router-dom";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
-import { searchAccountApi } from "service/accounts/account.service";
-import { showError } from "utils/ToastUtils";
-import { StyledComponent } from "./styles";
+import {searchAccountApi} from "service/accounts/account.service";
+import {showError} from "utils/ToastUtils";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   form: FormInstance<any>;
   tags: string;
   levelOrder?: number;
-  storeId?: number|null;
+  storeId?: number | null;
   updateOrder?: boolean;
   customerId?: number | undefined;
   orderDetail?: OrderResponse | null;
@@ -40,16 +40,37 @@ type PropType = {
  *
  * onChangeTag: xử lý khi thay đổi tag
  */
-const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
+function CreateOrderSidebar(props: PropType): JSX.Element {
   const {onChangeTag, tags, customerId, orderDetail, listOrderSubStatus, form, storeId} =
     props;
 
-	const dispatch = useDispatch()
-  const [defaultValueAssigneeCode, setDefaultValueAssigneeCode] = useState("");
-  const [defaultValueCoordinatorCode, setDefaultValueCoordinatorCode] = useState("");
-  const [defaultValueMarketerCode, setDefaultValueMarketerCode] = useState("");
+  const dispatch = useDispatch();
+  const [initValueAssigneeCode, setInitValueAssigneeCode] = useState("");
+  const [initValueMarketerCode, setInitValueMarketerCode] = useState("");
+  const [initValueCoordinatorCode, setInitValueCoordinatorCode] = useState("");
 
-	const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
+  const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
+
+  const [assigneeAccountData, setAssigneeAccountData] = useState<Array<AccountResponse>>(
+    []
+  );
+  const [marketingAccountData, setMarketingAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+  const [coordinatorAccountData, setCoordinatorAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+
+  const [initAssigneeAccountData, setInitAssigneeAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+  const [initMarketingAccountData, setInitMarketingAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+  const [initCoordinatorAccountData, setInitCoordinatorAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+  // const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";
@@ -88,67 +109,107 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
     }
   };
 
+  useEffect(() => {
+    if (!storeId) {
+      return;
+    }
+    searchAccountApi({
+      store_ids: [storeId],
+    })
+      .then((response) => {
+        if (response) {
+          switch (response.code) {
+            case HttpStatus.SUCCESS:
+              setStoreAccountData(response.data.items);
+              setMarketingAccountData(response.data.items);
+              setInitMarketingAccountData(response.data.items);
+              setInitCoordinatorAccountData(response.data.items);
+              break;
+            case HttpStatus.UNAUTHORIZED:
+              dispatch(unauthorizedAction());
+              break;
+            default:
+              response.errors.forEach((e) => showError(e));
+              break;
+          }
+        }
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  }, [dispatch, storeId]);
 
-	useEffect(() => {
-		if(!storeId) {
-			return;
-		}
-		searchAccountApi({
-			store_ids: [storeId],
-		})
-			.then((response) => {
-				if (response) {
-					switch (response.code) {
-						case HttpStatus.SUCCESS:
-							setStoreAccountData(response.data.items);
-							break;
-						case HttpStatus.UNAUTHORIZED:
-							dispatch(unauthorizedAction());
-							break;
-						default:
-							response.errors.forEach((e) => showError(e));
-							break;
-					}
-				}
-			})
-			.catch((error) => {
-				console.log("error", error);
-			})
-	}, [dispatch, storeId])
-
-	useEffect(() => {
-		if(storeAccountData.some((single) => single.code === "YD9915")) {
-			return;
-		}
-		searchAccountApi({
-			info: "YD9915",
-		})
-			.then((response) => {
-				if (response) {
-					switch (response.code) {
-						case HttpStatus.SUCCESS:
-							if (storeAccountData.length > 0) {
-								let abc = [...storeAccountData]
-								abc.push(response.data.items[0]);
-								setStoreAccountData(abc);
+  useEffect(() => {
+    const pushCurrentValueToDataAccount = (fieldName: string) => {
+			let fieldNameValue = form.getFieldValue(fieldName);
+      if (fieldNameValue) {
+				console.log('fieldNameValue', fieldNameValue)
+        switch (fieldName) {
+          case "assignee_code":
+            setInitValueAssigneeCode(fieldNameValue);
+            break;
+          case "marketer_code":
+            setInitValueMarketerCode(fieldNameValue);
+            break;
+          case "coordinator_code":
+            setInitValueCoordinatorCode(fieldNameValue);
+            break;
+          default:
+            break;
+        }
+        if (storeAccountData.some((single) => single.code === fieldNameValue)) {
+					setAssigneeAccountData(storeAccountData);
+					setMarketingAccountData(storeAccountData);
+					setCoordinatorAccountData(storeAccountData);
+        } else {
+					searchAccountApi({
+						info: fieldNameValue,
+					})
+						.then((response) => {
+							if (response) {
+								switch (response.code) {
+									case HttpStatus.SUCCESS:
+										if (storeAccountData.length > 0) {
+											let result = [...storeAccountData];
+											result.push(response.data.items[0]);
+											switch (fieldName) {
+												case "assignee_code":
+													setInitAssigneeAccountData(result);
+													setAssigneeAccountData(result);
+													break;
+												case "marketer_code":
+													setInitMarketingAccountData(result);
+													setMarketingAccountData(result);
+													break;
+												case "coordinator_code":
+													setInitCoordinatorAccountData(result);
+													setCoordinatorAccountData(result);
+													break;
+												default:
+													break;
+											}
+										}
+										break;
+									case HttpStatus.UNAUTHORIZED:
+										dispatch(unauthorizedAction());
+										break;
+									default:
+										response.errors.forEach((e) => showError(e));
+										break;
+								}
 							}
-							break;
-						case HttpStatus.UNAUTHORIZED:
-							dispatch(unauthorizedAction());
-							break;
-						default:
-							response.errors.forEach((e) => showError(e));
-							break;
-					}
+						})
+						.catch((error) => {
+							console.log("error", error);
+						});
+
 				}
-			})
-			.catch((error) => {
-				console.log("error", error);
-			})
+      }
+    };
+    pushCurrentValueToDataAccount("assignee_code");
+    pushCurrentValueToDataAccount("marketer_code");
+    pushCurrentValueToDataAccount("coordinator_code");
   }, [dispatch, form, storeAccountData]);
-
-
-	
 
   return (
     <StyledComponent>
@@ -163,20 +224,15 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             },
           ]}
         >
-          <Select
-        showSearch
-        allowClear
-        optionFilterProp="children"
-        // onSearch={(value) => onSearch(value)}
-				// key={Math.random()}
-      >
-        {storeAccountData.length > 0 &&
-          storeAccountData.map((c) => (
-            <Select.Option key={c.id} value={c.code}>
-              {`${c.code} - ${c.full_name}`}
-            </Select.Option>
-          ))}
-      </Select>
+          <AccountAutoComplete
+            placeholder="Tìm theo họ tên hoặc mã nhân viên"
+            form={form}
+            formFieldName="assignee_code"
+            initValue={initValueAssigneeCode}
+            dataToSelect={assigneeAccountData}
+            setDataToSelect={setAssigneeAccountData}
+            initDataToSelect={initAssigneeAccountData}
+          />
         </Form.Item>
         <Form.Item
           label="Nhân viên marketing"
@@ -188,28 +244,28 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             },
           ]}
         >
-          <Select
-        showSearch
-        allowClear
-        optionFilterProp="children"
-        // onSearch={(value) => onSearch(value)}
-				// key={Math.random()}
-      >
-        {storeAccountData.length > 0 &&
-          storeAccountData.map((c) => (
-            <Select.Option key={c.id} value={c.code}>
-              {`${c.code} - ${c.full_name}`}
-            </Select.Option>
-          ))}
-      </Select>
+          <AccountAutoComplete
+            placeholder="Tìm theo họ tên hoặc mã nhân viên"
+            form={form}
+            formFieldName="marketer_code"
+            initValue={initValueMarketerCode}
+            dataToSelect={marketingAccountData}
+            setDataToSelect={setMarketingAccountData}
+            initDataToSelect={initMarketingAccountData}
+          />
         </Form.Item>
-        <Form.Item label="Nhân viên điều phối" name="coordinator_code">
+        <Form.Item
+          label="Nhân viên điều phối"
+          name="coordinator_code"
+        >
           <AccountAutoComplete
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
             form={form}
             formFieldName="coordinator_code"
-            defaultValue={defaultValueCoordinatorCode}
-						storeAccountData={storeAccountData}
+            initValue={initValueCoordinatorCode}
+            dataToSelect={coordinatorAccountData}
+            setDataToSelect={setCoordinatorAccountData}
+            initDataToSelect={initCoordinatorAccountData}
           />
         </Form.Item>
         <Form.Item
