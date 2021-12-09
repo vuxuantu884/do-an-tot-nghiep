@@ -3,6 +3,13 @@
 
   .fulfillment-detail {
     .fulfillment-info {
+      .ant-card-head {
+        .title {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+      }
       .ant-card-body {
         display: flex;
         justify-content: space-between;
@@ -15,11 +22,11 @@
             margin-bottom: 10px;
             .name {
               width: 50%;
-              color: '#737373';
+              color: #737373;
             }
             .value {
               width: 50%;
-              color: '#222222',
+              color: #222222,
             }
           }
         }
@@ -35,11 +42,11 @@
         margin-bottom: 10px;
         .name {
           width: 50%;
-          color: '#737373';
+          color: #737373;
         }
         .value {
           width: 50%;
-          color: '#222222',
+          color: #222222,
         }
       }
     }

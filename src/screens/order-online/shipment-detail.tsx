@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Card, Col, Collapse, Divider, Row, Table } from "antd";
+import { Button, Card, Col, Collapse, Divider, Row, Table } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { getFulfillmentDetail, getTrackingLogFulfillmentAction } from "domain/actions/order/order.action";
@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import "./scss/shipment-detail.scss";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 type ShipmentParam = {
   code: string;
@@ -26,16 +27,21 @@ const ShipmentDetail: React.FC = () => {
 
   // const [isError, setError] = useState<boolean>(false);
   const [fulfillmentDetail, setFulfillmentDetail] = useState<any>({});
+  const [orderItems, setOrderItems] = useState([]);
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-
+  const status_order = [
+    {name: "Chưa giao", value: "unshipped", color: "#2A2A86"},
+    {name: "Đã lấy hàng", value: "picked", color: "#2A2A86"},
+    {name: "Giao một phần", value: "partial", color: "#2A2A86"},
+    {name: "Đã đóng gói", value: "packed", color: "#2A2A86"},
+    {name: "Đang giao", value: "shipping", color: "#2A2A86"},
+    {name: "Đã giao", value: "shipped", color: "#2A2A86"},
+    {name: "Đang trả lại", value: "returning", color: "#E24343"},
+    {name: "Đã trả lại", value: "returned", color: "#E24343"},
+    {name: "Đã hủy", value: "cancelled", color: "#E24343"}
+  ];
   const [columnsItems, setColumnsItems]  = useState<Array<any>>([
-    {
-      title: "STT",
-      dataIndex: "index",
-      visible: true,
-      width:"10%",
-    },
     {
       title: "Tên sản phẩm",
       render: (record: any) => (
@@ -60,10 +66,27 @@ const ShipmentDetail: React.FC = () => {
       align: 'right'
     },
     {
+      title: "Chiết khấu",
+      render: (record: any) => (
+        <div>
+          <NumberFormat
+            value={record.discount_amount}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          <br />
+          <span style={{ color: '#E24343' }}>{record.discount_rate}%</span>
+        </div>
+      ),
+      visible: true,
+      align: 'right'
+    },
+    {
       title: <span><span>Thành tiền </span><span style={{color: '#737373', fontWeight: 400}}> đ</span></span>,
       render: (record: any) => (
         <NumberFormat
-          value={record.price * record.quantity}
+          value={record.price * record.quantity - record.discount_amount}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -78,7 +101,42 @@ const ShipmentDetail: React.FC = () => {
     dispatch(
       getFulfillmentDetail(
         code,
-        setFulfillmentDetail
+        (data) => {
+          console.log('data data', data);
+          
+          const status = status_order.find(
+            (status) => status.value === data.status
+          );
+          const mapItems = data.order.items.map((item: any) => {
+            let discount_amount = 0;
+            let discount_rate = 0;
+            item.discount_items.forEach((discount: any) => {
+              discount_amount += discount.amount;
+              discount_rate += discount.rate;
+            })
+            return {
+              ...item,
+              discount_amount,
+              discount_rate
+            }
+          })
+          let discount_amount = 0;
+          let discount_rate = 0;
+          data.order.discounts.forEach((discount: any) => {
+            discount_amount += discount.amount;
+            discount_rate += discount.rate;
+          })
+            
+          console.log('mapItems', mapItems);
+          setOrderItems(mapItems);
+          setFulfillmentDetail({
+            ...data,
+            status_name: status?.name,
+            status_color: status?.color,
+            discount_amount,
+            discount_rate
+          });
+        }
       )
     );
     dispatch(
@@ -87,6 +145,7 @@ const ShipmentDetail: React.FC = () => {
         setTrackingLogFulfillment
       )
     );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, dispatch]);
 
   return (
@@ -109,13 +168,24 @@ const ShipmentDetail: React.FC = () => {
       <Row gutter={20} className="fulfillment-detail">
         <Col md={16}>
           <Card
-            title="Mã vận đơn"
+            title={
+              <div className="title">
+                <span><span>MÃ VẬN ĐƠN:</span><span style={{ color: '#2A2A86' }}> {fulfillmentDetail?.shipment?.tracking_code}</span></span>
+                <span><span>Trạng thái:</span><span style={{ color: fulfillmentDetail?.status_color }}> {fulfillmentDetail?.status_name}</span></span>
+                <Button
+                  type="primary"
+                  className="create-button-custom"
+                >
+                  Đẩy lại đơn HVC
+                </Button>
+              </div>
+            }
             className="fulfillment-info"
           >
             <div className="details">
               <div className="detail">
                 <span className="name">Đơn hàng:</span>
-                <span className="value">{fulfillmentDetail?.order?.code}</span>
+                <span className="value" style={{ color: '#2A2A86' }}><b>{fulfillmentDetail?.order?.code}</b></span>
               </div>
               <div className="detail">
                 <span className="name">Người nhận:</span>
@@ -143,7 +213,7 @@ const ShipmentDetail: React.FC = () => {
             <div className="details">
               <div className="detail">
                 <span className="name">Kho hàng:</span>
-                <span className="value">{fulfillmentDetail?.order?.store}</span>
+                <span className="value" style={{ color: '#2A2A86' }}><b>{fulfillmentDetail?.order?.store}</b></span>
               </div>
               <div className="detail">
                 <span className="name">SĐT kho lấy hàng:</span>
@@ -159,23 +229,23 @@ const ShipmentDetail: React.FC = () => {
               </div>
               <div className="detail">
                 <span className="name">Ngày nhặt hàng:</span>
-                <span className="value">{fulfillmentDetail?.picked_on}</span>
+                <span className="value">{fulfillmentDetail?.picked_on? ConvertUtcToLocalDate(fulfillmentDetail?.picked_on) : '-'}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày đóng gói:</span>
-                <span className="value">{fulfillmentDetail?.packed_on}</span>
+                <span className="value">{fulfillmentDetail?.packed_on? ConvertUtcToLocalDate(fulfillmentDetail?.packed_on) : '-'}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày xuất kho:</span>
-                <span className="value">{fulfillmentDetail?.export_on}</span>
+                <span className="value">{fulfillmentDetail?.export_on? ConvertUtcToLocalDate(fulfillmentDetail?.export_on) : '-'}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày huỷ giao hàng:</span>
-                <span className="value">{fulfillmentDetail?.cancel_date}</span>
+                <span className="value">{fulfillmentDetail?.cancel_date? ConvertUtcToLocalDate(fulfillmentDetail?.cancel_date) : '-'}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày nhận hàng:</span>
-                <span className="value">{fulfillmentDetail?.received_on}</span>
+                <span className="value">{fulfillmentDetail?.received_on? ConvertUtcToLocalDate(fulfillmentDetail?.received_on) : '-'}</span>
               </div>
             </div>
 
@@ -183,12 +253,7 @@ const ShipmentDetail: React.FC = () => {
           <Card title="THÔNG TIN SẢN PHẨM">
           
             <Table
-                dataSource={fulfillmentDetail?.items?.map((item: any, index: number) => {
-                  return {
-                    ...item,
-                    index: index +1
-                  }
-                })}
+                dataSource={orderItems}
                 columns={columnsItems}
                 pagination={false}
                 style={{ width: '100%'}}
@@ -199,7 +264,7 @@ const ShipmentDetail: React.FC = () => {
                   <div>Tổng tiền:</div>
                   <div style={{ color: "#2A2A86"}}>
                     <NumberFormat
-                      value={fulfillmentDetail.total}
+                      value={fulfillmentDetail.total_line_amount_after_line_discount}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}
@@ -210,7 +275,20 @@ const ShipmentDetail: React.FC = () => {
                   <div>Chiết khấu:</div>
                   <div style={{ color: "#2A2A86" }}>
                     <NumberFormat
-                      value={fulfillmentDetail.total_discount? fulfillmentDetail.total_discount : 0}
+                      value={fulfillmentDetail.discount_amount? fulfillmentDetail.discount_amount : 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                    {/* <br />
+                    <span style={{ color: '#E24343' }}>{fulfillmentDetail.discount_rate} %</span> */}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px'}}>
+                  <div>Mã giảm giá:</div>
+                  <div style={{ color: "#2A2A86" }}>
+                    <NumberFormat
+                      value={0}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}
@@ -218,7 +296,7 @@ const ShipmentDetail: React.FC = () => {
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px'}}>
-                  <div>Phí giao hàng:</div>
+                  <div>Phí ship báo khách:</div>
                   <div style={{ color: "#2A2A86" }}>
                     <NumberFormat
                       value={fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer ? fulfillmentDetail.shipment.shipping_fee_informed_to_customer : 0}
@@ -230,10 +308,10 @@ const ShipmentDetail: React.FC = () => {
                 </div>
                 <Divider style={{ marginTop: 0}}/>
                 <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px'}}>
-                  <div>COD:</div>
-                  <div style={{ color: "#2A2A86"}}>
+                  <div style={{ color: "#2A2A86"}}>Khách cần phải trả:</div>
+                  <div style={{ color: "#2A2A86", fontSize: 18 }}>
                     <NumberFormat
-                      value={fulfillmentDetail?.shipment?.cod ? fulfillmentDetail.shipment.cod : 0}
+                      value={fulfillmentDetail?.order?.total ? fulfillmentDetail.order.total : 0}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}
@@ -322,11 +400,11 @@ const ShipmentDetail: React.FC = () => {
             </div>
             <div className="detail">
               <span className="name">Ngày tạo:</span>
-              <span className="value">{fulfillmentDetail?.picked_on}</span>
+              <span className="value">{fulfillmentDetail?.created_date? ConvertUtcToLocalDate(fulfillmentDetail?.created_date) : '-'}</span>
             </div>
             <div className="detail">
               <span className="name">Hẹn giao:</span>
-              <span className="value">{fulfillmentDetail?.packed_on}</span>
+              <span className="value">{fulfillmentDetail?.shipment?.expected_received_date? ConvertUtcToLocalDate(fulfillmentDetail?.shipment.expected_received_date) : '-'}</span>
             </div>
             <div className="detail">
               <span className="name">Giờ hành chính:</span>
@@ -334,11 +412,11 @@ const ShipmentDetail: React.FC = () => {
             </div>
             <div className="detail">
               <span className="name">Yêu cầu:</span>
-              <span className="value">{fulfillmentDetail?.cancel_date}</span>
+              <span className="value">{fulfillmentDetail?.requirements_name}</span>
             </div>
             <div className="detail">
               <span className="name">Đối soát:</span>
-              <span className="value">{fulfillmentDetail?.received_on}</span>
+              <span className="value"></span>
             </div>
           </Card>
         </Col>
