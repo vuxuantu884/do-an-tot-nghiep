@@ -6,6 +6,7 @@ import {
   DepartmentsPermissions,
 } from "config/permissions/account.permisssion";
 import { PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
+import AccountMeScreen from "screens/settings/account/account.me.screen";
 
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
@@ -128,6 +129,18 @@ const setting: Array<RouteMenu> = [
         title: "Đặt lại mật khẩu",
         icon: "icon-dot",
         component: AccountUpdatePassScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [AccountPermissions.UPDATE],
+      },
+      {
+        path: `${UrlConfig.ACCOUNTS}/me`,
+        exact: true,
+        title: "Thông tin tài khoản",
+        icon: "icon-dot",
+        component: AccountMeScreen,
         key: "account2",
         isShow: true,
         header: null,

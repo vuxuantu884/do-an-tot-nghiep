@@ -6,7 +6,6 @@ import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
 import {searchVariantsRequestAction} from "domain/actions/product/products.action";
 import { HeaderSummary } from "hook/filter/HeaderSummary";
-import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
 import {
@@ -248,13 +247,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     }
   }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
-
-  const ActionComponent = useChangeHeaderToAction(
-    "Sản phẩm",
-    selected.length > 0,
-    () => {},
-    []
-  );
   
   const onSaveInventory = (
     result: Array<AllInventoryResponse>,
@@ -302,8 +294,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   useEffect(() => {
     setColumns([
       {
-        title: <ActionComponent />,
-        titleCustom: "Sản phẩm",
+        title: "Sản phẩm",
         visible: true,
         dataIndex: "sku",
         align: "left",

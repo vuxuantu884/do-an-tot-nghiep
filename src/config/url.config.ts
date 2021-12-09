@@ -48,6 +48,12 @@ export const ProductTabUrl = {
   HISTORY_PRICES: UrlConfig.PRODUCT + "/history-prices",
 };
 
+export const SupplierTabUrl = {
+  ADDRESSES: 'addresses',
+  CONTACTS: 'contacts',
+  PAYMENTS: "payments",
+};
+
 export const InventoryTransferTabUrl = {
   LIST: UrlConfig.INVENTORY_TRANSFERS,
   HISTORIES: UrlConfig.INVENTORY_TRANSFERS + "/histories",

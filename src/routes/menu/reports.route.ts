@@ -1,5 +1,4 @@
 // import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 

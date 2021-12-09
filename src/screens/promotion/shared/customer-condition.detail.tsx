@@ -13,6 +13,7 @@ import {
 } from "model/response/promotion/discount/list-discount.response";
 import React, {ReactElement, useEffect} from "react";
 import {useDispatch} from "react-redux";
+import { getDateFormDuration } from "utils/PromotionUtils";
 import {CustomerContitionDetailStyle} from "./condition.style";
 
 export default function CustomerConditionDetail(props: DiscountResponse): ReactElement {
@@ -31,18 +32,7 @@ export default function CustomerConditionDetail(props: DiscountResponse): ReactE
   const [rankingList, setRankingList] =
     React.useState<Map<number, LoyaltyRankResponse>>();
   const [accountList, setAccountList] = React.useState<Map<string, AccountResponse>>();
-  const getDateFormDuration = (duration: number) => {
-    if (duration) {
-      const day = duration % 100;
-      const month = (duration - day) / 100;
 
-      console.log(month, day);
-
-      return day + "/" + month;
-    } else {
-      return " -/- ";
-    }
-  };
 
   const getCustomerGroupName = () => {
     const temps: string[] = [];
@@ -117,7 +107,7 @@ export default function CustomerConditionDetail(props: DiscountResponse): ReactE
       info: (
         <>
           {getDateFormDuration(prerequisite_birthday_duration?.starts_mmdd_key || 0)}
-          &nbsp; -&nbsp;{" "}
+          &nbsp; -&nbsp; 
           {getDateFormDuration(prerequisite_birthday_duration?.ends_mmdd_key || 0)}
         </>
       ),
@@ -127,7 +117,7 @@ export default function CustomerConditionDetail(props: DiscountResponse): ReactE
       info: (
         <>
           {getDateFormDuration(prerequisite_wedding_duration?.starts_mmdd_key || 0)}
-          &nbsp; -&nbsp;{" "}
+          &nbsp; -&nbsp; 
           {getDateFormDuration(prerequisite_wedding_duration?.ends_mmdd_key || 0)}
         </>
       ),

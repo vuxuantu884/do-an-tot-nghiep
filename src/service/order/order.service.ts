@@ -255,6 +255,12 @@ export const deleteMultiOrderSourceService = (
   });
 };
 
+export const getFulFillmentDetailAction = (
+  fulfillment_code: string,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/fulfillments/${fulfillment_code}`);
+};
+
 // tracking_log: Lấy ra tracking_log của fulfillment
 export const getTrackingLogFulFillment = (
   fulfillment_code: string,

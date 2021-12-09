@@ -155,6 +155,7 @@ const CustomerUpdate = (props: any) => {
   );
 
   const handleSubmit = (values: any) => {
+    let area = areas.find((area) => area.id === districtId);
     values.full_name = values.full_name.trim();
     if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
     const processValue = {
@@ -167,6 +168,7 @@ const CustomerUpdate = (props: any) => {
         : null,
       status: status,
       version: customer.version,
+      city_id: area ? area.city_id : null,
       shipping_addresses: customer.shipping_addresses.map((item: any) => {
         let _item = { ...item };
         _item.is_default = _item.default;
