@@ -1,13 +1,13 @@
 import {
   Card,
   Col,
-  Row,
-  Form,
   DatePicker,
+  Form,
+  FormInstance,
+  Row,
+  Select,
   Space,
   Switch,
-  Select,
-  FormInstance,
   TimePicker,
 } from "antd";
 import {StoreGetListAction} from "domain/actions/core/store.action";
@@ -21,27 +21,43 @@ import React, {ReactElement, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {DATE_FORMAT} from "utils/DateUtils";
 import {dayOfWeekOptions, getDays} from "../discount/components/general.info";
-import { CustomerContitionFormlStyle } from "./condition.style";
+import {CustomerContitionFormlStyle} from "./condition.style";
 import CustomerFilter from "./cusomer-condition.form";
+
 const {Option} = Select;
 const TimeRangePicker = TimePicker.RangePicker;
 
 interface Props {
   form: FormInstance;
+  isAllStore?: boolean;
+  isAllChannel?: boolean;
+  isAllSource?: boolean;
+  isAllCustomer?: boolean;
 }
 
-function GeneralConditionForm({form}: Props): ReactElement {
+function GeneralConditionForm({
+  form,
+  isAllChannel,
+  isAllSource,
+  isAllStore,
+  isAllCustomer,
+}: Props): ReactElement {
   const dispatch = useDispatch();
 
   const [showTimeAdvance] = useState<boolean>(false);
   const [allStore, setAllStore] = useState<boolean>(true);
   const [allChannel, setAllChannel] = useState<boolean>(true);
   const [allSource, setAllSource] = useState<boolean>(true);
-  const [disabledEndDate, setDisabledEndDate] = useState<boolean>(false);
 
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [listStore, setStore] = useState<Array<StoreResponse>>([]);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
+
+  useEffect(() => {
+    setAllStore(typeof isAllStore === "boolean" ? isAllStore : true);
+    setAllChannel(typeof isAllChannel === "boolean" ? isAllChannel : true);
+    setAllSource(typeof isAllSource === "boolean" ? isAllSource : true);
+  }, [isAllChannel, isAllSource, isAllStore]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
@@ -50,10 +66,14 @@ function GeneralConditionForm({form}: Props): ReactElement {
   }, [dispatch]);
   return (
     <CustomerContitionFormlStyle>
-      <Card title={<span>Thời gian áp dụng <span className="required-field">*</span></span>}>
+      <Card
+        title={
+          <span>
+            Thời gian áp dụng <span className="required-field">*</span>
+          </span>
+        }
+      >
         <Row gutter={6}>
-         
-
           <Col span={12}>
             <Form.Item
               name="starts_date"
@@ -77,7 +97,6 @@ function GeneralConditionForm({form}: Props): ReactElement {
           <Col span={12}>
             <Form.Item name="ends_date">
               <DatePicker
-                disabled={disabledEndDate}
                 showTime={{format: "HH:mm"}}
                 format={DATE_FORMAT.DDMMYY_HHmm}
                 style={{width: "100%"}}
@@ -91,17 +110,7 @@ function GeneralConditionForm({form}: Props): ReactElement {
               />
             </Form.Item>
           </Col>
-          <Space direction="horizontal">
-            <Switch
-              onChange={(value) => {
-                if (value) {
-                  form.resetFields(["ends_date"]);
-                }
-                setDisabledEndDate(value);
-              }}
-            />
-            {"Không cần ngày kết thúc"}
-          </Space>
+
           {/* <Divider />
           <Space direction="horizontal">
             <Checkbox
@@ -158,7 +167,6 @@ function GeneralConditionForm({form}: Props): ReactElement {
           <Col span={24}>
             <Form.Item
               name="prerequisite_store_ids"
-              
               rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
             >
               <Select
@@ -173,19 +181,19 @@ function GeneralConditionForm({form}: Props): ReactElement {
                 ))}
               </Select>
             </Form.Item>
-            <Space direction="horizontal">
+            <Form.Item>
               <Switch
-                defaultChecked={allStore}
+                checked={allStore}
                 onChange={(value) => {
+                  setAllStore(value);
                   form.setFieldsValue({
                     prerequisite_store_ids: undefined,
                   });
                   form.validateFields(["prerequisite_store_ids"]);
-                  setAllStore(value);
                 }}
               />
               {"Áp dụng toàn bộ"}
-            </Space>
+            </Form.Item>
           </Col>
         </Row>
       </Card>
@@ -193,7 +201,7 @@ function GeneralConditionForm({form}: Props): ReactElement {
         <Row gutter={12}>
           <Col span={24}>
             <Form.Item
-              name="prerequisite_sales_channel_names" 
+              name="prerequisite_sales_channel_names"
               rules={[
                 {required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"},
               ]}
@@ -211,7 +219,7 @@ function GeneralConditionForm({form}: Props): ReactElement {
             </Form.Item>
             <Space direction="horizontal">
               <Switch
-                defaultChecked={allChannel}
+                checked={allChannel}
                 onChange={(value) => {
                   form.setFieldsValue({
                     prerequisite_sales_channel_names: undefined,
@@ -229,7 +237,7 @@ function GeneralConditionForm({form}: Props): ReactElement {
         <Row gutter={12}>
           <Col span={24}>
             <Form.Item
-              name="prerequisite_order_source_ids" 
+              name="prerequisite_order_source_ids"
               rules={[
                 {required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"},
               ]}
@@ -241,13 +249,13 @@ function GeneralConditionForm({form}: Props): ReactElement {
                 className="ant-select-selector-min-height"
               >
                 {listSource?.map((source: any) => (
-                  <Option value={source.id}>{source.name}</Option>
+                  <Option value={source.id} key={source.name}>{source.name}</Option>
                 ))}
               </Select>
             </Form.Item>
             <Space direction="horizontal">
               <Switch
-                defaultChecked={allSource}
+                checked={allSource}
                 onChange={(value) => {
                   form.validateFields(["prerequisite_order_source_ids"]);
                   form.setFieldsValue({
@@ -262,7 +270,7 @@ function GeneralConditionForm({form}: Props): ReactElement {
         </Row>
       </Card>
       {/* Đối tượng khách hàng áp dụng */}
-      <CustomerFilter form={form} />
+      <CustomerFilter form={form} isAllCustomer={isAllCustomer} />
     </CustomerContitionFormlStyle>
   );
 }

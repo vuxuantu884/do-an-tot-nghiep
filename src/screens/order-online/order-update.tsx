@@ -975,7 +975,7 @@ export default function Order(props: PropType) {
 						...initialForm,
             customer_note: response.customer_note,
             source_id: response.source_id,
-            assignee_code: response.assignee_code ? `${response.assignee_code} - ${response.assignee}` : null,
+            assignee_code: response.assignee_code,
             store_id: response.store_id,
             items: responseItems,
             dating_ship: newDatingShip,
@@ -986,8 +986,8 @@ export default function Order(props: PropType) {
             url: response.url,
             note: response.note,
             tags: response.tags,
-						marketer_code: response.marketer_code ? `${response.marketer_code} - ${response.marketer}` : null,
-						coordinator_code: response.coordinator_code ? `${response.coordinator_code} - ${response.coordinator}` :null,
+						marketer_code: response.marketer_code ? response.marketer_code : null,
+						coordinator_code: response.coordinator_code ? response.coordinator_code :null,
             sub_status_code: response.sub_status_code,
 						automatic_discount: response.automatic_discount,
 					});
@@ -1296,9 +1296,11 @@ export default function Order(props: PropType) {
                     levelOrder={levelOrder}
                     coupon={coupon}
                     setCoupon={setCoupon}
+                    promotionId={promotionId}
                     setPromotionId={setPromotionId}
                     orderDetail={OrderDetail}
                     configOrder={configOrder}
+                    loyaltyPoint={loyaltyPoint}
                   />
 
                   {OrderDetail !== null &&

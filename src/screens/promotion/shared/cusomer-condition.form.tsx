@@ -23,6 +23,7 @@ const {Option} = Select;
 
 interface Props {
   form: FormInstance;
+  isAllCustomer?: boolean;
 }
 export enum CustomerFilterField {
   customer_selection = "customer_selection",
@@ -52,7 +53,7 @@ const genderOptions = [
 ];
 
 export default function CustomerFilter(props: Props): ReactElement {
-  const {form} = props;
+  const {form, isAllCustomer} = props;
   const dispatch = useDispatch();
 
   const [checkedAll, setCheckedAll] = React.useState<boolean>(true);
@@ -100,6 +101,11 @@ export default function CustomerFilter(props: Props): ReactElement {
     }
   };
 
+
+  useEffect(() => {
+    setCheckedAll(typeof isAllCustomer === "boolean" ? isAllCustomer : true);
+  }, [isAllCustomer]);
+
   useEffect(() => {
     dispatch(CustomerGroups(setGroups));
     dispatch(
@@ -122,7 +128,7 @@ export default function CustomerFilter(props: Props): ReactElement {
         <Col span={24}>
           <Form.Item name={CustomerFilterField.customer_selection}>
             <Space direction="horizontal">
-              <Switch defaultChecked={checkedAll} onChange={(e) => handleCheckedAll(e)} />
+              <Switch checked={checkedAll} onChange={(e) => handleCheckedAll(e)} />
               {"Áp dụng toàn bộ khách hàng"}
             </Space>
           </Form.Item>

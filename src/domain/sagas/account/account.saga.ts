@@ -18,6 +18,7 @@ import {
   AccountDeleteService,
   powerBIEmbededApi,
   accountUpdatePassScreenService,
+  getAccountDetail,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
@@ -266,6 +267,27 @@ function* powerBIEmbededSaga(action: YodyAction) {
   } catch (error) {}
 }
 
+function* getAccountMeSaga(action: YodyAction) {
+  let {  onResult } = action.payload;
+  //TODO: Handle token here
+    try {
+      let response: BaseResponse<AccountResponse> = yield call(getAccountDetail); 
+      switch(response.code) {
+        case HttpStatus.SUCCESS:
+          onResult(response.data);
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
+        default:
+          onResult(false);
+          break;
+      }
+    } catch (error) {
+      onResult(false);
+    } 
+}
+
 export function* accountSaga() {
   yield takeEvery(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
@@ -281,4 +303,5 @@ export function* accountSaga() {
   yield takeLatest(AccountType.UPDATE_PASSS_REQUEST, AccountUpdatePassSaga);
   yield takeLatest(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
   yield takeLatest(AccountType.POWER_BI_EMBEDED_REQUEST, powerBIEmbededSaga);
+  yield takeLatest(AccountType.GET_ACCOUNT_ME, getAccountMeSaga);
 }

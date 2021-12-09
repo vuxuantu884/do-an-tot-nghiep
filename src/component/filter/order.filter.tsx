@@ -27,6 +27,7 @@ import { OrderProcessingStatusModel } from "model/response/order-processing-stat
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import DebounceSelect from "./component/debounce-select";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
+import AccountSearchSelect from "component/custom/AccountSearchSelect";
 
 type OrderFilterProps = {
   params: OrderSearchQuery;
@@ -34,6 +35,7 @@ type OrderFilterProps = {
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
+  listShippers: Array<AccountResponse>;
   deliveryService: Array<any>;
   listPaymentMethod: Array<PaymentMethodResponse>;
   subStatus: Array<OrderProcessingStatusModel>;
@@ -70,6 +72,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     listSource,
     listStore,
     accounts,
+    listShippers,
     deliveryService,
     subStatus,
     listPaymentMethod,
@@ -84,7 +87,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const loadingFilter = useMemo(() => {
     return isLoading ? true : false
   }, [isLoading])
-
+	const [form] = Form.useForm();
+	const [assigneeAccountData, setAssigneeAccountData] = useState<Array<AccountResponse>>(
+    []
+  );
   const status = useMemo(() => [
     {name: "Nháp", value: "draft"},
     {name: "Đóng gói", value: "packed"},
@@ -620,6 +626,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
   }, [params.variant_ids]);
 
+	useEffect(() => {
+		if(accounts) {
+			setAssigneeAccountData(accounts)
+		}
+	}, [accounts])
+
   return (
     <div>
       <div className="order-options">
@@ -631,7 +643,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       </div>
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
+          <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline" form={form}>
             <Item name="search_term" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
@@ -875,7 +887,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Item>
                 <p>Nhân viên bán hàng</p>
                 <Item name="assignee_codes">
-                  <CustomSelect
+                  {/* <CustomSelect
                     mode="multiple" showSearch allowClear
                     showArrow placeholder="Chọn nhân viên bán hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
@@ -892,7 +904,17 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           {`${item.full_name} - ${item.code}`}
                         </CustomSelect.Option>
                       ))}
-                  </CustomSelect>
+                  </CustomSelect> */}
+									<AccountSearchSelect
+										placeholder="Tìm theo họ tên hoặc mã nhân viên"
+										dataToSelect={assigneeAccountData}
+										setDataToSelect={setAssigneeAccountData}
+										initDataToSelect={accounts}
+										mode="multiple"
+										notFoundContent="Không tìm thấy kết quả"
+										getPopupContainer={(trigger:any) => trigger.parentNode}
+                    maxTagCount='responsive'
+									/>
                 </Item>
               </Col>
               <Col span={8} xxl={6}>
@@ -973,7 +995,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     getPopupContainer={trigger => trigger.parentNode}
                     maxTagCount='responsive'
                   >
-                    {accounts.filter(account => account.is_shipper === true)?.map((account) => (
+                    {listShippers.map((account) => (
                       <CustomSelect.Option key={account.id} value={account.id}>
                         {account.full_name} - {account.code}
                       </CustomSelect.Option>
@@ -1083,6 +1105,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       </div>
       <div className="order-filter-tags">
         {filters && filters.map((filter: any, index) => {
+					console.log('filters', filters)
           return (
             <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
           )

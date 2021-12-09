@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const StyledHeader = styled.div`
-  margin-bottom: 20px;
+  margin: 20px 0;
   display: flex;
 
   .ant-btn {
@@ -30,17 +30,17 @@ export const StyledComponent = styled.div`
  .custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td {
     padding: 8px 15px;
 
-  .link {
-    color: #2a2a86;
-    text-decoration: none;
-    background-color: transparent;
-    outline: none;
-    cursor: pointer;
-    transition: color .3s;
-    &:hover {
-      color: #1890ff;
-      text-decoration: underline;
+    .link {
+      color: #2a2a86;
+      text-decoration: none;
+      background-color: transparent;
+      outline: none;
+      cursor: pointer;
+      transition: color .3s;
+      &:hover {
+        color: #1890ff;
+        text-decoration: underline;
+      }
     }
   }
-}
 `;

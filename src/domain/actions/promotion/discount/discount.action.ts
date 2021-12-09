@@ -2,7 +2,7 @@ import BaseAction from 'base/base.action';
 import {BaseQuery} from "../../../../model/base/base.query";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {DiscountType} from "../../../types/promotion.type";
-import {DiscountResponse} from "../../../../model/response/promotion/discount/list-discount.response";
+import {DiscountResponse, DiscountVariantResponse} from "../../../../model/response/promotion/discount/list-discount.response";
 
 export const getListDiscount = (query: BaseQuery, setData: (data: PageResponse<DiscountResponse>) => void) => {
   return BaseAction(DiscountType.GET_LIST_DISCOUNTS, { query, setData });
@@ -12,7 +12,7 @@ export const promoGetDetail = (id: number, onResult: (result: DiscountResponse|f
   return BaseAction(DiscountType.GET_PROMO_CODE_DETAIL, {id, onResult});
 }
 
-export const getVariants = (id: number, onResult: (result: DiscountResponse|false) => void) => {
+export const getVariants = (id: number, onResult: (result: DiscountVariantResponse[]) => void) => {
   return BaseAction(DiscountType.GET_VARIANTS, {id, onResult});
 }
 
@@ -38,4 +38,8 @@ export const bulkDisablePriceRules = (body: any, disableCallback: (result: Disco
 
 export const bulkDeletePriceRules = (body: any, deleteCallback: (result: DiscountResponse) => void) => {
   return BaseAction(DiscountType.DELETE_BULK_PRICE_RULE, {body, deleteCallback});
+}
+
+export const updatePriceRuleByIdAction = (body: any, onResult: (result: DiscountResponse) => void) => {
+  return BaseAction(DiscountType.UPDATE_PRICE_RULE_BY_ID, {body, onResult});
 }
