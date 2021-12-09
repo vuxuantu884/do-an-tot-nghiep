@@ -127,7 +127,7 @@ type PropType = {
 	loyaltyPoint: LoyaltyPoint | null;
   setStoreId: (item: number) => void;
   setCoupon?: (item: string) => void;
-  setPromotionId?: (item: number) => void;
+  setPromotionId?: (item: number|null) => void;
   setItemGift: (item: []) => void;
   changeInfo: (
     items: Array<OrderLineItemRequest>,
@@ -748,7 +748,7 @@ function OrderCreateProduct(props: PropType) {
               onChangePrice(value, index);
             }}
             // disabled={levelOrder > 3 || isAutomaticDiscount}
-            disabled={levelOrder > 3 || typeof(l.discount_items[0]?.promotion_id) !== "undefined" || couponInputText !== "" || typeof(promotionId) !== "undefined" }
+            disabled={levelOrder > 3 || typeof(l.discount_items[0]?.promotion_id) !== "undefined" || couponInputText !== "" || promotionId !== null }
           />
         </div>
       );
@@ -776,7 +776,7 @@ function OrderCreateProduct(props: PropType) {
             items={items}
             handleCardItems={onDiscountItem}
             // disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
-            disabled={levelOrder > 3 || typeof(l.discount_items[0]?.promotion_id) !== "undefined" || couponInputText !== "" || typeof(promotionId) !== "undefined" }
+            disabled={levelOrder > 3 || typeof(l.discount_items[0]?.promotion_id) !== "undefined" || couponInputText !== "" || promotionId !== null }
           />
         </div>
       );
@@ -1627,6 +1627,9 @@ function OrderCreateProduct(props: PropType) {
 		if (!items || items.length === 0) {
       return;
     }
+		if(promotionId) {
+			setPromotionId && setPromotionId(null)
+		}
     let _items = [...items];
     _items.forEach((lineItem) => {
       if(lineItem.discount_items[0]?.promotion_id) {
