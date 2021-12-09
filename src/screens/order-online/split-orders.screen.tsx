@@ -36,9 +36,11 @@ import { DeliveryServiceResponse, OrderResponse } from "model/response/order/ord
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
+import queryString from "query-string";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
+import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
@@ -46,7 +48,6 @@ import { generateQuery } from "utils/AppUtils";
 import { ShipmentMethod } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
 import EditNote from "./component/edit-note";
 import ExportModal from "./modal/export.modal";
 import "./scss/index.screen.scss";
@@ -71,69 +72,75 @@ const actions: Array<MenuAction> = [
   },
 ];
 
-const initQuery: OrderSearchQuery = {
-  page: 1,
-  limit: 30,
-  is_online: null,
-  sort_type: null,
-  sort_column: null,
-  code: null,
-  customer_ids: [],
-  store_ids: [],
-  source_ids: [],
-  variant_ids: [],
-  issued_on_min: null,
-  issued_on_max: null,
-  issued_on_predefined: null,
-  finalized_on_min: null,
-  finalized_on_max: null,
-  finalized_on_predefined: null,
-  ship_on_min: null,
-  ship_on_max: null,
-  ship_on_predefined: null,
-  expected_receive_on_min: null,
-  expected_receive_on_max: null,
-  expected_receive_predefined: null,
-  completed_on_min: null,
-  completed_on_max: null,
-  completed_on_predefined: null,
-  cancelled_on_min: null,
-  cancelled_on_max: null,
-  cancelled_on_predefined: null,
-  order_status: [],
-  sub_status_code: [],
-  fulfillment_status: [],
-  payment_status: [],
-  return_status: [],
-  account_codes: [],
-  assignee_codes: [],
-  price_min: undefined,
-  price_max: undefined,
-  payment_method_ids: [],
-  delivery_types: [],
-  delivery_provider_ids: [],
-  shipper_ids: [],
-  note: null,
-  customer_note: null,
-  tags: [],
-  reference_code: null,
+
+
+type PropsType = {
+  location: any;
 };
 
-const SplitOrdersScreen: React.FC = () => {
-  const query = useQuery();
+function SplitOrdersScreen(props: PropsType)  {
   const history = useHistory();
   const dispatch = useDispatch();
+
+	const {location} = props;
+  const queryParamsParsed = queryString.parse(location.search);
 
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
-  let dataQuery: OrderSearchQuery = {
-    ...initQuery,
-    ...getQueryParams(query),
-  };
-  let [params, setPrams] = useState<OrderSearchQuery>(dataQuery);
+
+	const initQuery: OrderSearchQuery = {
+		page: 1,
+		limit: 30,
+		is_online: null,
+		is_split: "true",
+		sort_type: null,
+		sort_column: null,
+		code: null,
+		customer_ids: [],
+		store_ids: [],
+		source_ids: [],
+		variant_ids: [],
+		issued_on_min: null,
+		issued_on_max: null,
+		issued_on_predefined: null,
+		finalized_on_min: null,
+		finalized_on_max: null,
+		finalized_on_predefined: null,
+		ship_on_min: null,
+		ship_on_max: null,
+		ship_on_predefined: null,
+		expected_receive_on_min: null,
+		expected_receive_on_max: null,
+		expected_receive_predefined: null,
+		completed_on_min: null,
+		completed_on_max: null,
+		completed_on_predefined: null,
+		cancelled_on_min: null,
+		cancelled_on_max: null,
+		cancelled_on_predefined: null,
+		order_status: [],
+		sub_status_code: [],
+		fulfillment_status: [],
+		payment_status: [],
+		return_status: [],
+		account_codes: [],
+		assignee_codes: [],
+		price_min: undefined,
+		price_max: undefined,
+		payment_method_ids: [],
+		delivery_types: [],
+		delivery_provider_ids: [],
+		shipper_ids: [],
+		note: null,
+		customer_note: null,
+		tags: [],
+		reference_code: null,
+		search_term: ""
+	};
+  let [params, setPrams] = useState<OrderSearchQuery>(initQuery);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
@@ -221,7 +228,7 @@ const SplitOrdersScreen: React.FC = () => {
         // console.log('i', i)
         return (
           <React.Fragment>
-            <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`}>
+            <Link  target="_blank" to={`${UrlConfig.SPLIT_ORDERS}/${i.id}`}>
               {value}
             </Link>
             <div style={{fontSize: "0.86em"}}>
@@ -753,7 +760,7 @@ const SplitOrdersScreen: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDER}?${queryParam}`);
+      history.replace(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
@@ -763,15 +770,17 @@ const SplitOrdersScreen: React.FC = () => {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       setIsFilter(true)
-      history.push(`${UrlConfig.ORDER}?${queryParam}`);
+      history.push(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.ORDER}?${queryParam}`);
+    history.push(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);
+
   const onMenuClick = useCallback(
     (index: number) => {
       let params = {
@@ -813,13 +822,13 @@ const SplitOrdersScreen: React.FC = () => {
             dispatch(hideLoading());
             
           })
-          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          // history.push(`${UrlConfig.SPLIT_ORDERS}/print-preview?${queryParam}`);
+          const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.SPLIT_ORDERS}/print-preview?${queryParam}`;
           window.open(printPreviewUrl);
           break;
         case ACTION_ID.printStockExport:
-          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          // history.push(`${UrlConfig.SPLIT_ORDERS}/print-preview?${queryParam}`);
+          const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.SPLIT_ORDERS}/print-preview?${queryParam}`;
           window.open(printPreviewUrlExport);
           break;
         default:
@@ -1015,6 +1024,15 @@ const SplitOrdersScreen: React.FC = () => {
     );
   }, [dispatch]);
 
+	useEffect(() => {
+		console.log('location', location)
+    setPrams({
+			...initQuery,
+			...queryParamsParsed,
+		});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -1026,7 +1044,7 @@ const SplitOrdersScreen: React.FC = () => {
           },
 					{
 						name: "Đơn hàng",
-						path: UrlConfig.ORDER,
+						path: UrlConfig.SPLIT_ORDERS,
 					},
           {
             name: "Danh sách đơn tách",
@@ -1067,7 +1085,7 @@ const SplitOrdersScreen: React.FC = () => {
               </AuthWrapper>
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
                 {(isPassed: boolean) => 
-                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} child="Thêm mới đơn hàng"/>}
+                <ButtonCreate path={`${UrlConfig.SPLIT_ORDERS}/create`} disabled={!isPassed} child="Thêm mới đơn hàng"/>}
               </AuthWrapper>
               
             </Space>
@@ -1142,5 +1160,4 @@ const SplitOrdersScreen: React.FC = () => {
     </StyledComponent>
   );
 };
-
-export default SplitOrdersScreen;
+export default withRouter(SplitOrdersScreen);
