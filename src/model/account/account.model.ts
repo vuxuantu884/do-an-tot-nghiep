@@ -54,6 +54,8 @@ export interface AccountJobResponse {
   position_name?: string;
   department_id: number;
   department_name?: string;
+  department?: string;
+  position?: string;
 }
 
 export interface AccountStoreResponse {

@@ -1,6 +1,10 @@
 import styled from "styled-components";
 
 export const StyledConfig = styled.div`
+  .shop-column {
+    display: flex;
+  }
+
   .ecommerce-user-detail{
     border: 1px solid #e5e5e5;
     padding: 7px 15px;

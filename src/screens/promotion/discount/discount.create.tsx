@@ -237,7 +237,7 @@ const CreateDiscountPage = () => {
         },
         {
           name: "Khuyến mại",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION}`,
+          path: `${UrlConfig.PROMOTION}`,
         },
         {
           name: "Chiết khấu",

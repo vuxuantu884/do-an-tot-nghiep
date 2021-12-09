@@ -22,7 +22,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
     <Menu>
       <Menu.Item key="info">
         <Link to="#" type="text">
-          <span>Thông tin cá nhân</span>
+          <span>Thông tin tài khoản</span>
         </Link>
       </Menu.Item>
       <Menu.Item key="info">

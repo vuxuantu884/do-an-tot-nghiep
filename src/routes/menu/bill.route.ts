@@ -7,6 +7,7 @@ import PackDetail from "screens/order-online/pack-detail";
 import PackSupportScreen from "screens/order-online/pack-support.screen";
 import AddReportHandOver from "screens/order-online/pack-support/add-report-hand-over";
 import PackUpdate from "screens/order-online/pack-update";
+import SplitOrdersScreen from "screens/order-online/split-orders.screen";
 
 const ListOrder = React.lazy(() => import("screens/order-online/index.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
@@ -94,7 +95,7 @@ const bill: Array<RouteMenu> = [
     ],
   },
   {
-    path: `/orders-return`,
+		path: UrlConfig.ORDERS_RETURN,
     exact: true,
     title: "Danh sách trả hàng",
     icon: "icon-dot",
@@ -174,6 +175,18 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       }
     ],
+    permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
+  },
+	{
+    path: UrlConfig.SPLIT_ORDERS,
+    exact: true,
+    title: "Danh sách đơn tách",
+    icon: "icon-dot",
+    component: SplitOrdersScreen,
+    key: "split-orders",
+    isShow: true,
+    header: null,
+    subMenu: [],
     permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
   },
 ];

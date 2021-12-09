@@ -233,16 +233,18 @@ function OrderSources(props: PropsType) {
     [history, queryParams]
   );
 
-  const handleDeleteMultiOrderSource = () => {
+  const handleDeleteMultiOrderSource = () => { 
     showLoading();
     if (rowSelectedObject.length > 0) {
       let channel_ids: number[] = [];
       let source_ids: number[] = [];
       rowSelectedObject.forEach((single) => {
-        if (single.is_channel) {
-          channel_ids.push(single.id);
-        } else {
-          source_ids.push(single.id);
+        if (single) {
+          if (single.is_channel) {
+            channel_ids.push(single.id);
+          } else {
+            source_ids.push(single.id);
+          }
         }
       });
       deleteMultiOrderSourceService(source_ids, channel_ids)
@@ -250,6 +252,7 @@ function OrderSources(props: PropsType) {
           switch (response.code) {
             case HttpStatus.SUCCESS:
               showSuccess("Xóa danh sách thành công!");
+              setRowSelectedObject([]);
               setTableLoading(true);
               gotoFirstPage();
               setTableLoading(false);
@@ -299,8 +302,13 @@ function OrderSources(props: PropsType) {
     const resultParams = {
       ...queryParams,
       ...values,
+			page: 1,
     };
-    handleNavigateByQueryParams(resultParams);
+		if(JSON.stringify(resultParams) === JSON.stringify(queryParams)) {
+			fetchData();
+		} else {
+			handleNavigateByQueryParams(resultParams);
+		}
   };
 
   const renderCardExtraHtml = () => {

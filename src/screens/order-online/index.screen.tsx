@@ -10,7 +10,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountSearchAction, ShipperGetListAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -137,6 +137,7 @@ const ListOrderScreen: React.FC = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+	const [listShippers, setListShippers] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
@@ -704,7 +705,19 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Nhân viên bán hàng",
-      render: (record) => <div>{`${record.assignee_code} - ${record.assignee}`}</div>,
+      render: (record) => {
+				return (
+					<div>
+						<Link
+							target="_blank"
+							to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}
+							className="primary"
+						>
+							{`${record.assignee_code} - ${record.assignee}`}
+						</Link>{" "}
+					</div>
+				)
+			},
       key: "assignee",
       visible: true,
       align: "center",
@@ -712,7 +725,19 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên tạo đơn",
-      render: (record) => <div>{`${record.account_code} - ${record.account}`}</div>,
+			render: (record) => {
+				return (
+					<div>
+						<Link
+							target="_blank"
+							to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}
+							className="primary"
+						>
+							{`${record.assignee_code} - ${record.assignee}`}
+						</Link>{" "}
+					</div>
+				)
+			},
       key: "account",
       visible: true,
       align: "center",
@@ -1015,6 +1040,10 @@ const ListOrderScreen: React.FC = () => {
     );
   }, [dispatch]);
 
+	useEffect(() => {
+    dispatch(ShipperGetListAction(setListShippers));
+  }, [dispatch]);
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -1080,6 +1109,7 @@ const ListOrderScreen: React.FC = () => {
             listSource={listSource}
             listStore={listStore}
             accounts={accounts}
+            listShippers={listShippers}
             deliveryService={deliveryServices}
             listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}

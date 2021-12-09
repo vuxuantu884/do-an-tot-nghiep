@@ -2,10 +2,10 @@ import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -52,7 +52,6 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
-	getAccountCodeFromCodeAndName,
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
@@ -220,8 +219,7 @@ export default function Order() {
     tags: "",
     customer_note: "",
     account_code: userReducer.account?.code,
-    // assignee_code: userReducer.account?.code || null,
-		assignee_code: `${userReducer.account?.code} - ${userReducer.account?.full_name}`,
+    assignee_code: userReducer.account?.code || null,
     marketer_code: null,
     coordinator_code: null,
     customer_id: null,
@@ -480,9 +478,6 @@ export default function Order() {
   const onFinish = (values: OrderRequest) => {
     values.channel_id = DEFAULT_CHANNEL_ID;
     values.company_id = DEFAULT_COMPANY.company_id;
-		values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
-		values.marketer_code = getAccountCodeFromCodeAndName(values.marketer_code);
-		values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -1138,6 +1133,7 @@ export default function Order() {
                       coupon={coupon}
                       setCoupon={setCoupon}
                       setDiscountValue={setDiscountValue}
+                      promotionId={promotionId}
                       setPromotionId={setPromotionId}
                       inventoryResponse={inventoryResponse}
                       customer={customer}
@@ -1146,6 +1142,7 @@ export default function Order() {
                       orderConfig={null}
                       orderSourceId={orderSourceId}
                       configOrder={configOrder}
+                      loyaltyPoint={loyaltyPoint}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments

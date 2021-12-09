@@ -32,7 +32,7 @@ const CreatePromotionCodePage = () => {
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
-
+  const [, setFormValues] = useState({}); // force re-render form value
   //phân quyền
   const [allowCreatePromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CREATE],
@@ -46,6 +46,9 @@ const CreatePromotionCodePage = () => {
     value_type: "PERCENTAGE",
     value: null,
     usage_limit: "1",
+    usage_unlimit_per_customer :  true,
+    starts_date : moment(),
+
   };
 
   useEffect(() => {
@@ -242,6 +245,7 @@ const CreatePromotionCodePage = () => {
         onFinish={onFinish}
         layout="vertical"
         initialValues={initialValues}
+        onValuesChange={(_, values) => setFormValues(values)}
       >
         <Row gutter={24}>
           <Col span={24}>

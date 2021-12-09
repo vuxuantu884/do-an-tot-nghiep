@@ -71,7 +71,6 @@ import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.respons
 import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
 import {OrderModel} from "../../../model/order/order.model";
 
-
 let typeButton = "";
 
 type OrdersCreatePermissionProps = {

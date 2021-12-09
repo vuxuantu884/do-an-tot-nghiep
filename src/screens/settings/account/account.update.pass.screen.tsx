@@ -19,8 +19,7 @@ import {
 import React, {useCallback, useEffect, useState} from "react";
 import { useHistory } from "react-router";
 import { LockOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { useDispatch } from "react-redux";
 import { AccountUpdatePassAction } from "domain/actions/account/account.action";
 
 
@@ -32,11 +31,10 @@ const AccountUpdatePassScreen: React.FC = () => {
     acceptPermissions: [AccountPermissions.UPDATE],
   });
   const history = useHistory();
-  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const dispatch = useDispatch();
 
   const backAction = ()=>{    
-    history.push(UrlConfig.ACCOUNTS + "/" + userReducer.account?.code);
+    history.push(`${UrlConfig.ACCOUNTS}/me`);
   };
 
   useEffect(() => {
@@ -81,8 +79,8 @@ const AccountUpdatePassScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Thông tin cá nhân",
-          path: UrlConfig.ACCOUNTS,
+          name: "Thông tin tài khoản",
+          path: `${UrlConfig.ACCOUNTS}/me`,
         },
         {
           name: "Đặt lại mật khẩu",
@@ -120,20 +118,21 @@ const AccountUpdatePassScreen: React.FC = () => {
               </Col>
             </Row>
             </Col>
-        </Row>
-        <BottomBarContainer
-            back="Quay lại"
-            backAction={backAction}
-            rightComponent={
-              <Space>
-                {allowUpdateAcc && <Button loading={loading} htmlType="submit" type="primary">
-                    Đặt lại mật khẩu
-                  </Button> }
-              </Space>
-            }
-          />
+        </Row> 
         </Form>
       </Card>  
+      <BottomBarContainer
+        back="Quay lại"
+        backAction={backAction}
+        rightComponent={
+          <Space>
+            {allowUpdateAcc && <Button loading={loading} htmlType="submit" type="primary">
+                Đặt lại mật khẩu
+              </Button> }
+          </Space>
+        }
+      />
+      
     </ContentContainer>
   );
 }; 

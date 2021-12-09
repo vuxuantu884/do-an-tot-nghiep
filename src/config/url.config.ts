@@ -17,6 +17,7 @@ const UrlConfig = {
   ROLES: `/roles`,
   ORDER: `/orders`,
   ORDERS_RETURN: `/orders-return`,
+  SPLIT_ORDERS: `/split-orders`,
   ORDER_PROCESSING_STATUS: `/order-processing-status`,
   ORDER_SOURCES: `/order-sources`,
   PRINTER: `/prints-templates`,
@@ -45,6 +46,12 @@ export const ProductTabUrl = {
   PRODUCTS: UrlConfig.PRODUCT,
   PRODUCT_HISTORIES: UrlConfig.PRODUCT + "/histories",
   HISTORY_PRICES: UrlConfig.PRODUCT + "/history-prices",
+};
+
+export const SupplierTabUrl = {
+  ADDRESSES: 'addresses',
+  CONTACTS: 'contacts',
+  PAYMENTS: "payments",
 };
 
 export const InventoryTransferTabUrl = {

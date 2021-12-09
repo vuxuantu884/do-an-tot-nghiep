@@ -24,6 +24,7 @@ import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomPagination from "component/table/CustomPagination";
+import TextEllipsis from "component/table/TextEllipsis";
 
 const updateCollectionPermission = [ProductPermission.collections_update];
 const deleteCollectionPermission = [ProductPermission.collections_delete];
@@ -139,7 +140,7 @@ const Collection = () => {
       align: "center",
     },
     {
-      title: "ID nhóm hàng",
+      title: "ID",
       width: 130,
       dataIndex: "code",
       render: (text: string, item: CollectionResponse) => {
@@ -149,6 +150,14 @@ const Collection = () => {
     {
       title: "Nhóm hàng",
       dataIndex: "name",
+    },
+    {
+      title: "Mô tả",
+      dataIndex: "description",
+      width: 350,
+      render: (value)=>{
+        return <TextEllipsis value={value} />
+      }
     },
     {
       title: "Người tạo",

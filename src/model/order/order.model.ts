@@ -72,6 +72,7 @@ export interface OrderSearchQuery {
   page: number;
   limit: number;
   is_online?: string | null;
+  is_split?: string | null;
   sort_type: string | null;
   sort_column: string | null;
   code: string | null;
@@ -114,6 +115,7 @@ export interface OrderSearchQuery {
   customer_note: string | null;
   tags: [];
   reference_code: string | null;
+  search_term?: string | null;
 }
 
 export interface EcommerceOrderSearchQuery extends OrderSearchQuery {

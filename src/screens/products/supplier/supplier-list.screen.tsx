@@ -1,7 +1,7 @@
 import {Card} from "antd";
 import {MenuAction} from "component/table/ActionButton";
 import {PageResponse} from "model/base/base-metadata.response";
-import {SupplierResponse, GoodsObj, SupplierQuery} from "model/core/supplier.model";
+import {SupplierResponse, SupplierQuery, SupplierContactResposne} from "model/core/supplier.model";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import {generateQuery} from "utils/AppUtils";
@@ -27,6 +27,9 @@ import {DeleteOutlined} from "@ant-design/icons";
 import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
+import {AccountSearchAction} from "domain/actions/account/account.action";
+import {AccountResponse} from "model/account/account.model";
+import {AppConfig} from "config/app.config";
 
 const ACTIONS_INDEX = {
   DELETE: 2,
@@ -42,14 +45,10 @@ const actionsDefault: Array<MenuAction> = [
 
 const DefaultCountry = 233;
 const initQuery: SupplierQuery = {
-  goods: "",
-  status: "",
   district_id: "",
-  scorecard: "",
   note: "",
-  type: "",
   contact: "",
-  pic: "",
+  pics: [],
   from_created_date: "",
   to_created_date: "",
 };
@@ -88,9 +87,6 @@ const ListSupplierScreen: React.FC = () => {
     });
   }, [allowDeleteSup]);
 
-  const goods = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.goods
-  );
   const scorecard = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.scorecard
   );
@@ -130,20 +126,6 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
     {
-      title: "Ngành hàng",
-      dataIndex: "goods",
-      render: (values: Array<GoodsObj>) => {
-        return (
-          <div>
-            {values.map((item, index) => (
-              <div key={index}>{item.name}</div>
-            ))}
-          </div>
-        );
-      },
-      visible: true,
-    },
-    {
       title: "Quốc gia",
       dataIndex: "country_name",
       visible: false,
@@ -160,12 +142,32 @@ const ListSupplierScreen: React.FC = () => {
     },
     {
       title: "Người liên hệ",
-      dataIndex: "contact_name",
+      dataIndex: "contacts",
       visible: true,
+      render: (contacts: Array<SupplierContactResposne>) => {
+        let index = contacts.findIndex((value) => value.is_default);
+        if(index === -1) {
+          if(contacts.length > 0) {
+            return contacts[0].name;
+          }
+          return '';
+        }
+        return contacts[index].name;
+      },
     },
     {
       title: "Số điện thoại",
-      dataIndex: "phone",
+      dataIndex: "contacts",
+      render: (contacts: Array<SupplierContactResposne>) => {
+        let index = contacts.findIndex((value) => value.is_default);
+        if(index === -1) {
+          if(contacts.length > 0) {
+            return contacts[0].phone;
+          }
+          return '';
+        }
+        return contacts[index].phone;
+      },
       visible: true,
     },
     {
@@ -208,6 +210,15 @@ const ListSupplierScreen: React.FC = () => {
       })
     );
   }, []);
+
+  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20,
+      page: 1,
+      total: 0,
+    },
+  });
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -265,11 +276,28 @@ const ListSupplierScreen: React.FC = () => {
     }
   }, []);
 
+  const getAccounts = useCallback(
+    (search: string, page: number) => {
+      dispatch(
+        AccountSearchAction(
+          {info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page},
+          (response: PageResponse<AccountResponse> | false) => {
+            if (response) {
+              setAccounts(response);
+            }
+          }
+        )
+      );
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
     setTableLoading(true);
     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
-  }, [dispatch, params, searchSupplierCallback]);
+    getAccounts("", 1);
+  }, [dispatch, getAccounts, params, searchSupplierCallback]);
   return (
     <>
       {allowReadSup ? (
@@ -290,17 +318,21 @@ const ListSupplierScreen: React.FC = () => {
           ]}
           extra={
             allowCreateSup ? (
-              <ButtonCreate child="Thêm nhà cung cấp" path={`${UrlConfig.SUPPLIERS}/create`} />
+              <ButtonCreate
+                child="Thêm nhà cung cấp"
+                path={`${UrlConfig.SUPPLIERS}/create`}
+              />
             ) : null
           }
         >
           <Card>
             <SupplierFilter
+              accounts={accounts}
+              onAccountPageChange={(key, page) => getAccounts(key, page)}
               onMenuClick={onMenuClick}
               listDistrict={listDistrict}
               actions={actions}
               onFilter={onFilter}
-              goods={goods}
               supplierStatus={supplierStatus}
               scorecard={scorecard}
               params={params}
@@ -338,7 +370,6 @@ const ListSupplierScreen: React.FC = () => {
               onCancel={() => setConfirmDelete(false)}
               onOk={() => {
                 setConfirmDelete(false);
-                // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
                 onDelete();
               }}
               title="Bạn chắc chắn xóa nhà cung cấp ?"
