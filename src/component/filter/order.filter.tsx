@@ -27,7 +27,7 @@ import { OrderProcessingStatusModel } from "model/response/order-processing-stat
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import DebounceSelect from "./component/debounce-select";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
-import AccountSearchSelect from "component/custom/AccountSearchSelect";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 
 type OrderFilterProps = {
   params: OrderSearchQuery;
@@ -905,13 +905,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         </CustomSelect.Option>
                       ))}
                   </CustomSelect> */}
-									<AccountSearchSelect
+									<AccountCustomSearchSelect
 										placeholder="Tìm theo họ tên hoặc mã nhân viên"
 										dataToSelect={assigneeAccountData}
 										setDataToSelect={setAssigneeAccountData}
 										initDataToSelect={accounts}
 										mode="multiple"
-										notFoundContent="Không tìm thấy kết quả"
 										getPopupContainer={(trigger:any) => trigger.parentNode}
                     maxTagCount='responsive'
 									/>
