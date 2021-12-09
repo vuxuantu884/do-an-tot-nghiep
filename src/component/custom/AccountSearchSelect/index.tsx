@@ -1,11 +1,10 @@
-import { FormInstance, Select } from "antd";
+import { Select } from "antd";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { AccountResponse } from "model/account/account.model";
 import React, {
 	MutableRefObject,
-	useCallback,
-	useEffect, useRef
+	useCallback, useRef
 } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountApi } from "service/accounts/account.service";
@@ -14,8 +13,6 @@ import { showError } from "utils/ToastUtils";
 
 type PropType = {
   placeholder: string;
-  form: FormInstance<any>;
-  formFieldName: string;
   initValue?: string;
   dataToSelect: AccountResponse[];
   initDataToSelect: AccountResponse[];
@@ -26,15 +23,12 @@ type PropType = {
 function AccountSearchSelect(props: PropType) {
   const {
     placeholder,
-    form,
-    formFieldName,
     initValue,
     dataToSelect,
 		initDataToSelect,
     setDataToSelect,
 		...rest
   } = props;
-	console.log('initDataToSelect', initDataToSelect)
   const inputRef: MutableRefObject<any> = useRef();
   const dispatch = useDispatch();
 
@@ -80,14 +74,6 @@ function AccountSearchSelect(props: PropType) {
 		},
 		[initDataToSelect, setDataToSelect],
 	)
-
-	useEffect(() => {
-		if(initValue) {
-			form.setFieldsValue({
-				[formFieldName]: initValue
-			})
-		}
-	}, [initValue, form, formFieldName, dataToSelect])
 
   return (
 		<Select

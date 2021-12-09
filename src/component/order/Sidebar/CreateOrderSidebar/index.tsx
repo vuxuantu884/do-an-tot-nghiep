@@ -226,8 +226,6 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
         >
           <AccountSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
-            form={form}
-            formFieldName="assignee_code"
             initValue={initValueAssigneeCode}
             dataToSelect={assigneeAccountData}
             setDataToSelect={setAssigneeAccountData}
@@ -246,8 +244,6 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
         >
           <AccountSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
-            form={form}
-            formFieldName="marketer_code"
             initValue={initValueMarketerCode}
             dataToSelect={marketingAccountData}
             setDataToSelect={setMarketingAccountData}
@@ -260,8 +256,6 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
         >
           <AccountSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
-            form={form}
-            formFieldName="coordinator_code"
             initValue={initValueCoordinatorCode}
             dataToSelect={coordinatorAccountData}
             setDataToSelect={setCoordinatorAccountData}

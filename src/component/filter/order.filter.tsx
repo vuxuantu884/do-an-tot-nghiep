@@ -907,11 +907,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   </CustomSelect> */}
 									<AccountSearchSelect
 										placeholder="Tìm theo họ tên hoặc mã nhân viên"
-										formFieldName="assignee_codes"
 										dataToSelect={assigneeAccountData}
 										setDataToSelect={setAssigneeAccountData}
 										initDataToSelect={accounts}
-										form={form}
 										mode="multiple"
 										notFoundContent="Không tìm thấy kết quả"
 										getPopupContainer={(trigger:any) => trigger.parentNode}
