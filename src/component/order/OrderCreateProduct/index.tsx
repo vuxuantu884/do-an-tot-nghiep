@@ -1744,7 +1744,7 @@ function OrderCreateProduct(props: PropType) {
       ) {
         handleApplyDiscount(items);
       } else isShouldUpdateDiscountRef.current = true;
-  }, [customer?.id, storeId, orderSourceId, form.getFieldValue("assignee_code")]);
+  }, [customer?.id, storeId, orderSourceId]);
 
   /**
    * gọi lại api couponInputText khi thay đổi số lượng item
@@ -1765,7 +1765,7 @@ function OrderCreateProduct(props: PropType) {
       isShouldUpdateCouponRef.current = true;
       isShouldUpdateDiscountRef.current = true;
     }, 1000);
-  }, [customer?.id, storeId, orderSourceId, form.getFieldValue("assignee_code")]);
+  }, [customer?.id, storeId, orderSourceId]);
 
   return (
     <StyledComponent>
