@@ -1010,6 +1010,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     setDiscountValue={setDiscountValue}
                     coupon={coupon}
                     setCoupon={setCoupon}
+                    promotionId={promotionId}
                     setPromotionId={setPromotionId}
                     customer={customer}
                     loyaltyPoint={loyaltyPoint}
