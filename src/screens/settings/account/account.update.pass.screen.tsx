@@ -79,7 +79,7 @@ const AccountUpdatePassScreen: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Thông tin cá nhân",
+          name: "Thông tin tài khoản",
           path: `${UrlConfig.ACCOUNTS}/me`,
         },
         {
@@ -132,6 +132,7 @@ const AccountUpdatePassScreen: React.FC = () => {
           </Space>
         }
       />
+      
     </ContentContainer>
   );
 }; 

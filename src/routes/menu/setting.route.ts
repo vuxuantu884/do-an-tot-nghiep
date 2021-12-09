@@ -138,7 +138,7 @@ const setting: Array<RouteMenu> = [
       {
         path: `${UrlConfig.ACCOUNTS}/me`,
         exact: true,
-        title: "Thông tin cá nhân",
+        title: "Thông tin tài khoản",
         icon: "icon-dot",
         component: AccountMeScreen,
         key: "account2",

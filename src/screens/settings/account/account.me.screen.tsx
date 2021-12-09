@@ -81,14 +81,14 @@ const AccountMeScreen: React.FC = () => {
   
   return (
     <ContentContainer
-      title="Thông tin cá nhân"
+      title="Thông tin tài khoản"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Thông tin cá nhân",
+          name: "Thông tin tài khoản",
         }, 
       ]}
     >
