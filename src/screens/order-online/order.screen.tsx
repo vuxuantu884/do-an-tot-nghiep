@@ -1141,6 +1141,7 @@ export default function Order() {
                       orderConfig={null}
                       orderSourceId={orderSourceId}
                       configOrder={configOrder}
+                      loyaltyPoint={loyaltyPoint}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments

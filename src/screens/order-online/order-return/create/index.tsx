@@ -1012,6 +1012,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     setCoupon={setCoupon}
                     setPromotionId={setPromotionId}
                     customer={customer}
+                    loyaltyPoint={loyaltyPoint}
                   />
                 )}
                 {!isExchange && (

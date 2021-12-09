@@ -1299,6 +1299,7 @@ export default function Order(props: PropType) {
                     setPromotionId={setPromotionId}
                     orderDetail={OrderDetail}
                     configOrder={configOrder}
+                    loyaltyPoint={loyaltyPoint}
                   />
 
                   {OrderDetail !== null &&
