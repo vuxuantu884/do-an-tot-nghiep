@@ -21,7 +21,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
   const userMenu = (
     <Menu>
       <Menu.Item key="info">
-        <Link to="#" type="text">
+      <Link to={`${UrlConfig.ACCOUNTS}/me`}>
           <span>Thông tin tài khoản</span>
         </Link>
       </Menu.Item>
