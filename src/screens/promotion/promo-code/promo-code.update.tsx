@@ -18,7 +18,6 @@ import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {useParams} from "react-router";
 import {useHistory} from "react-router-dom";
-import {PROMO_TYPE} from "utils/Constants";
 import {DATE_FORMAT} from "utils/DateUtils";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
@@ -51,12 +50,9 @@ const PromoCodeUpdate = () => {
 
   const transformData = (values: any) => {
     let body: any = {};
-    body.type = PROMO_TYPE.MANUAL;
     body.title = values.title;
     body.description = values.description;
-    body.discount_codes = values.discount_code?.length
-      ? [{code: "PC" + values.discount_code}]
-      : null;
+
     body.usage_limit = values.usage_limit ? values.usage_limit : null;
     body.usage_limit_per_customer = values.usage_limit_per_customer
       ? values.usage_limit_per_customer
@@ -73,13 +69,13 @@ const PromoCodeUpdate = () => {
       : null;
     body.starts_date = values.starts_date?.format();
     body.ends_date = values.ends_date?.format() || null;
-    body.entitled_method = "QUANTITY";
-    body.prerequisite_subtotal_range = values.prerequisite_subtotal_range_min
-      ? {
-          greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
-          less_than_or_equal_to: null,
-        }
+    body.entitled_method = values.entitled_method;
+
+    body.prerequisite_subtotal_range = values?.prerequisite_subtotal_range
+      ?.greater_than_or_equal_to
+      ? values.prerequisite_subtotal_range
       : null;
+
     if (values.entitlements && values.entitlements.length > 0) {
       body.entitlements = values.entitlements.map((entitlement: any) => {
         return {
@@ -193,22 +189,18 @@ const PromoCodeUpdate = () => {
     return body;
   };
 
-  const updateCallback = useCallback(
-    (data) => {
-      if (data) {
-        setTimeout(() => {
-          showSuccess("Thêm thành công");
-          history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${data.id}`);
-          dispatch(hideLoading());
-        }, 2000);
-      } else dispatch(hideLoading());
-    },
-    [dispatch, history]
-  );
+  const updateCallback = (data: DiscountResponse) => {
+    if (data) {
+      setTimeout(() => {
+        showSuccess("Thêm thành công");
+        history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}`);
+        dispatch(hideLoading());
+      }, 2000);
+    } else dispatch(hideLoading());
+  };
 
   const onFinish = (values: any) => {
     // Action: Lưu và kích hoạt
-    console.log(values);
     const body = transformData(values);
     body.id = idNumber;
     dispatch(showLoading());
@@ -290,6 +282,7 @@ const PromoCodeUpdate = () => {
         });
       });
     }
+    
     return result;
   };
 
@@ -324,13 +317,17 @@ const PromoCodeUpdate = () => {
   }, [dispatch, idNumber]);
 
   useEffect(() => {
+    setLoading(true);
     dispatch(promoGetDetail(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
   return (
     <ContentContainer
       isLoading={loading}
-      isError={dataDiscount?.entitled_method !== "QUANTITY"}
+      isError={
+        dataDiscount?.entitled_method !== "QUANTITY" ||
+        dataDiscount?.state === "CANCELLED"
+      }
       title="Sửa khuyến mãi"
       breadcrumb={[
         {
