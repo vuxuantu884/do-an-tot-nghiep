@@ -277,7 +277,7 @@ function OrderCreateProduct(props: PropType) {
 
   const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
   const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
-
+	
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLBodyElement) {
@@ -1199,7 +1199,7 @@ function OrderCreateProduct(props: PropType) {
         customer_id: customer?.id || null,
         gender: customer?.gender || null,
         customer_group_id: customer?.customer_group_id || null,
-        customer_loyalty_level_id: customer?.loyalty_level_id || null,
+        customer_loyalty_level_id: loyaltyPoint?.loyalty_level_id || null,
         customer_type_id: customer?.type_id || null,
         birthday_date: customer?.birthday || null,
         wedding_date: customer?.wedding_date || null,
