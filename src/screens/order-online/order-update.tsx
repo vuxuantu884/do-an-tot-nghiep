@@ -1296,6 +1296,7 @@ export default function Order(props: PropType) {
                     levelOrder={levelOrder}
                     coupon={coupon}
                     setCoupon={setCoupon}
+                    promotionId={promotionId}
                     setPromotionId={setPromotionId}
                     orderDetail={OrderDetail}
                     configOrder={configOrder}

@@ -121,7 +121,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           switch (response.code) {
             case HttpStatus.SUCCESS:
               setStoreAccountData(response.data.items);
-              setMarketingAccountData(response.data.items);
+              setInitAssigneeAccountData(response.data.items);
               setInitMarketingAccountData(response.data.items);
               setInitCoordinatorAccountData(response.data.items);
               break;

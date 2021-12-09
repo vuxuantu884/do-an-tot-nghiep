@@ -494,116 +494,119 @@ export default function Order() {
     values.customer_city = customer?.city;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
 
-    //Nếu là lưu nháp Fulfillment = [], payment = []
-    if (typeButton === OrderStatus.DRAFT) {
-      values.fulfillments = [];
-      // thêm payment vào đơn nháp
-      // values.payments = [];
-      values.payments = payments.filter((payment) => payment.amount > 0);
+		console.log('values', values)
+		return;
 
-      values.shipping_fee_informed_to_customer = 0;
-      values.action = OrderStatus.DRAFT;
-      values.total = getTotalAmount(values.items);
-      values.shipping_fee_informed_to_customer = 0;
-    } else {
-      //Nếu là đơn lưu và xác nhận
-      values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
-      values.fulfillments = lstFulFillment;
-      values.action = OrderStatus.FINALIZED;
-      values.payments = payments.filter((payment) => payment.amount > 0);
-      values.total = getTotalAmount(values.items);
-      if (
-        values?.fulfillments &&
-        values.fulfillments.length > 0 &&
-        values.fulfillments[0].shipment
-      ) {
-        values.fulfillments[0].shipment.cod =
-          orderAmount +
-          (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-          getAmountPaymentRequest(payments) -
-          discountValue;
-      }
-    }
+    // //Nếu là lưu nháp Fulfillment = [], payment = []
+    // if (typeButton === OrderStatus.DRAFT) {
+    //   values.fulfillments = [];
+    //   // thêm payment vào đơn nháp
+    //   // values.payments = [];
+    //   values.payments = payments.filter((payment) => payment.amount > 0);
+
+    //   values.shipping_fee_informed_to_customer = 0;
+    //   values.action = OrderStatus.DRAFT;
+    //   values.total = getTotalAmount(values.items);
+    //   values.shipping_fee_informed_to_customer = 0;
+    // } else {
+    //   //Nếu là đơn lưu và xác nhận
+    //   values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
+    //   values.fulfillments = lstFulFillment;
+    //   values.action = OrderStatus.FINALIZED;
+    //   values.payments = payments.filter((payment) => payment.amount > 0);
+    //   values.total = getTotalAmount(values.items);
+    //   if (
+    //     values?.fulfillments &&
+    //     values.fulfillments.length > 0 &&
+    //     values.fulfillments[0].shipment
+    //   ) {
+    //     values.fulfillments[0].shipment.cod =
+    //       orderAmount +
+    //       (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+    //       getAmountPaymentRequest(payments) -
+    //       discountValue;
+    //   }
+    // }
     
-    if (!values.customer_id) {
-      showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
-      const element: any = document.getElementById("search_customer");
-      element?.focus();
-    } else {
-      if (items.length === 0) {
-        showError("Vui lòng chọn ít nhất 1 sản phẩm");
-        const element: any = document.getElementById("search_product");
-        element?.focus();
-      } else {
-        if( shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
-          showError("Vui lòng nhập địa chỉ giao hàng!");
-          const element: any = document.getElementById("shippingAddress_update_full_address");
-          scrollAndFocusToDomElement(element);
-          return;
-        }
-        if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-          if (typeButton === OrderStatus.DRAFT) {
-            setIsSaveDraft(true);
-          } else {
-            setCreating(true);
-          }
-          if (
-            values.delivery_service_provider_id === null &&
-            typeButton !== OrderStatus.DRAFT
-          ) {
-            showError("Vui lòng chọn đối tác giao hàng");
-            setCreating(false);
-          } else {
-            (async () => {
-              try {
-                await dispatch(orderCreateAction(values, createOrderCallback, () => {
-                  // on error
-                  setCreating(false);
-                  setIsSaveDraft(false);
-                }));
-              } catch {
-                setCreating(false);
-                setIsSaveDraft(false);
-              }
-            })();
-            // dispatch(orderCreateAction(values, createOrderCallback));
-          }
-        } else {
-          if (
-            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-            !thirdPL.service
-          ) {
-            showError("Vui lòng chọn đơn vị vận chuyển!");
-            setCreating(false);
-          } else {
-            if (typeButton === OrderStatus.DRAFT) {
-              setIsSaveDraft(true);
-            } else {
-              setCreating(true);
-            }
-            if (checkInventory()) {
-              let isPointFocus = checkPointFocus(values);
-              if (isPointFocus) {
-                (async () => {
-                  console.log('values', values);
-                  try {
-                    await dispatch(orderCreateAction(values, createOrderCallback, () => {
-                      // on error
-                      setCreating(false);
-                      setIsSaveDraft(false);
-                    }));
-                  } catch {
-                    setCreating(false);
-                    setIsSaveDraft(false);
-                  }
-                })();
-              }
-              // dispatch(orderCreateAction(values, createOrderCallback));
-            }
-          }
-        }
-      }
-    }
+    // if (!values.customer_id) {
+    //   showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
+    //   const element: any = document.getElementById("search_customer");
+    //   element?.focus();
+    // } else {
+    //   if (items.length === 0) {
+    //     showError("Vui lòng chọn ít nhất 1 sản phẩm");
+    //     const element: any = document.getElementById("search_product");
+    //     element?.focus();
+    //   } else {
+    //     if( shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+    //       showError("Vui lòng nhập địa chỉ giao hàng!");
+    //       const element: any = document.getElementById("shippingAddress_update_full_address");
+    //       scrollAndFocusToDomElement(element);
+    //       return;
+    //     }
+    //     if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+    //       if (typeButton === OrderStatus.DRAFT) {
+    //         setIsSaveDraft(true);
+    //       } else {
+    //         setCreating(true);
+    //       }
+    //       if (
+    //         values.delivery_service_provider_id === null &&
+    //         typeButton !== OrderStatus.DRAFT
+    //       ) {
+    //         showError("Vui lòng chọn đối tác giao hàng");
+    //         setCreating(false);
+    //       } else {
+    //         (async () => {
+    //           try {
+    //             await dispatch(orderCreateAction(values, createOrderCallback, () => {
+    //               // on error
+    //               setCreating(false);
+    //               setIsSaveDraft(false);
+    //             }));
+    //           } catch {
+    //             setCreating(false);
+    //             setIsSaveDraft(false);
+    //           }
+    //         })();
+    //         // dispatch(orderCreateAction(values, createOrderCallback));
+    //       }
+    //     } else {
+    //       if (
+    //         shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+    //         !thirdPL.service
+    //       ) {
+    //         showError("Vui lòng chọn đơn vị vận chuyển!");
+    //         setCreating(false);
+    //       } else {
+    //         if (typeButton === OrderStatus.DRAFT) {
+    //           setIsSaveDraft(true);
+    //         } else {
+    //           setCreating(true);
+    //         }
+    //         if (checkInventory()) {
+    //           let isPointFocus = checkPointFocus(values);
+    //           if (isPointFocus) {
+    //             (async () => {
+    //               console.log('values', values);
+    //               try {
+    //                 await dispatch(orderCreateAction(values, createOrderCallback, () => {
+    //                   // on error
+    //                   setCreating(false);
+    //                   setIsSaveDraft(false);
+    //                 }));
+    //               } catch {
+    //                 setCreating(false);
+    //                 setIsSaveDraft(false);
+    //               }
+    //             })();
+    //           }
+    //           // dispatch(orderCreateAction(values, createOrderCallback));
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
   };
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
@@ -1133,6 +1136,7 @@ export default function Order() {
                       coupon={coupon}
                       setCoupon={setCoupon}
                       setDiscountValue={setDiscountValue}
+                      promotionId={promotionId}
                       setPromotionId={setPromotionId}
                       inventoryResponse={inventoryResponse}
                       customer={customer}
