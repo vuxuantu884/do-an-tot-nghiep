@@ -55,7 +55,6 @@ const ProcurementFilterName = {
   [ProcurementFilterItem.suppliers]: "Nhà cung cấp",
   [ProcurementFilterItem.expectDate]: "Ngày nhận dự kiến",
 };
-const TAP_ID = 2;
 const { Panel } = Collapse;
 function TabListFilter() {
   const history = useHistory();
@@ -132,7 +131,7 @@ function TabListFilter() {
     newFormBaseData.merchandisers = formBaseData?.merchandisers?.toString();
     setAdvanceFilters(data);
     history.replace(
-      `${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify({
+      `${UrlConfig.PROCUREMENT}?${querystring.stringify({
         ...params,
         ...newFormBaseData,
       })}`
@@ -146,7 +145,7 @@ function TabListFilter() {
     const formAdvanceParams: ProcurementQuery = parseDataToString(formAdvanceData);
 
     history.push(
-      `${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify({
+      `${UrlConfig.PROCUREMENT}?${querystring.stringify({
         ...data,
         ...formAdvanceParams,
       })}`
