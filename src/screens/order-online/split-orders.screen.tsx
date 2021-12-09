@@ -228,7 +228,7 @@ function SplitOrdersScreen(props: PropsType)  {
         // console.log('i', i)
         return (
           <React.Fragment>
-            <Link  target="_blank" to={`${UrlConfig.SPLIT_ORDERS}/${i.id}`}>
+            <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`} style={{fontWeight: 500}}>
               {value}
             </Link>
             <div style={{fontSize: "0.86em"}}>
@@ -273,7 +273,7 @@ function SplitOrdersScreen(props: PropsType)  {
 				</div>,
       key: "customer",
       visible: true,
-      width: 150,
+      width: 120,
     },
     {
       title: (
@@ -328,17 +328,36 @@ function SplitOrdersScreen(props: PropsType)  {
     //   visible: true,
     //   align: "center",
     // },
-    
     {
-      title: "Địa chỉ giao hàng",
-      render: (record: OrderResponse) =>
-				<div className="customer custom-td">
-					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
-        </div>
-        ,
-      key: "shipping_address",
+      title: "Khách phải trả",
+      // dataIndex: "",
+      render: (record: any) => (
+        <>
+          <span>
+            <NumberFormat
+              value={record.total_line_amount_after_line_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+          <br />
+          <span style={{ color: "#EF5B5B" }}>
+            {" "}
+            -
+            <NumberFormat
+              value={record.total_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+        </>
+      ),
+      key: "customer.amount_money",
       visible: true,
-      width: 190,
+      align: "right",
+      width: 90,
     },
     {
       title: "HT Vận chuyển",
@@ -371,28 +390,8 @@ function SplitOrdersScreen(props: PropsType)  {
         return ""
       },
       visible: true,
-      width: 140,
+      width: 110,
       align: "center",
-    },
-    {
-      title: "Trạng thái xử lý đơn",
-      dataIndex: "sub_status",
-      key: "sub_status",
-      render: (sub_status) => (
-        <div
-          style={{
-            // background: "rgba(42, 42, 134, 0.1)",
-            borderRadius: "100px",
-            color: "#2A2A86",
-            padding: sub_status ? "5px 10px" : "0",
-          }}
-        >
-          {sub_status}
-        </div>
-      ),
-      visible: true,
-      align: "center",
-      width: 160,
     },
     {
       title: "Trạng thái đơn",
@@ -458,17 +457,9 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width:"150px"
+      width: 120
     },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "source",
-      visible: true,
-      align: "center",
-      width:"130px"
-    },
-    {
+		{
       title: "Đóng gói",
       key: "packed_status",
       render: (record: any) => {
@@ -485,7 +476,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width: 100,
+      width: 70,
     },
     {
       title: "Xuất kho",
@@ -504,35 +495,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width: 100,
-    },
-    
-    {
-      title: "Trả hàng",
-      dataIndex: "return_status",
-      key: "return_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "unreturned":
-            processIcon = "icon-blank";
-            break;
-          case "returned":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
-      visible: true,
-      align: "center",
-      width: 100,
+      width: 70,
     },
     {
       title: "Thanh toán",
@@ -559,52 +522,65 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width: 110,
+      width: 70,
     },
     {
-      title: "HT thanh toán",
-      dataIndex: "payments",
-      key: "payments.type",
-      render: (payments: Array<OrderPaymentModel>) =>
-        payments.map((payment) => {
-          return <Tag>{payment.payment_method}</Tag>;
-        }),
+      title: "Trả hàng",
+      dataIndex: "return_status",
+      key: "return_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case "unreturned":
+            processIcon = "icon-blank";
+            break;
+          case "returned":
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
       visible: true,
       align: "center",
-      width: 160
+      width: 70,
     },
-    {
-      title: "Khách phải trả",
-      // dataIndex: "",
-      render: (record: any) => (
-        <>
-          <span>
-            <NumberFormat
-              value={record.total_line_amount_after_line_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          </span>
-          <br />
-          <span style={{ color: "#EF5B5B" }}>
-            {" "}
-            -
-            <NumberFormat
-              value={record.total_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          </span>
-        </>
-      ),
-      key: "customer.amount_money",
+		{
+      title: "Tổng SL",
+      dataIndex: "total_quantity",
+      key: "total_quantity",
       visible: true,
-      align: "right",
-      width: 150,
+      align: "center",
+      width: 70,
     },
-    {
+		{
+      title: "Kho cửa hàng",
+      dataIndex: "store",
+      key: "store",
+      visible: true,
+      align: "center",
+			render: (value, record: OrderModel) => 
+				<Link  target="_blank" to={`${UrlConfig.STORE}/${record.store_id}`}>
+					{value}
+				</Link>
+      ,
+      width: 100,
+    },
+		{
+      title: "Nguồn đơn hàng",
+      dataIndex: "source",
+      key: "source",
+      visible: true,
+      align: "center",
+      width:"130px"
+    },
+		{
       title: "Khách đã trả",
       dataIndex: "payments",
       key: "customer.paid",
@@ -624,8 +600,8 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
+			width: 90,
     },
-
     {
       title: "Còn phải trả",
       key: "customer.pay",
@@ -648,6 +624,67 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
+			width: 90,
+    },
+    {
+      title: "HT thanh toán",
+      dataIndex: "payments",
+      key: "payments.type",
+      render: (payments: Array<OrderPaymentModel>) =>
+        payments.map((payment) => {
+          return <Tag>{payment.payment_method}</Tag>;
+        }),
+      visible: true,
+      align: "center",
+      width: 100
+    },
+		{
+      title: "Nhân viên bán hàng",
+			render: (value, record: OrderModel) => 
+				<Link  target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
+					{`${record.assignee_code} - ${record.assignee}`}
+				</Link>
+      ,
+      key: "assignee",
+      visible: true,
+      align: "center",
+      width: 120
+    },
+    {
+      title: "Nhân viên tạo đơn",
+			render: (value, record: OrderModel) => 
+				<Link  target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
+					{`${record.account_code} - ${record.account}`}
+				</Link>
+      ,
+      key: "account",
+      visible: true,
+      align: "center",
+      width: 120
+    },
+		{
+      title: "Ngày tạo đơn",
+      dataIndex: "created_date",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      key: "created_date",
+      visible: true,
+			width: 120,
+    },
+		{
+      title: "Ngày hoàn tất đơn",
+      dataIndex: "finished_on",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      key: "finished_on",
+      visible: true,
+			width: 120,
+    },
+    {
+      title: "Ngày huỷ đơn",
+      dataIndex: "cancelled_on",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      key: "cancelled_on",
+      visible: true,
+			width: 120,
     },
     {
       title: "Ghi chú nội bộ",
@@ -660,6 +697,7 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "note",
       visible: true,
       align: "center",
+			width: 150,
     },
     {
       title: "Ghi chú của khách",
@@ -672,72 +710,42 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "customer_note",
       visible: true,
       align: "center",
+			width: 150,
     },
     {
       title: "Tag",
       dataIndex: "tags",
-      // render: (tags: Array<string>) => (
-      //   tags?.map(tag => {
-      //     return (
-      //       <Tag>{tag}</Tag>
-      //     )
-      //   })
-      // ),
+      render: (values, record: OrderModel) => {
+				let result:React.ReactNode = null;
+				if(record?.tags) {
+					const listTags = record?.tags.split(",")
+					console.log('listTags', listTags)
+					if(listTags && listTags.length > 0) {
+						result = listTags.map(tag => {
+							return (
+								<Tag>{tag}</Tag>
+							)
+						})
+					}
+				}
+				return result
+			},
       key: "tags",
       visible: true,
       align: "center",
+			width: 100,
     },
     {
       title: "Mã tham chiếu",
-      dataIndex: "reference_code",
-      key: "reference_code",
+      dataIndex: "linked_order_code",
+      key: "linked_order_code",
+			render: (value) => 
+				<Link  target="_blank" to={`${UrlConfig.ORDER}/${value}`}>
+					{value}
+				</Link>
+      ,
       visible: true,
-    },
-    {
-      title: "Tổng SL",
-      dataIndex: "items",
-      key: "item.quantity.total",
-      render: (items) => {
-        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
-
-        return items.reduce((total: number, item: any) => total + item.quantity, 0);
-      },
-      visible: true,
-      align: "center",
-      width: 100,
-    },
-		
-    
-    
-    {
-      title: "Nhân viên bán hàng",
-      render: (record) => <div>{`${record.assignee_code} - ${record.assignee}`}</div>,
-      key: "assignee",
-      visible: true,
-      align: "center",
-      width: 200
-    },
-    {
-      title: "Nhân viên tạo đơn",
-      render: (record) => <div>{`${record.account_code} - ${record.account}`}</div>,
-      key: "account",
-      visible: true,
-      align: "center",
-      width: 200
-    },
-    {
-      title: "Ngày hoàn tất đơn",
-      dataIndex: "completed_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "completed_on",
-      visible: true,
-    },
-    {
-      title: "Ngày huỷ đơn",
-      dataIndex: "cancelled_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "cancelled_on",
-      visible: true,
+			width: 100,
     },
   ]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -1044,7 +1052,7 @@ function SplitOrdersScreen(props: PropsType)  {
           },
 					{
 						name: "Đơn hàng",
-						path: UrlConfig.SPLIT_ORDERS,
+						path: UrlConfig.ORDER,
 					},
           {
             name: "Danh sách đơn tách",

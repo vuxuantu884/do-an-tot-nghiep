@@ -27,6 +27,7 @@ import { OrderProcessingStatusModel } from "model/response/order-processing-stat
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import DebounceSelect from "./component/debounce-select";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 
 type SplitOrdersFilterProps = {
   params: OrderSearchQuery;
@@ -130,6 +131,10 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
   const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string}[]>([]);
+
+	const [accountData, setAccountData] = useState<Array<AccountResponse>>(
+    []
+  );
 
   const onChangeOrderOptions = useCallback((e) => {
     console.log('ok lets go', e.target.value);
@@ -626,6 +631,12 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     }
   }, [params.variant_ids]);
 
+	useEffect(() => {
+		if(accounts) {
+			setAccountData(accounts)
+		}
+	}, [accounts])
+
   return (
     <div>
       <div className="order-options">
@@ -879,47 +890,29 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                 </Item>
                 <p>Nhân viên bán hàng</p>
                 <Item name="assignee_codes">
-                  <CustomSelect
-                    mode="multiple" showSearch allowClear
-                    showArrow placeholder="Chọn nhân viên bán hàng"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                      {accounts.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.code.toString()}
-                        >
-                          {`${item.full_name} - ${item.code}`}
-                        </CustomSelect.Option>
-                      ))}
-                  </CustomSelect>
+									<AccountCustomSearchSelect
+										placeholder="Tìm theo họ tên hoặc mã nhân viên"
+										dataToSelect={accountData}
+										setDataToSelect={setAccountData}
+										initDataToSelect={accounts}
+										mode="multiple"
+										getPopupContainer={(trigger:any) => trigger.parentNode}
+										maxTagCount='responsive'
+									/>
                 </Item>
               </Col>
               <Col span={8} xxl={6}>
                 <p>Nhân viên tạo đơn</p>
                 <Item name="account_codes">
-                  <CustomSelect
-                    mode="multiple" showSearch allowClear
-                    showArrow placeholder="Chọn nhân viên tạo đơn"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                    {accounts.map((item, index) => (
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.code.toString()}
-                      >
-                        {`${item.full_name} - ${item.code}`}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
+									<AccountCustomSearchSelect
+										placeholder="Tìm theo họ tên hoặc mã nhân viên"
+										dataToSelect={accountData}
+										setDataToSelect={setAccountData}
+										initDataToSelect={accounts}
+										mode="multiple"
+										getPopupContainer={(trigger:any) => trigger.parentNode}
+										maxTagCount='responsive'
+									/>
                 </Item>
                 <p>Tổng tiền</p>
                 <div className="date-range">

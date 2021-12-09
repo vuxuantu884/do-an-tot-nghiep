@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
-export const nameQuantityWidth = 280;
+export const nameQuantityWidth = 220;
 const quantityWidth = 60;
 const massWidth=100;
 const priceWidth = 100;
@@ -25,8 +25,8 @@ export const StyledComponent = styled.div`
     display: flex;
     justify-content: space-between;
   }
-  .productNameWidth {
-    width: ${nameWidth}px;
+	.productNameQuantity {
+    width: ${nameQuantityWidth}px;
   }
   .quantityWidth {
     width: ${quantityWidth}px;
