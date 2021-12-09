@@ -27,8 +27,8 @@ import { EcommerceConfigPermission } from "config/permissions/ecommerce.permissi
 import useAuthorization from "hook/useAuthorization";
 import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
-import iconMap from "screens/ecommerce/common/ecommerce-icon";
-import { StyledConfig } from "screens/ecommerce/config/tab/setting-config/styles";
+import ECOMMERCE_ICON from "screens/ecommerce/common/ecommerce-icon";
+import { StyledConfig } from "screens/ecommerce/config/config-shop/StyledConfigShop";
 
 const { Option } = Select;
 
@@ -36,7 +36,7 @@ const shopsReadPermission = [EcommerceConfigPermission.shops_read];
 const shopsUpdatePermission = [EcommerceConfigPermission.shops_update];
 const shopsDeletePermission = [EcommerceConfigPermission.shops_delete];
 
-type SettingConfigProps = {
+type ConfigShopProps = {
   listStores: Array<StoreResponse>;
   storeChangeSearch: (value: string) => void;
   accounts: Array<AccountResponse>;
@@ -50,8 +50,8 @@ type SettingConfigProps = {
   setConfigFromEcommerce: (value: any) => void;
   showDeleteModal: (value: EcommerceResponse) => void;
 };
-const SettingConfig: React.FC<SettingConfigProps> = (
-  props: SettingConfigProps
+const ConfigShop: React.FC<ConfigShopProps> = (
+  props: ConfigShopProps
 ) => {
   const {
     listStores,
@@ -294,7 +294,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                       {
                         <img
                           style={{ marginRight: 8, paddingBottom: 4 }}
-                          src={iconMap[configFromEcommerce.ecommerce.toLowerCase()]}
+                          src={ECOMMERCE_ICON[configFromEcommerce.ecommerce.toLowerCase()]}
                           alt=""
                         />
                       }
@@ -311,7 +311,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                         {
                           <img
                             style={{ marginRight: 8, paddingBottom: 4 }}
-                            src={iconMap[item.ecommerce.toLowerCase()]}
+                            src={ECOMMERCE_ICON[item.ecommerce.toLowerCase()]}
                             alt=""
                           />
                         }
@@ -661,4 +661,4 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   );
 };
 
-export default SettingConfig;
+export default ConfigShop;

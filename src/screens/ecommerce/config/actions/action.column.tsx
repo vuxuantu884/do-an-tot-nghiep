@@ -78,7 +78,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
-    width: "5%",
+    width: 70,
     className: "saleorder-product-card-action ",
     render: (l: any, item: any, index: number) => RenderActionColumn(l, item, index)
   };
