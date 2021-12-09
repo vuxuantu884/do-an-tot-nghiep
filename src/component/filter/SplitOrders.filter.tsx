@@ -276,7 +276,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
       assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
   }}, [params])
-  
+  console.log('initialValues', initialValues)
   const onFinish = useCallback(
     (values) => {
       let error = false;
@@ -597,6 +597,12 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
   useLayoutEffect(() => {
     window.addEventListener('resize', () => setVisible(false))
   }, []);
+
+	useEffect(() => {
+		formSearchRef.current?.setFieldsValue({
+			search_term: params.search_term
+		})
+	}, [formSearchRef, params.search_term])
 
   useEffect(() => {
     if (params.variant_ids.length) {
