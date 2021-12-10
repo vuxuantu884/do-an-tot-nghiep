@@ -18,6 +18,8 @@ function* loadUserFromStorageSaga() {
       let response: BaseResponse<AccountResponse> = yield call(getAccountDetail); 
       switch(response.code) {
         case HttpStatus.SUCCESS:
+          // user_id using on POS, need save to local_storage
+          localStorage.setItem('user_id', response.data.user_id ? response.data.user_id : "");
           yield put(loadUserFromStorageSuccessAction(response.data));
           break;
         case HttpStatus.UNAUTHORIZED:
