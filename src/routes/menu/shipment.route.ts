@@ -39,7 +39,7 @@ const shipments: Array<RouteMenu> = [
     key: "submenu66",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.VIEW],
+    permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
     subMenu: [
       {
         path: `${UrlConfig.SHIPMENTS}/:code`,
@@ -50,7 +50,7 @@ const shipments: Array<RouteMenu> = [
         key: "submenu-shipment-1",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.VIEW],
+        permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
         subMenu: [],
       },
     ],

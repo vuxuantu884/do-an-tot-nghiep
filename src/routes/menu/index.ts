@@ -7,10 +7,11 @@ import ecommerce from "./ecommerce.route";
 import { inventory } from "./inventory.route";
 import product from './product.route';
 import promotion from './promotion.route';
-import { AdminPermission } from 'config/permissions/admin.permission';
+// import { AdminPermission } from 'config/permissions/admin.permission';
 import setting from './setting.route';
 import shipments from "./shipment.route";
 import reports from "./reports.route";
+import { ODERS_PERMISSIONS } from 'config/permissions/order.permission';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
@@ -143,7 +144,7 @@ const menu: Array<RouteMenu> = [
     isShow: false,
     header: null,
     subMenu: [],
-    permissions: [AdminPermission.all],
+    permissions: [ODERS_PERMISSIONS.READ_POS],
   },
   {
     path: UrlConfig.YDPAGE,

@@ -35,7 +35,7 @@ import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
 import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
 import {OrderResponse, StoreCustomResponse} from "model/response/order/order.response";
 import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory, useParams} from "react-router-dom";
 import {
@@ -202,7 +202,27 @@ const OrderDetail = (props: PropType) => {
 
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
-  const stepsStatus = () => {
+  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+    chonCuaHangTruocMoiChonSanPham: false,
+    cauHinhInNhieuLienHoaDon: 1,
+  });
+
+  // const handleReload = () => {
+  //   window.location.reload();
+  // };
+
+  const handleReceivedReturnProducts = () => {
+    setIsReceivedReturnProducts(true);
+    if (OrderDetail?.order_return_origin?.id) {
+      dispatch(
+        actionSetIsReceivedOrderReturn(OrderDetail?.order_return_origin?.id, () => {
+          dispatch(OrderDetailAction(id, onGetDetailSuccess));
+        })
+      );
+    }
+  };
+
+  const stepsStatusValue = useMemo(() => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
     }
@@ -247,29 +267,7 @@ const OrderDetail = (props: PropType) => {
       return FulFillmentStatus.SHIPPED;
     }
     return "";
-  };
-
-  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
-    chonCuaHangTruocMoiChonSanPham: false,
-    cauHinhInNhieuLienHoaDon: 1,
-  });
-
-  // const handleReload = () => {
-  //   window.location.reload();
-  // };
-
-  const handleReceivedReturnProducts = () => {
-    setIsReceivedReturnProducts(true);
-    if (OrderDetail?.order_return_origin?.id) {
-      dispatch(
-        actionSetIsReceivedOrderReturn(OrderDetail?.order_return_origin?.id, () => {
-          dispatch(OrderDetailAction(id, onGetDetailSuccess));
-        })
-      );
-    }
-  };
-
-  let stepsStatusValue = stepsStatus();
+  }, [OrderDetail?.fulfillments, OrderDetail?.status]);
 
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
     if (!data) {
