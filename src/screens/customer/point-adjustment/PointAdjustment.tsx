@@ -70,15 +70,10 @@ const PointAdjustment = () => {
     },
     {
       title: "Số KH",
-      dataIndex: "customer_id",
       width: "6%",
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
-          <NumberFormat
-            value={value}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          1
         </div>
       ),
     },
