@@ -211,6 +211,33 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
     pushCurrentValueToDataAccount("coordinator_code");
   }, [dispatch, form, storeAccountData]);
 
+	useEffect(() => {
+		if(!storeId) {
+			return;
+		}
+		searchAccountApi({
+			store_ids: [storeId],
+		})
+			.then((response) => {
+				if (response) {
+					switch (response.code) {
+						case HttpStatus.SUCCESS:
+							setStoreAccountData(response.data.items);
+							break;
+						case HttpStatus.UNAUTHORIZED:
+							dispatch(unauthorizedAction());
+							break;
+						default:
+							response.errors.forEach((e) => showError(e));
+							break;
+					}
+				}
+			})
+			.catch((error) => {
+				console.log("error", error);
+			})
+	}, [dispatch, storeId])
+
   return (
     <StyledComponent>
       <Card title="THÔNG TIN ĐƠN HÀNG">

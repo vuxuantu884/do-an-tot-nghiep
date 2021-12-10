@@ -22,17 +22,18 @@ import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
+import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import { listColorAction } from "domain/actions/product/color.action";
+import { getColorAction } from "domain/actions/product/color.action";
 import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
 import { productCheckDuplicateCodeAction, productCreateAction } from "domain/actions/product/products.action";
-import { sizeGetAll } from "domain/actions/product/size.action";
+import { sizeSearchAction } from "domain/actions/product/size.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
@@ -75,6 +76,8 @@ import UploadImageModal, {
 import { StyledComponent } from "./styles";
 const { Item, List } = Form;
 
+var isWin = false;
+var isDesigner = false;
 const initialRequest: ProductRequestView = {
   goods: null,
   category_id: null,
@@ -92,9 +95,9 @@ const initialRequest: ProductRequestView = {
   brand: null,
   content: null,
   description: "",
-  designer_code: "",
+  designer_code: null,
   made_in_id: null,
-  merchandiser_code: "",
+  merchandiser_code: null,
   preservation: "",
   specifications: "",
   status: "active",
@@ -174,10 +177,34 @@ const ProductCreateScreen: React.FC = () => {
   }, [listCategory, selectedGood]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
-  const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
-  const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
+  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+
+  const [designer, setDeisgner] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+
+  const [suppliers, setSupplier] = useState<PageResponse<SupplierResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 }
+  });
+  const [sizes, setSizes] = useState<PageResponse<SizeResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+  const [colors, setColors] = useState<PageResponse<ColorResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 }
+  });
   const [variants, setVariants] = useState<Array<VariantRequestView>>([]);
   const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
   const [sizeSelected, setSizeSelected] = useState<Array<SizeResponse>>([]);
@@ -206,10 +233,17 @@ const ProductCreateScreen: React.FC = () => {
       if (!data) {
         return false;
       }
-      setAccounts(data.items);
+      if (isWin) {
+        setWins(data);
+      }
+      if (isDesigner) {
+        setDeisgner(data);
+      }
     },
     []
   );
+
+
 
   const onCategoryChange = useCallback(
     (value: number) => {
@@ -274,7 +308,7 @@ const ProductCreateScreen: React.FC = () => {
         }
         if (newVariants.length === 0) {
           newVariants.push({
-            name:  name,
+            name: name,
             color_id: null,
             color: null,
             size_id: null,
@@ -312,28 +346,26 @@ const ProductCreateScreen: React.FC = () => {
     listVariantsFilter(colorSelected, sizeSelected);
   }, [colorSelected, listVariantsFilter, sizeSelected]);
 
-  const onMaterialChange = (id: number) => {    
-    dispatch(detailMaterialAction(id, (material)=>handleChangeMaterial(material,form)));
-
+  const onMaterialChange = (id: number) => {
+    dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
   };
 
   const onSizeChange = useCallback(
     (values: Array<number>) => {
-      let filter = listSize.filter((item) => values.includes(item.id));
+      let filter = sizes.items.filter((item) => values.includes(item.id));
       setSizeSelected([...filter]);
       listVariantsFilter(colorSelected, filter);
     },
-    [colorSelected, listSize, listVariantsFilter]
+    [colorSelected, listVariantsFilter, sizes.items]
   );
 
   const onColorChange = useCallback(
     (values: Array<number>) => {
-      console.log(values);
-      let filter = listColor.filter((item) => values.includes(item.id));
+      let filter = colors.items.filter((item) => values.includes(item.id));
       setColorSelected([...filter]);
       listVariantsFilter(filter, sizeSelected);
     },
-    [listColor, listVariantsFilter, sizeSelected]
+    [colors.items, listVariantsFilter, sizeSelected]
   );
 
   const statusValue = useMemo(() => {
@@ -492,7 +524,7 @@ const ProductCreateScreen: React.FC = () => {
     return avatar;
   }, [variants]);
 
-  
+
   const getFirstProductAvatarCreate = (variants: Array<VariantRequestView>) => {
     let isFind = false;
     let variantAvatarIndex = 0;
@@ -517,7 +549,7 @@ const ProductCreateScreen: React.FC = () => {
     }
 
     return revertVariants.reverse();
-  }; 
+  };
 
   const onSaveImage = useCallback(
     (imageId: number) => {
@@ -534,24 +566,44 @@ const ProductCreateScreen: React.FC = () => {
     [variants]
   );
 
+  const getColors = useCallback((info: string, page: number) => {
+    dispatch(getColorAction({ info: info, is_main_color: 0, page: page }, setColors));
+  }, [dispatch]);
+
+  const getSizes = useCallback((code: string, page: number) => {
+    dispatch(sizeSearchAction({ code: code, page: page }, setSizes));
+  }, [dispatch]);
+
+  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
+    isDesigner = designer;
+    isWin = win;
+    dispatch(
+      AccountSearchAction(
+        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
+  const getSuppliers = useCallback((key: string, page: number) => {
+    dispatch(SupplierSearchAction({ condition: key }, (data: PageResponse<SupplierResponse>) => {
+      setSupplier(data);
+    }));
+  }, [dispatch]);
+
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
-      dispatch(SupplierGetAllAction(setListSupplier));
       dispatch(materialSearchAll(setListMaterial));
       dispatch(CountryGetAllAction(setListCountry));
-      dispatch(sizeGetAll(setListSize));
-      dispatch(listColorAction({ is_main_color: 0 }, setListColor));
-      dispatch(
-        AccountSearchAction(
-          { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
-          setDataAccounts
-        )
-      );
+      getColors('', 1);
+      getSizes('', 1);
+      getAccounts('', 1, true, true);
+      getSuppliers('', 1);
     }
     isLoadMaterData.current = true;
-    return () => {};
-  }, [dispatch, setDataAccounts, setDataCategory]);
+    return () => { };
+  }, [dispatch, getAccounts, getColors, getSizes, getSuppliers, setDataAccounts, setDataCategory]);
 
   useEffect(() => {
     form.setFieldsValue({ made_in_id: VietNamId });
@@ -598,7 +650,7 @@ const ProductCreateScreen: React.FC = () => {
                         <Switch
                           onChange={(checked) => {
                             setStatus(checked ? "active" : "inactive");
-                            form.setFieldsValue({saleable: checked})
+                            form.setFieldsValue({ saleable: checked })
                           }}
                           className="ant-switch-success"
                           defaultChecked
@@ -615,611 +667,604 @@ const ProductCreateScreen: React.FC = () => {
                   </Space>
                 }
               >
-                <div className="padding-20">
-                  <Row gutter={50}>
-                    <Col span={24} md={12} sm={24}>
-                      <Item
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn loại sản phẩm",
-                          },
-                        ]}
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn loại sản phẩm",
+                        },
+                      ]}
 
-                        name="goods"
-                        label="Ngành hàng"
+                      name="goods"
+                      label="Ngành hàng"
+                    >
+                      <CustomSelect
+                        onChange={onGoodsChange}
+                        placeholder="Chọn ngành hàng "
                       >
-                        <CustomSelect
-                          onChange={onGoodsChange}
-                          placeholder="Chọn ngành hàng "
-                        >
-                          {goods?.map((item) => (
-                            <CustomSelect.Option
-                              key={item.value}
-                              value={item.value}
-                            >
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Col>
-                    <Col span={24} md={12} sm={24}>
-                      <Item
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn danh mục",
-                          },
-                        ]}
-                        name="category_id"
-                        label="Danh mục"
-                      >
-                        <CustomSelect
-                          optionFilterProp="children"
-                          showSearch
-                          onChange={onCategoryChange}
-                          placeholder="Chọn danh mục"
-                          suffix={
-                            <Button
-                              style={{ width: 37, height: 37, padding: 0 }}
-                              icon={<PlusOutlined />}
-                              onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`)}
-                            />
-                          }
-                        >
-                          {categoryFilter.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.id}>
-                              {`${item.code} - ${item.name}`}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={50}>
-                    <Col span={24} md={12} sm={24}>
-                      <Item
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập mã sản phẩm",
-                          },
-                          {
-                            len: 7,
-                            message: "Mã sản phẩm bao gồm 7 kí tự",
-                          },
-                          {
-                            pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                            message: "Mã sản phẩm chỉ gồm chữ và số",
-                          },
-                        ]}
-                        tooltip={{
-                          title:
-                            "Mã sản phẩm bao gồm 3 kí tự đầu mã danh mục và 4 kí tự tiếp theo do người dùng nhập",
-                          icon: <InfoCircleOutlined />,
-                        }}
-                        name="code"
-                        label="Mã sản phẩm"
-                      >
-                        <Input
-                          maxLength={7}
-                          placeholder="Nhập mã sản phẩm"
-                          onChange={onCodeChange}
-                        />
-                      </Item>
-                    </Col>
-                    <Col span={24} md={12} sm={24}>
-                      <Item
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập tên sản phẩm",
-                          },
-                          {
-                            pattern: RegUtil.STRINGUTF8,
-                            message:
-                              "Tên sản phẩm không báo gồm kí tự đặc biệt",
-                          },
-                        ]}
-                        tooltip={{
-                          title:
-                            "Tên mã cha, không bao gồm màu sắc và kích cỡ",
-                          icon: <InfoCircleOutlined />,
-                        }}
-                        name="name"
-                        label="Tên sản phẩm"
-                      >
-                        <Input
-                          onChange={onNameChange}
-                          maxLength={120}
-                          placeholder="Nhập tên sản phẩm"
-                        />
-                      </Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={50}>
-                    <Col span={24} md={12} sm={24}>
-                      <Item name="brand" label="Thương hiệu">
-                        <CustomSelect placeholder="Chọn thương hiệu">
-                          {brandList?.map((item) => (
-                            <CustomSelect.Option
-                              key={item.value}
-                              value={item.value}
-                            >
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Col>
-                    <Col span={24} md={12} sm={24}>
-                      <Item name="made_in_id" label="Xuất xứ">
-                        <CustomSelect
-                          showSearch
-                          optionFilterProp="children"
-                          placeholder="Chọn xuất xứ"                         
-                        >
-                          {listCountry?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.id}>
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={50}>
-                    <Col span={24} md={12} sm={24}>
-                      <Item name="material_id" label="Chất liệu">
-                        <CustomSelect
-                          showSearch
-                          optionFilterProp="children"
-                          placeholder="Chọn chất liệu"
-                          onChange={onMaterialChange}
-                          suffix={
-                            <Button
-                              style={{ width: 37, height: 37, padding: 0 }}
-                              icon={<PlusOutlined />}
-                              onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.MATERIALS}/create`)}
-                            />
-                          }
-                        >
-                          {listMaterial?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.id}>
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                        
-                      </Item>
-                    </Col>
-                    <Col span={24} md={12} sm={24}>
-                      <Item name="unit" label="Đơn vị">
-                        <CustomSelect placeholder="Chọn đơn vị">
-                          {productUnitList?.map((item) => (
-                            <CustomSelect.Option
-                              key={item.value}
-                              value={item.value}
-                            >
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={50}>
-                    <Col span={24} md={12} sm={24}>
-                      <Item name="supplier_id" label="Nhà cung cấp">
-                        <CustomSelect
-                          showSearch
-                          optionFilterProp="children"
-                          placeholder="Chọn nhà cung cấp"
-                        >
-                          {listSupplier?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.id}>
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Col>
-                    <Col span={24} md={12} sm={24}>
-                      <Item
-                        tooltip={{
-                          title: "Thẻ ngày giúp tìm kiếm các sản phẩm",
-                          icon: <InfoCircleOutlined />,
-                        }}
-                        name="tags"
-                        label="Từ khóa"
-                      >
-                        <HashTag />
-                      </Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={50}>
-                    <Col span={24} md={12} sm={24}>
-                      <Item
-                        label="Kích thước (dài, rộng, cao)"
-                        tooltip={{
-                          title: "Thông tin kích thước khi đóng gói sản phẩm",
-                          icon: <InfoCircleOutlined />,
-                        }}
-                      >
-                        <Input.Group compact>
-                          <Item name="length" noStyle>
-                            <NumberInput
-                              format={(a) => formatCurrency(a)}
-                              replace={(a) => replaceFormatString(a)}
-                              maxLength={6}
-                              isFloat
-                              style={{ width: "calc((100% - 100px) / 3)" }}
-                              placeholder="Dài"
-                            />
-                          </Item>
-                          <Item name="width" noStyle>
-                            <NumberInput
-                              format={(a) => formatCurrency(a)}
-                              replace={(a) => replaceFormatString(a)}
-                              maxLength={6}
-                              isFloat
-                              style={{ width: "calc((100% - 100px) / 3)" }}
-                              placeholder="Rộng"
-                            />
-                          </Item>
-                          <Item name="height" noStyle>
-                            <NumberInput
-                              format={(a) => formatCurrency(a)}
-                              replace={(a) => replaceFormatString(a)}
-                              maxLength={6}
-                              isFloat
-                              placeholder="Cao"
-                              style={{ width: "calc((100% - 100px) / 3)" }}
-                            />
-                          </Item>
-                          <Item name="length_unit" noStyle>
-                            <Select
-                              placeholder="Đơn vị"
-                              style={{ width: "100px" }}
-                            >
-                              {lengthUnitList?.map((item) => (
-                                <Select.Option
-                                  key={item.value}
-                                  value={item.value}
-                                >
-                                  {item.name}
-                                </Select.Option>
-                              ))}
-                            </Select>
-                          </Item>
-                        </Input.Group>
-                      </Item>
-                    </Col>
-                    <Col span={24} md={12} sm={24}>
-                      <Item
-                        required
-                        label="Khối lượng"
-                        
-                      >
-                        <Input.Group compact>
-                          <Item
-                            rules={[
-                              {
-                                required: true,
-                                message: "Khối lượng không được để trống",
-                              },
-                            ]}
-                            name="weight"
-                            noStyle
+                        {goods?.map((item) => (
+                          <CustomSelect.Option
+                            key={item.value}
+                            value={item.value}
                           >
-                            <NumberInput
-                              format={(a) => formatCurrency(a)}
-                              replace={(a) => replaceFormatString(a)}
-                              maxLength={6}
-                              isFloat
-                              placeholder="Khối lượng"
-                              style={{ width: "calc(100% - 100px)" }}
-                            />
-                          </Item>
-                          <Item name="weight_unit" noStyle>
-                            <Select
-                              placeholder="Đơn vị"
-                              style={{ width: "100px" }}
-                              value="gram"
-                            >
-                              {weightUnitList?.map((item) => (
-                                <Select.Option
-                                  key={item.value}
-                                  value={item.value}
-                                >
-                                  {item.name}
-                                </Select.Option>
-                              ))}
-                            </Select>
-                          </Item>
-                        </Input.Group>
-                      </Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={24}>
-                    <Col span={24}>
-                      <Collapse
-                        ghost
-                        expandIcon={({ isActive }) =>
-                          isActive ? <MinusOutlined /> : <PlusOutlined />
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn danh mục",
+                        },
+                      ]}
+                      name="category_id"
+                      label="Danh mục"
+                    >
+                      <CustomSelect
+                        optionFilterProp="children"
+                        showSearch
+                        onChange={onCategoryChange}
+                        placeholder="Chọn danh mục"
+                        suffix={
+                          <Button
+                            style={{ width: 37, height: 37, padding: 0 }}
+                            icon={<PlusOutlined />}
+                            onClick={() => window.open(`${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`)}
+                          />
                         }
-                        className="padding-0"
                       >
-                        <Collapse.Panel
-                          header="Mô tả sản phẩm"
-                          key="prDes"
-                          className="custom-header"
+                        {categoryFilter.map((item) => (
+                          <CustomSelect.Option key={item.id} value={item.id}>
+                            {`${item.code} - ${item.name}`}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập mã sản phẩm",
+                        },
+                        {
+                          len: 7,
+                          message: "Mã sản phẩm bao gồm 7 kí tự",
+                        },
+                        {
+                          pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                          message: "Mã sản phẩm chỉ gồm chữ và số",
+                        },
+                      ]}
+                      tooltip={{
+                        title:
+                          "Mã sản phẩm bao gồm 3 kí tự đầu mã danh mục và 4 kí tự tiếp theo do người dùng nhập",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="code"
+                      label="Mã sản phẩm"
+                    >
+                      <Input
+                        maxLength={7}
+                        placeholder="Nhập mã sản phẩm"
+                        onChange={onCodeChange}
+                      />
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập tên sản phẩm",
+                        },
+                        {
+                          pattern: RegUtil.STRINGUTF8,
+                          message:
+                            "Tên sản phẩm không báo gồm kí tự đặc biệt",
+                        },
+                      ]}
+                      tooltip={{
+                        title:
+                          "Tên mã cha, không bao gồm màu sắc và kích cỡ",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="name"
+                      label="Tên sản phẩm"
+                    >
+                      <Input
+                        onChange={onNameChange}
+                        maxLength={120}
+                        placeholder="Nhập tên sản phẩm"
+                      />
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item name="brand" label="Thương hiệu">
+                      <CustomSelect placeholder="Chọn thương hiệu">
+                        {brandList?.map((item) => (
+                          <CustomSelect.Option
+                            key={item.value}
+                            value={item.value}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item name="made_in_id" label="Xuất xứ">
+                      <CustomSelect
+                        showSearch
+                        optionFilterProp="children"
+                        placeholder="Chọn xuất xứ"
+                      >
+                        {listCountry?.map((item) => (
+                          <CustomSelect.Option key={item.id} value={item.id}>
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item name="material_id" label="Chất liệu">
+                      <CustomSelect
+                        showSearch
+                        optionFilterProp="children"
+                        placeholder="Chọn chất liệu"
+                        onChange={onMaterialChange}
+                        suffix={
+                          <Button
+                            style={{ width: 37, height: 37, padding: 0 }}
+                            icon={<PlusOutlined />}
+                            onClick={() => window.open(`${BASE_NAME_ROUTER}${UrlConfig.MATERIALS}/create`)}
+                          />
+                        }
+                      >
+                        {listMaterial?.map((item) => (
+                          <CustomSelect.Option key={item.id} value={item.id}>
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item name="unit" label="Đơn vị">
+                      <CustomSelect placeholder="Chọn đơn vị">
+                        {productUnitList?.map((item) => (
+                          <CustomSelect.Option
+                            key={item.value}
+                            value={item.value}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item name="supplier_id" label="Nhà cung cấp">
+                      <SelectPaging
+                        searchPlaceholder="Tìm kiếm nhà cung cấp"
+                        metadata={suppliers.metadata}
+                        showSearch={false}
+                        allowClear
+                        placeholder="Chọn nhà cung cấp"
+                        onSearch={(key) => getSuppliers(key, 1)}
+                        onPageChange={(key, page) => getSuppliers(key, page)}
+                      >
+                        {suppliers.items.map((item) => (
+                          <SelectPaging.Option key={item.id} value={item.id}>
+                            {item.name}
+                          </SelectPaging.Option>
+                        ))}
+                      </SelectPaging>
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      tooltip={{
+                        title: "Thẻ ngày giúp tìm kiếm các sản phẩm",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="tags"
+                      label="Từ khóa"
+                    >
+                      <HashTag />
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      label="Kích thước (dài, rộng, cao)"
+                      tooltip={{
+                        title: "Thông tin kích thước khi đóng gói sản phẩm",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                    >
+                      <Input.Group compact>
+                        <Item name="length" noStyle>
+                          <NumberInput
+                            format={(a) => formatCurrency(a)}
+                            replace={(a) => replaceFormatString(a)}
+                            maxLength={6}
+                            isFloat
+                            style={{ width: "calc((100% - 100px) / 3)" }}
+                            placeholder="Dài"
+                          />
+                        </Item>
+                        <Item name="width" noStyle>
+                          <NumberInput
+                            format={(a) => formatCurrency(a)}
+                            replace={(a) => replaceFormatString(a)}
+                            maxLength={6}
+                            isFloat
+                            style={{ width: "calc((100% - 100px) / 3)" }}
+                            placeholder="Rộng"
+                          />
+                        </Item>
+                        <Item name="height" noStyle>
+                          <NumberInput
+                            format={(a) => formatCurrency(a)}
+                            replace={(a) => replaceFormatString(a)}
+                            maxLength={6}
+                            isFloat
+                            placeholder="Cao"
+                            style={{ width: "calc((100% - 100px) / 3)" }}
+                          />
+                        </Item>
+                        <Item name="length_unit" noStyle>
+                          <Select
+                            placeholder="Đơn vị"
+                            style={{ width: "100px" }}
+                          >
+                            {lengthUnitList?.map((item) => (
+                              <Select.Option
+                                key={item.value}
+                                value={item.value}
+                              >
+                                {item.name}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Item>
+                      </Input.Group>
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      required
+                      label="Khối lượng"
+
+                    >
+                      <Input.Group compact>
+                        <Item
+                          rules={[
+                            {
+                              required: true,
+                              message: "Khối lượng không được để trống",
+                            },
+                          ]}
+                          name="weight"
+                          noStyle
                         >
-                          <Item name="description">
-                            <CustomEditor/>
-                          </Item>
-                        </Collapse.Panel>
-                      </Collapse>
-                    </Col>
-                  </Row>
-                </div>
+                          <NumberInput
+                            format={(a) => formatCurrency(a)}
+                            replace={(a) => replaceFormatString(a)}
+                            maxLength={6}
+                            isFloat
+                            placeholder="Khối lượng"
+                            style={{ width: "calc(100% - 100px)" }}
+                          />
+                        </Item>
+                        <Item name="weight_unit" noStyle>
+                          <Select
+                            placeholder="Đơn vị"
+                            style={{ width: "100px" }}
+                            value="gram"
+                          >
+                            {weightUnitList?.map((item) => (
+                              <Select.Option
+                                key={item.value}
+                                value={item.value}
+                              >
+                                {item.name}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Item>
+                      </Input.Group>
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={24}>
+                  <Col span={24}>
+                    <Collapse
+                      ghost
+                      expandIcon={({ isActive }) =>
+                        isActive ? <MinusOutlined /> : <PlusOutlined />
+                      }
+                      className="padding-0"
+                    >
+                      <Collapse.Panel
+                        header="Mô tả sản phẩm"
+                        key="prDes"
+                        className="custom-header"
+                      >
+                        <Item name="description">
+                          <CustomEditor />
+                        </Item>
+                      </Collapse.Panel>
+                    </Collapse>
+                  </Col>
+                </Row>
               </Card>
             </Col>
             <Col span={24} md={6}>
               <Card className="card" title="Ảnh">
-                <div className="padding-20">
-                  <div className="a-container">
-                    {productAvatar === null ? (
-                      <div className="bpa" onClick={onPickAvatar}>
-                        <PlusOutlined />
-                        Chọn ảnh đại diện
-                      </div>
-                    ) : (
-                      <div className="bpa" onClick={onPickAvatar}>
-                        <Image src={productAvatar} preview={false}/>
-                      </div>
-                    )}
-                  </div>
+                <div className="a-container">
+                  {productAvatar === null ? (
+                    <div className="bpa" onClick={onPickAvatar}>
+                      <PlusOutlined />
+                      Chọn ảnh đại diện
+                    </div>
+                  ) : (
+                    <div className="bpa" onClick={onPickAvatar}>
+                      <Image src={productAvatar} preview={false} />
+                    </div>
+                  )}
                 </div>
               </Card>
               <Card className="card" title="Phòng Win">
-                <div className="padding-20">
-                  <Item
-                    name="merchandiser_code"
-                    label="Merchandiser"
-                    tooltip={{
-                      title: "Chọn nhân viên mua hàng",
-                      icon: <InfoCircleOutlined />,
-                    }}
+                <Item
+                  name="merchandiser_code"
+                  label="Merchandiser"
+                  tooltip={{
+                    title: "Chọn nhân viên mua hàng",
+                    icon: <InfoCircleOutlined />,
+                  }}
+                >
+                  <SelectPaging
+                    metadata={wins.metadata}
+                    placeholder="Chọn merchandiser"
+                    showSearch={false}
+                    showArrow
+                    allowClear
+                    searchPlaceholder="Tìm kiếm nhân viên"
+                    onPageChange={(key, page) => getAccounts(key, page, false, true)}
+                    onSearch={(key) => getAccounts(key, 1, false, true)}
                   >
-                    <CustomSelect
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                    >
-                      <CustomSelect.Option value="">
-                        Chọn Merchandiser
+                    {wins.items.map((item) => (
+                      <CustomSelect.Option key={item.code} value={item.code}>
+                        {`${item.code} - ${item.full_name}`}
                       </CustomSelect.Option>
-                      {accounts.map((item) => (
-                        <CustomSelect.Option key={item.code} value={item.code}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                  <Item
-                    name="designer_code"
-                    label="Thiết kế"
-                    tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
+                    ))}
+                  </SelectPaging>
+                </Item>
+                <Item
+                  name="designer_code"
+                  label="Thiết kế"
+                  tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
+                >
+                  <SelectPaging
+                    metadata={designer.metadata}
+                    showSearch={false}
+                    showArrow
+                    allowClear
+                    searchPlaceholder="Tìm kiếm nhân viên"
+                    placeholder="Chọn thiết kế"
+                    onPageChange={(key, page) => getAccounts(key, page, true, false)}
+                    onSearch={(key) => getAccounts(key, 1, false, true)}
                   >
-                    <CustomSelect
-                      optionFilterProp="children"
-                      showSearch
-                      placeholder="Chọn thiết kế"
-                    >
-                      <CustomSelect.Option value="">
-                        Chọn thiết kế
-                      </CustomSelect.Option>
-                      {accounts.map((item) => (
-                        <CustomSelect.Option key={item.code} value={item.code}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </div>
+
+                    {designer.items.map((item) => (
+                      <SelectPaging.Option key={item.code} value={item.code}>
+                        {`${item.code} - ${item.full_name}`}
+                      </SelectPaging.Option>
+                    ))}
+                  </SelectPaging>
+                </Item>
               </Card>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24}>
               <Card className="card" title="Thông tin giá">
-                <div className="padding-20">
-                  <List name="variant_prices">
-                    {(fields, { add, remove }) => (
-                      <>
-                        {fields.map(
-                          ({ key, name, fieldKey, ...restField }, index) => (
-                            <Row key={key} gutter={16}>
-                              <Col md={3}>
-                                <Item
-                                  label="Giá bán"
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: "Giá bán không được để trống",
-                                    },
-                                  ]}
-                                  name={[name, "retail_price"]}
-                                  fieldKey={[fieldKey, "retail_price"]}
-                                  tooltip={{
-                                    title: (
-                                      <div>
-                                        <b>Giá bán lẻ</b> là giá mà bạn sẽ bán
-                                        sản phẩm này cho những khách hàng đơn
-                                        lẻ..
-                                      </div>
-                                    ),
-                                    icon: <InfoCircleOutlined />,
-                                  }}
-                                >
-                                  <NumberInput
-                                    format={(a: string) => formatCurrency(a)}
-                                    replace={(a: string) =>
-                                      replaceFormatString(a)
-                                    }
-                                    placeholder="VD: 100,000"
-                                  />
-                                </Item>
+                <List name="variant_prices">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(
+                        ({ key, name, fieldKey, ...restField }, index) => (
+                          <Row key={key} gutter={16}>
+                            <Col md={3}>
+                              <Item
+                                label="Giá bán"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Giá bán không được để trống",
+                                  },
+                                ]}
+                                name={[name, "retail_price"]}
+                                fieldKey={[fieldKey, "retail_price"]}
+                                tooltip={{
+                                  title: (
+                                    <div>
+                                      <b>Giá bán lẻ</b> là giá mà bạn sẽ bán
+                                      sản phẩm này cho những khách hàng đơn
+                                      lẻ..
+                                    </div>
+                                  ),
+                                  icon: <InfoCircleOutlined />,
+                                }}
+                              >
+                                <NumberInput
+                                  format={(a: string) => formatCurrency(a)}
+                                  replace={(a: string) =>
+                                    replaceFormatString(a)
+                                  }
+                                  placeholder="VD: 100,000"
+                                />
+                              </Item>
+                            </Col>
+                            <Col md={3}>
+                              <Item
+                                name={[name, "wholesale_price"]}
+                                fieldKey={[fieldKey, "wholesale_price"]}
+                                label="Giá buôn"
+                                tooltip={{
+                                  title: () => (
+                                    <div>
+                                      <b>Giá buôn</b> là giá mà bạn sẽ bán sản
+                                      phẩm này cho những khách hàng mua hàng
+                                      với số lượng lớn.
+                                    </div>
+                                  ),
+                                  icon: <InfoCircleOutlined />,
+                                }}
+                              >
+                                <NumberInput
+                                  format={(a: string) => formatCurrency(a)}
+                                  replace={(a: string) =>
+                                    replaceFormatString(a)
+                                  }
+                                  placeholder="VD: 100,000"
+                                />
+                              </Item>
+                            </Col>
+                            <Col md={3}>
+                              <Item
+                                name={[name, "import_price"]}
+                                fieldKey={[fieldKey, "import_price"]}
+                                label="Giá nhập"
+                                tooltip={{
+                                  title: () => (
+                                    <div>
+                                      <b>Giá nhập</b> là giá mà nhập sản phẩm
+                                      từ đơn mua hàng của nhà cung cấp.
+                                    </div>
+                                  ),
+                                  icon: <InfoCircleOutlined />,
+                                }}
+                              >
+                                <NumberInput
+                                  format={(a: string) => formatCurrency(a)}
+                                  replace={(a: string) =>
+                                    replaceFormatString(a)
+                                  }
+                                  placeholder="VD: 100,000"
+                                />
+                              </Item>
+                            </Col>
+                            <Col md={3}>
+                              <Item
+                                name={[name, "cost_price"]}
+                                fieldKey={[fieldKey, "cost_price"]}
+                                label="Giá vốn"
+                                tooltip={{
+                                  title: () => (
+                                    <div>
+                                      <b>Giá vốn</b> là tổng của những loại
+                                      chi phí để đưa hàng có mặt tại kho.
+                                      Chúng bao gồm giá mua của nhà cung cấp,
+                                      thuế giá trị gia tăng, chi phí vận
+                                      chuyển, bảo hiểm,...
+                                    </div>
+                                  ),
+                                  icon: <InfoCircleOutlined />,
+                                }}
+                              >
+                                <NumberInput
+                                  format={(a: string) => formatCurrency(a)}
+                                  replace={(a: string) =>
+                                    replaceFormatString(a)
+                                  }
+                                  placeholder="VD: 100,000"
+                                />
+                              </Item>
+                            </Col>
+                            <Col md={3}>
+                              <Item
+                                label="Thuế"
+                                name={[name, "tax_percent"]}
+                                fieldKey={[fieldKey, "tax_percent"]}
+                              >
+                                <NumberInput
+                                  isFloat
+                                  placeholder="VD: 10"
+                                  suffix={<span>%</span>}
+                                />
+                              </Item>
+                            </Col>
+                            <Col md={3}>
+                              <Item
+                                label="Đơn vị tiền tệ"
+                                tooltip={{
+                                  title: "Tooltip",
+                                  icon: <InfoCircleOutlined />,
+                                }}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      "Đơn vị tiền tệ không được để trống",
+                                  },
+                                ]}
+                                name={[name, "currency"]}
+                                fieldKey={[fieldKey, "currency"]}
+                              >
+                                <CustomSelect placeholder="Đơn vị tiền tệ">
+                                  {currencyList?.map((item) => (
+                                    <CustomSelect.Option
+                                      key={item.value}
+                                      value={item.value}
+                                    >
+                                      {item.name}
+                                    </CustomSelect.Option>
+                                  ))}
+                                </CustomSelect>
+                              </Item>
+                            </Col>
+                            {fields.length > 1 && (
+                              <Col
+                                md={3}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Button
+                                  onClick={() => remove(name)}
+                                  icon={<DeleteOutlined />}
+                                />
                               </Col>
-                              <Col md={3}>
-                                <Item
-                                  name={[name, "wholesale_price"]}
-                                  fieldKey={[fieldKey, "wholesale_price"]}
-                                  label="Giá buôn"
-                                  tooltip={{
-                                    title: () => (
-                                      <div>
-                                        <b>Giá buôn</b> là giá mà bạn sẽ bán sản
-                                        phẩm này cho những khách hàng mua hàng
-                                        với số lượng lớn.
-                                      </div>
-                                    ),
-                                    icon: <InfoCircleOutlined />,
-                                  }}
-                                >
-                                  <NumberInput
-                                    format={(a: string) => formatCurrency(a)}
-                                    replace={(a: string) =>
-                                      replaceFormatString(a)
-                                    }
-                                    placeholder="VD: 100,000"
-                                  />
-                                </Item>
-                              </Col>
-                              <Col md={3}>
-                                <Item
-                                  name={[name, "import_price"]}
-                                  fieldKey={[fieldKey, "import_price"]}
-                                  label="Giá nhập"
-                                  tooltip={{
-                                    title: () => (
-                                      <div>
-                                        <b>Giá nhập</b> là giá mà nhập sản phẩm
-                                        từ đơn mua hàng của nhà cung cấp.
-                                      </div>
-                                    ),
-                                    icon: <InfoCircleOutlined />,
-                                  }}
-                                >
-                                  <NumberInput
-                                    format={(a: string) => formatCurrency(a)}
-                                    replace={(a: string) =>
-                                      replaceFormatString(a)
-                                    }
-                                    placeholder="VD: 100,000"
-                                  />
-                                </Item>
-                              </Col>
-                              <Col md={3}>
-                                <Item
-                                  name={[name, "cost_price"]}
-                                  fieldKey={[fieldKey, "cost_price"]}
-                                  label="Giá vốn"
-                                  tooltip={{
-                                    title: () => (
-                                      <div>
-                                        <b>Giá vốn</b> là tổng của những loại
-                                        chi phí để đưa hàng có mặt tại kho.
-                                        Chúng bao gồm giá mua của nhà cung cấp,
-                                        thuế giá trị gia tăng, chi phí vận
-                                        chuyển, bảo hiểm,...
-                                      </div>
-                                    ),
-                                    icon: <InfoCircleOutlined />,
-                                  }}
-                                >
-                                  <NumberInput
-                                    format={(a: string) => formatCurrency(a)}
-                                    replace={(a: string) =>
-                                      replaceFormatString(a)
-                                    }
-                                    placeholder="VD: 100,000"
-                                  />
-                                </Item>
-                              </Col>
-                              <Col md={3}>
-                                <Item
-                                  label="Thuế"
-                                  name={[name, "tax_percent"]}
-                                  fieldKey={[fieldKey, "tax_percent"]}
-                                >
-                                  <NumberInput
-                                    isFloat
-                                    placeholder="VD: 10"
-                                    suffix={<span>%</span>}
-                                  />
-                                </Item>
-                              </Col>
-                              <Col md={3}>
-                                <Item
-                                  label="Đơn vị tiền tệ"
-                                  tooltip={{
-                                    title: "Tooltip",
-                                    icon: <InfoCircleOutlined />,
-                                  }}
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message:
-                                        "Đơn vị tiền tệ không được để trống",
-                                    },
-                                  ]}
-                                  name={[name, "currency"]}
-                                  fieldKey={[fieldKey, "currency"]}
-                                >
-                                  <CustomSelect placeholder="Đơn vị tiền tệ">
-                                    {currencyList?.map((item) => (
-                                      <CustomSelect.Option
-                                        key={item.value}
-                                        value={item.value}
-                                      >
-                                        {item.name}
-                                      </CustomSelect.Option>
-                                    ))}
-                                  </CustomSelect>
-                                </Item>
-                              </Col>
-                              {fields.length > 1 && (
-                                <Col
-                                  md={3}
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <Button
-                                    onClick={() => remove(name)}
-                                    icon={<DeleteOutlined />}
-                                  />
-                                </Col>
-                              )}
-                            </Row>
-                          )
-                        )}
-                        {/* <Button
-                          type="link"
-                          className="padding-0"
-                          onClick={() => add()}
-                          icon={<PlusOutlined />}
-                        >
-                          Thêm mới
-                        </Button> */}
-                      </>
-                    )}
-                  </List>
-                </div>
+                            )}
+                          </Row>
+                        )
+                      )}
+                    </>
+                  )}
+                </List>
               </Card>
             </Col>
           </Row>
@@ -1240,132 +1285,124 @@ const ProductCreateScreen: React.FC = () => {
                   </div>
                 }
               >
-                <div className="padding-20">
-                  <Row gutter={50}>
-                    <Col span={24} md={12} sm={24}>
-                      <Item label="Màu sắc" name="color_id">
-                        <CustomSelect
-                          notFoundContent={"Không có dữ liệu"}
-                          showSearch
-                          mode="multiple"
-                          optionFilterProp="children"
-                          maxTagCount="responsive"
-                          showArrow
-                          onChange={onColorChange}
-                          placeholder="Chọn màu sắc"
-                          suffix={
-                            <Button
-                              style={{ width: 37, height: 37 }}
-                              icon={<PlusOutlined />}
-                              onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.COLORS}/create`)}
-
-                            />
-                          }
-                        >
-                          {listColor?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.id}>
-                              {`${item.code} - ${item.name}`}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Col>
-                    <Col span={24} md={12} sm={24}>
-                      <Item name="size" label="Kích cỡ">
-                        <CustomSelect
-                          onChange={onSizeChange}
-                          notFoundContent={"Không có dữ liệu"}
-                          placeholder="Chọn kích cỡ"
-                          maxTagCount="responsive"
-                          mode="multiple"
-                          optionFilterProp="children"
-                          showSearch
-                          suffix={
-                            <Button
-                              style={{ width: 37, height: 37 }}
-                              icon={<PlusOutlined />}
-                              onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.SIZES}/create`)}
-
-                            />
-                          }
-                        >
-                          {listSize?.map((item) => (
-                            <CustomSelect.Option
-                              key={item.code}
-                              value={item.id}
-                            >
-                              {item.code}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Col>
-                  </Row>
-                  <Table
-                    locale={{
-                      emptyText: "Không cỏ sản phẩm",
-                    }}
-                    dataSource={variants}
-                    columns={[
-                      {
-                        title: "Ảnh",
-                        dataIndex: "variant_images",
-                        render: (
-                          images: Array<VariantImage>,
-                          item: VariantRequestView,
-                          index: number
-                        ) => {
-                          let image = Products.findAvatar(images);
-                          return (
-                            <ImageProduct
-                              path={image !== null ? image.url : null}
-                              onClick={() => {
-                                onClickUpload(item, index);
-                              }}
-                            />
-                          );
-                        },
-                      },
-                      {
-                        title: "Mã chi tiết",
-                        key: "sku",
-                        dataIndex: "sku",
-                      },
-                      {
-                        title: "Tên sản phẩm",
-                        key: "name",
-                        dataIndex: "name",
-                      },
-                      {
-                        title: "Mã màu",
-                        key: "color",
-                        dataIndex: "color",
-                      },
-                      {
-                        title: "Kích cỡ",
-                        key: "size",
-                        dataIndex: "size",
-                      },
-                      {
-                        title: "Thao tác",
-                        key: "action",
-                        dataIndex: "sku",
-                        width: 100,
-                        render: (sku: string) => (
-                          <Button
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item label="Màu sắc" name="color_id">
+                      <SelectPaging
+                        metadata={colors.metadata}
+                        notFoundContent={"Không có dữ liệu"}
+                        showSearch={false}
+                        searchPlaceholder="Tìm kiếm màu sắc"
+                        mode="multiple"
+                        maxTagCount="responsive"
+                        showArrow
+                        allowClear
+                        onChange={onColorChange}
+                        onSearch={(key) => getColors(key, 1)}
+                        onPageChange={(key, page) => getColors(key, page)}
+                        placeholder="Chọn màu sắc"
+                      >
+                        {colors.items.map((item) => (
+                          <SelectPaging.Option key={item.id} value={item.id}>
+                            {`${item.code} - ${item.name}`}
+                          </SelectPaging.Option>
+                        ))}
+                      </SelectPaging>
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item name="size" label="Kích cỡ">
+                      <SelectPaging
+                        metadata={sizes.metadata}
+                        onChange={onSizeChange}
+                        showSearch={false}
+                        notFoundContent={"Không có dữ liệu"}
+                        placeholder="Chọn kích cỡ"
+                        maxTagCount="responsive"
+                        mode="multiple"
+                        optionFilterProp="children"
+                        allowClear
+                        showArrow
+                        onSearch={(key) => getSizes(key, 1)}
+                        onPageChange={(key, page) => getSizes(key, page)}
+                        searchPlaceholder="Tìm kiếm kích cỡ"
+                      >
+                        {sizes.items.map((item) => (
+                          <SelectPaging.Option
+                            key={item.code}
+                            value={item.id}
+                          >
+                            {item.code}
+                          </SelectPaging.Option>
+                        ))}
+                      </SelectPaging>
+                    </Item>
+                  </Col>
+                </Row>
+                <Table
+                  locale={{
+                    emptyText: "Không cỏ sản phẩm",
+                  }}
+                  dataSource={variants}
+                  columns={[
+                    {
+                      title: "Ảnh",
+                      dataIndex: "variant_images",
+                      render: (
+                        images: Array<VariantImage>,
+                        item: VariantRequestView,
+                        index: number
+                      ) => {
+                        let image = Products.findAvatar(images);
+                        return (
+                          <ImageProduct
+                            path={image !== null ? image.url : null}
                             onClick={() => {
-                              deleteVariant(sku);
+                              onClickUpload(item, index);
                             }}
-                            type="link"
-                            icon={<DeleteOutlined />}
                           />
-                        ),
+                        );
                       },
-                    ]}
-                    rowKey={(item) => item.sku}
-                    pagination={false}
-                  />
-                </div>
+                    },
+                    {
+                      title: "Mã chi tiết",
+                      key: "sku",
+                      dataIndex: "sku",
+                    },
+                    {
+                      title: "Tên sản phẩm",
+                      key: "name",
+                      dataIndex: "name",
+                    },
+                    {
+                      title: "Mã màu",
+                      key: "color",
+                      dataIndex: "color",
+                    },
+                    {
+                      title: "Kích cỡ",
+                      key: "size",
+                      dataIndex: "size",
+                    },
+                    {
+                      title: "Thao tác",
+                      key: "action",
+                      dataIndex: "sku",
+                      width: 100,
+                      render: (sku: string) => (
+                        <Button
+                          onClick={() => {
+                            deleteVariant(sku);
+                          }}
+                          type="link"
+                          icon={<DeleteOutlined />}
+                        />
+                      ),
+                    },
+                  ]}
+                  rowKey={(item) => item.sku}
+                  pagination={false}
+                />
               </Card>
             </Col>
           </Row>

@@ -99,7 +99,7 @@ function PromoCodeUpdateForm({
     if (selectedItem) {
       const entitlements = form.getFieldValue("entitlements");
       entitlements.unshift({
-        entitled_variant_ids: selectedItem.id,
+        entitled_variant_ids: [selectedItem.id],
         prerequisite_quantity_ranges: [
           {
             greater_than_or_equal_to: 0,
