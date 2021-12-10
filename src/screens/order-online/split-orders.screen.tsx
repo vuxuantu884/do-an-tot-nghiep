@@ -39,7 +39,7 @@ import moment from "moment";
 import queryString from "query-string";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
@@ -52,6 +52,9 @@ import EditNote from "./component/edit-note";
 import ExportModal from "./modal/export.modal";
 import "./scss/index.screen.scss";
 import { nameQuantityWidth, StyledComponent } from "./split-orders.styles";
+import {OrderStatus} from "utils/Constants"
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const ACTION_ID = {
@@ -83,7 +86,7 @@ function SplitOrdersScreen(props: PropsType)  {
   const dispatch = useDispatch();
 
 	const {location} = props;
-  const queryParamsParsed = queryString.parse(location.search);
+  const queryParamsParsed:{ [key: string]: string | string[] | null; } = queryString.parse(location.search);
 
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
@@ -181,16 +184,9 @@ function SplitOrdersScreen(props: PropsType)  {
     items: [],
   }
 
-  const status_order = [
-    { name: "Nháp", value: "draft" },
-    { name: "Đóng gói", value: "packed" },
-    { name: "Xuất kho", value: "shipping" },
-    { name: "Đã xác nhận", value: "finalized" },
-    { name: "Hoàn thành", value: "completed" },
-    { name: "Kết thúc", value: "finished" },
-    { name: "Đã huỷ", value: "cancelled" },
-    { name: "Đã hết hạn", value: "expired" },
-  ];
+	const status_order = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.order_status
+  );
 
 	const renderCustomerAddress = (orderDetail: OrderResponse) => {
 		let html = orderDetail.customer_address;
@@ -206,26 +202,11 @@ function SplitOrdersScreen(props: PropsType)  {
 		return html;
 	};
 
-	const renderCustomerShippingAddress = (orderDetail: OrderResponse) => {
-		let html = orderDetail.shipping_address?.full_address;
-		if(orderDetail?.shipping_address?.ward) {
-			html += ` - ${orderDetail.shipping_address?.ward}`;
-		}
-		if(orderDetail?.shipping_address?.district) {
-			html += ` - ${orderDetail.shipping_address.district}`;
-		}
-		if(orderDetail?.shipping_address?.city) {
-			html += ` - ${orderDetail.shipping_address.city}`;
-		}
-		return html;
-	};
-
   const [columns, setColumn] = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID đơn hàng",
       dataIndex: "code",
       render: (value: string, i: OrderModel) => {
-        // console.log('i', i)
         return (
           <React.Fragment>
             <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`} style={{fontWeight: 500}}>
@@ -245,7 +226,7 @@ function SplitOrdersScreen(props: PropsType)  {
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: 120,
+      width: 150,
     },
     {
       title: "Khách hàng",
@@ -273,7 +254,7 @@ function SplitOrdersScreen(props: PropsType)  {
 				</div>,
       key: "customer",
       visible: true,
-      width: 120,
+      width: 150,
     },
     {
       title: (
@@ -285,7 +266,7 @@ function SplitOrdersScreen(props: PropsType)  {
         </div>
       ),
       dataIndex: "items",
-      key: "items.name11",
+      key: "productNameQuantity",
       className: "productNameQuantity",
       render: (items: Array<OrderItemModel>) => {
         return (
@@ -357,7 +338,7 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "customer.amount_money",
       visible: true,
       align: "right",
-      width: 90,
+      width: 120,
     },
     {
       title: "HT Vận chuyển",
@@ -390,7 +371,7 @@ function SplitOrdersScreen(props: PropsType)  {
         return ""
       },
       visible: true,
-      width: 110,
+      width: 140,
       align: "center",
     },
     {
@@ -398,10 +379,13 @@ function SplitOrdersScreen(props: PropsType)  {
       dataIndex: "status",
       key: "status",
       render: (status_value: string) => {
+				if(!status_order) {
+					return "";
+				}
         const status = status_order.find((status) => status.value === status_value);
         return (
           <div>
-            {status?.name === "Nháp" && (
+            {status_value === OrderStatus.DRAFT && (
               <div
                 style={{
                   background: "#F5F5F5",
@@ -414,7 +398,7 @@ function SplitOrdersScreen(props: PropsType)  {
               </div>
             )}
 
-            {status?.name === "Đã xác nhận" && (
+						{status_value === OrderStatus.FINALIZED && (
               <div
                 style={{
                   background: "rgba(42, 42, 134, 0.1)",
@@ -427,7 +411,7 @@ function SplitOrdersScreen(props: PropsType)  {
               </div>
             )}
 
-            {status?.name === "Kết thúc" && (
+						{status_value === OrderStatus.FINISHED && (
               <div
                 style={{
                   background: "rgba(39, 174, 96, 0.1)",
@@ -440,7 +424,7 @@ function SplitOrdersScreen(props: PropsType)  {
               </div>
             )}
 
-            {status?.name === "Đã huỷ" && (
+						{status_value === OrderStatus.CANCELLED && (
               <div
                 style={{
                   background: "rgba(226, 67, 67, 0.1)",
@@ -457,7 +441,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width: 120
+      width: 150
     },
 		{
       title: "Đóng gói",
@@ -476,7 +460,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 80,
     },
     {
       title: "Xuất kho",
@@ -495,7 +479,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 80,
     },
     {
       title: "Thanh toán",
@@ -522,7 +506,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 80,
     },
     {
       title: "Trả hàng",
@@ -549,7 +533,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 80,
     },
 		{
       title: "Tổng SL",
@@ -570,7 +554,7 @@ function SplitOrdersScreen(props: PropsType)  {
 					{value}
 				</Link>
       ,
-      width: 100,
+      width: 140,
     },
 		{
       title: "Nguồn đơn hàng",
@@ -578,7 +562,7 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "source",
       visible: true,
       align: "center",
-      width:"130px"
+      width: 140,
     },
 		{
       title: "Khách đã trả",
@@ -600,7 +584,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-			width: 90,
+			width: 100,
     },
     {
       title: "Còn phải trả",
@@ -624,7 +608,7 @@ function SplitOrdersScreen(props: PropsType)  {
       },
       visible: true,
       align: "center",
-			width: 90,
+			width: 100,
     },
     {
       title: "HT thanh toán",
@@ -636,7 +620,7 @@ function SplitOrdersScreen(props: PropsType)  {
         }),
       visible: true,
       align: "center",
-      width: 100
+      width: 120
     },
 		{
       title: "Nhân viên bán hàng",
@@ -648,7 +632,7 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "assignee",
       visible: true,
       align: "center",
-      width: 120
+      width: 150
     },
     {
       title: "Nhân viên tạo đơn",
@@ -660,7 +644,7 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "account",
       visible: true,
       align: "center",
-      width: 120
+      width: 150
     },
 		{
       title: "Ngày tạo đơn",
@@ -668,7 +652,7 @@ function SplitOrdersScreen(props: PropsType)  {
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "created_date",
       visible: true,
-			width: 120,
+			width: 170,
     },
 		{
       title: "Ngày hoàn tất đơn",
@@ -676,7 +660,7 @@ function SplitOrdersScreen(props: PropsType)  {
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "finished_on",
       visible: true,
-			width: 120,
+			width: 170,
     },
     {
       title: "Ngày huỷ đơn",
@@ -684,7 +668,7 @@ function SplitOrdersScreen(props: PropsType)  {
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "cancelled_on",
       visible: true,
-			width: 120,
+			width: 170,
     },
     {
       title: "Ghi chú nội bộ",
@@ -697,7 +681,7 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "note",
       visible: true,
       align: "center",
-			width: 150,
+			width: 200,
     },
     {
       title: "Ghi chú của khách",
@@ -710,7 +694,7 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "customer_note",
       visible: true,
       align: "center",
-			width: 150,
+			width: 200,
     },
     {
       title: "Tag",
@@ -733,7 +717,7 @@ function SplitOrdersScreen(props: PropsType)  {
       key: "tags",
       visible: true,
       align: "center",
-			width: 100,
+			width: 140,
     },
     {
       title: "Mã tham chiếu",
@@ -745,7 +729,7 @@ function SplitOrdersScreen(props: PropsType)  {
 				</Link>
       ,
       visible: true,
-			width: 100,
+			width: 120,
     },
   ]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -999,14 +983,17 @@ function SplitOrdersScreen(props: PropsType)  {
   }, [dispatch, onSuccessEditNote]);
 
   useEffect(() => {
-    setTableLoading(true);
-    dispatch(getListOrderAction(params, setSearchResult));
+		const fetchData = () => {
+			return new Promise<void>((resolve, reject) => {
+				setTableLoading(true);
+				dispatch(getListOrderAction(params, setSearchResult));
+				resolve();
+			})
+		};
+		fetchData().then(() => {
+			setTableLoading(false);
+		});
   }, [dispatch, params, setSearchResult]);
-
-  useEffect(() => {
-    console.log('data change', data);
-    
-  }, [data]);
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -1033,11 +1020,11 @@ function SplitOrdersScreen(props: PropsType)  {
   }, [dispatch]);
 
 	useEffect(() => {
-		console.log('location', location)
-    setPrams({
+		let dataQuery: OrderSearchQuery = {
 			...initQuery,
-			...queryParamsParsed,
-		});
+			...getQueryParamsFromQueryString(queryParamsParsed),
+		};
+    setPrams(dataQuery);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
@@ -1093,7 +1080,7 @@ function SplitOrdersScreen(props: PropsType)  {
               </AuthWrapper>
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
                 {(isPassed: boolean) => 
-                <ButtonCreate path={`${UrlConfig.SPLIT_ORDERS}/create`} disabled={!isPassed} child="Thêm mới đơn hàng"/>}
+                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} child="Thêm mới đơn hàng"/>}
               </AuthWrapper>
               
             </Space>
@@ -1120,7 +1107,7 @@ function SplitOrdersScreen(props: PropsType)  {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 4400 * columnFinal.length/(columns.length ? columns.length : 1)}}
+            scroll={{ x: 2400 * columnFinal.length/(columns.length ? columns.length : 1)}}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,

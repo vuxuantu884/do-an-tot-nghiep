@@ -95,8 +95,12 @@ function* getListOrderSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
-      default:
-        break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
+			default:
+				response.errors.forEach((e) => showError(e));
+				break;
     }
   } catch (error) {
 		showError("Có lỗi khi lấy dữ liệu danh sách đơn hàng! Vui lòng thử lại sau!")
@@ -330,10 +334,10 @@ function* PaymentMethodGetListSaga(action: YodyAction) {
 function* getDataSource(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
+    let response: BaseResponse<PageResponse<Array<SourceResponse>>> = yield call(getSources);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.items);
         break;
       default:
         break;
