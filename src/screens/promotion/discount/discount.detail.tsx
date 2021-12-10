@@ -1,27 +1,28 @@
-import {Button, Card, Col, Divider, Row, Space} from "antd";
+import { Button, Card, Col, Divider, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useParams} from "react-router";
-import {Link} from "react-router-dom";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router";
+import { Link } from "react-router-dom";
+import { renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 import BottomBarContainer from "../../../component/container/bottom-bar.container";
 import CustomTable from "../../../component/table/CustomTable";
-import {HttpStatus} from "../../../config/http-status.config";
-import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
-import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
+import { HttpStatus } from "../../../config/http-status.config";
+import { unauthorizedAction } from "../../../domain/actions/auth/auth.action";
+import { hideLoading, showLoading } from "../../../domain/actions/loading.action";
 import {
   bulkEnablePriceRules,
   getVariants,
   promoGetDetail,
 } from "../../../domain/actions/promotion/discount/discount.action";
-import {bulkDisablePriceRules} from "../../../service/promotion/discount/discount.service";
-import {formatCurrency} from "../../../utils/AppUtils";
-import {showError} from "../../../utils/ToastUtils";
+import { bulkDisablePriceRules } from "../../../service/promotion/discount/discount.service";
+import { formatCurrency } from "../../../utils/AppUtils";
+import { showError } from "../../../utils/ToastUtils";
 import GeneralConditionDetail from "../shared/general-condition.detail";
 import "./discount.scss";
 
@@ -88,7 +89,7 @@ const discountStatuses = [
 const PromotionDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
 
-  const {id} = useParams() as any;
+  const { id } = useParams() as any;
   const idNumber = parseInt(id);
 
   const [error, setError] = useState(false);
@@ -185,7 +186,7 @@ const PromotionDetailScreen: React.FC = () => {
         const rawEntitlement = data.entitlements[0];
         const quantityRange = rawEntitlement.prerequisite_quantity_ranges[0];
         listEntitlements.push({
-          title: <span style={{color: "#2A2A86", fontWeight: 500}}>Tất cả sản phẩm</span>,
+          title: <span style={{ color: "#2A2A86", fontWeight: 500 }}>Tất cả sản phẩm</span>,
           sku: null,
           minimum: quantityRange.greater_than_or_equal_to,
           allocationLimit: quantityRange.allocation_limit,
@@ -245,7 +246,7 @@ const PromotionDetailScreen: React.FC = () => {
         title: "Giá sau chiết khấu",
         align: "center",
         dataIndex: "total",
-        render: (value: string) => <span style={{color: "#E24343"}}>{value}</span>,
+        render: (value: string) => <span style={{ color: "#E24343" }}>{value}</span>,
       },
       {
         title: "SL Tối thiểu",
@@ -296,7 +297,7 @@ const PromotionDetailScreen: React.FC = () => {
         align: "center",
         dataIndex: "total",
         render: (value: any) => (
-          <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>
+          <span style={{ color: "#E24343" }}>{formatCurrency(value)}</span>
         ),
       },
       {
@@ -313,40 +314,6 @@ const PromotionDetailScreen: React.FC = () => {
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
   }, [costType, idNumber]);
 
-  const renderTotalBill = (cost: number, value: number, valueType: string) => {
-    let result = "";
-
-    switch (valueType) {
-      case "FIXED_PRICE":
-        result = formatCurrency(Math.round(value));
-        break;
-      case "FIXED_AMOUNT":
-        if (!cost) result = "";
-        else result = `${formatCurrency(Math.round(cost - value))}`;
-        break;
-      case "PERCENTAGE":
-        if (!cost) result = "";
-        else result = `${formatCurrency(Math.round(cost - (cost * value) / 100))}`;
-        break;
-    }
-    return result;
-  };
-
-  const renderDiscountValue = (value: number, valueType: string) => {
-    let result = "";
-    switch (valueType) {
-      case "FIXED_PRICE":
-        result = formatCurrency(value);
-        break;
-      case "FIXED_AMOUNT":
-        result = formatCurrency(value);
-        break;
-      case "PERCENTAGE":
-        result = `${value}%`;
-        break;
-    }
-    return result;
-  };
 
   const getEntitled_method = (data: DiscountResponse) => {
     if (data.entitled_method === "FIXED_PRICE") return "Đồng giá";
@@ -404,13 +371,13 @@ const PromotionDetailScreen: React.FC = () => {
 
   const onActivate = () => {
     dispatch(showLoading());
-    dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+    dispatch(bulkEnablePriceRules({ ids: [idNumber] }, onActivateSuccess));
   };
 
   const onDeactivate = async () => {
     dispatch(showLoading());
     try {
-      const deactivateResponse = await bulkDisablePriceRules({ids: [idNumber]});
+      const deactivateResponse = await bulkDisablePriceRules({ ids: [idNumber] });
       switch (deactivateResponse.code) {
         case HttpStatus.SUCCESS:
           dispatch(promoGetDetail(idNumber, onResult));
@@ -484,7 +451,7 @@ const PromotionDetailScreen: React.FC = () => {
               <Card
                 className="card"
                 title={
-                  <div style={{alignItems: "center"}}>
+                  <div style={{ alignItems: "center" }}>
                     <span className="title-card">THÔNG TIN CÁ NHÂN</span>
                     {renderStatus(data)}
                   </div>
@@ -514,10 +481,10 @@ const PromotionDetailScreen: React.FC = () => {
                                 padding: "0 4px 0 0",
                               }}
                             >
-                              <span style={{color: "#666666"}}>{detail.name}</span>
-                              <span style={{fontWeight: 600}}>:</span>
+                              <span style={{ color: "#666666" }}>{detail.name}</span>
+                              <span style={{ fontWeight: 600 }}>:</span>
                             </Col>
-                            <Col span={12} style={{paddingLeft: 0}}>
+                            <Col span={12} style={{ paddingLeft: 0 }}>
                               <span
                                 style={{
                                   wordWrap: "break-word",
@@ -551,10 +518,10 @@ const PromotionDetailScreen: React.FC = () => {
                                 padding: "0 4px 0 0",
                               }}
                             >
-                              <span style={{color: "#666666"}}>{detail.name}</span>
-                              <span style={{fontWeight: 600}}>:</span>
+                              <span style={{ color: "#666666" }}>{detail.name}</span>
+                              <span style={{ fontWeight: 600 }}>:</span>
                             </Col>
-                            <Col span={12} style={{paddingLeft: 0}}>
+                            <Col span={12} style={{ paddingLeft: 0 }}>
                               <span
                                 style={{
                                   wordWrap: "break-word",
@@ -587,10 +554,10 @@ const PromotionDetailScreen: React.FC = () => {
                           padding: "0 8px 0 0",
                         }}
                       >
-                        <span style={{color: "#666666"}}>Mô tả</span>
-                        <span style={{fontWeight: 600}}>:</span>
+                        <span style={{ color: "#666666" }}>Mô tả</span>
+                        <span style={{ fontWeight: 600 }}>:</span>
                       </Col>
-                      <Col span={18} style={{paddingLeft: 0}}>
+                      <Col span={18} style={{ paddingLeft: 0 }}>
                         <span
                           style={{
                             wordWrap: "break-word",
@@ -604,7 +571,7 @@ const PromotionDetailScreen: React.FC = () => {
                 </Row>
                 <Divider />
                 <Row gutter={30}>
-                  <Col span={24} style={{textAlign: "right"}}>
+                  <Col span={24} style={{ textAlign: "right" }}>
                     <Space size={"large"}>
                       <Link to={``}>Xem lịch sử chỉnh sửa</Link>
                       <Link to={``}>Xem kết quả khuyến mãi</Link>
@@ -615,7 +582,7 @@ const PromotionDetailScreen: React.FC = () => {
               <Card
                 className="card"
                 title={
-                  <div style={{alignItems: "center"}}>
+                  <div style={{ alignItems: "center" }}>
                     <span className="title-card">
                       DANH SÁCH SẢN PHẨM VÀ ĐIỀU KIỆN ÁP DỤNG
                     </span>
@@ -639,9 +606,10 @@ const PromotionDetailScreen: React.FC = () => {
             back="Quay lại danh sách khuyến mại"
             rightComponent={
               <Space>
-                {allowUpdatePromoCode ? <Button disabled>Sửa</Button> : null}
-                {allowCreatePromoCode ? <Button disabled>Nhân bản</Button> : null}
-                {allowCancelPromoCode ? renderActionButton() : null}
+                {/* {allowUpdatePromoCode && <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>} */}
+                {allowUpdatePromoCode && <Button disabled>Sửa</Button> }
+                {allowCreatePromoCode && <Button disabled>Nhân bản</Button>}
+                {allowCancelPromoCode && renderActionButton()}
               </Space>
             }
           />

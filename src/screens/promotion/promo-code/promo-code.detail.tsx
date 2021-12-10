@@ -728,7 +728,7 @@ const PromotionDetailScreen: React.FC = () => {
                 Xoá
               </Button>
             ) : null} */}
-            {allowUpdatePromoCode && data?.state!=='DISABLED' ? <Button disabled onClick={onEdit}>Sửa</Button> : null}
+            {allowUpdatePromoCode && data?.state!=='DISABLED' ? <Button onClick={onEdit}>Sửa</Button> : null}
 
             {allowCreatePromoCode ? <Button disabled>Nhân bản</Button> : null}
             {allowCancelPromoCode ? renderActionButton() : null}
