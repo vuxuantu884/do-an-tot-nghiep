@@ -18,7 +18,6 @@ import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
-import AuthFunction from "component/authorization/AuthFunction";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
@@ -29,6 +28,7 @@ import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction
 } from "domain/actions/order/order.action";
+import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -143,6 +143,20 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
+
+  const [allowCreatePacked] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_PACKED],
+    not: false,
+  });
+
+  const [allowCreateShipping] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_SHIPPING],
+    not: false,
+  });
+  const [allowCreatePicked] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_PICKED],
+    not: false,
+  });
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -1561,7 +1575,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
-                disabled={cancelShipment || !AuthFunction(ODERS_PERMISSIONS.CREATE_PICKED)}
+                disabled={cancelShipment || !allowCreatePicked}
               >
                 Nhặt hàng
               </Button>
@@ -1578,7 +1592,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
-                disabled={cancelShipment || !(AuthFunction(ODERS_PERMISSIONS.CREATE_PICKED) || AuthFunction(ODERS_PERMISSIONS.CREATE_PACKED))}
+                disabled={cancelShipment || !(allowCreatePicked || allowCreatePacked)}
               >
                 Nhặt hàng & đóng gói
               </Button>
@@ -1591,7 +1605,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               style={{marginLeft: "10px"}}
               onClick={onOkShippingConfirm}
               loading={updateShipment}
-              disabled={cancelShipment || !AuthFunction(ODERS_PERMISSIONS.CREATE_PACKED)}
+              disabled={cancelShipment || !allowCreatePacked}
             >
               Đóng gói
             </Button>
@@ -1607,7 +1621,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippingConfirm(true)}
                 loading={updateShipment}
-                disabled={cancelShipment || !AuthFunction(ODERS_PERMISSIONS.CREATE_SHIPPING)}
+                disabled={cancelShipment || !allowCreateShipping}
               >
                 Xuất kho
               </Button>
@@ -1636,7 +1650,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippedConfirm(true)}
                 loading={updateShipment}
-                disabled={cancelShipment || !AuthFunction(ODERS_PERMISSIONS.CREATE_SHIPPING)}
+                disabled={cancelShipment || !allowCreateShipping}
               >
                 Xuất kho & giao hàng
               </Button>
