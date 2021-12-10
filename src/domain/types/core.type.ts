@@ -32,3 +32,7 @@ export const StoreType = {
   STORE_TYPE: "STORE_TYPE",
   STORE_SEARCH_IDS:"STORE_SEARCH_IDS"
 };
+
+export const ImportType = {
+  UPLOAD_CORE_FILE: "UPLOAD_CORE_FILE"
+}
