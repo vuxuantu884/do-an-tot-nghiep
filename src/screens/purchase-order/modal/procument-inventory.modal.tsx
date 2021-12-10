@@ -54,7 +54,8 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
 
   const ActionImport= {
     Ok: useCallback((res)=>{ 
-      showInfo("Tính năng đang phát triển")
+      showInfo("Tính năng đang phát triển");
+      setShowImportModal(false);
     },[]),
     Cancel: useCallback(()=>{
       setShowImportModal(false);
