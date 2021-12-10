@@ -3,6 +3,7 @@ import {
   DiscountFormModel,
   VariantEntitlementsResponse,
 } from "model/promotion/discount.create.model";
+import {formatCurrency} from "./AppUtils";
 
 export const shareDiscount = (
   oldDiscountList: Array<DiscountFormModel>,
@@ -67,7 +68,7 @@ export function nonAccentVietnamese(str: string) {
     .replaceAll(/\s/g, "")
     .replace(/[^a-zA-Z ]/g, "");
 }
- export const getDateFormDuration = (duration: number) => {
+export const getDateFormDuration = (duration: number) => {
   if (duration) {
     const day = duration % 100;
     const month = (duration - day) / 100;
@@ -80,3 +81,37 @@ export function nonAccentVietnamese(str: string) {
   }
 };
 
+export const renderDiscountValue = (value: number, valueType: string) => {
+  let result = "";
+  switch (valueType) {
+    case "FIXED_PRICE":
+      result = formatCurrency(value);
+      break;
+    case "FIXED_AMOUNT":
+      result = formatCurrency(value);
+      break;
+    case "PERCENTAGE":
+      result = `${value}%`;
+      break;
+  }
+  return result;
+};
+
+export const renderTotalBill = (cost: number, value: number, valueType: string) => {
+  let result = "";
+
+  switch (valueType) {
+    case "FIXED_PRICE":
+      result = formatCurrency(Math.round(value));
+      break;
+    case "FIXED_AMOUNT":
+      if (!cost) result = "";
+      else result = `${formatCurrency(Math.round(cost - value))}`;
+      break;
+    case "PERCENTAGE":
+      if (!cost) result = "";
+      else result = `${formatCurrency(Math.round(cost - (cost * value) / 100))}`;
+      break;
+  }
+  return result;
+};

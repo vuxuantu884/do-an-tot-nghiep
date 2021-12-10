@@ -72,7 +72,31 @@ export interface DiscountFormModel {
   variants: Array<VariantEntitlementsResponse>;
   entitled_variant_ids: Array<number>;
   "prerequisite_quantity_ranges.allocation_limit": number,
-        "prerequisite_quantity_ranges.greater_than_or_equal_to": number,
-        "prerequisite_quantity_ranges.value_type":  "FIXED_PRICE" | "FIXED_AMOUNT" |  string,
-        "prerequisite_quantity_ranges.value": number,
+  "prerequisite_quantity_ranges.greater_than_or_equal_to": number,
+  "prerequisite_quantity_ranges.value_type": "FIXED_PRICE" | "FIXED_AMOUNT" | string,
+  "prerequisite_quantity_ranges.value": number,
+}
+
+export interface VariantPriceRule {
+  cost: number;
+  open_quantity: number;
+  price_rule_id: number;
+  product_id: number;
+  sku: string;
+  title: string;
+  variant_id: number;
+  variant_title: string;
+}
+
+export interface DiscountConditionRule {
+  field: string;
+  operator: string;
+  value: string;
+}
+
+export interface DiscountRule {
+  group_operator: string;
+  value: number;
+  value_type: string;
+  conditions: DiscountConditionRule[];
 }
