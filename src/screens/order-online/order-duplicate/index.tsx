@@ -10,7 +10,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountSearchAction, ShipperGetListAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -160,6 +160,8 @@ const OrderDuplicate: React.FC = () => {
     },
     items: [],
   });
+
+  const [listShippers, setListShippers] = useState<Array<AccountResponse>>([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   let data1: any = {
     metadata: {
@@ -967,6 +969,10 @@ const OrderDuplicate: React.FC = () => {
     );
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(ShipperGetListAction(setListShippers));
+  }, [dispatch]);
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -1040,6 +1046,7 @@ const OrderDuplicate: React.FC = () => {
             subStatus={listOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
+            listShippers={listShippers}
           />
           <CustomTable
             isRowSelection

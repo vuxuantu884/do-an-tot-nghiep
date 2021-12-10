@@ -1,112 +1,115 @@
-import {Button, Col, Form, FormInstance, Input, Row, Select} from "antd";
-import {MenuAction} from "component/table/ActionButton";
+import { Button, Form, FormInstance, Input, Select } from "antd";
+import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import React, {createRef, useCallback, useState} from "react";
-import search from "assets/img/search.svg";
+import React, { createRef, useCallback } from "react";
 import {
-  FilterOutlined,
   SearchOutlined,
   SettingOutlined,
   SwapRightOutlined,
 } from "@ant-design/icons";
 import "./order.filter.scss";
-import BaseFilter from "./base.filter";
-import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
+import moment from "moment";
+import { StoreResponse } from "model/core/store.model";
 
-const {Item} = Form;
-const {Option} = Select;
+const { Item } = Form;
+const { Option } = Select;
 
 type OrderDuplicateFilterProps = {
   onMenuClick?: (id: number) => void;
   actions?: Array<MenuAction>;
+  onShowColumnSetting?: () => void;
+  listStore: StoreResponse[] | undefined;
 };
 
 const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
   props: OrderDuplicateFilterProps
 ) => {
-  const {onMenuClick, actions} = props;
+  const { onMenuClick, actions, onShowColumnSetting, listStore } = props;
 
-  const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
 
   //useState
-  const [visible, setVisible] = useState(false);
 
-  const onFinish = useCallback((value: any) => {}, []);
+  const onFinish = useCallback((value: any) => { }, []);
 
-  const clearFilter = () => {
-    console.log("ok");
-  };
+  const onChangeDate = useCallback(
+    () => {
+      let value: any = {};
+      value = formSearchRef?.current?.getFieldsValue(["form_date", "to_date"])
+      if (value["form_date"] && value["to_date"] && (+moment(value["form_date"], 'DD-MM-YYYY') > + moment(value["to_date"], 'DD-MM-YYYY'))) {
+        console.log('invalid')
+        formSearchRef?.current?.setFields([
+          {
+            name: "form_date",
+            errors: ['Khoảng thời gian chưa chính xác'],
+          },
+          {
+            name: "to_date",
+            errors: [''],
+          },
+        ])
+      } else {
+        formSearchRef?.current?.setFields([
+          {
+            name: "form_date",
+            errors: undefined,
+          },
+          {
+            name: "to_date",
+            errors: undefined,
+          },
+        ])
+      }
+    }, [formSearchRef]);
 
-  const onFilterClick = useCallback(() => {
-    console.log("ok");
-  }, []);
-
-  const onCancelFilter = useCallback(() => {
-    setVisible(false);
-    // setRerender(false);
-  }, []);
-
-  const openFilter = useCallback(() => {
-    setVisible(true);
-  }, []);
-
-  const onChangeDate = () => {};
-
-  const widthScreen = () => {
-    if (window.innerWidth >= 1600) {
-      return 400;
-    } else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
-      return 350;
-    } else {
-      return 400;
-    }
-  };
   return (
     <React.Fragment>
       <div className="order-filter">
         <CustomFilter onMenuClick={onMenuClick} menu={actions}>
           <Form onFinish={onFinish} ref={formSearchRef} layout="inline">
-            <div style={{width: "35%", display: "flex"}}>
-              <Item name="" style={{width: "45%", marginBottom: 0}}>
+            <div style={{ width: "35%", display: "flex" }}>
+              <Item name="form_date" style={{ width: "45%", margin: 0 }}>
                 <CustomDatePicker
                   format="DD-MM-YYYY"
                   placeholder="Từ ngày"
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   onChange={() => onChangeDate()}
                 />
               </Item>
-              <div style={{margin: "0 10px", paddingTop: "10px"}}>
+              <div style={{ margin: "0 2px", paddingTop: "10px" }}>
                 <SwapRightOutlined />
               </div>
-              <Item name="" style={{width: "45%", marginBottom: 0}}>
+              <Item name="to_date" style={{ width: "45%", margin: 0 }}>
                 <CustomDatePicker
                   format="DD-MM-YYYY"
                   placeholder="Đến ngày"
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   onChange={() => onChangeDate()}
                 />
               </Item>
             </div>
-            <Item name="" style={{width: "20%"}}>
+            <Item name="store_id" style={{ width: "20%" }}>
               <Select
                 showSearch
                 optionFilterProp="children"
                 placeholder={
-                  <div style={{color: "#878790"}}>
+                  <div style={{ color: "#878790" }}>
                     <SearchOutlined />
                     <span>Cửa hàng</span>
                   </div>
                 }
               >
-                <Option value="1">Not Identified</Option>
+                {listStore?.map((item, index) => (
+                  <Option key={index.toString()} value={item.code}>{item.name}</Option>
+                ))}
+
                 <Option value="2">Closed</Option>
               </Select>
             </Item>
 
-            <Item name="" style={{width: "200px"}}>
-              <Input placeholder="Enter your username" prefix={<SearchOutlined />} />
+            <Item name="" style={{ width: "200px" }}>
+              <Input placeholder="Tên, Số điện thoại khách hàng" prefix={<SearchOutlined />} />
             </Item>
 
             <Item>
@@ -114,7 +117,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
                 Lọc
               </Button>
             </Item>
-            <Button icon={<SettingOutlined />}></Button>
+            <Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
           </Form>
         </CustomFilter>
       </div>
