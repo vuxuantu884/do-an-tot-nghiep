@@ -25,8 +25,8 @@ import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
 import {MenuAction} from "component/table/ActionButton";
 import {Link} from "react-router-dom";
 import {showError, showSuccess} from "utils/ToastUtils";
-import AuthFunction from "component/authorization/AuthFunction";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -61,6 +61,10 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     ...initQueryGoodsReceipts,
     ...getQueryParams(query),
   };
+  const [allowDeleteGoodsReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.DELETE_GOODS_RECEIPT],
+    not: false,
+  });
 
   const actions: Array<MenuAction> = [
     {
@@ -77,8 +81,8 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
       id: 3,
       name: "Xóa",
       icon: <DeleteOutlined />,
-      color: AuthFunction(ODERS_PERMISSIONS.DELETE_GOOS_RECEIPT) ? "#E24343" : "rgba(0,0,0,.25)",
-      disabled: !AuthFunction(ODERS_PERMISSIONS.DELETE_GOOS_RECEIPT)
+      color: allowDeleteGoodsReceipt ? "#E24343" : "rgba(0,0,0,.25)",
+      disabled: !allowDeleteGoodsReceipt
     },
   ];
 

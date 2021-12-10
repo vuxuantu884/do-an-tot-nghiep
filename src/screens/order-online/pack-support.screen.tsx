@@ -25,7 +25,7 @@ import PackReportHandOverCopy from "./pack-support/pack-report-hand-over-copy";
 import {useQuery} from "utils/useQuery";
 import "assets/css/_pack.scss";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import AuthFunction from "component/authorization/AuthFunction";
+import useAuthorization from "hook/useAuthorization";
 
 const {TabPane} = Tabs;
 
@@ -53,6 +53,11 @@ const PackSupportScreen: React.FC = () => {
     Array<GoodsReceiptsTypeResponse>
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
+
+  const [allowReadGoodReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
+    not: false,
+  });
 
   const packSupportContextData = {
     listThirdPartyLogistics,
@@ -128,7 +133,7 @@ const PackSupportScreen: React.FC = () => {
                     listThirdPartyLogistics={listThirdPartyLogistics}
                   ></PackInfo>
                 </TabPane>
-                <TabPane tab="Biên bản bàn giao" key="2" disabled={!AuthFunction(ODERS_PERMISSIONS.READ_GOODS_RECEIPT)}>
+                <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
                   <PackReportHandOverCopy query={query} />
                 </TabPane>
               </Tabs>

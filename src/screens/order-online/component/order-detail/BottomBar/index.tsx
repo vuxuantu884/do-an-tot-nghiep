@@ -150,18 +150,22 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 >
                   Cập nhật và xác nhận
                 </Button>}
-                <Button
-                  style={{ padding: "0 25px", fontWeight: 400 }}
-                  type="primary"
-                  className="create-button-custom"
-                  id="save-and-confirm"
-                  onClick={() => {
-                    formRef.current?.submit();
-                  }}
-                  loading={updating}
-                >
-                  Cập nhật đơn hàng
-                </Button>
+                <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
+                  {(isPassed: boolean) => 
+                  <Button
+                    style={{ padding: "0 25px", fontWeight: 400 }}
+                    type="primary"
+                    className="create-button-custom"
+                    id="save-and-confirm"
+                    onClick={() => {
+                      formRef.current?.submit();
+                    }}
+                    loading={updating}
+                    disabled={!isPassed}
+                  >
+                    Cập nhật đơn hàng
+                  </Button>}
+                </AuthWrapper>
               </Col>
             )}
           {isVisibleActionsButtons && (
