@@ -69,8 +69,8 @@ export const StyledComponent = styled.div`
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: 0px;
-        bottom: 0px;
+        top: -999px;
+        bottom: -999px;
         right: ${quantityWidth}px;
         background-color: ${borderColor};
       }

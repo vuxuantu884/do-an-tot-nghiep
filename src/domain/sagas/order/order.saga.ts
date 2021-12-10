@@ -29,6 +29,7 @@ import {
   getDeliveryMappedStoresService,
   getDeliveryTransportTypesService,
   getDetailOrderApi,
+  getFulFillmentDetailAction,
   getFulfillmentsApi,
   getInfoDeliveryFees,
   getOrderConfig,
@@ -94,8 +95,12 @@ function* getListOrderSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
-      default:
-        break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
+			default:
+				response.errors.forEach((e) => showError(e));
+				break;
     }
   } catch (error) {
 		showError("Có lỗi khi lấy dữ liệu danh sách đơn hàng! Vui lòng thử lại sau!")
@@ -329,10 +334,10 @@ function* PaymentMethodGetListSaga(action: YodyAction) {
 function* getDataSource(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
+    let response: BaseResponse<PageResponse<Array<SourceResponse>>> = yield call(getSources);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.items);
         break;
       default:
         break;
@@ -361,6 +366,29 @@ function* orderDetailSaga(action: YodyAction) {
   } catch (error) {
     console.log('error', error)
 		showError("Có lỗi khi lấy dữ liệu chi tiết đơn hàng! Vui lòng thử lại sau!")
+  }
+}
+
+function* getFulfillmentDetailSaga(action: YodyAction) {
+  const { fulfillment_code, setData } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      getFulFillmentDetailAction,
+      fulfillment_code
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+		showError("Có lỗi khi lấy dữ liệu đơn giao hàng! Vui lòng thử lại sau!")
   }
 }
 
@@ -955,6 +983,7 @@ export function* OrderOnlineSaga() {
   // yield takeLatest(OrderType.GET_INFO_VTP_FEE, InfoVTPSaga);
   yield takeLatest(OrderType.GET_INFO_FEES, InfoFeesSaga);
   yield takeLatest(OrderType.GET_LIST_SUB_STATUS, getListSubStatusSaga);
+  yield takeLatest(OrderType.GET_FULFILLMENT_DETAIL, getFulfillmentDetailSaga);
   yield takeLatest(OrderType.GET_TRACKING_LOG_FULFILLMENT, getTRackingLogFulfillmentSaga);
   yield takeLatest(OrderType.GET_TRACKING_LOG_ERROR, getTRackingLogErrorSaga);
   yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);

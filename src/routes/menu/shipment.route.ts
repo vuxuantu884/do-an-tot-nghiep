@@ -7,6 +7,11 @@ const ShipmentsScreen = React.lazy(
   () => import("screens/order-online/list-shipments")
 );
 
+
+const ShipmentDetailScreen = React.lazy(
+  () => import("screens/order-online/shipment-detail")
+);
+
 // ThirdPartyLogisticsIntegration: Kết nối hãng vận chuyển
 const ThirdPartyLogisticsIntegrationScreen = React.lazy(
   () => import("screens/settings/third-party-logistics-integration")
@@ -34,8 +39,21 @@ const shipments: Array<RouteMenu> = [
     key: "submenu66",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.VIEW],
-    subMenu: [],
+    permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
+    subMenu: [
+      {
+        path: `${UrlConfig.SHIPMENTS}/:code`,
+        exact: true,
+        title: "Chi tiết đơn giao hàng",
+        icon: "icon-dot",
+        component: ShipmentDetailScreen,
+        key: "submenu-shipment-1",
+        isShow: true,
+        header: null,
+        permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
+        subMenu: [],
+      },
+    ],
   },
   {
     path: UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION,

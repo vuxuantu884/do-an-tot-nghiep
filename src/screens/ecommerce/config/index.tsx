@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Card, Tabs, Form, Button, Dropdown, Menu, Modal } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import RenderTabBar from "component/table/StickyTabBar";
 import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
 
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
@@ -30,8 +31,8 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import useAuthorization from "hook/useAuthorization";
 
-import SyncEcommerce from "screens/ecommerce/config/tab/sync-ecommerce"
-import SettingConfig from "screens/ecommerce/config/tab/setting-config";
+import SyncShopList from "screens/ecommerce/config/shop-list/SyncShopList";
+import ConfigShop from "screens/ecommerce/config/config-shop/ConfigShop";
 
 import { StyledComponent, StyledConfirmUpdateShopModal } from "screens/ecommerce/config/styles";
 import { DownOutlined } from "@ant-design/icons";
@@ -225,7 +226,7 @@ const EcommerceConfig: React.FC = () => {
     );
   }, [dispatch]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {
         case "#sync":
@@ -321,7 +322,7 @@ const EcommerceConfig: React.FC = () => {
         <AuthWrapper acceptPermissions={shopsReadPermission} passThrough>
           {(allowed: boolean) => (allowed ?
             <>
-              <Card>
+              <Card className="card-tab">
                 <Tabs
                   activeKey={activeTab}
                   onChange={(active) => {
@@ -329,17 +330,20 @@ const EcommerceConfig: React.FC = () => {
                     reloadConfigData();
                     setConfigFromEcommerce(undefined)
                   }}
+                  style={{overflow: "initial"}}
+                  renderTabBar={RenderTabBar}
                 >
-                  <TabPane tab="Đồng bộ sàn" key="sync">
-                    <SyncEcommerce
+                  <TabPane tab="Gian hàng" key="sync">
+                    <SyncShopList
                       configData={configData}
                       setConfigToView={setConfigToView}
                       reloadConfigData={reloadConfigData}
                       showDeleteModal={handleShowDeleteModal}
                     />
                   </TabPane>
-                  <TabPane tab="Cài đặt cấu hình" key="setting">
-                    <SettingConfig
+
+                  <TabPane tab="Cấu hình gian hàng" key="setting">
+                    <ConfigShop
                       listStores={stores}
                       accounts={accounts}
                       accountChangeSearch={accountChangeSearch}

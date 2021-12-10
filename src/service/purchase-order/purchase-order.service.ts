@@ -53,7 +53,7 @@ export const getPrintContent = (
   id: number
 ): Promise<Array<PurchaseOrderPrint>> => {
   return BaseAxios.get(
-    `${ApiConfig.PURCHASE_ORDER}/orders/print_forms?ids=${id}`
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/print-forms?ids=${id}`
   );
 };
 

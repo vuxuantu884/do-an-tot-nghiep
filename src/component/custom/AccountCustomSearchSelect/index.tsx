@@ -1,10 +1,10 @@
-import { Select } from "antd";
+import { Select, Spin } from "antd";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { AccountResponse } from "model/account/account.model";
 import React, {
 	MutableRefObject,
-	useCallback, useRef
+	useCallback, useRef, useState
 } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountApi } from "service/accounts/account.service";
@@ -20,7 +20,7 @@ type PropType = {
 	[res:string]: any;
 };
 
-function AccountSearchSelect(props: PropType) {
+function AccountCustomSearchSelect(props: PropType) {
   const {
     placeholder,
     initValue,
@@ -29,6 +29,7 @@ function AccountSearchSelect(props: PropType) {
     setDataToSelect,
 		...rest
   } = props;
+	const [isLoading, setIsLoading] = useState(false)
   const inputRef: MutableRefObject<any> = useRef();
   const dispatch = useDispatch();
 
@@ -36,6 +37,7 @@ function AccountSearchSelect(props: PropType) {
     (value: string) => {
       const getAccounts = (value: string) => {
         if (value.trim() !== "" && value.length >= 3) {
+					setIsLoading(true)
           searchAccountApi({
             info: value,
             limit: undefined,
@@ -58,6 +60,9 @@ function AccountSearchSelect(props: PropType) {
             .catch((error) => {
               console.log("error", error);
             })
+						.finally(()=>{
+							setIsLoading(false)
+						})
         } else if (value === "") {
           setDataToSelect(initDataToSelect)
         }
@@ -77,12 +82,15 @@ function AccountSearchSelect(props: PropType) {
 
   return (
 		<Select
+			loading={isLoading}
 			showSearch
+			showArrow
 			onSearch={onSearch}
 			onClear={onClear}
 			allowClear
 			optionFilterProp="children"
 			placeholder={placeholder}
+			notFoundContent={isLoading ? <Spin size="small" /> : null}
 			{...rest}
 		>
 			{dataToSelect.length > 0 &&
@@ -95,4 +103,4 @@ function AccountSearchSelect(props: PropType) {
   );
 }
 
-export default AccountSearchSelect;
+export default AccountCustomSearchSelect;

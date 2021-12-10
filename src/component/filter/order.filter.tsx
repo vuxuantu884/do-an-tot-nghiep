@@ -7,7 +7,6 @@ import {
   Row,
   Tag,
   InputNumber,
-  Radio
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
@@ -27,7 +26,7 @@ import { OrderProcessingStatusModel } from "model/response/order-processing-stat
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import DebounceSelect from "./component/debounce-select";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
-import AccountSearchSelect from "component/custom/AccountSearchSelect";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 
 type OrderFilterProps = {
   params: OrderSearchQuery;
@@ -137,10 +136,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const formSearchRef = createRef<FormInstance>();
   const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string}[]>([]);
 
-  const onChangeOrderOptions = useCallback((e) => {
-    console.log('ok lets go', e.target.value);
-    onFilter && onFilter({...params, is_online: e.target.value});
-  }, [onFilter, params]);
+  // const onChangeOrderOptions = useCallback((e) => {
+  //   console.log('ok lets go', e.target.value);
+  //   onFilter && onFilter({...params, is_online: e.target.value});
+  // }, [onFilter, params]);
 
   const onFilterClick = useCallback(() => {
     formRef.current?.submit();
@@ -313,6 +312,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [formRef, onFilter]
   );
   let filters = useMemo(() => {
+		console.log('initialValues.store_ids', initialValues.store_ids)
     let list = []
     // console.log('filters initialValues', initialValues);
     if (initialValues.store_ids.length) {
@@ -634,13 +634,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   return (
     <div>
-      <div className="order-options">
+      {/* <div className="order-options">
         <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
           <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
           <Radio.Button value="true">Đơn hàng online</Radio.Button>
           <Radio.Button value="false">Đơn hàng offline</Radio.Button>
         </Radio.Group>
-      </div>
+      </div> */}
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline" form={form}>
@@ -905,13 +905,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         </CustomSelect.Option>
                       ))}
                   </CustomSelect> */}
-									<AccountSearchSelect
+									<AccountCustomSearchSelect
 										placeholder="Tìm theo họ tên hoặc mã nhân viên"
 										dataToSelect={assigneeAccountData}
 										setDataToSelect={setAssigneeAccountData}
 										initDataToSelect={accounts}
 										mode="multiple"
-										notFoundContent="Không tìm thấy kết quả"
 										getPopupContainer={(trigger:any) => trigger.parentNode}
                     maxTagCount='responsive'
 									/>

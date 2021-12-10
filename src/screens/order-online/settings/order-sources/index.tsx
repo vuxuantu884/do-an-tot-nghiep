@@ -302,8 +302,13 @@ function OrderSources(props: PropsType) {
     const resultParams = {
       ...queryParams,
       ...values,
+			page: 1,
     };
-    handleNavigateByQueryParams(resultParams);
+		if(JSON.stringify(resultParams) === JSON.stringify(queryParams)) {
+			fetchData();
+		} else {
+			handleNavigateByQueryParams(resultParams);
+		}
   };
 
   const renderCardExtraHtml = () => {

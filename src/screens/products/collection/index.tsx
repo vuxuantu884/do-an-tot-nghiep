@@ -24,7 +24,7 @@ import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomPagination from "component/table/CustomPagination";
-import TextEllipsis from "component/table/DescriptionColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 
 const updateCollectionPermission = [ProductPermission.collections_update];
 const deleteCollectionPermission = [ProductPermission.collections_delete];

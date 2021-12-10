@@ -72,6 +72,7 @@ export interface OrderSearchQuery {
   page: number;
   limit: number;
   is_online?: string | null;
+  is_split?: string | null;
   sort_type: string | null;
   sort_column: string | null;
   code: string | null;
@@ -114,9 +115,19 @@ export interface OrderSearchQuery {
   customer_note: string | null;
   tags: [];
   reference_code: string | null;
+  search_term?: string | null;
 }
 
 export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
   ecommerce_shop_ids: any[];
   channel_id: number | undefined;
+}
+
+export interface DuplicateOrderSearchQuery {
+  page: number|null;
+  limit: number|null;
+  form_date:string|null;
+  to_date:string|null;
+  info:string|null;
+  store_id:number|null
 }

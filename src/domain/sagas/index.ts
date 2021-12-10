@@ -37,6 +37,7 @@ import { GoodsReceiptsSaga } from "./goods-receipts/goods-receipts.saga";
 import { moduleSaga } from "./auth/module.saga";
 import { promoCodeSaga } from "./promotion/promo-code/promo-code.saga";
 import { collectionSaga } from "./product/collection.saga";
+import { OrderDuplicateSaga } from "./order/order-duplicate.saga";
 
 function* rootSaga() {
   yield all([
@@ -77,7 +78,8 @@ function* rootSaga() {
     promoCodeSaga(),
     departmentSaga(),
     GoodsReceiptsSaga(),
-    moduleSaga()
+    moduleSaga(),
+    OrderDuplicateSaga()
   ]);
 }
 

@@ -109,6 +109,16 @@ export const OrderDetailAction = (id: string, setData: (data: OrderResponse) => 
   return BaseAction(OrderType.GET_ORDER_DETAIL_REQUEST, { id, setData });
 };
 
+export const getFulfillmentDetail = (
+  fulfillment_code: string,
+  setData: (data: any) => void
+) => {
+  return BaseAction(OrderType.GET_FULFILLMENT_DETAIL, {
+    fulfillment_code,
+    setData,
+  });
+};
+
 export const getTrackingLogFulfillmentAction = (
   fulfillment_code: string,
   setData: (data: Array<TrackingLogFulfillmentResponse> | null) => void
