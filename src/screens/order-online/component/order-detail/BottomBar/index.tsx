@@ -2,7 +2,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
-import React from "react";
+import React, { useCallback } from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { StyledComponent } from "./styles";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -48,6 +48,29 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     updateCancelClick,
     onConfirmOrder,
   } = props;
+
+  const acceptPermissionsUpdate = useCallback(() => {
+    switch(stepsStatusValue) {
+      case 'packed':
+        return [ODERS_PERMISSIONS.UPDATE_PACKED];
+      case 'shipping':
+        return [ODERS_PERMISSIONS.UPDATE_SHIPPING]
+      case 'shipped':
+        return [ODERS_PERMISSIONS.UPDATE_FINISHED]
+      case 'finalized':
+        return [ODERS_PERMISSIONS.UPDATE_COMFIRMED]
+      default: return []
+    }
+  }, [stepsStatusValue]);
+  const acceptPermissionsCancel = useCallback(() => {
+    switch(stepsStatusValue) {
+      case 'packed':
+        return [ODERS_PERMISSIONS.CANCEL_PACKED];
+      case 'finalized':
+        return [ODERS_PERMISSIONS.CANCEL_CONFIRMED]
+      default: return []
+    }
+  }, [stepsStatusValue]);
 
   return (
     <StyledComponent>
@@ -164,7 +187,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         Sửa đơn hàng
                       </Menu.Item>}
                     </AuthWrapper> */}
-                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CANCEL]} passThrough>
+                    <AuthWrapper acceptPermissions={acceptPermissionsCancel()} passThrough>
                       {(isPassed: boolean) => 
                       <Menu.Item
                         key="cancel"
@@ -228,7 +251,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   hàng
                 </Button>
               </Dropdown> */}
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.UPDATE]} passThrough>
+              <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
                 {(isPassed: boolean) => 
                 <Button
                   type="primary"
