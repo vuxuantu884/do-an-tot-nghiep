@@ -11,6 +11,7 @@ import "./order.filter.scss";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import moment from "moment";
 import { StoreResponse } from "model/core/store.model";
+import { DuplicateOrderSearchQuery } from "model/order/order.model";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -20,18 +21,22 @@ type OrderDuplicateFilterProps = {
   actions?: Array<MenuAction>;
   onShowColumnSetting?: () => void;
   listStore: StoreResponse[] | undefined;
+  onFilter:(value:any)=>void;
+  initialValues?:DuplicateOrderSearchQuery;
 };
 
 const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
   props: OrderDuplicateFilterProps
 ) => {
-  const { onMenuClick, actions, onShowColumnSetting, listStore } = props;
+  const { onMenuClick, onShowColumnSetting, listStore,onFilter,initialValues } = props;
 
   const formSearchRef = createRef<FormInstance>();
 
   //useState
 
-  const onFinish = useCallback((value: any) => { }, []);
+  // const initialValues=useMemo(() => {
+
+  // },[])
 
   const onChangeDate = useCallback(
     () => {
@@ -65,9 +70,9 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
 
   return (
     <React.Fragment>
-      <div className="order-filter">
-        <CustomFilter onMenuClick={onMenuClick} menu={actions}>
-          <Form onFinish={onFinish} ref={formSearchRef} layout="inline">
+      <div className="order-filter dupticate-filter">
+        <CustomFilter onMenuClick={onMenuClick}>
+          <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValues}>
             <div style={{ width: "35%", display: "flex" }}>
               <Item name="form_date" style={{ width: "45%", margin: 0 }}>
                 <CustomDatePicker
@@ -108,7 +113,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
               </Select>
             </Item>
 
-            <Item name="" style={{ width: "200px" }}>
+            <Item name="info" style={{ width: "200px" }}>
               <Input placeholder="Tên, Số điện thoại khách hàng" prefix={<SearchOutlined />} />
             </Item>
 

@@ -731,14 +731,14 @@ const OrderDuplicate: React.FC = () => {
       visible: true,
     },
   ]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  //const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
-  const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
+  //const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
   
   const onSelectedChange = useCallback((selectedRow) => {
-    setSelectedRow(selectedRow);
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);
-    setSelectedRowKeys(selectedRowKeys);
+    //setSelectedRow(selectedRow);
+    //const selectedRowKeys = selectedRow.map((row: any) => row.id);
+    //setSelectedRowKeys(selectedRowKeys);
 
     const selectedRowCodes = selectedRow.map((row: any) => row.code);
     setSelectedRowCodes(selectedRowCodes);
@@ -750,7 +750,7 @@ const OrderDuplicate: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDER}?${queryParam}`);
+      history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
     },
     [history, params]
   );
@@ -760,14 +760,14 @@ const OrderDuplicate: React.FC = () => {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       setIsFilter(true)
-      history.push(`${UrlConfig.ORDER}?${queryParam}`);
+      history.push(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
     },
     [history, params]
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.ORDER}?${queryParam}`);
+    history.push(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
   }, [history]);
   const onMenuClick = useCallback(
     (index: number) => {

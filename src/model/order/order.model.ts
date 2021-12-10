@@ -122,3 +122,12 @@ export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
   ecommerce_shop_ids: any[];
   channel_id: number | undefined;
 }
+
+export interface DuplicateOrderSearchQuery {
+  page: number|null;
+  limit: number|null;
+  form_date:string|null;
+  to_date:string|null;
+  info:string|null;
+  store_id:number|null
+}

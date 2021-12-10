@@ -3,21 +3,23 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
-import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MenuAction } from "component/table/ActionButton";
-import { PrinterOutlined } from "@ant-design/icons";
 import OrderDuplicateFilter from "component/filter/order-duplicate.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import { CustomerDuplicateModel } from "model/duplicate/duplicate.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { useDispatch } from "react-redux";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { DuplicateOrderSearchQuery } from "model/order/order.model";
+import { generateQuery } from "utils/AppUtils";
+import { getOrderDuplicateAction } from "domain/actions/order/order-duplicate.action";
 
 const ACTION_ID = {
   printShipment: 4,
@@ -27,15 +29,35 @@ const ACTION_ID = {
 const actions: Array<MenuAction> = [
   {
     id: ACTION_ID.printShipment,
-    name: "In phiếu giao hàng",
-    icon: <PrinterOutlined />,
+    name: "Xuất file",
+    icon: <img src={exportIcon} style={{ marginRight: 8 }} alt="" />,
   }
 ];
+
+const initQuery:DuplicateOrderSearchQuery={
+  page: 1,
+  limit: 30,
+  form_date:"",
+  to_date:"",
+  info:"",
+  store_id:null
+}
 
 const CustomerDuplicate: React.FC = () => {
 
   const dispatch = useDispatch();
-  const [tableLoading, setTableLoading] = useState(false);
+  const query = useQuery();
+  const history = useHistory();
+
+  let dataQuery: DuplicateOrderSearchQuery = {
+    ...initQuery,
+    ...getQueryParams(query),
+  };
+
+  let [params, setPrams] = useState<DuplicateOrderSearchQuery>(dataQuery);
+  console.log("params",params)
+
+  const tableLoading=false;
   const [listStore, setStore] = useState<Array<StoreResponse>>();
 
   const dataTest: CustomerDuplicateModel[] = [
@@ -43,34 +65,43 @@ const CustomerDuplicate: React.FC = () => {
       key: 0,
       id: 1,
       code: "code1",
-      name: "name 1",
-      phone: "0965143609",
-      address: "address1",
+      customer: "name 1",
+      customer_phone_number: "0965143609",
+      customer_city:"",
+      customer_district:"",
+      customer_ward:"",
+      customer_full_address: "address1",
       store_id: 1,
-      store_name: "store_name1",
-      order_quanlity: 2
+      store: "store_name1",
+      order_number: 2
     },
     {
       key: 1,
       id: 2,
-      code: "code1",
-      name: "name 1",
-      phone: "0965143609",
-      address: "address1",
+      code: "code2",
+      customer: "name 2",
+      customer_phone_number: "0965143609",
+      customer_city:"",
+      customer_district:"",
+      customer_ward:"",
+      customer_full_address: "address1",
       store_id: 1,
-      store_name: "store_name1",
-      order_quanlity: 2
+      store: "store_name1",
+      order_number: 2
     },
     {
       key: 2,
       id: 3,
-      code: "code1",
-      name: "name 1",
-      phone: "0965143609",
-      address: "address1",
+      code: "code3",
+      customer: "name 3",
+      customer_phone_number: "0965143609",
+      customer_city:"",
+      customer_district:"",
+      customer_ward:"",
+      customer_full_address: "address3",
       store_id: 1,
-      store_name: "store_name1",
-      order_quanlity: 2
+      store: "store_name1",
+      order_number: 2
     }
   ];
 
@@ -86,7 +117,7 @@ const CustomerDuplicate: React.FC = () => {
   const [columns, setColumn] = useState<Array<ICustomTableColumType<CustomerDuplicateModel>>>([
     {
       title: "Khách hàng",
-      dataIndex: "name",
+      dataIndex: "customer",
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>
@@ -104,7 +135,7 @@ const CustomerDuplicate: React.FC = () => {
 
     {
       title: "Số điện thoại",
-      dataIndex: "phone",
+      dataIndex: "customer_phone_number",
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>
@@ -125,7 +156,7 @@ const CustomerDuplicate: React.FC = () => {
           <span style={{ width: "100%", textAlign: "center" }}>Địa chỉ</span>
         </div>
       ),
-      dataIndex: "address",
+      dataIndex: "customer_full_address",
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>{value}</React.Fragment>
@@ -135,7 +166,7 @@ const CustomerDuplicate: React.FC = () => {
     },
     {
       title: "Cửa hàng",
-      dataIndex: "store_name",
+      dataIndex: "store",
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>{value}</React.Fragment>
@@ -147,7 +178,7 @@ const CustomerDuplicate: React.FC = () => {
     },
     {
       title: "Tổng số đơn",
-      dataIndex: "order_quanlity",
+      dataIndex: "order_number",
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>{value}</React.Fragment>
@@ -168,8 +199,13 @@ const CustomerDuplicate: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
+      params.page = page;
+      params.limit = size;
+      let queryParam = generateQuery(params);
+      setPrams({ ...params });
+      history.replace(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
     },
-    []
+    [history,params]
   );
 
   const onMenuClick = useCallback((index: number) => {
@@ -183,9 +219,22 @@ const CustomerDuplicate: React.FC = () => {
     }
   }, []);
 
+  const onFilter = useCallback((value:DuplicateOrderSearchQuery)=>{
+    let newPrams = { ...params, ...value, page: 1 };
+    setPrams(newPrams);
+    let queryParam = generateQuery(newPrams);
+      history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
+  },[history,params]);
+
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(StoreGetListAction(setStore));
+    dispatch(getOrderDuplicateAction(params,setData))
+  }, [dispatch,params]);
+
   return (
     <ContentContainer
       title="Đơn trùng"
@@ -201,20 +250,7 @@ const CustomerDuplicate: React.FC = () => {
       extra={
         <Row>
           <Space>
-            <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
-              {(isPassed: boolean) => (
-                <Button
-                  type="default"
-                  className="light"
-                  size="large"
-                  icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-                  onClick={() => { }}
-                  disabled={!isPassed}
-                >
-                  Nhập file
-                </Button>
-              )}
-            </AuthWrapper>
+          
             <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
               {(isPassed: boolean) => (
                 <Button
@@ -247,7 +283,10 @@ const CustomerDuplicate: React.FC = () => {
           actions={actions}
           onMenuClick={onMenuClick}
           onShowColumnSetting={() => setShowSettingColumn(true)}
-          listStore={listStore} />
+          listStore={listStore} 
+          onFilter={onFilter}  
+          initialValues={params}
+        />
 
         <CustomTable
           isRowSelection
