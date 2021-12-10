@@ -105,6 +105,7 @@ const CustomerUpdate = (props: any) => {
 
   React.useEffect(() => {
     if (customer?.district_id) {
+      setDistrictId(customer.district_id);
       dispatch(WardGetByDistrictAction(customer.district_id, setWards));
     }
   }, [dispatch, customer]);

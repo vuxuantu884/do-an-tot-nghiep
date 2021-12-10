@@ -1,4 +1,3 @@
-import { CalendarOutlined } from "@ant-design/icons";
 import { Select, Spin } from "antd";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
