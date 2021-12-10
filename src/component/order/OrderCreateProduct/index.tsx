@@ -1475,7 +1475,9 @@ function OrderCreateProduct(props: PropType) {
                   setIsShowProductSearch(true);
                 })
               );
-            } catch {}
+            } catch {
+							setSearchProducts(false);
+						}
           })();
         } else {
           setSearchProducts(false);

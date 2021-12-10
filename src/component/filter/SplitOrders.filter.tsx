@@ -28,6 +28,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import DebounceSelect from "./component/debounce-select";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import { POS } from "utils/Constants";
 
 type SplitOrdersFilterProps = {
   params: OrderSearchQuery;
@@ -258,7 +259,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
   
 
   const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");
+    return listSource.filter((item) => item.code !== POS.source_code);
   }, [listSource]);
   
   const initialValues = useMemo(() => {
@@ -312,14 +313,28 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     [formRef, onFilter]
   );
   let filters = useMemo(() => {
+
+		const splitCharacter = ", ";
+		const getFilterString = (mappedArray: any[]|undefined, originText: string, keyValue: string) => {
+			let textStores = "";
+			if(!mappedArray) {
+				textStores = originText;
+				return textStores;
+			};
+			for (let i = 0; i < mappedArray.length; i++) {
+				if(i === mappedArray.length -1) {
+					textStores = textStores + originText + mappedArray[i][keyValue];
+				} else {
+					textStores = textStores + originText + mappedArray[i][keyValue] + splitCharacter;
+				}
+			}
+			return textStores;
+		};
+
     let list = []
-    // console.log('filters initialValues', initialValues);
     if (initialValues.store_ids.length) {
-      let textStores = ""
-      initialValues.store_ids.forEach(store_id => {
-        const store = listStore?.find(store => store.id.toString() === store_id)
-        textStores = store ? textStores + store.name + "; " : textStores
-      })
+			let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
+      let textStores = getFilterString(mappedStores, "", "name");
       list.push({
         key: 'store',
         name: 'Cửa hàng',
@@ -882,9 +897,16 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                     <CustomSelect.Option
                       style={{ width: "100%" }}
                       key="1"
-                      value="1"
+                      value="true"
                     >
-                      Pending trạng thái trả hàng
+                      Đã trả hàng
+                    </CustomSelect.Option>
+										<CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key="2"
+                      value="false"
+                    >
+                      Chưa trả hàng
                     </CustomSelect.Option>
                   </CustomSelect>
                 </Item>
@@ -1048,7 +1070,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                 <CustomSelect
                   mode="tags" optionFilterProp="children"
                   showSearch showArrow allowClear
-                  placeholder="Chọn 1 hoặc nhiều tag"
+                  placeholder="Điền 1 hoặc nhiều tag"
                   style={{width: '100%'}}
                 >
                   
