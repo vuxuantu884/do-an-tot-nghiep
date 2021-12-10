@@ -156,7 +156,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   className="create-button-custom"
                   id="save-and-confirm"
                   onClick={() => {
-                    // handleTypeButton(OrderStatus.FINALIZED);
                     formRef.current?.submit();
                   }}
                   loading={updating}
@@ -168,25 +167,11 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
           {isVisibleActionsButtons && (
             <Col md={12} style={{ marginTop: "8px" }}>
               <Dropdown
-                // overlayStyle={{ minWidth: "15rem" }}
                 getPopupContainer={(trigger) => trigger}
                 disabled={disabledBottomActions}
                 overlay={
                   <Menu>
-                    {/* <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.UPDATE]} passThrough>
-                      {(isPassed: boolean) => 
-                      <Menu.Item
-                        key="update"
-                        onClick={() => orderActionsClick && orderActionsClick("update")}
-                        disabled={
-                          stepsStatusValue === OrderStatus.CANCELLED ||
-                          stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                          stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed
-                        }
-                      >
-                        Sửa đơn hàng
-                      </Menu.Item>}
-                    </AuthWrapper> */}
+                    
                     <AuthWrapper acceptPermissions={acceptPermissionsCancel()} passThrough>
                       {(isPassed: boolean) => 
                       <Menu.Item
@@ -219,38 +204,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   Thêm thao tác <DownOutlined />
                 </Button>
               </Dropdown>
-              {/* <Dropdown
-                // overlayStyle={{ minWidth: "15rem" }}
-                getPopupContainer={(trigger) => trigger}
-                overlay={
-                  <Menu>
-                    <Menu.Item
-                      onClick={() =>
-                        props.orderActionsClick && props.orderActionsClick("print")
-                      }
-                    >
-                      In nhanh
-                    </Menu.Item>
-                    <Menu.Item
-                      onClick={() =>
-                        props.orderActionsClick && props.orderActionsClick("print")
-                      }
-                    >
-                      In tuỳ chọn
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={["click"]}
-              >
-                <Button
-                  type="primary"
-                  ghost
-                  style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                >
-                  <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In đơn
-                  hàng
-                </Button>
-              </Dropdown> */}
               <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
                 {(isPassed: boolean) => 
                 <Button
@@ -261,8 +214,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   disabled={
                     disabledBottomActions ||
                     stepsStatusValue === OrderStatus.CANCELLED || !isPassed
-                    // || stepsStatusValue === FulFillmentStatus.SHIPPED
-                    // || stepsStatusValue === FulFillmentStatus.SHIPPING
                   }
                 >
                   Sửa đơn hàng

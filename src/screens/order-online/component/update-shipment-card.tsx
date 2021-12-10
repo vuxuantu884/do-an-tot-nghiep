@@ -18,7 +18,9 @@ import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
+import AuthFunction from "component/authorization/AuthFunction";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
@@ -1559,7 +1561,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
-                disabled={cancelShipment}
+                disabled={cancelShipment || !AuthFunction(ODERS_PERMISSIONS.CREATE_PICKED)}
               >
                 Nhặt hàng
               </Button>
@@ -1576,7 +1578,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
-                disabled={cancelShipment}
+                disabled={cancelShipment || !(AuthFunction(ODERS_PERMISSIONS.CREATE_PICKED) || AuthFunction(ODERS_PERMISSIONS.CREATE_PACKED))}
               >
                 Nhặt hàng & đóng gói
               </Button>
@@ -1589,7 +1591,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               style={{marginLeft: "10px"}}
               onClick={onOkShippingConfirm}
               loading={updateShipment}
-              disabled={cancelShipment}
+              disabled={cancelShipment || !AuthFunction(ODERS_PERMISSIONS.CREATE_PACKED)}
             >
               Đóng gói
             </Button>
@@ -1605,7 +1607,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippingConfirm(true)}
                 loading={updateShipment}
-                disabled={cancelShipment}
+                disabled={cancelShipment || !AuthFunction(ODERS_PERMISSIONS.CREATE_SHIPPING)}
               >
                 Xuất kho
               </Button>
@@ -1634,7 +1636,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippedConfirm(true)}
                 loading={updateShipment}
-                disabled={cancelShipment}
+                disabled={cancelShipment || !AuthFunction(ODERS_PERMISSIONS.CREATE_SHIPPING)}
               >
                 Xuất kho & giao hàng
               </Button>

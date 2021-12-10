@@ -24,6 +24,8 @@ import {getGoodsReceiptsType} from "domain/actions/goods-receipts/goods-receipts
 import PackReportHandOverCopy from "./pack-support/pack-report-hand-over-copy";
 import {useQuery} from "utils/useQuery";
 import "assets/css/_pack.scss";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import AuthFunction from "component/authorization/AuthFunction";
 
 const {TabPane} = Tabs;
 
@@ -126,7 +128,7 @@ const PackSupportScreen: React.FC = () => {
                     listThirdPartyLogistics={listThirdPartyLogistics}
                   ></PackInfo>
                 </TabPane>
-                <TabPane tab="Biên bản bàn giao" key="2">
+                <TabPane tab="Biên bản bàn giao" key="2" disabled={!AuthFunction(ODERS_PERMISSIONS.READ_GOODS_RECEIPT)}>
                   <PackReportHandOverCopy query={query} />
                 </TabPane>
               </Tabs>

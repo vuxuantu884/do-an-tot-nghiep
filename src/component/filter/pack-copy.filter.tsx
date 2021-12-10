@@ -30,6 +30,8 @@ import {OrderPackContext} from "contexts/order-pack/order-pack-context";
 import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
+import AuthFunction from "component/authorization/AuthFunction";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 
 type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
@@ -295,6 +297,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
               <Space size={12} style={{marginLeft: "10px"}}>
                 <ButtonCreate
                   path={`${UrlConfig.PACK_SUPPORT}/report-hand-over-create`}
+                  disabled={!AuthFunction(ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT)}
                 />
               </Space>
             </div>
