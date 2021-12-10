@@ -312,6 +312,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [formRef, onFilter]
   );
   let filters = useMemo(() => {
+		console.log('initialValues.store_ids', initialValues.store_ids)
     let list = []
     // console.log('filters initialValues', initialValues);
     if (initialValues.store_ids.length) {

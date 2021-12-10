@@ -785,13 +785,14 @@ const ListOrderScreen: React.FC = () => {
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 1 };
-      setPrams(newPrams);
+      // setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       setIsFilter(true)
       history.push(`${UrlConfig.ORDER}?${queryParam}`);
     },
     [history, params]
   );
+	console.log('params', params)
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);

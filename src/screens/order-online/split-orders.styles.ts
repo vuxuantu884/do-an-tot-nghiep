@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
-export const nameQuantityWidth = 220;
+export const nameQuantityWidth = 300;
 const quantityWidth = 60;
 const massWidth=100;
 const priceWidth = 100;
@@ -25,8 +25,13 @@ export const StyledComponent = styled.div`
     display: flex;
     justify-content: space-between;
   }
-	.productNameQuantity {
-    width: ${nameQuantityWidth}px;
+	.productNameQuantity,
+	.productNameQuantity .items .item,
+	.productNameQuantity .items {
+		width: ${nameQuantityWidth}px;
+	}
+  .productNameWidth {
+    width: ${nameWidth}px;
   }
   .quantityWidth {
     width: ${quantityWidth}px;
@@ -69,8 +74,8 @@ export const StyledComponent = styled.div`
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: 0px;
-        bottom: 0px;
+        top: -999px;
+        bottom: -999px;
         right: ${quantityWidth}px;
         background-color: ${borderColor};
       }
