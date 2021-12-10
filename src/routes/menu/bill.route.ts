@@ -97,7 +97,7 @@ const bill: Array<RouteMenu> = [
     ],
   },
   {
-    path: `/orders-return`,
+		path: UrlConfig.ORDERS_RETURN,
     exact: true,
     title: "Danh sách trả hàng",
     icon: "icon-dot",
@@ -203,7 +203,7 @@ const bill: Array<RouteMenu> = [
     permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
   },
 	{
-    path: `/split-orders`,
+    path: UrlConfig.SPLIT_ORDERS,
     exact: true,
     title: "Danh sách đơn tách",
     icon: "icon-dot",

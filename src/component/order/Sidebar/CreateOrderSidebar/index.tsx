@@ -1,6 +1,6 @@
 import {InfoCircleOutlined} from "@ant-design/icons";
 import {Card, Form, FormInstance, Input, Select} from "antd";
-import AccountSearchSelect from "component/custom/AccountSearchSelect";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import CustomInputTags from "component/custom/custom-input-tags";
 import {HttpStatus} from "config/http-status.config";
 import UrlConfig from "config/url.config";
@@ -211,6 +211,33 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
     pushCurrentValueToDataAccount("coordinator_code");
   }, [dispatch, form, storeAccountData]);
 
+	useEffect(() => {
+		if(!storeId) {
+			return;
+		}
+		searchAccountApi({
+			store_ids: [storeId],
+		})
+			.then((response) => {
+				if (response) {
+					switch (response.code) {
+						case HttpStatus.SUCCESS:
+							setStoreAccountData(response.data.items);
+							break;
+						case HttpStatus.UNAUTHORIZED:
+							dispatch(unauthorizedAction());
+							break;
+						default:
+							response.errors.forEach((e) => showError(e));
+							break;
+					}
+				}
+			})
+			.catch((error) => {
+				console.log("error", error);
+			})
+	}, [dispatch, storeId])
+
   return (
     <StyledComponent>
       <Card title="THÔNG TIN ĐƠN HÀNG">
@@ -224,7 +251,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             },
           ]}
         >
-          <AccountSearchSelect
+          <AccountCustomSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
             initValue={initValueAssigneeCode}
             dataToSelect={assigneeAccountData}
@@ -242,7 +269,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             },
           ]}
         >
-          <AccountSearchSelect
+          <AccountCustomSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
             initValue={initValueMarketerCode}
             dataToSelect={marketingAccountData}
@@ -254,7 +281,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           label="Nhân viên điều phối"
           name="coordinator_code"
         >
-          <AccountSearchSelect
+          <AccountCustomSearchSelect
             placeholder="Tìm theo họ tên hoặc mã nhân viên"
             initValue={initValueCoordinatorCode}
             dataToSelect={coordinatorAccountData}

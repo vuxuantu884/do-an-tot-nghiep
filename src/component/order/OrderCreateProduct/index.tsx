@@ -1,23 +1,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {EditOutlined, LoadingOutlined, SearchOutlined} from "@ant-design/icons";
+import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
-  AutoComplete,
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Dropdown,
-  Form,
-  FormInstance,
-  Input,
-  Menu,
-  Row,
-  Select,
-  Space,
-  Table,
-  Tooltip,
+	AutoComplete,
+	Button,
+	Card,
+	Checkbox,
+	Col,
+	Dropdown,
+	Form,
+	FormInstance,
+	Input,
+	Menu,
+	Row,
+	Select,
+	Space,
+	Table,
+	Tooltip
 } from "antd";
-import {RefSelectProps} from "antd/lib/select";
+import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
@@ -25,62 +25,62 @@ import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
-import {AppConfig} from "config/app.config";
-import {HttpStatus} from "config/http-status.config";
-import {Type} from "config/type.config";
+import { AppConfig } from "config/app.config";
+import { HttpStatus } from "config/http-status.config";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-  //getStoreSearchIdsAction ,
-  StoreGetListAction,
-  StoreSearchListAction,
+	//getStoreSearchIdsAction ,
+	StoreGetListAction,
+	StoreSearchListAction
 } from "domain/actions/core/store.action";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {splitOrderAction} from "domain/actions/order/order.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { splitOrderAction } from "domain/actions/order/order.action";
 import {
-  SearchBarCode,
-  searchVariantsOrderRequestAction,
+	SearchBarCode,
+	searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
-import {PageResponse} from "model/base/base-metadata.response";
-import {StoreResponse} from "model/core/store.model";
-import {InventoryResponse} from "model/inventory";
-import {OrderItemDiscountModel} from "model/other/order/order-model";
-import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
+import { OrderItemDiscountModel } from "model/other/order/order-model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  OrderItemDiscountRequest,
-  OrderLineItemRequest,
-  SplitOrderRequest,
+	OrderItemDiscountRequest,
+	OrderLineItemRequest,
+	SplitOrderRequest
 } from "model/request/order.request";
 import {
-  DiscountRequestModel,
-  LineItemRequestModel,
+	DiscountRequestModel,
+	LineItemRequestModel
 } from "model/request/promotion.request";
 import {CustomerResponse} from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import {OrderConfig, OrderResponse} from "model/response/order/order.response";
 import {
-  ApplyCouponResponseModel,
-  SuggestDiscountResponseModel,
+	ApplyCouponResponseModel,
+	SuggestDiscountResponseModel
 } from "model/response/order/promotion.response";
-import {OrderConfigResponseModel} from "model/response/settings/order-settings.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, {
-  createRef,
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
+	createRef,
+	MutableRefObject,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState
 } from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import DiscountGroup from "screens/order-online/component/discount-group";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
-import {applyDiscountService} from "service/promotion/discount/discount.service";
+import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
   findAvatar,
   findPrice,
@@ -99,11 +99,11 @@ import {
   haveAccess,
   replaceFormatString,
 } from "utils/AppUtils";
-import {MoneyType} from "utils/Constants";
-import {DISCOUNT_VALUE_TYPE} from "utils/Order.constants";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { MoneyType } from "utils/Constants";
+import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   storeId: number | null;

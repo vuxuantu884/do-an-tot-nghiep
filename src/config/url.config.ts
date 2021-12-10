@@ -17,6 +17,7 @@ const UrlConfig = {
   ROLES: `/roles`,
   ORDER: `/orders`,
   ORDERS_RETURN: `/orders-return`,
+  SPLIT_ORDERS: `/split-orders`,
   ORDER_PROCESSING_STATUS: `/order-processing-status`,
   ORDER_SOURCES: `/order-sources`,
   ORDERS_DUPLICATE: `/orders-duplicate`,

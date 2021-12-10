@@ -36,9 +36,11 @@ import { DeliveryServiceResponse, OrderResponse } from "model/response/order/ord
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
+import queryString from "query-string";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
+import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
@@ -46,7 +48,6 @@ import { generateQuery } from "utils/AppUtils";
 import { ShipmentMethod } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
 import EditNote from "./component/edit-note";
 import ExportModal from "./modal/export.modal";
 import "./scss/index.screen.scss";
@@ -71,69 +72,75 @@ const actions: Array<MenuAction> = [
   },
 ];
 
-const initQuery: OrderSearchQuery = {
-  page: 1,
-  limit: 30,
-  is_online: null,
-  sort_type: null,
-  sort_column: null,
-  code: null,
-  customer_ids: [],
-  store_ids: [],
-  source_ids: [],
-  variant_ids: [],
-  issued_on_min: null,
-  issued_on_max: null,
-  issued_on_predefined: null,
-  finalized_on_min: null,
-  finalized_on_max: null,
-  finalized_on_predefined: null,
-  ship_on_min: null,
-  ship_on_max: null,
-  ship_on_predefined: null,
-  expected_receive_on_min: null,
-  expected_receive_on_max: null,
-  expected_receive_predefined: null,
-  completed_on_min: null,
-  completed_on_max: null,
-  completed_on_predefined: null,
-  cancelled_on_min: null,
-  cancelled_on_max: null,
-  cancelled_on_predefined: null,
-  order_status: [],
-  sub_status_code: [],
-  fulfillment_status: [],
-  payment_status: [],
-  return_status: [],
-  account_codes: [],
-  assignee_codes: [],
-  price_min: undefined,
-  price_max: undefined,
-  payment_method_ids: [],
-  delivery_types: [],
-  delivery_provider_ids: [],
-  shipper_ids: [],
-  note: null,
-  customer_note: null,
-  tags: [],
-  reference_code: null,
+
+
+type PropsType = {
+  location: any;
 };
 
-const SplitOrdersScreen: React.FC = () => {
-  const query = useQuery();
+function SplitOrdersScreen(props: PropsType)  {
   const history = useHistory();
   const dispatch = useDispatch();
+
+	const {location} = props;
+  const queryParamsParsed = queryString.parse(location.search);
 
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
-  let dataQuery: OrderSearchQuery = {
-    ...initQuery,
-    ...getQueryParams(query),
-  };
-  let [params, setPrams] = useState<OrderSearchQuery>(dataQuery);
+
+	const initQuery: OrderSearchQuery = {
+		page: 1,
+		limit: 30,
+		is_online: null,
+		is_split: "true",
+		sort_type: null,
+		sort_column: null,
+		code: null,
+		customer_ids: [],
+		store_ids: [],
+		source_ids: [],
+		variant_ids: [],
+		issued_on_min: null,
+		issued_on_max: null,
+		issued_on_predefined: null,
+		finalized_on_min: null,
+		finalized_on_max: null,
+		finalized_on_predefined: null,
+		ship_on_min: null,
+		ship_on_max: null,
+		ship_on_predefined: null,
+		expected_receive_on_min: null,
+		expected_receive_on_max: null,
+		expected_receive_predefined: null,
+		completed_on_min: null,
+		completed_on_max: null,
+		completed_on_predefined: null,
+		cancelled_on_min: null,
+		cancelled_on_max: null,
+		cancelled_on_predefined: null,
+		order_status: [],
+		sub_status_code: [],
+		fulfillment_status: [],
+		payment_status: [],
+		return_status: [],
+		account_codes: [],
+		assignee_codes: [],
+		price_min: undefined,
+		price_max: undefined,
+		payment_method_ids: [],
+		delivery_types: [],
+		delivery_provider_ids: [],
+		shipper_ids: [],
+		note: null,
+		customer_note: null,
+		tags: [],
+		reference_code: null,
+		search_term: ""
+	};
+  let [params, setPrams] = useState<OrderSearchQuery>(initQuery);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
@@ -221,7 +228,7 @@ const SplitOrdersScreen: React.FC = () => {
         // console.log('i', i)
         return (
           <React.Fragment>
-            <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`}>
+            <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`} style={{fontWeight: 500}}>
               {value}
             </Link>
             <div style={{fontSize: "0.86em"}}>
@@ -266,7 +273,7 @@ const SplitOrdersScreen: React.FC = () => {
 				</div>,
       key: "customer",
       visible: true,
-      width: 150,
+      width: 120,
     },
     {
       title: (
@@ -321,17 +328,36 @@ const SplitOrdersScreen: React.FC = () => {
     //   visible: true,
     //   align: "center",
     // },
-    
     {
-      title: "Địa chỉ giao hàng",
-      render: (record: OrderResponse) =>
-				<div className="customer custom-td">
-					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
-        </div>
-        ,
-      key: "shipping_address",
+      title: "Khách phải trả",
+      // dataIndex: "",
+      render: (record: any) => (
+        <>
+          <span>
+            <NumberFormat
+              value={record.total_line_amount_after_line_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+          <br />
+          <span style={{ color: "#EF5B5B" }}>
+            {" "}
+            -
+            <NumberFormat
+              value={record.total_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+        </>
+      ),
+      key: "customer.amount_money",
       visible: true,
-      width: 190,
+      align: "right",
+      width: 90,
     },
     {
       title: "HT Vận chuyển",
@@ -364,28 +390,8 @@ const SplitOrdersScreen: React.FC = () => {
         return ""
       },
       visible: true,
-      width: 140,
+      width: 110,
       align: "center",
-    },
-    {
-      title: "Trạng thái xử lý đơn",
-      dataIndex: "sub_status",
-      key: "sub_status",
-      render: (sub_status) => (
-        <div
-          style={{
-            // background: "rgba(42, 42, 134, 0.1)",
-            borderRadius: "100px",
-            color: "#2A2A86",
-            padding: sub_status ? "5px 10px" : "0",
-          }}
-        >
-          {sub_status}
-        </div>
-      ),
-      visible: true,
-      align: "center",
-      width: 160,
     },
     {
       title: "Trạng thái đơn",
@@ -451,17 +457,9 @@ const SplitOrdersScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width:"150px"
+      width: 120
     },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "source",
-      visible: true,
-      align: "center",
-      width:"130px"
-    },
-    {
+		{
       title: "Đóng gói",
       key: "packed_status",
       render: (record: any) => {
@@ -478,7 +476,7 @@ const SplitOrdersScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 100,
+      width: 70,
     },
     {
       title: "Xuất kho",
@@ -497,35 +495,7 @@ const SplitOrdersScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 100,
-    },
-    
-    {
-      title: "Trả hàng",
-      dataIndex: "return_status",
-      key: "return_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "unreturned":
-            processIcon = "icon-blank";
-            break;
-          case "returned":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
-      visible: true,
-      align: "center",
-      width: 100,
+      width: 70,
     },
     {
       title: "Thanh toán",
@@ -552,52 +522,65 @@ const SplitOrdersScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 110,
+      width: 70,
     },
     {
-      title: "HT thanh toán",
-      dataIndex: "payments",
-      key: "payments.type",
-      render: (payments: Array<OrderPaymentModel>) =>
-        payments.map((payment) => {
-          return <Tag>{payment.payment_method}</Tag>;
-        }),
+      title: "Trả hàng",
+      dataIndex: "return_status",
+      key: "return_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case "unreturned":
+            processIcon = "icon-blank";
+            break;
+          case "returned":
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
       visible: true,
       align: "center",
-      width: 160
+      width: 70,
     },
-    {
-      title: "Khách phải trả",
-      // dataIndex: "",
-      render: (record: any) => (
-        <>
-          <span>
-            <NumberFormat
-              value={record.total_line_amount_after_line_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          </span>
-          <br />
-          <span style={{ color: "#EF5B5B" }}>
-            {" "}
-            -
-            <NumberFormat
-              value={record.total_discount}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-          </span>
-        </>
-      ),
-      key: "customer.amount_money",
+		{
+      title: "Tổng SL",
+      dataIndex: "total_quantity",
+      key: "total_quantity",
       visible: true,
-      align: "right",
-      width: 150,
+      align: "center",
+      width: 70,
     },
-    {
+		{
+      title: "Kho cửa hàng",
+      dataIndex: "store",
+      key: "store",
+      visible: true,
+      align: "center",
+			render: (value, record: OrderModel) => 
+				<Link  target="_blank" to={`${UrlConfig.STORE}/${record.store_id}`}>
+					{value}
+				</Link>
+      ,
+      width: 100,
+    },
+		{
+      title: "Nguồn đơn hàng",
+      dataIndex: "source",
+      key: "source",
+      visible: true,
+      align: "center",
+      width:"130px"
+    },
+		{
       title: "Khách đã trả",
       dataIndex: "payments",
       key: "customer.paid",
@@ -617,8 +600,8 @@ const SplitOrdersScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
+			width: 90,
     },
-
     {
       title: "Còn phải trả",
       key: "customer.pay",
@@ -641,6 +624,67 @@ const SplitOrdersScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
+			width: 90,
+    },
+    {
+      title: "HT thanh toán",
+      dataIndex: "payments",
+      key: "payments.type",
+      render: (payments: Array<OrderPaymentModel>) =>
+        payments.map((payment) => {
+          return <Tag>{payment.payment_method}</Tag>;
+        }),
+      visible: true,
+      align: "center",
+      width: 100
+    },
+		{
+      title: "Nhân viên bán hàng",
+			render: (value, record: OrderModel) => 
+				<Link  target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
+					{`${record.assignee_code} - ${record.assignee}`}
+				</Link>
+      ,
+      key: "assignee",
+      visible: true,
+      align: "center",
+      width: 120
+    },
+    {
+      title: "Nhân viên tạo đơn",
+			render: (value, record: OrderModel) => 
+				<Link  target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
+					{`${record.account_code} - ${record.account}`}
+				</Link>
+      ,
+      key: "account",
+      visible: true,
+      align: "center",
+      width: 120
+    },
+		{
+      title: "Ngày tạo đơn",
+      dataIndex: "created_date",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      key: "created_date",
+      visible: true,
+			width: 120,
+    },
+		{
+      title: "Ngày hoàn tất đơn",
+      dataIndex: "finished_on",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      key: "finished_on",
+      visible: true,
+			width: 120,
+    },
+    {
+      title: "Ngày huỷ đơn",
+      dataIndex: "cancelled_on",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      key: "cancelled_on",
+      visible: true,
+			width: 120,
     },
     {
       title: "Ghi chú nội bộ",
@@ -653,6 +697,7 @@ const SplitOrdersScreen: React.FC = () => {
       key: "note",
       visible: true,
       align: "center",
+			width: 150,
     },
     {
       title: "Ghi chú của khách",
@@ -665,72 +710,42 @@ const SplitOrdersScreen: React.FC = () => {
       key: "customer_note",
       visible: true,
       align: "center",
+			width: 150,
     },
     {
       title: "Tag",
       dataIndex: "tags",
-      // render: (tags: Array<string>) => (
-      //   tags?.map(tag => {
-      //     return (
-      //       <Tag>{tag}</Tag>
-      //     )
-      //   })
-      // ),
+      render: (values, record: OrderModel) => {
+				let result:React.ReactNode = null;
+				if(record?.tags) {
+					const listTags = record?.tags.split(",")
+					console.log('listTags', listTags)
+					if(listTags && listTags.length > 0) {
+						result = listTags.map(tag => {
+							return (
+								<Tag>{tag}</Tag>
+							)
+						})
+					}
+				}
+				return result
+			},
       key: "tags",
       visible: true,
       align: "center",
+			width: 100,
     },
     {
       title: "Mã tham chiếu",
-      dataIndex: "reference_code",
-      key: "reference_code",
+      dataIndex: "linked_order_code",
+      key: "linked_order_code",
+			render: (value) => 
+				<Link  target="_blank" to={`${UrlConfig.ORDER}/${value}`}>
+					{value}
+				</Link>
+      ,
       visible: true,
-    },
-    {
-      title: "Tổng SL",
-      dataIndex: "items",
-      key: "item.quantity.total",
-      render: (items) => {
-        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
-
-        return items.reduce((total: number, item: any) => total + item.quantity, 0);
-      },
-      visible: true,
-      align: "center",
-      width: 100,
-    },
-		
-    
-    
-    {
-      title: "Nhân viên bán hàng",
-      render: (record) => <div>{`${record.assignee_code} - ${record.assignee}`}</div>,
-      key: "assignee",
-      visible: true,
-      align: "center",
-      width: 200
-    },
-    {
-      title: "Nhân viên tạo đơn",
-      render: (record) => <div>{`${record.account_code} - ${record.account}`}</div>,
-      key: "account",
-      visible: true,
-      align: "center",
-      width: 200
-    },
-    {
-      title: "Ngày hoàn tất đơn",
-      dataIndex: "completed_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "completed_on",
-      visible: true,
-    },
-    {
-      title: "Ngày huỷ đơn",
-      dataIndex: "cancelled_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "cancelled_on",
-      visible: true,
+			width: 100,
     },
   ]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -753,7 +768,7 @@ const SplitOrdersScreen: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDER}?${queryParam}`);
+      history.replace(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
@@ -763,15 +778,17 @@ const SplitOrdersScreen: React.FC = () => {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       setIsFilter(true)
-      history.push(`${UrlConfig.ORDER}?${queryParam}`);
+      history.push(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.ORDER}?${queryParam}`);
+    history.push(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);
+
   const onMenuClick = useCallback(
     (index: number) => {
       let params = {
@@ -813,13 +830,13 @@ const SplitOrdersScreen: React.FC = () => {
             dispatch(hideLoading());
             
           })
-          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          // history.push(`${UrlConfig.SPLIT_ORDERS}/print-preview?${queryParam}`);
+          const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.SPLIT_ORDERS}/print-preview?${queryParam}`;
           window.open(printPreviewUrl);
           break;
         case ACTION_ID.printStockExport:
-          // history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          // history.push(`${UrlConfig.SPLIT_ORDERS}/print-preview?${queryParam}`);
+          const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.SPLIT_ORDERS}/print-preview?${queryParam}`;
           window.open(printPreviewUrlExport);
           break;
         default:
@@ -1015,6 +1032,15 @@ const SplitOrdersScreen: React.FC = () => {
     );
   }, [dispatch]);
 
+	useEffect(() => {
+		console.log('location', location)
+    setPrams({
+			...initQuery,
+			...queryParamsParsed,
+		});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -1067,7 +1093,7 @@ const SplitOrdersScreen: React.FC = () => {
               </AuthWrapper>
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
                 {(isPassed: boolean) => 
-                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} child="Thêm mới đơn hàng"/>}
+                <ButtonCreate path={`${UrlConfig.SPLIT_ORDERS}/create`} disabled={!isPassed} child="Thêm mới đơn hàng"/>}
               </AuthWrapper>
               
             </Space>
@@ -1142,5 +1168,4 @@ const SplitOrdersScreen: React.FC = () => {
     </StyledComponent>
   );
 };
-
-export default SplitOrdersScreen;
+export default withRouter(SplitOrdersScreen);
