@@ -14,6 +14,7 @@ import { useHistory, useParams } from "react-router";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import "./scss/shipment-detail.scss";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ShipmentMethod } from "utils/Constants";
 
 type ShipmentParam = {
   code: string;
@@ -31,22 +32,45 @@ const ShipmentDetail: React.FC = () => {
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
   const status_order = [
-    {name: "Chưa giao", value: "unshipped", color: "#2A2A86"},
-    {name: "Đã lấy hàng", value: "picked", color: "#2A2A86"},
-    {name: "Giao một phần", value: "partial", color: "#2A2A86"},
-    {name: "Đã đóng gói", value: "packed", color: "#2A2A86"},
-    {name: "Đang giao", value: "shipping", color: "#2A2A86"},
-    {name: "Đã giao", value: "shipped", color: "#2A2A86"},
-    {name: "Đang trả lại", value: "returning", color: "#E24343"},
-    {name: "Đã trả lại", value: "returned", color: "#E24343"},
-    {name: "Đã hủy", value: "cancelled", color: "#E24343"}
+    { name: "Chưa giao", value: "unshipped", color: "#2A2A86" },
+    { name: "Đã lấy hàng", value: "picked", color: "#2A2A86" },
+    { name: "Giao một phần", value: "partial", color: "#2A2A86" },
+    { name: "Đã đóng gói", value: "packed", color: "#2A2A86" },
+    { name: "Đang giao", value: "shipping", color: "#2A2A86" },
+    { name: "Đã giao", value: "shipped", color: "#2A2A86" },
+    { name: "Đang trả lại", value: "returning", color: "#E24343" },
+    { name: "Đã trả lại", value: "returned", color: "#E24343" },
+    { name: "Đã hủy", value: "cancelled", color: "#E24343" }
   ];
-  const [columnsItems, setColumnsItems]  = useState<Array<any>>([
+  const shipping_delivery_provider_type_name = useMemo(() => {
+    switch (fulfillmentDetail.shipment?.delivery_service_provider_type) {
+      case ShipmentMethod.EXTERNAL_SERVICE:
+        return "Hãng vận chuyển";
+      case ShipmentMethod.SHIPPER:
+        return "Đối tác";
+      case ShipmentMethod.PICK_AT_STORE:
+        return "Nhận tại cửa hàng";
+      default: return ""
+    }
+  }, [fulfillmentDetail.shipment?.delivery_service_provider_type]);
+
+  const shipping_requirement = useMemo(() => {
+    return [
+      { name: "Cho xem và thử hàng", value: "open_try" },
+      { name: "Cho xem, không thử hàng", value: "open_no_try" },
+      { name: "Không cho xem hàng", value: "no_open" }
+    ]
+  }, []);
+  const requirement = useMemo(() => {
+    const findRequirement = shipping_requirement.find(item => item.value === fulfillmentDetail?.shipment?.requirements)
+    return findRequirement ? findRequirement.name : ""
+  }, [fulfillmentDetail?.shipment?.requirements, shipping_requirement]);
+  const [columnsItems, setColumnsItems] = useState<Array<any>>([
     {
       title: "Tên sản phẩm",
       render: (record: any) => (
         <div>
-          <div style={{ color: '#2A2A86'}}>{record.sku}</div>
+          <div style={{ color: '#2A2A86' }}>{record.sku}</div>
           <div>{record.variant}</div>
         </div>
       ),
@@ -60,7 +84,7 @@ const ShipmentDetail: React.FC = () => {
       align: 'center'
     },
     {
-      title: <span><span>Đơn giá </span><span style={{color: '#737373', fontWeight: 400}}> đ</span></span>,
+      title: <span><span>Đơn giá </span><span style={{ color: '#737373', fontWeight: 400 }}> đ</span></span>,
       dataIndex: "price",
       visible: true,
       align: 'right'
@@ -83,7 +107,7 @@ const ShipmentDetail: React.FC = () => {
       align: 'right'
     },
     {
-      title: <span><span>Thành tiền </span><span style={{color: '#737373', fontWeight: 400}}> đ</span></span>,
+      title: <span><span>Thành tiền </span><span style={{ color: '#737373', fontWeight: 400 }}> đ</span></span>,
       render: (record: any) => (
         <NumberFormat
           value={record.price * record.quantity - record.discount_amount}
@@ -103,7 +127,7 @@ const ShipmentDetail: React.FC = () => {
         code,
         (data) => {
           console.log('data data', data);
-          
+
           const status = status_order.find(
             (status) => status.value === data.status
           );
@@ -126,7 +150,7 @@ const ShipmentDetail: React.FC = () => {
             discount_amount += discount.amount;
             discount_rate += discount.rate;
           })
-            
+
           console.log('mapItems', mapItems);
           setOrderItems(mapItems);
           setFulfillmentDetail({
@@ -145,7 +169,7 @@ const ShipmentDetail: React.FC = () => {
         setTrackingLogFulfillment
       )
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, dispatch]);
 
   return (
@@ -225,44 +249,44 @@ const ShipmentDetail: React.FC = () => {
               </div>
               <div className="detail">
                 <span className="name">Hình thức giao hàng:</span>
-                <span className="value">{fulfillmentDetail?.order?.shipping_address?.city}</span>
+                <span className="value">{shipping_delivery_provider_type_name}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày nhặt hàng:</span>
-                <span className="value">{fulfillmentDetail?.picked_on? ConvertUtcToLocalDate(fulfillmentDetail?.picked_on) : '-'}</span>
+                <span className="value">{fulfillmentDetail?.picked_on ? ConvertUtcToLocalDate(fulfillmentDetail?.picked_on) : '-'}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày đóng gói:</span>
-                <span className="value">{fulfillmentDetail?.packed_on? ConvertUtcToLocalDate(fulfillmentDetail?.packed_on) : '-'}</span>
+                <span className="value">{fulfillmentDetail?.packed_on ? ConvertUtcToLocalDate(fulfillmentDetail?.packed_on) : '-'}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày xuất kho:</span>
-                <span className="value">{fulfillmentDetail?.export_on? ConvertUtcToLocalDate(fulfillmentDetail?.export_on) : '-'}</span>
+                <span className="value">{fulfillmentDetail?.export_on ? ConvertUtcToLocalDate(fulfillmentDetail?.export_on) : '-'}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày huỷ giao hàng:</span>
-                <span className="value">{fulfillmentDetail?.cancel_date? ConvertUtcToLocalDate(fulfillmentDetail?.cancel_date) : '-'}</span>
+                <span className="value">{fulfillmentDetail?.cancel_date ? ConvertUtcToLocalDate(fulfillmentDetail?.cancel_date) : '-'}</span>
               </div>
               <div className="detail">
                 <span className="name">Ngày nhận hàng:</span>
-                <span className="value">{fulfillmentDetail?.received_on? ConvertUtcToLocalDate(fulfillmentDetail?.received_on) : '-'}</span>
+                <span className="value">{fulfillmentDetail?.received_on ? ConvertUtcToLocalDate(fulfillmentDetail?.received_on) : '-'}</span>
               </div>
             </div>
 
           </Card>
           <Card title="THÔNG TIN SẢN PHẨM">
-          
+
             <Table
-                dataSource={orderItems}
-                columns={columnsItems}
-                pagination={false}
-                style={{ width: '100%'}}
-              />
+              dataSource={orderItems}
+              columns={columnsItems}
+              pagination={false}
+              style={{ width: '100%' }}
+            />
             <Row gutter={16} style={{ justifyContent: 'end', width: '100%' }}>
-              <div style={{ width: '50%'}}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px', marginTop: '20px'}}>
+              <div style={{ width: '50%' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px', marginTop: '20px' }}>
                   <div>Tổng tiền:</div>
-                  <div style={{ color: "#2A2A86"}}>
+                  <div style={{ color: "#2A2A86" }}>
                     <NumberFormat
                       value={fulfillmentDetail.total_line_amount_after_line_discount}
                       className="foo"
@@ -271,11 +295,11 @@ const ShipmentDetail: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
                   <div>Chiết khấu:</div>
                   <div style={{ color: "#2A2A86" }}>
                     <NumberFormat
-                      value={fulfillmentDetail.discount_amount? fulfillmentDetail.discount_amount : 0}
+                      value={fulfillmentDetail.discount_amount ? fulfillmentDetail.discount_amount : 0}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}
@@ -284,7 +308,7 @@ const ShipmentDetail: React.FC = () => {
                     <span style={{ color: '#E24343' }}>{fulfillmentDetail.discount_rate} %</span> */}
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
                   <div>Mã giảm giá:</div>
                   <div style={{ color: "#2A2A86" }}>
                     <NumberFormat
@@ -295,7 +319,7 @@ const ShipmentDetail: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
                   <div>Phí ship báo khách:</div>
                   <div style={{ color: "#2A2A86" }}>
                     <NumberFormat
@@ -306,9 +330,9 @@ const ShipmentDetail: React.FC = () => {
                     />
                   </div>
                 </div>
-                <Divider style={{ marginTop: 0}}/>
-                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px'}}>
-                  <div style={{ color: "#2A2A86"}}>Khách cần phải trả:</div>
+                <Divider style={{ marginTop: 0 }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
+                  <div style={{ color: "#2A2A86" }}>Khách cần phải trả:</div>
                   <div style={{ color: "#2A2A86", fontSize: 18 }}>
                     <NumberFormat
                       value={fulfillmentDetail?.order?.total ? fulfillmentDetail.order.total : 0}
@@ -318,14 +342,14 @@ const ShipmentDetail: React.FC = () => {
                     />
                   </div>
                 </div>
-                
+
               </div>
             </Row>
           </Card>
           <Card title="Chi tiết trạng thái giao hàng">
             <Collapse
               className="orders-timeline"
-              expandIcon={({isActive}) => (
+              expandIcon={({ isActive }) => (
                 <img
                   src={doubleArrow}
                   alt=""
@@ -363,7 +387,7 @@ const ShipmentDetail: React.FC = () => {
                           top: -2,
                         }}
                       ></i>{" "}
-                      <span style={{color: "#737373"}}>
+                      <span style={{ color: "#737373" }}>
                         {moment(item.created_date).format(
                           "DD/MM/YYYY HH:mm"
                         )}
@@ -384,27 +408,27 @@ const ShipmentDetail: React.FC = () => {
           >
             <div className="detail">
               <span className="name">Hãng vận chuyển:</span>
-              <span className="value">{fulfillmentDetail?.order?.store}</span>
+              <span className="value">{fulfillmentDetail?.shipment?.delivery_service_provider_name}</span>
             </div>
             <div className="detail">
               <span className="name">Tiền thu hộ COD:</span>
-              <span className="value">{fulfillmentDetail?.order?.store_phone_number}</span>
+              <span className="value">{fulfillmentDetail?.shipment?.cod}</span>
             </div>
             <div className="detail">
-              <span className="name">Tiền trả HVC/Đối tác:</span>
-              <span className="value">{fulfillmentDetail?.order?.store_full_address}</span>
+              <span className="name">Tiền trả HVC:</span>
+              <span className="value">{fulfillmentDetail?.shipment?.shipping_fee_paid_to_three_pls}</span>
             </div>
             <div className="detail">
               <span className="name">Phí ship báo khách:</span>
-              <span className="value">{fulfillmentDetail?.order?.shipping_address?.city}</span>
+              <span className="value">{fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer}</span>
             </div>
             <div className="detail">
               <span className="name">Ngày tạo:</span>
-              <span className="value">{fulfillmentDetail?.created_date? ConvertUtcToLocalDate(fulfillmentDetail?.created_date) : '-'}</span>
+              <span className="value">{fulfillmentDetail?.created_date ? ConvertUtcToLocalDate(fulfillmentDetail?.created_date) : '-'}</span>
             </div>
             <div className="detail">
               <span className="name">Hẹn giao:</span>
-              <span className="value">{fulfillmentDetail?.shipment?.expected_received_date? ConvertUtcToLocalDate(fulfillmentDetail?.shipment.expected_received_date) : '-'}</span>
+              <span className="value">{fulfillmentDetail?.shipment?.expected_received_date ? ConvertUtcToLocalDate(fulfillmentDetail?.shipment.expected_received_date) : '-'}</span>
             </div>
             <div className="detail">
               <span className="name">Giờ hành chính:</span>
@@ -412,12 +436,12 @@ const ShipmentDetail: React.FC = () => {
             </div>
             <div className="detail">
               <span className="name">Yêu cầu:</span>
-              <span className="value">{fulfillmentDetail?.requirements_name}</span>
+              <span className="value">{requirement}</span>
             </div>
-            <div className="detail">
+            {/* <div className="detail">
               <span className="name">Đối soát:</span>
               <span className="value"></span>
-            </div>
+            </div> */}
           </Card>
         </Col>
       </Row>
