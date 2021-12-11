@@ -943,8 +943,14 @@ const OrderDuplicate: React.FC = () => {
 
   useEffect(() => {
     setTableLoading(true);
+
+    let _issued_on_min=moment(new Date().setHours(-24)).format('DD-MM-YYYY');
+    let _issued_on_max=moment(new Date()).format('DD-MM-YYYY');
+
     dispatch(getListOrderAction({ ...params
       , search_term: params.search_term && params.search_term.length > 0 ? params.search_term : customer_phone
+      ,issued_on_min:params.issued_on_min&&params.issued_on_min.length>0?params.issued_on_min:_issued_on_min
+      ,issued_on_max:params.issued_on_max&&params.issued_on_max.length>0?params.issued_on_max:_issued_on_max
     }, setSearchResult));
   }, [dispatch, params, setSearchResult, customer_phone]);
 
