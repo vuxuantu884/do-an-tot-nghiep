@@ -33,6 +33,10 @@ import { DiscountMethodStyled } from "../components/style";
 import { DiscountUpdateContext } from "./discount-update-provider";
 
 const Option = Select.Option;
+const DiscountUnitType = {
+  PERCENTAGE: { value: "PERCENTAGE", name: "%" },
+  FIXED_AMOUNT: { value: "FIXED_AMOUNT", name: "đ" }
+};
 interface Props {
   form: FormInstance;
   remove: (index: number) => void;
@@ -56,7 +60,22 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const { isAllProduct, selectedVariant: entitlementsVariantMap, setSelectedVariant, discountMethod } = discountUpdateContext;
 
   const selectedVariant = useMemo(() => entitlementsVariantMap.get(name) || [], [entitlementsVariantMap, name]);
+  const discountUnit = () => {
 
+    const listOption = [
+      {
+        value: DiscountUnitType.FIXED_AMOUNT.value,
+        name: DiscountUnitType.FIXED_AMOUNT.name
+      }]
+
+    if (discountMethod !== "FIXED_PRICE") {
+      listOption.unshift({
+        value: DiscountUnitType.PERCENTAGE.value,
+        name: DiscountUnitType.PERCENTAGE.name
+      })
+      return listOption;
+    }
+  }
   const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!result) {
       setData([]);
@@ -65,21 +84,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (discountMethod === "FIXED_PRICE") {
-      setDiscountType("FIXED_AMOUNT");
-    }
-    if (discountMethod === "QUANTITY") {
-      setDiscountType("PERCENTAGE");
-    }
-  }, [discountMethod]);
 
-  // useEffect(() => {
-  //   const formEntitlement = form.getFieldValue("entitlements")[name];
-  //   if (formEntitlement && !formEntitlement.prerequisite_quantity_ranges.value_type) {
-  //     formEntitlement.prerequisite_quantity_ranges.value_type = discountType;
-  //   }
-  // }, [discountType, form, name]);
 
   // useEffect(() => {
   //   const formEntitlements = entitlementForm;
@@ -98,7 +103,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
   //   }
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [form, name, JSON.stringify(entitlementForm)]);
- 
+
 
   const onSearch = useCallback(
     (value: string) => {
@@ -165,10 +170,6 @@ const FixedPriceGroupUpdate = (props: Props) => {
           variant_id: selectedItem.id,
         });
         entitlementsVariantMap.set(name, selectedVariant);
-
-        // setSelectedVariant((prevState: Map<number, any[]>) => {
-        //   return prevState;
-        // });
 
         setSelectedVariant(_.cloneDeep(entitlementsVariantMap));
       }
@@ -260,27 +261,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
             <NumberInput min={0} />
           </Form.Item>
         </Col>
-        {/* Tạm thời bỏ giới hạn số lượng */}
-        {/* <Col span={7} style={{ display: "none" }}>
-          <Form.Item
-            name={[name, "prerequisite_quantity_ranges.allocation_limit"]}
-            label={
-              <Space>
-                <span>Giới hạn</span>
-                <Tooltip
-                  title={
-                    "Tổng số lượng sản phẩm áp dụng khuyến mại. Mặc định không điền là không giới hạn." +
-                    "VD: Chỉ áp dụng cho 100 sản phẩm, hết 100 sản phẩm này thì không có khuyến mại nữa."
-                  }
-                >
-                  <RiInformationLine />
-                </Tooltip>
-              </Space>
-            }
-          >
-            <NumberInput key={`${key}-usage`} min={0} />
-          </Form.Item>
-        </Col> */}
+
         <Col span={9}>
           <Input.Group compact style={{ display: "flex", alignItems: "stretch" }}>
             <DiscountMethodStyled>
@@ -292,7 +273,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               >
                 <InputNumber
                   key={`${key}-discount`}
-                  style={{ textAlign: "end", borderRadius: "0px" }}
+                  style={{ textAlign: "end", borderRadius: "0px", width: '100%' }} 
                   min={1}
                   max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
                   step={discountType === "FIXED_AMOUNT" ? 1 : 0.01}
@@ -304,29 +285,26 @@ const FixedPriceGroupUpdate = (props: Props) => {
             <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} label=" ">
               <Select
                 style={{ borderRadius: "0px" }}
-
-
-                defaultValue={
-                  discountMethod === "FIXED_PRICE" ? "FIXED_AMOUNT" : "PERCENTAGE"
-                }
-
+                onSelect={(e) => {
+                  setDiscountType(e?.toString() || "");
+                  const value = form.getFieldValue("entitlements");
+                  value[name].prerequisite_quantity_ranges[0].value = undefined;
+                  form.setFieldsValue({
+                    entitlements: value,
+                  });
+                }}
               >
-                {discountMethod !== "FIXED_PRICE" && (
-                  <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>
-                    %
+                {discountUnit()?.map(item => (
+                  <Option key={item.value} value={item.value}>
+                    {item.name}
                   </Option>
-                )}
-                <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>
-                  đ
-                </Option>
+                ))}
               </Select>
             </Form.Item>
           </Input.Group>
         </Col>
       </Row>
-      {isAllProduct ? (
-        ""
-      ) : (
+      {!isAllProduct && (
         <div>
           <Form.Item>
             <Input.Group className="display-flex">
@@ -352,7 +330,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               </Button>
             </Input.Group>
           </Form.Item>
-          {/* <Form.Item name={[name, "entitlements"]}> */}
+
           <Table
             className="product-table"
             rowKey={(record) => record.id}
@@ -421,10 +399,8 @@ const FixedPriceGroupUpdate = (props: Props) => {
             tableLayout="fixed"
             pagination={false}
           />
-          {/* </Form.Item> */}
-          {form.getFieldValue("entitlements")?.length <= 1 ? (
-            ""
-          ) : (
+
+          {form.getFieldValue("entitlements")?.length > 1 && (
             <Row gutter={16} style={{ paddingTop: "16px" }}>
               <Col span={24}>
                 <Button icon={<DeleteOutlined />} danger onClick={() => remove(name)}>

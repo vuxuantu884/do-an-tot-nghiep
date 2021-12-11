@@ -96,12 +96,16 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   );
 
   const initialValues = useMemo(() => {
+    const cityIds = formCustomerFilter.getFieldValue("city_ids");
+    const districtIds = formCustomerFilter.getFieldValue("district_ids");
+    const wardIds = formCustomerFilter.getFieldValue("ward_ids");
     return {
       ...params,
-      
+      city_ids: cityIds,
+      district_ids: districtIds,
+      ward_ids: wardIds,
     };
-  }, [params]);
-
+  }, [formCustomerFilter, params]);
 
   const AccountConvertResultSearch = React.useMemo(() => {
     let options: any[] = [];
@@ -353,6 +357,17 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const [lastOrderDateFrom, setLastOrderDateFrom ] = useState<any>(initialValues.last_order_date_from );
   const [lastOrderDateTo, setLastOrderDateTo] = useState<any>(initialValues.last_order_date_to);
   
+  const clearFirstOrderDate = () => {
+    setFirstOrderDateClick("");
+    setFirstOrderDateFrom(null);
+    setFirstOrderDateTo(null);
+  }
+
+  const clearLastOrderDate = () => {
+    setLastOrderDateClick("");
+    setLastOrderDateFrom(null);
+    setLastOrderDateTo(null);
+  }
   const clickOptionDate = useCallback(
     (type, value) => {
       let startDateValue = null;
@@ -390,9 +405,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       switch (type) {
         case "firstOrderDate":
           if (firstOrderDateClick === value) {
-            setFirstOrderDateClick("");
-            setFirstOrderDateFrom(null);
-            setFirstOrderDateTo(null);
+            clearFirstOrderDate();
           } else {
             setFirstOrderDateClick(value);
             setFirstOrderDateFrom (startDateValue);
@@ -401,9 +414,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "lastOrderDate":
           if (lastOrderDateClick === value) {
-            setLastOrderDateClick("");
-            setLastOrderDateFrom(null);
-            setLastOrderDateTo(null);
+            clearLastOrderDate();
           } else {
             setLastOrderDateClick(value);
             setLastOrderDateFrom (startDateValue);
@@ -1128,12 +1139,16 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     formCustomerFilter?.submit();
   }, [formCustomerFilter]);
 
-  //clear base filter
-  const onClearBaseFilter = useCallback(() => {
+  // clear advanced filter
+  const onClearAdvancedFilter = useCallback(() => {
+    clearFirstOrderDate();
+    clearLastOrderDate();
+    
     setVisibleBaseFilter(false);
     formCustomerFilter.setFieldsValue(initQuery);
     onClearFilter && onClearFilter();
   }, [formCustomerFilter, initQuery, onClearFilter]);
+  // end clear advanced filter
   // end handle filter action
 
   // handle district_ids param: if it's filtered by wards then params will not include district_ids
@@ -1234,7 +1249,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       </Form>
       
       <BaseFilter
-        onClearFilter={onClearBaseFilter}
+        onClearFilter={onClearAdvancedFilter}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleBaseFilter}

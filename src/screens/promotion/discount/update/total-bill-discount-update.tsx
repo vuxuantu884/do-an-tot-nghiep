@@ -11,16 +11,15 @@ import {
   Select
 } from "antd";
 import { SelectValue } from "antd/lib/select";
-import CategorySearchSelect from "component/custom/select-search/category-search";
-import ColorSelectSearch from "component/custom/select-search/color-select";
-import SizeSearchSelect from "component/custom/select-search/size-search";
 import _ from "lodash";
 import { DiscountConditionRule } from "model/promotion/discount.create.model";
 import { Rule } from "rc-field-form/lib/interface";
 import React, { ReactElement, useContext, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
+import { formatDiscountValue } from "utils/PromotionUtils";
 import { TotalBillDiscountStyle } from "../components/total-bill-discount.style";
+import { FieldSelectOptions } from "../constants";
 import { DiscountUpdateContext } from "./discount-update-provider";
 const rule = "rule";
 const conditions = "conditions";
@@ -51,87 +50,7 @@ const defaultValueComponent = (name: string | Array<any>, rules: Rule[], default
     <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} />
   </Form.Item>
 );
-const FieldSelectOptions = [
-  {
-    label: "Tên sản phẩm",
-    value: "product_name",
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Form.Item name={name} rules={rules}>
-        <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} />
-      </Form.Item>
-    ),
-  },
-  {
-    label: "Mã SKU",
-    value: "sku",
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Form.Item name={name} rules={rules}>
-        <Input placeholder="Mã SKU" defaultValue={defaultValue} />
-      </Form.Item>
-    ),
-  },
-  {
-    label: "Danh mục sản phẩm",
-    value: "category_name",
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <CategorySearchSelect
-        placeholder="Danh mục sản phẩm"
-        name={name}
-        rules={rules}
-        defaultValue={defaultValue ? Number(defaultValue) : undefined}
-        label=""
-      />
-    ),
-  },
-  {
-    label: "Tag sản phẩm",
-    value: "product_tag",
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Form.Item name={name} rules={rules}>
-        <Input placeholder="Tag sản phẩm" defaultValue={defaultValue} />
-      </Form.Item>
-    ),
-  },
-  {
-    label: "Kích cỡ",
-    value: "product_size",
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <SizeSearchSelect placeholder="Kích cỡ" name={name} rules={rules} label="" defaultValue={defaultValue} />
-    ),
-  },
-  {
-    label: "Màu sắc",
-    value: "option_color",
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <ColorSelectSearch
-        placeholder="Màu sắc"
-        name={name}
-        rules={rules}
-        label=""
-        querySearch={{ is_main_color: 0 }}
-        defaultValue={defaultValue}
-      />
-    ),
-  },
-  {
-    label: "Giá trị đơn hàng",
-    value: "subtotal",
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Form.Item name={name} rules={rules}>
-        <Input placeholder="Giá trị đơn hàng" defaultValue={defaultValue} />
-      </Form.Item>
-    ),
-  },
-  {
-    label: "Số lượng",
-    value: "quantity",
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Form.Item name={name} rules={rules}>
-        <Input placeholder="Số lượng" defaultValue={defaultValue} />
-      </Form.Item>
-    ),
-  },
-];
+
 
 const OperatorSelectOptions = [
   {
@@ -181,28 +100,12 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
   const { discountData } = discountUpdateContext;
-
+  const [isDiscountByPercentage, setIsDiscountByPercentage] = React.useState<boolean>(false);
   const [dataSource, setDataSource] = React.useState<Array<DiscountConditionRule>>([]);
   const [ValueComponentList, setValueComponentList] = React.useState<Array<any>>([
     defaultValueComponent,
   ]);
-  const [minMaxDiscount, setMinMaxDiscount] = React.useState<{
-    min?: number | undefined;
-    max: number | undefined;
-  }>();
-  const handleMinMaxDiscountValue = (type: string) => {
-    if (type === DiscountValueType.PERCENTAGE.toString()) {
-      setMinMaxDiscount({
-        max: 100,
-      });
-    } else {
-      setMinMaxDiscount({
-        max: undefined,
-      });
-    }
-    const ruleData = form.getFieldValue(rule);
-    ruleData.value = null;
-  };
+
 
   const handleDelete = (index: number) => {
     console.log(form.getFieldValue(rule))
@@ -286,6 +189,7 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [discountData?.rule?.conditions.length]);
+
   return (
     <TotalBillDiscountStyle>
       <Row style={{ padding: "0 20px" }}>
@@ -374,14 +278,16 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
             <Divider style={{ width: "100%" }} />
             <Form.Item
               name={[rule, "value_type"]}
-              label="Giá chị chiết khấu trên hoá dơn"
+              label="Giá trị chiết khấu trên hoá đơn"
               rules={[
                 { required: true, message: "Giá trị chiết khấu không được để trống" },
               ]}
             >
               <Radio.Group
                 onChange={(e) => {
-                  handleMinMaxDiscountValue(e.target.value);
+                  setIsDiscountByPercentage(e.target.value === DiscountValueType.PERCENTAGE.toString());
+                  const ruleData = form.getFieldValue(rule);
+                  ruleData.value = null;
                 }}
               >
                 <Radio value={DiscountValueType.FIXED_AMOUNT}>Chiết khấu đ</Radio>
@@ -396,10 +302,12 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
               ]}
             >
               <InputNumber
-                max={minMaxDiscount?.max}
-                min={0}
+                max={isDiscountByPercentage ? 100 : 999999999}
+                step={isDiscountByPercentage ? 0.01 : 1}
                 placeholder="Nhập giá trị chiết khấu"
                 style={{ width: "300px" }}
+
+                formatter={(value) => formatDiscountValue(value, isDiscountByPercentage)}
               />
             </Form.Item>
           </div>

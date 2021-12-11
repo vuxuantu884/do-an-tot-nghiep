@@ -19,6 +19,7 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { getDateFormDuration } from "utils/PromotionUtils";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import { showSuccess } from "../../../utils/ToastUtils";
@@ -176,7 +177,6 @@ const PromoCodeUpdate = () => {
     } else {
       body.prerequisite_wedding_duration = null;
     }
-
     //Nhóm khách hàng
     body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids;
 
@@ -220,9 +220,7 @@ const PromoCodeUpdate = () => {
         prerequisite_sales_channel_names: result.prerequisite_sales_channel_names,
 
         prerequisite_order_source_ids: result.prerequisite_order_source_ids,
-        prerequisite_genders: result.prerequisite_genders?.map((item) =>
-          item.toLocaleUpperCase()
-        ),
+
         value:
           result.entitlements.length > 0
             ? result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value
@@ -240,6 +238,17 @@ const PromoCodeUpdate = () => {
         },
         product_type: "PRODUCT",
         entitlements: result.entitlements,
+        // Áp dụng khách hàng
+        prerequisite_genders: result.prerequisite_genders?.map((item) =>
+          item.toLocaleUpperCase()
+        ),
+        prerequisite_customer_group_ids: result.prerequisite_customer_group_ids,
+        prerequisite_customer_loyalty_level_ids: result.prerequisite_customer_loyalty_level_ids,
+        prerequisite_assignee_codes: result.prerequisite_assignee_codes,
+        starts_birthday: result.prerequisite_birthday_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_birthday_duration?.starts_mmdd_key)) : undefined,
+        ends_birthday: result.prerequisite_birthday_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_birthday_duration?.ends_mmdd_key)) : undefined,
+        starts_wedding_day: result.prerequisite_wedding_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.starts_mmdd_key)) : undefined,
+        ends_wedding_day: result.prerequisite_wedding_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.ends_mmdd_key)) : undefined,
       };
 
       //set default checked Loại khuyến mãi

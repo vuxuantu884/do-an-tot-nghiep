@@ -19,6 +19,7 @@ import "../discount.scss";
 import DiscountUpdateForm from "./discount-update-form";
 import DiscountUpdateProvider, { DiscountUpdateContext } from "./discount-update-provider";
 import { useHistory } from "react-router-dom";
+import { getDateFormDuration } from "utils/PromotionUtils";
 const DiscountUpdate = () => {
     const dispatch = useDispatch();
     const [form] = Form.useForm();
@@ -35,7 +36,7 @@ const DiscountUpdate = () => {
     const [isAllChannel, setIsAllChannel] = useState(true);
     const [isAllSource, setIsAllSource] = useState(true);
 
-    const [isUnlimitUsage, setIsUnlimitUsage] = useState(false);
+    const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
 
     const discountUpdateContext = useContext(DiscountUpdateContext);
     const { setIsAllProduct, setSelectedVariant, setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
@@ -45,6 +46,9 @@ const DiscountUpdate = () => {
                 title: result.title,
                 discount_code: result.code,
                 description: result.description,
+                quantity_limit: result.quantity_limit,
+                priority: result.priority,
+                product_type: "PRODUCT",
                 starts_date: moment(result.starts_date),
                 ends_date: result.ends_date ? moment(result.ends_date) : undefined,
                 prerequisite_store_ids: result.prerequisite_store_ids,
@@ -52,9 +56,7 @@ const DiscountUpdate = () => {
                 prerequisite_sales_channel_names: result.prerequisite_sales_channel_names,
 
                 prerequisite_order_source_ids: result.prerequisite_order_source_ids,
-                prerequisite_genders: result.prerequisite_genders?.map((item) =>
-                    item.toLocaleUpperCase()
-                ),
+
                 value:
                     result.entitlements.length > 0
                         ? result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value
@@ -66,19 +68,27 @@ const DiscountUpdate = () => {
                 usage_limit: result.usage_limit,
 
                 usage_limit_per_customer: result.usage_limit_per_customer,
-                prerequisite_subtotal_range: {
-                    greater_than_or_equal_to:
-                        result.prerequisite_subtotal_range?.greater_than_or_equal_to,
-                },
-                product_type: "PRODUCT",
+                prerequisite_subtotal_range: result.prerequisite_subtotal_range,
+
                 entitlements: result.entitlements,
-                priority: result.priority,
+
                 entitled_method: result.entitled_method,
                 rule: result.rule,
+                prerequisite_genders: result.prerequisite_genders?.map((item) =>
+                    item.toLocaleUpperCase()
+                ),
+                prerequisite_customer_group_ids: result.prerequisite_customer_group_ids,
+                prerequisite_customer_loyalty_level_ids: result.prerequisite_customer_loyalty_level_ids,
+                prerequisite_assignee_codes: result.prerequisite_assignee_codes,
+                starts_birthday: result.prerequisite_birthday_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_birthday_duration?.starts_mmdd_key)) : undefined,
+                ends_birthday: result.prerequisite_birthday_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_birthday_duration?.ends_mmdd_key)) : undefined,
+                starts_wedding_day: result.prerequisite_wedding_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.starts_mmdd_key)) : undefined,
+                ends_wedding_day: result.prerequisite_wedding_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.ends_mmdd_key)) : undefined,
+
             };
             setDiscountMethod(result.entitled_method)
             //set default checked Loại khuyến mãi
-            setIsUnlimitUsage(typeof result.usage_limit !== "number");
+            setIsUnlimitQuantity(typeof result.quantity_limit !== "number");
 
             //   //set default checked Bộ lọc
             setIsAllStore(result.prerequisite_store_ids?.length === 0);
@@ -102,7 +112,7 @@ const DiscountUpdate = () => {
         body.description = values.description;
 
         body.entitled_method = values.entitled_method;
-        body.quantity_limit = values.usage_limit;
+        body.quantity_limit = values.quantity_limit;
         body.prerequisite_store_ids = values.prerequisite_store_ids?.length
             ? values.prerequisite_store_ids
             : null;
@@ -115,27 +125,7 @@ const DiscountUpdate = () => {
             : null;
         body.starts_date = values.starts_date.format();
         body.ends_date = values.ends_date?.format() || null;
-        body.entitlements = values?.entitlements?.map((entitlement: any) => {
-            return {
-                entitled_variant_ids: entitlement.entitled_variant_ids || null,
-                entitled_category_ids: null,
-                prerequisite_quantity_ranges: [
-                    {
-                        greater_than_or_equal_to:
-                            entitlement["prerequisite_quantity_ranges.greater_than_or_equal_to"],
-                        less_than_or_equal_to: null,
-                        allocation_limit:
-                            entitlement["prerequisite_quantity_ranges.allocation_limit"],
-                        value_type:
-                            body.entitled_method === "FIXED_PRICE"
-                                ? "FIXED_PRICE"
-                                : entitlement["prerequisite_quantity_ranges.value_type"],
-                        value: entitlement["prerequisite_quantity_ranges.value"],
-                    },
-                ],
-                prerequisite_subtotal_ranges: null,
-            };
-        });
+        body.entitlements = values?.entitlements;
 
         // ==Đối tượng khách hàng==
         // Áp dụng tất cả
@@ -217,9 +207,7 @@ const DiscountUpdate = () => {
 
 
 
-        if (_.isEmpty(JSON.parse(JSON.stringify(values.rule)))) {
-            body.rule = null;
-        } else {
+        if (values?.rule && !_.isEmpty(JSON.parse(JSON.stringify(values?.rule)))) {
             body.rule = values.rule;
         }
         return body;
@@ -228,11 +216,8 @@ const DiscountUpdate = () => {
 
     const updateCallback = (data: DiscountResponse) => {
         if (data) {
-
             showSuccess("Thêm thành công");
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
-
-
         }
     };
     const handleSubmit = async (values: any) => {
@@ -251,7 +236,6 @@ const DiscountUpdate = () => {
         (result: DiscountResponse | false) => {
 
             if (result) {
-                // setDataDiscount(result);
                 setDiscountData(result);
                 parseDataToForm(result);
             }
@@ -280,17 +264,20 @@ const DiscountUpdate = () => {
     // Action: Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mãi
     useEffect(() => {
         if (Array.isArray(discountData?.entitlements)) {
-
             const tempMapProduct: Map<number, Array<VariantPriceRule>> = new Map();
+            let allProduct = false;
             discountData.entitlements.forEach((entitlement: any, index: number) => {
-                tempMapProduct.set(index, mergeVariantsData(entitlement.entitled_variant_ids))
+                tempMapProduct.set(index, mergeVariantsData(entitlement.entitled_variant_ids));
+                if (entitlement?.entitled_variant_ids?.length === 0) {
+                    allProduct = true;
+                }
             });
             setSelectedVariant(tempMapProduct);
+            setIsAllProduct(allProduct);
         }
     }, [discountData, mergeVariantsData, setSelectedVariant, setIsAllProduct]);
 
     useEffect(() => {
-
         dispatch(getVariants(idNumber, setDataVariants));
         dispatch(promoGetDetail(idNumber, onResult));
     }, [dispatch, idNumber, onResult]);
@@ -329,7 +316,7 @@ const DiscountUpdate = () => {
 
                     <Col span={18}>
                         <DiscountUpdateForm
-                            unlimitedUsageProps={isUnlimitUsage}
+                            unlimitedUsageProps={isUnlimitQuantity}
                             form={form}
 
                         />
