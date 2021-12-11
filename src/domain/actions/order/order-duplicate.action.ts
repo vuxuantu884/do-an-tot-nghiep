@@ -1,5 +1,6 @@
+import { CustomerDuplicateModel } from './../../../model/order/duplicate.model';
+
 import BaseAction from 'base/base.action';
-import { CustomerDuplicateModel } from 'model/duplicate/duplicate.model';
 import { PageResponse } from './../../../model/base/base-metadata.response';
 import { DuplicateOrderSearchQuery } from './../../../model/order/order.model';
 import { OrderType } from "domain/types/order.type";

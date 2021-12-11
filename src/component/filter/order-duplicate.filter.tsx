@@ -41,27 +41,27 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
   const onChangeDate = useCallback(
     () => {
       let value: any = {};
-      value = formSearchRef?.current?.getFieldsValue(["form_date", "to_date"])
-      if (value["form_date"] && value["to_date"] && (+moment(value["form_date"], 'DD-MM-YYYY') > + moment(value["to_date"], 'DD-MM-YYYY'))) {
+      value = formSearchRef?.current?.getFieldsValue(["issued_on_min", "issued_on_max"])
+      if (value["issued_on_min"] && value["issued_on_max"] && (+moment(value["issued_on_min"], 'DD-MM-YYYY') > + moment(value["issued_on_max"], 'DD-MM-YYYY'))) {
         console.log('invalid')
         formSearchRef?.current?.setFields([
           {
-            name: "form_date",
+            name: "issued_on_min",
             errors: ['Khoảng thời gian chưa chính xác'],
           },
           {
-            name: "to_date",
+            name: "issued_on_max",
             errors: [''],
           },
         ])
       } else {
         formSearchRef?.current?.setFields([
           {
-            name: "form_date",
+            name: "issued_on_min",
             errors: undefined,
           },
           {
-            name: "to_date",
+            name: "issued_on_max",
             errors: undefined,
           },
         ])
@@ -74,7 +74,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
         <CustomFilter onMenuClick={onMenuClick}>
           <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValues}>
             <div style={{ width: "35%", display: "flex" }}>
-              <Item name="form_date" style={{ width: "45%", margin: 0 }}>
+              <Item name="issued_on_min" style={{ width: "45%", margin: 0 }}>
                 <CustomDatePicker
                   format="DD-MM-YYYY"
                   placeholder="Từ ngày"
@@ -85,7 +85,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
               <div style={{ margin: "0 2px", paddingTop: "10px" }}>
                 <SwapRightOutlined />
               </div>
-              <Item name="to_date" style={{ width: "45%", margin: 0 }}>
+              <Item name="issued_on_max" style={{ width: "45%", margin: 0 }}>
                 <CustomDatePicker
                   format="DD-MM-YYYY"
                   placeholder="Đến ngày"
@@ -97,6 +97,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
             <Item name="store_id" style={{ width: "20%" }}>
               <Select
                 showSearch
+                allowClear
                 optionFilterProp="children"
                 placeholder={
                   <div style={{ color: "#878790" }}>
@@ -106,14 +107,14 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
                 }
               >
                 {listStore?.map((item, index) => (
-                  <Option key={index.toString()} value={item.code}>{item.name}</Option>
+                  <Option key={index.toString()} value={item.id}>{item.name}</Option>
                 ))}
 
                 <Option value="2">Closed</Option>
               </Select>
             </Item>
 
-            <Item name="info" style={{ width: "200px" }}>
+            <Item name="search_term" style={{ width: "200px" }}>
               <Input placeholder="Tên, Số điện thoại khách hàng" prefix={<SearchOutlined />} />
             </Item>
 

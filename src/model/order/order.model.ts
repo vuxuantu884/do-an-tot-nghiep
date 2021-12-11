@@ -126,8 +126,8 @@ export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
 export interface DuplicateOrderSearchQuery {
   page: number|null;
   limit: number|null;
-  form_date:string|null;
-  to_date:string|null;
-  info:string|null;
+  issued_on_min:string|null;
+  issued_on_max:string|null;
+  search_term:string|null;
   store_id:number|null
 }
