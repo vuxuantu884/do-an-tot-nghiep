@@ -1,8 +1,8 @@
-import {Checkbox, Col, Form, Input, InputNumber, Row, Select} from "antd";
-import {FormInstance} from "antd/es/form/Form";
+import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from "antd";
+import { FormInstance } from "antd/es/form/Form";
 import NumberInput from "component/custom/number-input.custom";
-import React, {useCallback, useLayoutEffect, useState} from "react";
-import {formatCurrency} from "utils/AppUtils";
+import React, { useLayoutEffect, useState } from "react";
+import { formatDiscountValue } from "utils/PromotionUtils";
 import "../promo-code.scss";
 interface Props {
   form: FormInstance;
@@ -11,28 +11,13 @@ interface Props {
   isUnlimitUsage?: boolean;
 }
 const ChooseDiscount = (props: Props) => {
-  const {form, isUnlimitUsage, isUnlimitUsagePerUser} = props;
+  const { form, isUnlimitUsage, isUnlimitUsagePerUser } = props;
   const [typeUnit, setTypeUnit] = useState("PERCENTAGE");
 
   const [isUnlimitUsageState, setIsUnlimitUsageState] = useState(false);
 
   const [isUnlimitUsagePerCustomerState, setIsUnlimitUsagePerCustomerState] =
     useState(true);
-
-  const formatDiscountValue = useCallback(
-    (value: number | undefined) => {
-      if (typeUnit !== "FIXED_AMOUNT") {
-        const floatIndex = value?.toString().indexOf(".") || -1;
-        if (floatIndex > 0) {
-          return `${value}`.slice(0, floatIndex + 3);
-        }
-        return `${value}`;
-      } else {
-        return formatCurrency(`${value}`.replaceAll(".", ""));
-      }
-    },
-    [typeUnit]
-  );
 
   useLayoutEffect(() => {
     setIsUnlimitUsageState(typeof isUnlimitUsage === "boolean" ? isUnlimitUsage : false);
@@ -59,17 +44,17 @@ const ChooseDiscount = (props: Props) => {
                 noStyle
               >
                 <InputNumber
-                  style={{textAlign: "end", borderRadius: "0px", width: "65%"}}
+                  style={{ textAlign: "end", borderRadius: "0px", width: "65%" }}
                   min={1}
                   max={typeUnit === "FIXED_AMOUNT" ? 999999999 : 100}
                   step={typeUnit === "FIXED_AMOUNT" ? 1 : 0.01}
-                  formatter={(value) => formatDiscountValue(value)}
+                  formatter={(value) => formatDiscountValue(value, typeUnit !== "FIXED_AMOUNT")}
                 />
               </Form.Item>
               <Form.Item name="value_type" noStyle>
                 <Select
                   placeholder="Đơn vị"
-                  style={{width: "70px"}}
+                  style={{ width: "70px" }}
                   // defaultValue={"PERCENTAGE"}
                   value={typeUnit}
                   onChange={(value: string) => {

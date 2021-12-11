@@ -115,3 +115,15 @@ export const renderTotalBill = (cost: number, value: number, valueType: string) 
   }
   return result;
 };
+
+export const formatDiscountValue = (value: number | undefined, isPercent: boolean) => {
+  if (isPercent) {
+    const floatIndex = value?.toString().indexOf(".") || -1;
+    if (floatIndex > 0) {
+      return `${value}`.slice(0, floatIndex + 3);
+    }
+    return `${value}`;
+  } else {
+    return formatCurrency(`${value}`.replaceAll(".", ""));
+  }
+};

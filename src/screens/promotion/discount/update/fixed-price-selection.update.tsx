@@ -145,7 +145,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
               </Row>
 
               {fields.reverse().map(({ key, name, fieldKey, ...restField }) => {
-                console.log('key', key);
+               
                 return (
                   <FixedPriceGroupUpdate
                     key={key}
@@ -153,8 +153,6 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                     remove={remove}
                     fieldKey={fieldKey}
                     form={form}
-
-
                   />
                 );
               })}

@@ -24,11 +24,10 @@ function DiscountUpdateForm({ form,
 
     const { discountMethod, setDiscountMethod } = discountUpdateContext;
 
-    const [unlimitedUsage, setUnlimitedUsage] = useState<boolean>(false);
+    const [unlimitedQuantity, setUnlimitedQuantity] = useState<boolean>(false);
 
     useLayoutEffect(() => {
-
-        setUnlimitedUsage(unlimitedUsageProps);
+        setUnlimitedQuantity(unlimitedUsageProps);
     }, [unlimitedUsageProps]);
 
     return (
@@ -74,16 +73,16 @@ function DiscountUpdateForm({ form,
                             <Col span={12}>
                                 <Form.Item
                                     label={<b>Số lượng áp dụng:</b>}
-                                    name="usage_limit"
+                                    name="quantity_limit"
                                     rules={[
                                         {
-                                            required: !unlimitedUsage,
+                                            required: !unlimitedQuantity,
                                             message: "Vui lòng nhập số lượng áp dụng",
                                         },
                                     ]}
                                 >
                                     <InputNumber
-                                        disabled={unlimitedUsage}
+                                        disabled={unlimitedQuantity}
                                         style={{ borderRadius: "5px" }}
                                         placeholder="Nhập số lượng khuyến mại"
                                         min={0}
@@ -95,13 +94,13 @@ function DiscountUpdateForm({ form,
                                 <Form.Item label=" " name="usage_limit">
                                     <Space>
                                         <Switch
-                                            checked={unlimitedUsage}
+                                            checked={unlimitedQuantity}
                                             onChange={(value) => {
                                                 form.validateFields(["usage_limit"]);
                                                 form.setFieldsValue({
                                                     usage_limit: null,
                                                 });
-                                                setUnlimitedUsage(value);
+                                                setUnlimitedQuantity(value);
                                             }}
                                         />
                                         {"Không giới hạn"}
