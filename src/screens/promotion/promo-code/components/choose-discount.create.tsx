@@ -6,12 +6,12 @@ import { formatDiscountValue } from "utils/PromotionUtils";
 import "../promo-code.scss";
 interface Props {
   form: FormInstance;
-
   isUnlimitUsagePerUser?: boolean;
   isUnlimitUsage?: boolean;
+  typeUnit?: string;
 }
 const ChooseDiscount = (props: Props) => {
-  const { form, isUnlimitUsage, isUnlimitUsagePerUser } = props;
+  const { form, isUnlimitUsage, isUnlimitUsagePerUser, typeUnit: typeUnitProps } = props;
   const [typeUnit, setTypeUnit] = useState("PERCENTAGE");
 
   const [isUnlimitUsageState, setIsUnlimitUsageState] = useState(false);
@@ -24,7 +24,8 @@ const ChooseDiscount = (props: Props) => {
     setIsUnlimitUsagePerCustomerState(
       typeof isUnlimitUsagePerUser === "boolean" ? isUnlimitUsagePerUser : true
     );
-  }, [isUnlimitUsage, isUnlimitUsagePerUser]);
+    typeUnitProps && setTypeUnit(typeUnitProps);
+  }, [isUnlimitUsage, isUnlimitUsagePerUser, typeUnitProps]);
 
   return (
     <Col span={24}>
@@ -66,12 +67,10 @@ const ChooseDiscount = (props: Props) => {
                   }}
                 >
                   <Select.Option key="PERCENTAGE" value="PERCENTAGE">
-                    {" "}
-                    {"%"}{" "}
+                    {"%"}
                   </Select.Option>
                   <Select.Option key="FIXED_AMOUNT" value="FIXED_AMOUNT">
-                    {" "}
-                    {"đ"}{" "}
+                    {"đ"}
                   </Select.Option>
                 </Select>
               </Form.Item>
