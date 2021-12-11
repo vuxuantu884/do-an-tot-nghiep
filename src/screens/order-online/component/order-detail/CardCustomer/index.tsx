@@ -78,7 +78,7 @@ type CustomerCardProps = {
 //Add query for search Customer
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
-  limit: 5,
+  limit: 15,
   page: 1,
   gender: null,
   from_birthday: null,
@@ -303,13 +303,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerConvertResultSearch = useMemo(() => {
     let options: any[] = [];
-    console.log("resultSearch",resultSearch)
-    resultSearch.forEach((item: CustomerResponse, index: number) => {
-      options.push({
-        label: CustomerRenderSearchResult(item),
-        value: item.id ? item.id.toString() : "",
-      });
-    });
+    console.log("resultSearch",resultSearch);
+		if(resultSearch.length > 0) {
+			resultSearch.forEach((item: CustomerResponse, index: number) => {
+				options.push({
+					label: CustomerRenderSearchResult(item),
+					value: item.id ? item.id.toString() : "",
+				});
+			});
+
+		}
     return options;
   }, [dispatch, resultSearch]);
 
