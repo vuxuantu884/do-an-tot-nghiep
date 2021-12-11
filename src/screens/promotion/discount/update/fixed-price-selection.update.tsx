@@ -1,13 +1,12 @@
 import { CheckCircleOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Col, Divider, Form, FormInstance, message, Modal, Row, Space } from "antd";
 import Dragger from "antd/es/upload/Dragger";
+import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import _ from "lodash";
 import {
-  DiscountFormModel,
-  DiscountMethod,
-  VariantEntitlementsResponse,
+  DiscountFormModel, VariantEntitlementsResponse
 } from "model/promotion/discount.create.model";
-import React, { useLayoutEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
 import { shareDiscount } from "utils/PromotionUtils";
@@ -15,7 +14,8 @@ import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
 import "../discount.scss";
-import FixedPriceGroup from "./FixedPriceGroup";
+import { DiscountUpdateContext } from "./discount-update-provider";
+import FixedPriceGroupUpdate from "./fixed-price-group.update";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -39,15 +39,13 @@ enum EnumUploadStatus {
 }
 interface Props {
   form: FormInstance;
-  discountMethod: DiscountMethod;
-  isAllProduct?: boolean;
+
 }
 
-const FixedPriceSelection = (props: Props) => {
+const FixedPriceSelectionUpdate = (props: Props) => {
   const token = getToken() || "";
-  const { form, discountMethod, isAllProduct: isAllProductProps } = props;
+  const { form, } = props;
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
-  const [allProduct, setAllProduct] = useState<boolean>(false);
   const [entitlementsResponse, setEntitlementsResponse] = useState<
     Array<VariantEntitlementsResponse>
   >([]);
@@ -59,6 +57,8 @@ const FixedPriceSelection = (props: Props) => {
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
 
+  const discountUpdateContext = useContext(DiscountUpdateContext);
+  const { isAllProduct, setIsAllProduct } = discountUpdateContext;
   // import file
   const handleImportEntitlements = () => {
     const newVariantList = Object.assign(
@@ -83,22 +83,37 @@ const FixedPriceSelection = (props: Props) => {
     setShowImportModal(false);
   };
 
-  useLayoutEffect(() => {
-    setAllProduct(isAllProductProps || false);
-  }, [isAllProductProps])
-  
+
+
   return (
     <Col span={24}>
       <Form.List name="entitlements">
-        {(fields, { add, remove }, { errors }) => {
+        {(fields: FormListFieldData[], { add, remove }: FormListOperation, { errors }: {
+          errors: React.ReactNode[];
+        }) => {
+          const addBlackEntitlement = () => {
+            const formEntitlements = form.getFieldValue("entitlements");
+            formEntitlements.push({
+              entitled_category_ids: [],
+              entitled_variant_ids: [],
+              id: null,
+              prerequisite_quantity_ranges: null,
+              prerequisite_variant_ids: null,
+            })
+            add();
+            form.setFieldsValue({ entitlements: formEntitlements });
+          }
+            ;
+
           return (
             <>
               <Row>
                 <Col span={8}>
                   <Checkbox
-                    checked={allProduct}
+                    checked={isAllProduct}
                     onChange={(value) => {
-                      setAllProduct(value.target.checked);
+
+                      setIsAllProduct(value.target.checked);
                     }}
                   >
                     Tất cả sản phẩm
@@ -117,8 +132,8 @@ const FixedPriceSelection = (props: Props) => {
                       </Form.Item>
                       <Form.Item>
                         <Button
-                          disabled={allProduct}
-                          onClick={() => add()}
+                          disabled={isAllProduct}
+                          onClick={() => addBlackEntitlement()}
                           icon={<PlusOutlined />}
                         >
                           Thêm chiết khấu
@@ -130,16 +145,16 @@ const FixedPriceSelection = (props: Props) => {
               </Row>
 
               {fields.reverse().map(({ key, name, fieldKey, ...restField }) => {
+                console.log('key', key);
                 return (
-                  <FixedPriceGroup
+                  <FixedPriceGroupUpdate
                     key={key}
                     name={name}
                     remove={remove}
                     fieldKey={fieldKey}
                     form={form}
-                    restField={restField}
-                    allProducts={allProduct}
-                    discountMethod={discountMethod}
+
+
                   />
                 );
               })}
@@ -350,4 +365,4 @@ const FixedPriceSelection = (props: Props) => {
   );
 };
 
-export default FixedPriceSelection;
+export default FixedPriceSelectionUpdate;

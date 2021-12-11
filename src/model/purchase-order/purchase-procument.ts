@@ -120,4 +120,10 @@ export interface ProcurementQuery extends BaseQuery, ParsedUrlQueryInput {
   is_cancel?: boolean
 }
 
+export interface ImportProcument {
+  url: string;
+  conditions: string;
+  type: string; 
+}
+
 export { POProcumentField, POProcumentLineItemField };

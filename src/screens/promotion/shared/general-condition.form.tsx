@@ -10,21 +10,21 @@ import {
   Switch,
   TimePicker,
 } from "antd";
-import {StoreGetListAction} from "domain/actions/core/store.action";
-import {getListChannelRequest} from "domain/actions/order/order.action";
-import {getListSourceRequest} from "domain/actions/product/source.action";
-import {StoreResponse} from "model/core/store.model";
-import {SourceResponse} from "model/response/order/source.response";
-import {ChannelResponse} from "model/response/product/channel.response";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { StoreResponse } from "model/core/store.model";
+import { SourceResponse } from "model/response/order/source.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import moment from "moment";
-import React, {ReactElement, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {DATE_FORMAT} from "utils/DateUtils";
-import {dayOfWeekOptions, getDays} from "../discount/components/general.info";
-import {CustomerContitionFormlStyle} from "./condition.style";
+import React, { ReactElement, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { dayOfWeekOptions, getDays } from "../discount/components/general.info";
+import { CustomerContitionFormlStyle } from "./condition.style";
 import CustomerFilter from "./cusomer-condition.form";
 
-const {Option} = Select;
+const { Option } = Select;
 const TimeRangePicker = TimePicker.RangePicker;
 
 interface Props {
@@ -77,12 +77,12 @@ function GeneralConditionForm({
           <Col span={12}>
             <Form.Item
               name="starts_date"
-              rules={[{required: true, message: "Vui lòng chọn thời gian áp dụng"}]}
+              rules={[{ required: true, message: "Vui lòng chọn thời gian áp dụng" }]}
             >
               <DatePicker
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 placeholder="Từ ngày"
-                showTime={{format: "HH:mm"}}
+                showTime={{ format: "HH:mm" }}
                 format={DATE_FORMAT.DDMMYY_HHmm}
                 disabledDate={(currentDate) =>
                   currentDate.isBefore(moment()) ||
@@ -97,9 +97,9 @@ function GeneralConditionForm({
           <Col span={12}>
             <Form.Item name="ends_date">
               <DatePicker
-                showTime={{format: "HH:mm"}}
+                showTime={{ format: "HH:mm" }}
                 format={DATE_FORMAT.DDMMYY_HHmm}
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 placeholder="Đến ngày"
                 disabledDate={(currentDate) =>
                   currentDate.isBefore(moment()) ||
@@ -129,7 +129,7 @@ function GeneralConditionForm({
                 label={<b>Chỉ áp dụng trong các khung giờ:</b>}
                 name="prerequisite_time"
               >
-                <TimeRangePicker placeholder={["Từ", "Đến"]} style={{width: "100%"}} />
+                <TimeRangePicker placeholder={["Từ", "Đến"]} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={24}>
@@ -150,7 +150,7 @@ function GeneralConditionForm({
               <Form.Item
                 label={<b>Chỉ áp dụng các ngày trong tháng:</b>}
                 name="prerequisite_days"
-                style={{marginBottom: "5px"}}
+                style={{ marginBottom: "5px" }}
               >
                 <Select placeholder="Chọn ngày" mode="multiple">
                   {getDays().map((day) => (
@@ -167,7 +167,7 @@ function GeneralConditionForm({
           <Col span={24}>
             <Form.Item
               name="prerequisite_store_ids"
-              rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
+              rules={[{ required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" }]}
             >
               <Select
                 disabled={allStore}
@@ -192,7 +192,7 @@ function GeneralConditionForm({
                   form.validateFields(["prerequisite_store_ids"]);
                 }}
               />
-              {"Áp dụng toàn bộ"}
+              {" Áp dụng toàn bộ"}
             </Form.Item>
           </Col>
         </Row>
@@ -203,7 +203,7 @@ function GeneralConditionForm({
             <Form.Item
               name="prerequisite_sales_channel_names"
               rules={[
-                {required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"},
+                { required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng" },
               ]}
             >
               <Select
@@ -239,7 +239,7 @@ function GeneralConditionForm({
             <Form.Item
               name="prerequisite_order_source_ids"
               rules={[
-                {required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"},
+                { required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng" },
               ]}
             >
               <Select

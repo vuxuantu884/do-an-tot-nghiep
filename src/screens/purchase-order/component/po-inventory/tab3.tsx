@@ -116,7 +116,11 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                         acceptPermissions={[PurchaseOrderPermission.procurements_confirm]}
                       >
                         <Button
-                          onClick={() => confirmInventory(item, false)}
+                          onClick={() => {
+                            console.log(item);
+                            
+                            confirmInventory(item, false)
+                          }}
                           type="primary"
                         >
                           Xác nhận nhập

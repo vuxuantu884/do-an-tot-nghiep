@@ -26,6 +26,8 @@ import {getQueryParams, useQuery} from "utils/useQuery";
 import "assets/css/_pack.scss";
 import { useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const {TabPane} = Tabs;
 
@@ -56,6 +58,11 @@ const PackSupportScreen: React.FC = () => {
     Array<GoodsReceiptsTypeResponse>
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
+
+  const [allowReadGoodReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
+    not: false,
+  });
 
   const packSupportContextData = {
     listThirdPartyLogistics,
@@ -129,7 +136,7 @@ const PackSupportScreen: React.FC = () => {
                     listThirdPartyLogistics={listThirdPartyLogistics}
                   ></PackInfo>
                 </TabPane>
-                <TabPane tab="Biên bản bàn giao" key="2">
+                <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
                   <PackReportHandOverCopy query={query} />
                 </TabPane>
               </Tabs>

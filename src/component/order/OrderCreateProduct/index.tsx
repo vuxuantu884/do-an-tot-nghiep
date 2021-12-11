@@ -1093,7 +1093,8 @@ function OrderCreateProduct(props: PropType) {
 
   const handleApplyDiscountOrder = (
     checkingDiscountResponse: BaseResponse<ApplyCouponResponseModel>, 
-		items: OrderLineItemRequest[] | undefined
+		items: OrderLineItemRequest[] | undefined,
+		totalLineAmountAfterDiscount: number,
   ) => {
     if (!items) {
       return;
@@ -1103,11 +1104,7 @@ function OrderCreateProduct(props: PropType) {
       if (!discountOrder?.value) {
         return;
       }
-			if(discountOrder.price_rule_id) {
-				setPromotionId && setPromotionId(discountOrder.price_rule_id);
-			}
       let discountAmount = 0;
-      let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
       switch (discountOrder.value_type) {
         case DISCOUNT_VALUE_TYPE.fixedAmount:
           discountAmount = discountOrder.value;
@@ -1121,10 +1118,17 @@ function OrderCreateProduct(props: PropType) {
         default:
           break;
       }
-
-      let discountRate = (discountAmount / totalLineAmountAfterDiscount) * 100;
-      setDiscountValue && setDiscountValue(discountAmount);
-      setDiscountRate && setDiscountRate(discountRate);
+			if(discountAmount > 0) {
+				if(discountAmount > totalLineAmountAfterDiscount) {
+					discountAmount = totalLineAmountAfterDiscount
+				}
+				let discountRate = (discountAmount / totalLineAmountAfterDiscount) * 100;
+				setDiscountValue && setDiscountValue(discountAmount);
+				setDiscountRate && setDiscountRate(discountRate);
+				if(discountOrder.price_rule_id) {
+					setPromotionId && setPromotionId(discountOrder.price_rule_id);
+				}
+			}
     }
   };
 
@@ -1178,7 +1182,8 @@ function OrderCreateProduct(props: PropType) {
       let result = getApplyDiscountLineItem(checkingDiscountResponse, items);
       setItems(result);
       handleChangeItems(result);
-      handleApplyDiscountOrder(checkingDiscountResponse, items);
+			let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(result);
+      handleApplyDiscountOrder(checkingDiscountResponse, items, totalLineAmountAfterDiscount);
       console.log("result", result);
       showSuccess("Cập nhật chiết khấu tự động thành công!");
     } else {

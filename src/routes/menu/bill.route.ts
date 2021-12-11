@@ -56,7 +56,7 @@ const bill: Array<RouteMenu> = [
         key: "submenu5412",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.VIEW],
+        permissions: [ODERS_PERMISSIONS.READ],
         subMenu: [],
       },
       {
@@ -68,7 +68,7 @@ const bill: Array<RouteMenu> = [
         key: "submenu5413",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.VIEW],
+        permissions: [ODERS_PERMISSIONS.READ],
         subMenu: [],
       },
       {
@@ -80,7 +80,7 @@ const bill: Array<RouteMenu> = [
         key: "submenu5414",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.UPDATE],
+        permissions: [ODERS_PERMISSIONS.READ],
         subMenu: [],
       },
       {
@@ -105,7 +105,7 @@ const bill: Array<RouteMenu> = [
     key: "submenu55",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.VIEW],
+    permissions: [ODERS_PERMISSIONS.READ_RETURNS],
     subMenu: [
       {
         path: `${UrlConfig.ORDERS_RETURN}/create`,
@@ -116,7 +116,7 @@ const bill: Array<RouteMenu> = [
         key: "create-return",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.CREATE],
+        permissions: [ODERS_PERMISSIONS.CREATE_RETURN],
         subMenu: [],
       },
       {
@@ -128,7 +128,7 @@ const bill: Array<RouteMenu> = [
         key: "single-return",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.VIEW],
+        permissions: [ODERS_PERMISSIONS.READ_RETURNS],
         subMenu: [],
       },
     ],

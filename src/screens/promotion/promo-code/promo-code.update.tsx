@@ -1,8 +1,8 @@
-import {Button, Col, Form, Row} from "antd";
+import { Button, Col, Form, Row } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getVariants,
   promoGetDetail,
@@ -14,15 +14,15 @@ import {
   DiscountVariantResponse,
 } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useParams} from "react-router";
-import {useHistory} from "react-router-dom";
-import {DATE_FORMAT} from "utils/DateUtils";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router";
+import { useHistory } from "react-router-dom";
+import { DATE_FORMAT } from "utils/DateUtils";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
-import {showSuccess} from "../../../utils/ToastUtils";
-import {CustomerFilterField} from "../shared/cusomer-condition.form";
+import { showSuccess } from "../../../utils/ToastUtils";
+import { CustomerFilterField } from "../shared/cusomer-condition.form";
 import GeneralConditionForm from "../shared/general-condition.form";
 import PromoCodeUpdateForm from "./components/promo-code-update-form";
 import "./promo-code.scss";
@@ -31,7 +31,7 @@ const PromoCodeUpdate = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [form] = Form.useForm();
-  const {id} = useParams<{id: string}>();
+  const { id } = useParams<{ id: string }>();
   const idNumber = parseInt(id);
 
   const [loading, setLoading] = useState(true);
@@ -132,15 +132,15 @@ const PromoCodeUpdate = () => {
       body.prerequisite_birthday_duration = {
         starts_mmdd_key: startsBirthday
           ? Number(
-              (startsBirthday.month() + 1).toString().padStart(2, "0") +
-                startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-            )
+            (startsBirthday.month() + 1).toString().padStart(2, "0") +
+            startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+          )
           : null,
         ends_mmdd_key: endsBirthday
           ? Number(
-              (endsBirthday.month() + 1).toString().padStart(2, "0") +
-                endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-            )
+            (endsBirthday.month() + 1).toString().padStart(2, "0") +
+            endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+          )
           : null,
       };
     } else {
@@ -159,18 +159,18 @@ const PromoCodeUpdate = () => {
       body.prerequisite_wedding_duration = {
         starts_mmdd_key: startsWeddingDays
           ? Number(
-              (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
-                startsWeddingDays
-                  .format(DATE_FORMAT.DDMM)
-                  .substring(0, 2)
-                  .padStart(2, "0")
-            )
+            (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
+            startsWeddingDays
+              .format(DATE_FORMAT.DDMM)
+              .substring(0, 2)
+              .padStart(2, "0")
+          )
           : null,
         ends_mmdd_key: endsWeddingDays
           ? Number(
-              (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
-                endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-            )
+            (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
+            endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+          )
           : null,
       };
     } else {
@@ -282,7 +282,7 @@ const PromoCodeUpdate = () => {
         });
       });
     }
-    
+
     return result;
   };
 
@@ -312,12 +312,10 @@ const PromoCodeUpdate = () => {
     }
   }, [dataVariants, dataDiscount, mergeVariants]);
 
-  useEffect(() => {
-    dispatch(getVariants(idNumber, setDataVariants));
-  }, [dispatch, idNumber]);
-
+  // Action: Lấy thông tin khuyến mãi
   useEffect(() => {
     setLoading(true);
+    dispatch(getVariants(idNumber, setDataVariants));
     dispatch(promoGetDetail(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 

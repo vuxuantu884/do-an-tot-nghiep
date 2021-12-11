@@ -25,6 +25,8 @@ import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
 import {MenuAction} from "component/table/ActionButton";
 import {Link} from "react-router-dom";
 import {showError, showSuccess} from "utils/ToastUtils";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -41,24 +43,6 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   to_date: "",
 };
 
-const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "In biên bản đầy đủ ",
-    icon: <PrinterOutlined />,
-  },
-  {
-    id: 2,
-    name: "In biên bản rút gọn ",
-    icon: <PrinterOutlined />,
-  },
-  {
-    id: 3,
-    name: "Xóa",
-    icon: <DeleteOutlined />,
-    color: "#E24343",
-  },
-];
 
 type PackReportHandOverProps = {
   query: any;
@@ -77,6 +61,30 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     ...initQueryGoodsReceipts,
     ...getQueryParams(query),
   };
+  const [allowDeleteGoodsReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.DELETE_GOODS_RECEIPT],
+    not: false,
+  });
+
+  const actions: Array<MenuAction> = [
+    {
+      id: 1,
+      name: "In biên bản đầy đủ ",
+      icon: <PrinterOutlined />,
+    },
+    {
+      id: 2,
+      name: "In biên bản rút gọn ",
+      icon: <PrinterOutlined />,
+    },
+    {
+      id: 3,
+      name: "Xóa",
+      icon: <DeleteOutlined />,
+      color: allowDeleteGoodsReceipt ? "#E24343" : "rgba(0,0,0,.25)",
+      disabled: !allowDeleteGoodsReceipt
+    },
+  ];
 
   let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(dataQuery);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);

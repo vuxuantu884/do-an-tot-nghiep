@@ -30,6 +30,8 @@ import {OrderPackContext} from "contexts/order-pack/order-pack-context";
 import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
@@ -63,9 +65,10 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
 
-  // const loadingFilter = useMemo(() => {
-  //   return isLoading ? true : false;
-  // }, [isLoading]);
+  const [allowCreateGoodsReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+    not: false,
+  });
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
@@ -295,6 +298,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
               <Space size={12} style={{marginLeft: "10px"}}>
                 <ButtonCreate
                   path={`${UrlConfig.PACK_SUPPORT}/report-hand-over-create`}
+                  disabled={!allowCreateGoodsReceipt}
                 />
               </Space>
             </div>
