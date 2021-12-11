@@ -8,7 +8,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MenuAction } from "component/table/ActionButton";
 import OrderDuplicateFilter from "component/filter/order-duplicate.filter";
 import ButtonCreate from "component/header/ButtonCreate";
-import { CustomerDuplicateModel } from "model/duplicate/duplicate.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { Link, useHistory } from "react-router-dom";
@@ -20,6 +19,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { DuplicateOrderSearchQuery } from "model/order/order.model";
 import { generateQuery } from "utils/AppUtils";
 import { getOrderDuplicateAction } from "domain/actions/order/order-duplicate.action";
+import { CustomerDuplicateModel } from "model/order/duplicate.model";
 
 const ACTION_ID = {
   printShipment: 4,
@@ -37,9 +37,9 @@ const actions: Array<MenuAction> = [
 const initQuery:DuplicateOrderSearchQuery={
   page: 1,
   limit: 30,
-  form_date:"",
-  to_date:"",
-  info:"",
+  issued_on_min:"",
+  issued_on_max:"",
+  search_term:"",
   store_id:null
 }
 
@@ -60,50 +60,7 @@ const CustomerDuplicate: React.FC = () => {
   const tableLoading=false;
   const [listStore, setStore] = useState<Array<StoreResponse>>();
 
-  const dataTest: CustomerDuplicateModel[] = [
-    {
-      key: 0,
-      id: 1,
-      code: "code1",
-      customer: "name 1",
-      customer_phone_number: "0965143609",
-      customer_city:"",
-      customer_district:"",
-      customer_ward:"",
-      customer_full_address: "address1",
-      store_id: 1,
-      store: "store_name1",
-      order_number: 2
-    },
-    {
-      key: 1,
-      id: 2,
-      code: "code2",
-      customer: "name 2",
-      customer_phone_number: "0965143609",
-      customer_city:"",
-      customer_district:"",
-      customer_ward:"",
-      customer_full_address: "address1",
-      store_id: 1,
-      store: "store_name1",
-      order_number: 2
-    },
-    {
-      key: 2,
-      id: 3,
-      code: "code3",
-      customer: "name 3",
-      customer_phone_number: "0965143609",
-      customer_city:"",
-      customer_district:"",
-      customer_ward:"",
-      customer_full_address: "address3",
-      store_id: 1,
-      store: "store_name1",
-      order_number: 2
-    }
-  ];
+  const dataTest: CustomerDuplicateModel[] = [];
 
   const [data, setData] = useState<PageResponse<CustomerDuplicateModel>>({
     metadata: {
@@ -139,7 +96,7 @@ const CustomerDuplicate: React.FC = () => {
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${i.id}`}>
+            <Link target="_blank" to={`${UrlConfig.ORDERS_DUPLICATE}/${value}`}>
               {value}
             </Link>
           </React.Fragment>
@@ -178,7 +135,7 @@ const CustomerDuplicate: React.FC = () => {
     },
     {
       title: "Tổng số đơn",
-      dataIndex: "order_number",
+      dataIndex: "count_order",
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>{value}</React.Fragment>
@@ -232,9 +189,26 @@ const CustomerDuplicate: React.FC = () => {
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
-    dispatch(getOrderDuplicateAction(params,setData))
+    dispatch(getOrderDuplicateAction(params,(data: PageResponse<CustomerDuplicateModel>)=>{
+      let result:PageResponse<CustomerDuplicateModel>={
+        metadata: {
+          limit: 30,
+          page: 1,
+          total: 3,
+        },
+        items: [],
+      }
+      data.items.forEach(function(item, index){
+        result.items.push({
+          ...item,
+          key:index
+        })
+      })
+      setData(result);
+    }))
   }, [dispatch,params]);
 
+  console.log("data",data)
   return (
     <ContentContainer
       title="Đơn trùng"
@@ -304,7 +278,7 @@ const CustomerDuplicate: React.FC = () => {
 
           dataSource={data.items}
           columns={columnFinal}
-          rowKey={(item: CustomerDuplicateModel) => item.id}
+          rowKey={(item: CustomerDuplicateModel) => item.key}
           className="order-list"
         />
       </Card>

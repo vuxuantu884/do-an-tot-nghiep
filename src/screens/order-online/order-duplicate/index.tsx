@@ -34,7 +34,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -53,6 +53,10 @@ const ACTION_ID = {
     mergeOrder: 1,
 	cancelOrder: 2
 }
+
+type DuplicateParam = {
+  customer_phone: string;
+};
 
 const actions: Array<MenuAction> = [
   {
@@ -116,6 +120,8 @@ const initQuery: OrderSearchQuery = {
 };
 
 const OrderDuplicate: React.FC = () => {
+  const {customer_phone}=useParams<DuplicateParam>();
+  console.log("customer_phone",customer_phone);
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -750,9 +756,9 @@ const OrderDuplicate: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
+      history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
     },
-    [history, params]
+    [history, params,customer_phone]
   );
   const onFilter = useCallback(
     (values) => {
@@ -760,15 +766,15 @@ const OrderDuplicate: React.FC = () => {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       setIsFilter(true)
-      history.push(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
+      history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
     },
-    [history, params]
+    [history, params,customer_phone]
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
-  }, [history]);
+    history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
+  }, [history,customer_phone]);
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
@@ -937,8 +943,8 @@ const OrderDuplicate: React.FC = () => {
 
   useEffect(() => {
     setTableLoading(true);
-    dispatch(getListOrderAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult]);
+    dispatch(getListOrderAction({...params,search_term:params.search_term&&params.search_term.length>0?params.search_term:customer_phone}, setSearchResult));
+  }, [dispatch, params, setSearchResult,customer_phone]);
 
   useEffect(() => {
     console.log('data change', data);

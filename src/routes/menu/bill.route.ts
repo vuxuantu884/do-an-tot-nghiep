@@ -144,7 +144,7 @@ const bill: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.ORDERS_DUPLICATE}/order`,
+        path: `${UrlConfig.ORDERS_DUPLICATE}/order/:customer_phone`,
         exact: true,
         title: "Danh sách đơn trùng",
         icon: "icon-dot",

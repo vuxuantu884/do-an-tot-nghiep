@@ -9,5 +9,5 @@ export interface CustomerDuplicateModel extends BaseObject{
     customer_full_address:string;
     store_id:number;
     store:string;
-    order_number:number;
+    count_order:number;
 }
