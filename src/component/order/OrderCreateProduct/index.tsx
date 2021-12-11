@@ -1185,9 +1185,9 @@ function OrderCreateProduct(props: PropType) {
       checkingDiscountResponse.data.line_items.length > 0
     ) {
       let result = getApplyDiscountLineItem(checkingDiscountResponse, items);
+      handleApplyDiscountOrder(checkingDiscountResponse, items);
       setItems(result);
       handleChangeItems(result);
-      handleApplyDiscountOrder(checkingDiscountResponse, items);
       console.log("result", result);
       showSuccess("Cập nhật chiết khấu tự động thành công!");
     } else {
@@ -1699,8 +1699,6 @@ function OrderCreateProduct(props: PropType) {
       lineItem.discount_rate = 0;
       lineItem.discount_value = 0;
     });
-    await setItems(_items);
-    await handleChangeItems(_items);
     showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
   };
 
