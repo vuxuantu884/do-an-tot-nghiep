@@ -50,6 +50,7 @@ export interface DiscountResponse extends BaseObject {
   prerequisite_customer_loyalty_level_ids?: Array<number>;
   prerequisite_assignee_codes?: Array<string>;
   rule?: DiscountRule;
+  quantity_limit?: number;
 }
 
 export interface PrerequisiteSubtotalRange {

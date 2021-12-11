@@ -239,7 +239,7 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         {/* Tạm thời bỏ giới hạn số lượng */}
-        <Col span={7} style={{display: "none"}}>
+        {/* <Col span={7} style={{display: "none"}}>
           <Form.Item
             name={[name, "prerequisite_quantity_ranges.allocation_limit"]}
             label={
@@ -258,7 +258,7 @@ const FixedPriceGroup = (props: any) => {
           >
             <NumberInput key={`${key}-usage`} min={0} />
           </Form.Item>
-        </Col>
+        </Col> */}
         <Col span={9}>
           <Input.Group compact style={{display: "flex", alignItems: "stretch"}}>
             <DiscountMethodStyled>
