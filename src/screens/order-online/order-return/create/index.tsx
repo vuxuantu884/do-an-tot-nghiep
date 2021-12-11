@@ -180,7 +180,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [listStoreReturn, setListStoreReturn]=useState<StoreResponse[]>([]);
 
   const [coupon, setCoupon] = useState<string>("");
-  const [promotionId, setPromotionId] = useState<number|null>(null);
+  const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -876,47 +876,47 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   const createDiscountRequest = () => {
-    let objDiscount: OrderDiscountRequest = {
-      rate: discountRate,
-      value: discountValue,
-      amount: discountValue,
-      promotion_id: null,
-      reason: "",
-      source: "",
-      discount_code: coupon,
-      order_id: null,
-    };
-    let listDiscountRequest = [];
-    if (coupon) {
-      listDiscountRequest.push({
-        discount_code: coupon,
-          rate: discountRate,
-        value: discountValue,
-        amount: discountValue,
-        promotion_id: null,
-        reason: "",
-        source: "",
-        order_id: null,
-      });
-    } else if(promotionId) {
-      listDiscountRequest.push({
-        discount_code: null,
-        rate: discountRate,
-        value: discountValue,
-        amount: discountValue,
-        promotion_id: promotionId,
-        reason: "",
-        source: "",
-        order_id: null,
-      });
-    }  else if (discountRate === 0 && discountValue === 0) {
-      return null;
-    } else {
-      listDiscountRequest.push(objDiscount);
-    }
-    
-    return listDiscountRequest;
-  };
+		let objDiscount: OrderDiscountRequest = {
+			rate: promotion?.rate,
+			value: promotion?.value,
+			amount: promotion?.value,
+			promotion_id: null,
+			reason: "",
+			source: "",
+			discount_code: coupon,
+			order_id: null,
+		};
+		let listDiscountRequest = [];
+		if (coupon) {
+			listDiscountRequest.push({
+				discount_code: coupon,
+				rate: promotion?.rate,
+				value: promotion?.value,
+				amount: promotion?.value,
+				promotion_id: null,
+				reason: "",
+				source: "",
+				order_id: null,
+			});
+		} else if (promotion?.promotion_id) {
+			listDiscountRequest.push({
+				discount_code: null,
+				rate: promotion?.rate,
+				value: promotion?.value,
+				amount: promotion?.value,
+				promotion_id: promotion?.promotion_id,
+				reason: promotion.reason,
+				source: "",
+				order_id: null,
+			});
+		} else if (!promotion) {
+			return null;
+		} else {
+			listDiscountRequest.push(objDiscount);
+		}
+
+		return listDiscountRequest;
+	};
 
   const handleCancel = () => {
     history.push(`${UrlConfig.ORDER}/${orderId}`);
@@ -1004,14 +1004,10 @@ const ScreenReturnCreate = (props: PropType) => {
 											totalAmountExchangePlusShippingFee
                     }}
                     configOrder={configOrder}
-                    discountRate={discountRate}
-                    setDiscountRate={setDiscountRate}
-                    discountValue={discountValue}
-                    setDiscountValue={setDiscountValue}
                     coupon={coupon}
                     setCoupon={setCoupon}
-                    promotionId={promotionId}
-                    setPromotionId={setPromotionId}
+                    promotion={promotion}
+                    setPromotion={setPromotion}
                     customer={customer}
                     loyaltyPoint={loyaltyPoint}
                   />

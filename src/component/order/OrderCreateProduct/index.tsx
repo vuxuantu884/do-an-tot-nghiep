@@ -47,6 +47,7 @@ import { OrderItemDiscountModel } from "model/other/order/order-model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
+	OrderDiscountRequest,
 	OrderItemDiscountRequest,
 	OrderLineItemRequest,
 	SplitOrderRequest
@@ -110,14 +111,12 @@ type PropType = {
   items?: Array<OrderLineItemRequest>;
   shippingFeeInformedToCustomer: number | null;
   form: FormInstance<any>;
-  discountRate?: number;
-  discountValue?: number;
   totalAmountCustomerNeedToPay: number;
   orderConfig: OrderConfigResponseModel | null | undefined;
   inventoryResponse: Array<InventoryResponse> | null;
   levelOrder?: number;
   coupon?: string;
-  promotionId: number | null;
+  promotion: OrderDiscountRequest | null
   orderSourceId?: number | null;
   updateOrder?: boolean;
   isSplitOrder?: boolean;
@@ -127,7 +126,7 @@ type PropType = {
 	loyaltyPoint: LoyaltyPoint | null;
   setStoreId: (item: number) => void;
   setCoupon?: (item: string) => void;
-  setPromotionId?: (item: number|null) => void;
+  setPromotion?: (item: OrderDiscountRequest | null) => void;
   setItemGift: (item: []) => void;
   changeInfo: (
     items: Array<OrderLineItemRequest>,
@@ -136,8 +135,6 @@ type PropType = {
     discount_value: number
   ) => void;
   setItems: (items: Array<OrderLineItemRequest>) => void;
-  setDiscountRate?: (value: number) => void;
-  setDiscountValue?: (value: number) => void;
   setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   fetchData?: () => void;
   returnOrderInformation?: {
@@ -203,8 +200,6 @@ function OrderCreateProduct(props: PropType) {
   const {
     form,
     items,
-    discountRate = 0,
-    discountValue = 0,
     storeId,
     inventoryResponse,
     levelOrder = 0,
@@ -219,14 +214,12 @@ function OrderCreateProduct(props: PropType) {
     customer,
     configOrder,
     loyaltyPoint,
-    promotionId,
+    promotion,
     setStoreId,
     setItems,
     fetchData,
-    setDiscountValue,
-    setDiscountRate,
     setCoupon,
-    setPromotionId,
+    setPromotion,
   } = props;
   const dispatch = useDispatch();
   const [loadingAutomaticDiscount] = useState(false);
@@ -280,6 +273,9 @@ function OrderCreateProduct(props: PropType) {
 
   const isShouldUpdateCouponRef = useRef(orderDetail ? false : true);
   const isShouldUpdateDiscountRef = useRef(orderDetail ? false : true);
+
+	let discountRate = promotion?.rate || 0;
+	let discountValue = promotion?.value || 0;
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -592,6 +588,19 @@ function OrderCreateProduct(props: PropType) {
     return options;
   }, [resultSearchVariant]);
 
+	
+
+	const checkIfLineItemHasAutomaticDiscount = (lineItem: OrderLineItemRequest) => {
+    return lineItem.discount_items.some((discount) => discount.promotion_id);
+  };
+
+	const checkIfOrderHasAutomaticDiscount = () => {
+		if(promotion && promotion.promotion_id) {
+			return true;
+		}
+		return false ;
+	};
+
   const ProductColumn = {
     title: () => (
       <div className="text-center">
@@ -748,7 +757,7 @@ function OrderCreateProduct(props: PropType) {
               onChangePrice(value, index);
             }}
             // disabled={levelOrder > 3 || isAutomaticDiscount}
-            disabled={levelOrder > 3 || typeof(l.discount_items[0]?.promotion_id) !== "undefined" || couponInputText !== "" || promotionId !== null }
+            disabled={levelOrder > 3 || checkIfLineItemHasAutomaticDiscount(l) || couponInputText !== "" || promotion !== null }
           />
         </div>
       );
@@ -765,6 +774,7 @@ function OrderCreateProduct(props: PropType) {
     width: "20%",
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
+			console.log('promotion', promotion)
       return (
         <div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup">
           <DiscountGroup
@@ -776,7 +786,7 @@ function OrderCreateProduct(props: PropType) {
             items={items}
             handleCardItems={onDiscountItem}
             // disabled={levelOrder > 3 || isAutomaticDiscount || couponInputText !== ""}
-            disabled={levelOrder > 3 || typeof(l.discount_items[0]?.promotion_id) !== "undefined" || couponInputText !== "" || promotionId !== null }
+            disabled={levelOrder > 3 || checkIfLineItemHasAutomaticDiscount(l) || couponInputText !== "" || checkIfOrderHasAutomaticDiscount() }
           />
         </div>
       );
@@ -898,7 +908,6 @@ function OrderCreateProduct(props: PropType) {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
-    const discountItem: OrderItemDiscountModel = createNewDiscountItem();
     let orderLine: OrderLineItemRequest = {
       id: new Date().getTime(),
       sku: variant.sku,
@@ -918,7 +927,7 @@ function OrderCreateProduct(props: PropType) {
       weight: variant.weight,
       weight_unit: variant.weight_unit,
       warranty: variant.product.preservation,
-      discount_items: [discountItem],
+      discount_items: [],
       discount_amount: 0,
       discount_rate: 0,
       composite: variant.composite,
@@ -937,16 +946,6 @@ function OrderCreateProduct(props: PropType) {
     return orderLine;
   };
 
-  const createNewDiscountItem = () => {
-    const newDiscountItem: OrderItemDiscountModel = {
-      amount: 0,
-      rate: 0,
-      reason: "",
-      value: 0,
-    };
-    return newDiscountItem;
-  };
-
   const removeDiscountItem = (item: OrderLineItemRequest) => {
     item.discount_amount = 0;
     item.discount_rate = 0;
@@ -959,6 +958,8 @@ function OrderCreateProduct(props: PropType) {
     if (!items) {
       return;
     }
+		let discountRate = promotion?.rate || 0;
+		let discountValue = promotion?.value || 0;
     let _items = [...items];
     let _amount = amount - _items[index].line_amount_after_line_discount;
     setAmount(_amount);
@@ -1094,11 +1095,12 @@ function OrderCreateProduct(props: PropType) {
   const handleApplyDiscountOrder = (
     checkingDiscountResponse: BaseResponse<ApplyCouponResponseModel>, 
 		items: OrderLineItemRequest[] | undefined,
-		totalLineAmountAfterDiscount: number,
   ) => {
     if (!items) {
       return;
     }
+		handleRemoveAllDiscount();
+		let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
     let discountOrder = checkingDiscountResponse.data.suggested_discounts[0];
     if (discountOrder) {
       if (!discountOrder?.value) {
@@ -1123,10 +1125,13 @@ function OrderCreateProduct(props: PropType) {
 					discountAmount = totalLineAmountAfterDiscount
 				}
 				let discountRate = (discountAmount / totalLineAmountAfterDiscount) * 100;
-				setDiscountValue && setDiscountValue(discountAmount);
-				setDiscountRate && setDiscountRate(discountRate);
 				if(discountOrder.price_rule_id) {
-					setPromotionId && setPromotionId(discountOrder.price_rule_id);
+					setPromotion && setPromotion({
+						promotion_id: discountOrder.price_rule_id,
+						reason: discountOrder.title,
+						value: discountAmount,
+						rate: discountRate,
+					});
 				}
 			}
     }
@@ -1182,8 +1187,7 @@ function OrderCreateProduct(props: PropType) {
       let result = getApplyDiscountLineItem(checkingDiscountResponse, items);
       setItems(result);
       handleChangeItems(result);
-			let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(result);
-      handleApplyDiscountOrder(checkingDiscountResponse, items, totalLineAmountAfterDiscount);
+      handleApplyDiscountOrder(checkingDiscountResponse, items);
       console.log("result", result);
       showSuccess("Cập nhật chiết khấu tự động thành công!");
     } else {
@@ -1274,28 +1278,36 @@ function OrderCreateProduct(props: PropType) {
                 switch (couponType) {
                   case DISCOUNT_VALUE_TYPE.percentage:
                     if (applyDiscountResponse.value) {
-                      setDiscountRate && setDiscountRate(applyDiscountResponse.value);
-                      setDiscountValue &&
-                        setDiscountValue(
-                          (applyDiscountResponse.value / 100) * getTotalAmount(_items)
-                        );
+											setPromotion && setPromotion({
+												amount: applyDiscountResponse.value,
+												discount_code: applyDiscountResponse.code,
+												promotion_id: null,
+												rate: applyDiscountResponse.value,
+												value: (applyDiscountResponse.value / 100) * getTotalAmount(_items),
+											})
                     }
                     break;
                   case DISCOUNT_VALUE_TYPE.fixedAmount:
                     if (applyDiscountResponse.value) {
-                      setDiscountValue && setDiscountValue(applyDiscountResponse.value);
-                      setDiscountRate &&
-                        setDiscountRate(
-                          (applyDiscountResponse.value / getTotalAmount(_items)) * 100
-                        );
+											setPromotion && setPromotion({
+												amount: applyDiscountResponse.value,
+												discount_code: applyDiscountResponse.code,
+												promotion_id: null,
+												rate: (applyDiscountResponse.value / getTotalAmount(_items)) * 100,
+												value: applyDiscountResponse.value,
+											})
                     }
                     break;
                   case DISCOUNT_VALUE_TYPE.fixedPrice:
                     if (applyDiscountResponse.value) {
                       let value = amount - applyDiscountResponse.value;
-                      setDiscountValue && setDiscountValue(value);
-                      setDiscountRate &&
-                        setDiscountRate((value / getTotalAmount(_items)) * 100);
+											setPromotion && setPromotion({
+												amount: applyDiscountResponse.value,
+												discount_code: applyDiscountResponse.code,
+												promotion_id: null,
+												rate: (value / getTotalAmount(_items)) * 100,
+												value: value,
+											})
                     }
                     break;
                   // default là chiết khấu theo line
@@ -1393,10 +1405,10 @@ function OrderCreateProduct(props: PropType) {
       if (r.id === newV && checkInventory(item) === true) {
         if (splitLine || index === -1) {
           _items.unshift(item);
-          setAmount(amount + (item.price - item.discount_items[0].amount));
+          setAmount(amount + (item.price - (item.discount_items[0]?.amount? item.discount_items[0].amount : 0)));
           calculateChangeMoney(
             _items,
-            amount + item.price - item.discount_items[0].amount,
+            amount + item.price - (item.discount_items[0]?.amount? item.discount_items[0].amount : 0),
             discountRate,
             discountValue
           );
@@ -1634,12 +1646,14 @@ function OrderCreateProduct(props: PropType) {
 		if (!items || items.length === 0) {
       return;
     }
-		if(promotionId) {
-			setPromotionId && setPromotionId(null)
+		setPromotion && setPromotion(null)
+		if(couponInputText) {
+			setCoupon && setCoupon("");
+			setCouponInputText("");
 		}
     let _items = [...items];
     _items.forEach((lineItem) => {
-      if(lineItem.discount_items[0]?.promotion_id) {
+      if(lineItem.discount_items[0]?.promotion_id || couponInputText) {
 				lineItem.discount_amount = 0;
 				lineItem.discount_items = lineItem.discount_items.map((discount) => {
 					return {
@@ -1665,6 +1679,10 @@ function OrderCreateProduct(props: PropType) {
     if (!items || items.length === 0) {
       return;
     }
+		if(couponInputText) {
+			setCoupon && setCoupon("");
+			setCouponInputText("");
+		}
     let _items = [...items];
     _items.forEach((lineItem) => {
       lineItem.discount_amount = 0;
@@ -2075,10 +2093,8 @@ function OrderCreateProduct(props: PropType) {
             calculateChangeMoney={calculateChangeMoney}
             changeMoney={changeMoney}
             setCoupon={setCoupon}
-            discountRate={discountRate}
-            discountValue={discountValue}
-            setDiscountRate={setDiscountRate}
-            setDiscountValue={setDiscountValue}
+            promotion={promotion}
+            setPromotion={setPromotion}
             showDiscountModal={() => setVisiblePickDiscount(true)}
             showCouponModal={() => setIsVisiblePickCoupon(true)}
             orderAmount={amount}
@@ -2096,7 +2112,7 @@ function OrderCreateProduct(props: PropType) {
             }
           />
         )}
-        {setDiscountValue && setDiscountRate && (
+        {setPromotion && (
           <React.Fragment>
             <PickDiscountModal
               amount={amount}
