@@ -78,7 +78,7 @@ const CustomerDuplicate: React.FC = () => {
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${i.id}`}>
+            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}`}>
               {value}
             </Link>
           </React.Fragment>
@@ -96,7 +96,7 @@ const CustomerDuplicate: React.FC = () => {
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.ORDERS_DUPLICATE}/${value}`}>
+            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}`}>
               {value}
             </Link>
           </React.Fragment>
