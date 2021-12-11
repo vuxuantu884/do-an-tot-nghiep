@@ -284,6 +284,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   
   const onFinish = useCallback(
     (values) => {
+      console.log("values Filter",values)
       let error = false;
       formRef?.current?.getFieldsError([
         'issued_on_min', 'issued_on_max',

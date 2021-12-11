@@ -22,14 +22,19 @@ import {StoreGetListAction} from "domain/actions/core/store.action";
 import {GoodsReceiptsTypeResponse} from "model/response/pack/pack.response";
 import {getGoodsReceiptsType} from "domain/actions/goods-receipts/goods-receipts.action";
 import PackReportHandOverCopy from "./pack-support/pack-report-hand-over-copy";
-import {useQuery} from "utils/useQuery";
+import {getQueryParams, useQuery} from "utils/useQuery";
 import "assets/css/_pack.scss";
+import { useHistory } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
 
 const {TabPane} = Tabs;
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
   const query = useQuery();
+  const newParam:any=getQueryParams(query);
+  const history = useHistory();
+  console.log("query",getQueryParams(query))
   //useState
 
   const [data, setData] = useState<PageResponse<any>>({
@@ -65,36 +70,34 @@ const PackSupportScreen: React.FC = () => {
     setData,
   };
 
-  // useEffect(() => {
-  //   dispatch(loadOrderPackAction(setData));
-  // }, [dispatch]);
-
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setListThirdPartyLogistics(response);
       })
     );
-  }, [dispatch]);
 
-  useEffect(() => {
     dispatch(getGoodsReceiptsType(setListGoodsReceiptsType));
-  }, [dispatch]);
 
-  useEffect(() => {
     dispatch(
       getChannels(2, (data: ChannelsResponse[]) => {
         setListChannels(data);
       })
     );
+
+    dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
+  
   useLayoutEffect(() => {
-    dispatch(StoreGetListAction(setListStores));
-  }, [dispatch, setListStores]);
-
+    setActiveTab(newParam.tab);
+  }, [newParam.tab]);
+  
   const handleClickTab = (value: string) => {
     setActiveTab(value);
+    
+    let queryParam = generateQuery({...newParam,tab:value});
+    history.push(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
   };
 
   return (
