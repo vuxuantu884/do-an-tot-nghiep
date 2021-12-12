@@ -141,7 +141,7 @@ const menu: Array<RouteMenu> = [
     icon: 'icon-sale',
     component: null,
     key: "4",
-    isShow: false,
+    isShow: true,
     header: null,
     subMenu: [],
     permissions: [ODERS_PERMISSIONS.READ_POS],
