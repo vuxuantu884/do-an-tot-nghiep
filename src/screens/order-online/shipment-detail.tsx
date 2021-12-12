@@ -29,6 +29,7 @@ const ShipmentDetail: React.FC = () => {
   // const [isError, setError] = useState<boolean>(false);
   const [fulfillmentDetail, setFulfillmentDetail] = useState<any>({});
   const [orderItems, setOrderItems] = useState([]);
+  const [itemTotal, setItemTotal] = useState<any>({});
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
   const status_order = [
@@ -75,19 +76,29 @@ const ShipmentDetail: React.FC = () => {
         </div>
       ),
       visible: true,
-      width: "40%",
+      width: "35%",
     },
     {
       title: "Số lượng",
       dataIndex: "quantity",
       visible: true,
-      align: 'center'
+      align: 'right',
+      width: "15%",
     },
     {
       title: <span><span>Đơn giá </span><span style={{ color: '#737373', fontWeight: 400 }}> đ</span></span>,
       dataIndex: "price",
+      render: (price: number) => (
+        <NumberFormat
+          value={price}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      ),
       visible: true,
-      align: 'right'
+      align: 'right',
+      width: "15%",
     },
     {
       title: "Chiết khấu",
@@ -104,7 +115,8 @@ const ShipmentDetail: React.FC = () => {
         </div>
       ),
       visible: true,
-      align: 'right'
+      align: 'right',
+      width: "15%",
     },
     {
       title: <span><span>Thành tiền </span><span style={{ color: '#737373', fontWeight: 400 }}> đ</span></span>,
@@ -117,7 +129,8 @@ const ShipmentDetail: React.FC = () => {
         />
       ),
       visible: true,
-      align: 'right'
+      align: 'right',
+      width: "20%",
     },
   ]);
   useEffect(() => {
@@ -151,8 +164,26 @@ const ShipmentDetail: React.FC = () => {
             discount_rate += discount.rate;
           })
 
+          let quantityTotal = 0;
+          let amountTotal = 0;
+          let discountTotal = 0;
+          let afterDiscountTotal = 0;
+          mapItems.forEach((item: any) => {
+            quantityTotal += item.quantity;
+            amountTotal += item.price * item.quantity;
+            discountTotal += item.discount_amount;
+          })
+
+          afterDiscountTotal = amountTotal - discountTotal
+
           console.log('mapItems', mapItems);
           setOrderItems(mapItems);
+          setItemTotal({
+            quantityTotal,
+            amountTotal,
+            discountTotal,
+            afterDiscountTotal
+          })
           setFulfillmentDetail({
             ...data,
             status_name: status?.name,
@@ -195,13 +226,26 @@ const ShipmentDetail: React.FC = () => {
             title={
               <div className="title">
                 <span><span>MÃ VẬN ĐƠN:</span><span style={{ color: '#2A2A86' }}> {fulfillmentDetail?.shipment?.tracking_code}</span></span>
-                <span><span>Trạng thái:</span><span style={{ color: fulfillmentDetail?.status_color }}> {fulfillmentDetail?.status_name}</span></span>
-                <Button
-                  type="primary"
-                  className="create-button-custom"
-                >
-                  Đẩy lại đơn HVC
-                </Button>
+                <span>
+                  <span>Trạng thái:</span>
+                  <span style={{ color: fulfillmentDetail?.status_color }}>
+                      {fulfillmentDetail.shipment.pushing_status === 'completed' ? fulfillmentDetail?.status_name : 'Đẩy đơn hvc thất bại'}
+                  </span>
+                </span>
+                <span style={{ minWidth: 100 }}>
+                  {fulfillmentDetail.shipment.pushing_status !== 'completed' && <Button
+                    type="primary"
+                    className="create-button-custom"
+                  >
+                    Đẩy lại đơn HVC
+                  </Button>}
+                  {fulfillmentDetail.shipment.status === 'completed' && <Button
+                    type="primary"
+                    className="create-button-custom"
+                  >
+                    Nhận hàng
+                  </Button>}
+                </span>
               </div>
             }
             className="fulfillment-info"
@@ -282,11 +326,54 @@ const ShipmentDetail: React.FC = () => {
               pagination={false}
               style={{ width: '100%' }}
             />
-            <Row gutter={16} style={{ justifyContent: 'end', width: '100%' }}>
-              <div style={{ width: '50%' }}>
+            <Row style={{ justifyContent: 'end', width: '100%' }}>
+              <div style={{ display: 'flex', width: '100%', borderBottom: '1px solid #E5E5E5' }}>
+                <span style={{ width: '35%', padding: 16, fontWeight: 700 }}>TỔNG</span>
+                <span style={{ width: '15%', padding: 16 }}>
+                  <span style={{ float: 'right' }}>
+                    <NumberFormat
+                      value={itemTotal.quantityTotal ? itemTotal.quantityTotal : 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </span>
+                </span>
+                <span style={{ width: '15%', padding: 16 }}>
+                  <span style={{ float: 'right' }}>
+                    <NumberFormat
+                      value={itemTotal.amountTotal ? itemTotal.amountTotal : 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </span>
+                </span>
+                <span style={{ width: '15%', padding: 16 }}>
+                  <span style={{ float: 'right' }}>
+                    <NumberFormat
+                      value={itemTotal.discountTotal ? itemTotal.discountTotal : 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </span>
+                </span>
+                <span style={{ width: '20%', padding: 16, fontWeight: 700 }}>
+                  <span style={{ float: 'right' }}>
+                    <NumberFormat
+                      value={itemTotal.afterDiscountTotal ? itemTotal.afterDiscountTotal : 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </span>
+                </span>
+              </div>
+              <div style={{ width: '50%', padding: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px', marginTop: '20px' }}>
                   <div>Tổng tiền:</div>
-                  <div style={{ color: "#2A2A86" }}>
+                  <div>
                     <NumberFormat
                       value={fulfillmentDetail.total_line_amount_after_line_discount}
                       className="foo"
@@ -297,7 +384,7 @@ const ShipmentDetail: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
                   <div>Chiết khấu:</div>
-                  <div style={{ color: "#2A2A86" }}>
+                  <div>
                     <NumberFormat
                       value={fulfillmentDetail.discount_amount ? fulfillmentDetail.discount_amount : 0}
                       className="foo"
@@ -310,7 +397,7 @@ const ShipmentDetail: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
                   <div>Mã giảm giá:</div>
-                  <div style={{ color: "#2A2A86" }}>
+                  <div>
                     <NumberFormat
                       value={0}
                       className="foo"
@@ -321,7 +408,7 @@ const ShipmentDetail: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
                   <div>Phí ship báo khách:</div>
-                  <div style={{ color: "#2A2A86" }}>
+                  <div>
                     <NumberFormat
                       value={fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer ? fulfillmentDetail.shipment.shipping_fee_informed_to_customer : 0}
                       className="foo"
@@ -332,8 +419,8 @@ const ShipmentDetail: React.FC = () => {
                 </div>
                 <Divider style={{ marginTop: 0 }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
-                  <div style={{ color: "#2A2A86" }}>Khách cần phải trả:</div>
-                  <div style={{ color: "#2A2A86", fontSize: 18 }}>
+                  <div>Khách cần phải trả:</div>
+                  <div style={{ color: "#2A2A86", fontSize: 18, fontWeight: 700 }}>
                     <NumberFormat
                       value={fulfillmentDetail?.order?.total ? fulfillmentDetail.order.total : 0}
                       className="foo"

@@ -18,6 +18,7 @@ import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
@@ -1496,18 +1497,23 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
             <React.Fragment>
               {!checkIfOrderHasReturnedAll(OrderDetail) ? (
+                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
+                  {(isPassed: boolean) => 
                   <Button
-                  type="primary"
-                  style={{margin: "0 10px", padding: "0 25px"}}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  onClick={() => {
-                    history.push(
-                      `${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}`
-                    );
-                  }}
-                >
+                    type="primary"
+                    style={{margin: "0 10px", padding: "0 25px"}}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    onClick={() => {
+                      history.push(
+                        `${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}`
+                      );
+                    }}
+                    disabled={!isPassed}
+                  >
                   Đổi trả hàng
-                </Button>
+                </Button>}
+                </AuthWrapper>
+                
                 ) : (
                   <Button
                   type="primary"
