@@ -3,7 +3,7 @@ import CustomInput from 'component/custom/custom-input';
 import _ from 'lodash';
 import { DiscountFormModel, DiscountMethod } from 'model/promotion/discount.create.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
-import { priorityOptions } from '../components/general.info';
+import { priorityOptions } from '../constants';
 import { DiscountUpdateContext } from './discount-update-provider';
 import FixedPriceSelectionUpdate from './fixed-price-selection.update';
 import TotalBillDiscountUpdate from './total-bill-discount-update';

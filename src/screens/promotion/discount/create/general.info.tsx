@@ -18,88 +18,17 @@ import CustomerFilter from "screens/promotion/shared/cusomer-condition.form";
 import {DATE_FORMAT} from "../../../../utils/DateUtils";
 import CustomInput from "../../../customer/common/customInput";
 import "../discount.scss";
-import FixedPriceSelection from "./FixedPriceSelection";
+import FixedPriceSelection from "./fixed-price-selection";
 import TotalBillDiscount from "./total-bill-discount";
 import _ from "lodash";
+import { getDayOptions } from "utils/PromotionUtils";
+import { dayOfWeekOptions, priorityOptions } from "../constants";
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
 
-export const priorityOptions = [
-  {
-    value: 1,
-    label: "Số 1 (cao nhất)",
-  },
-  {
-    value: 2,
-    label: "Số 2",
-  },
-  {
-    value: 3,
-    label: "Số 3",
-  },
-  {
-    value: 4,
-    label: "Số 4",
-  },
-  {
-    value: 5,
-    label: "Số 5",
-  },
-  {
-    value: 6,
-    label: "Số 6",
-  },
-  {
-    value: 7,
-    label: "Số 7",
-  },
-  {
-    value: 8,
-    label: "Số 8",
-  },
-  {
-    value: 9,
-    label: "Số 9",
-  },
-];
 
-export const dayOfWeekOptions = [
-  {
-    value: "SUN",
-    label: "Chủ nhật",
-  },
-  {
-    value: "MON",
-    label: "Thứ 2",
-  },
-  {
-    value: "TUE",
-    label: "Thứ 3",
-  },
-  {
-    value: "WED",
-    label: "Thứ 4",
-  },
-  {
-    value: "THU",
-    label: "Thứ 5",
-  },
-  {
-    value: "FRI",
-    label: "Thứ 6",
-  },
-  {
-    value: "SAT",
-    label: "Thứ 7",
-  },
-];
-export const getDays = () => {
-  let days = [];
-  for (let i = 1; i <= 31; i++) {
-    days.push({key: `${i}`, value: `Ngày ${i}`});
-  }
-  return days;
-};
+
+
 const GeneralInfo = (props: any) => {
   const {
     form,
@@ -378,7 +307,7 @@ const GeneralInfo = (props: any) => {
                   style={{marginBottom: "5px"}}
                 >
                   <Select placeholder="Chọn ngày" mode="multiple">
-                    {getDays().map((day) => (
+                    {getDayOptions().map((day) => (
                       <Option value={day.key}>{day.value}</Option>
                     ))}
                   </Select>

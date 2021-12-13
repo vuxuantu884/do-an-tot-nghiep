@@ -15,7 +15,7 @@ import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
 import "../discount.scss";
-import FixedPriceGroup from "./FixedPriceGroup";
+import FixedPriceGroup from "./fixed-price-group";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",

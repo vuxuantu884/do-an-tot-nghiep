@@ -29,7 +29,7 @@ import {VariantResponse} from "../../../../model/product/product.model";
 import {formatCurrency} from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
-import {DiscountMethodStyled} from "./style";
+import {DiscountMethodStyled} from "../components/style";
 
 const Option = Select.Option;
 
