@@ -486,7 +486,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
 
   console.log("GoodsReceipts", data);
   // console.log("newQuery", query);
-  // console.log("newPrams", params);
+  console.log("newPrams", params);
 
   return (
     <>
