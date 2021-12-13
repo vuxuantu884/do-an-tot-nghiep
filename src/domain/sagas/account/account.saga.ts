@@ -19,6 +19,7 @@ import {
   powerBIEmbededApi,
   accountUpdatePassScreenService,
   getAccountDetail,
+  updateMeService,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
@@ -288,6 +289,30 @@ function* getAccountMeSaga(action: YodyAction) {
     } 
 }
 
+function* updateMeSaga(action: YodyAction) {
+  const {request, setData } = action.payload;
+  try {
+    let response: BaseResponse<AccountResponse> = yield call(
+      updateMeService,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("MeUpdateSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* accountSaga() {
   yield takeEvery(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
@@ -304,4 +329,5 @@ export function* accountSaga() {
   yield takeLatest(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
   yield takeLatest(AccountType.POWER_BI_EMBEDED_REQUEST, powerBIEmbededSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_ME, getAccountMeSaga);
+  yield takeLatest(AccountType.UPDATE_ME, updateMeSaga);
 }
