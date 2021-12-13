@@ -6,7 +6,7 @@ import { MenuAction } from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
 import {AddReportHandOverContext} from "contexts/order-pack/add-report-hand-over-context";
 import {StoreGetListAction} from "domain/actions/core/store.action";
-import { createGoodsReceipts, getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
+import { createGoodsReceipts, getGoodsReceiptsType, getOrderConcernGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
 import { DeliveryServicesGetList, getChannels } from "domain/actions/order/order.action";
 import {StoreResponse} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
@@ -15,12 +15,13 @@ import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse, OrderConcernGoodsRece
 import {useCallback, useEffect, useLayoutEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {haveAccess} from "utils/AppUtils";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./add-order-bottombar";
 import AddOrderInReport from "./add-order-in-report";
 import "assets/css/_pack.scss";
 import { useHistory } from "react-router";
 
+var barcode = "";
 // }
 const AddReportHandOver: React.FC<any> = (props: any) => {
   const dispatch = useDispatch();
@@ -63,6 +64,54 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
       color:"#E24343"
     }
   ];
+
+  const handleAddOrder = useCallback((orderCode:string) => {
+    if (orderCode)
+    {
+      dispatch(
+        getOrderConcernGoodsReceipts(
+          orderCode,
+          (data: OrderConcernGoodsReceiptsResponse[]) => {
+            if (data.length > 0) {
+              data.forEach(function (item, index) {
+                let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
+                if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
+
+                orderListResponse.push(item);
+                setOrderListResponse([...orderListResponse]);
+              });
+            } else {
+              showError("Không tìm thấy đơn hàng");
+            }
+          }
+        )
+      );
+    }
+    else{
+      showWarning("Vui lòng nhập mã đơn hàng");
+    }
+  }, [dispatch, orderListResponse, setOrderListResponse]);
+
+  const eventBarcodeOrder= useCallback((event:KeyboardEvent)=>{
+    if(event.target instanceof HTMLBodyElement)
+    {
+      if(event.key !=="Enter"){
+        barcode+=event.key;
+      }
+      else{
+        handleAddOrder(barcode)
+        console.log("barcode", barcode);
+        barcode = "";
+      }
+    }
+  },[handleAddOrder]);
+
+  useEffect(()=>{
+    window.addEventListener("keypress",eventBarcodeOrder);
+    return()=>{
+      window.removeEventListener("keypress", eventBarcodeOrder);
+    }
+  },[eventBarcodeOrder]);
 
   useEffect(() => {
     dispatch(
@@ -354,6 +403,7 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
           setOrderListResponse={setOrderListResponse}
           menu={actions}
           onMenuClick={onMenuClick}
+          handleAddOrder={handleAddOrder}
         />
 
         <AddOrderBottombar onOkPress={onOkPress}/>
