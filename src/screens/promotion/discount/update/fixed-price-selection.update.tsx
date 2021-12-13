@@ -42,6 +42,8 @@ interface Props {
 
 }
 
+
+
 const FixedPriceSelectionUpdate = (props: Props) => {
   const token = getToken() || "";
   const { form, } = props;
@@ -58,7 +60,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
-  const { isAllProduct, setIsAllProduct } = discountUpdateContext;
+  const { isAllProduct, setIsAllProduct, selectedVariant: entitlementsVariantMap, setSelectedVariant } = discountUpdateContext;
   // import file
   const handleImportEntitlements = () => {
     const newVariantList = Object.assign(
@@ -91,19 +93,21 @@ const FixedPriceSelectionUpdate = (props: Props) => {
         {(fields: FormListFieldData[], { add, remove }: FormListOperation, { errors }: {
           errors: React.ReactNode[];
         }) => {
-          const addBlackEntitlement = () => {
-            const formEntitlements = form.getFieldValue("entitlements");
-            formEntitlements.push({
-              entitled_category_ids: [],
-              entitled_variant_ids: [],
-              id: null,
-              prerequisite_quantity_ranges: null,
-              prerequisite_variant_ids: null,
-            })
-            add();
-            form.setFieldsValue({ entitlements: formEntitlements });
-          }
-            ;
+          const addBlankEntitlement = () => {
+            const temp = _.cloneDeep(entitlementsVariantMap);
+
+            temp.unshift([]);
+            setSelectedVariant(temp);
+            add({}, 0);
+          };
+
+          const removeEntitlementItem = (index: number) => {
+            const temp = _.cloneDeep(entitlementsVariantMap);
+            temp.splice(index, 1);
+            setSelectedVariant(temp);
+
+            remove(index);
+          };
 
           return (
             <>
@@ -112,8 +116,13 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                   <Checkbox
                     checked={isAllProduct}
                     onChange={(value) => {
-
                       setIsAllProduct(value.target.checked);
+                      // reset variant id
+                      const formEntitlements = form.getFieldValue("entitlements");
+                      formEntitlements.forEach((item: any) => {
+                        item.entitled_variant_ids = [];
+                      });
+                      form.setFieldsValue({ entitlements: formEntitlements });
                     }}
                   >
                     Tất cả sản phẩm
@@ -133,7 +142,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                       <Form.Item>
                         <Button
                           disabled={isAllProduct}
-                          onClick={() => addBlackEntitlement()}
+                          onClick={addBlankEntitlement}
                           icon={<PlusOutlined />}
                         >
                           Thêm chiết khấu
@@ -144,13 +153,14 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                 </Col>
               </Row>
 
-              {fields.reverse().map(({ key, name, fieldKey, ...restField }) => {
-               
+              {fields.map(({ key, name, fieldKey, ...restField }) => {
+
+                console.log(name)
                 return (
                   <FixedPriceGroupUpdate
                     key={key}
                     name={name}
-                    remove={remove}
+                    remove={removeEntitlementItem}
                     fieldKey={fieldKey}
                     form={form}
                   />

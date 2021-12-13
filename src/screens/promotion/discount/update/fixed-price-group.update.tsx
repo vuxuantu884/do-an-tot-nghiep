@@ -58,7 +58,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const discountUpdateContext = useContext(DiscountUpdateContext);
   const { isAllProduct, selectedVariant: entitlementsVariantMap, setSelectedVariant, discountMethod } = discountUpdateContext;
 
-  const selectedVariant = useMemo(() => entitlementsVariantMap.get(name) || [], [entitlementsVariantMap, name]);
+  const selectedVariant = useMemo(() => entitlementsVariantMap[name] || [], [entitlementsVariantMap, name]);
   const discountUnit = () => {
 
     const listOption = [
@@ -76,6 +76,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
     return listOption;
 
   }
+
   const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!result) {
       setData([]);
@@ -132,7 +133,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
 
     let entitlementFields = entitlementForm;
     entitlementFields[name] = Object.assign({}, entitlementFields[name], {
-      entitled_variant_ids: selectedVariant.map((p) => p.id),
+      entitled_variant_ids: selectedVariant.map((p: any) => p.id),
     });
 
     form.setFieldsValue({ entitlements: entitlementFields });
@@ -153,7 +154,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const onSelectProduct = useCallback(
     (value) => {
       const selectedItem = data.find((e) => e.id === Number(value));
-      const checkExist = selectedVariant.some((e) => e.id === value);
+      const checkExist = selectedVariant.some((e: any) => e.id === value);
       if (checkExist) {
         showError("Sản phẩm đã được chọn!");
         return;
@@ -169,8 +170,8 @@ const FixedPriceGroupUpdate = (props: Props) => {
           price_rule_id: 0,
           variant_id: selectedItem.id,
         });
-        entitlementsVariantMap.set(name, selectedVariant);
 
+        entitlementsVariantMap[name] = currentVariant;
         setSelectedVariant(_.cloneDeep(entitlementsVariantMap));
       }
     },
@@ -180,20 +181,18 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const onPickManyProduct = (items: Array<VariantResponse>) => {
     console.log(items, selectedVariant);
     if (items.length) {
-      entitlementsVariantMap.set(name, _.uniqBy([...selectedVariant, ...items], "id"));
+      entitlementsVariantMap[name] = _.uniqBy([...selectedVariant, ...items], "id");
       setSelectedVariant(_.cloneDeep(entitlementsVariantMap));
     }
     setVisibleManyProduct(false);
   }
 
   const onDeleteItem = (index: number, variantId: number) => {
-    const entitlementForm: Array<any> = form.getFieldValue("entitlements");
-    console.log(entitlementForm)
+    const entitlementForm: Array<any> = form.getFieldValue("entitlements"); 
     selectedVariant.splice(index, 1);
 
-    entitlementsVariantMap.set(name, [...selectedVariant]);
+    entitlementsVariantMap[name] = selectedVariant;
     setSelectedVariant(_.cloneDeep(entitlementsVariantMap));
-
     entitlementForm[name].entitled_variant_ids.filter((e: number) => e !== variantId);
   }
 
@@ -288,6 +287,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
             </DiscountMethodStyled>
             <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} label=" ">
               <Select
+                defaultValue={DiscountUnitType.FIXED_AMOUNT.value}
                 style={{ borderRadius: "0px" }}
                 onSelect={(e) => {
                   setDiscountType(e?.toString() || "");
