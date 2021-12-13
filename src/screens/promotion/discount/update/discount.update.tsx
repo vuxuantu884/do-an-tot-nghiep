@@ -2,14 +2,14 @@ import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { getVariants, promoGetDetail, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
 import _ from "lodash";
-import { VariantPriceRule } from "model/promotion/discount.create.model";
 import { CustomerSelectionOption, DiscountResponse, DiscountVariantResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { PROMO_TYPE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { getDateFormDuration } from "utils/PromotionUtils";
 import ContentContainer from "../../../../component/container/content.container";
 import UrlConfig from "../../../../config/url.config";
 import { showError, showSuccess } from "../../../../utils/ToastUtils";
@@ -18,8 +18,6 @@ import GeneralConditionForm from "../../shared/general-condition.form";
 import "../discount.scss";
 import DiscountUpdateForm from "./discount-update-form";
 import DiscountUpdateProvider, { DiscountUpdateContext } from "./discount-update-provider";
-import { useHistory } from "react-router-dom";
-import { getDateFormDuration } from "utils/PromotionUtils";
 const DiscountUpdate = () => {
     const dispatch = useDispatch();
     const [form] = Form.useForm();
@@ -40,7 +38,7 @@ const DiscountUpdate = () => {
 
     const discountUpdateContext = useContext(DiscountUpdateContext);
     const { setIsAllProduct, setSelectedVariant, setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
-    
+
     const parseDataToForm = useCallback(
         (result: DiscountResponse) => {
             const formValue: any = {
@@ -265,10 +263,10 @@ const DiscountUpdate = () => {
     // Action: Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mãi
     useEffect(() => {
         if (Array.isArray(discountData?.entitlements)) {
-            const tempMapProduct: Map<number, Array<VariantPriceRule>> = new Map();
+            const tempMapProduct: Array<any> = [];
             let allProduct = false;
             discountData.entitlements.forEach((entitlement: any, index: number) => {
-                tempMapProduct.set(index, mergeVariantsData(entitlement.entitled_variant_ids));
+                tempMapProduct.push(mergeVariantsData(entitlement.entitled_variant_ids));
                 if (entitlement?.entitled_variant_ids?.length === 0) {
                     allProduct = true;
                 }

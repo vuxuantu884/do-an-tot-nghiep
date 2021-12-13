@@ -6,8 +6,8 @@ import React, { createContext, ReactNode, useState } from "react";
 type DiscountUpdateAction = {
   isAllProduct: boolean;
   setIsAllProduct: (isAllProduct: boolean) => void;
-  selectedVariant: Map<number, Array<any>>;
-  setSelectedVariant: (selectedVariant: Map<number, Array<any>>) => void;
+  selectedVariant: Array<any[]>;
+  setSelectedVariant: (selectedVariant: Array<any[]>) => void;
   discountMethod: DiscountMethod | string;
   setDiscountMethod: (discountMethod: DiscountMethod | string) => void;
   discountData : DiscountResponse;
@@ -22,7 +22,7 @@ export const DiscountUpdateContext = createContext<DiscountUpdateAction>(
 function DiscountUpdateProvider(props: { children: ReactNode }) {
   const [discountData, setDiscountData] = useState<DiscountResponse>({} as DiscountResponse);
   const [isAllProduct, setIsAllProduct] = useState(false);
-  const [selectedVariant, setSelectedVariant] = useState<Map<number, Array<any>>>(new Map());
+  const [selectedVariant, setSelectedVariant] = useState< Array<any[]>>([]);
   const [discountMethod, setDiscountMethod] = useState<DiscountMethod | string>(DiscountMethod.FIXED_PRICE);
 
   return (
