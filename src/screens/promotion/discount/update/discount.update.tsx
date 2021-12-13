@@ -40,6 +40,7 @@ const DiscountUpdate = () => {
 
     const discountUpdateContext = useContext(DiscountUpdateContext);
     const { setIsAllProduct, setSelectedVariant, setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
+    
     const parseDataToForm = useCallback(
         (result: DiscountResponse) => {
             const formValue: any = {

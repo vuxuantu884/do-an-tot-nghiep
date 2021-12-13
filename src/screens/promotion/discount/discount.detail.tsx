@@ -606,8 +606,7 @@ const PromotionDetailScreen: React.FC = () => {
             back="Quay lại danh sách khuyến mại"
             rightComponent={
               <Space>
-                {/* {allowUpdatePromoCode && <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>} */}
-                {allowUpdatePromoCode && <Button disabled>Sửa</Button> }
+                {allowUpdatePromoCode && <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>}
                 {allowCreatePromoCode && <Button disabled>Nhân bản</Button>}
                 {allowCancelPromoCode && renderActionButton()}
               </Space>

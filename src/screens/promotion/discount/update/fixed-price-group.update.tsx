@@ -377,9 +377,14 @@ const FixedPriceGroupUpdate = (props: Props) => {
                 className: "ant-col-info",
                 align: "center",
                 width: "15%",
-                dataIndex: "variant_prices",
+                dataIndex: "cost",
                 render: (value, item) => {
+                  if (value) {
+                    // price at create time
+                    return formatCurrency(value);
+                  }
                   if (item?.variant_prices?.length > 0) {
+                    // price at update time
                     return formatCurrency(item?.variant_prices[0]?.import_price)
                   } else {
                     return "-";
