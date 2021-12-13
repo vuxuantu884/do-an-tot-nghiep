@@ -301,13 +301,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setCancelShipment(false);
     setReload(true);
     showSuccess(
-      `Bạn đã nhận hàng trả lại của đơn giao hàng ${
-        value.fulfillments &&
-        value.fulfillments.length > 0 &&
-        value.fulfillments.filter(
-          (fulfillment) => fulfillment.id === fullfilmentIdGoodReturn
-        )[0].id
-      }`
+      `Bạn đã nhận hàng trả lại của đơn giao hàng ${fullfilmentIdGoodReturn}`
     );
     setIsvibleGoodsReturn(false);
     onReload && onReload();
@@ -1457,10 +1451,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           )}
                       </div>
                     ) : null}
-                    {(fulfillment.status_before_cancellation ===
-                      FulFillmentStatus.SHIPPING &&
-                      fulfillment.status === FulFillmentStatus.CANCELLED) ||
-                    fulfillment.status === FulFillmentStatus.RETURNING ? (
+                    {fulfillment.return_status === FulFillmentStatus.RETURNING ? (
                       <div
                         style={{
                           display: "flex",

@@ -3,8 +3,8 @@
 import { Button, Card, Col, Collapse, Divider, Row, Table } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { getFulfillmentDetail, getTrackingLogFulfillmentAction } from "domain/actions/order/order.action";
-import { TrackingLogFulfillmentResponse } from "model/response/order/order.response";
+import { getFulfillmentDetail, getTrackingLogFulfillmentAction, UpdateFulFillmentStatusAction } from "domain/actions/order/order.action";
+import { OrderResponse, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -14,7 +14,9 @@ import { useHistory, useParams } from "react-router";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import "./scss/shipment-detail.scss";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { ShipmentMethod } from "utils/Constants";
+import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
+import { UpdateFulFillmentStatusRequest } from "model/request/order.request";
+import { showSuccess } from "utils/ToastUtils";
 
 type ShipmentParam = {
   code: string;
@@ -133,6 +135,53 @@ const ShipmentDetail: React.FC = () => {
       width: "20%",
     },
   ]);
+
+  const [loading, setLoading] = useState(false);
+  const onOKGoodsReturn = useCallback(() => {
+    setLoading(true)
+    let value: UpdateFulFillmentStatusRequest = {
+      order_id: null,
+      fulfillment_id: null,
+      status: "",
+    };
+    value.order_id = fulfillmentDetail?.order.id;
+    value.fulfillment_id = fulfillmentDetail.id;
+    value.status = FulFillmentStatus.RETURNED;
+    dispatch(UpdateFulFillmentStatusAction(value, () => {
+      showSuccess(
+        'Bạn đã nhận hàng trả lại'
+      );
+      setFulfillmentDetail({
+        ...fulfillmentDetail,
+        return_status: 'returned'
+      });
+      setLoading(false)
+    }));
+  }, [dispatch, fulfillmentDetail]);
+
+  const [loading1, setLoading1] = useState(false);
+  const rePush = useCallback(() => {
+    setLoading1(true)
+    let value: UpdateFulFillmentStatusRequest = {
+      order_id: null,
+      fulfillment_id: null,
+      status: "",
+    };
+    value.order_id = fulfillmentDetail?.order.id;
+    value.fulfillment_id = fulfillmentDetail.id;
+    value.status = FulFillmentStatus.RETURNED;
+    dispatch(UpdateFulFillmentStatusAction(value, () => {
+      showSuccess(
+        'Bạn đã nhận hàng trả lại'
+      );
+      setFulfillmentDetail({
+        ...fulfillmentDetail,
+        return_status: 'returned'
+      });
+      setLoading1(false)
+    }));
+  }, [dispatch, fulfillmentDetail]);
+
   useEffect(() => {
     console.log('code code code', code);
     dispatch(
@@ -235,13 +284,13 @@ const ShipmentDetail: React.FC = () => {
                 <span style={{ minWidth: 100 }}>
                   {fulfillmentDetail?.shipment?.pushing_status === 'failed' && <Button
                     type="primary"
-                    className="create-button-custom"
+                    onClick={() => {}}
                   >
                     Đẩy lại đơn HVC
                   </Button>}
-                  {fulfillmentDetail?.shipment?.status === 'completed' && <Button
+                  {fulfillmentDetail?.return_status === 'returning' && <Button
                     type="primary"
-                    className="create-button-custom"
+                    onClick={() => onOKGoodsReturn()}
                   >
                     Nhận hàng
                   </Button>}

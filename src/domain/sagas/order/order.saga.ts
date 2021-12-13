@@ -40,6 +40,7 @@ import {
   orderPostApi,
   orderPutApi,
   putFulfillmentsPackApi,
+  rePushFulFillmentService,
   splitOrderService,
   updateDeliveryConnectService,
   updateOrderPartialService
@@ -268,6 +269,28 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
   } catch (error) {
     setError(true);
 		showError("Có lỗi khi cập nhật trạng thái fulfillment! Vui lòng thử lại sau!")
+  }
+}
+
+function* rePushFulFillmentSaga(action: YodyAction) {
+  const { request, setData, setError } = action.payload;
+  try {
+    let response: BaseResponse<OrderResponse> = yield call(
+      rePushFulFillmentService,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setError(true);
+        break;
+    }
+  } catch (error) {
+    setError(true);
+		showError("Có lỗi khi đẩy đơn cho HVC! Vui lòng thử lại sau!")
   }
 }
 
@@ -969,6 +992,7 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
   yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulFillmentStatusSaga);
+  yield takeLatest(OrderType.REPUSH_FULFILLMENT, rePushFulFillmentSaga);
   yield takeLatest(OrderType.UPDATE_SHIPPING_METHOD, updateShipmentSaga);
   yield takeLatest(OrderType.GET_LIST_DELIVERY_SERVICE, ListDeliveryServicesSaga);
   yield takeLatest(OrderType.GET_TRANSPORT_TYPES, getDeliveryTransportTypeSaga);
