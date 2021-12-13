@@ -228,18 +228,18 @@ const ShipmentDetail: React.FC = () => {
                 <span><span>MÃ VẬN ĐƠN:</span><span style={{ color: '#2A2A86' }}> {fulfillmentDetail?.shipment?.tracking_code}</span></span>
                 <span>
                   <span>Trạng thái:</span>
-                  <span style={{ color: fulfillmentDetail?.status_color }}>
-                      {fulfillmentDetail.shipment.pushing_status === 'completed' ? fulfillmentDetail?.status_name : 'Đẩy đơn hvc thất bại'}
+                  <span style={{ color: fulfillmentDetail?.shipment?.pushing_status !== 'failed' ? fulfillmentDetail?.status_color : '#E24343', paddingLeft: 5 }}>
+                      {fulfillmentDetail?.shipment?.pushing_status !== 'failed' ? fulfillmentDetail?.status_name : 'Đẩy đơn hvc thất bại'}
                   </span>
                 </span>
                 <span style={{ minWidth: 100 }}>
-                  {fulfillmentDetail.shipment.pushing_status !== 'completed' && <Button
+                  {fulfillmentDetail?.shipment?.pushing_status === 'failed' && <Button
                     type="primary"
                     className="create-button-custom"
                   >
                     Đẩy lại đơn HVC
                   </Button>}
-                  {fulfillmentDetail.shipment.status === 'completed' && <Button
+                  {fulfillmentDetail?.shipment?.status === 'completed' && <Button
                     type="primary"
                     className="create-button-custom"
                   >
