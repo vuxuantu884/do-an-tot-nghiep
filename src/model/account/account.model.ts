@@ -99,3 +99,15 @@ export interface AccountRequest extends AccountBaseModel {
   account_stores: Array<AccountStoreResponse>; 
 }
 
+
+export interface MeRequest { 
+  country_id?: 0,
+  city_id?: 0,
+  district_id: 0,
+  country?: string,
+  city?: string,
+  district?: string,
+  address: string,
+  phone?: string,
+  mobile?: string
+}
