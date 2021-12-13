@@ -13,11 +13,11 @@ export const getAccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
 } 
 
 export const loginApi = (request: AuthenRequest): Promise<BaseResponse<LoginResponse>> => {
-  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/accounts/login`, request);
+  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/login`, request);
 }
 
 export const logoutApi = (): Promise<BaseResponse<string>> => {
-  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/logout`);
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/logout`);
 }
 
 export const searchAccountApi = (query: AccountSearchQuery): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
