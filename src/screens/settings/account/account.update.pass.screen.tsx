@@ -119,20 +119,19 @@ const AccountUpdatePassScreen: React.FC = () => {
             </Row>
             </Col>
         </Row> 
+          <BottomBarContainer
+          back="Quay lại"
+          backAction={backAction}
+          rightComponent={
+            <Space>
+              {allowUpdateAcc && <Button loading={loading} htmlType="submit" type="primary">
+                  Đặt lại mật khẩu
+                </Button> }
+            </Space>
+          }
+        />
         </Form>
-      </Card>  
-      <BottomBarContainer
-        back="Quay lại"
-        backAction={backAction}
-        rightComponent={
-          <Space>
-            {allowUpdateAcc && <Button loading={loading} htmlType="submit" type="primary">
-                Đặt lại mật khẩu
-              </Button> }
-          </Space>
-        }
-      />
-      
+      </Card>   
     </ContentContainer>
   );
 }; 
