@@ -212,7 +212,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
             <div className="page-filter-right" style={{width: "60%"}}>
               <Space size={4}>
                 <Form layout="inline" ref={formSearchOrderRef}>
-                  <Item name="search_term" style={{width: "calc(98% - 142px)"}}>
+                  <Item name="search_term" style={{width: "calc(95% - 142px)"}}>
                     <Input
                       style={{width: "100%"}}
                       prefix={<img src={search} alt="" />}
@@ -220,7 +220,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                     />
                   </Item>
 
-                  <Item>
+                  <Item style={{width: "142px", marginLeft:16, marginRight:0}}>
                     <Button type="primary" htmlType="submit" onClick={handleSearchOrder}>
                       Thêm đơn hàng
                     </Button>

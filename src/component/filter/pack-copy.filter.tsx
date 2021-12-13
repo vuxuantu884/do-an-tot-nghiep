@@ -150,23 +150,25 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
       });
       if (!error) {
         setVisible(false);
-        const valuesForm = {
-          ...params,
-          store_id: values.store_id,
-          delivery_service_id: values.delivery_service_id,
-          ecommerce_id: values.ecommerce_id,
-          good_receipt_type_id: values.good_receipt_type_id,
-          good_receipt_id: values.good_receipt_id,
-          order_id: values.order_id,
-          from_date: values.from_date,
-          to_date: values.to_date,
-        };
-
-        onFilter && onFilter(valuesForm);
+        // const valuesForm = {
+        //   ...params,
+        //   store_id: values.store_id,
+        //   delivery_service_id: values.delivery_service_id,
+        //   ecommerce_id: values.ecommerce_id,
+        //   good_receipt_type_id: values.good_receipt_type_id,
+        //   good_receipt_id: values.good_receipt_id,
+        //   order_id: values.order_id,
+        //   from_date: values.from_date,
+        //   to_date: values.to_date,
+        // };
+        // console.log("valuesForm",params)
+        // console.log("valuesForm",valuesForm)
+        // console.log("valuesForm",valuesForm)
+        onFilter && onFilter(values);
         setRerender(false);
       }
     },
-    [formRef, onFilter, params]
+    [formRef, onFilter]
   );
 
   let filters = useMemo(() => {
