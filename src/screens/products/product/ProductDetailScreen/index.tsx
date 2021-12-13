@@ -319,10 +319,10 @@ const tab= document.getElementById("tab");
           },
           {
             name: "Sản phẩm",
-            path: `${UrlConfig.PRODUCT}`,
+            path: `${UrlConfig.VARIANTS}`,
           },
           {
-            name: data !== null ? data.name : "",
+            name: data !== null ? data.code : "",
           },
         ]}
       >

@@ -1062,19 +1062,30 @@
         .ant-menu-item-icon {
             color: #e5e5e5;
         }
+        .ant-menu-item {
+            color: #e5e5e5;
+            .ant-menu-item-icon {
+                margin-left: 25px !important;
+            }
+    
+        }
+
     }
 }
 
 .ant-menu-submenu-popup {
     .ant-menu {
         .ant-menu {
-            &-item {
+            &-item { 
                 height: 40px;
                 line-height: 40px;
                 color: $black;
                 background-color: transparent;
                 a {
                     color: $black;
+                }
+                i {
+                    margin-left: 10px !important;
                 }
                 .ant-menu-item-icon {
                     color: #e5e5e5;
@@ -1103,6 +1114,9 @@
                     &::after {
                         content: unset;
                     }
+                    i {
+                        margin-left: 10px !important;
+                    }
                     // .ant-menu-item-dot {
                     //   background-color: $primary-color;
                     // }
@@ -1110,7 +1124,7 @@
             }
             &-submenu {
                 padding: 0;
-                color: $black;
+                color: $black; 
                 background-color: transparent;
                 .ant-menu-title-content,
                 .ant-menu-submenu-arrow {
