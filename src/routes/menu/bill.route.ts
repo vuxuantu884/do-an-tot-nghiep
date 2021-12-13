@@ -46,19 +46,8 @@ const bill: Array<RouteMenu> = [
     key: "submenu54",
     isShow: true,
     header: null,
+    permissions: [ODERS_PERMISSIONS.READ],
     subMenu: [
-      {
-        path: `${UrlConfig.ORDER}`,
-        exact: true,
-        title: "Danh sách đơn hàng",
-        icon: "icon-dot",
-        component: ListOrder,
-        key: "submenu5412",
-        isShow: true,
-        header: null,
-        permissions: [ODERS_PERMISSIONS.READ],
-        subMenu: [],
-      },
       {
         path: `${UrlConfig.ORDER}/:id`,
         exact: true,
