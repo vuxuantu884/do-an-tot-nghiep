@@ -20,7 +20,8 @@ import moment from "moment";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dayOfWeekOptions, getDays } from "../discount/components/general.info";
+import { getDayOptions } from "utils/PromotionUtils";
+import { dayOfWeekOptions } from "../discount/constants/index";
 import { CustomerContitionFormlStyle } from "./condition.style";
 import CustomerFilter from "./cusomer-condition.form";
 
@@ -153,7 +154,7 @@ function GeneralConditionForm({
                 style={{ marginBottom: "5px" }}
               >
                 <Select placeholder="Chọn ngày" mode="multiple">
-                  {getDays().map((day) => (
+                  {getDayOptions().map((day) => (
                     <Option value={day.key}>{day.value}</Option>
                   ))}
                 </Select>

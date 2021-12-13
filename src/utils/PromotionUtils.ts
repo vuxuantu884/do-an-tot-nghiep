@@ -127,3 +127,11 @@ export const formatDiscountValue = (value: number | undefined, isPercent: boolea
     return formatCurrency(`${value}`.replaceAll(".", ""));
   }
 };
+
+export const getDayOptions = () => {
+  let days = [];
+  for (let i = 1; i <= 31; i++) {
+    days.push({key: `${i}`, value: `Ngày ${i}`});
+  }
+  return days;
+};

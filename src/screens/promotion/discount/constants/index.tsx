@@ -86,3 +86,74 @@ export const FieldSelectOptions = [
     ),
   },
 ];
+
+export const priorityOptions = [
+  {
+    value: 1,
+    label: "Số 1 (cao nhất)",
+  },
+  {
+    value: 2,
+    label: "Số 2",
+  },
+  {
+    value: 3,
+    label: "Số 3",
+  },
+  {
+    value: 4,
+    label: "Số 4",
+  },
+  {
+    value: 5,
+    label: "Số 5",
+  },
+  {
+    value: 6,
+    label: "Số 6",
+  },
+  {
+    value: 7,
+    label: "Số 7",
+  },
+  {
+    value: 8,
+    label: "Số 8",
+  },
+  {
+    value: 9,
+    label: "Số 9",
+  },
+];
+
+
+export const dayOfWeekOptions = [
+  {
+    value: "SUN",
+    label: "Chủ nhật",
+  },
+  {
+    value: "MON",
+    label: "Thứ 2",
+  },
+  {
+    value: "TUE",
+    label: "Thứ 3",
+  },
+  {
+    value: "WED",
+    label: "Thứ 4",
+  },
+  {
+    value: "THU",
+    label: "Thứ 5",
+  },
+  {
+    value: "FRI",
+    label: "Thứ 6",
+  },
+  {
+    value: "SAT",
+    label: "Thứ 7",
+  },
+];

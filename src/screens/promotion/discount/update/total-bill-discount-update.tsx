@@ -18,7 +18,7 @@ import React, { ReactElement, useContext, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import { formatDiscountValue } from "utils/PromotionUtils";
-import { TotalBillDiscountStyle } from "../components/total-bill-discount.style";
+import { TotalBillDiscountStyle } from "../create/total-bill-discount.style";
 import { FieldSelectOptions } from "../constants";
 import { DiscountUpdateContext } from "./discount-update-provider";
 const rule = "rule";
