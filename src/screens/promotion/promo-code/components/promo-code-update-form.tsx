@@ -30,6 +30,7 @@ interface Props {
   isUnlimitUsagePerUser?: boolean;
   isUnlimitUsage?: boolean;
   selectedProduct: Array<any>;
+  typeUnit?: string;
 }
 
 function PromoCodeUpdateForm({
@@ -37,6 +38,7 @@ function PromoCodeUpdateForm({
   isUnlimitUsagePerUser,
   isUnlimitUsage,
   selectedProduct: selectedProductFromProps,
+  typeUnit
 }: Props): ReactElement {
   const dispatch = useDispatch();
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -205,6 +207,7 @@ function PromoCodeUpdateForm({
               form={form}
               isUnlimitUsage={isUnlimitUsage}
               isUnlimitUsagePerUser={isUnlimitUsagePerUser}
+              typeUnit={typeUnit}
             />
           )}
         </Row>

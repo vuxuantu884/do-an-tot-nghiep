@@ -91,14 +91,13 @@ function DiscountUpdateForm({ form,
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label=" " name="usage_limit">
+                                <Form.Item label=" ">
                                     <Space>
                                         <Switch
                                             checked={unlimitedQuantity}
                                             onChange={(value) => {
-                                                form.validateFields(["usage_limit"]);
                                                 form.setFieldsValue({
-                                                    usage_limit: null,
+                                                    quantity_limit: null,
                                                 });
                                                 setUnlimitedQuantity(value);
                                             }}
@@ -145,12 +144,24 @@ function DiscountUpdateForm({ form,
                                     const formData = form.getFieldsValue(true);
                                     if (value === DiscountMethod.FIXED_PRICE.toString()) {
                                         formData?.entitlements?.forEach((item: DiscountFormModel) => {
-                                            const temp = { prerequisite_quantity_ranges: { value_type: "FIXED_AMOUNT" } };
+                                            const temp = {
+                                                prerequisite_quantity_ranges: [{
+                                                    value_type: "FIXED_AMOUNT",
+                                                    greater_than_or_equal_to: 0,
+                                                    value: 1
+                                                }]
+                                            };
                                             _.merge(item, temp);
                                         });
                                     } else if (value === DiscountMethod.QUANTITY.toString()) {
                                         formData?.entitlements?.forEach((item: DiscountFormModel) => {
-                                            const temp = { prerequisite_quantity_ranges: { value_type: "PERCENTAGE" } };
+                                            const temp = {
+                                                prerequisite_quantity_ranges: [{
+                                                    value_type: "PERCENTAGE",
+                                                    greater_than_or_equal_to: 0,
+                                                    value: 1
+                                                }]
+                                            };
                                             _.merge(item, temp);
                                         });
                                     }

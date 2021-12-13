@@ -48,7 +48,7 @@ const PromoCodeUpdate = () => {
 
   const [dataVariants, setDataVariants] = useState<DiscountVariantResponse[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
-
+  const [typeUnit, setTypeUnit] = useState<string>("PERCENTAGE");
   const transformData = (values: any) => {
     let body: any = {};
     body.title = values.title;
@@ -250,7 +250,10 @@ const PromoCodeUpdate = () => {
         starts_wedding_day: result.prerequisite_wedding_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.starts_mmdd_key)) : undefined,
         ends_wedding_day: result.prerequisite_wedding_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.ends_mmdd_key)) : undefined,
       };
-
+      //đơn vị khuyến mãi
+      setTypeUnit(result.entitlements.length > 0
+        ? result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type
+        : null)
       //set default checked Loại khuyến mãi
       setIsUnlimitUsage(typeof result.usage_limit !== "number");
       setIsUnlimitUsagePerUser(typeof result.usage_limit_per_customer !== "number");
@@ -359,6 +362,7 @@ const PromoCodeUpdate = () => {
               isUnlimitUsage={isUnlimitUsage}
               isUnlimitUsagePerUser={isUnlimitUsagePerUser}
               selectedProduct={selectedProduct}
+              typeUnit={typeUnit}
             />
           </Col>
           <Col span={6}>

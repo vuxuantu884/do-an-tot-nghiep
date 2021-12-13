@@ -55,7 +55,6 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const [discountType, setDiscountType] = useState("FIXED_AMOUNT");
   const productSearchRef = createRef<CustomAutoComplete>();
 
-
   const discountUpdateContext = useContext(DiscountUpdateContext);
   const { isAllProduct, selectedVariant: entitlementsVariantMap, setSelectedVariant, discountMethod } = discountUpdateContext;
 
@@ -73,8 +72,9 @@ const FixedPriceGroupUpdate = (props: Props) => {
         value: DiscountUnitType.PERCENTAGE.value,
         name: DiscountUnitType.PERCENTAGE.name
       })
-      return listOption;
     }
+    return listOption;
+
   }
   const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!result) {
@@ -236,14 +236,18 @@ const FixedPriceGroupUpdate = (props: Props) => {
               </Space>
             }
             rules={[
-              { required: true, message: "Cần nhập số lượng tối thiểu" },
+              { required: true, message: "Cần nhập số lượng tối thiểu", },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  const usageLimit = getFieldValue("usage_limit");
+
+                  const quantity_limit = getFieldValue("quantity_limit");
+                  if (!quantity_limit) {
+                    return Promise.resolve();
+                  }
                   const entitlements = getFieldValue("entitlements");
                   const allocateLimit =
                     entitlements[name]?.prerequisite_quantity_ranges.allocation_limit;
-                  if (value && usageLimit && value > usageLimit) {
+                  if (value && quantity_limit && value > quantity_limit) {
                     return Promise.reject(
                       new Error("SL Tối thiểu phải nhỏ hơn Số lượng áp dụng")
                     );
@@ -273,7 +277,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               >
                 <InputNumber
                   key={`${key}-discount`}
-                  style={{ textAlign: "end", borderRadius: "0px", width: '100%' }} 
+                  style={{ textAlign: "end", borderRadius: "0px", width: '100%' }}
                   min={1}
                   max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
                   step={discountType === "FIXED_AMOUNT" ? 1 : 0.01}
@@ -373,9 +377,14 @@ const FixedPriceGroupUpdate = (props: Props) => {
                 className: "ant-col-info",
                 align: "center",
                 width: "15%",
-                dataIndex: "variant_prices",
+                dataIndex: "cost",
                 render: (value, item) => {
+                  if (value) {
+                    // price at create time
+                    return formatCurrency(value);
+                  }
                   if (item?.variant_prices?.length > 0) {
+                    // price at update time
                     return formatCurrency(item?.variant_prices[0]?.import_price)
                   } else {
                     return "-";
