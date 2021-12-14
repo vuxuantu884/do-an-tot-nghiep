@@ -1035,18 +1035,14 @@ function OrdersScreen(props: PropsType)  {
   return (
     <StyledComponent>
       <ContentContainer
-        title="Danh sách đơn tách"
+        title="Danh sách đơn hàng"
         breadcrumb={[
           {
             name: "Tổng quan",
             path: UrlConfig.HOME,
           },
-					{
-						name: "Đơn hàng",
-						path: UrlConfig.ORDER,
-					},
           {
-            name: "Danh sách đơn tách",
+            name: "Danh sách đơn hàng",
           },
         ]}
         extra={
