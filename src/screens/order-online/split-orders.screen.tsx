@@ -94,11 +94,12 @@ function SplitOrdersScreen(props: PropsType)  {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const initQuery: OrderSearchQuery = {
 		page: 1,
 		limit: 30,
 		is_online: null,
-		is_split: "true",
+		is_split: true,
 		sort_type: null,
 		sort_column: null,
 		code: null,
@@ -187,6 +188,39 @@ function SplitOrdersScreen(props: PropsType)  {
 	const status_order = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.order_status
   );
+
+	const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
+    setTableLoading(false);
+    setIsFilter(false);
+    if (!!result) {
+      console.log('result result result', result);
+      setData(result);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      data1 = result
+    }
+  }, []);
+
+	const fetchData = useCallback(
+		(params) => {
+			return new Promise<void>((resolve, reject) => {
+				setTableLoading(true);
+				dispatch(getListOrderAction(params, setSearchResult));
+				resolve();
+			})
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[dispatch, setSearchResult],
+	)
+
+	const handleFetchData = useCallback(
+		(params) => {
+			fetchData(params).then(() => {
+				setTableLoading(false);
+				setIsFilter(false);
+			});
+		},
+		[fetchData],
+	)
 
 	const renderCustomerAddress = (orderDetail: OrderResponse) => {
 		let html = orderDetail.customer_address;
@@ -751,27 +785,28 @@ function SplitOrdersScreen(props: PropsType)  {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
-      history.replace(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
+      history.push(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
     },
     [history, params]
   );
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 1 };
-      setPrams(newPrams);
+      let currentParam = generateQuery(params);
       let queryParam = generateQuery(newPrams);
-      setIsFilter(true)
-      history.push(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
+			if(currentParam === queryParam) {
+				handleFetchData(newPrams);
+			} else {
+				history.push(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
+			}
     },
-    [history, params]
+    [handleFetchData, history, params]
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
     history.push(`${UrlConfig.SPLIT_ORDERS}?${queryParam}`);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history]);
+  }, [history, initQuery]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -784,12 +819,6 @@ function SplitOrdersScreen(props: PropsType)  {
       const queryParam = generateQuery(params);
       console.log(queryParam);
       switch (index) {
-        case 1:
-          break;
-        case 2:
-          break;
-        case 3:
-          break;
         case ACTION_ID.printShipment:
           let ids:number[] = [];
           selectedRow.forEach((row) => row.fulfillments?.forEach((single) => {
@@ -926,17 +955,6 @@ function SplitOrdersScreen(props: PropsType)  {
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
 
-  const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
-    setTableLoading(false);
-    setIsFilter(false);
-    if (!!result) {
-      console.log('result result result', result);
-      setData(result);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      data1 = result
-    }
-  }, []);
-
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -983,19 +1001,6 @@ function SplitOrdersScreen(props: PropsType)  {
   }, [dispatch, onSuccessEditNote]);
 
   useEffect(() => {
-		const fetchData = () => {
-			return new Promise<void>((resolve, reject) => {
-				setTableLoading(true);
-				dispatch(getListOrderAction(params, setSearchResult));
-				resolve();
-			})
-		};
-		fetchData().then(() => {
-			setTableLoading(false);
-		});
-  }, [dispatch, params, setSearchResult]);
-
-  useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
@@ -1025,8 +1030,9 @@ function SplitOrdersScreen(props: PropsType)  {
 			...getQueryParamsFromQueryString(queryParamsParsed),
 		};
     setPrams(dataQuery);
+		handleFetchData(dataQuery)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
+  }, [dispatch, handleFetchData, setSearchResult, location.search]);
 
   return (
     <StyledComponent>

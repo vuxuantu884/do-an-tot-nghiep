@@ -14,4 +14,11 @@ enum EnumUploadStatus {
   removed = "removed",
 }
 
-export {EnumUploadStatus, EnumImportStatus};
+enum EnumJobStatus {
+  finish = "FINISH",
+  error = "ERROR",
+  success = "SUCCESS",
+  processing = "PROCESSING",
+}
+
+export {EnumUploadStatus, EnumImportStatus, EnumJobStatus};

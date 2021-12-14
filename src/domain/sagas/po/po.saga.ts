@@ -22,6 +22,8 @@ import {
   getPrintContent,
 } from "service/purchase-order/purchase-order.service";
 import { showError } from "utils/ToastUtils";
+import { exportPOApi } from "./../../../service/purchase-order/purchase-order.service";
+import { ImportResponse } from "model/other/files/export-model";
 
 function* poCreateSaga(action: YodyAction) {
   const { request, createCallback } = action.payload;
@@ -244,6 +246,31 @@ function* poCancelSaga(action: YodyAction) {
   }
 }
 
+function* exportPOSaga(action: YodyAction) {
+  const { params, onResult } = action.payload;
+  try {
+    let response: BaseResponse<ImportResponse> = yield call(
+      exportPOApi,
+      params,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error: any) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau "+ error.message);
+  }
+}
+
 export function* poSaga() {
   yield takeLatest(POType.CREATE_PO_REQUEST, poCreateSaga);
   yield takeLatest(POType.DETAIL_PO_REQUEST, poDetailSaga);
@@ -259,5 +286,9 @@ export function* poSaga() {
   yield takeLatest(
     POType.CANCEL_PO_REQUEST,
     poCancelSaga
+  );
+  yield takeLatest(
+    POType.EXPORT_PO,
+    exportPOSaga
   );
 }

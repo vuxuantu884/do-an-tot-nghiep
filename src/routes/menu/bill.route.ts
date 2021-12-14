@@ -201,7 +201,7 @@ const bill: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
+    // permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
   },
 ];
 

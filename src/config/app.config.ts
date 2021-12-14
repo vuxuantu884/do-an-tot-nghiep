@@ -1,10 +1,4 @@
-const abc = () => {
-  console.log("process.env", process.env);
-  return null;
-};
-
 export const AppConfig = {
-  test: abc(),
   baseUrl: process.env.REACT_APP_BASE_URL || "http://localhost:3004",
   timeOut: process.env.REACT_APP_TIME_OUT
     ? parseInt(process.env.REACT_APP_TIME_OUT)
@@ -41,4 +35,6 @@ export const AppConfig = {
   DISCOUNT_CODES_TEMPLATE_URL:
     process.env.REACT_APP_PROMOTIONS_DISCOUNT_CODES_TEMPLATE_URL,
   PROCUMENT_IMPORT_TEMPLATE_URL: process.env.REACT_APP_PROCUMENT_IMPORT_TEMPLATE_URL,
+  PO_EXPORT_TEMPLATE_URL: process.env.REACT_APP_PO_EXPORT_TEMPLATE_URL,
+  PO_EXPORT_URL: process.env.REACT_APP_PO_EXPORT_URL,
 };

@@ -11,6 +11,10 @@ const {Option, OptGroup} = Select;
 type FormValuesType = {
   mobile: string,
   district: string| null| undefined,
+  country: string| null| undefined,
+  country_id: number| null| undefined,
+  city: string| null| undefined,
+  city_id: number| null| undefined,
   district_id: number | null | undefined,
   address: string | null | undefined,
   version: number | null;
@@ -23,6 +27,10 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
 
   const initialFormValues: FormValuesType = {
     mobile: formItem?.mobile,
+    country: formItem?.country,
+    country_id: formItem?.country_id,
+    city: formItem?.city,
+    city_id: formItem?.city,
     district: formItem?.district,
     district_id: formItem?.district_id,
     address: formItem?.address,
@@ -39,7 +47,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
 
   const onSelectDistrict = useCallback(
     (value: number) => {
-      let cityId = -1,district="";
+      let cityId = -1, district="", city=null, country=null, countryId=-1;
       cityViews.forEach((item) => {
         item.districts.forEach((item1) => {
           if (item1.id === value) {
@@ -51,6 +59,9 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
       if (cityId !== -1) {
         form?.setFieldsValue({
           city_id: cityId,
+          city: city,
+          country: country,
+          country_id: countryId,
           district: district,
         });
       }
@@ -90,6 +101,10 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
             <Input className="r-5" placeholder="Nhập số điện thoại" />
           </Form.Item>
           <Form.Item name="district" hidden={true}></Form.Item>
+          <Form.Item name="country_id" hidden={true}></Form.Item>
+          <Form.Item name="country" hidden={true}></Form.Item>
+          <Form.Item name="city" hidden={true}></Form.Item>
+          <Form.Item name="city_id" hidden={true}></Form.Item>
           <Form.Item label="Khu vực" name="district_id">
             <Select
               allowClear

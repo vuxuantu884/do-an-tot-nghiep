@@ -1085,7 +1085,7 @@
                     color: $black;
                 }
                 i {
-                    margin-left: 10px !important;
+                    margin-left: 2px !important;
                 }
                 .ant-menu-item-icon {
                     color: #e5e5e5;
@@ -1115,7 +1115,7 @@
                         content: unset;
                     }
                     i {
-                        margin-left: 10px !important;
+                        margin-left: 2px !important;
                     }
                     // .ant-menu-item-dot {
                     //   background-color: $primary-color;
@@ -1143,6 +1143,9 @@
                     .ant-menu-item-icon {
                         color: #fcaf17;
                     }
+                }
+                i {
+                    margin-left: 2px !important;
                 }
             }
         }

@@ -55,9 +55,9 @@ import {
 	DiscountRequestModel,
 	LineItemRequestModel
 } from "model/request/promotion.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import {OrderConfig, OrderResponse} from "model/response/order/order.response";
+import { OrderConfig, OrderResponse } from "model/response/order/order.response";
 import {
 	ApplyCouponResponseModel,
 	SuggestDiscountResponseModel
@@ -82,22 +82,22 @@ import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
 import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
-  findAvatar,
-  findPrice,
-  findPriceInVariant,
-  findTaxInVariant,
-  formatCurrency,
-  getLineAmountAfterLineDiscount,
-  getLineItemDiscountAmount,
-  getLineItemDiscountRate,
-  getLineItemDiscountValue,
-  getTotalAmount,
-  getTotalAmountAfterDiscount,
-  getTotalDiscount,
-  getTotalQuantity,
-  handleDelayActionWhenInsertTextInSearchInput,
-  haveAccess,
-  replaceFormatString,
+	findAvatar,
+	findPrice,
+	findPriceInVariant,
+	findTaxInVariant,
+	formatCurrency,
+	getLineAmountAfterLineDiscount,
+	getLineItemDiscountAmount,
+	getLineItemDiscountRate,
+	getLineItemDiscountValue,
+	getTotalAmount,
+	getTotalAmountAfterDiscount,
+	getTotalDiscount,
+	getTotalQuantity,
+	handleDelayActionWhenInsertTextInSearchInput,
+	haveAccess,
+	replaceFormatString
 } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
