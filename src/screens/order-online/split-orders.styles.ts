@@ -8,11 +8,7 @@ const nameWidth = nameQuantityWidth - quantityWidth;
 
 export const StyledComponent = styled.div`
   th {
-    .productNameQuantityHeader {
-      .productNameWidth {
-        text-align: center;
-      }
-    }
+		text-align: center !important;
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantity {
