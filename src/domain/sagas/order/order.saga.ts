@@ -284,8 +284,8 @@ function* rePushFulFillmentSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
-        // response.errors.forEach((e) => showError(e));
-        showError(response.message)
+        response.errors.forEach((e) => showError(e));
+        // showError(response.message)
         setError(true);
         break;
     }
