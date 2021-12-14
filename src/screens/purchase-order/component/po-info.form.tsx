@@ -1,13 +1,15 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Select } from "antd";
 import HashTag from "component/custom/hashtag";
+import SelectPaging from "component/custom/SelectPaging";
 import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import { POField } from "model/purchase-order/po-field";
 import { Fragment } from "react";
 import { POStatus } from "utils/Constants";
 
 type POInfoFormProps = {
-  winAccount: Array<AccountResponse>;
+  winAccount: PageResponse<AccountResponse>;
   rdAccount: Array<AccountResponse>;
   isEdit: boolean;
   isEditDetail?: boolean;
@@ -376,18 +378,20 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                     name={POField.merchandiser_code}
                     label="Merchandiser"
                   >
-                    <Select
+                    <SelectPaging
+                      metadata={winAccount.metadata}
                       showArrow
+                      searchPlaceholder="Tìm kiếm merchandiser"
                       allowClear
                       optionFilterProp="children"
                       placeholder="Chọn Merchandiser"
                     >
-                      {winAccount.map((item) => (
-                        <Select.Option key={item.code} value={item.code}>
+                      {winAccount.items.map((item) => (
+                        <SelectPaging.Option key={item.code} value={item.code}>
                           {[item.code, item.full_name].join(" - ")}
-                        </Select.Option>
+                        </SelectPaging.Option>
                       ))}
-                    </Select>
+                    </SelectPaging>
                   </Form.Item>
                   <Form.Item name={POField.qc_code} label="QC">
                     <Select
@@ -408,12 +412,11 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   <Form.Item name={POField.designer_code} label="Thiết kế">
                     <Select
                       showArrow
-                      showSearch
                       allowClear
                       optionFilterProp="children"
                       placeholder="Chọn nhà thiết kế"
                     >
-                      {winAccount.map((item) => (
+                      {winAccount.items.map((item) => (
                         <Select.Option key={item.code} value={item.code}>
                           {[item.code, item.full_name].join(" - ")}
                         </Select.Option>

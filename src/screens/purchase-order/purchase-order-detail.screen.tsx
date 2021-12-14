@@ -96,7 +96,14 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
 
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status);
-  const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
+  const [winAccount, setWinAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  });
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
 
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
@@ -169,7 +176,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         setError(true);
         return;
       }
-      setWinAccount(data.items);
+      setWinAccount(data);
       dispatch(
         AccountSearchAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
       );

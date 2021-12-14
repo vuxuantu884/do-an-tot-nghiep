@@ -8,7 +8,7 @@ export interface AccountBaseModel {
   full_name: string;
   gender: string;
   password: string;
-  mobile: string;
+  phone: string;
   version?: number;
   country_id?: number;
   city_id?: number;
@@ -19,6 +19,7 @@ export interface AccountBaseModel {
   code: string;
   birthday?: string;
   role_id : number;
+  store_ids: Array<number>
 }
 
 export interface AccountResponse extends AccountBaseModel, BaseObject { 
@@ -87,7 +88,6 @@ export interface AccountJobReQuest {
 
 export interface AccountView extends AccountBaseModel {  
   account_jobs?: Array<AccountJobReQuest>;
-  account_stores: Array<number>;
   permissions? : {
     modules: Array<ModuleAuthorize>,
   }
@@ -96,7 +96,6 @@ export interface AccountView extends AccountBaseModel {
 // for create and update screen
 export interface AccountRequest extends AccountBaseModel { 
   account_jobs: Array<AccountJobResponse>;
-  account_stores: Array<AccountStoreResponse>; 
 }
 
 

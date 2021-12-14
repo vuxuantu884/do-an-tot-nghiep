@@ -43,7 +43,6 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
-import { OrderItemDiscountModel } from "model/other/order/order-model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
