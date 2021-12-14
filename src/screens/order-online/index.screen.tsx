@@ -923,7 +923,7 @@ function OrdersScreen(props: PropsType)  {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, selectedRowCodes, EXPORT_IDs, listExportFile]
+    [params, selectedRowCodes, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, listExportFile]
   );
   const checkExportFile = useCallback(() => {
     console.log("start check status");
