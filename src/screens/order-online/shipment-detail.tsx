@@ -179,7 +179,7 @@ const ShipmentDetail: React.FC = () => {
   const rePush = useCallback(() => {
     setLoading1(true)
     const fulfillment_id = fulfillmentDetail.id;
-    dispatch(RePushFulFillmentAction(fulfillment_id, () => {
+    dispatch(RePushFulFillmentAction(fulfillment_id, (response) => {
       showSuccess(
         'Đẩy lại đơn hàng thành công'
       );
@@ -191,7 +191,7 @@ const ShipmentDetail: React.FC = () => {
         }
       });
       setLoading1(false)
-    }));
+    }, () => setLoading1(false) ));
   }, [dispatch, fulfillmentDetail]);
 
   useEffect(() => {

@@ -275,7 +275,7 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
 function* rePushFulFillmentSaga(action: YodyAction) {
   const { fulfillment_id, setData, setError } = action.payload;
   try {
-    let response: BaseResponse<OrderResponse> = yield call(
+    let response: BaseResponse<any> = yield call(
       rePushFulFillmentService,
       fulfillment_id
     );
@@ -284,7 +284,8 @@ function* rePushFulFillmentSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
-        response.errors.forEach((e) => showError(e));
+        // response.errors.forEach((e) => showError(e));
+        showError(response.message)
         setError(true);
         break;
     }
