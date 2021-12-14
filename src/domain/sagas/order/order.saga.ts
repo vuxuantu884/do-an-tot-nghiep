@@ -273,18 +273,19 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
 }
 
 function* rePushFulFillmentSaga(action: YodyAction) {
-  const { request, setData, setError } = action.payload;
+  const { fulfillment_id, setData, setError } = action.payload;
   try {
-    let response: BaseResponse<OrderResponse> = yield call(
+    let response: BaseResponse<any> = yield call(
       rePushFulFillmentService,
-      request
+      fulfillment_id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
       default:
-        response.errors.forEach((e) => showError(e));
+        // response.errors.forEach((e) => showError(e));
+        showError(response.message)
         setError(true);
         break;
     }
