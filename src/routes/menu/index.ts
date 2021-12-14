@@ -137,7 +137,7 @@ const menu: Array<RouteMenu> = [
   {
     path: "/pos",
     exact: true,
-    title: "Bán hàng tại quầy",
+    title: "Bán tại quầy",
     icon: 'icon-sale',
     component: null,
     key: "4",
@@ -149,7 +149,7 @@ const menu: Array<RouteMenu> = [
   {
     path: UrlConfig.YDPAGE,
     exact: true,
-    title: "Bán hàng trên YDPage",
+    title: "YDPage",
     icon: 'icon-YDpage',
     component: YDpage,
     key: "YDpage",

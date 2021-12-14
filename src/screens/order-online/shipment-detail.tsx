@@ -3,7 +3,7 @@
 import { Button, Card, Col, Collapse, Divider, Row, Table } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { getFulfillmentDetail, getTrackingLogFulfillmentAction, UpdateFulFillmentStatusAction } from "domain/actions/order/order.action";
+import { getFulfillmentDetail, getTrackingLogFulfillmentAction, RePushFulFillmentAction, UpdateFulFillmentStatusAction } from "domain/actions/order/order.action";
 import { OrderResponse, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React from "react";
@@ -17,6 +17,7 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
 import { UpdateFulFillmentStatusRequest } from "model/request/order.request";
 import { showSuccess } from "utils/ToastUtils";
+import { Link } from "react-router-dom";
 
 type ShipmentParam = {
   code: string;
@@ -83,6 +84,17 @@ const ShipmentDetail: React.FC = () => {
     {
       title: "Số lượng",
       dataIndex: "quantity",
+      render: (quantity: number) => (
+        <div>
+          <NumberFormat
+            value={quantity}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          <div style={{ height: 40 }}></div>
+        </div>
+      ),
       visible: true,
       align: 'right',
       width: "15%",
@@ -91,12 +103,15 @@ const ShipmentDetail: React.FC = () => {
       title: <span><span>Đơn giá </span><span style={{ color: '#737373', fontWeight: 400 }}> đ</span></span>,
       dataIndex: "price",
       render: (price: number) => (
-        <NumberFormat
-          value={price}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+        <div>
+          <NumberFormat
+            value={price}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          <div style={{ height: 40 }}></div>
+        </div>
       ),
       visible: true,
       align: 'right',
@@ -112,8 +127,7 @@ const ShipmentDetail: React.FC = () => {
             displayType={"text"}
             thousandSeparator={true}
           />
-          <br />
-          <span style={{ color: '#E24343' }}>{record.discount_rate}%</span>
+          <div style={{ color: '#E24343', height: 40 }}>{record.discount_rate}%</div>
         </div>
       ),
       visible: true,
@@ -123,12 +137,15 @@ const ShipmentDetail: React.FC = () => {
     {
       title: <span><span>Thành tiền </span><span style={{ color: '#737373', fontWeight: 400 }}> đ</span></span>,
       render: (record: any) => (
-        <NumberFormat
-          value={record.price * record.quantity - record.discount_amount}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+        <div>
+          <NumberFormat
+            value={record.price * record.quantity - record.discount_amount}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          <div style={{ height: 40 }}></div>
+        </div>
       ),
       visible: true,
       align: 'right',
@@ -162,24 +179,20 @@ const ShipmentDetail: React.FC = () => {
   const [loading1, setLoading1] = useState(false);
   const rePush = useCallback(() => {
     setLoading1(true)
-    let value: UpdateFulFillmentStatusRequest = {
-      order_id: null,
-      fulfillment_id: null,
-      status: "",
-    };
-    value.order_id = fulfillmentDetail?.order.id;
-    value.fulfillment_id = fulfillmentDetail.id;
-    value.status = FulFillmentStatus.RETURNED;
-    dispatch(UpdateFulFillmentStatusAction(value, () => {
+    const fulfillment_id = fulfillmentDetail.id;
+    dispatch(RePushFulFillmentAction(fulfillment_id, (response) => {
       showSuccess(
-        'Bạn đã nhận hàng trả lại'
+        'Đẩy lại đơn hàng thành công'
       );
       setFulfillmentDetail({
         ...fulfillmentDetail,
-        return_status: 'returned'
+        shipment: {
+          ...fulfillmentDetail.shipment,
+          pushing_status: 'success'
+        }
       });
       setLoading1(false)
-    }));
+    }, () => setLoading1(false) ));
   }, [dispatch, fulfillmentDetail]);
 
   useEffect(() => {
@@ -275,22 +288,24 @@ const ShipmentDetail: React.FC = () => {
             title={
               <div className="title">
                 <span><span>MÃ VẬN ĐƠN:</span><span style={{ color: '#2A2A86' }}> {fulfillmentDetail?.shipment?.tracking_code}</span></span>
-                <span>
-                  <span>Trạng thái:</span>
+                <span style={{ textTransform: 'initial' }}>
+                  <span style={{ fontWeight: 400 }}>Trạng thái:</span>
                   <span style={{ color: fulfillmentDetail?.shipment?.pushing_status !== 'failed' ? fulfillmentDetail?.status_color : '#E24343', paddingLeft: 5 }}>
-                      {fulfillmentDetail?.shipment?.pushing_status !== 'failed' ? fulfillmentDetail?.status_name : 'Đẩy đơn hvc thất bại'}
+                      {fulfillmentDetail?.status !== 'cancelled'  && fulfillmentDetail?.shipment?.pushing_status === 'failed' ? 'Đẩy đơn hvc thất bại' : fulfillmentDetail?.status_name }
                   </span>
                 </span>
                 <span style={{ minWidth: 100 }}>
-                  {fulfillmentDetail?.shipment?.pushing_status === 'failed' && <Button
+                  {fulfillmentDetail?.status !== 'cancelled'  && fulfillmentDetail?.shipment?.pushing_status === 'failed' && <Button
                     type="primary"
-                    onClick={() => {}}
+                    onClick={() => rePush()}
+                    loading={loading1}
                   >
                     Đẩy lại đơn HVC
                   </Button>}
                   {fulfillmentDetail?.return_status === 'returning' && <Button
                     type="primary"
                     onClick={() => onOKGoodsReturn()}
+                    loading={loading}
                   >
                     Nhận hàng
                   </Button>}
@@ -302,7 +317,12 @@ const ShipmentDetail: React.FC = () => {
             <div className="details">
               <div className="detail">
                 <span className="name">Đơn hàng:</span>
-                <span className="value" style={{ color: '#2A2A86' }}><b>{fulfillmentDetail?.order?.code}</b></span>
+                <span className="value" style={{ color: '#2A2A86' }}>
+                  {/* <b>{fulfillmentDetail?.order?.code}</b> */}
+                  <Link  target="_blank" to={`${UrlConfig.ORDER}/${fulfillmentDetail?.order?.id}`} style={{fontWeight: 500}}>
+                    {fulfillmentDetail?.order?.code}
+                  </Link>
+                </span>
               </div>
               <div className="detail">
                 <span className="name">Người nhận:</span>
@@ -468,7 +488,7 @@ const ShipmentDetail: React.FC = () => {
                 </div>
                 <Divider style={{ marginTop: 0 }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', height: '40px' }}>
-                  <div>Khách cần phải trả:</div>
+                  <div style={{ fontWeight: 700 }}>Khách cần phải trả:</div>
                   <div style={{ color: "#2A2A86", fontSize: 18, fontWeight: 700 }}>
                     <NumberFormat
                       value={fulfillmentDetail?.order?.total ? fulfillmentDetail.order.total : 0}
@@ -548,15 +568,36 @@ const ShipmentDetail: React.FC = () => {
             </div>
             <div className="detail">
               <span className="name">Tiền thu hộ COD:</span>
-              <span className="value">{fulfillmentDetail?.shipment?.cod}</span>
+              <span className="value">
+                <NumberFormat
+                  value={fulfillmentDetail?.shipment?.cod}
+                  className="foo"
+                  displayType={"text"}
+                  thousandSeparator={true}
+                />
+              </span>
             </div>
             <div className="detail">
               <span className="name">Tiền trả HVC:</span>
-              <span className="value">{fulfillmentDetail?.shipment?.shipping_fee_paid_to_three_pls}</span>
+              <span className="value">
+                <NumberFormat
+                  value={fulfillmentDetail?.shipment?.shipping_fee_paid_to_three_pls}
+                  className="foo"
+                  displayType={"text"}
+                  thousandSeparator={true}
+                />
+              </span>
             </div>
             <div className="detail">
               <span className="name">Phí ship báo khách:</span>
-              <span className="value">{fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer}</span>
+              <span className="value">
+                <NumberFormat
+                  value={fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer}
+                  className="foo"
+                  displayType={"text"}
+                  thousandSeparator={true}
+                />
+              </span>
             </div>
             <div className="detail">
               <span className="name">Ngày tạo:</span>

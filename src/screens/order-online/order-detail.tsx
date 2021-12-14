@@ -634,7 +634,7 @@ const OrderDetail = (props: PropType) => {
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}
-                    returnMoneyAmount={Math.abs(
+                    returnMoneyAmount={(
                       customerNeedToPayValue -
                         (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
                     )}

@@ -6,6 +6,9 @@ import {
   PurchaseOrderPrint,
 } from "model/purchase-order/purchase-order.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import BaseResponse from "base/base.response";
+import { ImportProcument } from "model/purchase-order/purchase-procument";
+import { ImportResponse } from "model/other/files/export-model";
 
 export const POGetPrintContentAction = (
   id: number,
@@ -92,5 +95,15 @@ export const POCancelAction = (
   return BaseAction(POType.CANCEL_PO_REQUEST, {
     id,
     cancelCallback,
+  });
+};
+
+export const exportPOAction = (
+  params: ImportProcument,
+  onResult: (result: BaseResponse<ImportResponse>|false) => void
+) => {
+  return BaseAction(POType.EXPORT_PO, {
+    params,
+    onResult
   });
 };

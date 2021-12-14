@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { borderColor } from "utils/global-styles/variables";
-export const nameQuantityWidth = 300;
+import {borderColor} from "utils/global-styles/variables";
+export const nameQuantityWidth = 295;
 const quantityWidth = 50;
 const priceWidth = 85;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
@@ -52,7 +52,7 @@ export const StyledComponent = styled.div`
       z-index: 1;
       top: 0;
       bottom: 0;
-      right: ${quantityWidth+priceWidth}px;
+      right: ${quantityWidth + priceWidth}px;
       background-color: ${borderColor};
     }
   }

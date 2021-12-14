@@ -152,12 +152,12 @@ export const UpdateFulFillmentStatusAction = (
 };
 
 export const RePushFulFillmentAction = (
-  request: UpdateFulFillmentStatusRequest,
+  fulfillment_id: number,
   setData: (data: OrderResponse) => void,
   setError?: (error: boolean) => void
 ) => {
   return BaseAction(OrderType.REPUSH_FULFILLMENT, {
-    request,
+    fulfillment_id,
     setData,
     setError,
   });

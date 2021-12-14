@@ -281,6 +281,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
+      delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
   }}, [params])
   console.log('initialValues', initialValues)
   const onFinish = useCallback(

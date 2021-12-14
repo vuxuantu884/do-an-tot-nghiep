@@ -1,9 +1,8 @@
 import { Col, Form, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { AccountResponse } from "model/account/account.model";
-import React, { useContext } from "react";
+import React from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -66,7 +65,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                     key={index.toString()}
                     value={item.code}
                   >
-                    {`${item.full_name} - ${item.mobile}`}
+                    {`${item.full_name} - ${item.phone}`}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
