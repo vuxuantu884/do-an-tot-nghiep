@@ -17,6 +17,7 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
 import { UpdateFulFillmentStatusRequest } from "model/request/order.request";
 import { showSuccess } from "utils/ToastUtils";
+import { Link } from "react-router-dom";
 
 type ShipmentParam = {
   code: string;
@@ -290,11 +291,11 @@ const ShipmentDetail: React.FC = () => {
                 <span style={{ textTransform: 'initial' }}>
                   <span style={{ fontWeight: 400 }}>Trạng thái:</span>
                   <span style={{ color: fulfillmentDetail?.shipment?.pushing_status !== 'failed' ? fulfillmentDetail?.status_color : '#E24343', paddingLeft: 5 }}>
-                      {fulfillmentDetail?.shipment?.pushing_status !== 'failed' ? fulfillmentDetail?.status_name : 'Đẩy đơn hvc thất bại'}
+                      {fulfillmentDetail?.status !== 'cancelled'  && fulfillmentDetail?.shipment?.pushing_status === 'failed' ? 'Đẩy đơn hvc thất bại' : fulfillmentDetail?.status_name }
                   </span>
                 </span>
                 <span style={{ minWidth: 100 }}>
-                  {fulfillmentDetail?.shipment?.pushing_status === 'failed' && <Button
+                  {fulfillmentDetail?.status !== 'cancelled'  && fulfillmentDetail?.shipment?.pushing_status === 'failed' && <Button
                     type="primary"
                     onClick={() => rePush()}
                     loading={loading1}
@@ -316,7 +317,12 @@ const ShipmentDetail: React.FC = () => {
             <div className="details">
               <div className="detail">
                 <span className="name">Đơn hàng:</span>
-                <span className="value" style={{ color: '#2A2A86' }}><b>{fulfillmentDetail?.order?.code}</b></span>
+                <span className="value" style={{ color: '#2A2A86' }}>
+                  {/* <b>{fulfillmentDetail?.order?.code}</b> */}
+                  <Link  target="_blank" to={`${UrlConfig.ORDER}/${fulfillmentDetail?.order?.id}`} style={{fontWeight: 500}}>
+                    {fulfillmentDetail?.order?.code}
+                  </Link>
+                </span>
               </div>
               <div className="detail">
                 <span className="name">Người nhận:</span>
