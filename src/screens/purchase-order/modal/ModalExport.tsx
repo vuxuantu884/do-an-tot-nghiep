@@ -9,18 +9,18 @@ import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
 import { useDispatch } from "react-redux";
 import { uploadFileAction } from "domain/actions/core/import.action";
-import { importProcumentAction } from "domain/actions/po/po-procument.action";
 import { ImportProcument } from "model/purchase-order/purchase-procument";
 import {HttpStatus} from "config/http-status.config";
 import { getJobImport } from "service/purchase-order/purchase-procument.service";
 import { VscError } from "react-icons/vsc";
+import { exportPOAction } from "domain/actions/po/po.action";
+import BaseResponse from "base/base.response";
 
 export interface ModalImportProps {
   visible?: boolean;
   onOk: (res: any) => void;
   onCancel: () => void;
   title: string | React.ReactNode;
-  subTitle?: string | React.ReactNode;
   okText?: string;
   cancelText?: string;
   loading?: boolean;
@@ -31,46 +31,37 @@ export interface ModalImportProps {
 
 type UploadStatus = "ERROR" | "SUCCESS" | "DONE" | "PROCESSING" | "REMOVED" | undefined;
 
-const ModalImport: React.FC<ModalImportProps> = (
+const ModalExport: React.FC<ModalImportProps> = (
   props: ModalImportProps
 ) => {
-  const { visible, onOk, onCancel, title, subTitle, okText, cancelText, templateUrl, forder, customParams } =
+  const { visible, onOk, onCancel, title, okText, cancelText, templateUrl, forder, customParams } =
     props;
 
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
-  const [importRes, setImportRes] = useState<
+  const [exportRes, setExportRes] = useState<
   Array<any>
 >([]);
   const [uploadError, setUploadError] = useState<any>("");
-  const [importTotal, setImportTotal] = useState(0);
-  const [successCount, setSuccessCount] = useState(0);
-  const [data, setData] = useState<any>();
+  const [data, setData] = useState<BaseResponse<any>>();
   const dispatch = useDispatch();
 
   const onResultImport = useCallback((res)=>{
-    
    if (res) {
     const {status, code} = res;  
-
+          
     if (status === EnumImportStatus.processing) {
       let getFilePromises = getJobImport(code);
       setUploadStatus(status);
-
+      
       Promise.all([getFilePromises]).then((responses) => {
         responses.forEach((response) => {
-          if (response.code === HttpStatus.SUCCESS) {  if (response.data.message.length > 0) {
-              // const errors: Array<any> = _.uniqBy(
-              //   response.data.message,
-              //   "index"
-              // ).sort((a: any, b: any) => a.index - b.index);
-
-              setImportRes([...response.data.message]);
+          if (response.code === HttpStatus.SUCCESS) {  
+            if (response.data && response.data.message && response.data.message.length > 0) { 
+              setExportRes([...response.data.message]);
             } else {
-              setImportRes([]);
-              setData([]);
+              setExportRes([]);
+              setData({...response.data});
             }
-            setImportTotal(response.data.total);
-            setSuccessCount(response.data.total_process); 
             if (response.data?.status === EnumJobStatus.finish) {
               setUploadStatus(EnumJobStatus.success);
               return;
@@ -90,9 +81,10 @@ const ModalImport: React.FC<ModalImportProps> = (
         const params: ImportProcument = {
           url: res[0],
           conditions: customParams?.conditions,
-          type: customParams?.type
+          type: customParams?.type,
+          url_template: customParams.url_template
         }
-        dispatch(importProcumentAction(params, onResultImport))
+        dispatch(exportPOAction(params, onResultImport))
     } 
  
   },[customParams,dispatch, onResultImport]);
@@ -120,15 +112,16 @@ const ModalImport: React.FC<ModalImportProps> = (
             <Button
               key="back"
               onClick={()=>{
-                setSuccessCount(0);
-                setSuccessCount(0);
                 setUploadStatus(undefined);
                 ActionImport.Cancel();
               }} 
             >
               {cancelText}
-            </Button>,
-            <Button key="link" type="primary" onClick={ActionImport.Ok}>
+            </Button>
+            ,<Button key="link" type="primary" onClick={()=>{
+              setUploadStatus(undefined);
+              ActionImport.Ok();
+            }}>
               {okText}
             </Button>,
           ]}
@@ -154,7 +147,7 @@ const ModalImport: React.FC<ModalImportProps> = (
                   ) {
                     setUploadStatus("ERROR");
                     setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
-                    setImportRes([]);
+                    setExportRes([]);
                     return false;
                   }
                   setUploadStatus(EnumImportStatus.processing);
@@ -232,24 +225,20 @@ const ModalImport: React.FC<ModalImportProps> = (
                   </Row>
                   <Row justify={"center"}>
                       <h2 style={{padding: "10px 30px"}}>
-                        Xử lý file nhập hoàn tất:{" "}
-                        <strong style={{color: "#2A2A86"}}>
-                          {successCount} / {importTotal}
-                        </strong>{" "}
-                        {subTitle} thành công
+                        Xử lý file thành công
                       </h2>
-                    </Row>
+                  </Row>
                 </>
               }
               <Divider />
-              {importRes?.length > 0 ? (
+              {exportRes?.length > 0 ? (
                 <div>
                   <Row justify={"start"}>
                     <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
                   </Row>
                   <Row justify={"start"}>
                     <li style={{padding: "10px 30px"}}>
-                      {importRes?.map((error: any, index) => (
+                      {exportRes?.map((error: any, index) => (
                         <ul key={index}>
                           <span>
                              {error}
@@ -272,4 +261,4 @@ const ModalImport: React.FC<ModalImportProps> = (
   );
 };
 
-export default ModalImport;
+export default ModalExport;
