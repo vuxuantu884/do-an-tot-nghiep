@@ -36,7 +36,7 @@ const actions: Array<MenuAction> = [
 
 const initQuery: DuplicateOrderSearchQuery = {
   page: 1,
-  limit: 30,
+  limit: 10,
   issued_on_min: "",
   issued_on_max: "",
   search_term: "",
@@ -279,6 +279,13 @@ const CustomerDuplicate: React.FC = () => {
           key: index
         })
       })
+
+      result.metadata={
+        limit: data.metadata.limit,
+        page: data.metadata.page,
+        total: data.metadata.total,
+      }
+
       setData(result);
     }))
   }, [dispatch, params]);
