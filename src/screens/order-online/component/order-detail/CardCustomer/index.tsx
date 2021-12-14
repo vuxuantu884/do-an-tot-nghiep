@@ -86,10 +86,10 @@ const initQueryCustomer: CustomerSearchQuery = {
   company: null,
   from_wedding_date: null,
   to_wedding_date: null,
-  customer_type_id: undefined,
-  customer_group_id: undefined,
+  customer_type_ids: [],
+  customer_group_ids: [],
   customer_level_id: undefined,
-  responsible_staff_code: null,
+  responsible_staff_codes: null,
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => {
