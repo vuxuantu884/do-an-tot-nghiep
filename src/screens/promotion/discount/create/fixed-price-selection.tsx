@@ -59,6 +59,7 @@ const FixedPriceSelection = (props: Props) => {
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
 
+  const [importProduct, setImportProduct] = useState<Array<Array<VariantEntitlementsResponse>>>([]);
   // import file
   const handleImportEntitlements = () => {
     const newVariantList = Object.assign(
@@ -78,7 +79,7 @@ const FixedPriceSelection = (props: Props) => {
     // phân bổ các variant trong file import vào các discount có sẵn hoặc thêm mới discount
     const importedResult = shareDiscount(formEntitlements, newVariantList, form);
 
-    form.setFieldsValue({ entitlements: importedResult });
+    setImportProduct(_.cloneDeep(importedResult));
     setUploadStatus(undefined);
     setShowImportModal(false);
   };
@@ -86,7 +87,7 @@ const FixedPriceSelection = (props: Props) => {
   useLayoutEffect(() => {
     setAllProduct(isAllProductProps || false);
   }, [isAllProductProps])
-  
+
   return (
     <Col span={24}>
       <Form.List name="entitlements">
@@ -140,6 +141,8 @@ const FixedPriceSelection = (props: Props) => {
                     restField={restField}
                     allProducts={allProduct}
                     discountMethod={discountMethod}
+                    importProduct={importProduct[name]}
+                    setImportProduct={setImportProduct}
                   />
                 );
               })}
