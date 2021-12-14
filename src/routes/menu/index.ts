@@ -73,7 +73,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Vận chuyển",
     icon: 'icon-transport',
-    component: OrderOnline,
+    component: null,
     key: "19",
     isShow: true,
     header: null,

@@ -39,9 +39,7 @@ const ModalConfirm: React.FC<ModalConfirmProps> = (
             }}
             className="modal-confirm-icon"
           >
-            <TiWarningOutline />
-
-            {/* <QuestionCircleOutlined /> */}
+            <TiWarningOutline /> 
           </div>
         </div>
         <div className="modal-confirm-right margin-left-20">

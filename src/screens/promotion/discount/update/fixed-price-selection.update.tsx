@@ -1,20 +1,21 @@
-import {CheckCircleOutlined, LoadingOutlined, PlusOutlined} from "@ant-design/icons";
-import {Button, Checkbox, Col, Divider, Form, message, Modal, Row, Space} from "antd";
+import { CheckCircleOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Col, Divider, Form, FormInstance, message, Modal, Row, Space } from "antd";
 import Dragger from "antd/es/upload/Dragger";
+import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import _ from "lodash";
 import {
-  DiscountFormModel,
-  VariantEntitlementsResponse,
+  DiscountFormModel, VariantEntitlementsResponse
 } from "model/promotion/discount.create.model";
-import React, {useState} from "react";
-import {VscError} from "react-icons/all";
-import {RiUpload2Line} from "react-icons/ri";
-import {shareDiscount} from "utils/PromotionUtils";
+import React, { useContext, useState } from "react";
+import { VscError } from "react-icons/all";
+import { RiUpload2Line } from "react-icons/ri";
+import { shareDiscount } from "utils/PromotionUtils";
 import importIcon from "../../../../assets/icon/import.svg";
-import {AppConfig} from "../../../../config/app.config";
-import {getToken} from "../../../../utils/LocalStorageUtils";
+import { AppConfig } from "../../../../config/app.config";
+import { getToken } from "../../../../utils/LocalStorageUtils";
 import "../discount.scss";
-import FixedPriceGroup from "./FixedPriceGroup";
+import { DiscountUpdateContext } from "./discount-update-provider";
+import FixedPriceGroupUpdate from "./fixed-price-group.update";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -36,11 +37,17 @@ enum EnumUploadStatus {
   uploading = "uploading",
   removed = "removed",
 }
-const FixedPriceSelection = (props: any) => {
+interface Props {
+  form: FormInstance;
+
+}
+
+
+
+const FixedPriceSelectionUpdate = (props: Props) => {
   const token = getToken() || "";
-  const {form, discountMethod} = props;
+  const { form, } = props;
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
-  const [allProduct, setAllProduct] = useState<boolean>(false);
   const [entitlementsResponse, setEntitlementsResponse] = useState<
     Array<VariantEntitlementsResponse>
   >([]);
@@ -52,6 +59,8 @@ const FixedPriceSelection = (props: any) => {
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
 
+  const discountUpdateContext = useContext(DiscountUpdateContext);
+  const { isAllProduct, setIsAllProduct, selectedVariant: entitlementsVariantMap, setSelectedVariant } = discountUpdateContext;
   // import file
   const handleImportEntitlements = () => {
     const newVariantList = Object.assign(
@@ -71,22 +80,49 @@ const FixedPriceSelection = (props: any) => {
     // phân bổ các variant trong file import vào các discount có sẵn hoặc thêm mới discount
     const importedResult = shareDiscount(formEntitlements, newVariantList, form);
 
-    form.setFieldsValue({entitlements: importedResult});
+    form.setFieldsValue({ entitlements: importedResult });
     setUploadStatus(undefined);
     setShowImportModal(false);
   };
 
+
+
   return (
     <Col span={24}>
       <Form.List name="entitlements">
-        {(fields, {add, remove}, {errors}) => {
+        {(fields: FormListFieldData[], { add, remove }: FormListOperation, { errors }: {
+          errors: React.ReactNode[];
+        }) => {
+          const addBlankEntitlement = () => {
+            const temp = _.cloneDeep(entitlementsVariantMap);
+
+            temp.unshift([]);
+            setSelectedVariant(temp);
+            add({}, 0);
+          };
+
+          const removeEntitlementItem = (index: number) => {
+            const temp = _.cloneDeep(entitlementsVariantMap);
+            temp.splice(index, 1);
+            setSelectedVariant(temp);
+
+            remove(index);
+          };
+
           return (
             <>
               <Row>
                 <Col span={8}>
                   <Checkbox
+                    checked={isAllProduct}
                     onChange={(value) => {
-                      setAllProduct(value.target.checked);
+                      setIsAllProduct(value.target.checked);
+                      // reset variant id
+                      const formEntitlements = form.getFieldValue("entitlements");
+                      formEntitlements.forEach((item: any) => {
+                        item.entitled_variant_ids = [];
+                      });
+                      form.setFieldsValue({ entitlements: formEntitlements });
                     }}
                   >
                     Tất cả sản phẩm
@@ -98,15 +134,15 @@ const FixedPriceSelection = (props: any) => {
                       <Form.Item>
                         <Button
                           onClick={() => setShowImportModal(true)}
-                          icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
+                          icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
                         >
                           Nhập file
                         </Button>
                       </Form.Item>
                       <Form.Item>
                         <Button
-                          disabled={allProduct}
-                          onClick={() => add()}
+                          disabled={isAllProduct}
+                          onClick={addBlankEntitlement}
                           icon={<PlusOutlined />}
                         >
                           Thêm chiết khấu
@@ -117,17 +153,16 @@ const FixedPriceSelection = (props: any) => {
                 </Col>
               </Row>
 
-              {fields.reverse().map(({key, name, fieldKey, ...restField}) => {
+              {fields.map(({ key, name, fieldKey, ...restField }) => {
+
+                console.log(name)
                 return (
-                  <FixedPriceGroup
+                  <FixedPriceGroupUpdate
                     key={key}
                     name={name}
-                    remove={remove}
+                    remove={removeEntitlementItem}
                     fieldKey={fieldKey}
                     form={form}
-                    restField={restField}
-                    allProducts={allProduct}
-                    discountMethod={discountMethod}
                   />
                 );
               })}
@@ -205,14 +240,13 @@ const FixedPriceSelection = (props: any) => {
                 }}
                 multiple={false}
                 showUploadList={false}
-                action={`${
-                  AppConfig.baseUrl
-                }promotion-service/price-rules/entitlements/read-file?type=${form.getFieldValue(
-                  "entitled_method"
-                )}`}
-                headers={{Authorization: `Bearer ${token}`}}
+                action={`${AppConfig.baseUrl
+                  }promotion-service/price-rules/entitlements/read-file?type=${form.getFieldValue(
+                    "entitled_method"
+                  )}`}
+                headers={{ Authorization: `Bearer ${token}` }}
                 onChange={(info) => {
-                  const {status} = info.file;
+                  const { status } = info.file;
                   if (status === EnumUploadStatus.done) {
                     const response = info.file.response;
                     if (response.code === 20000000) {
@@ -257,9 +291,9 @@ const FixedPriceSelection = (props: any) => {
           style={{
             display:
               uploadStatus === EnumUploadStatus.done ||
-              uploadStatus === EnumUploadStatus.uploading ||
-              uploadStatus === EnumUploadStatus.success ||
-              uploadStatus === EnumUploadStatus.error
+                uploadStatus === EnumUploadStatus.uploading ||
+                uploadStatus === EnumUploadStatus.success ||
+                uploadStatus === EnumUploadStatus.error
                 ? ""
                 : "none",
           }}
@@ -268,10 +302,10 @@ const FixedPriceSelection = (props: any) => {
             {uploadStatus === EnumUploadStatus.uploading ? (
               <Col span={24}>
                 <Row justify={"center"}>
-                  <LoadingOutlined style={{fontSize: "78px", color: "#E24343"}} />
+                  <LoadingOutlined style={{ fontSize: "78px", color: "#E24343" }} />
                 </Row>
                 <Row justify={"center"}>
-                  <h2 style={{padding: "10px 30px"}}>Đang upload file...</h2>
+                  <h2 style={{ padding: "10px 30px" }}>Đang upload file...</h2>
                 </Row>
               </Col>
             ) : (
@@ -280,10 +314,10 @@ const FixedPriceSelection = (props: any) => {
             {uploadStatus === EnumUploadStatus.error ? (
               <Col span={24}>
                 <Row justify={"center"}>
-                  <VscError style={{fontSize: "78px", color: "#E24343"}} />
+                  <VscError style={{ fontSize: "78px", color: "#E24343" }} />
                 </Row>
                 <Row justify={"center"}>
-                  <h2 style={{padding: "10px 30px"}}>
+                  <h2 style={{ padding: "10px 30px" }}>
                     <li>{uploadError || "Máy chủ đang bận"}</li>
                   </h2>
                 </Row>
@@ -292,15 +326,15 @@ const FixedPriceSelection = (props: any) => {
               ""
             )}
             {uploadStatus === EnumUploadStatus.done ||
-            uploadStatus === EnumUploadStatus.success ? (
+              uploadStatus === EnumUploadStatus.success ? (
               <Col span={24}>
                 <Row justify={"center"}>
-                  <CheckCircleOutlined style={{fontSize: "78px", color: "#27AE60"}} />
+                  <CheckCircleOutlined style={{ fontSize: "78px", color: "#27AE60" }} />
                 </Row>
                 <Row justify={"center"}>
-                  <h2 style={{padding: "10px 30px"}}>
+                  <h2 style={{ padding: "10px 30px" }}>
                     Xử lý file nhập toàn tất:{" "}
-                    <strong style={{color: "#2A2A86"}}>
+                    <strong style={{ color: "#2A2A86" }}>
                       {successCount} / {importTotal}
                     </strong>{" "}
                     sản phẩm thành công
@@ -310,10 +344,10 @@ const FixedPriceSelection = (props: any) => {
                 {entitlementErrorsResponse.length > 0 ? (
                   <div>
                     <Row justify={"start"}>
-                      <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
+                      <h3 style={{ color: "#E24343" }}>Danh sách lỗi: </h3>
                     </Row>
                     <Row justify={"start"}>
-                      <li style={{padding: "10px 30px"}}>
+                      <li style={{ padding: "10px 30px" }}>
                         {entitlementErrorsResponse?.map((error: any, index) => (
                           <ul key={index}>
                             <span>
@@ -339,4 +373,4 @@ const FixedPriceSelection = (props: any) => {
   );
 };
 
-export default FixedPriceSelection;
+export default FixedPriceSelectionUpdate;

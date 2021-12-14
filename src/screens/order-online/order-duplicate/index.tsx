@@ -34,7 +34,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -50,20 +50,24 @@ import { ShipmentMethod } from "utils/Constants";
 import EditNote from "../component/edit-note";
 
 const ACTION_ID = {
-    mergeOrder: 1,
-	cancelOrder: 2
+  mergeOrder: 1,
+  cancelOrder: 2
 }
+
+type DuplicateParam = {
+  customer_phone: string;
+};
 
 const actions: Array<MenuAction> = [
   {
     id: ACTION_ID.mergeOrder,
     name: "Gộp đơn đã chọn",
-    icon:<ShrinkOutlined />
+    icon: <ShrinkOutlined />
   },
   {
     id: ACTION_ID.cancelOrder,
     name: "Huỷ đơn đã chọn",
-    icon:<CloseSquareOutlined />
+    icon: <CloseSquareOutlined />
   },
 ];
 
@@ -116,6 +120,8 @@ const initQuery: OrderSearchQuery = {
 };
 
 const OrderDuplicate: React.FC = () => {
+  const { customer_phone } = useParams<DuplicateParam>();
+  console.log("customer_phone", customer_phone);
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -136,7 +142,7 @@ const OrderDuplicate: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
-  
+
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
@@ -183,33 +189,33 @@ const OrderDuplicate: React.FC = () => {
     { name: "Đã hết hạn", value: "expired" },
   ];
 
-	const renderCustomerAddress = (orderDetail: OrderResponse) => {
-		let html = orderDetail.customer_address;
-		if(orderDetail.customer_ward) {
-			html += ` - ${orderDetail.customer_ward}`;
-		}
-		if(orderDetail.customer_district) {
-			html += ` - ${orderDetail.customer_district}`;
-		}
-		if(orderDetail.customer_city) {
-			html += ` - ${orderDetail.customer_city}`;
-		}
-		return html;
-	};
+  const renderCustomerAddress = (orderDetail: OrderResponse) => {
+    let html = orderDetail.customer_address;
+    if (orderDetail.customer_ward) {
+      html += ` - ${orderDetail.customer_ward}`;
+    }
+    if (orderDetail.customer_district) {
+      html += ` - ${orderDetail.customer_district}`;
+    }
+    if (orderDetail.customer_city) {
+      html += ` - ${orderDetail.customer_city}`;
+    }
+    return html;
+  };
 
-	const renderCustomerShippingAddress = (orderDetail: OrderResponse) => {
-		let html = orderDetail.shipping_address?.full_address;
-		if(orderDetail?.shipping_address?.ward) {
-			html += ` - ${orderDetail.shipping_address?.ward}`;
-		}
-		if(orderDetail?.shipping_address?.district) {
-			html += ` - ${orderDetail.shipping_address.district}`;
-		}
-		if(orderDetail?.shipping_address?.city) {
-			html += ` - ${orderDetail.shipping_address.city}`;
-		}
-		return html;
-	};
+  const renderCustomerShippingAddress = (orderDetail: OrderResponse) => {
+    let html = orderDetail.shipping_address?.full_address;
+    if (orderDetail?.shipping_address?.ward) {
+      html += ` - ${orderDetail.shipping_address?.ward}`;
+    }
+    if (orderDetail?.shipping_address?.district) {
+      html += ` - ${orderDetail.shipping_address.district}`;
+    }
+    if (orderDetail?.shipping_address?.city) {
+      html += ` - ${orderDetail.shipping_address.city}`;
+    }
+    return html;
+  };
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
@@ -219,13 +225,13 @@ const OrderDuplicate: React.FC = () => {
         // console.log('i', i)
         return (
           <React.Fragment>
-            <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`}>
+            <Link target="_blank" to={`${UrlConfig.ORDER}/${i.id}`}>
               {value}
             </Link>
-            <div style={{fontSize: "0.86em"}}>
+            <div style={{ fontSize: "0.86em" }}>
               {moment(i.created_date).format("hh:mm DD-MM-YYYY")}
             </div>
-            <div style={{fontSize: "0.86em", marginTop:5}}>
+            <div style={{ fontSize: "0.86em", marginTop: 5 }}>
               <Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
                 {i.store}
               </Link>
@@ -241,27 +247,27 @@ const OrderDuplicate: React.FC = () => {
     {
       title: "Khách hàng",
       render: (record: OrderResponse) =>
-				<div className="customer custom-td">
-					<div className="name p-b-3" style={{ color: "#2A2A86" }}>
-						<Link
-							target="_blank"
-							to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
-							className="primary"
-						>
-							{record.customer}
-						</Link>{" "}
-					</div>
-					{/* <div className="p-b-3">{record.shipping_address.phone}</div>
+        <div className="customer custom-td">
+          <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+              className="primary"
+            >
+              {record.customer}
+            </Link>{" "}
+          </div>
+          {/* <div className="p-b-3">{record.shipping_address.phone}</div>
 					<div className="p-b-3">{record.shipping_address.full_address}</div> */}
-					{record.customer_phone_number && (
-						<div className="p-b-3">
-							<a href={`tel:${record.customer_phone_number}`}>
-								{record.customer_phone_number}
-							</a>
-						</div>
-					)}
-					<div className="p-b-3">{renderCustomerAddress(record)}</div>
-				</div>,
+          {record.customer_phone_number && (
+            <div className="p-b-3">
+              <a href={`tel:${record.customer_phone_number}`}>
+                {record.customer_phone_number}
+              </a>
+            </div>
+          )}
+          <div className="p-b-3">{renderCustomerAddress(record)}</div>
+        </div>,
       key: "customer",
       visible: true,
       width: 150,
@@ -285,19 +291,19 @@ const OrderDuplicate: React.FC = () => {
               return (
                 <div className="item custom-td">
                   <div className="product productNameWidth 2">
-										<div className="inner">
-											<Link
-												target="_blank"
-												to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-											>
-												{item.sku} 
-											</Link>
-											<br/>
-											<div className="productNameText" title={item.variant}>
-												{item.variant}
-											</div>
-										</div>
-                    
+                    <div className="inner">
+                      <Link
+                        target="_blank"
+                        to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                      >
+                        {item.sku}
+                      </Link>
+                      <br />
+                      <div className="productNameText" title={item.variant}>
+                        {item.variant}
+                      </div>
+                    </div>
+
                   </div>
                   <div className="quantity quantityWidth">
                     <span>{item.quantity}</span>
@@ -319,14 +325,14 @@ const OrderDuplicate: React.FC = () => {
     //   visible: true,
     //   align: "center",
     // },
-    
+
     {
       title: "Địa chỉ giao hàng",
       render: (record: OrderResponse) =>
-				<div className="customer custom-td">
-					<div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
+        <div className="customer custom-td">
+          <div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
         </div>
-        ,
+      ,
       key: "shipping_address",
       visible: true,
       width: 190,
@@ -449,7 +455,7 @@ const OrderDuplicate: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width:"150px"
+      width: "150px"
     },
     {
       title: "Nguồn đơn hàng",
@@ -457,7 +463,7 @@ const OrderDuplicate: React.FC = () => {
       key: "source",
       visible: true,
       align: "center",
-      width:"130px"
+      width: "130px"
     },
     {
       title: "Đóng gói",
@@ -497,7 +503,7 @@ const OrderDuplicate: React.FC = () => {
       align: "center",
       width: 100,
     },
-    
+
     {
       title: "Trả hàng",
       dataIndex: "return_status",
@@ -642,7 +648,7 @@ const OrderDuplicate: React.FC = () => {
     },
     {
       title: "Ghi chú nội bộ",
-      render: (record) => 
+      render: (record) =>
         <EditNote note={record.note} onOk={(newNote) => {
           console.log('newNote', newNote);
           editNote(newNote, 'note', record.id)
@@ -654,7 +660,7 @@ const OrderDuplicate: React.FC = () => {
     },
     {
       title: "Ghi chú của khách",
-      render: (record) => 
+      render: (record) =>
         <EditNote note={record.customer_note} onOk={(newNote) => {
           console.log('newNote', newNote);
           editNote(newNote, 'customer_note', record.id)
@@ -697,9 +703,9 @@ const OrderDuplicate: React.FC = () => {
       align: "center",
       width: 100,
     },
-		
-    
-    
+
+
+
     {
       title: "Nhân viên bán hàng",
       render: (record) => <div>{`${record.assignee_code} - ${record.assignee}`}</div>,
@@ -734,7 +740,7 @@ const OrderDuplicate: React.FC = () => {
   //const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
   //const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
-  
+
   const onSelectedChange = useCallback((selectedRow) => {
     //setSelectedRow(selectedRow);
     //const selectedRowKeys = selectedRow.map((row: any) => row.id);
@@ -750,9 +756,9 @@ const OrderDuplicate: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
+      history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
     },
-    [history, params]
+    [history, params, customer_phone]
   );
   const onFilter = useCallback(
     (values) => {
@@ -760,15 +766,15 @@ const OrderDuplicate: React.FC = () => {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       setIsFilter(true)
-      history.push(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
+      history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
     },
-    [history, params]
+    [history, params, customer_phone]
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.ORDERS_DUPLICATE}/order?${queryParam}`);
-  }, [history]);
+    history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
+  }, [history, customer_phone]);
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
@@ -925,7 +931,7 @@ const OrderDuplicate: React.FC = () => {
   }, [data1]);
   const editNote = useCallback((newNote, noteType, orderID) => {
     console.log('newNote, noteType, orderID', newNote, noteType, orderID);
-    let params:any = {}
+    let params: any = {}
     if (noteType === 'note') {
       params.note = newNote
     }
@@ -937,12 +943,20 @@ const OrderDuplicate: React.FC = () => {
 
   useEffect(() => {
     setTableLoading(true);
-    dispatch(getListOrderAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult]);
+
+    let _issued_on_min=moment(new Date().setHours(-24)).format('DD-MM-YYYY');
+    let _issued_on_max=moment(new Date()).format('DD-MM-YYYY');
+
+    dispatch(getListOrderAction({ ...params
+      , search_term: params.search_term && params.search_term.length > 0 ? params.search_term : customer_phone
+      ,issued_on_min:params.issued_on_min&&params.issued_on_min.length>0?params.issued_on_min:_issued_on_min
+      ,issued_on_max:params.issued_on_max&&params.issued_on_max.length>0?params.issued_on_max:_issued_on_max
+    }, setSearchResult));
+  }, [dispatch, params, setSearchResult, customer_phone]);
 
   useEffect(() => {
     console.log('data change', data);
-    
+
   }, [data]);
 
   useEffect(() => {
@@ -993,40 +1007,40 @@ const OrderDuplicate: React.FC = () => {
           <Row>
             <Space>
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
-                {(isPassed: boolean) => 
-                <Button
-                  type="default"
-                  className="light"
-                  size="large"
-                  icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-                  onClick={() => {}}
-                  disabled={!isPassed}
-                >
-                  Nhập file
-                </Button>}
+                {(isPassed: boolean) =>
+                  <Button
+                    type="default"
+                    className="light"
+                    size="large"
+                    icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                    onClick={() => { }}
+                    disabled={!isPassed}
+                  >
+                    Nhập file
+                  </Button>}
               </AuthWrapper>
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
-                {(isPassed: boolean) => 
-                <Button
-                  type="default"
-                  className="light"
-                  size="large"
-                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                  // onClick={onExport}
-                  onClick={() => {
-                    console.log("export");
-                    setShowExportModal(true);
-                  }}
-                  disabled={!isPassed}
-                >
-                  Xuất file
-                </Button>}
+                {(isPassed: boolean) =>
+                  <Button
+                    type="default"
+                    className="light"
+                    size="large"
+                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                    // onClick={onExport}
+                    onClick={() => {
+                      console.log("export");
+                      setShowExportModal(true);
+                    }}
+                    disabled={!isPassed}
+                  >
+                    Xuất file
+                  </Button>}
               </AuthWrapper>
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
-                {(isPassed: boolean) => 
-                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />}
+                {(isPassed: boolean) =>
+                  <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />}
               </AuthWrapper>
-              
+
             </Space>
           </Row>
         }
@@ -1052,7 +1066,7 @@ const OrderDuplicate: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 4400 * columnFinal.length/(columns.length ? columns.length : 1)}}
+            scroll={{ x: 4400 * columnFinal.length / (columns.length ? columns.length : 1) }}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,

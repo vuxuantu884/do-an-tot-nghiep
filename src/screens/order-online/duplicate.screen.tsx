@@ -8,7 +8,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MenuAction } from "component/table/ActionButton";
 import OrderDuplicateFilter from "component/filter/order-duplicate.filter";
 import ButtonCreate from "component/header/ButtonCreate";
-import { CustomerDuplicateModel } from "model/duplicate/duplicate.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { Link, useHistory } from "react-router-dom";
@@ -20,6 +19,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { DuplicateOrderSearchQuery } from "model/order/order.model";
 import { generateQuery } from "utils/AppUtils";
 import { getOrderDuplicateAction } from "domain/actions/order/order-duplicate.action";
+import { CustomerDuplicateModel } from "model/order/duplicate.model";
 
 const ACTION_ID = {
   printShipment: 4,
@@ -34,13 +34,13 @@ const actions: Array<MenuAction> = [
   }
 ];
 
-const initQuery:DuplicateOrderSearchQuery={
+const initQuery: DuplicateOrderSearchQuery = {
   page: 1,
   limit: 30,
-  form_date:"",
-  to_date:"",
-  info:"",
-  store_id:null
+  issued_on_min: "",
+  issued_on_max: "",
+  search_term: "",
+  store_id: null
 }
 
 const CustomerDuplicate: React.FC = () => {
@@ -55,55 +55,11 @@ const CustomerDuplicate: React.FC = () => {
   };
 
   let [params, setPrams] = useState<DuplicateOrderSearchQuery>(dataQuery);
-  console.log("params",params)
 
-  const tableLoading=false;
+  const tableLoading = false;
   const [listStore, setStore] = useState<Array<StoreResponse>>();
 
-  const dataTest: CustomerDuplicateModel[] = [
-    {
-      key: 0,
-      id: 1,
-      code: "code1",
-      customer: "name 1",
-      customer_phone_number: "0965143609",
-      customer_city:"",
-      customer_district:"",
-      customer_ward:"",
-      customer_full_address: "address1",
-      store_id: 1,
-      store: "store_name1",
-      order_number: 2
-    },
-    {
-      key: 1,
-      id: 2,
-      code: "code2",
-      customer: "name 2",
-      customer_phone_number: "0965143609",
-      customer_city:"",
-      customer_district:"",
-      customer_ward:"",
-      customer_full_address: "address1",
-      store_id: 1,
-      store: "store_name1",
-      order_number: 2
-    },
-    {
-      key: 2,
-      id: 3,
-      code: "code3",
-      customer: "name 3",
-      customer_phone_number: "0965143609",
-      customer_city:"",
-      customer_district:"",
-      customer_ward:"",
-      customer_full_address: "address3",
-      store_id: 1,
-      store: "store_name1",
-      order_number: 2
-    }
-  ];
+  const dataTest: CustomerDuplicateModel[] = [];
 
   const [data, setData] = useState<PageResponse<CustomerDuplicateModel>>({
     metadata: {
@@ -119,13 +75,24 @@ const CustomerDuplicate: React.FC = () => {
       title: "Khách hàng",
       dataIndex: "customer",
       render: (value: string, i: CustomerDuplicateModel) => {
-        return (
-          <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${i.id}`}>
-              {value}
-            </Link>
-          </React.Fragment>
-        )
+        if (params.issued_on_min !== "" || params.issued_on_max !== "") {
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?issued_on_min=${params.issued_on_min}&issued_on_max=${params.issued_on_max}`}>
+                {value}
+              </Link>
+            </React.Fragment>
+          )
+        }
+        else {
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}`}>
+                {value}
+              </Link>
+            </React.Fragment>
+          )
+        }
       },
       visible: true,
       // fixed: "left",
@@ -137,13 +104,24 @@ const CustomerDuplicate: React.FC = () => {
       title: "Số điện thoại",
       dataIndex: "customer_phone_number",
       render: (value: string, i: CustomerDuplicateModel) => {
-        return (
-          <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${i.id}`}>
-              {value}
-            </Link>
-          </React.Fragment>
-        )
+        if (params.issued_on_min !== "" || params.issued_on_max !== "") {
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?issued_on_min=${params.issued_on_min}&issued_on_max=${params.issued_on_max}`}>
+                {value}
+              </Link>
+            </React.Fragment>
+          )
+        }
+        else {
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}`}>
+                {value}
+              </Link>
+            </React.Fragment>
+          )
+        }
       },
       visible: true,
       width: 200,
@@ -178,7 +156,7 @@ const CustomerDuplicate: React.FC = () => {
     },
     {
       title: "Tổng số đơn",
-      dataIndex: "order_number",
+      dataIndex: "count_order",
       render: (value: string, i: CustomerDuplicateModel) => {
         return (
           <React.Fragment>{value}</React.Fragment>
@@ -205,7 +183,7 @@ const CustomerDuplicate: React.FC = () => {
       setPrams({ ...params });
       history.replace(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
     },
-    [history,params]
+    [history, params]
   );
 
   const onMenuClick = useCallback((index: number) => {
@@ -219,12 +197,66 @@ const CustomerDuplicate: React.FC = () => {
     }
   }, []);
 
-  const onFilter = useCallback((value:DuplicateOrderSearchQuery)=>{
+  const onFilter = useCallback((value: DuplicateOrderSearchQuery) => {
     let newPrams = { ...params, ...value, page: 1 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
-  },[history,params]);
+    const items = [...columns];
+    items[0] = {
+      ...items[0],
+      render: (value: string, i: CustomerDuplicateModel) => {
+        if (newPrams.issued_on_min !== "" || newPrams.issued_on_max !== "") {
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?issued_on_min=${newPrams.issued_on_min}&issued_on_max=${newPrams.issued_on_max}`}>
+                {value}
+              </Link>
+            </React.Fragment>
+          )
+        }
+        else {
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}`}>
+                {value}
+              </Link>
+            </React.Fragment>
+          )
+        }
+      },
+    };
+
+    items[1] = {
+      ...items[1],
+      title: "Số điện thoại",
+      dataIndex: "customer_phone_number",
+      render: (value: string, i: CustomerDuplicateModel) => {
+        if (newPrams.issued_on_min !== "" || newPrams.issued_on_max !== "") {
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?issued_on_min=${newPrams.issued_on_min}&issued_on_max=${newPrams.issued_on_max}`}>
+                {value}
+              </Link>
+            </React.Fragment>
+          )
+        }
+        else {
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}`}>
+                {value}
+              </Link>
+            </React.Fragment>
+          )
+        }
+      }
+    };
+
+    setColumn(items);
+    history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
+  }, [history, params, columns]);
+
+  console.log("columns",columns)
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
@@ -232,9 +264,26 @@ const CustomerDuplicate: React.FC = () => {
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
-    dispatch(getOrderDuplicateAction(params,setData))
-  }, [dispatch,params]);
+    dispatch(getOrderDuplicateAction(params, (data: PageResponse<CustomerDuplicateModel>) => {
+      let result: PageResponse<CustomerDuplicateModel> = {
+        metadata: {
+          limit: 30,
+          page: 1,
+          total: 3,
+        },
+        items: [],
+      }
+      data.items.forEach(function (item, index) {
+        result.items.push({
+          ...item,
+          key: index
+        })
+      })
+      setData(result);
+    }))
+  }, [dispatch, params]);
 
+  console.log("data", data)
   return (
     <ContentContainer
       title="Đơn trùng"
@@ -250,7 +299,7 @@ const CustomerDuplicate: React.FC = () => {
       extra={
         <Row>
           <Space>
-          
+
             <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
               {(isPassed: boolean) => (
                 <Button
@@ -283,8 +332,8 @@ const CustomerDuplicate: React.FC = () => {
           actions={actions}
           onMenuClick={onMenuClick}
           onShowColumnSetting={() => setShowSettingColumn(true)}
-          listStore={listStore} 
-          onFilter={onFilter}  
+          listStore={listStore}
+          onFilter={onFilter}
           initialValues={params}
         />
 
@@ -304,7 +353,7 @@ const CustomerDuplicate: React.FC = () => {
 
           dataSource={data.items}
           columns={columnFinal}
-          rowKey={(item: CustomerDuplicateModel) => item.id}
+          rowKey={(item: CustomerDuplicateModel) => item.key}
           className="order-list"
         />
       </Card>

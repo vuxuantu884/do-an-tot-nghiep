@@ -83,7 +83,7 @@ const SupplierPaymentModal: React.FC<SupplierPaymentModalProps> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập chi nhánh",
+                  message: "Chi nhánh không được để trống",
                 },
               ]}
               label="Chi nhánh"

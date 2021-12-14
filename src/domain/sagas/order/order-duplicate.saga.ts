@@ -1,7 +1,7 @@
+import { CustomerDuplicateModel } from './../../../model/order/duplicate.model';
 import { OrderType } from 'domain/types/order.type';
 import {getOrderDuplicateService} from "./../../../service/order/order-duplicate.service";
 import {call,takeLatest,put} from "@redux-saga/core/effects";
-import {CustomerDuplicateModel} from "model/duplicate/duplicate.model";
 import {YodyAction} from "base/base.action";
 import {showError} from "utils/ToastUtils";
 import BaseResponse from "base/base.response";

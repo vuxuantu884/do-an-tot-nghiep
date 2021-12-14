@@ -1,4 +1,4 @@
-import {DeleteOutlined} from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import {
   Button,
   Col,
@@ -9,32 +9,32 @@ import {
   Select,
   Space,
   Table,
-  Tooltip,
+  Tooltip
 } from "antd";
 import _ from "lodash";
-import {DiscountFormModel} from "model/promotion/discount.create.model";
-import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import {AiOutlineClose} from "react-icons/ai";
-import {RiInformationLine} from "react-icons/ri";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
-import {showError} from "utils/ToastUtils";
+import { DiscountFormModel } from "model/promotion/discount.create.model";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { AiOutlineClose } from "react-icons/ai";
+import { RiInformationLine } from "react-icons/ri";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { showError } from "utils/ToastUtils";
 import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
 import NumberInput from "../../../../component/custom/number-input.custom";
 import UrlConfig from "../../../../config/url.config";
-import {searchVariantsRequestAction} from "../../../../domain/actions/product/products.action";
-import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {VariantResponse} from "../../../../model/product/product.model";
-import {formatCurrency} from "../../../../utils/AppUtils";
+import { searchVariantsRequestAction } from "../../../../domain/actions/product/products.action";
+import { PageResponse } from "../../../../model/base/base-metadata.response";
+import { VariantResponse } from "../../../../model/product/product.model";
+import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
-import {DiscountMethodStyled} from "./style";
+import { DiscountMethodStyled } from "../components/style";
 
 const Option = Select.Option;
 
 const FixedPriceGroup = (props: any) => {
-  const {key, name, form, remove, allProducts, discountMethod} = props;
+  const { key, name, form, remove, allProducts, discountMethod } = props;
   const dispatch = useDispatch();
 
   const [data, setData] = useState<Array<VariantResponse>>([]);
@@ -125,7 +125,7 @@ const FixedPriceGroup = (props: any) => {
     entitlementFields[name] = Object.assign({}, entitlementFields[name], {
       entitled_variant_ids: selectedProduct.map((p) => p.id),
     });
-    form.setFieldsValue({entitlements: entitlementFields});
+    form.setFieldsValue({ entitlements: entitlementFields });
   }, [form, name, selectedProduct, entitlementForm]);
 
   const renderResult = useMemo(() => {
@@ -168,7 +168,7 @@ const FixedPriceGroup = (props: any) => {
     (index: number) => {
       selectedProduct.splice(index, 1);
       setSelectedProduct([...selectedProduct]);
-      entitlementForm[name].variants.splice(index, 1);
+      entitlementForm[name].variants?.splice(index, 1);
     },
     [selectedProduct, entitlementForm, name]
   );
@@ -213,8 +213,8 @@ const FixedPriceGroup = (props: any) => {
               </Space>
             }
             rules={[
-              {required: true, message: "Cần nhập số lượng tối thiểu"},
-              ({getFieldValue}) => ({
+              { required: true, message: "Cần nhập số lượng tối thiểu" },
+              ({ getFieldValue }) => ({
                 validator(_, value) {
                   const usageLimit = getFieldValue("usage_limit");
                   const entitlements = getFieldValue("entitlements");
@@ -239,7 +239,7 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         {/* Tạm thời bỏ giới hạn số lượng */}
-        <Col span={7} style={{display: "none"}}>
+        {/* <Col span={7} style={{display: "none"}}>
           <Form.Item
             name={[name, "prerequisite_quantity_ranges.allocation_limit"]}
             label={
@@ -258,18 +258,18 @@ const FixedPriceGroup = (props: any) => {
           >
             <NumberInput key={`${key}-usage`} min={0} />
           </Form.Item>
-        </Col>
+        </Col> */}
         <Col span={9}>
-          <Input.Group compact style={{display: "flex", alignItems: "stretch"}}>
+          <Input.Group compact style={{ display: "flex", alignItems: "stretch" }}>
             <DiscountMethodStyled>
               <Form.Item
                 name={[name, "prerequisite_quantity_ranges.value"]}
                 label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
-                style={{flex: "1 1 auto"}}
-                rules={[{required: true, message: "Cần nhập chiết khấu"}]}
+                style={{ flex: "1 1 auto" }}
+                rules={[{ required: true, message: "Cần nhập chiết khấu" }]}
               >
                 <InputNumber
-                  style={{textAlign: "end", borderRadius: "0px"}}
+                  style={{ textAlign: "end", borderRadius: "0px" }}
                   min={1}
                   max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
                   step={discountType === "FIXED_AMOUNT" ? 1 : 0.01}
@@ -279,7 +279,7 @@ const FixedPriceGroup = (props: any) => {
             </DiscountMethodStyled>
             <Form.Item name={[name, "prerequisite_quantity_ranges.value_type"]} label=" ">
               <Select
-                style={{borderRadius: "0px"}}
+                style={{ borderRadius: "0px" }}
                 onSelect={(value: string) => {
                   const formEntitlements = form.getFieldValue("entitlements");
 
@@ -310,28 +310,47 @@ const FixedPriceGroup = (props: any) => {
       ) : (
         <div>
           <Form.Item>
-            <Input.Group className="display-flex">
-              <CustomAutoComplete
-                key={`${key}-product_search`}
-                id="#product_search"
-                dropdownClassName="product"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
-                onSearch={onSearch}
-                dropdownMatchSelectWidth={456}
-                style={{width: "100%"}}
-                onSelect={onSelectProduct}
-                options={renderResult}
-                ref={productSearchRef}
-                textEmpty={"Không tìm thấy sản phẩm"}
-              />
-              <Button
-                icon={<img src={DuplicatePlus} style={{marginRight: 8}} alt="" />}
-                onClick={() => setVisibleManyProduct(true)}
-                style={{width: 132, marginLeft: 10}}
-              >
-                Chọn nhiều
-              </Button>
-            </Input.Group>
+            <Row gutter={16}>
+              {/* <Col span={8}>
+                <CustomAutoComplete
+                  key={`${key}-product_parent`}
+                  id="#product_parent"
+                  dropdownClassName="product"
+                  placeholder="Tìm kiếm sản phẩm cha"
+                  onSearch={onSearch}
+                  dropdownMatchSelectWidth={456}
+                  style={{ width: "100%" }}
+                  onSelect={onSelectProduct}
+                  options={renderResult}
+                  ref={productSearchRef}
+                  textEmpty={"Không tìm thấy sản phẩm"}
+                />
+              </Col> */}
+              <Col span={19}>
+                <CustomAutoComplete
+                  key={`${key}-product_search`}
+                  id="#product_search"
+                  dropdownClassName="product"
+                  placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
+                  onSearch={onSearch}
+                  dropdownMatchSelectWidth={456}
+                  style={{ width: "100%" }}
+                  onSelect={onSelectProduct}
+                  options={renderResult}
+                  ref={productSearchRef}
+                  textEmpty={"Không tìm thấy sản phẩm"}
+                />
+              </Col>
+              <Col span={5}>
+                <Button
+                  icon={<img src={DuplicatePlus} style={{ marginRight: 8 }} alt="" />}
+                  onClick={() => setVisibleManyProduct(true)}
+                  style={{ width: '100%', minWidth: '132px' }}
+                >
+                  Chọn nhiều
+                </Button>
+              </Col>
+            </Row>
           </Form.Item>
           <Form.Item name={[name, "entitlements"]}>
             <Table
@@ -400,7 +419,7 @@ const FixedPriceGroup = (props: any) => {
           {form.getFieldValue("entitlements")?.length <= 1 ? (
             ""
           ) : (
-            <Row gutter={16} style={{paddingTop: "16px"}}>
+            <Row gutter={16} style={{ paddingTop: "16px" }}>
               <Col span={24}>
                 <Button icon={<DeleteOutlined />} danger onClick={() => remove(name)}>
                   Xoá nhóm chiết khấu
@@ -417,8 +436,9 @@ const FixedPriceGroup = (props: any) => {
             emptyText={"Không tìm thấy sản phẩm"}
           />
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

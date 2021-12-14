@@ -630,7 +630,7 @@ const ProductCreateScreen: React.FC = () => {
             },
             {
               name: "Sản phẩm",
-              path: `${UrlConfig.PRODUCT}`,
+              path: `${UrlConfig.VARIANTS}`,
             },
             {
               name: "Thêm mới",

@@ -1,4 +1,5 @@
 import {BaseObject} from "model/base/base.response";
+import {DiscountRule} from "model/promotion/discount.create.model";
 
 export enum Gender {
   MALE = "MALE",
@@ -48,6 +49,8 @@ export interface DiscountResponse extends BaseObject {
   prerequisite_customer_group_ids?: Array<number>;
   prerequisite_customer_loyalty_level_ids?: Array<number>;
   prerequisite_assignee_codes?: Array<string>;
+  rule?: DiscountRule;
+  quantity_limit?: number;
 }
 
 export interface PrerequisiteSubtotalRange {

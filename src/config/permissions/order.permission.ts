@@ -8,6 +8,9 @@ export const ODERS_PERMISSIONS = {
   READ_SHIPMENTS: "orders_shipments_read",
   CREATE: "orders_create",
   CREATE_RETURN: "orders_returns_create",
+  CREATE_PICKED: "orders_picked_create",
+  CREATE_PACKED: "orders_packed_create",
+  CREATE_SHIPPING: "orders_shipping_create",
   // UPDATE
   UPDATE_COMFIRMED: "orders_confirmed_update",
   UPDATE_PACKED: "orders_packed_update",
@@ -22,11 +25,9 @@ export const ODERS_PERMISSIONS = {
   CONNECT_DELIVERY_SERVICE: "logistic_gateways_services_read",
   // POS
   READ_POS: "orders_pos_read",
-  // CREATE_GOODS_RECEIPT: "ordes_goods_receipt_create",
-  // READ_GOODS_RECEIPT: "ordes_goods_receipt_read",
-  // DELETE_GOOS_RECEIPT: "ordes_goods_receipt_delete",
-  // CREATE_RECEIPT: "ordes_receipt_create",
-  // READ_RECENUE_STATISTICS: "orders_revenue_statistics_read",
-  // READ_DAILY_REPORTS: "orders_daily_reports_read",
+  //
+  CREATE_GOODS_RECEIPT: "orders_goods_receipt_create",
+  READ_GOODS_RECEIPT: "orders_goods_receipt_read",
+  DELETE_GOODS_RECEIPT: "orders_goods_receipt_delete",
 }
 

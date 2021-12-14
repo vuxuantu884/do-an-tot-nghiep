@@ -120,7 +120,6 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       let procurement_items = form.getFieldValue(
         POProcumentField.procurement_items
       );
-      debugger
       let newProcumentItem = procurement_items.find(
         (item: PurchaseProcumentLineItem) => item.sku === sku
       );
@@ -494,7 +493,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
               </Form.Item>
             </Row>
           )}
-          <div className="margin-top-20">
+          <div>
             <Form.Item
               shouldUpdate={(prev, current) => {
                 return (

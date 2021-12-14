@@ -13,6 +13,7 @@ import { RefSelectProps } from "antd/lib/select";
 import moment from "moment";
 import { RegUtil } from "utils/RegUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { VietNamId } from "utils/Constants";
 import BaseFilter from "component/filter/base.filter";
 import SelectDateFilter from "component/filter/SelectDateFilter";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -23,8 +24,7 @@ import { CustomerSearchQuery } from "model/query/customer.query";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { ProvinceModel } from "model/content/district.model";
-
-import SelectAreaFilter from "screens/customer/component/SelectAreaFilter";
+import { CityByCountryAction, DistrictByCityAction, WardGetByDistrictAction } from "domain/actions/content/content.action";
 
 import filterIcon from "assets/icon/filter.svg";
 import rightArrow from "assets/icon/right-arrow.svg";
@@ -49,6 +49,12 @@ type CustomerListFilterProps = {
 const { Option } = Select;
 const today = new Date();
 const THIS_YEAR = today.getFullYear();
+
+// select area
+let tempWardList: any[] = [];
+let wardListSelected: any[] = [];
+let districtListSelected: any[] = [];
+let provinceListSelected: any[] = [];
 
 const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   props: CustomerListFilterProps
@@ -90,17 +96,16 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   );
 
   const initialValues = useMemo(() => {
+    const cityIds = formCustomerFilter.getFieldValue("city_ids");
+    const districtIds = formCustomerFilter.getFieldValue("district_ids");
+    const wardIds = formCustomerFilter.getFieldValue("ward_ids");
     return {
       ...params,
-      
+      city_ids: cityIds,
+      district_ids: districtIds,
+      ward_ids: wardIds,
     };
-  }, [params]);
-
-  // area filter
-  const [provincesListProps, setProvincesListProps] = useState<ProvinceModel[]>([]);
-  const [districtsListProps, setDistrictsListProps] = useState<any>([]);
-  const [wardsListProps, setWardsListProps] = useState<any>([]);
-
+  }, [formCustomerFilter, params]);
 
   const AccountConvertResultSearch = React.useMemo(() => {
     let options: any[] = [];
@@ -352,6 +357,17 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const [lastOrderDateFrom, setLastOrderDateFrom ] = useState<any>(initialValues.last_order_date_from );
   const [lastOrderDateTo, setLastOrderDateTo] = useState<any>(initialValues.last_order_date_to);
   
+  const clearFirstOrderDate = () => {
+    setFirstOrderDateClick("");
+    setFirstOrderDateFrom(null);
+    setFirstOrderDateTo(null);
+  }
+
+  const clearLastOrderDate = () => {
+    setLastOrderDateClick("");
+    setLastOrderDateFrom(null);
+    setLastOrderDateTo(null);
+  }
   const clickOptionDate = useCallback(
     (type, value) => {
       let startDateValue = null;
@@ -389,9 +405,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       switch (type) {
         case "firstOrderDate":
           if (firstOrderDateClick === value) {
-            setFirstOrderDateClick("");
-            setFirstOrderDateFrom(null);
-            setFirstOrderDateTo(null);
+            clearFirstOrderDate();
           } else {
             setFirstOrderDateClick(value);
             setFirstOrderDateFrom (startDateValue);
@@ -400,9 +414,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "lastOrderDate":
           if (lastOrderDateClick === value) {
-            setLastOrderDateClick("");
-            setLastOrderDateFrom(null);
-            setLastOrderDateTo(null);
+            clearLastOrderDate();
           } else {
             setLastOrderDateClick(value);
             setLastOrderDateFrom (startDateValue);
@@ -463,6 +475,167 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }, []);
   // end handle select RangPicker
   // end handle select date
+
+  //---------------handle filter by area---------------\\
+  const [provincesList, setProvincesList] = useState<ProvinceModel[]>([]);
+  const [districtsList, setDistrictsList] = useState<any>([]);
+  const [wardsList, setWardsList] = useState<any>([]);
+
+  const getProvince = useCallback(() => {
+    dispatch(
+      CityByCountryAction(VietNamId, (response) => {
+        setProvincesList(response);
+      })
+    );
+  }, [dispatch]);
+  
+  useEffect(() => {
+    getProvince();
+  }, [getProvince]);
+
+
+  //---handle Ward---\\
+  const handleClearWard = useCallback(() => {
+    wardListSelected = [];
+    formCustomerFilter?.setFieldsValue({ ward_ids: [] });
+  }, [formCustomerFilter]);
+
+  const handleDeselectWard = (wardId: any) => {
+    wardListSelected = wardListSelected?.filter((item: any) => item.id !== wardId);
+  }
+
+  const handleSelectWard = (wardId: any) => {
+    const wardSelected = wardsList?.find((item: any) => item.id === wardId);
+    if (wardSelected) {
+      wardListSelected.push(wardSelected);
+    }
+  }
+  //---end handle Ward---\\
+
+
+  //---handle District---\\
+  // clear district
+  const handleClearDistrict = useCallback(() => {
+    formCustomerFilter?.setFieldsValue({ district_ids: [], ward_ids: [] });
+    setWardsList([]);
+    tempWardList = [];
+    wardListSelected = [];
+    districtListSelected = [];
+  }, [formCustomerFilter]);
+  // end clear district
+
+  // deselect district
+  const removeWardByDistrict = (districtId: number) => {
+    const newWardList = tempWardList?.filter((item: any) => item.district_id !== districtId);
+    setWardsList(newWardList);
+    tempWardList = newWardList;
+
+    wardListSelected = wardListSelected?.filter((item: any) => item.district_id !== districtId);
+    const wardIdListSelected: any[] = [];
+    wardListSelected?.forEach((ward: any) => {
+      wardIdListSelected.push(ward.id);
+    });
+    formCustomerFilter.setFieldsValue({ ward_ids: wardIdListSelected });
+  }
+  
+  const handleDeselectDistrict = (districtId: any) => {
+    districtListSelected = districtListSelected?.filter((item: any) => item.id !== districtId);
+    removeWardByDistrict(districtId);
+  }
+  // end deselect district
+
+  // handle select District
+  const updateWardsList = (response: any) => {
+    const newWardsList = [...wardsList].concat(response);
+    setWardsList(newWardsList);
+    tempWardList = newWardsList;
+  };
+
+  const getWardByDistrict = (districtId: any) => {
+    dispatch(
+      WardGetByDistrictAction(districtId, (response) => {
+        updateWardsList(response);
+      })
+    );
+  };
+
+  const handleSelectDistrict = (districtId: any) => {
+    const districtSelected = districtsList?.find((item: any) => item.id === districtId);
+    if (districtSelected) {
+      districtListSelected.push(districtSelected);
+    }
+    
+    getWardByDistrict(districtId);
+  }
+  // end handle select District
+  //---end District---\\
+
+  //------Province------\\
+  // handle clear province
+  const handleClearProvince = useCallback(() => {
+    formCustomerFilter.setFieldsValue({ city_ids: [], district_ids: [] });
+    setDistrictsList([]);
+    provinceListSelected = [];
+    districtListSelected = [];
+
+    handleClearDistrict();
+  }, [formCustomerFilter, handleClearDistrict, setDistrictsList]);
+  // end handle clear province
+
+  // handle deselect province
+  const removeDistrictByProvince = (provinceId: number) => {
+    // update district list
+    const newDistrictsList = districtsList?.filter((item: any) => item.city_id !== provinceId);
+    setDistrictsList(newDistrictsList);
+
+    const districtListDeselected = districtListSelected?.filter((item: any) => item.city_id === provinceId);
+    // update district list selected
+    const newDistrictListSelected = districtListSelected?.filter((item: any) => item.city_id !== provinceId);
+    districtListSelected = newDistrictListSelected;
+
+    // update district_ids in form values
+    const districtIdListSelected: any[] = [];
+    newDistrictListSelected?.forEach((district: any) => {
+      districtIdListSelected.push(district.id);
+    });
+    formCustomerFilter.setFieldsValue({ district_ids: districtIdListSelected });
+
+    // remove wards by district
+    districtListDeselected?.forEach((district: any) => {
+      removeWardByDistrict(district.id);
+    });
+  }
+
+  const handleDeselectProvince = (provinceId: any) => {
+    provinceListSelected = provinceListSelected?.filter((item: any) => item.id !== provinceId);
+    removeDistrictByProvince(provinceId);
+  }
+  // end handle deselect province
+
+  // handle select province
+  const updateDistrictsList = (response: any) => {
+    const newDistrictsList = [ ...districtsList ].concat(response);
+    setDistrictsList(newDistrictsList);
+  };
+
+  const getDistrictByProvince = (provinceId: any) => {
+    dispatch(
+      DistrictByCityAction(provinceId, (response) => {
+        updateDistrictsList(response);
+      })
+    );
+  };
+
+  const handleSelectProvince = (provinceId: any) => {
+    const province = provincesList?.find((item: any) => item.id === provinceId);
+    if (province) {
+      provinceListSelected.push(province);
+    }
+
+    getDistrictByProvince(provinceId);
+  }
+  // end handle select province
+  //---------------end handle filter by area---------------//
 
   // handle tag filter
   let filters = useMemo(() => {
@@ -601,22 +774,22 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     }
 
     if (initialValues.city_ids?.length) {
-      let citysFiltered = "";
+      let citiesFiltered = "";
       initialValues.city_ids.forEach((city_id: any) => {
-        const city = provincesListProps?.find((item) => item.id.toString() === city_id.toString());
-        citysFiltered = city ? (citysFiltered + city.name + "; ") : citysFiltered;
+        const city = provincesList?.find((item) => item.id.toString() === city_id.toString());
+        citiesFiltered = city ? (citiesFiltered + city.name + "; ") : citiesFiltered;
       });
       list.push({
         key: "city_ids",
         name: "Tỉnh/Thành phố",
-        value: citysFiltered,
+        value: citiesFiltered,
       });
     }
 
     if (initialValues.district_ids?.length) {
       let districtsFiltered = "";
       initialValues.district_ids.forEach((district_id: any) => {
-        const district = districtsListProps?.find((item: any) => item.id.toString() === district_id.toString());
+        const district = districtsList?.find((item: any) => item.id.toString() === district_id.toString());
         districtsFiltered = district ? (districtsFiltered + district.name + "; ") : districtsFiltered;
       });
       list.push({
@@ -629,7 +802,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     if (initialValues.ward_ids?.length) {
       let wardsFiltered = "";
       initialValues.ward_ids.forEach((ward_id: any) => {
-        const ward = wardsListProps?.find((item: any) => item.id.toString() === ward_id.toString());
+        const ward = wardsList?.find((item: any) => item.id.toString() === ward_id.toString());
         wardsFiltered = ward ? (wardsFiltered + ward.name + "; ") : wardsFiltered;
       });
       list.push({
@@ -794,6 +967,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       initialValues.city_ids,
       initialValues.district_ids,
       initialValues.ward_ids,
+      districtsList,
+      provincesList,
+      wardsList,
       initialValues.total_order_from,
       initialValues.total_order_to,
       initialValues.accumulated_amount_from,
@@ -822,9 +998,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       types,
       listStore,
       listChannel,
-      provincesListProps,
-      districtsListProps,
-      wardsListProps
     ]);
     
   // close tag filter
@@ -881,16 +1054,19 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           formCustomerFilter?.setFieldsValue({ age_from: null, age_to: null });
           break;
         case "city_ids":
-          onFilter && onFilter({ ...params, city_ids: [] });
-          formCustomerFilter?.setFieldsValue({ city_ids: [] });
+          handleClearProvince();
+          // onFilter && onFilter({ ...params, city_ids: [], district_ids: [], ward_ids: [] });
+          formCustomerFilter.submit();
           break;
         case "district_ids":
-          onFilter && onFilter({ ...params, district_ids: [] });
-          formCustomerFilter?.setFieldsValue({ district_ids: [] });
+          handleClearDistrict();
+          // onFilter && onFilter({ ...params, district_ids: [], ward_ids: [] });
+          formCustomerFilter.submit();
           break;
         case "ward_ids":
-          onFilter && onFilter({ ...params, ward_ids: [] });
-          formCustomerFilter?.setFieldsValue({ ward_ids: [] });
+          handleClearWard();
+          // onFilter && onFilter({ ...params, ward_ids: [] });
+          formCustomerFilter.submit();
           break;
         case "total_order":
           onFilter && onFilter({ ...params, total_order_from: null, total_order_to: null });
@@ -945,7 +1121,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
       }
     },
-    [formCustomerFilter, onFilter, params]
+    [formCustomerFilter, handleClearDistrict, handleClearProvince, handleClearWard, onFilter, params]
   );
   // end handle tag filter
 
@@ -963,18 +1139,52 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     formCustomerFilter?.submit();
   }, [formCustomerFilter]);
 
-  //clear base filter
-  const onClearBaseFilter = useCallback(() => {
+  // clear advanced filter
+  const onClearAdvancedFilter = useCallback(() => {
+    clearFirstOrderDate();
+    clearLastOrderDate();
+    
     setVisibleBaseFilter(false);
     formCustomerFilter.setFieldsValue(initQuery);
     onClearFilter && onClearFilter();
   }, [formCustomerFilter, initQuery, onClearFilter]);
+  // end clear advanced filter
   // end handle filter action
+
+  // handle district_ids param: if it's filtered by wards then params will not include district_ids
+  const setDistrictIdParam = () => {
+    let tempDistrictListSelected = [...districtListSelected];
+    wardListSelected.forEach(ward => {
+      tempDistrictListSelected = tempDistrictListSelected?.filter((district: any) => district.id !== ward.district_id);    
+    })
+    
+    let districtIdParam: any[] = [];
+    tempDistrictListSelected.forEach(district => {
+      districtIdParam.push(district.id);
+    })
+    return districtIdParam;
+  }
+
+  // handle city_ids param: if it's filtered by districts then params will not include city_ids
+  const setCityIdParam = () => {
+    let tempProvinceListSelected = [...provinceListSelected];
+    districtListSelected.forEach(district => {
+      tempProvinceListSelected = tempProvinceListSelected.filter((city: any) => city.id !== district.city_id);    
+    })
+    
+    let cityIdParam: any[] = [];
+    tempProvinceListSelected.forEach(city => {
+      cityIdParam.push(city.id);
+    })
+    return cityIdParam;
+  }
 
   const onFinish = useCallback(
     (values) => {
       const formValues = {
         ...values,
+        city_ids: setCityIdParam(),
+        district_ids: setDistrictIdParam(),
         responsible_staff_code: values.responsible_staff_code
           ? values.responsible_staff_code.split(" - ")[0]
           : null,
@@ -986,7 +1196,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         
       onFilter && onFilter(formValues);
     },
-    [firstOrderDateTo, firstOrderDateFrom, lastOrderDateTo, lastOrderDateFrom, onFilter]
+    [firstOrderDateFrom, firstOrderDateTo, lastOrderDateFrom, lastOrderDateTo, onFilter]
   );
 
   const widthScreen = () => {
@@ -1039,7 +1249,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       </Form>
       
       <BaseFilter
-        onClearFilter={onClearBaseFilter}
+        onClearFilter={onClearAdvancedFilter}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleBaseFilter}
@@ -1390,14 +1600,85 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               </div>
               
               <div className="base-filter-row">
-                {/* Tìm kiếm theo khu vực */}
+                {/* Filter by area */}
                 <div className="left-filter">
-                  <SelectAreaFilter
-                    formCustomerFilter={formCustomerFilter}
-                    setProvincesListProps={setProvincesListProps}
-                    setDistrictsListProps={setDistrictsListProps}
-                    setWardsListProps={setWardsListProps}
-                  />
+                  <Form.Item
+                    name="city_ids"
+                    label={<b>Tỉnh/Thành phố</b>}
+                  >
+                    <Select
+                      mode="multiple"
+                      maxTagCount='responsive'
+                      showArrow
+                      allowClear
+                      showSearch
+                      placeholder="Chọn Tỉnh/Thành phố"
+                      notFoundContent="Không tìm thấy Tỉnh/Thành phố"
+                      optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
+                      onSelect={handleSelectProvince}
+                      onDeselect={handleDeselectProvince}
+                      onClear={handleClearProvince}
+                    >
+                      {provincesList?.map((item: any) => (
+                        <Select.Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    name="district_ids"
+                    label={<b>Quận/Huyện</b>}
+                  >
+                    <Select
+                      mode="multiple"
+                      showArrow
+                      allowClear
+                      showSearch
+                      placeholder="Chọn Quận/Huyện"
+                      notFoundContent="Không tìm thấy Quận/Huyện"
+                      optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
+                      maxTagCount='responsive'
+                      onSelect={handleSelectDistrict}
+                      onDeselect={handleDeselectDistrict}
+                      onClear={handleClearDistrict}
+                    >
+                      {districtsList?.map((item: any) => (
+                        <Select.Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                  
+                  <Form.Item
+                    name="ward_ids"
+                    label={<b>Phường/Xã</b>}
+                  >
+                    <Select
+                      mode="multiple"
+                      showArrow
+                      allowClear
+                      showSearch
+                      placeholder="Chọn Phường/Xã"
+                      notFoundContent="Không tìm thấy Phường/Xã"
+                      optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
+                      maxTagCount='responsive'
+                      onSelect={handleSelectWard}
+                      onDeselect={handleDeselectWard}
+                      onClear={handleClearWard}
+                    >
+                      {wardsList?.map((item: any) => (
+                        <Select.Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
                 </div>
 
                 <div className="center-filter">

@@ -432,7 +432,7 @@ const ListAccountScreen: React.FC = () => {
                   display:
                     uploadStatus === undefined || uploadStatus === EnumUploadStatus.removed
                       ? ""
-                      : "none",
+                      : "NONE",
                 }}
               >
                 <WarningImport link_template={AppConfig.ENTITLEMENTS_TEMPLATE_URL} />

@@ -144,6 +144,16 @@ export const updateFulFillmentStatus = (
   return BaseAxios.put(link, params);
 };
 
+export const rePushFulFillmentService = (
+  request: UpdateFulFillmentStatusRequest,
+): Promise<BaseResponse<OrderResponse>> => {
+  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/fulfillment/${request.fulfillment_id}/status/${request.status}`;
+  let params = {
+    ...request,
+  };
+  return BaseAxios.put(link, params);
+};
+
 export const updateShipment = (
   request: UpdateLineFulFillment,
 ): Promise<BaseResponse<OrderResponse>> => {
