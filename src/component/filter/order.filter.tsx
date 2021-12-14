@@ -1,34 +1,34 @@
+import { FilterOutlined, SettingOutlined, SwapRightOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Col,
 	Form,
 	FormInstance,
-	Input,
-	Row,
-	Tag,
-	InputNumber,
-	Radio
+	Input, InputNumber,
+	Radio, Row,
+	Tag
 } from "antd";
-
-import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { AccountResponse } from "model/account/account.model";
-import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined, SwapRightOutlined } from "@ant-design/icons";
-import './order.filter.scss'
-import CustomSelect from "component/custom/select.custom";
-import { OrderSearchQuery } from "model/order/order.model";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import CustomRangeDatePicker from "component/custom/new-date-range-picker";
-import { SourceResponse } from "model/response/order/source.response";
+import CustomSelect from "component/custom/select.custom";
+import { StyledComponent } from "component/filter/order.filter.styles";
+import { MenuAction } from "component/table/ActionButton";
+import CustomFilter from "component/table/custom.filter";
+import UrlConfig from "config/url.config";
+import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
+import { OrderSearchQuery } from "model/order/order.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import DebounceSelect from "./component/debounce-select";
+import { SourceResponse } from "model/response/order/source.response";
+import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
-import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import { POS } from "utils/Constants";
+import BaseFilter from "./base.filter";
+import DebounceSelect from "./component/debounce-select";
+
 
 type PropTypes = {
 	params: OrderSearchQuery;
@@ -47,6 +47,12 @@ type PropTypes = {
 	onClearFilter?: () => void;
 };
 
+type ListFilterTagTypes = {
+	key: string,
+	name: string,
+	value: JSX.Element | null,
+}
+
 const { Item } = Form;
 
 async function searchVariants(input: any) {
@@ -63,7 +69,7 @@ async function searchVariants(input: any) {
 	}
 }
 
-function OrdersFilter (props: PropTypes): JSX.Element {
+function OrdersFilter(props: PropTypes): JSX.Element {
 	const {
 		params,
 		actions,
@@ -315,58 +321,78 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 	let filters = useMemo(() => {
 
 		const splitCharacter = ", ";
-		const getFilterString = (mappedArray: any[] | undefined, originText: string, keyValue: string) => {
-			let textStores = "";
-			if (!mappedArray) {
-				textStores = originText;
-				return textStores;
-			};
-			for (let i = 0; i < mappedArray.length; i++) {
-				if (i === mappedArray.length - 1) {
-					textStores = textStores + originText + mappedArray[i][keyValue];
-				} else {
-					textStores = textStores + originText + mappedArray[i][keyValue] + splitCharacter;
-				}
+
+		const renderSplitCharacter = (index: number, mappedArray: any[]) => {
+			let result = null;
+			if (index !== mappedArray.length - 1) {
+				result = (
+					<React.Fragment>
+						{splitCharacter}
+					</React.Fragment>
+				)
 			}
-			return textStores;
+			return result;
 		};
 
-		let list = []
+		const getFilterString = (mappedArray: any[] | undefined, keyValue: string, endPoint?: string, objectLink?: string) => {
+			let result = null;
+			if (!mappedArray) {
+				return null;
+			};
+			result = mappedArray.map((single, index) => {
+				if (objectLink && endPoint && single[objectLink]) {
+					return (
+						<Link to={`${endPoint}/${single[objectLink]}`} target="_blank">
+							{single[keyValue]}
+							{renderSplitCharacter(index, mappedArray)}
+						</Link>
+					)
+				}
+				return (
+					<React.Fragment>
+						{single[keyValue]}
+						{renderSplitCharacter(index, mappedArray)}
+					</React.Fragment>
+				)
+			})
+			return <React.Fragment>{result}</React.Fragment>;
+		};
+
+		let list: ListFilterTagTypes[] = []
 		if (initialValues.store_ids.length) {
 			let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
-			let textStores = getFilterString(mappedStores, "", "name");
+			let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
 			list.push({
 				key: 'store',
 				name: 'Cửa hàng',
-				value: textStores
+				value: text,
 			})
 		}
 		if (initialValues.source_ids.length) {
-			let textSource = ""
-			initialValues.source_ids.forEach(source_id => {
-				const source = listSources?.find(source => source.id.toString() === source_id)
-				textSource = source ? textSource + source.name + "; " : textSource
-			})
+			let mappedSources = listSources?.filter((source) => initialValues.source_ids?.some((single) => single === source.id.toString()))
+			let text = getFilterString(mappedSources, "name", undefined, undefined);
 			list.push({
 				key: 'source',
 				name: 'Nguồn',
-				value: textSource
+				value: text,
 			})
 		}
+
 		if (initialValues.issued_on_min || initialValues.issued_on_max) {
 			let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
 			list.push({
 				key: 'issued',
 				name: 'Ngày tạo đơn',
-				value: textOrderCreateDate
+				value: <React.Fragment>{textOrderCreateDate}</React.Fragment>
 			})
 		}
+
 		if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
 			let textOrderFinalizedDate = (initialValues.finalized_on_min ? initialValues.finalized_on_min : '??') + " ~ " + (initialValues.finalized_on_max ? initialValues.finalized_on_max : '??')
 			list.push({
 				key: 'finalized',
 				name: 'Ngày duyệt đơn',
-				value: textOrderFinalizedDate
+				value: <React.Fragment>{textOrderFinalizedDate}</React.Fragment>
 			})
 		}
 		if (initialValues.completed_on_min || initialValues.completed_on_max) {
@@ -374,7 +400,7 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 			list.push({
 				key: 'completed',
 				name: 'Ngày hoàn tất đơn',
-				value: textOrderCompleteDate
+				value: <React.Fragment>{textOrderCompleteDate}</React.Fragment>
 			})
 		}
 		if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
@@ -382,7 +408,7 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 			list.push({
 				key: 'cancelled',
 				name: 'Ngày huỷ đơn',
-				value: textOrderCancelDate
+				value: <React.Fragment>{textOrderCancelDate}</React.Fragment>
 			})
 		}
 
@@ -391,109 +417,81 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 			list.push({
 				key: 'expected',
 				name: 'Ngày dự kiến nhận hàng',
-				value: textExpectReceiveDate
+				value: <React.Fragment>{textExpectReceiveDate}</React.Fragment>
 			})
 		}
 		if (initialValues.order_status.length) {
-			let textStatus = ""
-			initialValues.order_status.forEach(i => {
-				const findStatus = status?.find(item => item.value === i)
-				textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
-			})
+			let orderStatuses = status?.filter((status) => initialValues.order_status?.some((item) => item === status.value.toString()))
+			let text = getFilterString(orderStatuses, "name", undefined, undefined);
 			list.push({
 				key: 'order_status',
 				name: 'Trạng thái đơn hàng',
-				value: textStatus
+				value: text,
 			})
 		}
-		if (initialValues.sub_status_code.length) {
-			let textStatus = ""
 
-			initialValues.sub_status_code.forEach((i: any) => {
-				const findStatus = subStatus?.find(item => item.code.toString() === i.toString())
-				textStatus = findStatus ? textStatus + findStatus.sub_status + "; " : textStatus
-			})
+		if (initialValues.sub_status_code.length) {
+			let mappedSubStatuses = subStatus?.filter((status) => initialValues.sub_status_code?.some((item) => item === status.code.toString()))
+			let text = getFilterString(mappedSubStatuses, "sub_status", undefined, undefined);
 			list.push({
 				key: 'sub_status_code',
 				name: 'Trạng thái xử lý đơn',
-				value: textStatus
+				value: text,
 			})
 		}
 		if (initialValues.fulfillment_status.length) {
-			let textStatus = ""
-			initialValues.fulfillment_status.forEach(i => {
-				const findStatus = fulfillmentStatus?.find(item => item.value === i)
-				textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
-			})
+			let mappedFulfillmentStatus = fulfillmentStatus?.filter((status) => initialValues.fulfillment_status?.some((item) => item === status.value.toString()))
+			let text = getFilterString(mappedFulfillmentStatus, "name", undefined, undefined);
 			list.push({
 				key: 'fulfillment_status',
 				name: 'Trạng thái giao hàng',
-				value: textStatus
+				value: text,
 			})
 		}
 
 		if (initialValues.payment_status.length) {
-			let textStatus = ""
-			initialValues.payment_status.forEach(i => {
-				const findStatus = paymentStatus?.find(item => item.value === i)
-				textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
-			})
+			let mappedPaymentStatuses = paymentStatus?.filter((status) => initialValues.payment_status?.some((item) => item === status.value.toString()))
+			let text = getFilterString(mappedPaymentStatuses, "name", undefined, undefined);
 			list.push({
 				key: 'payment_status',
 				name: 'Trạng thái thanh toán',
-				value: textStatus
+				value: text,
 			})
 		}
-
-		// if (initialValues.return_status.length) {
-		//   let textStatus = ""
-		//   initialValues.return_status.forEach(i => {
-		//     const findStatus = paymentStatus?.find(item => item.value === i)
-		//     textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
-		//   })
-		//   list.push({
-		//     key: 'return_status',
-		//     name: 'Trạng thái thanh toán',
-		//     value: textStatus
-		//   })
-		// }
 		if (initialValues.variant_ids.length) {
-			let textVariant = ""
-
 			console.log('optionsVariant', optionsVariant)
-			optionsVariant.forEach(i => {
-				textVariant = textVariant + i.label + "; "
-			})
+			let textVariant = "";
+			for (let i = 0; i < optionsVariant.length; i++) {
+				if(i < optionsVariant.length - 1) {
+					textVariant = textVariant + optionsVariant[i].label + splitCharacter
+				} else {
+					textVariant = textVariant + optionsVariant[i].label;
+				}
+			}
 			list.push({
 				key: 'variant_ids',
 				name: 'Sản phẩm',
-				value: textVariant
+				value: <React.Fragment>{textVariant}</React.Fragment>
 			})
 		}
 
 		if (initialValues.assignee_codes.length) {
-			let textAccount = ""
-			initialValues.assignee_codes.forEach(i => {
-				const findAccount = accounts?.find(item => item.code === i)
-				textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-			})
+			let mappedAccounts = accounts?.filter((account) => initialValues.assignee_codes?.some((single) => single === account.code.toString()))
+			let text = getFilterString(mappedAccounts, "full_name", UrlConfig.ACCOUNTS, "code");
 			list.push({
 				key: 'assignee_codes',
 				name: 'Nhân viên bán hàng',
-				value: textAccount
+				value: text,
 			})
 		}
 
 		if (initialValues.account_codes.length) {
-			let textAccount = ""
-			initialValues.account_codes.forEach(i => {
-				const findAccount = accounts?.find(item => item.code === i)
-				textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-			})
+			let mappedAccounts = accounts?.filter((account) => initialValues.account_codes?.some((single) => single === account.code.toString()))
+			let text = getFilterString(mappedAccounts, "full_name", UrlConfig.ACCOUNTS, "code");
 			list.push({
 				key: 'account_codes',
 				name: 'Nhân viên tạo đơn',
-				value: textAccount
+				value: text,
 			})
 		}
 
@@ -502,56 +500,46 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 			list.push({
 				key: 'price',
 				name: 'Tổng tiền',
-				value: textPrice
+				value: <React.Fragment>{textPrice}</React.Fragment>
 			})
 		}
 
 		if (initialValues.payment_method_ids.length) {
-			let textStatus = ""
-			initialValues.payment_method_ids.forEach(i => {
-				const findStatus = listPaymentMethod?.find(item => item.id.toString() === i)
-				textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
-			})
+			let mappedPaymentMethods = listPaymentMethod?.filter((paymentMethod) => initialValues.payment_method_ids?.some((item) => item === paymentMethod.id.toString()))
+			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
 			list.push({
 				key: 'payment_method',
 				name: 'Phương thức thanh toán',
-				value: textStatus
+				value: text,
 			})
 		}
 		if (initialValues.delivery_types.length) {
-			let textType = ""
-			initialValues.delivery_types.forEach(i => {
-				const findType = serviceType?.find(item => item.value === i)
-				textType = findType ? textType + findType.name + "; " : textType
-			})
+			let mappedDeliverTypes = serviceType?.filter((deliverType) => initialValues.delivery_types?.some((item) => item === deliverType.value.toString()))
+			let text = getFilterString(mappedDeliverTypes, "name", undefined, undefined);
 			list.push({
 				key: 'delivery_types',
 				name: 'Hình thức vận chuyển',
-				value: textType
+				value: text,
 			})
 		}
 		if (initialValues.delivery_provider_ids.length) {
-			let textType = ""
-			initialValues.delivery_provider_ids.forEach((i: any) => {
-				const findType = deliveryService?.find(item => item.id.toString() === i.toString())
-				textType = findType ? textType + findType.name + "; " : textType
-			})
+			console.log('deliveryService', deliveryService)
+			console.log('initialValues.delivery_provider_ids', initialValues.delivery_provider_ids)
+			let mappedDeliverProviderIds = deliveryService?.filter((deliveryServiceSingle) => initialValues.delivery_provider_ids?.some((item) => item === deliveryServiceSingle.id.toString()))
+			let text = getFilterString(mappedDeliverProviderIds, "name", undefined, undefined);
 			list.push({
 				key: 'delivery_provider_ids',
 				name: 'Đơn vị vận chuyển',
-				value: textType
+				value: text,
 			})
 		}
 		if (initialValues.shipper_ids.length) {
-			let textAccount = ""
-			initialValues.shipper_ids.forEach(i => {
-				const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id === i)
-				textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-			})
+			let mappedAccounts = accounts?.filter((account) => initialValues.shipper_ids?.some((single) => single === account.code.toString()))
+			let text = getFilterString(mappedAccounts, "full_name", UrlConfig.ACCOUNTS, "code");
 			list.push({
 				key: 'shipper_ids',
 				name: 'Đối tác giao hàng',
-				value: textAccount
+				value: text,
 			})
 		}
 
@@ -559,7 +547,7 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 			list.push({
 				key: 'note',
 				name: 'Ghi chú nội bộ',
-				value: initialValues.note
+				value: <React.Fragment>{initialValues.note}</React.Fragment>
 			})
 		}
 
@@ -567,19 +555,23 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 			list.push({
 				key: 'customer_note',
 				name: 'Ghi chú của khách',
-				value: initialValues.customer_note
+				value: <React.Fragment>{initialValues.customer_note}</React.Fragment>
 			})
 		}
 
 		if (initialValues.tags.length) {
-			let textStatus = ""
-			initialValues.tags.forEach(i => {
-				textStatus = textStatus + i + "; "
-			})
+			let textStatus = "";
+			for (let i = 0; i < initialValues.tags.length; i++) {
+				if(i < initialValues.tags.length - 1) {
+					textStatus = textStatus + initialValues.tags[i] + splitCharacter
+				} else {
+					textStatus = textStatus + initialValues.tags[i];
+				}
+			}
 			list.push({
 				key: 'tags',
 				name: 'Tags',
-				value: textStatus
+				value: <React.Fragment>{textStatus}</React.Fragment>
 			})
 		}
 
@@ -587,7 +579,7 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 			list.push({
 				key: 'reference_code',
 				name: 'Mã tham chiếu',
-				value: initialValues.reference_code
+				value: <React.Fragment>{initialValues.reference_code}</React.Fragment>
 			})
 		}
 		// console.log('filters list', list);
@@ -635,7 +627,7 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 
 							variants.push({
 								label: result.data.name,
-								value: result.data.id.toString()
+								value: result.data.id.toString(),
 							})
 						} catch { }
 					})
@@ -652,15 +644,23 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 		}
 	}, [accounts])
 
+	const renderFilterTag = (filter: ListFilterTagTypes) => {
+		return (
+			<React.Fragment>
+				{filter.value}
+			</React.Fragment>
+		)
+	};
+
 	return (
-		<div>
+		<StyledComponent>
 			<div className="order-options">
-        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
-          <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
-          <Radio.Button value="true">Đơn hàng online</Radio.Button>
-          <Radio.Button value="false">Đơn hàng offline</Radio.Button>
-        </Radio.Group>
-      </div>
+				<Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
+					<Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
+					<Radio.Button value="true">Đơn hàng online</Radio.Button>
+					<Radio.Button value="false">Đơn hàng offline</Radio.Button>
+				</Radio.Group>
+			</div>
 			<div className="order-filter">
 				<CustomFilter onMenuClick={onActionClick} menu={actions}>
 					<Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
@@ -1103,13 +1103,16 @@ function OrdersFilter (props: PropTypes): JSX.Element {
 				</BaseFilter>
 			</div>
 			<div className="order-filter-tags">
-				{filters && filters.map((filter: any, index) => {
+				{filters && filters.map((filter, index) => {
 					return (
-						<Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
+						<Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
+							<span className="tagLabel">{filter.name}:</span>
+							{renderFilterTag(filter)}
+						</Tag>
 					)
 				})}
 			</div>
-		</div>
+		</StyledComponent>
 	);
 };
 

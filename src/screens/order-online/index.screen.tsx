@@ -81,6 +81,13 @@ type PropsType = {
 };
 
 function OrdersScreen(props: PropsType)  {
+	const EXPORT_IDs = {
+		allOrders: 1,
+		ordersOnThisPage: 2,
+		selectedOrders: 3,
+		ordersFound: 4,
+	}
+
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -202,6 +209,7 @@ function OrdersScreen(props: PropsType)  {
 		(params) => {
 			return new Promise<void>((resolve, reject) => {
 				setTableLoading(true);
+				setIsFilter(true);
 				dispatch(getListOrderAction(params, setSearchResult));
 				resolve();
 			})
@@ -212,7 +220,7 @@ function OrdersScreen(props: PropsType)  {
 
 	const handleFetchData = useCallback(
 		(params) => {
-			fetchData(params).then(() => {
+			fetchData(params).catch(() => {
 				setTableLoading(false);
 				setIsFilter(false);
 			});
@@ -867,16 +875,16 @@ function OrdersScreen(props: PropsType)  {
       // let hiddenFields = [];
       console.log("selectedRowCodes", selectedRowCodes);
       switch (optionExport) {
-        case 1:
+        case EXPORT_IDs.allOrders:
           newParams = {};
           break;
-        case 2:
+        case EXPORT_IDs.ordersOnThisPage:
           break;
-        case 3:
+        case EXPORT_IDs.selectedOrders:
           newParams.code = selectedRowCodes;
           console.log("newParams", newParams);
           break;
-        case 4:
+        case EXPORT_IDs.ordersFound:
           delete newParams.page;
           delete newParams.limit;
           break;
@@ -915,7 +923,7 @@ function OrdersScreen(props: PropsType)  {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, selectedRowCodes, listExportFile]
+    [params, selectedRowCodes, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, listExportFile]
   );
   const checkExportFile = useCallback(() => {
     console.log("start check status");
@@ -1035,18 +1043,14 @@ function OrdersScreen(props: PropsType)  {
   return (
     <StyledComponent>
       <ContentContainer
-        title="Danh sách đơn tách"
+        title="Danh sách đơn hàng"
         breadcrumb={[
           {
             name: "Tổng quan",
             path: UrlConfig.HOME,
           },
-					{
-						name: "Đơn hàng",
-						path: UrlConfig.ORDER,
-					},
           {
-            name: "Danh sách đơn tách",
+            name: "Danh sách đơn hàng",
           },
         ]}
         extra={
