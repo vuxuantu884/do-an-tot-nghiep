@@ -83,6 +83,17 @@ const ShipmentDetail: React.FC = () => {
     {
       title: "Số lượng",
       dataIndex: "quantity",
+      render: (quantity: number) => (
+        <div>
+          <NumberFormat
+            value={quantity}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          <div style={{ height: 40 }}></div>
+        </div>
+      ),
       visible: true,
       align: 'right',
       width: "15%",
@@ -91,12 +102,15 @@ const ShipmentDetail: React.FC = () => {
       title: <span><span>Đơn giá </span><span style={{ color: '#737373', fontWeight: 400 }}> đ</span></span>,
       dataIndex: "price",
       render: (price: number) => (
-        <NumberFormat
-          value={price}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+        <div>
+          <NumberFormat
+            value={price}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          <div style={{ height: 40 }}></div>
+        </div>
       ),
       visible: true,
       align: 'right',
@@ -112,8 +126,7 @@ const ShipmentDetail: React.FC = () => {
             displayType={"text"}
             thousandSeparator={true}
           />
-          <br />
-          <span style={{ color: '#E24343' }}>{record.discount_rate}%</span>
+          <div style={{ color: '#E24343', height: 40 }}>{record.discount_rate}%</div>
         </div>
       ),
       visible: true,
@@ -123,12 +136,15 @@ const ShipmentDetail: React.FC = () => {
     {
       title: <span><span>Thành tiền </span><span style={{ color: '#737373', fontWeight: 400 }}> đ</span></span>,
       render: (record: any) => (
-        <NumberFormat
-          value={record.price * record.quantity - record.discount_amount}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+        <div>
+          <NumberFormat
+            value={record.price * record.quantity - record.discount_amount}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          <div style={{ height: 40 }}></div>
+        </div>
       ),
       visible: true,
       align: 'right',
