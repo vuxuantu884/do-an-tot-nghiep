@@ -720,9 +720,11 @@ const EcommerceOrders: React.FC = () => {
   };
 
   const updateOrderList = (data: any) => {
-    setDownloadOrderData(data);
-    setIsShowGetOrderModal(false);
-    setIsShowResultGetOrderModal(true);
+    if (data) {
+      setDownloadOrderData(data);
+      setIsShowGetOrderModal(false);
+      setIsShowResultGetOrderModal(true);
+    }
   };
 
   const getEcommerceOrderList = useCallback(() => {

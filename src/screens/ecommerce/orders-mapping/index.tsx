@@ -32,7 +32,7 @@ const OrdersMapping: React.FC = () => {
     acceptPermissions: ordersDownloadPermission,
     not: false,
   });
-  
+
   const [isReloadPage, setIsReloadPage] = useState(false);
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
   const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] = useState(false);
@@ -67,9 +67,11 @@ const OrdersMapping: React.FC = () => {
   };
 
   const updateOrderList = (data: any) => {
-    setDownloadOrderData(data);
-    setIsShowGetOrderModal(false);
-    setIsShowResultGetOrderModal(true);
+    if (data) {
+      setDownloadOrderData(data);
+      setIsShowGetOrderModal(false);
+      setIsShowResultGetOrderModal(true);
+    }
   };
 
   const reloadPage = () => {
@@ -105,7 +107,7 @@ const OrdersMapping: React.FC = () => {
         <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
           <TabPane tab={ORDER_TABS.all_orders.title} key={ORDER_TABS.all_orders.key} />
         </Tabs>
-        
+
         {activeTab === ORDER_TABS.all_orders.key &&
           <AllOrdersMapping isReloadPage={isReloadPage} />
         }
