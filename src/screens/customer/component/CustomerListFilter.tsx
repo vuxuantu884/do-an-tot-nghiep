@@ -82,12 +82,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const autoCompleteRef = React.createRef<RefSelectProps>();
 
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
-  
+
   const [keySearchAccount, setKeySearchAccount] = useState("");
   const [resultSearch, setResultSearch] = React.useState<
     PageResponse<AccountResponse> | false
-    >(false);
-  
+  >(false);
+
   const initQueryAccount: AccountSearchQuery = useMemo(
     () => ({
       info: "",
@@ -139,8 +139,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         if (index !== -1) {
           setKeySearchAccount(
             resultSearch.items[index].code +
-              "-" +
-              resultSearch.items[index].full_name
+            "-" +
+            resultSearch.items[index].full_name
           );
           autoCompleteRef.current?.blur();
         }
@@ -158,7 +158,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     },
     []
   );
-  
+
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -201,7 +201,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
 
   const onSelectFromDate = (value: any) => {
-    const newToDateList = [ ...toDateList ];
+    const newToDateList = [...toDateList];
     newToDateList.forEach((item: any) => {
       item.disable = (item.value < value);
     })
@@ -213,7 +213,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }
 
   const onSelectToDate = (value: any) => {
-    const newFromDateList = [ ...fromDateList ];
+    const newFromDateList = [...fromDateList];
     newFromDateList.forEach((item: any) => {
       item.disable = (item.value > value || item.value === 0);
     })
@@ -262,7 +262,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
 
   const onSelectFromMonth = (value: any) => {
-    const newToMonthList = [ ...toMonthList ];
+    const newToMonthList = [...toMonthList];
     newToMonthList.forEach((item: any) => {
       item.disable = (item.value < value);
     })
@@ -274,7 +274,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }
 
   const onSelectToMonth = (value: any) => {
-    const newFromMonthList = [ ...fromMonthList ];
+    const newFromMonthList = [...fromMonthList];
     newFromMonthList.forEach((item: any) => {
       item.disable = (item.value > value || item.value === 0);
     })
@@ -323,7 +323,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
 
   const onSelectFromYear = (value: any) => {
-    const newToYearList = [ ...toYearList ];
+    const newToYearList = [...toYearList];
     newToYearList.forEach((item: any) => {
       item.disable = (item.value < value);
     })
@@ -335,7 +335,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }
 
   const onSelectToYear = (value: any) => {
-    const newFromYearList = [ ...fromYearList ];
+    const newFromYearList = [...fromYearList];
     newFromYearList.forEach((item: any) => {
       item.disable = (item.value > value || item.value === 0);
     })
@@ -351,12 +351,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const [firstOrderDateClick, setFirstOrderDateClick] = useState("");
   const [lastOrderDateClick, setLastOrderDateClick] = useState("");
 
-  const [firstOrderDateFrom , setFirstOrderDateFrom ] = useState<any>(initialValues.first_order_time_from );
-  const [firstOrderDateTo, setFirstOrderDateTo ] = useState<any>(initialValues.first_order_time_to);
+  const [firstOrderDateFrom, setFirstOrderDateFrom] = useState<any>(initialValues.first_order_time_from);
+  const [firstOrderDateTo, setFirstOrderDateTo] = useState<any>(initialValues.first_order_time_to);
 
-  const [lastOrderDateFrom, setLastOrderDateFrom ] = useState<any>(initialValues.last_order_time_from );
+  const [lastOrderDateFrom, setLastOrderDateFrom] = useState<any>(initialValues.last_order_time_from);
   const [lastOrderDateTo, setLastOrderDateTo] = useState<any>(initialValues.last_order_time_to);
-  
+
   const clearFirstOrderDate = () => {
     setFirstOrderDateClick("");
     setFirstOrderDateFrom(null);
@@ -408,8 +408,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             clearFirstOrderDate();
           } else {
             setFirstOrderDateClick(value);
-            setFirstOrderDateFrom (startDateValue);
-            setFirstOrderDateTo (endDateValue);
+            setFirstOrderDateFrom(startDateValue);
+            setFirstOrderDateTo(endDateValue);
           }
           break;
         case "lastOrderDate":
@@ -417,8 +417,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             clearLastOrderDate();
           } else {
             setLastOrderDateClick(value);
-            setLastOrderDateFrom (startDateValue);
-            setLastOrderDateTo (endDateValue);
+            setLastOrderDateFrom(startDateValue);
+            setLastOrderDateTo(endDateValue);
           }
           break;
         default:
@@ -459,15 +459,15 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         setFirstOrderDateClick("");
         const firstOrderStartDate = setLocalStartDate(dateString[0]);
         const firstOrderEndDate = setLocalEndDate(dateString[1]);
-        setFirstOrderDateFrom (firstOrderStartDate);
-        setFirstOrderDateTo (firstOrderEndDate);
+        setFirstOrderDateFrom(firstOrderStartDate);
+        setFirstOrderDateTo(firstOrderEndDate);
         break;
       case "lastOrderDate":
         setLastOrderDateClick("");
         const lastOrderStartDate = setLocalStartDate(dateString[0]);
         const lastOrderEndDate = setLocalEndDate(dateString[1]);
-        setLastOrderDateFrom (lastOrderStartDate);
-        setLastOrderDateTo (lastOrderEndDate);
+        setLastOrderDateFrom(lastOrderStartDate);
+        setLastOrderDateTo(lastOrderEndDate);
         break;
       default:
         break;
@@ -488,7 +488,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       })
     );
   }, [dispatch]);
-  
+
   useEffect(() => {
     getProvince();
   }, [getProvince]);
@@ -537,7 +537,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     });
     formCustomerFilter.setFieldsValue({ ward_ids: wardIdListSelected });
   }
-  
+
   const handleDeselectDistrict = (districtId: any) => {
     districtListSelected = districtListSelected?.filter((item: any) => item.id !== districtId);
     removeWardByDistrict(districtId);
@@ -564,7 +564,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     if (districtSelected) {
       districtListSelected.push(districtSelected);
     }
-    
+
     getWardByDistrict(districtId);
   }
   // end handle select District
@@ -614,7 +614,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   // handle select province
   const updateDistrictsList = (response: any) => {
-    const newDistrictsList = [ ...districtsList ].concat(response);
+    const newDistrictsList = [...districtsList].concat(response);
     setDistrictsList(newDistrictsList);
   };
 
@@ -726,21 +726,21 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.day_of_birth_from || initialValues.day_of_birth_to) {
       let textDayOfBirth =
-        (initialValues.day_of_birth_from ? initialValues.day_of_birth_from : "??") +
-        " ~ " +
-        (initialValues.day_of_birth_to ? initialValues.day_of_birth_to : "??");
+        (initialValues.day_of_birth_from ? initialValues.day_of_birth_from : "") +
+        " - " +
+        (initialValues.day_of_birth_to ? initialValues.day_of_birth_to : "");
       list.push({
         key: "day_of_birth",
         name: "Ngày sinh",
         value: textDayOfBirth,
       });
     }
-    
+
     if (initialValues.year_of_birth_from || initialValues.year_of_birth_to) {
       let yearOfBirthFiltered =
-        (initialValues.year_of_birth_from ? initialValues.year_of_birth_from : "??") +
-        " ~ " +
-        (initialValues.year_of_birth_to ? initialValues.year_of_birth_to : "??");
+        (initialValues.year_of_birth_from ? initialValues.year_of_birth_from : "") +
+        " - " +
+        (initialValues.year_of_birth_to ? initialValues.year_of_birth_to : "");
       list.push({
         key: "year_of_birth",
         name: "Năm sinh",
@@ -763,9 +763,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.month_of_birth_from || initialValues.month_of_birth_to) {
       let monthOfBirthFiltered =
-        (initialValues.month_of_birth_from ? initialValues.month_of_birth_from : "??") +
-        " ~ " +
-        (initialValues.month_of_birth_to ? initialValues.month_of_birth_to : "??");
+        (initialValues.month_of_birth_from ? initialValues.month_of_birth_from : "") +
+        " - " +
+        (initialValues.month_of_birth_to ? initialValues.month_of_birth_to : "");
       list.push({
         key: "month_of_birth",
         name: "Tháng sinh",
@@ -775,9 +775,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.age_from || initialValues.age_to) {
       let ageFiltered =
-        (initialValues.age_from ? initialValues.age_from : "??") +
-        " ~ " +
-        (initialValues.age_to ? initialValues.age_to : "??");
+        (initialValues.age_from ? initialValues.age_from : "") +
+        " - " +
+        (initialValues.age_to ? initialValues.age_to : "");
       list.push({
         key: "age",
         name: "Độ tuổi",
@@ -823,12 +823,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         value: wardsFiltered,
       });
     }
-    
+
     if (initialValues.total_finished_order_from || initialValues.total_finished_order_to) {
       let totalOrderFiltered =
-        (initialValues.total_finished_order_from ? initialValues.total_finished_order_from : "??") +
-        " ~ " +
-        (initialValues.total_finished_order_to ? initialValues.total_finished_order_to : "??");
+        (initialValues.total_finished_order_from ? initialValues.total_finished_order_from : "") +
+        " - " +
+        (initialValues.total_finished_order_to ? initialValues.total_finished_order_to : "");
       list.push({
         key: "total_order",
         name: "Tổng đơn hàng",
@@ -838,9 +838,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.total_paid_amount_from || initialValues.total_paid_amount_to) {
       let accumulatedAmountFiltered =
-        (initialValues.total_paid_amount_from ? initialValues.total_paid_amount_from : "??") +
-        " ~ " +
-        (initialValues.total_paid_amount_to ? initialValues.total_paid_amount_to : "??");
+        (initialValues.total_paid_amount_from ? initialValues.total_paid_amount_from : "") +
+        " - " +
+        (initialValues.total_paid_amount_to ? initialValues.total_paid_amount_to : "");
       list.push({
         key: "accumulated_amount",
         name: "Tiền tích lũy",
@@ -850,9 +850,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.total_returned_order_from || initialValues.total_returned_order_to) {
       let totalRefundedOrderFiltered =
-        (initialValues.total_returned_order_from ? initialValues.total_returned_order_from : "??") +
-        " ~ " +
-        (initialValues.total_returned_order_to ? initialValues.total_returned_order_to : "??");
+        (initialValues.total_returned_order_from ? initialValues.total_returned_order_from : "") +
+        " - " +
+        (initialValues.total_returned_order_to ? initialValues.total_returned_order_to : "");
       list.push({
         key: "total_refunded_order",
         name: "Số đơn trả hàng",
@@ -862,9 +862,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.remain_amount_to_level_up_from || initialValues.remain_amount_to_level_up_to) {
       let remainAmountFiltered =
-        (initialValues.remain_amount_to_level_up_from ? initialValues.remain_amount_to_level_up_from : "??") +
-        " ~ " +
-        (initialValues.remain_amount_to_level_up_to ? initialValues.remain_amount_to_level_up_to : "??");
+        (initialValues.remain_amount_to_level_up_from ? initialValues.remain_amount_to_level_up_from : "") +
+        " - " +
+        (initialValues.remain_amount_to_level_up_to ? initialValues.remain_amount_to_level_up_to : "");
       list.push({
         key: "remain_amount",
         name: "Số tiền còn thiếu để nâng hạng",
@@ -874,9 +874,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.average_order_amount_from || initialValues.average_order_amount_to) {
       let averageOrderAmountFiltered =
-        (initialValues.average_order_amount_from ? initialValues.average_order_amount_from : "??") +
-        " ~ " +
-        (initialValues.average_order_amount_to ? initialValues.average_order_amount_to : "??");
+        (initialValues.average_order_amount_from ? initialValues.average_order_amount_from : "") +
+        " - " +
+        (initialValues.average_order_amount_to ? initialValues.average_order_amount_to : "");
       list.push({
         key: "average_order_amount",
         name: "Giá trị trung bình",
@@ -886,16 +886,16 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.total_returned_amount_from || initialValues.total_returned_amount_to) {
       let totalRefundedAmountFiltered =
-        (initialValues.total_returned_amount_from ? initialValues.total_returned_amount_from : "??") +
-        " ~ " +
-        (initialValues.total_returned_amount_to ? initialValues.total_returned_amount_to : "??");
+        (initialValues.total_returned_amount_from ? initialValues.total_returned_amount_from : "") +
+        " - " +
+        (initialValues.total_returned_amount_to ? initialValues.total_returned_amount_to : "");
       list.push({
         key: "total_refunded_amount",
         name: "Tổng giá trị đơn trả",
         value: totalRefundedAmountFiltered,
       });
     }
-    
+
     if (initialValues.store_of_first_order_ids?.length) {
       let firstOrderStoresFiltered = "";
       initialValues.store_of_first_order_ids.forEach((first_order_store_id: any) => {
@@ -908,7 +908,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         value: firstOrderStoresFiltered,
       });
     }
-   
+
     if (initialValues.store_of_last_order_ids?.length) {
       let lastOrderStoresFiltered = "";
       initialValues.store_of_last_order_ids.forEach((last_order_store_id: any) => {
@@ -924,9 +924,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.number_of_days_without_purchase_from || initialValues.number_of_days_without_purchase_to) {
       let daysWithoutPurchaseFiltered =
-        (initialValues.number_of_days_without_purchase_from ? initialValues.number_of_days_without_purchase_from : "??") +
-        " ~ " +
-        (initialValues.number_of_days_without_purchase_to ? initialValues.number_of_days_without_purchase_to : "??");
+        (initialValues.number_of_days_without_purchase_from ? initialValues.number_of_days_without_purchase_from : "") +
+        " - " +
+        (initialValues.number_of_days_without_purchase_to ? initialValues.number_of_days_without_purchase_to : "");
       list.push({
         key: "days_without_purchase",
         name: "Số ngày chưa mua hàng",
@@ -936,9 +936,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.first_order_time_from || initialValues.first_order_time_to) {
       let firstOrderDateFiltered =
-        (initialValues.first_order_time_from ? ConvertUtcToLocalDate(initialValues.first_order_time_from, "DD-MM-YYYY") : "??") +
-        " ~ " +
-        (initialValues.first_order_time_to ? ConvertUtcToLocalDate(initialValues.first_order_time_to, "DD-MM-YYYY") : "??");
+        (initialValues.first_order_time_from ? ConvertUtcToLocalDate(initialValues.first_order_time_from, "DD-MM-YYYY") : "") +
+        " - " +
+        (initialValues.first_order_time_to ? ConvertUtcToLocalDate(initialValues.first_order_time_to, "DD-MM-YYYY") : "");
       list.push({
         key: "first_order_date",
         name: "Ngày mua đầu",
@@ -948,9 +948,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.last_order_time_from || initialValues.last_order_time_to) {
       let lastOrderDateFiltered =
-        (initialValues.last_order_time_from ? ConvertUtcToLocalDate(initialValues.last_order_time_from, "DD-MM-YYYY") : "??") +
-        " ~ " +
-        (initialValues.last_order_time_to ? ConvertUtcToLocalDate(initialValues.last_order_time_to, "DD-MM-YYYY") : "??");
+        (initialValues.last_order_time_from ? ConvertUtcToLocalDate(initialValues.last_order_time_from, "DD-MM-YYYY") : "") +
+        " - " +
+        (initialValues.last_order_time_to ? ConvertUtcToLocalDate(initialValues.last_order_time_to, "DD-MM-YYYY") : "");
       list.push({
         key: "last_order_date",
         name: "Ngày mua cuối",
@@ -960,9 +960,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
     if (initialValues.point_from || initialValues.point_to) {
       let pointFiltered =
-        (initialValues.point_from ? initialValues.point_from : "??") +
-        " ~ " +
-        (initialValues.point_to ? initialValues.point_to : "??");
+        (initialValues.point_from ? initialValues.point_from : "") +
+        " - " +
+        (initialValues.point_to ? initialValues.point_to : "");
       list.push({
         key: "point",
         name: "Điểm",
@@ -1025,7 +1025,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       listStore,
       listChannel,
     ]);
-    
+
   // close tag filter
   const onCloseTag = useCallback(
     (e, tag) => {
@@ -1129,21 +1129,21 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "first_order_date":
           setFirstOrderDateClick("");
-          setFirstOrderDateFrom (null);
-          setFirstOrderDateTo (null);
+          setFirstOrderDateFrom(null);
+          setFirstOrderDateTo(null);
           onFilter && onFilter({ ...params, first_order_time_from: null, first_order_time_to: null });
           break;
         case "last_order_date":
           setLastOrderDateClick("");
-          setLastOrderDateFrom (null);
-          setLastOrderDateTo (null);
+          setLastOrderDateFrom(null);
+          setLastOrderDateTo(null);
           onFilter && onFilter({ ...params, last_order_time_from: null, last_order_time_to: null });
           break;
         case "point":
           onFilter && onFilter({ ...params, point_from: null, point_to: null });
           formCustomerFilter?.setFieldsValue({ point_from: null, point_to: null });
           break;
-        
+
         default:
           break;
       }
@@ -1170,7 +1170,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const onClearAdvancedFilter = useCallback(() => {
     clearFirstOrderDate();
     clearLastOrderDate();
-    
+
     setVisibleBaseFilter(false);
     formCustomerFilter.setFieldsValue(initQuery);
     onClearFilter && onClearFilter();
@@ -1182,9 +1182,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const setDistrictIdParam = () => {
     let tempDistrictListSelected = [...districtListSelected];
     wardListSelected.forEach(ward => {
-      tempDistrictListSelected = tempDistrictListSelected?.filter((district: any) => district.id !== ward.district_id);    
+      tempDistrictListSelected = tempDistrictListSelected?.filter((district: any) => district.id !== ward.district_id);
     })
-    
+
     let districtIdParam: any[] = [];
     tempDistrictListSelected.forEach(district => {
       districtIdParam.push(district.id);
@@ -1196,9 +1196,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const setCityIdParam = () => {
     let tempProvinceListSelected = [...provinceListSelected];
     districtListSelected.forEach(district => {
-      tempProvinceListSelected = tempProvinceListSelected.filter((city: any) => city.id !== district.city_id);    
+      tempProvinceListSelected = tempProvinceListSelected.filter((city: any) => city.id !== district.city_id);
     })
-    
+
     let cityIdParam: any[] = [];
     tempProvinceListSelected.forEach(city => {
       cityIdParam.push(city.id);
@@ -1220,7 +1220,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         last_order_time_from: lastOrderDateFrom,
         last_order_time_to: lastOrderDateTo,
       };
-        
+
       onFilter && onFilter(formValues);
     },
     [firstOrderDateFrom, firstOrderDateTo, lastOrderDateFrom, lastOrderDateTo, onFilter]
@@ -1254,7 +1254,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
           />
         </Form.Item>
-        
+
         <Form.Item>
           <Button type="primary" htmlType="submit" disabled={isLoading}>
             Lọc
@@ -1267,14 +1267,14 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             <span>Thêm bộ lọc</span>
           </Button>
         </Form.Item>
-        
+
         <Button
           disabled={isLoading}
           onClick={setShowSettingColumn}
           icon={<img style={{ marginBottom: 15 }} src={settingGearIcon} alt="" />}
         />
       </Form>
-      
+
       <BaseFilter
         onClearFilter={onClearAdvancedFilter}
         onFilter={onFilterClick}
@@ -1626,7 +1626,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   </div>
                 </div>
               </div>
-              
+
               <div className="base-filter-row">
                 {/* Filter by area */}
                 <div className="left-filter">
@@ -1681,7 +1681,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                       ))}
                     </Select>
                   </Form.Item>
-                  
+
                   <Form.Item
                     name="ward_ids"
                     label={<b>Phường/Xã</b>}
@@ -1958,36 +1958,36 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 </Form.Item>
 
                 <div className="right-filter">
-                    <div className="title">Số ngày chưa mua hàng</div>
-                    <div className="select-scope">
-                      <Form.Item
-                        className="select-item"
-                        name="number_of_days_without_purchase_from"
-                        rules={[
-                          {
-                            pattern: RegUtil.NUMBERREG,
-                            message: "Số ngày chỉ được phép nhập số",
-                          },
-                        ]}
-                      >
-                        <Input placeholder="Từ" />
-                      </Form.Item>
+                  <div className="title">Số ngày chưa mua hàng</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="number_of_days_without_purchase_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số ngày chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
 
-                      <img src={rightArrow} alt="" />
+                    <img src={rightArrow} alt="" />
 
-                      <Form.Item
-                        className="select-item"
-                        name="number_of_days_without_purchase_to"
-                        rules={[
-                          {
-                            pattern: RegUtil.NUMBERREG,
-                            message: "Số ngày chỉ được phép nhập số",
-                          },
-                        ]}
-                      >
-                        <Input placeholder="Đến" />
-                      </Form.Item>
-                    </div>
+                    <Form.Item
+                      className="select-item"
+                      name="number_of_days_without_purchase_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số ngày chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
                 </div>
               </div>
 
