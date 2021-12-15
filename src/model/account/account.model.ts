@@ -50,6 +50,13 @@ export interface AccountSearchQuery extends BaseQuery {
   codes?: Array<string>
 }
 
+export interface AccountPublicSearchQuery extends BaseQuery {
+  condition?: string;
+  department_ids?: Array<number>;
+  position_ids?: number;
+  store_ids?: Array<number>;
+}
+
 export interface AccountJobResponse {
   position_id: number;
   position_name?: string;

@@ -7,7 +7,7 @@ import React, {
 	useCallback, useRef, useState
 } from "react";
 import { useDispatch } from "react-redux";
-import { searchAccountApi } from "service/accounts/account.service";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
 
@@ -38,8 +38,8 @@ function AccountCustomSearchSelect(props: PropType) {
       const getAccounts = (value: string) => {
         if (value.trim() !== "" && value.length >= 3) {
 					setIsLoading(true)
-          searchAccountApi({
-            info: value,
+          searchAccountPublicApi({
+            condition: value,
             limit: undefined,
           })
             .then((response) => {

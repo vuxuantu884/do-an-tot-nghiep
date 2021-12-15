@@ -1,19 +1,19 @@
-import {InfoCircleOutlined} from "@ant-design/icons";
-import {Card, Form, FormInstance, Input, Select} from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import { Card, Form, FormInstance, Input, Select } from "antd";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import CustomInputTags from "component/custom/custom-input-tags";
-import {HttpStatus} from "config/http-status.config";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import {unauthorizedAction} from "domain/actions/auth/auth.action";
-import {AccountResponse} from "model/account/account.model";
-import {OrderResponse, OrderSubStatusResponse} from "model/response/order/order.response";
-import React, {useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { AccountResponse } from "model/account/account.model";
+import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
-import {searchAccountApi} from "service/accounts/account.service";
-import {showError} from "utils/ToastUtils";
-import {StyledComponent} from "./styles";
+import { searchAccountPublicApi } from "service/accounts/account.service";
+import { showError } from "utils/ToastUtils";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   form: FormInstance<any>;
@@ -110,36 +110,6 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   };
 
   useEffect(() => {
-    if (!storeId) {
-      return;
-    }
-    searchAccountApi({
-      store_ids: [storeId],
-    })
-      .then((response) => {
-        if (response) {
-          switch (response.code) {
-            case HttpStatus.SUCCESS:
-              setStoreAccountData(response.data.items);
-              setInitAssigneeAccountData(response.data.items);
-              setInitMarketingAccountData(response.data.items);
-              setInitCoordinatorAccountData(response.data.items);
-              break;
-            case HttpStatus.UNAUTHORIZED:
-              dispatch(unauthorizedAction());
-              break;
-            default:
-              response.errors.forEach((e) => showError(e));
-              break;
-          }
-        }
-      })
-      .catch((error) => {
-        console.log("error", error);
-      });
-  }, [dispatch, storeId]);
-
-  useEffect(() => {
     const pushCurrentValueToDataAccount = (fieldName: string) => {
 			let fieldNameValue = form.getFieldValue(fieldName);
       if (fieldNameValue) {
@@ -162,8 +132,8 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 					setMarketingAccountData(storeAccountData);
 					setCoordinatorAccountData(storeAccountData);
         } else {
-					searchAccountApi({
-						info: fieldNameValue,
+					searchAccountPublicApi({
+						condition: fieldNameValue,
 					})
 						.then((response) => {
 							if (response) {
@@ -215,7 +185,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 		if(!storeId) {
 			return;
 		}
-		searchAccountApi({
+		searchAccountPublicApi({
 			store_ids: [storeId],
 		})
 			.then((response) => {
