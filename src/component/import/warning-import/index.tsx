@@ -1,6 +1,7 @@
 import { Col, Row } from "antd"; 
 
 type ImportConfig ={
+    title?: string,
     link_template: string|undefined
 }
 
@@ -9,7 +10,7 @@ const WarningImport: React.FC<ImportConfig> = (props: ImportConfig) => {
     <Row gutter={12}>
     <Col span={3}>Chú ý:</Col>
     <Col span={19}>
-      <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
+      <p>- Kiểm tra đúng loại phương thức {props.title ?? 'khuyến mại'} khi xuất nhập file</p>
       <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
       <p>
         - Tải file mẫu <a href={props.link_template}>tại đây</a>
