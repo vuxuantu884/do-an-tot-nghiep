@@ -11,22 +11,23 @@ import {convertDepartment} from "utils/AppUtils";
 import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { DepartmentView } from "model/account/department.model";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {DepartmentView} from "model/account/department.model";
+import {OFFSET_HEADER_UNDER_NAVBAR} from "utils/Constants";
 
 const DepartmentSearchScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [data, setData] = useState<Array<DepartmentView>>([]); 
-  
+  const [data, setData] = useState<Array<DepartmentView>>([]);
+
   //phân quyền
   const [allowReadDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.READ],
   });
   const [allowCreateDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.CREATE],
-  }); 
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -36,6 +37,7 @@ const DepartmentSearchScreen: React.FC = () => {
         if (result) {
           let array: Array<DepartmentView> = convertDepartment(result);
           setData(array);
+          console.log(array);
         } else {
           setError(false);
         }
@@ -59,7 +61,10 @@ const DepartmentSearchScreen: React.FC = () => {
           ]}
           extra={
             allowCreateDep ? (
-              <ButtonCreate child="Thêm bộ phận" path={`${UrlConfig.DEPARTMENT}/create`} />
+              <ButtonCreate
+                child="Thêm bộ phận"
+                path={`${UrlConfig.DEPARTMENT}/create`}
+              />
             ) : null
           }
         >
@@ -71,6 +76,7 @@ const DepartmentSearchScreen: React.FC = () => {
               pagination={false}
               isRowSelection
               scroll={{x: 1480}}
+              sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
               columns={[
                 {
                   title: "Mã bộ phận",
@@ -83,6 +89,7 @@ const DepartmentSearchScreen: React.FC = () => {
                 {
                   title: "Tên bộ phận",
                   dataIndex: "name",
+                  width: 200,
                   render: (value: string, item: DepartmentView) => (
                     <div
                       style={{
@@ -109,36 +116,48 @@ const DepartmentSearchScreen: React.FC = () => {
                 {
                   title: "Số điện thoại",
                   dataIndex: "mobile",
-                  width: '120px'
+                  width: 140,
                 },
                 {
                   title: "Địa chỉ",
                   dataIndex: "address",
-                  width: 200
+                  width: 140,
                 },
                 {
                   title: "Quản lý",
                   dataIndex: "manager",
                   width: 120,
-                  render: (value, record: DepartmentView) => (
-                    value === null ? ("") : (
+                  render: (value, record: DepartmentView) =>
+                    value === null ? (
+                      ""
+                    ) : (
                       <Link
                         to={`${UrlConfig.ACCOUNTS}/${record.manager_code}`}
                       >{`${record.manager_code} - ${value}`}</Link>
-                    )
-                  )
+                    ),
                 },
                 {
                   title: "Người tạo",
                   dataIndex: "created_by",
-                  width: 120
+                  width: 140,
+                  render: (value, record: DepartmentView) => (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <div>{record?.updated_by}</div>
+                      <div>{record?.updated_name}</div>
+                    </div>
+                  ),
                 },
                 {
                   title: "Ngày tạo",
                   dataIndex: "created_date",
                   render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-                  width: 120
-                }
+                  width: 120,
+                },
               ]}
             />
           </Card>
