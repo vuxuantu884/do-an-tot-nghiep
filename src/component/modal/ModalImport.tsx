@@ -167,7 +167,7 @@ const ModalImport: React.FC<ModalImportProps> = (
                 : "none",
           }}
         >
-          <WarningImport link_template={templateUrl} />
+          <WarningImport title="nhập hàng" link_template={templateUrl} />
           <Row gutter={24}>
             <Col span={3}></Col>
             <Col span={19}>
