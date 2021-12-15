@@ -72,7 +72,11 @@ const CustomerDuplicate: React.FC = () => {
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<CustomerDuplicateModel>>>([
     {
-      title: "Khách hàng",
+      title: (
+        <div style={{ display: "-webkit-flex" }}>
+          <span style={{ width: "100%", textAlign: "center" }}>Khách hàng</span>
+        </div>
+      ),
       dataIndex: "customer",
       render: (value: string, i: CustomerDuplicateModel) => {
         if (params.issued_on_min !== "" || params.issued_on_max !== "") {
@@ -95,9 +99,11 @@ const CustomerDuplicate: React.FC = () => {
         }
       },
       visible: true,
+      
       // fixed: "left",
       // className: "custom-shadow-td",
       width: 200,
+      align:"center"
     },
 
     {
@@ -125,7 +131,6 @@ const CustomerDuplicate: React.FC = () => {
       },
       visible: true,
       width: 200,
-      align: "center"
     },
 
     {
@@ -228,8 +233,6 @@ const CustomerDuplicate: React.FC = () => {
 
     items[1] = {
       ...items[1],
-      title: "Số điện thoại",
-      dataIndex: "customer_phone_number",
       render: (value: string, i: CustomerDuplicateModel) => {
         if (newPrams.issued_on_min !== "" || newPrams.issued_on_max !== "") {
           return (
