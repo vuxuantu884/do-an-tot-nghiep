@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import LoginBG from "assets/img/login_bg.png";
+import LoginBG from "assets/img/login_bg.jpg";
 import YodyLogo from "assets/img/yody-logo.svg";
 import YodyFashionLogo from "assets/img/yody-fashion-logo.svg";
 

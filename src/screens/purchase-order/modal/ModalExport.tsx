@@ -3,7 +3,7 @@ import { Button, Col, Divider, Modal, Row } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import WarningImport from "component/import/warning-import";
 import { EnumImportStatus, EnumJobStatus } from "config/enum.config";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RiUpload2Line } from "react-icons/ri";
 import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
@@ -34,10 +34,12 @@ type UploadStatus = "ERROR" | "SUCCESS" | "DONE" | "PROCESSING" | "REMOVED" | un
 const ModalExport: React.FC<ModalImportProps> = (
   props: ModalImportProps
 ) => {
-  const { visible, onOk, onCancel, title, okText, cancelText, templateUrl, forder, customParams } =
+  const { visible, onOk, onCancel, title, cancelText, templateUrl, forder, customParams } =
     props;
 
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
+  const [jobExportStatus, setJobExportStatus] = useState<EnumJobStatus>();
+  const [lstJob, setLstJob] = useState<Array<string>>([]);
   const [exportRes, setExportRes] = useState<
   Array<any>
 >([]);
@@ -45,36 +47,55 @@ const ModalExport: React.FC<ModalImportProps> = (
   const [data, setData] = useState<BaseResponse<any>>();
   const dispatch = useDispatch();
 
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = lstJob.map((code) => {
+      return getJobImport(code);
+    });
+
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          
+          if (response.data && response.data.status === EnumJobStatus.finish) { 
+            setJobExportStatus(EnumJobStatus.finish);
+            setData(response.data);
+            const fileCode = response.data.code;
+            const newListExportFile = lstJob.filter((item) => {
+              return item !== fileCode;
+            });
+            
+            var downLoad = document.createElement("a");
+            downLoad.href = response.data.url;
+            downLoad.download = "download";
+
+            downLoad.click();
+
+            setLstJob(newListExportFile);
+            setExportRes([]);
+            return
+          }else if (response.data && response.data.status === EnumJobStatus.error) {
+            setJobExportStatus(EnumJobStatus.error);
+            return
+          }
+          setJobExportStatus(EnumJobStatus.processing);
+        }
+      });
+    });
+  }, [lstJob]);
+
   const onResultImport = useCallback((res)=>{
    if (res) {
     const {status, code} = res;  
           
     if (status === EnumImportStatus.processing) {
-      let getFilePromises = getJobImport(code);
       setUploadStatus(status);
+      setJobExportStatus(EnumJobStatus.processing);
+      setLstJob([code]);
       
-      Promise.all([getFilePromises]).then((responses) => {
-        responses.forEach((response) => {
-          if (response.code === HttpStatus.SUCCESS) {  
-            if (response.data && response.data.message && response.data.message.length > 0) { 
-              setExportRes([...response.data.message]);
-            } else {
-              setExportRes([]);
-              setData({...response.data});
-            }
-            if (response.data?.status === EnumJobStatus.finish) {
-              setUploadStatus(EnumJobStatus.success);
-              return;
-            }
-            setUploadStatus(EnumJobStatus.error);
-          }
-        });
-      });
-    } else{
-      setUploadStatus(EnumImportStatus.error);
-    }
-   }
-  },[]);
+      checkExportFile();
+   } 
+  }
+  },[checkExportFile, setLstJob]);
 
   const onResultChange = useCallback((res)=>{  
     if (res) { 
@@ -102,6 +123,14 @@ const ModalExport: React.FC<ModalImportProps> = (
     },[])
   }
 
+  useEffect(() => {
+    if (lstJob.length === 0 || jobExportStatus !== EnumJobStatus.processing) return;
+    checkExportFile();
+      
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [lstJob, checkExportFile, jobExportStatus]);
+
   return (
       <Modal
           onCancel={ActionImport.Cancel}
@@ -118,12 +147,6 @@ const ModalExport: React.FC<ModalImportProps> = (
             >
               {cancelText}
             </Button>
-            ,<Button key="link" type="primary" onClick={()=>{
-              setUploadStatus(undefined);
-              ActionImport.Ok();
-            }}>
-              {okText}
-            </Button>,
           ]}
         >
         <div
