@@ -1,6 +1,6 @@
 import { BaseObject } from "model/base/base.response";
 
-export interface Department extends BaseObject {
+export interface DepartmentResponse extends BaseObject {
   name: string,
   manager_code: string,
   manager: string,
@@ -8,18 +8,18 @@ export interface Department extends BaseObject {
   address: string,
   parent_id: number,
   department_id: number,
-  children: Array<DepartmentResponse>,
-  code: string,
-  status: string,
-  level: number,
-  parent: DepartmentParent | null | string
-}
-
-export interface DepartmentResponse extends Department {
   parent: string,
+  children: Array<DepartmentResponse>,
 }
 
-export interface DepartmentView extends Department {
+export interface DepartmentView extends BaseObject {
+  name: string,
+  level: number,
+  manager_code: string,
+  manager: string,
+  phone: string,
+  address: string,
+  parent: DepartmentParent | null
 }
 
 export interface DepartmentRequest {
