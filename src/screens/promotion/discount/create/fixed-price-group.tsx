@@ -11,45 +11,167 @@ import {
   Table,
   Tooltip
 } from "antd";
+import ModalConfirm from "component/modal/ModalConfirm";
 import _ from "lodash";
-import { DiscountFormModel } from "model/promotion/discount.create.model";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { DiscountFormModel, VariantEntitlementsResponse } from "model/promotion/discount.create.model";
+import React, { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { RiInformationLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { showError } from "utils/ToastUtils";
+import { formatDiscountValue, handleSearchProduct, onSelectProduct } from "utils/PromotionUtils";
 import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
 import NumberInput from "../../../../component/custom/number-input.custom";
 import UrlConfig from "../../../../config/url.config";
 import { searchVariantsRequestAction } from "../../../../domain/actions/product/products.action";
 import { PageResponse } from "../../../../model/base/base-metadata.response";
-import { VariantResponse } from "../../../../model/product/product.model";
+import { ProductResponse, VariantResponse } from "../../../../model/product/product.model";
 import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import { DiscountMethodStyled } from "../components/style";
-
 const Option = Select.Option;
 
 const FixedPriceGroup = (props: any) => {
-  const { key, name, form, remove, allProducts, discountMethod } = props;
+  const { key, name, form, remove, allProducts, discountMethod, importProduct, setImportProduct } = props;
   const dispatch = useDispatch();
 
-  const [data, setData] = useState<Array<VariantResponse>>([]);
+  const [dataSearchVariant, setDataSearchVariant] = useState<Array<VariantResponse>>([]);
+  const [dataSearchProduct, setDataSearchProduct] = useState<Array<ProductResponse>>([]);
+
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [discountType, setDiscountType] = useState("FIXED_AMOUNT");
   const productSearchRef = createRef<CustomAutoComplete>();
+  const variantSearchRef = createRef<CustomAutoComplete>();
   const entitlementForm: Array<DiscountFormModel> = form.getFieldValue("entitlements");
-  const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
+
+  const [isVisibleConfirmModal, setIsVisibleConfirmModal] = useState<boolean>(false);
+  const selectedProductParentRef = useRef<ProductResponse | null>(null)
+
+  const onResultSearchVariant = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!result) {
-      setData([]);
+      setDataSearchVariant([]);
     } else {
-      setData(result.items);
+      setDataSearchVariant(result.items);
     }
   }, []);
+
+
+  const transformVariant = (item: any) => ({
+    name: item.variant_title,
+    on_hand: item.quantity,
+    sku: item.sku,
+    product_id: "",
+    variant_prices: [
+      {
+        import_price: item.price,
+      },
+    ],
+    id: item.variant_id,
+  });
+
+  const onSearchVariant = (value: string) => {
+    if (value.trim() !== "" && value.length >= 3) {
+      dispatch(
+        searchVariantsRequestAction(
+          {
+            status: "active",
+            limit: 200,
+            page: 1,
+            info: value.trim(),
+          },
+          onResultSearchVariant
+        )
+      );
+    } else {
+      setDataSearchVariant([]);
+    }
+  };
+
+  const renderResultVariant = () => {
+    let options: any[] = [];
+    dataSearchVariant.forEach((item: VariantResponse, index: number) => {
+      options.push({
+        label: <ProductItem data={item} key={item.id.toString()} />,
+        value: item.id,
+      });
+    });
+    return options;
+  };
+
+  const renderResultProduct = () => {
+    let options: any[] = [];
+    dataSearchProduct.forEach((item: ProductResponse, index: number) => {
+      options.push({
+        label: <span>{item.name}</span>,
+        value: JSON.stringify(item),
+      });
+    });
+    return options;
+  };
+
+
+  /**
+   * Xoá sản phẩm con thuộc sản phẩm cha mới và thêm sản phẩm cha mới. 
+   */
+  const handleAcceptParentProduct = () => {
+    if (selectedProductParentRef.current) {
+      // add product parent id to form 
+      const entitlementForm: Array<DiscountFormModel> = form.getFieldValue("entitlements");
+      console.log(entitlementForm);
+
+
+      const filteredVariant = selectedProduct.filter((product) => {
+        if (!selectedProductParentRef.current?.variants) {
+          return true;
+        }
+        return selectedProductParentRef.current?.variants?.every((variant) => {
+          return variant.id !== product.id;
+        })
+      });
+
+      setSelectedProduct([selectedProductParentRef.current].concat(filteredVariant));
+    }
+    selectedProductParentRef.current = null;
+    setIsVisibleConfirmModal(false);
+  }
+
+  if (name === 3)
+    console.log("selectedProduct", name, selectedProduct);
+
+  /**
+   * Đóng modal xác nhận thêm mã cha
+   */
+  const handleDenyParentProduct = () => {
+    selectedProductParentRef.current = null;
+    setIsVisibleConfirmModal(false);
+  }
+
+  const onPickManyProduct = useCallback(
+    (items: Array<VariantResponse>) => {
+      if (items.length) {
+        setSelectedProduct([...selectedProduct, ...items]);
+      }
+      setVisibleManyProduct(false);
+    },
+    [selectedProduct]
+  );
+
+  const onDeleteItem = (index: number) => {
+    selectedProduct.splice(index, 1);
+    setSelectedProduct([...selectedProduct]);
+    entitlementForm[name].variants?.splice(index, 1);
+
+    //xoá trong danh sách file import product
+    const importProductTemp: Array<VariantEntitlementsResponse> = [...importProduct];
+    importProductTemp.splice(index, 1);
+    setImportProduct((prev: Array<Array<VariantEntitlementsResponse>>) => {
+      prev[name] = importProductTemp;
+      return prev;
+    })
+  };
 
   useEffect(() => {
     if (discountMethod === "FIXED_PRICE") {
@@ -67,127 +189,63 @@ const FixedPriceGroup = (props: any) => {
     }
   }, [discountType, form, name]);
 
+
   useEffect(() => {
-    const formEntitlements = entitlementForm;
-    const initVariants = formEntitlements[name]?.variants;
+    const formEntitlements: Array<DiscountFormModel> = form.getFieldValue("entitlements");
+
     if (formEntitlements[name]?.["prerequisite_quantity_ranges.value_type"])
       setDiscountType(
         formEntitlements[name]?.["prerequisite_quantity_ranges.value_type"]
       );
-    if (initVariants && initVariants.length > 0) {
+    if (importProduct?.length > 0) {
       let temps: Array<any> = [];
-      _.unionBy(initVariants, "variant_id").forEach((variant: any) => {
+      importProduct?.forEach((variant: any) => {
         const product = transformVariant(variant);
         temps.push(product);
       });
-      setSelectedProduct(temps);
+
+
+      setSelectedProduct((prev) => {
+        console.log([...prev, ...temps]);
+        return _.unionBy([...prev, ...temps], "id");
+      });
+
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, name, JSON.stringify(entitlementForm)]);
 
-  const transformVariant = (item: any) => ({
-    name: item.variant_title,
-    on_hand: item.quantity,
-    sku: item.sku,
-    product_id: "",
-    variant_prices: [
-      {
-        import_price: item.price,
-      },
-    ],
-    id: item.variant_id,
-  });
+  }, [form, name, importProduct]);
 
-  const onSearch = useCallback(
-    (value: string) => {
-      if (value.trim() !== "" && value.length >= 3) {
-        dispatch(
-          searchVariantsRequestAction(
-            {
-              status: "active",
-              limit: 200,
-              page: 1,
-              info: value.trim(),
-            },
-            onResultSearch
-          )
-        );
-      } else {
-        setData([]);
-      }
-    },
-    [dispatch, onResultSearch]
-  );
+  /**
+   * add entitled_variant_ids, entitled_product_ids to each entitlement
+   */
+  const variantIdReducer = (accumulator: number[], currentValue: any) => {
+    if (currentValue.sku) {
+      accumulator.push(currentValue.id);
+    }
+    return accumulator;
+  }
 
-  // add entitled_variant_ids to each entitlement
+  const productIdReducer = (accumulator: number[], currentValue: any) => {
+    if (currentValue.code?.length === 7) {
+      accumulator.push(currentValue.id);
+    }
+    return accumulator;
+  }
+
   useEffect(() => {
-    let entitlementFields = entitlementForm;
+    let entitlementFields: Array<DiscountFormModel> = form.getFieldValue("entitlements");
+
     entitlementFields[name] = Object.assign({}, entitlementFields[name], {
-      entitled_variant_ids: selectedProduct.map((p) => p.id),
+      /**
+       * Có sku là variant | Product check code.length === 7
+       */
+      entitled_variant_ids: selectedProduct.reduce(variantIdReducer, []),
+      entitled_product_ids: selectedProduct.reduce(productIdReducer, []),
     });
     form.setFieldsValue({ entitlements: entitlementFields });
   }, [form, name, selectedProduct, entitlementForm]);
-
-  const renderResult = useMemo(() => {
-    let options: any[] = [];
-    data.forEach((item: VariantResponse, index: number) => {
-      options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
-        value: item.id,
-      });
-    });
-    return options;
-  }, [data]);
-
-  const onSelectProduct = useCallback(
-    (value) => {
-      const selectedItem = data.find((e) => e.id === Number(value));
-      const checkExist = selectedProduct.some((e) => e.id === value);
-      if (checkExist) {
-        showError("Sản phẩm đã được chọn!");
-        return;
-      }
-      if (selectedItem) {
-        setSelectedProduct([selectedItem].concat(selectedProduct));
-      }
-    },
-    [data, selectedProduct]
-  );
-
-  const onPickManyProduct = useCallback(
-    (items: Array<VariantResponse>) => {
-      if (items.length) {
-        setSelectedProduct([...selectedProduct, ...items]);
-      }
-      setVisibleManyProduct(false);
-    },
-    [selectedProduct]
-  );
-
-  const onDeleteItem = useCallback(
-    (index: number) => {
-      selectedProduct.splice(index, 1);
-      setSelectedProduct([...selectedProduct]);
-      entitlementForm[name].variants?.splice(index, 1);
-    },
-    [selectedProduct, entitlementForm, name]
-  );
-
-  const formatDiscountValue = useCallback(
-    (value: number | undefined) => {
-      if (discountType !== "FIXED_AMOUNT") {
-        const floatIndex = value?.toString().indexOf(".") || -1;
-        if (floatIndex > 0) {
-          return `${value}`.slice(0, floatIndex + 3);
-        }
-        return `${value}`;
-      } else {
-        return formatCurrency(`${value}`.replaceAll(".", ""));
-      }
-    },
-    [discountType]
-  );
-
+  /**
+    * end add entitled_variant_ids, entitled_product_ids to each entitlement
+    */
   return (
     <div
       key={name}
@@ -238,27 +296,7 @@ const FixedPriceGroup = (props: any) => {
             <NumberInput key={`${key}-min`} min={0} />
           </Form.Item>
         </Col>
-        {/* Tạm thời bỏ giới hạn số lượng */}
-        {/* <Col span={7} style={{display: "none"}}>
-          <Form.Item
-            name={[name, "prerequisite_quantity_ranges.allocation_limit"]}
-            label={
-              <Space>
-                <span>Giới hạn</span>
-                <Tooltip
-                  title={
-                    "Tổng số lượng sản phẩm áp dụng khuyến mại. Mặc định không điền là không giới hạn." +
-                    "VD: Chỉ áp dụng cho 100 sản phẩm, hết 100 sản phẩm này thì không có khuyến mại nữa."
-                  }
-                >
-                  <RiInformationLine />
-                </Tooltip>
-              </Space>
-            }
-          >
-            <NumberInput key={`${key}-usage`} min={0} />
-          </Form.Item>
-        </Col> */}
+
         <Col span={9}>
           <Input.Group compact style={{ display: "flex", alignItems: "stretch" }}>
             <DiscountMethodStyled>
@@ -273,7 +311,7 @@ const FixedPriceGroup = (props: any) => {
                   min={1}
                   max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
                   step={discountType === "FIXED_AMOUNT" ? 1 : 0.01}
-                  formatter={(value) => formatDiscountValue(value)}
+                  formatter={(value) => formatDiscountValue(value, discountType === "PERCENTAGE")}
                 />
               </Form.Item>
             </DiscountMethodStyled>
@@ -311,33 +349,33 @@ const FixedPriceGroup = (props: any) => {
         <div>
           <Form.Item>
             <Row gutter={16}>
-              {/* <Col span={8}>
+              <Col span={8}>
                 <CustomAutoComplete
                   key={`${key}-product_parent`}
                   id="#product_parent"
                   dropdownClassName="product"
                   placeholder="Tìm kiếm sản phẩm cha"
-                  onSearch={onSearch}
+                  onSearch={(value) => { handleSearchProduct(dispatch, value, setDataSearchProduct) }}
                   dropdownMatchSelectWidth={456}
                   style={{ width: "100%" }}
-                  onSelect={onSelectProduct}
-                  options={renderResult}
+                  onSelect={(value) => onSelectProduct(value, false, dataSearchVariant, selectedProductParentRef, setIsVisibleConfirmModal, selectedProduct, setSelectedProduct)}
+                  options={renderResultProduct()}
                   ref={productSearchRef}
                   textEmpty={"Không tìm thấy sản phẩm"}
                 />
-              </Col> */}
-              <Col span={19}>
+              </Col>
+              <Col span={11}>
                 <CustomAutoComplete
                   key={`${key}-product_search`}
                   id="#product_search"
                   dropdownClassName="product"
                   placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
-                  onSearch={onSearch}
+                  onSearch={onSearchVariant}
                   dropdownMatchSelectWidth={456}
                   style={{ width: "100%" }}
-                  onSelect={onSelectProduct}
-                  options={renderResult}
-                  ref={productSearchRef}
+                  onSelect={(value) => onSelectProduct(value, true, dataSearchVariant, selectedProductParentRef, setIsVisibleConfirmModal, selectedProduct, setSelectedProduct)}
+                  options={renderResultVariant()}
+                  ref={variantSearchRef}
                   textEmpty={"Không tìm thấy sản phẩm"}
                 />
               </Col>
@@ -363,7 +401,7 @@ const FixedPriceGroup = (props: any) => {
                   className: "ant-col-info",
                   dataIndex: "variant",
                   align: "left",
-                  render: (value: string, item, index: number) => {
+                  render: (value: string, item) => {
                     return (
                       <div>
                         <div>
@@ -372,7 +410,7 @@ const FixedPriceGroup = (props: any) => {
                               target="_blank"
                               to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`}
                             >
-                              {item.sku}
+                              {item.code?.length === 7 ? item.code : item.sku}
                             </Link>
                           </div>
                           <div className="product-item-name">
@@ -395,8 +433,13 @@ const FixedPriceGroup = (props: any) => {
                   className: "ant-col-info",
                   align: "center",
                   width: "15%",
-                  render: (value, item, index) =>
-                    formatCurrency(item.variant_prices[0]?.import_price),
+                  render: (value, item, index) => {
+                    if (item.variant_prices) {
+                      return formatCurrency(item.variant_prices[0]?.import_price);
+                    } else {
+                      return "-";
+                    }
+                  }
                 },
                 {
                   className: "ant-col-info",
@@ -421,7 +464,13 @@ const FixedPriceGroup = (props: any) => {
           ) : (
             <Row gutter={16} style={{ paddingTop: "16px" }}>
               <Col span={24}>
-                <Button icon={<DeleteOutlined />} danger onClick={() => remove(name)}>
+                <Button icon={<DeleteOutlined />} danger onClick={() => {
+                  remove(name);
+                  setImportProduct((prev: Array<Array<VariantEntitlementsResponse>>) => {
+                    prev.splice(name, 1);
+                    return prev;
+                  })
+                }}>
                   Xoá nhóm chiết khấu
                 </Button>
               </Col>
@@ -430,7 +479,7 @@ const FixedPriceGroup = (props: any) => {
 
           <PickManyProductModal
             onSave={onPickManyProduct}
-            selected={data}
+            selected={dataSearchVariant}
             onCancel={() => setVisibleManyProduct(false)}
             visible={visibleManyProduct}
             emptyText={"Không tìm thấy sản phẩm"}
@@ -438,6 +487,11 @@ const FixedPriceGroup = (props: any) => {
         </div>
       )
       }
+      <ModalConfirm visible={isVisibleConfirmModal} title="Xoá sản phẩm con trong danh sách"
+        subTitle="Đã có sản phẩm con trong danh sách, thêm sản phẩm cha sẽ tự động xoá sản phẩm con"
+        onOk={() => { handleAcceptParentProduct() }}
+        onCancel={() => { handleDenyParentProduct() }}
+      />
     </div >
   );
 };

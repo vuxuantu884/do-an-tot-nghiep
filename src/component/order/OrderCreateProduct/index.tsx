@@ -1100,6 +1100,7 @@ function OrderCreateProduct(props: PropType) {
     }
 		handleRemoveAllDiscount();
 		let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
+		console.log('totalLineAmountAfterDiscount', totalLineAmountAfterDiscount)
     let discountOrder = checkingDiscountResponse.data.suggested_discounts[0];
     if (discountOrder) {
       if (!discountOrder?.value) {
@@ -1184,7 +1185,7 @@ function OrderCreateProduct(props: PropType) {
       checkingDiscountResponse.data.line_items.length > 0
     ) {
       let result = getApplyDiscountLineItem(checkingDiscountResponse, items);
-      handleApplyDiscountOrder(checkingDiscountResponse, items);
+      handleApplyDiscountOrder(checkingDiscountResponse, result);
       setItems(result);
       handleChangeItems(result);
       console.log("result", result);

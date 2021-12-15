@@ -246,6 +246,7 @@ function OrdersScreen(props: PropsType)  {
     {
       title: "ID đơn hàng",
       dataIndex: "code",
+      key: "code",
       render: (value: string, i: OrderModel) => {
         return (
           <React.Fragment>
@@ -313,7 +314,7 @@ function OrdersScreen(props: PropsType)  {
           <div className="items">
             {items.map((item, i) => {
               return (
-                <div className="item custom-td">
+                <div className="item custom-td" key={item.variant_id}>
                   <div className="product productNameWidth 2">
 										<div className="inner">
 											<Link
@@ -655,8 +656,8 @@ function OrdersScreen(props: PropsType)  {
       dataIndex: "payments",
       key: "payments.type",
       render: (payments: Array<OrderPaymentModel>) =>
-        payments.map((payment) => {
-          return <Tag>{payment.payment_method}</Tag>;
+        payments.map((payment, index) => {
+          return <Tag key={index}>{payment.payment_method}</Tag>;
         }),
       visible: true,
       align: "center",
@@ -745,9 +746,9 @@ function OrdersScreen(props: PropsType)  {
 					const listTags = record?.tags.split(",")
 					console.log('listTags', listTags)
 					if(listTags && listTags.length > 0) {
-						result = listTags.map(tag => {
+						result = listTags.map((tag, index) => {
 							return (
-								<Tag>{tag}</Tag>
+								<Tag key={index}>{tag}</Tag>
 							)
 						})
 					}

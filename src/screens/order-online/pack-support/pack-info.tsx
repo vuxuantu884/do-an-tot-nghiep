@@ -405,7 +405,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     <Form layout="vertical" ref={formRef} form={form}>
       <div style={{padding: "20px 0 0 0"}}>
         <Row gutter={24} style={{marginLeft: "0px", marginRight: "0px"}}>
-          <Col md={8}>
+          <Col md={6}>
             <Form.Item
               label="Cửa hàng"
               name="store_request"
@@ -445,14 +445,14 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             </Form.Item>
           </Col>
 
-          <Col md={8} style={{paddingLeft: 32, paddingRight: 40}}>
+					<Col md={6} style={{paddingLeft: 32, paddingRight: 40}}>
             <Form.Item
               label="Mã đơn hàng:"
               name="order_request"
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập mã đơn hàng hoặc mã đơn giao",
+                  message: "Vui lòng nhập mã đơn hàng hoặc mã đơn giao!",
                 },
               ]}
               style={{width: "100%"}}
@@ -471,7 +471,33 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             </Form.Item>
           </Col>
 
-          <Col md={8} style={{paddingLeft: 53, paddingRight: 15}}>
+          <Col md={6} style={{paddingLeft: 32, paddingRight: 40}}>
+            <Form.Item
+              label="ID đơn hàng/Mã vận đơn:"
+              name="order_request"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập ID đơn hàng hoặc mã vận đơn!",
+                },
+              ]}
+              style={{width: "100%"}}
+            >
+              <Input
+                className="select-with-search"
+                placeholder="ID đơn hàng/Mã vận đơn"
+                // addonAfter={<ScanOutlined />}
+                addonAfter={<img src={barcodeIcon} alt="" />}
+                onPressEnter={(e: any) => {
+                  onKeyupOrder(e.target.value);
+                }}
+                disabled={disableOrder}
+                id="order_request"
+              />
+            </Form.Item>
+          </Col>
+
+          <Col md={6} style={{paddingLeft: 53, paddingRight: 15}}>
             <Form.Item label="Sản phẩm:" style={{width: "100%", float: "right"}}>
               <Input.Group compact className="select-with-search" style={{width: "100%"}}>
                 <Form.Item
@@ -486,7 +512,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 >
                   <Input
                     style={{width: "50%"}}
-                    placeholder="mã sản phẩm"
+                    placeholder="Mã sản phẩm"
                     onPressEnter={(e: any) => {
                       onKeyupProduct(e.target.value);
                     }}

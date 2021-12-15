@@ -24,6 +24,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { SourceResponse } from "model/response/order/source.response";
 import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { searchAccountApi } from "service/accounts/account.service";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 import { POS } from "utils/Constants";
 import BaseFilter from "./base.filter";
@@ -140,6 +141,32 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	const [accountData, setAccountData] = useState<Array<AccountResponse>>(
 		[]
 	);
+	const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>(
+		[]
+	);
+	const [accountFound, setAccountFound] = useState<Array<AccountResponse>>(
+		[]
+	);
+
+	console.log('assigneeFound', assigneeFound)
+
+	useEffect(() => {
+		if(params.assignee_codes && params.assignee_codes?.length>0) {
+			searchAccountApi({
+				codes: params.assignee_codes
+			}).then((response) => {
+				setAssigneeFound(response.data.items)
+			})
+		}
+		if(params.account_codes  && params.account_codes?.length>0) {
+			searchAccountApi({
+				codes: params.account_codes
+			}).then((response) => {
+				setAccountFound(response.data.items)
+			})
+		}
+		
+	}, [params.assignee_codes, params.account_codes])
 
 	const onChangeOrderOptions = useCallback((e) => {
 		console.log('ok lets go', e.target.value);
@@ -334,27 +361,53 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			return result;
 		};
 
-		const getFilterString = (mappedArray: any[] | undefined, keyValue: string, endPoint?: string, objectLink?: string) => {
+		const getFilterString = (mappedArray: any[] | undefined, keyValue: string, endPoint?: string, objectLink?: string, type?: string) => {
 			let result = null;
 			if (!mappedArray) {
 				return null;
 			};
-			result = mappedArray.map((single, index) => {
-				if (objectLink && endPoint && single[objectLink]) {
+			if(type === "assignee_codes") {
+				if(assigneeFound.length > 0) {
+					result = assigneeFound.map((single, index) => {
+						return (
+							<Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+								{single.code} - {single.full_name}
+								{renderSplitCharacter(index, mappedArray)}
+							</Link>
+						)
+					})
+				}
+			} else if(type === "account_codes") {
+				if(accountFound.length > 0) {
+					result = accountFound.map((single, index) => {
+						return (
+							<Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+								{single.code} - {single.full_name}
+								{renderSplitCharacter(index, mappedArray)}
+							</Link>
+						)
+					})
+				}
+			}
+			 else {
+				result = mappedArray.map((single, index) => {
+					if (objectLink && endPoint && single[objectLink]) {
+						return (
+							<Link to={`${endPoint}/${single[objectLink]}`} target="_blank" key={single[keyValue]}>
+								{single[keyValue]}
+								{renderSplitCharacter(index, mappedArray)}
+							</Link>
+						)
+					}
 					return (
-						<Link to={`${endPoint}/${single[objectLink]}`} target="_blank">
+						<React.Fragment>
 							{single[keyValue]}
 							{renderSplitCharacter(index, mappedArray)}
-						</Link>
+						</React.Fragment>
 					)
-				}
-				return (
-					<React.Fragment>
-						{single[keyValue]}
-						{renderSplitCharacter(index, mappedArray)}
-					</React.Fragment>
-				)
-			})
+				})
+
+			}
 			return <React.Fragment>{result}</React.Fragment>;
 		};
 
@@ -476,8 +529,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 
 		if (initialValues.assignee_codes.length) {
-			let mappedAccounts = accounts?.filter((account) => initialValues.assignee_codes?.some((single) => single === account.code.toString()))
-			let text = getFilterString(mappedAccounts, "full_name", UrlConfig.ACCOUNTS, "code");
+			let text = getFilterString(assigneeFound, "full_name", UrlConfig.ACCOUNTS, "code", "assignee_codes");
 			list.push({
 				key: 'assignee_codes',
 				name: 'Nhân viên bán hàng',
@@ -486,8 +538,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 
 		if (initialValues.account_codes.length) {
-			let mappedAccounts = accounts?.filter((account) => initialValues.account_codes?.some((single) => single === account.code.toString()))
-			let text = getFilterString(mappedAccounts, "full_name", UrlConfig.ACCOUNTS, "code");
+			let text = getFilterString(accountFound, "full_name", UrlConfig.ACCOUNTS, "code", "account_codes");
 			list.push({
 				key: 'account_codes',
 				name: 'Nhân viên tạo đơn',
@@ -584,7 +635,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 		// console.log('filters list', list);
 		return list
-	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes, initialValues.account_codes, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, accounts, listPaymentMethod, serviceType, deliveryService]);
+	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, accountFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, listPaymentMethod, serviceType, deliveryService, accounts]);
 
 	const widthScreen = () => {
 		if (window.innerWidth >= 1600) {
@@ -1105,7 +1156,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			<div className="order-filter-tags">
 				{filters && filters.map((filter, index) => {
 					return (
-						<Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
+						<Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
 							<span className="tagLabel">{filter.name}:</span>
 							{renderFilterTag(filter)}
 						</Tag>
