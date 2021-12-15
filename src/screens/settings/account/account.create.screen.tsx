@@ -66,7 +66,7 @@ const initRequest = {
   user_name: "",
   gender: "",
   full_name: "",
-  mobile: "",
+  phone: "",
   account_stores: [],
   account_jobs: [],
   address: "",
@@ -347,7 +347,7 @@ const AccountCreateScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 label="Số điện thoại"
-                name="mobile"
+                name="phone"
                 rules={[
                   { required: true, message: "Vui lòng nhập số điện thoại" },
                   {

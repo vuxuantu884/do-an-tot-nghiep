@@ -9,7 +9,7 @@ import {RegUtil} from "utils/RegUtils";
 const {Option, OptGroup} = Select;
 
 type FormValuesType = {
-  mobile: string,
+  phone: string,
   district: string| null| undefined,
   country: string| null| undefined,
   country_id: number| null| undefined,
@@ -26,7 +26,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
   const {formItem, form} = props;
 
   const initialFormValues: FormValuesType = {
-    mobile: formItem?.mobile,
+    phone: formItem?.phone,
     country: formItem?.country,
     country_id: formItem?.country_id,
     city: formItem?.city,
@@ -88,7 +88,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
             <Input />
           </Form.Item>
           <Form.Item
-            name="mobile"
+            name="phone"
             label="Số điện thoại"
             rules={[
               {required: true, message: "Vui lòng nhập số điện thoại."},
