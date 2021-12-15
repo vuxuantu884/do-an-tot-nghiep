@@ -330,7 +330,7 @@ const CustomerDuplicate: React.FC = () => {
 
             <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
               {(isPassed: boolean) => (
-                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />
+                <ButtonCreate path={`${UrlConfig.ORDER}/create`} child="Thêm mới đơn hàng" disabled={!isPassed} />
               )}
             </AuthWrapper>
           </Space>
