@@ -70,6 +70,7 @@ const CreateDiscountPage = () => {
     body.ends_date = values.ends_date?.format() || null;
     body.entitlements = values?.entitlements?.map((entitlement: any) => {
       return {
+        entitled_product_ids: entitlement.entitled_product_ids || null,
         entitled_variant_ids: entitlement.entitled_variant_ids || null,
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [

@@ -15,7 +15,6 @@ import ProcumentCommonModal from "./procument.common.modal";
 import { Fragment, useCallback, useState } from "react";
 import importIcon from "assets/icon/import.svg";
 import ModalImport from "component/modal/ModalImport";
-import { showInfo } from "utils/ToastUtils";
 import { AppConfig } from "config/app.config";
 
 type ProducmentInventoryModalProps = {
@@ -54,7 +53,6 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
 
   const ActionImport= {
     Ok: useCallback((res)=>{ 
-      showInfo("Tính năng đang phát triển");
       setShowImportModal(false);
     },[]),
     Cancel: useCallback(()=>{

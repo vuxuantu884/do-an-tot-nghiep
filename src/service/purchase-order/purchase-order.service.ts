@@ -8,6 +8,8 @@ import {
 } from "model/purchase-order/purchase-order.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
+import { ImportProcument } from "model/purchase-order/purchase-procument";
+import { ImportResponse } from "model/other/files/export-model";
 
 export const createPurchaseOrder = (
   data: PurchaseOrder
@@ -77,4 +79,13 @@ export const cancelPurchaseOrderApi = (
   id: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/cancel`);
+};
+
+export const exportPOApi = (
+  data: ImportProcument
+): Promise<BaseResponse<ImportResponse>| false> => {
+  return BaseAxios.post(
+    `${ApiConfig.PURCHASE_ORDER}/excel/job/export`,
+    data
+  );
 };

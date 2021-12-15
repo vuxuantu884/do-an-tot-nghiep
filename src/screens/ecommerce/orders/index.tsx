@@ -65,11 +65,11 @@ import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {getToken} from "utils/LocalStorageUtils";
+import { getToken } from "utils/LocalStorageUtils";
 import axios from "axios";
-import {AppConfig} from "config/app.config";
-import {FulFillmentStatus} from "utils/Constants";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { AppConfig } from "config/app.config";
+import { FulFillmentStatus } from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
 import { generateQuery } from "utils/AppUtils";
@@ -186,9 +186,9 @@ const EcommerceOrders: React.FC = () => {
 
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
-  
+
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
-  
+
   const [allShopIds, setAllShopIds] = useState([]);
 
   useEffect(() => {
@@ -209,7 +209,7 @@ const EcommerceOrders: React.FC = () => {
     { name: "Đã huỷ", value: "cancelled", className: "red-status" },
     { name: "Đã hết hạn", value: "expired", className: "red-status" },
   ];
-  
+
   const convertProgressStatus = (value: any) => {
     switch (value) {
       case "partial_paid":
@@ -237,8 +237,8 @@ const EcommerceOrders: React.FC = () => {
   // const updateProductConnection = () => {
   //   setIsShowUpdateConnectionModal(false);
 
-    // showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
-    //thai todo: call API
+  // showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
+  //thai todo: call API
   // };
 
   const [columns, setColumn] = useState<
@@ -250,7 +250,7 @@ const EcommerceOrders: React.FC = () => {
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: 155,
+      width: 175,
       render: (data: any, item: OrderModel) => (
         <div>
           <Link to={`${UrlConfig.ORDER}/${item.id}`}><strong>{data.code}</strong></Link>
@@ -265,7 +265,7 @@ const EcommerceOrders: React.FC = () => {
       title: "Khách hàng",
       key: "customer",
       visible: true,
-      width: 170,
+      width: 160,
       render: (record) =>
         record.shipping_address ? (
           <div className="customer custom-td">
@@ -328,14 +328,14 @@ const EcommerceOrders: React.FC = () => {
                     {item.discount_items.map((discount: any, index: number) => {
                       return (
                         <div style={{ color: "#EF5B5B" }} key={index}>
-                        -
-                        <NumberFormat
-                          value={discount.amount || 0}
-                          className="foo"
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      </div>
+                          -
+                          <NumberFormat
+                            value={discount.amount || 0}
+                            className="foo"
+                            displayType={"text"}
+                            thousandSeparator={true}
+                          />
+                        </div>
                       )
                     })}
                   </div>
@@ -615,7 +615,7 @@ const EcommerceOrders: React.FC = () => {
       let order_list: any = [];
       selectedRowKeys.forEach(idSelected => {
         const orderMatched = data?.items.find(i => i.id === idSelected)
-        if(orderMatched){
+        if (orderMatched) {
           const orderRequest = {
             "order_sn": orderMatched.reference_code,
             "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
@@ -628,7 +628,7 @@ const EcommerceOrders: React.FC = () => {
       })
 
       let url = `${AppConfig.baseUrl}${AppConfig.ECOMMERCE_SERVICE}/orders/print-forms`;
-      axios.post(url,{order_list} ,
+      axios.post(url, { order_list },
         {
           responseType: 'arraybuffer',
           headers: {
@@ -650,7 +650,7 @@ const EcommerceOrders: React.FC = () => {
         });
     }
   }, [selectedRowKeys, token, data?.items]);
-  
+
   const onMenuClick = useCallback(
     (printType: string) => {
       let params = {
@@ -674,7 +674,7 @@ const EcommerceOrders: React.FC = () => {
           <span onClick={handlePrintDeliveryNote}>In phiếu giao hàng</span>
         </div>
       </Menu.Item>
-  
+
       <Menu.Item key="2" disabled={selectedRowKeys?.length < 1}>
         <div>
           <PrinterOutlined style={{ marginRight: 5 }} />
@@ -730,7 +730,7 @@ const EcommerceOrders: React.FC = () => {
     if (!requestParams.ecommerce_shop_ids.length) {
       requestParams.ecommerce_shop_ids = allShopIds;
     }
-    
+
     setTableLoading(true);
     dispatch(getListOrderAction(requestParams, (result) => {
       setTableLoading(false);
@@ -750,7 +750,7 @@ const EcommerceOrders: React.FC = () => {
   };
   // end
 
-// handle Select Ecommerce
+  // handle Select Ecommerce
   const setAllShopListId = useCallback((result) => {
     let shopIds: any = [];
     if (result && result.length > 0) {
@@ -837,7 +837,7 @@ const EcommerceOrders: React.FC = () => {
                 onShowColumnSetting={() => setShowSettingColumn(true)}
                 onClearFilter={() => onClearFilter()}
               />
-    
+
               <CustomTable
                 isRowSelection
                 bordered
@@ -849,13 +849,13 @@ const EcommerceOrders: React.FC = () => {
                   tableLoading
                     ? false
                     : {
-                        pageSize: data.metadata.limit,
-                        total: data.metadata.total,
-                        current: data.metadata.page,
-                        showSizeChanger: true,
-                        onChange: onPageChange,
-                        onShowSizeChange: onPageChange,
-                      }
+                      pageSize: data.metadata.limit,
+                      total: data.metadata.total,
+                      current: data.metadata.page,
+                      showSizeChanger: true,
+                      onChange: onPageChange,
+                      onShowSizeChange: onPageChange,
+                    }
                 }
                 onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
                 dataSource={data.items}

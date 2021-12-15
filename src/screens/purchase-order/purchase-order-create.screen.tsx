@@ -93,42 +93,33 @@ const POCreateScreen: React.FC = () => {
 
   const [isLoading, setLoading] = useState<boolean>(true);
   const [statusAction, setStatusAction] = useState<string>("");
-  const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
+  const [winAccount, setWinAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  });
   const [listPaymentConditions, setListPaymentConditions] = useState<
     Array<PoPaymentConditions>
   >([]);
-  const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
+  const [rdAccount] = useState<Array<AccountResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [loadingDraftButton, setLoadingDraftButton] = useState(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
-  const onResultRD = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        setError(true);
-        return;
-      }
-      setRDAccount(data.items);
-      setLoading(false);
-    },
-    []
-  );
   const onResultWin = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
+      setLoading(false);
       if (!data) {
         setError(true);
         return;
       }
-      setWinAccount(data.items);
-      dispatch(
-        AccountSearchAction(
-          { department_ids: [AppConfig.RD_DEPARTMENT], status: "active" },
-          onResultRD
-        )
-      );
+      setWinAccount(data);
     },
-    [dispatch, onResultRD]
+    []
   );
 
   const createCallback = useCallback(
@@ -193,7 +184,7 @@ const POCreateScreen: React.FC = () => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
-  }, [dispatch, onResultWin, onResultRD]);
+  }, [dispatch, onResultWin]);
 
   return (
     <ContentContainer

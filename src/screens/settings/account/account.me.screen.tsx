@@ -125,7 +125,7 @@ const AccountMeScreen: React.FC = () => {
                 extra={<Button color="#1890ff" type="link" onClick={()=>{
                   setIsShowUpdate(true);
                 }}><EditOutlined /> Đổi thông tin liên hệ</Button>}>   
-              <RowDetail title="Số điện thoại" value={user?.mobile ?? "---"}/>
+              <RowDetail title="Số điện thoại" value={user?.phone ?? "---"}/>
               <RowDetail title="Khu vực" value={user?.district ?? "---"}/>
               <RowDetail title="Địa chỉ" value={user?.address ?? "---"}/>
             </Card>
