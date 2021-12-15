@@ -3,7 +3,11 @@ import StoreFilter from "component/filter/store.filter";
 import {MenuAction} from "component/table/ActionButton";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import {StoreRankAction, StoreSearchAction, StoreGetTypeAction} from "domain/actions/core/store.action";
+import {
+  StoreRankAction,
+  StoreSearchAction,
+  StoreGetTypeAction,
+} from "domain/actions/core/store.action";
 import {StoreQuery, StoreTypeRequest} from "model/core/store.model";
 import {StoreResponse} from "model/core/store.model";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -26,9 +30,8 @@ import {EditOutlined} from "@ant-design/icons";
 import useAuthorization from "hook/useAuthorization";
 import {StorePermissions} from "config/permissions/setting.permisssion";
 import NoPermission from "screens/no-permission.screen";
-import { DepartmentResponse } from "model/account/department.model";
-import { DepartmentGetListAction } from "domain/actions/account/account.action";
-
+import {DepartmentResponse} from "model/account/department.model";
+import {DepartmentGetListAction} from "domain/actions/account/account.action";
 
 const ACTIONS_INDEX = {
   UPDATE: 1,
@@ -127,12 +130,12 @@ const StoreListScreen: React.FC = () => {
     },
     {
       title: "Tên cửa hàng",
-      dataIndex: "name", 
+      dataIndex: "name",
       visible: true,
     },
     {
       title: "Bộ phận",
-      dataIndex: "department", 
+      dataIndex: "department",
       visible: true,
       width: 180,
     },
@@ -166,11 +169,13 @@ const StoreListScreen: React.FC = () => {
       width: 100,
       align: "center",
       visible: true,
-      sorter: (curentRecord, nextRecord) => {
-        if (curentRecord.rank_name > nextRecord.rank_name) {
+      sorter: (currentRecord, nextRecord) => {
+        const currentRankName = currentRecord.rank_name?.toUpperCase();
+        const nextRankName = nextRecord.rank_name?.toUpperCase();
+        if (currentRankName > nextRankName) {
           return 1;
         }
-        if (curentRecord.rank_name < nextRecord.rank_name) {
+        if (currentRankName < nextRankName) {
           return -1;
         }
         return 0;
@@ -378,7 +383,9 @@ const StoreListScreen: React.FC = () => {
             },
           ]}
           extra={
-            allowCreateStore && <ButtonCreate child="Thêm cửa hàng" path={`${UrlConfig.STORE}/create`} /> 
+            allowCreateStore && (
+              <ButtonCreate child="Thêm cửa hàng" path={`${UrlConfig.STORE}/create`} />
+            )
           }
         >
           <Card>
@@ -421,7 +428,7 @@ const StoreListScreen: React.FC = () => {
                 return {
                   onClick: (event) => {
                     history.push(`${UrlConfig.STORE}/${record.id}`);
-                  }, 
+                  },
                 };
               }}
             />

@@ -153,7 +153,7 @@ const AccountCreateScreen: React.FC = () => {
     },
     [history]
   );
- 
+
   const onFinish = useCallback(
     (value: AccountRequest) => {
       dispatch(AccountCreateAction(value, onCreateSuccess));
@@ -227,7 +227,12 @@ const AccountCreateScreen: React.FC = () => {
                 className="ant-switch-success"
                 defaultChecked
               />
-              <label className={status === "active" ? "text-success" : "text-error"}>
+              <label className={status === "active" ? "text-success" : "text-error"}
+                style={{
+                  display: "inline-block",
+                  minWidth: "110px"
+                }}
+              >
                 {statusValue}
               </label>
               <Item noStyle name="status" hidden>
