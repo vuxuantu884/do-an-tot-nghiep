@@ -72,9 +72,11 @@ const ModalExport: React.FC<ModalImportProps> = (
 
             setLstJob(newListExportFile);
             setExportRes([]);
+            setUploadStatus(EnumJobStatus.success);
             return
           }else if (response.data && response.data.status === EnumJobStatus.error) {
             setJobExportStatus(EnumJobStatus.error);
+            setUploadStatus(EnumJobStatus.error);
             return
           }
           setJobExportStatus(EnumJobStatus.processing);
