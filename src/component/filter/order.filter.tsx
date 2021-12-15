@@ -668,11 +668,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	}, [formSearchRef, params.search_term])
 
 	useEffect(() => {
-		if (params.variant_ids.length) {
+		if (params.variant_ids && params.variant_ids.length) {
+			let variant_ids= Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids];
 			(async () => {
 				let variants: any = [];
 				await Promise.all(
-					params.variant_ids.map(async (variant_id) => {
+					variant_ids.map(async (variant_id) => {
 						try {
 							const result = await getVariantApi(variant_id)
 
