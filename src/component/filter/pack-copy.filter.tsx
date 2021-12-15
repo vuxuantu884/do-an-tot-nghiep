@@ -394,7 +394,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                       ))}
                     </CustomSelect>
                   </Item>
-                  <p>Hãng vẫn chuyển</p>
+                  <p>Hãng vận chuyển</p>
                   <Item name="delivery_service_id">
                     <CustomSelect
                       //mode="multiple"
