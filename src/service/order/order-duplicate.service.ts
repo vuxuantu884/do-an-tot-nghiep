@@ -10,3 +10,11 @@ export const getOrderDuplicateService=(param:DuplicateOrderSearchQuery):Promise<
     const queryString=generateQuery(param);
     return BaseAxios.get(`${ApiConfig.ORDER}/orders-duplicate?${queryString}`)
 }
+
+export const putOrderMergeService=(origin_id:number,ids:number[]):Promise<BaseResponse<any>>=>{
+    return BaseAxios.put(`${ApiConfig.ORDER}/orders/combine`,{origin_id:origin_id,ids:ids });
+}
+
+export const putOrderCancelService=(ids:number[]):Promise<BaseResponse<any>>=>{
+    return BaseAxios.put(`${ApiConfig.ORDER}/orders/cancel`,{ids:ids });
+}
