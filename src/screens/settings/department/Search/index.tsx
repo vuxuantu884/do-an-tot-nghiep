@@ -115,7 +115,7 @@ const DepartmentSearchScreen: React.FC = () => {
                 },
                 {
                   title: "Số điện thoại",
-                  dataIndex: "mobile",
+                  dataIndex: "phone",
                   width: 140,
                 },
                 {

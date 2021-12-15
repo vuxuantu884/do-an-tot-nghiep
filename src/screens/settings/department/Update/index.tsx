@@ -216,7 +216,7 @@ const DepartmentUpdateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={8}>
-                <Form.Item name="mobile" label="Số điện thoại">
+                <Form.Item name="phone" label="Số điện thoại">
                   <Input placeholder="Nhập số điện thoại" />
                 </Form.Item>
               </Col>
