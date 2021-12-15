@@ -90,7 +90,7 @@ function AccountCustomSearchSelect(props: PropType) {
 			allowClear
 			optionFilterProp="children"
 			placeholder={placeholder}
-			notFoundContent={isLoading ? <Spin size="small" /> : null}
+			notFoundContent={isLoading ? <Spin size="small" /> : "Không tìm thấy kết quả"}
 			{...rest}
 		>
 			{dataToSelect.length > 0 &&

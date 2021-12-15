@@ -116,6 +116,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       title="Cài đặt ẩn hiện cột"
       closable={false}
       visible={visible}
+			onCancel={onCancel}
       footer={
         [
           <div

@@ -1490,6 +1490,8 @@ function OrderCreateProduct(props: PropType) {
                   setResultSearchVariant(data);
                   setSearchProducts(false);
                   setIsShowProductSearch(true);
+                }, ()=> {
+                  setSearchProducts(false);
                 })
               );
             } catch {
