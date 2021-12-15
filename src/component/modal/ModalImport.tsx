@@ -3,7 +3,7 @@ import { Button, Col, Divider, Modal, Row } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import WarningImport from "component/import/warning-import";
 import { EnumImportStatus, EnumJobStatus } from "config/enum.config";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RiUpload2Line } from "react-icons/ri";
 import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
@@ -46,44 +46,62 @@ const ModalImport: React.FC<ModalImportProps> = (
   const [successCount, setSuccessCount] = useState(0);
   const [data, setData] = useState<any>();
   const dispatch = useDispatch();
+  const [jobImportStatus, setJobImportStatus] = useState<EnumJobStatus>();
+  const [lstJob, setLstJob] = useState<Array<string>>([]);
+
+  const checkImportFile = useCallback(() => {
+    let getFilePromises = lstJob.map((code) => {
+      return getJobImport(code);
+    });
+
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data && response.data.message && response.data.message.length > 0) {
+            setImportRes([...response.data.message]);
+          } else {
+            setImportRes([]);
+            setData([]);
+          }
+          
+          setImportTotal(response.data.processed);
+          setSuccessCount(response.data.total_process); 
+          
+          if (response.data && response.data.status === EnumJobStatus.finish) {  
+            setUploadStatus(EnumJobStatus.success);
+            setJobImportStatus(EnumJobStatus.finish);
+            setData(response.data);
+            const fileCode = response.data.code;
+            const newListExportFile = lstJob.filter((item) => {
+              return item !== fileCode;
+            }); 
+
+            setLstJob(newListExportFile);
+            setImportRes([]);
+            return
+          }else if (response.data && response.data.status === EnumJobStatus.error) {
+            setJobImportStatus(EnumJobStatus.error);
+            setUploadStatus(EnumJobStatus.error);
+            return
+          }
+          setJobImportStatus(EnumJobStatus.processing);
+        }
+      });
+    });
+  }, [lstJob]);
 
   const onResultImport = useCallback((res)=>{
-    
    if (res) {
     const {status, code} = res;  
 
     if (status === EnumImportStatus.processing) {
-      let getFilePromises = getJobImport(code);
       setUploadStatus(status);
-
-      Promise.all([getFilePromises]).then((responses) => {
-        responses.forEach((response) => {
-          if (response.code === HttpStatus.SUCCESS) {  if (response.data.message.length > 0) {
-              // const errors: Array<any> = _.uniqBy(
-              //   response.data.message,
-              //   "index"
-              // ).sort((a: any, b: any) => a.index - b.index);
-
-              setImportRes([...response.data.message]);
-            } else {
-              setImportRes([]);
-              setData([]);
-            }
-            setImportTotal(response.data.total);
-            setSuccessCount(response.data.total_process); 
-            if (response.data?.status === EnumJobStatus.finish) {
-              setUploadStatus(EnumJobStatus.success);
-              return;
-            }
-            setUploadStatus(EnumJobStatus.error);
-          }
-        });
-      });
-    } else{
-      setUploadStatus(EnumImportStatus.error);
+      setJobImportStatus(EnumJobStatus.processing);
+      setLstJob([code]);
+      checkImportFile();
     }
    }
-  },[]);
+  },[checkImportFile]);
 
   const onResultChange = useCallback((res)=>{  
     if (res) { 
@@ -109,6 +127,14 @@ const ModalImport: React.FC<ModalImportProps> = (
       
     },[])
   }
+
+  useEffect(() => {
+    if (lstJob.length === 0 || jobImportStatus !== EnumJobStatus.processing) return;
+    checkImportFile();
+      
+    const getFileInterval = setInterval(checkImportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [lstJob, checkImportFile, jobImportStatus]);
 
   return (
       <Modal
