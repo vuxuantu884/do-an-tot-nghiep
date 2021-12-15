@@ -55,11 +55,13 @@ export const productWrapperUpdateAction = (
 
 export const searchVariantsOrderRequestAction = (
   query: VariantSearchQuery,
-  setData: (data: PageResponse<VariantResponse>) => void
+  setData: (data: PageResponse<VariantResponse>) => void,
+  handleError?: ()=>void,
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST, {
     query,
     setData,
+    handleError,
   });
 };
 

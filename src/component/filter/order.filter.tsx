@@ -10,7 +10,7 @@ import {
 } from "antd";
 import search from "assets/img/search.svg";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
-import CustomRangeDatePicker from "component/custom/new-date-range-picker";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
@@ -92,6 +92,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		return isLoading ? true : false
 	}, [isLoading])
 
+	const dateFormat = "DD-MM-YYYY";
+
 	const status = useMemo(() => [
 		{ name: "Nháp", value: "draft" },
 		{ name: "Đóng gói", value: "packed" },
@@ -151,21 +153,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	console.log('assigneeFound', assigneeFound)
 
 	useEffect(() => {
-		if(params.assignee_codes && params.assignee_codes?.length>0) {
+		if (params.assignee_codes && params.assignee_codes?.length > 0) {
 			searchAccountApi({
 				codes: params.assignee_codes
 			}).then((response) => {
 				setAssigneeFound(response.data.items)
 			})
 		}
-		if(params.account_codes  && params.account_codes?.length>0) {
+		if (params.account_codes && params.account_codes?.length > 0) {
 			searchAccountApi({
 				codes: params.account_codes
 			}).then((response) => {
 				setAccountFound(response.data.items)
 			})
 		}
-		
+
 	}, [params.assignee_codes, params.account_codes])
 
 	const onChangeOrderOptions = useCallback((e) => {
@@ -366,8 +368,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			if (!mappedArray) {
 				return null;
 			};
-			if(type === "assignee_codes") {
-				if(assigneeFound.length > 0) {
+			if (type === "assignee_codes") {
+				if (assigneeFound.length > 0) {
 					result = assigneeFound.map((single, index) => {
 						return (
 							<Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
@@ -377,19 +379,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						)
 					})
 				}
-			} else if(type === "account_codes") {
-				if(accountFound.length > 0) {
-					result = accountFound.map((single, index) => {
-						return (
-							<Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
-								{single.code} - {single.full_name}
-								{renderSplitCharacter(index, mappedArray)}
-							</Link>
-						)
-					})
-				}
-			}
-			 else {
+			} else {
 				result = mappedArray.map((single, index) => {
 					if (objectLink && endPoint && single[objectLink]) {
 						return (
@@ -515,7 +505,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			console.log('optionsVariant', optionsVariant)
 			let textVariant = "";
 			for (let i = 0; i < optionsVariant.length; i++) {
-				if(i < optionsVariant.length - 1) {
+				if (i < optionsVariant.length - 1) {
 					textVariant = textVariant + optionsVariant[i].label + splitCharacter
 				} else {
 					textVariant = textVariant + optionsVariant[i].label;
@@ -613,7 +603,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		if (initialValues.tags.length) {
 			let textStatus = "";
 			for (let i = 0; i < initialValues.tags.length; i++) {
-				if(i < initialValues.tags.length - 1) {
+				if (i < initialValues.tags.length - 1) {
 					textStatus = textStatus + initialValues.tags[i] + splitCharacter
 				} else {
 					textStatus = textStatus + initialValues.tags[i];
@@ -646,6 +636,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			return 800
 		}
 	}
+
 	const clearFilter = () => {
 		onClearFilter && onClearFilter();
 		setIssuedClick('')
@@ -669,7 +660,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 	useEffect(() => {
 		if (params.variant_ids && params.variant_ids.length) {
-			let variant_ids= Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids];
+			let variant_ids = Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids];
 			(async () => {
 				let variants: any = [];
 				await Promise.all(
@@ -761,9 +752,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 					>
 
 						<Row gutter={20}>
-							<Col span={8} xxl={6}>
-								<p>Kho cửa hàng</p>
-								<Item name="store_ids">
+							<Col span={8} xxl={8}>
+								<Item name="store_ids" label="Kho cửa hàng">
 									<CustomSelect
 										mode="multiple"
 										showArrow allowClear
@@ -784,27 +774,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										))}
 									</CustomSelect>
 								</Item>
-								<p>Trạng thái đơn</p>
-								<Item name="order_status">
-									<CustomSelect
-										mode="multiple" allowClear
-										showSearch placeholder="Chọn trạng thái đơn hàng"
-										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
-										optionFilterProp="children" showArrow
-										getPopupContainer={trigger => trigger.parentNode}
-										maxTagCount='responsive'
-									>
-										{status?.map((item) => (
-											<CustomSelect.Option key={item.value} value={item.value.toString()}>
-												{item.name}
-											</CustomSelect.Option>
-										))}
-									</CustomSelect>
-								</Item>
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Nguồn đơn hàng</p>
-								<Item name="source_ids">
+							<Col span={8} xxl={8}>
+								<Item name="source_ids" label="Nguồn đơn hàng">
 									<CustomSelect
 										mode="multiple"
 										style={{ width: '100%' }}
@@ -827,77 +799,20 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										))}
 									</CustomSelect>
 								</Item>
-								<p>Giao hàng</p>
-								<Item name="fulfillment_status">
-									<CustomSelect
-										mode="multiple" showSearch allowClear
-										showArrow placeholder="Chọn trạng thái giao hàng"
-										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
-										optionFilterProp="children"
-										getPopupContainer={trigger => trigger.parentNode}
-										maxTagCount='responsive'
-									>
-										{fulfillmentStatus.map((item, index) => (
-											<CustomSelect.Option
-												style={{ width: "100%" }}
-												key={index.toString()}
-												value={item.value.toString()}
-											>
-												{item.name}
-											</CustomSelect.Option>
-										))}
-									</CustomSelect>
-								</Item>
 							</Col>
-							<Col span={8} xxl={6}>
+							<Col span={8} xxl={8}>
 								<p>Ngày tạo đơn</p>
-								<CustomRangeDatePicker
+								<CustomFilterDatePicker
 									fieldNameFrom="issued_on_min"
 									fieldNameTo="issued_on_max"
 									activeButton={issuedClick}
 									setActiveButton={setIssuedClick}
-									format="DD-MM-YYYY"
+									format={dateFormat}
 									formRef={formRef}
 								/>
 							</Col>
-
-							<Col span={8} xxl={6} style={{ marginBottom: '20px' }}>
-								<p>Ngày duyệt đơn</p>
-								<CustomRangeDatePicker
-									fieldNameFrom="finalized_on_min"
-									fieldNameTo="finalized_on_max"
-									activeButton={finalizedClick}
-									setActiveButton={setFinalizedClick}
-									format="DD-MM-YYYY"
-									formRef={formRef}
-								/>
-							</Col>
-							<Col span={8} xxl={6} style={{ marginBottom: '20px' }}>
-								<p>Ngày hoàn tất đơn</p>
-								<CustomRangeDatePicker
-									fieldNameFrom="completed_on_min"
-									fieldNameTo="completed_on_max"
-									activeButton={completedClick}
-									setActiveButton={setCompletedClick}
-									format="DD-MM-YYYY"
-									formRef={formRef}
-								/>
-							</Col>
-							<Col span={8} xxl={6} style={{ marginBottom: '20px' }}>
-								<p>Ngày huỷ đơn</p>
-								<CustomRangeDatePicker
-									fieldNameFrom="cancelled_on_min"
-									fieldNameTo="cancelled_on_max"
-									activeButton={cancelledClick}
-									setActiveButton={setCancelledClick}
-									format="DD-MM-YYYY"
-									formRef={formRef}
-								/>
-							</Col>
-
-							<Col span={8} xxl={6}>
-								<p>Trạng thái xử lý đơn</p>
-								<Item name="sub_status_code">
+							<Col span={8} xxl={8}>
+								<Item name="sub_status_code" label="Trạng thái xử lý đơn">
 									<CustomSelect
 										mode="multiple"
 										showArrow allowClear
@@ -916,8 +831,46 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										))}
 									</CustomSelect>
 								</Item>
-								<p>Thanh toán</p>
-								<Item name="payment_status">
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="return_status" label="Trả hàng">
+									<CustomSelect
+										mode="multiple" showSearch allowClear
+										showArrow placeholder="Chọn trạng thái trả hàng"
+										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+										optionFilterProp="children"
+										getPopupContainer={trigger => trigger.parentNode}
+									>
+										<CustomSelect.Option
+											style={{ width: "100%" }}
+											key="1"
+											value="true"
+										>
+											Có đổi trả hàng
+										</CustomSelect.Option>
+										<CustomSelect.Option
+											style={{ width: "100%" }}
+											key="2"
+											value="false"
+										>
+											Không đổi trả hàng
+										</CustomSelect.Option>
+									</CustomSelect>
+								</Item>
+							</Col>
+							<Col span={8} xxl={8}>
+								<p>Ngày duyệt đơn</p>
+								<CustomFilterDatePicker
+									fieldNameFrom="finalized_on_min"
+									fieldNameTo="finalized_on_max"
+									activeButton={finalizedClick}
+									setActiveButton={setFinalizedClick}
+									format={dateFormat}
+									formRef={formRef}
+								/>
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="payment_status" label="Thanh toán">
 									<CustomSelect
 										mode="multiple" showArrow allowClear
 										showSearch placeholder="Chọn trạng thái thanh toán"
@@ -938,34 +891,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 									</CustomSelect>
 								</Item>
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Trả hàng</p>
-								<Item name="return_status">
-									<CustomSelect
-										mode="multiple" showSearch allowClear
-										showArrow placeholder="Chọn trạng thái trả hàng"
-										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
-										optionFilterProp="children"
-										getPopupContainer={trigger => trigger.parentNode}
-									>
-										<CustomSelect.Option
-											style={{ width: "100%" }}
-											key="1"
-											value="true"
-										>
-											Đã trả hàng
-										</CustomSelect.Option>
-										<CustomSelect.Option
-											style={{ width: "100%" }}
-											key="2"
-											value="false"
-										>
-											Chưa trả hàng
-										</CustomSelect.Option>
-									</CustomSelect>
-								</Item>
-								<p>Nhân viên bán hàng</p>
-								<Item name="assignee_codes">
+							<Col span={8} xxl={8}>
+								<Item name="account_codes" label="Nhân viên tạo đơn">
 									<AccountCustomSearchSelect
 										placeholder="Tìm theo họ tên hoặc mã nhân viên"
 										dataToSelect={accountData}
@@ -977,9 +904,41 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 									/>
 								</Item>
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Nhân viên tạo đơn</p>
-								<Item name="account_codes">
+							<Col span={8} xxl={8}>
+								<p>Ngày huỷ đơn</p>
+								<CustomFilterDatePicker
+									fieldNameFrom="cancelled_on_min"
+									fieldNameTo="cancelled_on_max"
+									activeButton={cancelledClick}
+									setActiveButton={setCancelledClick}
+									format={dateFormat}
+									formRef={formRef}
+								/>
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="payment_method_ids" label="Phương thức thanh toán">
+									<CustomSelect
+										mode="multiple" optionFilterProp="children"
+										showSearch showArrow allowClear
+										notFoundContent="Không tìm thấy kết quả"
+										placeholder="Chọn phương thức thanh toán" style={{ width: '100%' }}
+										getPopupContainer={trigger => trigger.parentNode}
+										maxTagCount='responsive'
+									>
+										{listPaymentMethod.map((item, index) => (
+											<CustomSelect.Option
+												style={{ width: "100%" }}
+												key={index.toString()}
+												value={item.id.toString()}
+											>
+												{item.name}
+											</CustomSelect.Option>
+										))}
+									</CustomSelect>
+								</Item>
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="assignee_codes" label="Nhân viên bán hàng">
 									<AccountCustomSearchSelect
 										placeholder="Tìm theo họ tên hoặc mã nhân viên"
 										dataToSelect={accountData}
@@ -990,6 +949,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										maxTagCount='responsive'
 									/>
 								</Item>
+							</Col>
+							<Col span={8} xxl={8}>
+								<p>Ngày hoàn tất đơn</p>
+								<CustomFilterDatePicker
+									fieldNameFrom="completed_on_min"
+									fieldNameTo="completed_on_max"
+									activeButton={completedClick}
+									setActiveButton={setCompletedClick}
+									format={dateFormat}
+									formRef={formRef}
+								/>
+							</Col>
+							<Col span={8} xxl={8}>
 								<p>Tổng tiền</p>
 								<div className="date-range">
 									<Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
@@ -1014,30 +986,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 									</Item>
 								</div>
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Phương thức thanh toán</p>
-								<Item name="payment_method_ids">
-									<CustomSelect
-										mode="multiple" optionFilterProp="children"
-										showSearch showArrow allowClear
-										notFoundContent="Không tìm thấy kết quả"
-										placeholder="Chọn phương thức thanh toán" style={{ width: '100%' }}
-										getPopupContainer={trigger => trigger.parentNode}
-										maxTagCount='responsive'
-									>
-										{listPaymentMethod.map((item, index) => (
-											<CustomSelect.Option
-												style={{ width: "100%" }}
-												key={index.toString()}
-												value={item.id.toString()}
-											>
-												{item.name}
-											</CustomSelect.Option>
-										))}
-									</CustomSelect>
-								</Item>
-								<p>Đối tác giao hàng</p>
-								<Item name="shipper_ids">
+							<Col span={8} xxl={8}>
+								<Item name="shipper_ids" label="Đối tác giao hàng">
 									<CustomSelect
 										mode="multiple" showSearch allowClear
 										showArrow placeholder="Chọn đối tác giao hàng"
@@ -1054,21 +1004,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 									</CustomSelect>
 								</Item>
 							</Col>
-							<Col span={8} xxl={6} style={{ marginBottom: '20px' }}>
+							<Col span={8} xxl={8}>
 								<p>Ngày dự kiến nhận hàng</p>
-
-								<CustomRangeDatePicker
+								<CustomFilterDatePicker
 									fieldNameFrom="expected_receive_on_min"
 									fieldNameTo="expected_receive_on_max"
 									activeButton={expectedClick}
 									setActiveButton={setExpectedClick}
-									format="DD-MM-YYYY"
+									format={dateFormat}
 									formRef={formRef}
 								/>
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Hình thức vận chuyển</p>
-								<Item name="delivery_types">
+							<Col span={8} xxl={8}>
+								<Item name="delivery_types" label="Hình thức vận chuyển">
 									<CustomSelect
 										mode="multiple" allowClear
 										optionFilterProp="children" showSearch
@@ -1085,8 +1033,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										))}
 									</CustomSelect>
 								</Item>
-								<p>Đơn vị vận chuyển</p>
-								<Item name="delivery_provider_ids">
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="delivery_provider_ids" label="Đơn vị vận chuyển">
 									<CustomSelect
 										mode="multiple" showSearch allowClear
 										showArrow placeholder="Chọn đơn vị vận chuyển"
@@ -1103,24 +1052,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 									</CustomSelect>
 								</Item>
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Sản phẩm</p>
-								<Item name="variant_ids">
-									<DebounceSelect
-										mode="multiple" showArrow maxTagCount='responsive'
-										placeholder="Tìm kiếm sản phẩm" allowClear
-										fetchOptions={searchVariants}
-										optionsVariant={optionsVariant}
-										style={{
-											width: '100%',
-										}}
-									/>
-								</Item>
-
-							</Col>
-							<Col span={8} xxl={6}>
-								<p>Tags</p>
-								<Item name="tags">
+							<Col span={8} xxl={8}>
+								<Item name="tags" label="Tags">
 									<CustomSelect
 										mode="tags" optionFilterProp="children"
 										showSearch showArrow allowClear
@@ -1130,24 +1063,76 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 									</CustomSelect>
 								</Item>
-
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Ghi chú nội bộ</p>
-								<Item name="note">
+							<Col span={8} xxl={8}>
+								<Item name="note" label="Ghi chú nội bộ">
 									<Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
 								</Item>
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Ghi chú của khách</p>
-								<Item name="customer_note">
+							<Col span={8} xxl={8}>
+								<Item name="customer_note" label="Ghi chú của khách">
 									<Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
 								</Item>
 							</Col>
-							<Col span={8} xxl={6}>
-								<p>Mã tham chiếu</p>
-								<Item name="reference_code">
+							<Col span={8} xxl={8}>
+								<Item name="reference_code" label="Mã tham chiếu">
 									<Input placeholder="Tìm kiếm theo mã tham chiếu" />
+								</Item>
+							</Col>
+							<Col span={8} xxl={8}></Col>
+							<Col span={8} xxl={8}></Col>
+							<Col span={8} xxl={8}></Col>
+							<Col span={8} xxl={8}>
+								<Item name="order_status" label="Trạng thái đơn">
+									<CustomSelect
+										mode="multiple" allowClear
+										showSearch placeholder="Chọn trạng thái đơn hàng"
+										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+										optionFilterProp="children" showArrow
+										getPopupContainer={trigger => trigger.parentNode}
+										maxTagCount='responsive'
+									>
+										{status?.map((item) => (
+											<CustomSelect.Option key={item.value} value={item.value.toString()}>
+												{item.name}
+											</CustomSelect.Option>
+										))}
+									</CustomSelect>
+								</Item>
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="fulfillment_status" label="Trạng thái giao hàng">
+									<CustomSelect
+										mode="multiple" showSearch allowClear
+										showArrow placeholder="Chọn trạng thái giao hàng"
+										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+										optionFilterProp="children"
+										getPopupContainer={trigger => trigger.parentNode}
+										maxTagCount='responsive'
+									>
+										{fulfillmentStatus.map((item, index) => (
+											<CustomSelect.Option
+												style={{ width: "100%" }}
+												key={index.toString()}
+												value={item.value.toString()}
+											>
+												{item.name}
+											</CustomSelect.Option>
+										))}
+									</CustomSelect>
+								</Item>
+							</Col>
+							<Col span={8} xxl={8}>
+								<Item name="variant_ids" label="Sản phẩm">
+									<DebounceSelect
+										mode="multiple" showArrow maxTagCount='responsive'
+										placeholder="Tìm kiếm sản phẩm" allowClear
+										fetchOptions={searchVariants}
+										optionsVariant={optionsVariant}
+										style={{
+											width: '100%',
+										}}
+									/>
 								</Item>
 							</Col>
 						</Row>
