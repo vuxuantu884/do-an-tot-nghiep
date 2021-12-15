@@ -246,7 +246,12 @@ const AccountCreateScreen: React.FC = () => {
               <Item
                 label="Mã nhân viên"
                 name="code"
-                rules={[{ required: true, message: "Vui lòng nhập mã nhân viên" }]}
+                rules={[
+                  { required: true, message: "Vui lòng nhập mã nhân viên" }, 
+                  {
+                    message: "Mã nhân viên không đúng định dạng",
+                    pattern: RegUtil.BOTH_NUMBER_AND_STRING
+                  }]}
                 normalize={(value: string) => (value || "").toUpperCase()}
               >
                 <Input
