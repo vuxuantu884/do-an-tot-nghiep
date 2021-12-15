@@ -284,14 +284,14 @@ function* rePushFulFillmentSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
-        response.errors.forEach((e) => showError(e));
-        // showError(response.message)
+        // response.errors.forEach((e) => showError(e));
+        showError("Đẩy đơn sang HVC thất bại. Vui lòng thử lại!")
         setError(true);
         break;
     }
   } catch (error) {
     setError(true);
-		showError("Có lỗi khi đẩy đơn cho HVC! Vui lòng thử lại sau!")
+		showError("Đẩy đơn sang HVC thất bại. Vui lòng thử lại!”")
   }
 }
 
