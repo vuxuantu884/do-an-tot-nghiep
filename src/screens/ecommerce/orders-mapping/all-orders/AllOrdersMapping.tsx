@@ -46,9 +46,11 @@ const ECOMMERCE_ORDER_STATUS = [
   { name: "Chờ xác nhận", value: "UNPAID" },
   { name: "Chờ lấy hàng (chưa xử lý)", value: "READY_TO_SHIP" },
   { name: "Chờ lấy hàng (đã xử lý)", value: "PROCESSED" },
+  { name: "Chờ lấy hàng (đã xử lý)", value: "RETRY_SHIP" },
   { name: "Đang giao", value: "SHIPPED" },
-  { name: "Đã giao", value: "TO_CONFIRM_RECEIVE" },
+  { name: "Đang giao", value: "TO_CONFIRM_RECEIVE" },
   { name: "Đã huỷ", value: "CANCELLED" },
+  { name: "Đã giao", value: "COMPLETED" },
 ];
 
 type AllOrdersMappingProps = {
@@ -65,7 +67,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
   useState<Array<AccountResponse>>();
   const [params, setPrams] = useState<GetOrdersMappingQuery>(initQuery);
   const [allShopList, setAllShopList] = useState<Array<any>>([]);
-  
+
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -295,13 +297,13 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
             isLoading
               ? false
               : {
-                  pageSize: data.metadata.limit,
-                  total: data.metadata.total,
-                  current: data.metadata.page,
-                  showSizeChanger: true,
-                  onChange: onPageChange,
-                  onShowSizeChange: onPageChange,
-                }
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
+              }
           }
           onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
           dataSource={data.items}

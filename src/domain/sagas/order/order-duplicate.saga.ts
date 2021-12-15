@@ -1,6 +1,6 @@
 import { CustomerDuplicateModel } from './../../../model/order/duplicate.model';
 import { OrderType } from 'domain/types/order.type';
-import {getOrderDuplicateService} from "./../../../service/order/order-duplicate.service";
+import {getOrderDuplicateService, putOrderCancelService, putOrderMergeService} from "./../../../service/order/order-duplicate.service";
 import {call,takeLatest,put} from "@redux-saga/core/effects";
 import {YodyAction} from "base/base.action";
 import {showError} from "utils/ToastUtils";
@@ -32,6 +32,52 @@ function* getOrderDuplicateSaga(action: YodyAction) {
   }
 }
 
+function* putOrderDuplicateMergeSaga(action:YodyAction){
+  let{origin_id,ids,setData}=action.payload;
+  try{
+    let response:BaseResponse<any>=yield call(putOrderMergeService,origin_id, ids);
+    switch(response.code)
+    {
+      case HttpStatus.SUCCESS:
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any)=>showError(e));
+        break;
+    }
+  }
+  catch{
+    showError("Có lỗi xảy ra khi thực hiện thao tác gộp đơn trùng")
+  }
+}
+
+function* putOrderDuplicateCancelSaga(action:YodyAction)
+{
+  let{ids,setData}=action.payload;
+  try{
+    let response:BaseResponse<any>= yield call(putOrderCancelService,ids);
+    switch(response.code)
+    {
+      case HttpStatus.SUCCESS:
+        setData(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any)=>showError(e));
+        break;
+    }
+  }
+  catch{
+    showError("Có lỗi xảy ra khi thực hiện thao tác hủy đơn trùng");
+  }
+}
+
 export function* OrderDuplicateSaga(){
     yield takeLatest(OrderType.GET_ORDER_DUPLICATE_LIST, getOrderDuplicateSaga);
+    yield takeLatest(OrderType.PUT_ORDER_DUPLICATE_MERGE,putOrderDuplicateMergeSaga);
+    yield takeLatest(OrderType.PUT_ORDER_DUPLICATE_CANCEL,putOrderDuplicateCancelSaga);
 }

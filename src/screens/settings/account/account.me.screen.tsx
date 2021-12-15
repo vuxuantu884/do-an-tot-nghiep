@@ -64,8 +64,7 @@ const AccountMeScreen: React.FC = () => {
   const updateMeContact = useCallback((data: MeRequest)=>{
      let accountUpdate : MeRequest = { 
       district_id: data.district_id,
-      phone: data.mobile, 
-      mobile: data.mobile,
+      phone: data.phone, 
       district: data.district,
       address: data.address };
        if (user?.id) {

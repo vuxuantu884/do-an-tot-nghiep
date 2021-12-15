@@ -108,5 +108,4 @@ export interface MeRequest {
   district?: string,
   address: string,
   phone?: string,
-  mobile?: string
 }

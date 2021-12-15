@@ -311,7 +311,7 @@ const tab= document.getElementById("tab");
       <ContentContainer
         isError={error}
         isLoading={loading}
-        title="Chi tiết sản phẩm"
+        title={`${data?.name}`}
         breadcrumb={[
           {
             name: "Tổng quan",

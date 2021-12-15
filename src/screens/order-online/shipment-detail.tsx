@@ -182,7 +182,7 @@ const ShipmentDetail: React.FC = () => {
     const fulfillment_id = fulfillmentDetail.id;
     dispatch(RePushFulFillmentAction(fulfillment_id, (response) => {
       showSuccess(
-        'Đẩy lại đơn hàng thành công'
+        'Đẩy đơn sang HVC thành công'
       );
       setFulfillmentDetail({
         ...fulfillmentDetail,

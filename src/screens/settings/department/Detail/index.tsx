@@ -111,7 +111,7 @@ const DepartmentCreateScreen: React.FC = () => {
                 </Row>
                 <Row gutter={50}>
                   <Col span={24}>
-                    <RowDetail title="Số điện thoại" value={data.mobile} />
+                    <RowDetail title="Số điện thoại" value={data.phone} />
                   </Col>
                   <Col span={24}>
                     <RowDetail title="Địa chỉ" value={data.address} />

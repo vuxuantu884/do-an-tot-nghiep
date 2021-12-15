@@ -1,4 +1,4 @@
-import { Button, Form, FormInstance, Input, Select } from "antd";
+import { Button, Form,Row, FormInstance, Input, Select } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import React, { createRef, useCallback } from "react";
@@ -73,27 +73,27 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
       <div className="order-filter dupticate-filter">
         <CustomFilter onMenuClick={onMenuClick}>
           <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValues}>
-            <div style={{ width: "35%", display: "flex" }}>
-              <Item name="issued_on_min" style={{ width: "45%", margin: 0 }}>
+            <Row style={{ display: "flex", marginRight:"16px", width:"35%" }}>
+              <Item name="issued_on_min" style={{ width: "47%", margin: 0 }}>
                 <CustomDatePicker
                   format="DD-MM-YYYY"
                   placeholder="Từ ngày"
-                  style={{ width: "100%" }}
+                  style={{ width: "100%", borderRadius:0 }}
                   onChange={() => onChangeDate()}
                 />
               </Item>
-              <div style={{ margin: "0 2px", paddingTop: "10px" }}>
+              <div style={{width: "5%", padding:"10px 0px 10px 3px" }}>
                 <SwapRightOutlined />
               </div>
-              <Item name="issued_on_max" style={{ width: "45%", margin: 0 }}>
+              <Item name="issued_on_max" style={{ width: "48%", margin: 0 }}>
                 <CustomDatePicker
                   format="DD-MM-YYYY"
                   placeholder="Đến ngày"
-                  style={{ width: "100%" }}
+                  style={{ width: "100%", borderRadius:0 }}
                   onChange={() => onChangeDate()}
                 />
               </Item>
-            </div>
+            </Row>
             <Item name="store_id" style={{ width: "20%" }}>
               <Select
                 showSearch

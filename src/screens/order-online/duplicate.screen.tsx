@@ -36,7 +36,7 @@ const actions: Array<MenuAction> = [
 
 const initQuery: DuplicateOrderSearchQuery = {
   page: 1,
-  limit: 30,
+  limit: 10,
   issued_on_min: "",
   issued_on_max: "",
   search_term: "",
@@ -72,7 +72,11 @@ const CustomerDuplicate: React.FC = () => {
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<CustomerDuplicateModel>>>([
     {
-      title: "Khách hàng",
+      title: (
+        <div style={{ display: "-webkit-flex" }}>
+          <span style={{ width: "100%", textAlign: "center" }}>Khách hàng</span>
+        </div>
+      ),
       dataIndex: "customer",
       render: (value: string, i: CustomerDuplicateModel) => {
         if (params.issued_on_min !== "" || params.issued_on_max !== "") {
@@ -95,9 +99,11 @@ const CustomerDuplicate: React.FC = () => {
         }
       },
       visible: true,
+      
       // fixed: "left",
       // className: "custom-shadow-td",
       width: 200,
+      align:"center"
     },
 
     {
@@ -125,7 +131,6 @@ const CustomerDuplicate: React.FC = () => {
       },
       visible: true,
       width: 200,
-      align: "center"
     },
 
     {
@@ -228,8 +233,6 @@ const CustomerDuplicate: React.FC = () => {
 
     items[1] = {
       ...items[1],
-      title: "Số điện thoại",
-      dataIndex: "customer_phone_number",
       render: (value: string, i: CustomerDuplicateModel) => {
         if (newPrams.issued_on_min !== "" || newPrams.issued_on_max !== "") {
           return (
@@ -279,6 +282,13 @@ const CustomerDuplicate: React.FC = () => {
           key: index
         })
       })
+
+      result.metadata={
+        limit: data.metadata.limit,
+        page: data.metadata.page,
+        total: data.metadata.total,
+      }
+
       setData(result);
     }))
   }, [dispatch, params]);
@@ -320,7 +330,7 @@ const CustomerDuplicate: React.FC = () => {
 
             <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
               {(isPassed: boolean) => (
-                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />
+                <ButtonCreate path={`${UrlConfig.ORDER}/create`} child="Thêm mới đơn hàng" disabled={!isPassed} />
               )}
             </AuthWrapper>
           </Space>
