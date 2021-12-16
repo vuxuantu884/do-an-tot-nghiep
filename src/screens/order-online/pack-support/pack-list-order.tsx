@@ -10,12 +10,13 @@ import {StyledComponent} from "../index.screen.styles";
 const {Item} = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
+  setSelectedOrderList:(data:GoodsReceiptsOrderListModel[])=>void;
   actions: Array<MenuAction>;
   handleSearchOrder: (item: any) => void;
   onMenuClick: (item: number) => void;
 };
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
-  const {packOrderList, actions, handleSearchOrder, onMenuClick} = props;
+  const {packOrderList, actions, handleSearchOrder, onMenuClick, setSelectedOrderList} = props;
   const formSearchOrderRef = createRef<FormInstance>();
 
   const [dataPackOrderList, setDataPackOrderList]= useState<GoodsReceiptsOrderListModel[]>([]);
@@ -212,6 +213,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   const rowSelection = {
     onChange: (selectedRowKeys: any, selectedRows: any) => {
       console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+      setSelectedOrderList(selectedRows);
     },
     onSelect: (record: any, selected: any, selectedRows: any) => {
       console.log(record, selected, selectedRows);
