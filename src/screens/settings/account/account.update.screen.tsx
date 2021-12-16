@@ -153,8 +153,8 @@ const AccountUpdateScreen: React.FC = () => {
   const setAccount = useCallback((data: AccountResponse) => {
     let ids: Array<number> = [];
     data.account_stores.forEach((accountStore) => {
-      if (accountStore && accountStore.id) {
-        ids.push(accountStore.id);
+      if (accountStore && accountStore.store_id) {
+        ids.push(accountStore.store_id);
       }
     });
     data.store_ids = [...ids];

@@ -8,7 +8,7 @@ import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction
@@ -110,7 +110,14 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       total: 0
     }
   });
-  const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
+  const [rdAccount, setRdAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  });
 
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
@@ -175,7 +182,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       setError(true);
       return;
     }
-    setRDAccount(data.items);
+    setRdAccount(data);
   }, []);
   const onResultWin = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -185,7 +192,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       }
       setWinAccount(data);
       dispatch(
-        AccountSearchAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
+        searchAccountPublicAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
       );
     },
     [dispatch, onResultRD]
@@ -441,7 +448,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
 
   useEffect(() => { 
     dispatch(
-      AccountSearchAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultWin)
+      searchAccountPublicAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultWin)
     );
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(setListStore));
