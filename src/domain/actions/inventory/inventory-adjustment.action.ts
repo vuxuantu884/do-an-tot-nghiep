@@ -1,4 +1,5 @@
 import BaseAction from "base/base.action";
+import BaseResponse from "base/base.response";
 import {InventoryType} from "domain/types/inventory.type";
 import {PageResponse} from "model/base/base-metadata.response";
 import {StoreResponse} from "model/core/store.model";
@@ -26,7 +27,7 @@ const getListInventoryAdjustmentAction = (
 
 const getDetailInventoryAdjustmentAction = (
   id: number,
-  onResult: (result: InventoryAdjustmentDetailItem | false) => void
+  onResult: (result: BaseResponse<InventoryAdjustmentDetailItem> | false) => void
 ) => {
   return BaseAction(InventoryType.GET_DETAIL_INVENTORY_ADJUSTMENT, {
     id,
@@ -47,7 +48,7 @@ const createInventoryAdjustmentAction = (
 const updateItemOnlineInventoryAction = (
   id: number,
   data: Partial<LineItemAdjustment>,
-  onResult: (data: Array<StoreResponse>) => void
+  onResult: (data: LineItemAdjustment) => void
 ) => {
   return BaseAction(InventoryType.UPDATE_ITEM_ONLINE_INVENTORY, {
     id,
@@ -97,6 +98,18 @@ const getLinesItemAdjustmentAction = (
   });
 };
 
+const updateInventoryAdjustmentAction = (
+  id: number,
+  data: Partial<InventoryAdjustmentDetailItem>,
+  onResult: (data: InventoryAdjustmentDetailItem) => void
+) => {
+  return BaseAction(InventoryType.UPDATE_ADJUSTMENT, {
+    id,
+    data,
+    onResult,
+  });
+};
+
 export {
   getListInventoryAdjustmentAction,
   createInventoryAdjustmentAction,
@@ -107,4 +120,5 @@ export {
   adjustInventoryAction,
   InventoryAdjustmentGetPrintContentAction,
   getLinesItemAdjustmentAction,
+  updateInventoryAdjustmentAction
 };
