@@ -306,7 +306,7 @@ const CreateInventoryAdjustment: FC = () => {
   const onBeforeUpload = useCallback((file) => {
     const isLt2M = file.size / 1024 / 1024 < 10;
     if (!isLt2M) {
-      showWarning("Cần chọn ảnh nhỏ hơn 10mb");
+      showWarning("Cần chọn file nhỏ hơn 10mb");
     }
     return isLt2M ? true : Upload.LIST_IGNORE;
   }, []);
@@ -334,7 +334,7 @@ const CreateInventoryAdjustment: FC = () => {
             }
           } else {
             fileList.splice(index, 1);
-            showError("Upload ảnh không thành công");
+            showError("Upload file không thành công");
           }
           setFileList([...fileList]);
         })
@@ -1041,7 +1041,7 @@ const CreateInventoryAdjustment: FC = () => {
                 </Form.Item>
                 <Form.Item noStyle hidden name="attached_files">
                   <Input />
-                </Form.Item>
+                </Form.Item> 
               </Card>
             </Col>
           </Row>

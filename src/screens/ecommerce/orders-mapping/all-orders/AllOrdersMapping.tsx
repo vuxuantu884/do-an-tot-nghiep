@@ -39,7 +39,7 @@ const CORE_ORDER_STATUS = [
   { name: "Nháp", value: "draft", className: "gray-status" },
   { name: "Đã xác nhận", value: "finalized", className: "blue-status" },
   { name: "Kết thúc", value: "finished", className: "green-status" },
-  { name: "Hủy đơn", value: "cancel", className: "red-status" },
+  { name: "Hủy đơn", value: "cancelled", className: "red-status" },
 ];
 
 const ECOMMERCE_ORDER_STATUS = [
