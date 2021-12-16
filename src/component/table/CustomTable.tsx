@@ -14,6 +14,7 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   isRowSelection?: boolean;
   selectedRowKey?: any[];
   onChangeRowKey?: (rowKey: any[]) => void;
+  rowSelectionRenderCell?: ((value: boolean, record: any, index: number, originNode: React.ReactNode) => React.ReactNode) | undefined
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
@@ -63,6 +64,7 @@ const CustomTable = (props: ICustomTableProps) => {
     isRowSelection,
     selectedRowKey,
     onChangeRowKey,
+    rowSelectionRenderCell,
   } = props;
 
   const configSettingColumns: ICustomTableColumType<any>[] = [];
@@ -91,6 +93,7 @@ const CustomTable = (props: ICustomTableProps) => {
                 onSelectAll: onSelectAll,
                 onChange: onChangeRowKey,
                 columnWidth: 60,
+                renderCell: rowSelectionRenderCell,
               }
             : undefined
         }
