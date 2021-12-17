@@ -11,7 +11,7 @@ import AddReportHandOver from "screens/order-online/pack-support/add-report-hand
 import PackUpdate from "screens/order-online/pack-update";
 import SplitOrdersScreen from "screens/order-online/split-orders.screen";
 
-const ListOrder = React.lazy(() => import("screens/order-online/index.screen"));
+const ListOrder = React.lazy(() => import("screens/order-online/orders/index.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
 const ReturnOrder = React.lazy(() => import("screens/order-online/return.screen"));
