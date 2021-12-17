@@ -272,22 +272,20 @@ const PackDetail: React.FC = () => {
         onMenuClick={onMenuListOrderClick}
         setSelectedOrderList={setSelectedOrderList}
       />
-
-      {handlePrint && (
-        <React.Fragment>
-          <div style={{ display: "none" }}>
-            <div className="printContent" ref={printElementRef}>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: htmlContent,
-                }}
-              >
-                {/* {renderHtml(fake_printer_content())} */}
-              </div>
-            </div>
-          </div>
-        </React.Fragment>
-      )}
+			
+			<React.Fragment>
+				<div style={{ display: "none" }}>
+					<div className="printContent" ref={printElementRef}>
+						<div
+							dangerouslySetInnerHTML={{
+								__html: htmlContent,
+							}}
+						>
+							{/* {renderHtml(fake_printer_content())} */}
+						</div>
+					</div>
+				</div>
+			</React.Fragment>
     </ContentContainer>
   );
 };

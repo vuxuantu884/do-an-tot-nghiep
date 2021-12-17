@@ -89,7 +89,7 @@ function* getDetailOrderSaga(action:YodyAction){
 }
 
 function* getListOrderSaga(action: YodyAction) {
-  let { query, setData } = action.payload;
+  let { query, setData, handleError } = action.payload;
   try {
     let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
     switch (response.code) {
@@ -98,13 +98,16 @@ function* getListOrderSaga(action: YodyAction) {
         break;
 			case HttpStatus.UNAUTHORIZED:
 				yield put(unauthorizedAction());
+				handleError()
 				break;
 			default:
 				response.errors.forEach((e) => showError(e));
+				handleError()
 				break;
     }
   } catch (error) {
 		showError("Có lỗi khi lấy dữ liệu danh sách đơn hàng! Vui lòng thử lại sau!")
+		handleError()
 	 }
 }
 
