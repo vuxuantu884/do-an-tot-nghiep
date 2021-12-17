@@ -55,21 +55,10 @@ function OrdersTable(props: PropsType) {
 		setData,
 	} = props;
 
-	console.log('deliveryServices3333', deliveryServices)
-
 	const dispatch = useDispatch();
 	const status_order = useSelector(
 		(state: RootReducerType) => state.bootstrapReducer.data?.order_status
 	);
-
-	let data1: any = {
-		metadata: {
-			limit: 30,
-			page: 1,
-			total: 0,
-		},
-		items: [],
-	};
 
 	const paymentIcons = [
 		{
@@ -107,26 +96,22 @@ function OrdersTable(props: PropsType) {
 	const onSuccessEditNote = useCallback(
 		(newNote, noteType, orderID) => {
 			console.log("ok ok");
-			const indexOrder = data1.items.findIndex((item: any) => item.id === orderID);
-			const newItems = [...data1.items];
-			console.log("data", data1);
+			const newItems = [...data.items];
+			const indexOrder = newItems.findIndex((item: any) => item.id === orderID);
 			if (indexOrder > -1) {
-				const newItem: any = newItems[indexOrder];
-				newItems.splice(indexOrder, 1, {
-					...newItem,
-					note: noteType === "note" ? newNote : newItem.note,
-					customer_note: noteType === "customer_note" ? newNote : newItem.customer_note,
-				});
+				if(noteType === "note") {
+					newItems[indexOrder].note = newNote;
+				}else if(noteType === "customer_note") {
+					newItems[indexOrder].customer_note = newNote;
+				}
 			}
 			const newData = {
-				...data1,
+				...data,
 				items: newItems,
 			};
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			data1 = newData;
 			setData(newData);
 		},
-		[data1]
+		[data, setData]
 	);
 
 	const editNote = useCallback(
@@ -141,7 +126,7 @@ function OrdersTable(props: PropsType) {
 			}
 			dispatch(
 				updateOrderPartial(params, orderID, () =>
-					onSuccessEditNote(newNote, noteType, orderID)
+					onSuccessEditNote(newNote, noteType, orderID),
 				)
 			);
 		},
@@ -400,8 +385,6 @@ function OrdersTable(props: PropsType) {
 					const sortedFulfillments = record.fulfillments?.sort(
 						(a: any, b: any) => b.id - a.id
 					);
-					console.log('sortedFulfillments', sortedFulfillments)
-					console.log('deliveryServices', deliveryServices)
 					if (record.source_code === POS.source_code || (sortedFulfillments && sortedFulfillments[0]?.delivery_type === ShipmentMethod.PICK_AT_STORE)) {
 						return (
 							<React.Fragment>
