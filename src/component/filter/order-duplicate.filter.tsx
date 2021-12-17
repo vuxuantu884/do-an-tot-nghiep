@@ -92,7 +92,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
                   style={{ width: "100%", borderRadius:0 }}
                   onChange={() => onChangeDate()}
                 />
-              </Item>
+              </Item> 
             </Row>
             <Item name="store_id" style={{ width: "20%", marginRight:"42px" }}>
               <Select
