@@ -989,8 +989,6 @@ const OrderDuplicate: React.FC = () => {
     
   },[dispatch,selectedOrder, handleSearchResult]);
 
-
-  
   ///arrow function
 
   //useEffect
@@ -1045,6 +1043,7 @@ const OrderDuplicate: React.FC = () => {
           },
           {
             name: "Đơn trùng",
+            path:UrlConfig.ORDERS_DUPLICATE
           },
           {
             name: "Danh sách đơn trùng",

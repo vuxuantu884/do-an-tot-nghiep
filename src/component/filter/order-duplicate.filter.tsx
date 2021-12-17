@@ -73,7 +73,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
       <div className="order-filter dupticate-filter">
         <CustomFilter onMenuClick={onMenuClick}>
           <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValues}>
-            <Row style={{ display: "flex", marginRight:"16px", width:"35%" }}>
+            <Row style={{ display: "flex", marginRight:"42px", width:"35%" }}>
               <Item name="issued_on_min" style={{ width: "47%", margin: 0 }}>
                 <CustomDatePicker
                   format="DD-MM-YYYY"
@@ -94,7 +94,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
                 />
               </Item>
             </Row>
-            <Item name="store_id" style={{ width: "20%" }}>
+            <Item name="store_id" style={{ width: "20%", marginRight:"42px" }}>
               <Select
                 showSearch
                 allowClear
@@ -114,7 +114,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
               </Select>
             </Item>
 
-            <Item name="search_term" style={{ width: "200px" }}>
+            <Item name="search_term" style={{ width: "200px" ,marginRight:"42px"}}>
               <Input placeholder="Tên, Số điện thoại khách hàng" prefix={<SearchOutlined />} />
             </Item>
 
