@@ -994,12 +994,13 @@ function* getChannelsSaga(action:YodyAction){
 
 function* updateOrderPartial(action:YodyAction){
   let { params, orderID, onSuccess } = action.payload;
+  yield put(showLoading())
   try{
     let response: BaseResponse<any> = yield call(updateOrderPartialService, params, orderID);
     switch(response.code){
       case HttpStatus.SUCCESS:
         onSuccess()
-        showSuccess(`Sửa ghi chú thành công!`);
+        showSuccess(`Cập nhật đơn hàng thành công!`);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -1010,7 +1011,9 @@ function* updateOrderPartial(action:YodyAction){
     }
   }
   catch(e){
-    showError(`Có lỗi khi lấy danh sách kênh! Vui lòng thử lại sau!`);
+    showError(`Có lỗi khi cập nhật đơn hàng! Vui lòng thử lại sau!`);
+  } finally {
+    yield put(hideLoading())
   }
 }
 

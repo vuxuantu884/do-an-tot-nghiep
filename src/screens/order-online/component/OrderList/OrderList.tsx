@@ -477,7 +477,7 @@ function OrderList(props: PropsType) {
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
           />
-					{deliveryServices.length > 0 && (
+					{data.items.length > 0 && deliveryServices.length > 0 && (
 						<OrdersTable
 							tableLoading={tableLoading}
 							data={data}
