@@ -30,7 +30,7 @@ export const getDetailOrderDuplicateAction = (
   query: OrderSearchQuery,
   setData: (data: PageResponse<OrderModel> | false) => void
 ) => {
-  return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+  return BaseAction(OrderType.GET_DETAIL_ORDER_DUPLICATE, {
     query,
     setData,
   });
