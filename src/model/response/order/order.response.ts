@@ -189,6 +189,7 @@ export interface OrderItemDiscountResponse {
 export interface OrderPaymentResponse extends BaseObject {
   payment_method_id: number;
   payment_method: string;
+  payment_method_code: string;
   amount: number;
   reference: string;
   source: string;

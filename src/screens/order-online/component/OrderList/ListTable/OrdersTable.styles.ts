@@ -1,18 +1,20 @@
 import styled from "styled-components";
-import { borderColor } from "utils/global-styles/variables";
-export const nameQuantityWidth = 280;
-const quantityWidth = 60;
-const massWidth=100;
+import {borderColor} from "utils/global-styles/variables";
+export const nameQuantityWidth = 220;
+const quantityWidth = 40;
+const massWidth = 100;
 const priceWidth = 100;
 const nameWidth = nameQuantityWidth - quantityWidth;
 
 export const StyledComponent = styled.div`
   th {
-		text-align: center !important;
+    text-align: center !important;
   }
   .ant-table-cell.customer-column,
-  .ant-table-cell.productNameQuantity {
-    padding: 0 10px !important;
+  .ant-table-cell.productNameQuantity,
+  .ant-table-cell.orderStatus,
+	.ant-table-cell.notes {
+    padding: 0 !important;
   }
   td {
     position: relative;
@@ -28,7 +30,7 @@ export const StyledComponent = styled.div`
     width: ${quantityWidth}px;
     text-align: center;
   }
-  .massWidth{
+  .massWidth {
     width: ${massWidth}px;
     text-align: center;
   }
@@ -58,7 +60,7 @@ export const StyledComponent = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
-      position:relative;
+      position: relative;
       &:before {
         content: "";
         display: block;
@@ -71,12 +73,12 @@ export const StyledComponent = styled.div`
         background-color: ${borderColor};
       }
     }
-    .mass{
+    .mass {
       white-space: nowrap;
       display: flex;
       align-items: center;
       justify-content: center;
-      position:relative;
+      position: relative;
       &:before {
         content: "";
         display: block;
@@ -95,23 +97,84 @@ export const StyledComponent = styled.div`
       align-items: center;
       justify-content: center;
       &:before {
-       // content: "";
+        // content: "";
         display: block;
         width: 1px;
         position: absolute;
         z-index: 1;
         top: -999px;
-        bottom: -999px;
+        bottom:-999px;
         right: ${priceWidth}px;
         background-color: ${borderColor};
       }
     }
-		.productNameText {
-			overflow: hidden;
-			text-overflow: ellipsis;
-			display: -webkit-box;
-			-webkit-line-clamp: 2;
-			-webkit-box-orient: vertical;
-		}
+    .productNameText {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
   }
+	.orderSource {
+		margin-top: 9px;
+	}
+	.singlePayment {
+		img {
+			margin-right: 5px;
+		}
+		.amount {
+			position: relative;
+			top: 1px;
+		}
+	}
+	.notes {
+		position: relative;
+	}
+	.orderNotes {
+		.inner {
+			height: 100%;
+		}
+		.single {
+			height: 50%;
+			display: flex;
+			padding: 10px;
+			align-items: center;
+			&:not(:last-child) {
+				border-bottom: 1px solid ${borderColor};
+			}
+			.wrapper {
+				display: flex;
+			}
+			svg {
+				position: relative;
+				top: 3px;
+			}
+		}
+	}
+	.orderStatus {
+		.inner {
+			height: 100%;
+		}
+		.single {
+			padding: 10px;
+			&:not(:last-child) {
+				border-bottom: 1px solid ${borderColor};
+			}
+		}
+	}
+	.shipmentType {
+		.icon {
+			margin-right: 5px;
+		}
+		.single {
+			&:not(:last-child) {
+				margin-bottom: 5px;
+			}
+			img {
+				max-width: 100%;
+				margin-right: 5px;
+			}
+		}
+	}
 `;

@@ -187,7 +187,7 @@ function CustomFilterDatePicker(props: PropTypes) {
 			>
 				<CustomDatePicker
 					format={format}
-					placeholder="Đến ngày"
+					placeholder="Từ ngày"
 					style={{ width: "100%" }}
 					onChange={() => onChangeDate()}
 					showToday={false}
