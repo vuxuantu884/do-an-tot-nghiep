@@ -123,7 +123,7 @@ function* productWrapperUpdateSaga(action: YodyAction) {
 }
 
 function* searchVariantOrderSaga(action: YodyAction) {
-  const { query, setData } = action.payload;
+  const { query, setData, handleError } = action.payload;
   try {
 		yield delay(500);
     if (query.info.length >= 3) {
@@ -142,10 +142,12 @@ function* searchVariantOrderSaga(action: YodyAction) {
           break;
         default:
           response.errors.forEach((e) => showError(e));
+          handleError && handleError();
           break;
       }
     }
   } catch (error) {
+    handleError && handleError();
 		showError("Có lỗi khi lấy dữ liệu tồn kho sản phẩm! Vui lòng thử lại sau!");
   }
 }

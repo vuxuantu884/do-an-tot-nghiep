@@ -232,7 +232,7 @@ export const getArrDepartment = (
     address: i.address,
     manager: i.manager,
     manager_code: i.manager_code,
-    mobile: i.mobile,
+    phone: i.phone,
     level: level,
     parent: parentTemp,
     name: i.name,

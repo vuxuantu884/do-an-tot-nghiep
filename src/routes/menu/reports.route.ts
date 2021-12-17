@@ -2,23 +2,33 @@
 import { RouteMenu } from "model/other";
 import React from "react";
 
-
-const ReportOrders = React.lazy(() => import("screens/reports/report-orders"));
+const ReportOrdersOnline = React.lazy(() => import("screens/reports/report-orders-online"));
+const ReportOrdersOffline = React.lazy(() => import("screens/reports/report-orders-offline"));
 const ReportTrackingItems = React.lazy(() => import("screens/reports/report-tracking-items"));
 const ReportTransferWarehouse = React.lazy(() => import("screens/reports/report-transfer-warehouse"));
 
 
 const reports: Array<RouteMenu> = [
   {
-    path: `/reports/orders`,
+    path: `/reports/sales-online`,
     exact: true,
-    title: "Đơn hàng",
+    title: "Bán hàng Online",
     icon: "icon-dot",
-    component: ReportOrders,
+    component: ReportOrdersOnline,
     key: "submenureport1",
     isShow: true,
     header: null,
-    // permissions: [ODERS_PERMISSIONS.CREATE],
+    subMenu: [],
+  },
+  {
+    path: `/reports/sales-offline`,
+    exact: true,
+    title: "Bán hàng Offline",
+    icon: "icon-dot",
+    component: ReportOrdersOffline,
+    key: "submenureport2",
+    isShow: true,
+    header: null,
     subMenu: [],
   },
   {
@@ -27,7 +37,7 @@ const reports: Array<RouteMenu> = [
     title: "Theo dõi hàng về",
     icon: "icon-dot",
     component: ReportTrackingItems,
-    key: "submenureport2",
+    key: "submenureport3",
     isShow: true,
     header: null,
     // permissions: [ODERS_PERMISSIONS.CREATE],
@@ -39,7 +49,7 @@ const reports: Array<RouteMenu> = [
     title: "Chuyển kho",
     icon: "icon-dot",
     component: ReportTransferWarehouse,
-    key: "submenureport3",
+    key: "submenureport4",
     isShow: true,
     header: null,
     // permissions: [ODERS_PERMISSIONS.CREATE],

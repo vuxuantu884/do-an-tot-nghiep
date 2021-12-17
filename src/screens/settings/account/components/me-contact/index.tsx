@@ -9,7 +9,12 @@ import {RegUtil} from "utils/RegUtils";
 const {Option, OptGroup} = Select;
 
 type FormValuesType = {
-  mobile: string,
+  phone: string,
+  district: string| null| undefined,
+  country: string| null| undefined,
+  country_id: number| null| undefined,
+  city: string| null| undefined,
+  city_id: number| null| undefined,
   district_id: number | null | undefined,
   address: string | null | undefined,
   version: number | null;
@@ -18,13 +23,18 @@ type FormValuesType = {
 const defaultCountry = 233;
 
 const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
-  const {formItem, form, visible} = props;
+  const {formItem, form} = props;
 
   const initialFormValues: FormValuesType = {
-    mobile: formItem.mobile,
-    district_id: formItem.district_id,
-    address: formItem.address,
-    version: formItem.version
+    phone: formItem?.phone,
+    country: formItem?.country,
+    country_id: formItem?.country_id,
+    city: formItem?.city,
+    city_id: formItem?.city,
+    district: formItem?.district,
+    district_id: formItem?.district_id,
+    address: formItem?.address,
+    version: formItem?.version
   }
 
   const dispatch = useDispatch();
@@ -37,17 +47,22 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
 
   const onSelectDistrict = useCallback(
     (value: number) => {
-      let cityId = -1;
+      let cityId = -1, district="", city=null, country=null, countryId=-1;
       cityViews.forEach((item) => {
         item.districts.forEach((item1) => {
           if (item1.id === value) {
             cityId = item.city_id;
+            district = item1.name;
           }
         });
       });
       if (cityId !== -1) {
         form?.setFieldsValue({
           city_id: cityId,
+          city: city,
+          country: country,
+          country_id: countryId,
+          district: district,
         });
       }
     },
@@ -58,7 +73,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
     form.resetFields();
 
     dispatch(DistrictGetByCountryAction(defaultCountry, setDataDistrict));
-  }, [form, formItem, visible, setDataDistrict, dispatch]);
+  }, [form, formItem, setDataDistrict, dispatch]);
 
   return (
     <Form
@@ -73,7 +88,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
             <Input />
           </Form.Item>
           <Form.Item
-            name="mobile"
+            name="phone"
             label="Số điện thoại"
             rules={[
               {required: true, message: "Vui lòng nhập số điện thoại."},
@@ -85,6 +100,11 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
           >
             <Input className="r-5" placeholder="Nhập số điện thoại" />
           </Form.Item>
+          <Form.Item name="district" hidden={true}></Form.Item>
+          <Form.Item name="country_id" hidden={true}></Form.Item>
+          <Form.Item name="country" hidden={true}></Form.Item>
+          <Form.Item name="city" hidden={true}></Form.Item>
+          <Form.Item name="city_id" hidden={true}></Form.Item>
           <Form.Item label="Khu vực" name="district_id">
             <Select
               allowClear
@@ -105,7 +125,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
             </Select>
           </Form.Item>
           <Form.Item label="Địa chỉ" name="address">
-            <Input className="r-5" placeholder="Địa chỉ" size="large" />
+            <Input className="r-5" placeholder="Nhập địa chỉ" size="large" />
           </Form.Item>
         </Col>
       </Row>

@@ -1,4 +1,4 @@
-import { AccountRequest } from "./../../../model/account/account.model";
+import { AccountRequest, MeRequest } from "./../../../model/account/account.model";
 import { PositionResponse } from "model/account/position.model";
 import { DepartmentResponse } from "model/account/department.model";
 import BaseAction from "base/base.action";
@@ -98,6 +98,26 @@ export const getAccountMeAction = (
   onResult: (data: AccountResponse) => void
 ) => {
   return BaseAction(AccountType.GET_ACCOUNT_ME, {
+    onResult,
+  });
+};
+
+export const updateMeAction = (
+  request: MeRequest | null,
+  setData: (data: AccountResponse) => void
+) => {
+  return BaseAction(AccountType.UPDATE_ME, {
+    request,
+    setData,
+  });
+};
+
+export const searchAccountPublicAction = (
+  query: AccountSearchQuery,
+  onResult: (data: PageResponse<AccountResponse>) => void
+) => {
+  return BaseAction(AccountType.SEARCH_ACCOUNT_PUBLIC, {
+    query,
     onResult,
   });
 };

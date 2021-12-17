@@ -215,7 +215,7 @@ const CustomerDetail = () => {
             : null
       },
       {
-        name: "Tiền tích luỹ",
+        name: "Tiền tích lũy",
         value:
           purchaseIfo?.total_paid_amount ?
             <NumberFormat

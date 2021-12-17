@@ -7,10 +7,11 @@ import ecommerce from "./ecommerce.route";
 import { inventory } from "./inventory.route";
 import product from './product.route';
 import promotion from './promotion.route';
-import { AdminPermission } from 'config/permissions/admin.permission';
+// import { AdminPermission } from 'config/permissions/admin.permission';
 import setting from './setting.route';
 import shipments from "./shipment.route";
 import reports from "./reports.route";
+import { ODERS_PERMISSIONS } from 'config/permissions/order.permission';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
@@ -18,7 +19,7 @@ const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"
 const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"));
 const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"));
-const ReportOrders = React.lazy(() => import ("screens/reports/report-orders"));
+const ReportOrdersOnline = React.lazy(() => import ("screens/reports/report-orders-online"));
 const YDpage = React.lazy(() => import ("screens/YDpage/YDpage"));
 
 const menu: Array<RouteMenu> = [
@@ -72,7 +73,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Vận chuyển",
     icon: 'icon-transport',
-    component: OrderOnline,
+    component: null,
     key: "19",
     isShow: true,
     header: null,
@@ -116,7 +117,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Báo cáo",
     icon: 'icon-report',
-    component: ReportOrders,
+    component: ReportOrdersOnline,
     key: "9",
     isShow: true,
     header: null,
@@ -136,19 +137,19 @@ const menu: Array<RouteMenu> = [
   {
     path: "/pos",
     exact: true,
-    title: "Bán hàng tại quầy",
+    title: "Bán tại quầy",
     icon: 'icon-sale',
     component: null,
     key: "4",
     isShow: false,
     header: null,
     subMenu: [],
-    permissions: [AdminPermission.all],
+    permissions: [ODERS_PERMISSIONS.READ_POS],
   },
   {
     path: UrlConfig.YDPAGE,
     exact: true,
-    title: "Bán hàng trên YDPage",
+    title: "YDPage",
     icon: 'icon-YDpage',
     component: YDpage,
     key: "YDpage",

@@ -527,7 +527,7 @@ const DetailTicket: FC = () => {
         if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status || data?.shipment.status === ShipmentStatus.CONFIRMED) {
           return value ? value : 0;
         }
-        else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && data.shipment.status === ShipmentStatus.TRANSFERRING) {
+        else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && data.shipment.status === ShipmentStatus.RECEIVED) {
           return <NumberInput
             isFloat={false}
             id={`item-quantity-${index}`}
@@ -876,7 +876,8 @@ const DetailTicket: FC = () => {
                         )}}
                       />
                       {
-                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  data.shipment.status === ShipmentStatus.TRANSFERRING && (
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status 
+                        &&  data.shipment.status === ShipmentStatus.RECEIVED && (
                           <div className="inventory-transfer-action">
                             <AuthWrapper 
                               acceptPermissions={[InventoryTransferPermission.receive]}
@@ -1133,7 +1134,7 @@ const DetailTicket: FC = () => {
                     </Button>
                   </AuthWrapper>
                   {
-                    data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&  
+                   (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && data.shipment === null) &&  
                     <AuthWrapper 
                       acceptPermissions={[InventoryTransferPermission.cancel]}
                     >

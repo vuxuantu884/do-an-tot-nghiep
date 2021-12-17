@@ -40,6 +40,7 @@ import {
   orderPostApi,
   orderPutApi,
   putFulfillmentsPackApi,
+  rePushFulFillmentService,
   splitOrderService,
   updateDeliveryConnectService,
   updateOrderPartialService
@@ -95,8 +96,12 @@ function* getListOrderSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
-      default:
-        break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
+			default:
+				response.errors.forEach((e) => showError(e));
+				break;
     }
   } catch (error) {
 		showError("Có lỗi khi lấy dữ liệu danh sách đơn hàng! Vui lòng thử lại sau!")
@@ -267,8 +272,32 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
   }
 }
 
+function* rePushFulFillmentSaga(action: YodyAction) {
+  const { fulfillment_id, setData, setError } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      rePushFulFillmentService,
+      fulfillment_id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        // response.errors.forEach((e) => showError(e));
+        showError("Đẩy đơn sang HVC thất bại. Vui lòng thử lại!")
+        setError(true);
+        break;
+    }
+  } catch (error) {
+    setError(true);
+		showError("Đẩy đơn sang HVC thất bại. Vui lòng thử lại!”")
+  }
+}
+
 function* updatePaymentSaga(action: YodyAction) {
   const { request, order_id, setData, setError } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<OrderResponse> = yield call(
       updatePayment,
@@ -287,11 +316,14 @@ function* updatePaymentSaga(action: YodyAction) {
   } catch (error) {
     setError(true);
 		showError("Có lỗi khi cập nhật thanh toán! Vui lòng thử lại sau!")
-  }
+  } finally {
+		yield put(hideLoading());
+	}
 }
 
 function* updateShipmentSaga(action: YodyAction) {
   const { request, setData, setError } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<OrderResponse> = yield call(updateShipment, request);
     switch (response.code) {
@@ -306,11 +338,14 @@ function* updateShipmentSaga(action: YodyAction) {
   } catch (error) {
     setError(true);
 		showError("Có lỗi khi cập nhật giao hàng! Vui lòng thử lại sau!")
-  }
+  }finally {
+		yield put(hideLoading());
+	}
 }
 
 function* PaymentMethodGetListSaga(action: YodyAction) {
   let { setData } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<Array<PaymentMethodResponse>> = yield call(
       getPaymentMethod
@@ -324,27 +359,33 @@ function* PaymentMethodGetListSaga(action: YodyAction) {
     }
   } catch (error) { 
 		showError("Có lỗi khi lấy dữ liệu danh sách cách thức thanh toán đơn hàng! Vui lòng thử lại sau!")
+	}finally {
+		yield put(hideLoading());
 	}
 }
 
 function* getDataSource(action: YodyAction) {
   let { setData } = action.payload;
+	yield put(showLoading());
   try {
-    let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
+    let response: BaseResponse<PageResponse<Array<SourceResponse>>> = yield call(getSources);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.items);
         break;
       default:
         break;
     }
   } catch (error) { 
 		showError("Có lỗi khi lấy dữ liệu danh sách nguồn đơn hàng! Vui lòng thử lại sau!")
+	} finally {
+		yield put(hideLoading());
 	}
 }
 
 function* orderDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<OrderResponse> = yield call(getOrderDetail, id);
     switch (response.code) {
@@ -362,11 +403,14 @@ function* orderDetailSaga(action: YodyAction) {
   } catch (error) {
     console.log('error', error)
 		showError("Có lỗi khi lấy dữ liệu chi tiết đơn hàng! Vui lòng thử lại sau!")
-  }
+  } finally {
+		yield put(hideLoading());
+	}
 }
 
 function* getFulfillmentDetailSaga(action: YodyAction) {
   const { fulfillment_code, setData } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(
       getFulFillmentDetailAction,
@@ -385,11 +429,14 @@ function* getFulfillmentDetailSaga(action: YodyAction) {
     }
   } catch (error) {
 		showError("Có lỗi khi lấy dữ liệu đơn giao hàng! Vui lòng thử lại sau!")
-  }
+  } finally {
+		yield put(hideLoading());
+	}
 }
 
 function* getTRackingLogFulfillmentSaga(action: YodyAction) {
   const { fulfillment_code, setData } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> = yield call(
       getTrackingLogFulFillment,
@@ -412,7 +459,9 @@ function* getTRackingLogFulfillmentSaga(action: YodyAction) {
     }
   } catch (error) {
 		showError("Có lỗi khi lấy dữ liệu danh sách bản ghi trạng thái đơn hàng! Vui lòng thử lại sau!")
-  }
+  } finally {
+		yield put(hideLoading());
+	}
 }
 
 function* getTRackingLogErrorSaga(action: YodyAction) {
@@ -466,6 +515,7 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
 
 function* getDeliveryTransportTypeSaga(action: YodyAction) {
   let { providerCode, handleData } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<Array<DeliveryTransportTypesResponse>> = yield call(
       getDeliveryTransportTypesService,
@@ -483,13 +533,15 @@ function* getDeliveryTransportTypeSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
 		showError("Có lỗi khi lấy dữ liệu danh sách phương thức dịch vụ giao hàng! Vui lòng thử lại sau!")
-  }
+  } finally {
+		yield put(hideLoading());
+	}
 }
 
 function* getDeliveryMappedStoresSaga(action: YodyAction) {
   let { providerCode, handleData } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<Array<DeliveryMappedStoreType>> = yield call(
       getDeliveryMappedStoresService,
@@ -509,7 +561,9 @@ function* getDeliveryMappedStoresSaga(action: YodyAction) {
     }
   } catch (error) {
 		showError("Có lỗi khi lấy dữ liệu danh sách mapping cửa hàng! Vui lòng thử lại sau!")
-  }
+  } finally {
+		yield put(hideLoading());
+	}
 }
 
 function* createDeliveryMappedStoreSaga(action: YodyAction) {
@@ -711,6 +765,7 @@ function* cancelOrderSaga(action: YodyAction) {
 
 function* configOrderSaga(action: YodyAction) {
   const { setData } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<OrderConfig> = yield call(getOrderConfig);
     switch (response.code) {
@@ -726,11 +781,14 @@ function* configOrderSaga(action: YodyAction) {
     }
   } catch (error) {
 		showError("Có lỗi khi lấy danh sách cấu hình đơn hàng! Vui lòng thử lại sau!")
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* getFulfillmentsSaga(action: YodyAction) {
   const { code, setData } = action.payload;
+	yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(getFulfillmentsApi, code);
     switch (response.code) {
@@ -746,6 +804,8 @@ function* getFulfillmentsSaga(action: YodyAction) {
     }
   } catch (error) {
 		showError("Có lỗi khi lấy danh sách fulfillment! Vui lòng thử lại sau!")
+  } finally {
+    yield put(hideLoading());
   }
 }
 
@@ -965,6 +1025,7 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
   yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulFillmentStatusSaga);
+  yield takeLatest(OrderType.REPUSH_FULFILLMENT, rePushFulFillmentSaga);
   yield takeLatest(OrderType.UPDATE_SHIPPING_METHOD, updateShipmentSaga);
   yield takeLatest(OrderType.GET_LIST_DELIVERY_SERVICE, ListDeliveryServicesSaga);
   yield takeLatest(OrderType.GET_TRANSPORT_TYPES, getDeliveryTransportTypeSaga);

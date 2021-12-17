@@ -8,15 +8,11 @@ const nameWidth = nameQuantityWidth - quantityWidth;
 
 export const StyledComponent = styled.div`
   th {
-    .productNameQuantityHeader {
-      .productNameWidth {
-        text-align: center;
-      }
-    }
+		text-align: center !important;
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantity {
-    padding: 0 !important;
+    padding: 0 10px !important;
   }
   td {
     position: relative;
@@ -69,7 +65,7 @@ export const StyledComponent = styled.div`
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: 0px;
+        top: -44px;
         bottom: 0px;
         right: ${quantityWidth}px;
         background-color: ${borderColor};
@@ -104,7 +100,7 @@ export const StyledComponent = styled.div`
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: 0;
+        top: -44px;
         bottom: 0;
         right: ${priceWidth}px;
         background-color: ${borderColor};

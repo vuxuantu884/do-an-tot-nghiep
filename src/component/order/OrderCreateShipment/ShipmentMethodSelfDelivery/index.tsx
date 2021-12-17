@@ -65,7 +65,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                     key={index.toString()}
                     value={item.code}
                   >
-                    {`${item.full_name} - ${item.mobile}`}
+                    {`${item.full_name} - ${item.phone}`}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>

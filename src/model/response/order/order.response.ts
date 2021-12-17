@@ -157,6 +157,7 @@ export interface FulFillmentResponse {
   payments: Array<OrderPaymentResponse>;
   created_date: string | null;
   cancel_date: string | null;
+  return_status: string | null;
 }
 
 export interface OrderDiscountResponse {

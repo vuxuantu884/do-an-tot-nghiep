@@ -27,19 +27,23 @@ export const StyledHeader = styled.div`
 `;
 
 export const StyledComponent = styled.div`
- .custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td {
-    padding: 8px 15px;
-
-    .link {
-      color: #2a2a86;
-      text-decoration: none;
-      background-color: transparent;
-      outline: none;
-      cursor: pointer;
-      transition: color .3s;
-      &:hover {
-        color: #1890ff;
-        text-decoration: underline;
+  .custom-table .ant-table.ant-table-middle {
+    .ant-table-thead > tr > th {
+      padding: 12px;
+    }
+    .ant-table-tbody > tr > td {
+      padding: 12px;
+      .link {
+        color: #2a2a86;
+        text-decoration: none;
+        background-color: transparent;
+        outline: none;
+        cursor: pointer;
+        transition: color 0.3s;
+        &:hover {
+          color: #1890ff;
+          text-decoration: underline;
+        }
       }
     }
   }

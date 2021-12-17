@@ -345,7 +345,7 @@ const TabProductWrapper: React.FC = () => {
     dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
     dispatch(materialSearchAll(setListMaterial));
     setTableLoading(true);
-  }, [dispatch, params, setDataCategory]);
+  }, [dispatch, setDataCategory]);
 
   useEffect(() => {
     dispatch(searchProductWrapperRequestAction(params, setSearchResult));

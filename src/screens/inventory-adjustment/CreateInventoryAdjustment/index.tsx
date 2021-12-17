@@ -49,6 +49,7 @@ import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
 import {DATE_FORMAT} from "utils/DateUtils";
 import moment from "moment";
+import SelectPaging from "component/custom/SelectPaging";
 
 const {Option} = Select;
 
@@ -69,6 +70,7 @@ export interface Summary {
 }
 
 const CreateInventoryAdjustment: FC = () => {
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
@@ -84,7 +86,10 @@ const CreateInventoryAdjustment: FC = () => {
   const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 }
+  });
   const [auditType, setAuditType] = useState<string>(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
   const [adjustStoreIdBak, setAdjustStoreIdBak] = useState<number | null>(null);
 
@@ -119,10 +124,18 @@ const CreateInventoryAdjustment: FC = () => {
     if (!data) {
       return;
     }
-    setAccounts(data.items);
-  }, []);
+    setAccounts(data);
+  }, []); 
 
-  const dispatch = useDispatch();
+  const getAccounts = useCallback((code: string, page: number) => {
+    dispatch(
+      AccountSearchAction(
+        { info: code, page: page, status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
 
   const onFinish = (data: InventoryAdjustmentDetailItem) => {
     const storeCurr = stores.find(
@@ -293,7 +306,7 @@ const CreateInventoryAdjustment: FC = () => {
   const onBeforeUpload = useCallback((file) => {
     const isLt2M = file.size / 1024 / 1024 < 10;
     if (!isLt2M) {
-      showWarning("Cần chọn ảnh nhỏ hơn 10mb");
+      showWarning("Cần chọn file nhỏ hơn 10mb");
     }
     return isLt2M ? true : Upload.LIST_IGNORE;
   }, []);
@@ -321,7 +334,7 @@ const CreateInventoryAdjustment: FC = () => {
             }
           } else {
             fileList.splice(index, 1);
-            showError("Upload ảnh không thành công");
+            showError("Upload file không thành công");
           }
           setFileList([...fileList]);
         })
@@ -972,26 +985,31 @@ const CreateInventoryAdjustment: FC = () => {
                       message: "Vui lòng chọn người kiểm",
                   }]}
                 >
-                  <CustomSelect
+                  <SelectPaging
                     mode="multiple"
-                    showSearch
+                    metadata={accounts.metadata}
+                    showSearch={false}
+                    allowClear
                     placeholder="Chọn người kiểm"
+                    searchPlaceholder="Tìm kiếm người kiểm"
                     notFoundContent="Không tìm thấy kết quả"
                     style={{width: "100%"}}
                     optionFilterProp="children"
                     maxTagCount="responsive"
                     getPopupContainer={(trigger) => trigger.parentNode}
+                    onPageChange={(key, page) => getAccounts(key, page)}
+                    onSearch={(key) => getAccounts(key, 1)}
                   >
-                    {accounts.map((item, index) => (
-                      <Option
+                    {accounts.items.map((item, index) => (
+                      <SelectPaging.Option
                         style={{width: "100%"}}
                         key={index.toString()}
                         value={item.code.toString()}
                       >
                         {`${item.code} - ${item.full_name}`}
-                      </Option>
+                      </SelectPaging.Option>
                     ))}
-                  </CustomSelect>
+                  </SelectPaging>
                 </Form.Item>
               </Card>
               <Card title={"GHI CHÚ"} bordered={false} className={"note"}>
@@ -1023,7 +1041,7 @@ const CreateInventoryAdjustment: FC = () => {
                 </Form.Item>
                 <Form.Item noStyle hidden name="attached_files">
                   <Input />
-                </Form.Item>
+                </Form.Item> 
               </Card>
             </Col>
           </Row>

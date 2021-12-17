@@ -16,9 +16,9 @@ import TitleCustom from "component/tag/TitleCustom";
 import { EditOutlined, LockOutlined, SolutionOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { AccountMeStyle } from "./account.me.style";
 import RowDetail from "screens/products/product/component/RowDetail";
-import { AccountRequest, AccountResponse } from "model/account/account.model";
+import { AccountResponse, MeRequest } from "model/account/account.model";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import {AccountUpdateAction, getAccountMeAction } from "domain/actions/account/account.action";
+import {getAccountMeAction, updateMeAction } from "domain/actions/account/account.action";
 import { Link } from "react-router-dom";
 import CustomModal from "component/modal/CustomModal";
 import MeContact from "./components/me-contact";
@@ -61,19 +61,22 @@ const AccountMeScreen: React.FC = () => {
     [setUser]
   ); 
 
-  const updateMeContact = useCallback((data: AccountRequest)=>{
-     let accountUpdate = {...user,
-      district_id:data.district_id,
-      mobile: data.mobile, 
+  const updateMeContact = useCallback((data: MeRequest)=>{
+     let accountUpdate : MeRequest = { 
+      district_id: data.district_id,
+      phone: data.phone, 
+      district: data.district,
       address: data.address };
-
        if (user?.id) {
-        dispatch(AccountUpdateAction(user.id, user ?? accountUpdate,  ()=>{
-          showSuccess("Cập nhật thông tin liên hệ thành công");
-          setIsShowUpdate(false);
+        dispatch(updateMeAction(accountUpdate,  (res)=>{
+          if (res) {
+            showSuccess("Cập nhật thành công");
+            setIsShowUpdate(false);
+            dispatch(getAccountMeAction(setAccount));
+          }
         }));
        }
-  },[user, dispatch]);
+  },[user, dispatch, setAccount]);
 
   useEffect(() => {
       dispatch(getAccountMeAction(setAccount));
@@ -121,7 +124,7 @@ const AccountMeScreen: React.FC = () => {
                 extra={<Button color="#1890ff" type="link" onClick={()=>{
                   setIsShowUpdate(true);
                 }}><EditOutlined /> Đổi thông tin liên hệ</Button>}>   
-              <RowDetail title="Số điện thoại" value={user?.mobile ?? "---"}/>
+              <RowDetail title="Số điện thoại" value={user?.phone ?? "---"}/>
               <RowDetail title="Khu vực" value={user?.district ?? "---"}/>
               <RowDetail title="Địa chỉ" value={user?.address ?? "---"}/>
             </Card>
@@ -144,7 +147,7 @@ const AccountMeScreen: React.FC = () => {
         updateText="Lưu lại"
         visible={isShowUpdate}
         onCreate={() => {}}
-        onEdit={(formValues: AccountRequest) => updateMeContact(formValues)}
+        onEdit={(formValues: MeRequest) => updateMeContact(formValues)}
         onDelete={()=>{}}
         onCancel={() => setIsShowUpdate(false)}
         modalAction="onlyedit"

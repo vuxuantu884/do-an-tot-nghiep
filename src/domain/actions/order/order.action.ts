@@ -151,6 +151,18 @@ export const UpdateFulFillmentStatusAction = (
   });
 };
 
+export const RePushFulFillmentAction = (
+  fulfillment_id: number,
+  setData: (data: OrderResponse) => void,
+  setError?: (error: boolean) => void
+) => {
+  return BaseAction(OrderType.REPUSH_FULFILLMENT, {
+    fulfillment_id,
+    setData,
+    setError,
+  });
+};
+
 export const UpdatePaymentAction = (
   // request: UpdatePaymentRequest,
   request: any,

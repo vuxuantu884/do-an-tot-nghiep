@@ -648,7 +648,7 @@ const ProductDetailScreen: React.FC = () => {
           },
           {
             name: "Sản phẩm",
-            path: `${UrlConfig.PRODUCT}`,
+            path: `${UrlConfig.VARIANTS}`,
           },
           {
             name: data !== null ? data.name : "",

@@ -18,7 +18,9 @@ import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
@@ -27,6 +29,7 @@ import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction
 } from "domain/actions/order/order.action";
+import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -141,6 +144,20 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
+
+  const [allowCreatePacked] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_PACKED],
+    not: false,
+  });
+
+  const [allowCreateShipping] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_SHIPPING],
+    not: false,
+  });
+  const [allowCreatePicked] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_PICKED],
+    not: false,
+  });
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -284,13 +301,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setCancelShipment(false);
     setReload(true);
     showSuccess(
-      `Bạn đã nhận hàng trả lại của đơn giao hàng ${
-        value.fulfillments &&
-        value.fulfillments.length > 0 &&
-        value.fulfillments.filter(
-          (fulfillment) => fulfillment.id === fullfilmentIdGoodReturn
-        )[0].id
-      }`
+      `Bạn đã nhận hàng trả lại của đơn giao hàng ${fullfilmentIdGoodReturn}`
     );
     setIsvibleGoodsReturn(false);
     onReload && onReload();
@@ -1440,10 +1451,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           )}
                       </div>
                     ) : null}
-                    {(fulfillment.status_before_cancellation ===
-                      FulFillmentStatus.SHIPPING &&
-                      fulfillment.status === FulFillmentStatus.CANCELLED) ||
-                    fulfillment.status === FulFillmentStatus.RETURNING ? (
+                    {fulfillment.return_status === FulFillmentStatus.RETURNING ? (
                       <div
                         style={{
                           display: "flex",
@@ -1480,18 +1488,23 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
             <React.Fragment>
               {!checkIfOrderHasReturnedAll(OrderDetail) ? (
+                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
+                  {(isPassed: boolean) => 
                   <Button
-                  type="primary"
-                  style={{margin: "0 10px", padding: "0 25px"}}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  onClick={() => {
-                    history.push(
-                      `${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}`
-                    );
-                  }}
-                >
+                    type="primary"
+                    style={{margin: "0 10px", padding: "0 25px"}}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    onClick={() => {
+                      history.push(
+                        `${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}`
+                      );
+                    }}
+                    disabled={!isPassed}
+                  >
                   Đổi trả hàng
-                </Button>
+                </Button>}
+                </AuthWrapper>
+                
                 ) : (
                   <Button
                   type="primary"
@@ -1559,7 +1572,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
-                disabled={cancelShipment}
+                disabled={cancelShipment || !allowCreatePicked}
               >
                 Nhặt hàng
               </Button>
@@ -1576,7 +1589,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
-                disabled={cancelShipment}
+                disabled={cancelShipment || !(allowCreatePicked || allowCreatePacked)}
               >
                 Nhặt hàng & đóng gói
               </Button>
@@ -1589,7 +1602,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               style={{marginLeft: "10px"}}
               onClick={onOkShippingConfirm}
               loading={updateShipment}
-              disabled={cancelShipment}
+              disabled={cancelShipment || !allowCreatePacked}
             >
               Đóng gói
             </Button>
@@ -1605,7 +1618,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippingConfirm(true)}
                 loading={updateShipment}
-                disabled={cancelShipment}
+                disabled={cancelShipment || !allowCreateShipping}
               >
                 Xuất kho
               </Button>
@@ -1634,7 +1647,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippedConfirm(true)}
                 loading={updateShipment}
-                disabled={cancelShipment}
+                disabled={cancelShipment || !allowCreateShipping}
               >
                 Xuất kho & giao hàng
               </Button>

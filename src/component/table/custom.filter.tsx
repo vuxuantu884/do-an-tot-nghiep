@@ -16,11 +16,13 @@ const CustomFilter: React.FC<CustomFilterProps> = (
     <div className="page-filter">
       <div className="page-filter-heading">
         <div className="page-filter-left">
-          <ActionButton
-            disabled={actionDisable}
-            menu={menu}
-            onMenuClick={onMenuClick}
-          />
+          {menu && (
+            <ActionButton
+              disabled={actionDisable}
+              menu={menu}
+              onMenuClick={onMenuClick}
+            />
+          )}
         </div>
         <div className="page-filter-right">
           <Space size={12}>{children}</Space>

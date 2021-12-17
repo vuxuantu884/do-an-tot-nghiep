@@ -12,19 +12,19 @@ import {useDispatch} from "react-redux";
 import {useHistory} from "react-router-dom";
 import {PROMO_TYPE} from "utils/Constants";
 import {DATE_FORMAT} from "utils/DateUtils";
-import ContentContainer from "../../../component/container/content.container";
-import {HttpStatus} from "../../../config/http-status.config";
-import UrlConfig from "../../../config/url.config";
-import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
-import {StoreGetListAction} from "../../../domain/actions/core/store.action";
-import {getListSourceRequest} from "../../../domain/actions/product/source.action";
-import {StoreResponse} from "../../../model/core/store.model";
-import {SourceResponse} from "../../../model/response/order/source.response";
-import {createPriceRule} from "../../../service/promotion/discount/discount.service";
-import {showError, showSuccess} from "../../../utils/ToastUtils";
-import {CustomerFilterField} from "../shared/cusomer-condition.form";
-import GeneralInfo from "./components/general.info";
-import "./discount.scss";
+import ContentContainer from "../../../../component/container/content.container";
+import {HttpStatus} from "../../../../config/http-status.config";
+import UrlConfig from "../../../../config/url.config";
+import {unauthorizedAction} from "../../../../domain/actions/auth/auth.action";
+import {StoreGetListAction} from "../../../../domain/actions/core/store.action";
+import {getListSourceRequest} from "../../../../domain/actions/product/source.action";
+import {StoreResponse} from "../../../../model/core/store.model";
+import {SourceResponse} from "../../../../model/response/order/source.response";
+import {createPriceRule} from "../../../../service/promotion/discount/discount.service";
+import {showError, showSuccess} from "../../../../utils/ToastUtils";
+import {CustomerFilterField} from "../../shared/cusomer-condition.form";
+import GeneralInfo from "./general.info";
+import "../discount.scss";
 
 const CreateDiscountPage = () => {
   const dispatch = useDispatch();
@@ -70,6 +70,7 @@ const CreateDiscountPage = () => {
     body.ends_date = values.ends_date?.format() || null;
     body.entitlements = values?.entitlements?.map((entitlement: any) => {
       return {
+        entitled_product_ids: entitlement.entitled_product_ids || null,
         entitled_variant_ids: entitlement.entitled_variant_ids || null,
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [

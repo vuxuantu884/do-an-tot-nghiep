@@ -34,7 +34,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
 ) => {
   const { visible, onOk, onCancel } = props;
   const dispatch = useDispatch();
-  
+
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceSelected, setEcommerceSelected] = useState(null);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
@@ -52,13 +52,6 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
 
   const [ecommerceList] = useState<Array<any>>([
     {
-      title: "Sàn Tiki",
-      icon: tikiIcon,
-      id: 2,
-      isActive: false,
-      key: "tiki"
-    },
-    {
       title: "Sàn Shopee",
       icon: shopeeIcon,
       id: 1,
@@ -68,9 +61,16 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     {
       title: "Sàn Lazada",
       icon: lazadaIcon,
-      id: 3,
+      id: 2,
       isActive: false,
       key: "lazada",
+    },
+    {
+      title: "Sàn Tiki",
+      icon: tikiIcon,
+      id: 3,
+      isActive: false,
+      key: "tiki"
     },
     {
       title: "Sàn Sendo",
@@ -81,6 +81,10 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     },
   ]);
 
+  const getEcommerceIcon = (ecommerce_id: number) => {
+    const ecommerce = ecommerceList.find(item => item.id === ecommerce_id);
+    return ecommerce?.icon;
+  }
 
   const updateEcommerceShopList = useCallback((result) => {
     setIsEcommerceSelected(true);
@@ -90,7 +94,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
   const getShopEcommerce = (ecommerceId: any) => {
     setShopIdSelected(null);
     setIsEcommerceSelected(false);
-    dispatch(getShopEcommerceList({ecommerce_id: ecommerceId}, updateEcommerceShopList));
+    dispatch(getShopEcommerceList({ ecommerce_id: ecommerceId }, updateEcommerceShopList));
   }
 
   const selectEcommerce = (item: any) => {
@@ -134,16 +138,16 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
     return moment(new Date(newDate)).unix();
   }
-  
+
   const convertEndDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
     const today = new Date();
     let time = "23:59:59";
 
     if ((Number(myDate[0]) === Number(today.getDate())) &&
-        (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
-        (Number(myDate[2]) === Number(today.getFullYear()))
-      ) {
+      (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
+      (Number(myDate[2]) === Number(today.getFullYear()))
+    ) {
       time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     }
 
@@ -160,7 +164,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
 
     setValue(dates);
   };
-  
+
   //end handle select date
 
 
@@ -176,7 +180,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
       create_time_from: startDate,
       create_time_to: endDate,
     }
-    
+
     setIsLoading(true);
     dispatch(postEcommerceOrderAction(params, updateEcommerceOrderList));
   };
@@ -200,7 +204,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     onCancel();
   };
 
-  
+
   return (
     <Modal
       width="600px"
@@ -237,7 +241,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
           </div>
 
           <Form.Item
-            label={<b>Lựa chọn gian hàng <span style={{color: 'red'}}>*</span></b>}
+            label={<b>Lựa chọn gian hàng <span style={{ color: 'red' }}>*</span></b>}
           >
             {!isEcommerceSelected &&
               <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
@@ -252,7 +256,6 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
 
             {isEcommerceSelected &&
               <Select
-                showSearch
                 placeholder="Chọn gian hàng"
                 allowClear
                 onSelect={(value) => selectShopEcommerce(value)}
@@ -261,19 +264,26 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
                 {ecommerceShopList &&
                   ecommerceShopList.map((shop: any) => (
                     <Option key={shop.id} value={shop.id}>
-                      {shop.name}
+                      <span>
+                        <img
+                          src={getEcommerceIcon(shop.ecommerce_id)}
+                          alt={"ecommerce_icon"}
+                          style={{ marginRight: "5px", height: "16px" }}
+                        />
+                        <span>{shop.name}</span>
+                      </span>
                     </Option>
                   ))
                 }
               </Select>
             }
           </Form.Item>
-        
-          <Form.Item label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>
+
+          <Form.Item label={<b>Thời gian <span style={{ color: 'red' }}>*</span></b>}>
             <RangePicker
               disabled={isLoading}
               placeholder={["Từ ngày", "Đến ngày"]}
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
               format={DATE_FORMAT.DDMMYYY}
               value={hackValue || value}
               disabledDate={disabledDate}
@@ -282,7 +292,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
               onOpenChange={onOpenChange}
             />
           </Form.Item>
-        
+
           <div><i>Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b></i></div>
         </Form>
       </StyledDownloadOrderData>

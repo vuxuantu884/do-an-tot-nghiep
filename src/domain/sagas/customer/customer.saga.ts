@@ -59,13 +59,13 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
     if (query.request.length >= 3) {
-      const response: BaseResponse<CustomerResponse> = yield call(
+      const response: BaseResponse<PageResponse<CustomerResponse>> = yield call(
         getCustomersSo,
         query
       );
       switch (response.code) {
         case HttpStatus.SUCCESS:
-          setData(response.data);
+          setData(response.data.items);
           
           break;
         case HttpStatus.UNAUTHORIZED:
@@ -77,7 +77,7 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
       }
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy danh sách khách hàng! Vui lòng thử lại sau!");
   }
 }
 

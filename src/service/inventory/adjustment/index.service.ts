@@ -54,3 +54,10 @@ export const getLinesItemAdjustmentApi = (
   return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item?${queryString}`);
 };
 
+export const updateInventorAdjustmentApi = (
+  id: number,
+  data: InventoryAdjustmentDetailItem
+): Promise<BaseResponse<string>> => {
+  return BaseAxios.put(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}`, data);
+}
+

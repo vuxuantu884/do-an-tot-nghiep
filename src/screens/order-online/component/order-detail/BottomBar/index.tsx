@@ -2,7 +2,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
-import React from "react";
+import React, { useCallback } from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { StyledComponent } from "./styles";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -48,6 +48,29 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     updateCancelClick,
     onConfirmOrder,
   } = props;
+
+  const acceptPermissionsUpdate = useCallback(() => {
+    switch(stepsStatusValue) {
+      case 'packed':
+        return [ODERS_PERMISSIONS.UPDATE_PACKED];
+      case 'shipping':
+        return [ODERS_PERMISSIONS.UPDATE_SHIPPING]
+      case 'shipped':
+        return [ODERS_PERMISSIONS.UPDATE_FINISHED]
+      case 'finalized':
+        return [ODERS_PERMISSIONS.UPDATE_COMFIRMED]
+      default: return []
+    }
+  }, [stepsStatusValue]);
+  const acceptPermissionsCancel = useCallback(() => {
+    switch(stepsStatusValue) {
+      case 'packed':
+        return [ODERS_PERMISSIONS.CANCEL_PACKED];
+      case 'finalized':
+        return [ODERS_PERMISSIONS.CANCEL_CONFIRMED]
+      default: return []
+    }
+  }, [stepsStatusValue]);
 
   return (
     <StyledComponent>
@@ -127,44 +150,33 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 >
                   Cập nhật và xác nhận
                 </Button>}
-                <Button
-                  style={{ padding: "0 25px", fontWeight: 400 }}
-                  type="primary"
-                  className="create-button-custom"
-                  id="save-and-confirm"
-                  onClick={() => {
-                    // handleTypeButton(OrderStatus.FINALIZED);
-                    formRef.current?.submit();
-                  }}
-                  loading={updating}
-                >
-                  Cập nhật đơn hàng
-                </Button>
+                <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
+                  {(isPassed: boolean) => 
+                  <Button
+                    style={{ padding: "0 25px", fontWeight: 400 }}
+                    type="primary"
+                    className="create-button-custom"
+                    id="save-and-confirm"
+                    onClick={() => {
+                      formRef.current?.submit();
+                    }}
+                    loading={updating}
+                    disabled={!isPassed}
+                  >
+                    Cập nhật đơn hàng
+                  </Button>}
+                </AuthWrapper>
               </Col>
             )}
           {isVisibleActionsButtons && (
             <Col md={12} style={{ marginTop: "8px" }}>
               <Dropdown
-                // overlayStyle={{ minWidth: "15rem" }}
                 getPopupContainer={(trigger) => trigger}
                 disabled={disabledBottomActions}
                 overlay={
                   <Menu>
-                    {/* <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.UPDATE]} passThrough>
-                      {(isPassed: boolean) => 
-                      <Menu.Item
-                        key="update"
-                        onClick={() => orderActionsClick && orderActionsClick("update")}
-                        disabled={
-                          stepsStatusValue === OrderStatus.CANCELLED ||
-                          stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                          stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed
-                        }
-                      >
-                        Sửa đơn hàng
-                      </Menu.Item>}
-                    </AuthWrapper> */}
-                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CANCEL]} passThrough>
+                    
+                    <AuthWrapper acceptPermissions={acceptPermissionsCancel()} passThrough>
                       {(isPassed: boolean) => 
                       <Menu.Item
                         key="cancel"
@@ -196,39 +208,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   Thêm thao tác <DownOutlined />
                 </Button>
               </Dropdown>
-              {/* <Dropdown
-                // overlayStyle={{ minWidth: "15rem" }}
-                getPopupContainer={(trigger) => trigger}
-                overlay={
-                  <Menu>
-                    <Menu.Item
-                      onClick={() =>
-                        props.orderActionsClick && props.orderActionsClick("print")
-                      }
-                    >
-                      In nhanh
-                    </Menu.Item>
-                    <Menu.Item
-                      onClick={() =>
-                        props.orderActionsClick && props.orderActionsClick("print")
-                      }
-                    >
-                      In tuỳ chọn
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={["click"]}
-              >
-                <Button
-                  type="primary"
-                  ghost
-                  style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                >
-                  <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In đơn
-                  hàng
-                </Button>
-              </Dropdown> */}
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.UPDATE]} passThrough>
+              <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
                 {(isPassed: boolean) => 
                 <Button
                   type="primary"
@@ -238,8 +218,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   disabled={
                     disabledBottomActions ||
                     stepsStatusValue === OrderStatus.CANCELLED || !isPassed
-                    // || stepsStatusValue === FulFillmentStatus.SHIPPED
-                    // || stepsStatusValue === FulFillmentStatus.SHIPPING
                   }
                 >
                   Sửa đơn hàng

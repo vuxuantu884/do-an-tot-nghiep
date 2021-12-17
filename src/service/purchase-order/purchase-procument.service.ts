@@ -3,7 +3,7 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { ImportProcument, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { generateQuery } from "utils/AppUtils";
 
 export const createPurchaseProcumentService = (
@@ -51,4 +51,19 @@ export const searchProcurementApi = (
   return BaseAxios.get(
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/procurements?${queryString}`
   );
+};
+
+export const importProcumentApi = (
+  data: ImportProcument
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(
+    `${ApiConfig.PURCHASE_ORDER}/excel/job/import`,
+    data
+  );
+}; 
+
+export const getJobImport = (
+  code: string
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/excel/job/${code}`);
 };

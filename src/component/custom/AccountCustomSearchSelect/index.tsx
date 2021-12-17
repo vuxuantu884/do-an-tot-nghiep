@@ -1,4 +1,3 @@
-import { CalendarOutlined } from "@ant-design/icons";
 import { Select, Spin } from "antd";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
@@ -8,7 +7,7 @@ import React, {
 	useCallback, useRef, useState
 } from "react";
 import { useDispatch } from "react-redux";
-import { searchAccountApi } from "service/accounts/account.service";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
 
@@ -39,8 +38,8 @@ function AccountCustomSearchSelect(props: PropType) {
       const getAccounts = (value: string) => {
         if (value.trim() !== "" && value.length >= 3) {
 					setIsLoading(true)
-          searchAccountApi({
-            info: value,
+          searchAccountPublicApi({
+            condition: value,
             limit: undefined,
           })
             .then((response) => {
@@ -91,7 +90,7 @@ function AccountCustomSearchSelect(props: PropType) {
 			allowClear
 			optionFilterProp="children"
 			placeholder={placeholder}
-			notFoundContent={isLoading ? <Spin size="small" /> : null}
+			notFoundContent={isLoading ? <Spin size="small" /> : "Không tìm thấy kết quả"}
 			{...rest}
 		>
 			{dataToSelect.length > 0 &&

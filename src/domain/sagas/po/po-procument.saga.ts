@@ -3,6 +3,7 @@ import {
   updateStatusPO,
   deletePurchaseProcumentService,
   searchProcurementApi,
+  importProcumentApi,
 } from "service/purchase-order/purchase-procument.service";
 import { createPurchaseProcumentService } from "service/purchase-order/purchase-procument.service";
 import { YodyAction } from "base/base.action";
@@ -149,6 +150,31 @@ function* searchProcurementSaga(action: YodyAction) {
   }
 }
 
+function* importProcumentSaga(action: YodyAction) {
+  const { params, onResult } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      importProcumentApi,
+      params,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error: any) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau "+ error.message);
+  }
+}
+
 export function* poProcumentSaga() {
   yield takeLatest(
     POProcumentType.CREATE_PO_PROCUMENT_REQUEST,
@@ -170,6 +196,8 @@ export function* poProcumentSaga() {
     POProcumentType.SEARCH_PROCUREMENT,
     searchProcurementSaga
   );
-}
-
-
+  yield takeEvery(
+    POProcumentType.IMPORT_PROCUMENT,
+    importProcumentSaga
+  );
+} 

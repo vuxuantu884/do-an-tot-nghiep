@@ -20,6 +20,7 @@ const UrlConfig = {
   SPLIT_ORDERS: `/split-orders`,
   ORDER_PROCESSING_STATUS: `/order-processing-status`,
   ORDER_SOURCES: `/order-sources`,
+  ORDERS_DUPLICATE: `/orders-duplicate`,
   PRINTER: `/prints-templates`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   ORDER_SETTINGS: `/${SETTINGS}/orders`,
