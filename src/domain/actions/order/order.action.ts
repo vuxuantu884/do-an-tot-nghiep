@@ -295,11 +295,13 @@ export const getDetailOrder=(orderId:any,setData:(data:OrderResponse)=>void)=>{
 
 export const getListOrderAction = (
   query: OrderSearchQuery,
-  setData: (data: PageResponse<OrderModel> | false) => void
+  setData: (data: PageResponse<OrderModel> | false) => void,
+	handleError?: () => void,
 ) => {
   return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
     query,
     setData,
+		handleError
   });
 };
 

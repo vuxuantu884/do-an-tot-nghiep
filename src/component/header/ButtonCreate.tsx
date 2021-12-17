@@ -12,7 +12,7 @@ const ButtonCreate: React.FC<ButtonCreateProps> = (
   props: ButtonCreateProps
 ) => {
   return (
-    <Link to={props.path} target="_blank">
+    <Link to={props.path}>
       <Button
         type="primary"
         className="ant-btn-primary"

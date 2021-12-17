@@ -185,6 +185,10 @@ export const POS = {
   source_code: "POS"
 };
 
+export const COD = {
+  code: "cod"
+};
+
 export const SHIPPING_REQUIREMENT = {
   default: "open_try"
 };

@@ -115,14 +115,7 @@ function OrderList(props: PropsType) {
   const [deliveryServices, setDeliveryServices] = useState<
     Array<DeliveryServiceResponse>
   >([]);
-  useEffect(() => {
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        setDeliveryServices(response);
-      })
-    );
-  }, [dispatch]);
+  
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
@@ -147,7 +140,10 @@ function OrderList(props: PropsType) {
       return new Promise<void>((resolve, reject) => {
         setTableLoading(true);
         setIsFilter(true);
-        dispatch(getListOrderAction(params, setSearchResult));
+        dispatch(getListOrderAction(params, setSearchResult, ()=> {
+					setTableLoading(false);
+        	setIsFilter(false);
+				}));
         resolve();
       });
     },
@@ -271,6 +267,16 @@ function OrderList(props: PropsType) {
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
+
+	useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+				console.log('response', response)
+        setDeliveryServices(response);
+      })
+    );
+  }, [dispatch]);
 
   const onExport = useCallback(
     (optionExport, typeExport) => {
@@ -400,6 +406,8 @@ function OrderList(props: PropsType) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, handleFetchData, setSearchResult, location.search]);
 
+	
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -469,16 +477,20 @@ function OrderList(props: PropsType) {
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
           />
-          <OrdersTable
-            tableLoading={tableLoading}
-            data={data}
-            columns={columns}
-            setColumns={setColumns}
-            setData={setData}
-            onPageChange={onPageChange}
-            onSelectedChange={onSelectedChange}
-            setShowSettingColumn={setShowSettingColumn}
-          />
+					{deliveryServices.length > 0 && (
+						<OrdersTable
+							tableLoading={tableLoading}
+							data={data}
+							columns={columns}
+							setColumns={setColumns}
+							setData={setData}
+							onPageChange={onPageChange}
+							onSelectedChange={onSelectedChange}
+							setShowSettingColumn={setShowSettingColumn}
+							deliveryServices={deliveryServices}
+						/>
+						
+						)}
         </Card>
 
         <ModalSettingColumn

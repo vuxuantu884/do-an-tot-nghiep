@@ -26,7 +26,7 @@ const reports: Array<RouteMenu> = [
     title: "Bán hàng Offline",
     icon: "icon-dot",
     component: ReportOrdersOffline,
-    key: "submenureport1",
+    key: "submenureport9999",
     isShow: true,
     header: null,
     subMenu: [],
