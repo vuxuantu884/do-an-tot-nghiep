@@ -111,3 +111,13 @@ export const updateMeAction = (
     setData,
   });
 };
+
+export const searchAccountPublicAction = (
+  query: AccountSearchQuery,
+  onResult: (data: PageResponse<AccountResponse>) => void
+) => {
+  return BaseAction(AccountType.SEARCH_ACCOUNT_PUBLIC, {
+    query,
+    onResult,
+  });
+};

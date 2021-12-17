@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { CloseSquareOutlined, DeleteOutlined, ShrinkOutlined } from "@ant-design/icons";
-import { Button, Card, Modal, Row, Space, Tag } from "antd";
+import { CloseSquareOutlined, ShrinkOutlined } from "@ant-design/icons";
+import { Button, Card, Row, Space, Tag } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
 import ContentContainer from "component/container/content.container";
@@ -14,7 +14,7 @@ import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction, ShipperGetListAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
@@ -33,7 +33,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
-import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -52,7 +52,7 @@ import { ShipmentMethod } from "utils/Constants";
 import EditNote from "../component/edit-note";
 import MergeOrderModel from "./modal/merge-order.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { putOrderDuplicateCancel, putOrderDuplicateMerge } from "domain/actions/order/order-duplicate.action";
+import { getDetailOrderDuplicateAction, putOrderDuplicateCancel, putOrderDuplicateMerge } from "domain/actions/order/order-duplicate.action";
 
 const ACTION_ID = {
   mergeOrder: 1,
@@ -885,6 +885,20 @@ const OrderDuplicate: React.FC = () => {
     }
   }, []);
 
+  const handleSearchResult=useCallback(()=>{
+    setTableLoading(true);
+
+    let _issued_on_min = moment(new Date().setHours(-24)).format('DD-MM-YYYY');
+    let _issued_on_max = moment(new Date()).format('DD-MM-YYYY');
+
+    dispatch(getDetailOrderDuplicateAction({
+      ...params
+      , search_term: params.search_term && params.search_term.length > 0 ? params.search_term : customer_phone
+      , issued_on_min: params.issued_on_min && params.issued_on_min.length > 0 ? params.issued_on_min : _issued_on_min
+      , issued_on_max: params.issued_on_max && params.issued_on_max.length > 0 ? params.issued_on_max : _issued_on_max
+    }, setSearchResult));
+  },[dispatch, params, setSearchResult, customer_phone]);
+
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -943,47 +957,45 @@ const OrderDuplicate: React.FC = () => {
     }
 
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
-    dispatch(putOrderDuplicateMerge(value, selectedOrderIds, (data: any) => {
+    dispatch(putOrderDuplicateMerge(value, selectedOrderIds, (data: OrderModel) => {
       console.log(data)
+      if(data)
+      {
+        handleSearchResult();
+        setMergeOrderVisible(false);
+      }
     }));
-  }, [dispatch, selectedOrder])
+  }, [dispatch, selectedOrder,handleSearchResult])
 
   const hanldMergeOrderCancel = () => {
     console.log("Cancel");
     setMergeOrderVisible(false);
   }
 
+  //hủy đơn trùng
   const hanldCancelOrderOk = useCallback(() => {
-    if (selectedOrder.length <= 0) {
-      showWarning("Yêu cầu chọn đơn hàng cần gộp");
-      return;
-    }
+    if (selectedOrder.length <= 0)return;
 
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
     dispatch(putOrderDuplicateCancel(selectedOrderIds, (data: any) => {
+      if(data===true)
+      {
+        handleSearchResult();
+        setCancelOrderComfirm(false);
+      }
       console.log(data)
-      setCancelOrderComfirm(false);
+      
     }));
     
-  },[dispatch,selectedOrder]);
+  },[dispatch,selectedOrder, handleSearchResult]);
 
   ///arrow function
 
   //useEffect
 
   useEffect(() => {
-    setTableLoading(true);
-
-    let _issued_on_min = moment(new Date().setHours(-24)).format('DD-MM-YYYY');
-    let _issued_on_max = moment(new Date()).format('DD-MM-YYYY');
-
-    dispatch(getListOrderAction({
-      ...params
-      , search_term: params.search_term && params.search_term.length > 0 ? params.search_term : customer_phone
-      , issued_on_min: params.issued_on_min && params.issued_on_min.length > 0 ? params.issued_on_min : _issued_on_min
-      , issued_on_max: params.issued_on_max && params.issued_on_max.length > 0 ? params.issued_on_max : _issued_on_max
-    }, setSearchResult));
-  }, [dispatch, params, setSearchResult, customer_phone]);
+    handleSearchResult();
+  }, [handleSearchResult]);
 
   useEffect(() => {
     console.log('data change', data);
@@ -1031,6 +1043,7 @@ const OrderDuplicate: React.FC = () => {
           },
           {
             name: "Đơn trùng",
+            path:UrlConfig.ORDERS_DUPLICATE
           },
           {
             name: "Danh sách đơn trùng",

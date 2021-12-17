@@ -15,9 +15,6 @@ import {
 
 type PackQuantityProductProps = {
   packProductQuantity: GoodsReceiptsTotalProductModel[];
-  handlePrintPackFull: () => void;
-  handlePrintPackCompact: () => void;
-  handleExportExcelOrderPack: () => void;
   handleAddOrderInPack: () => void;
 };
 const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
@@ -25,17 +22,10 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
 ) => {
   const {
     packProductQuantity,
-    handlePrintPackFull,
-    handlePrintPackCompact,
-    handleExportExcelOrderPack,
     handleAddOrderInPack,
   } = props;
 
   const actionColumn = (
-    handlePrintPackFull: any,
-    handlePrintPackCompact: any,
-    handleExportExcelOrderPack: any,
-    handleAddOrderInPack: any
   ) => {
     const _actionColumn = {
       title: "",
@@ -155,12 +145,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
         return <div>{value}</div>;
       },
     },
-    actionColumn(
-      handlePrintPackFull,
-      handlePrintPackCompact,
-      handleExportExcelOrderPack,
-      handleAddOrderInPack
-    ),
+    actionColumn()
   ];
 
   const menuCardProductQuantity = (

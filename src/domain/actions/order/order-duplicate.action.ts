@@ -1,3 +1,5 @@
+import { OrderModel } from 'model/order/order.model';
+import { OrderSearchQuery } from 'model/order/order.model';
 import {CustomerDuplicateModel} from "./../../../model/order/duplicate.model";
 
 import BaseAction from "base/base.action";
@@ -22,4 +24,14 @@ export const putOrderDuplicateMerge = (
 
 export const putOrderDuplicateCancel = (ids: number[], setData: (data: any) => void) => {
   return BaseAction(OrderType.PUT_ORDER_DUPLICATE_CANCEL, {ids, setData});
+};
+
+export const getDetailOrderDuplicateAction = (
+  query: OrderSearchQuery,
+  setData: (data: PageResponse<OrderModel> | false) => void
+) => {
+  return BaseAction(OrderType.GET_DETAIL_ORDER_DUPLICATE, {
+    query,
+    setData,
+  });
 };

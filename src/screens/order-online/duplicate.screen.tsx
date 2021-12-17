@@ -82,7 +82,7 @@ const CustomerDuplicate: React.FC = () => {
         if (params.issued_on_min !== "" || params.issued_on_max !== "") {
           return (
             <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?issued_on_min=${params.issued_on_min}&issued_on_max=${params.issued_on_max}`}>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?store_ids=${i.store_id}&issued_on_min=${params.issued_on_min}&issued_on_max=${params.issued_on_max}`}>
                 {value}
               </Link>
             </React.Fragment>
@@ -91,7 +91,7 @@ const CustomerDuplicate: React.FC = () => {
         else {
           return (
             <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}`}>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?store_ids=${i.store_id}`}>
                 {value}
               </Link>
             </React.Fragment>
@@ -113,7 +113,7 @@ const CustomerDuplicate: React.FC = () => {
         if (params.issued_on_min !== "" || params.issued_on_max !== "") {
           return (
             <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?issued_on_min=${params.issued_on_min}&issued_on_max=${params.issued_on_max}`}>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?store_ids=${i.store_id}&issued_on_min=${params.issued_on_min}&issued_on_max=${params.issued_on_max}`}>
                 {value}
               </Link>
             </React.Fragment>
@@ -122,7 +122,7 @@ const CustomerDuplicate: React.FC = () => {
         else {
           return (
             <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}`}>
+              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?store_ids=${i.store_id}`}>
                 {value}
               </Link>
             </React.Fragment>

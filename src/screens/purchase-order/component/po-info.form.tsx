@@ -10,7 +10,7 @@ import { POStatus } from "utils/Constants";
 
 type POInfoFormProps = {
   winAccount: PageResponse<AccountResponse>;
-  rdAccount: Array<AccountResponse>;
+  rdAccount: PageResponse<AccountResponse>
   isEdit: boolean;
   isEditDetail?: boolean;
 };
@@ -394,35 +394,36 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                     </SelectPaging>
                   </Form.Item>
                   <Form.Item name={POField.qc_code} label="QC">
-                    <Select
-                      showArrow
-                      showSearch
-                      allowClear
-                      optionFilterProp="children"
-                      placeholder="Chọn QC"
-                    >
-                      <Select.Option value="">Chọn QC</Select.Option>
-                      {rdAccount.map((item) => (
-                        <Select.Option key={item.code} value={item.code}>
-                          {item.code} - {item.full_name}
-                        </Select.Option>
-                      ))}
-                    </Select>
+                    <SelectPaging
+                        metadata={rdAccount.metadata}
+                        showArrow
+                        searchPlaceholder="Tìm kiếm QC"
+                        allowClear
+                        optionFilterProp="children"
+                        placeholder="Chọn QC"
+                      >
+                        {rdAccount.items.map((item) => (
+                            <Select.Option key={item.code} value={item.code}>
+                              {[item.code, item.full_name].join(" - ")}
+                            </Select.Option>
+                          ))}
+                    </SelectPaging> 
                   </Form.Item>
                   <Form.Item name={POField.designer_code} label="Thiết kế">
-                    <Select
+                    <SelectPaging
+                      metadata={winAccount.metadata}
                       showArrow
+                      searchPlaceholder="Tìm kiếm nhà thiết kế"
                       allowClear
                       optionFilterProp="children"
                       placeholder="Chọn nhà thiết kế"
                     >
                       {winAccount.items.map((item) => (
-                        <Select.Option key={item.code} value={item.code}>
-                          {[item.code, item.full_name].join(" - ")}
-                        </Select.Option>
-                      ))}
-                      <Select.Option value="">Chọn thiết kế</Select.Option>
-                    </Select>
+                          <Select.Option key={item.code} value={item.code}>
+                            {[item.code, item.full_name].join(" - ")}
+                          </Select.Option>
+                        ))}
+                    </SelectPaging>
                   </Form.Item>
                   <Form.Item
                     tooltip={{

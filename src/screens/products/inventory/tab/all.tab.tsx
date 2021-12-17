@@ -1,6 +1,7 @@
 import CustomPagination from "component/table/CustomPagination";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 import {AppConfig} from "config/app.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
@@ -309,7 +310,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
                   </Link>
                 </div>
                 <div>
-                {record.name}
+                  <TextEllipsis value={record.name} line={1} />
                 </div>
                 <div>
                 {record.barcode}

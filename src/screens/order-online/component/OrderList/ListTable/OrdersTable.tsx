@@ -1,4 +1,4 @@
-import { Tag, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
@@ -17,6 +17,9 @@ import { formatCurrency } from "utils/AppUtils";
 import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
 import { dangerColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
+import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
+import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
+import iconWeight from "./images/iconWeight.svg";
 import IconPaymentBank from "./images/paymentBank.svg";
 import IconPaymentCard from "./images/paymentCard.svg";
 import IconPaymentCod from "./images/paymentCod.svg";
@@ -25,9 +28,6 @@ import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import IconWebsite from "./images/website.svg";
-import iconWeight from "./images/iconWeight.svg";
-import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
-import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
 type PropsType = {
