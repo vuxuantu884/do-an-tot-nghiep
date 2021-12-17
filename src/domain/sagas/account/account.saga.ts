@@ -354,5 +354,5 @@ export function* accountSaga() {
   yield takeLatest(AccountType.POWER_BI_EMBEDED_REQUEST, powerBIEmbededSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_ME, getAccountMeSaga);
   yield takeLatest(AccountType.UPDATE_ME, updateMeSaga);
-  yield takeLatest(AccountType.SEARCH_ACCOUNT_PUBLIC, searchAccountPublicSaga);
+  yield takeEvery(AccountType.SEARCH_ACCOUNT_PUBLIC, searchAccountPublicSaga);
 }
