@@ -497,6 +497,7 @@ const InventoryAdjustment: React.FC = () => {
         />
 
         <CustomTable
+          bordered
           isRowSelection
           isLoading={tableLoading}
           scroll={{x: 1300}}
