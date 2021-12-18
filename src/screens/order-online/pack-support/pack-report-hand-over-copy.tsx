@@ -38,7 +38,7 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   ecommerce_id: null,
   good_receipt_type_id: null,
   good_receipt_id: null,
-  codes: null,
+  order_id: null,
   from_date: "",
   to_date: "",
 };
@@ -382,6 +382,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   const onFilter = useCallback(
     (values) => {
       let newPrams = {...params, ...values, page: 1};
+      console.log("newPrams",newPrams)
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       //setIsFilter(true)
