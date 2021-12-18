@@ -40,7 +40,8 @@ type PropTypes = {
 	deliveryService: Array<any>;
 	listPaymentMethod: Array<PaymentMethodResponse>;
 	subStatus: Array<OrderProcessingStatusModel>;
-	isLoading?: Boolean;
+	isLoading?: boolean;
+	isHideTab?: boolean;
 	listShippers?: AccountResponse[];
 	onMenuClick?: (index: number) => void;
 	onFilter?: (values: OrderSearchQuery | Object) => void;
@@ -81,6 +82,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		subStatus,
 		listPaymentMethod,
 		isLoading,
+		isHideTab=false,
 		onMenuClick,
 		onClearFilter,
 		onFilter,
@@ -697,13 +699,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 	return (
 		<StyledComponent>
-			<div className="order-options">
-				<Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
-					<Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
-					<Radio.Button value="true">Đơn hàng online</Radio.Button>
-					<Radio.Button value="false">Đơn hàng offline</Radio.Button>
-				</Radio.Group>
-			</div>
+			{!isHideTab && (
+				<div className="order-options">
+					<Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
+						<Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
+						<Radio.Button value="true">Đơn hàng online</Radio.Button>
+						<Radio.Button value="false">Đơn hàng offline</Radio.Button>
+					</Radio.Group>
+				</div>
+			)}
 			<div className="order-filter">
 				<CustomFilter onMenuClick={onActionClick} menu={actions}>
 					<Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">

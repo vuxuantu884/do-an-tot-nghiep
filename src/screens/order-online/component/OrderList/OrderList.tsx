@@ -59,7 +59,8 @@ type PropsType = {
       name: string;
       path?: string;
     }[];
-  }
+  };
+	isHideTab?: boolean;
 };
 
 function OrderList(props: PropsType) {
@@ -91,7 +92,7 @@ function OrderList(props: PropsType) {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { location, initQuery, pageTitle } = props;
+  const { location, initQuery, pageTitle, isHideTab=false } = props;
   const queryParamsParsed: { [key: string]: string | string[] | null } = queryString.parse(
     location.search
   );
@@ -175,14 +176,16 @@ function OrderList(props: PropsType) {
     setSelectedRowCodes(selectedRowCodes);
   }, []);
 
+	console.log('location', location)
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      history.push(`${UrlConfig.ORDER}?${queryParam}`);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, params]
+    [history, location.pathname, params]
   );
   const onFilter = useCallback(
     (values) => {
@@ -476,6 +479,7 @@ function OrderList(props: PropsType) {
             subStatus={listOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
+						isHideTab= {isHideTab}
           />
 					{data.items.length > 0 && deliveryServices.length > 0 && (
 						<OrdersTable
