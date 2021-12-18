@@ -324,7 +324,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                     />
                   </Item>
 
-                  <Item name="order_id" style={{width: "30%"}}>
+                  <Item name="codes" style={{width: "30%"}}>
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="Mã đơn hàng"
