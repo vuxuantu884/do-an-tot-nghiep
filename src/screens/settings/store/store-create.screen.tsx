@@ -18,6 +18,7 @@ import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import {AppConfig} from "config/app.config";
 import UrlConfig from "config/url.config";
 import {AccountSearchAction} from "domain/actions/account/account.action";
@@ -99,6 +100,11 @@ const StoreCreateScreen: React.FC = () => {
   );
   const [formMain] = Form.useForm();
 
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
+  const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
+
   //EndState
 
   //ref
@@ -173,6 +179,21 @@ const StoreCreateScreen: React.FC = () => {
     };
   }, []);
 
+  const backAction = ()=>{  
+    setModalConfirm({
+      visible: true,
+      onCancel: () => {
+        setModalConfirm({visible: false});
+      },
+      onOk: () => { 
+        history.push(UrlConfig.STORE);
+      },
+      title: "Bạn có muốn quay lại?",
+      subTitle:
+        "Sau khi quay lại thay đổi sẽ không được lưu.",
+    }); 
+  };
+
   useEffect(() => {
     if (firstload.current) {
       dispatch(CountryGetAllAction(setCountries));
@@ -224,7 +245,7 @@ const StoreCreateScreen: React.FC = () => {
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
                     rules={[
-                      {required: true, message: "Vui lòng nhập tên danh mục"},
+                      {required: true, message: "Vui lòng nhập tên cửa hàng"},
                       {max: 255, message: "Tên danh mục không quá 255 kí tự"},
                       {
                         pattern: RegUtil.STRINGUTF8,
@@ -558,7 +579,8 @@ const StoreCreateScreen: React.FC = () => {
           </Panel>
         </Collapse>
         <BottomBarContainer
-          back={"Quay lại danh sách"}
+          back={"Quay lại trang danh sách"}
+          backAction={backAction}
           rightComponent={
             <Space>
               <Button htmlType="submit" type="primary">
@@ -568,6 +590,16 @@ const StoreCreateScreen: React.FC = () => {
           }
         />
       </Form>
+      <ModalConfirm
+        onCancel={() => {
+          setIsShowModalConfirm(false);
+        }}
+        onOk={() => {
+          history.push(UrlConfig.STORE);
+        }}
+        visible={isShowModalConfirm}
+      />
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 }; 
