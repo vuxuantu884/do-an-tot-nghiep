@@ -19,6 +19,8 @@ import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { convertCategory } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
+import TreeStore from "./TreeStore";
+import { AppConfig } from "config/app.config";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -30,25 +32,6 @@ export interface InventoryFilterProps {
   openColumn: () => void;
   onChangeKeySearch: (value: string) => void;
 }
- 
-function tagRender(props: any) {
-  const { label, closable, onClose } = props;
-  const onPreventMouseDown = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-  return (
-    <Tag
-      className="primary-bg"
-      onMouseDown={onPreventMouseDown}
-      closable={closable}
-      onClose={onClose}
-    >
-      {label}
-    </Tag>
-  );
-}
-
 
 const {Item} = Form;
 const {Panel} = Collapse; 
@@ -58,7 +41,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 ) => {
   const {
     params, 
-    listStore, 
+    // listStore, 
     onFilter,
     openColumn,
     onChangeKeySearch
@@ -192,27 +175,16 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               onChange={(e)=>{onChangeKeySearch(e.target.value)}}
             />
           </Item>
-          <Item name={InventoryQueryField.store_ids} className="store">
-            <CustomSelect
-              showSearch
-              optionFilterProp="children"
-              showArrow
+          <Item 
+            name={InventoryQueryField.store_ids} className="store" 
+            style={{ minWidth: '260px'}}
+          >
+            <TreeStore 
+              form={formBaseFilter} 
+              name={InventoryQueryField.store_ids}
               placeholder="Chọn cửa hàng"
-              mode="multiple"
-              allowClear
-              tagRender={tagRender}
-              style={{
-                width: 250,
-              }}
-              notFoundContent="Không tìm thấy kết quả"
-              maxTagCount="responsive" 
-            >
-              {listStore?.map((item) => (
-                <CustomSelect.Option key={item.id} value={item.id}>
-                  {item.name}
-                </CustomSelect.Option>
-              ))}
-            </CustomSelect>
+              codeDepartment={AppConfig.KD_DEPARTMENT_CODE}
+            />
           </Item>  
           <Item>
             <Button type="primary" htmlType="submit">

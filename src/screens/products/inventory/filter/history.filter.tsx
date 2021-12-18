@@ -2,13 +2,14 @@ import {FilterOutlined} from "@ant-design/icons";
 import {Button, Collapse, Form, FormInstance, Input, Space, Tag} from "antd";
 import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
-import CustomSelect from "component/custom/select.custom";
+// import CustomSelect from "component/custom/select.custom";
 import BaseFilter from "component/filter/base.filter";
 import CustomRangepicker, {
   StyledButton,
 } from "component/filter/component/range-picker.custom";
 import {MenuAction} from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
+import { AppConfig } from "config/app.config";
 import {StoreResponse} from "model/core/store.model";
 import {InventoryQuery} from "model/inventory";
 import {
@@ -20,6 +21,7 @@ import moment from "moment";
 import {useCallback, useEffect, useState} from "react";
 import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
 import {QuantityButtonStyle} from "./history-filter.style";
+import TreeStore from "./TreeStore";
 
 interface HistoryInventoryFilterProps {
   params: InventoryQuery;
@@ -32,23 +34,23 @@ interface HistoryInventoryFilterProps {
   onChangeKeySearch: (value: string) => void;
 }
 
-function tagRender(props: any) {
-  const {label, closable, onClose} = props;
-  const onPreventMouseDown = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-  return (
-    <Tag
-      className="primary-bg"
-      onMouseDown={onPreventMouseDown}
-      closable={closable}
-      onClose={onClose}
-    >
-      {label}
-    </Tag>
-  );
-}
+// function tagRender(props: any) {
+//   const {label, closable, onClose} = props;
+//   const onPreventMouseDown = (event: any) => {
+//     event.preventDefault();
+//     event.stopPropagation();
+//   };
+//   return (
+//     <Tag
+//       className="primary-bg"
+//       onMouseDown={onPreventMouseDown}
+//       closable={closable}
+//       onClose={onClose}
+//     >
+//       {label}
+//     </Tag>
+//   );
+// }
 
 const {Item} = Form;
 const {Panel} = Collapse;
@@ -56,7 +58,7 @@ const {Panel} = Collapse;
 const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
   props: HistoryInventoryFilterProps
 ) => {
-  const {params, listStore, onFilter, openColumn} = props;
+  const {params, onFilter, openColumn} = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [tempAdvanceFilters, setTempAdvanceFilters] = useState<any>({});
@@ -176,8 +178,12 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                 onChange={(e)=>{props.onChangeKeySearch(e.target.value)}}
               />
             </Item>
-            <Item name={HistoryInventoryQueryField.store_ids} className="store">
-              <CustomSelect
+            <Item 
+              name={HistoryInventoryQueryField.store_ids} 
+              className="store"
+              style={{ minWidth: '220px'}}
+            >
+              {/* <CustomSelect
                 showSearch
                 optionFilterProp="children"
                 showArrow
@@ -197,7 +203,13 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                     {item.name}
                   </CustomSelect.Option>
                 ))}
-              </CustomSelect>
+              </CustomSelect> */}
+              <TreeStore 
+                form={formBaseFilter} 
+                name={HistoryInventoryQueryField.store_ids}
+                placeholder="Chọn cửa hàng"
+                codeDepartment={AppConfig.KD_DEPARTMENT_CODE}
+              />
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">
