@@ -6,7 +6,7 @@ export interface GoodsReceiptsSearchQuery extends BaseQuery{
     ecommerce_id:number|null;
     good_receipt_type_id:number|null;
     good_receipt_id:number|null;
-    codes:string|null;
+    order_id:string|null;
     from_date:string|null;
     to_date:string|null;
 }

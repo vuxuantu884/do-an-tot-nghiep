@@ -33,7 +33,7 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   ecommerce_id: null,
   good_receipt_type_id: null,
   good_receipt_id:null,
-  codes:null,
+  order_id:null,
   from_date: "",
   to_date: "",
 };
