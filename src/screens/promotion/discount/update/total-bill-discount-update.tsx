@@ -19,7 +19,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import { formatDiscountValue } from "utils/PromotionUtils";
 import { TotalBillDiscountStyle } from "../create/total-bill-discount.style";
-import { FieldSelectOptions } from "../constants";
+import { FieldSelectOptions, OperatorSelectOptions } from "../constants";
 import { DiscountUpdateContext } from "./discount-update-provider";
 const rule = "rule";
 const conditions = "conditions";
@@ -52,48 +52,7 @@ const defaultValueComponent = (name: string | Array<any>, rules: Rule[], default
 );
 
 
-const OperatorSelectOptions = [
-  {
-    label: "Bằng",
-    value: "EQUALS",
-  },
-  {
-    label: "Không bằng",
-    value: "NOT_EQUAL_TO",
-  },
-  {
-    label: "Chứa",
-    value: "CONTAINS",
-  },
-  {
-    label: "Không chứa",
-    value: "DOES_NOT_CONTAIN",
-  },
-  {
-    label: "Bắt đầu với",
-    value: "STARTS_WITH",
-  },
-  {
-    label: "Kết thúc với",
-    value: "ENDS_WITH",
-  },
-  {
-    label: "Lớn hơn",
-    value: "GREATER_THAN",
-  },
-  {
-    label: "Lớn hơn hoặc bằng",
-    value: "GREATER_THAN_OR_EQUAL_TO",
-  },
-  {
-    label: "Nhỏ hơn",
-    value: "LESS_THAN",
-  },
-  {
-    label: "Nhỏ hơn hoặc bằng",
-    value: "LESS_THAN_OR_EQUAL_TO",
-  },
-];
+
 
 export default function TotalBillDiscountUpdate(props: Props): ReactElement {
   const { form } = props;

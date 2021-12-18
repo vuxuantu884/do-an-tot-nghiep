@@ -184,13 +184,14 @@ function* bulkDisablePriceRulesAct(action: YodyAction) {
   console.log('bulkDisablePriceRulesAct - action : ', action);
   const { body, disableCallback } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<{count: number}> = yield call(
       bulkDisablePriceRules,
       body
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        disableCallback(true)
+        //Số lượng bản ghi đc disable thành công
+        disableCallback(response.data.count)
         break;
       case HttpStatus.UNAUTHORIZED:
         disableCallback(false);

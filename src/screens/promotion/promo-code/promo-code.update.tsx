@@ -8,10 +8,10 @@ import {
   promoGetDetail,
   updatePriceRuleByIdAction,
 } from "domain/actions/promotion/discount/discount.action";
+import { ProductEntitlements } from "model/promotion/discount.create.model";
 import {
   CustomerSelectionOption,
   DiscountResponse,
-  DiscountVariantResponse,
 } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
@@ -46,7 +46,7 @@ const PromoCodeUpdate = () => {
   const [isUnlimitUsage, setIsUnlimitUsage] = useState(false);
   const [isUnlimitUsagePerUser, setIsUnlimitUsagePerUser] = useState(false);
 
-  const [dataVariants, setDataVariants] = useState<DiscountVariantResponse[]>([]);
+  const [dataVariants, setDataVariants] = useState<ProductEntitlements[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [typeUnit, setTypeUnit] = useState<string>("PERCENTAGE");
   const transformData = (values: any) => {
