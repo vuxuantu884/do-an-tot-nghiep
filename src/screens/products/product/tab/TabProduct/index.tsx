@@ -274,10 +274,11 @@ const TabProduct: React.FC = () => {
     {
       width: 80,
       title: "Ảnh",
+      align:"left",
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
-          <ImageProduct
+            <ImageProduct
             path={image !== null ? image.url : null}
             isUpload={true}
             onClick={() => {
@@ -359,7 +360,8 @@ const TabProduct: React.FC = () => {
       title: "Ngày khởi tạo",
       dataIndex: "created_date",
       visible: true,
-      align: "center",
+      align: "left",
+      width: 120,
       render: (value, record) => ConvertUtcToLocalDate(record?.product?.created_date),
     },
   ];

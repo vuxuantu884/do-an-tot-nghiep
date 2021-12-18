@@ -382,6 +382,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   const onFilter = useCallback(
     (values) => {
       let newPrams = {...params, ...values, page: 1};
+      console.log("newPrams",newPrams)
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       //setIsFilter(true)

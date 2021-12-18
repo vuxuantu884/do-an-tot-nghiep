@@ -104,7 +104,7 @@ const TabProductWrapper: React.FC = () => {
     {
       title: "Ảnh",
       fixed: "left",
-      align: "center",
+      align: "left",
       width: 70,
       render: (value: ProductResponse) => {
         let url = null;
@@ -176,9 +176,10 @@ const TabProductWrapper: React.FC = () => {
     },
     {
       title: "Ngày khởi tạo",
-      align: "center",
+      align: "left",
       dataIndex: "created_date",
       render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY HH:mm"),
+      width: 120,
       visible: true,
     },
     {

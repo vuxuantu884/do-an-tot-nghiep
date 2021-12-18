@@ -5,7 +5,7 @@ import {
 	updateOrderPartial
 } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderItemModel, OrderModel } from "model/order/order.model";
+import { OrderModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { DeliveryServiceResponse, OrderLineItemResponse } from "model/response/order/order.response";
 import moment from "moment";
