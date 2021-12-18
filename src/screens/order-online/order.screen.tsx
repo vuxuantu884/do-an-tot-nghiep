@@ -58,6 +58,7 @@ import {
 	scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
+	ADMIN_ORDER,
 	DEFAULT_COMPANY,
 	OrderStatus,
 	PaymentMethodCode,
@@ -66,7 +67,6 @@ import {
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
-import { DEFAULT_CHANNEL_ID } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
@@ -448,7 +448,7 @@ export default function Order() {
 	};
 
 	const onFinish = (values: OrderRequest) => {
-		values.channel_id = DEFAULT_CHANNEL_ID;
+		values.channel_id = ADMIN_ORDER.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
 		const element2: any = document.getElementById("save-and-confirm");
 		element2.disable = true;

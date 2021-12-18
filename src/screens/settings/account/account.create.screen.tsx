@@ -23,6 +23,7 @@ import {
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AccountPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
@@ -101,6 +102,11 @@ const AccountCreateScreen: React.FC = () => {
   const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [isSelectAllStore, setIsSelectAllStore] = useState(false);
+  
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
+  const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
 
   const allowCreateAcc = useAuthorization({
     acceptPermissions: [AccountPermissions.CREATE],
@@ -121,8 +127,6 @@ const AccountCreateScreen: React.FC = () => {
     },
     [formRef]
   );
-
-
 
   const onSelectDistrict = useCallback(
     (value: number) => {
@@ -178,6 +182,21 @@ const AccountCreateScreen: React.FC = () => {
     return listStore?.map((item) => item.id);
   }, [listStore]);
   //end memo
+
+  const backAction = ()=>{  
+    setModalConfirm({
+      visible: true,
+      onCancel: () => {
+        setModalConfirm({visible: false});
+      },
+      onOk: () => { 
+        history.push(UrlConfig.ACCOUNTS);
+      },
+      title: "Bạn có muốn quay lại?",
+      subTitle:
+        "Sau khi quay lại thay đổi sẽ không được lưu.",
+    }); 
+  };
 
   useEffect(() => {
     dispatch(
@@ -313,7 +332,7 @@ const AccountCreateScreen: React.FC = () => {
               <Item
                 rules={[
                   ...PASSWORD_RULES,
-                  { required: true, message: "Vui lòng nhập tên đăng nhập" },
+                  { required: true, message: "Vui lòng nhập mật khẩu" },
                 ]}
                 name="password"
                 label="Mật khẩu"
@@ -595,7 +614,8 @@ const AccountCreateScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <BottomBarContainer
-          back="Quay lại"
+          back="Quay lại trang danh sách"
+          backAction={backAction}
           rightComponent={
             allowCreateAcc &&
             <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
@@ -604,6 +624,16 @@ const AccountCreateScreen: React.FC = () => {
           }
         />
       </Form>
+      <ModalConfirm
+        onCancel={() => {
+          setIsShowModalConfirm(false);
+        }}
+        onOk={() => {
+          history.push(UrlConfig.ACCOUNTS);
+        }}
+        visible={isShowModalConfirm}
+      />
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

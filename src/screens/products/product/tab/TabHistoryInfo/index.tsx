@@ -114,9 +114,10 @@ const TabHistoryInfo: React.FC = () => {
     {
       title: "Thời gian",
       visible: true,
-      align: "center",
+      align: "left",
       dataIndex: "created_date",
       render: (value) => ConvertUtcToLocalDate(value),
+      width: 120
     },
   ]);
   useEffect(() => {

@@ -36,38 +36,30 @@ export const StyledComponent = styled.div`
         }
         .page-filter-right {
           width: 88%;
+					padding-left: 20px;
           .ant-space.ant-space-horizontal {
             width: 100%;
             .ant-space-item {
               width: 100%;
 
               .ant-form.ant-form-inline {
-                display: flex;
-                // justify-content: space-between;
-                justify-content: flex-end;
-                .ant-form-item {
-                  // margin-right: 0;
-                }
-                @media screen and (min-width: 1400px) {
-                  .input-search {
-                    width: 70%;
-                  }
-                }
-                @media screen and (max-width: 1399px) {
-                  .input-search {
-                    width: 60%;
-                  }
-                }
-                @media screen and (max-width: 1099px) {
-                  .input-search {
-                    width: 50%;
-                  }
-                }
-                @media screen and (max-width: 799px) {
-                  .input-search {
-                    width: 40%;
-                  }
-                }
+                position: relative;
+								padding-right: 310px;
+								display: block;
+								.buttonGroup {
+									position: absolute;
+									top: 0;
+									z-index: 1;
+									right: 0;
+									display: flex;
+									align-items: center;
+									button {
+										margin-right: 15px;
+									}
+								}
+								.input-search {
+									width: 100%;
+								}
               }
             }
           }
@@ -310,22 +302,6 @@ export const StyledComponent = styled.div`
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
       }
-      // .ant-select {
-      //   .ant-select-selector {
-      //     .ant-select-selection-item {
-      //       background-color: #2A2A86;
-      //       border-radius: 6px;
-      //       font-style: normal;
-      //       font-weight: normal;
-      //       font-size: 14px;
-      //       line-height: 18px;
-      //       font-family: Roboto;
-      //       .ant-select-selection-item-content, .ant-select-selection-item-remove {
-      //         color: #FFFFFF;
-      //       }
-      //     }
-      //   }
-      // }
       .active {
         color: #ffffff;
         border-color: rgba(42, 42, 134, 0.1);
