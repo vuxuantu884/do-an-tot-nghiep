@@ -292,7 +292,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 
 	const listSources = useMemo(() => {
-		return listSource.filter((item) => item.code !== POS.source_code);
+		return listSource.filter((item) => item.code !== POS.channel_code);
 	}, [listSource]);
 
 	const initialValues = useMemo(() => {
@@ -718,21 +718,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 								}}
 							/>
 						</Item>
-
-						<Item>
+						<div className="buttonGroup">
 							<Button type="primary" loading={loadingFilter} htmlType="submit">
 								Lọc
 							</Button>
-						</Item>
-						{/* <Item>
-              <Tooltip overlay="Lưu bộ lọc" placement="top">
-                <Button icon={<StarOutlined />} />
-              </Tooltip>
-            </Item> */}
-						<Item>
 							<Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
-						</Item>
-						<Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
+							<Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
+						</div>
 					</Form>
 				</CustomFilter>
 

@@ -93,9 +93,11 @@ function SidebarOrderDetailInformation(props: PropType) {
         <Row gutter={5}>
           <Col span={10}>Điện thoại:</Col>
           <Col span={14}>
-            <span style={{fontWeight: 500, color: "#222222"}}>
-              {OrderDetail?.store_phone_number}
-            </span>
+						<a href={`tel:${OrderDetail?.store_phone_number}`} style={{fontWeight: 500}}>
+							<span >
+								{OrderDetail?.store_phone_number}
+							</span>
+						</a>
           </Col>
         </Row>
         <Row gutter={5}>
