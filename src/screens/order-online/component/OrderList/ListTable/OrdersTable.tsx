@@ -7,7 +7,7 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderItemModel, OrderModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderLineItemResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo } from "react";
 import NumberFormat from "react-number-format";
@@ -99,9 +99,9 @@ function OrdersTable(props: PropsType) {
 			const newItems = [...data.items];
 			const indexOrder = newItems.findIndex((item: any) => item.id === orderID);
 			if (indexOrder > -1) {
-				if(noteType === "note") {
+				if (noteType === "note") {
 					newItems[indexOrder].note = newNote;
-				}else if(noteType === "customer_note") {
+				} else if (noteType === "customer_note") {
 					newItems[indexOrder].customer_note = newNote;
 				}
 			}
@@ -190,20 +190,23 @@ function OrdersTable(props: PropsType) {
 			return (
 				<React.Fragment>
 					{renderOrderPaymentMethods(orderDetail)}
-					{orderDetail.total_discount ? (
-						<div className="totalDiscount" style={{ color: dangerColor }}>
-							<span>
-								{" "}
-								-
-								<NumberFormat
-									value={orderDetail.total_discount}
-									className="foo"
-									displayType={"text"}
-									thousandSeparator={true}
-								/>
-							</span>
-						</div>
-					) : null}
+					{/* {orderDetail.total_discount ? (
+						<Tooltip title="Chiết khấu đơn hàng">
+							<div className="totalDiscount" style={{ color: dangerColor }}>
+								<span>
+									{" "}
+									-
+									<NumberFormat
+										value={orderDetail.total_discount}
+										className="foo"
+										displayType={"text"}
+										thousandSeparator={true}
+									/>
+								</span>
+							</div>
+						</Tooltip>
+
+					) : null} */}
 				</React.Fragment>
 			);
 		},
@@ -287,17 +290,20 @@ function OrdersTable(props: PropsType) {
 			},
 			{
 				title: (
-					<div className="productNameQuantityHeader">
+					<div className="productNameQuantityPriceHeader">
 						<span className="productNameWidth">Sản phẩm</span>
 						<span className="quantity quantityWidth">
 							<span>SL</span>
 						</span>
+						<span className="price priceWidth">
+							<span>Giá</span>
+						</span>
 					</div>
 				),
 				dataIndex: "items",
-				key: "productNameQuantity",
-				className: "productNameQuantity",
-				render: (items: Array<OrderItemModel>) => {
+				key: "productNameQuantityPrice",
+				className: "productNameQuantityPrice",
+				render: (items: Array<OrderLineItemResponse>) => {
 					return (
 						<div className="items">
 							{items.map((item, i) => {
@@ -320,6 +326,26 @@ function OrdersTable(props: PropsType) {
 										<div className="quantity quantityWidth">
 											<span>{item.quantity}</span>
 										</div>
+										<div className="price priceWidth">
+											<div>
+												<Tooltip title="Giá">
+													<span>{formatCurrency(item.price)}</span>
+												</Tooltip>
+
+												{item?.discount_items && item.discount_items[0]?.value && (
+													<Tooltip title="Khuyến mại sản phẩm">
+														<div className="itemDiscount" style={{ color: dangerColor }}>
+															<span>
+																{" "}
+																-{" "}
+																{formatCurrency(item.discount_items[0].rate)}%
+															</span>
+														</div>
+													</Tooltip>
+
+												)}
+											</div>
+										</div>
 									</div>
 								);
 							})}
@@ -338,31 +364,37 @@ function OrdersTable(props: PropsType) {
 			//   align: "center",
 			// },
 			{
-				title: "Giá",
+				title: "Thành tiền",
 				// dataIndex: "",
 				render: (record: any) => (
 					<React.Fragment>
-						<span>
-							<NumberFormat
-								value={record.total_line_amount_after_line_discount}
-								className="foo"
-								displayType={"text"}
-								thousandSeparator={true}
-							/>
-						</span>
+						<Tooltip title="Thành tiền">
+							<span>
+								<NumberFormat
+									value={record.total_line_amount_after_line_discount}
+									className="foo"
+									displayType={"text"}
+									thousandSeparator={true}
+								/>
+							</span>
+						</Tooltip>
+
 						{record.total_discount && (
 							<React.Fragment>
 								<br />
-								<span style={{ color: "#EF5B5B" }}>
-									{" "}
-									-
-									<NumberFormat
-										value={record.total_discount}
-										className="foo"
-										displayType={"text"}
-										thousandSeparator={true}
-									/>
-								</span>
+								<Tooltip title="Chiết khấu đơn hàng">
+									<span style={{ color: "#EF5B5B" }}>
+										{" "}
+										-
+										<NumberFormat
+											value={record.total_discount}
+											className="foo"
+											displayType={"text"}
+											thousandSeparator={true}
+										/>
+									</span>
+								</Tooltip>
+
 
 							</React.Fragment>
 						)}
@@ -421,30 +453,35 @@ function OrdersTable(props: PropsType) {
 															alt=""
 														/>
 													</div>
-													{record?.total_weight && (
+													<Tooltip title="Tổng khối lượng">
 														<div className="single">
 															<img
 																src={iconWeight}
 																alt=""
 															/>
-															{record.total_weight} gr
+															<span>{record.total_weight || 0} gr</span>
 														</div>
+													</Tooltip>
+													<Tooltip title="Phí ship báo khách">
+														<div className="single">
+															<img
+																src={iconShippingFeeInformedToCustomer}
+																alt=""
+															/>
+															<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+														</div>
+													</Tooltip>
 
-													)}
-													<div className="single">
-														<img
-															src={iconShippingFeeInformedToCustomer}
-															alt=""
-														/>
-														{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}
-													</div>
-													<div className="single">
-														<img
-															src={iconShippingFeePay3PL}
-															alt=""
-														/>
-														{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
-													</div>
+													<Tooltip title="Phí vận chuyển">
+														<div className="single">
+															<img
+																src={iconShippingFeePay3PL}
+																alt=""
+															/>
+															{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+														</div>
+													</Tooltip>
+
 												</React.Fragment>
 											)}
 										</React.Fragment>
