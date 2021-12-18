@@ -14,7 +14,7 @@ import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
-import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
+import { COD, FACEBOOK, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
 import { dangerColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
@@ -27,7 +27,7 @@ import IconPaymentCash from "./images/paymentMoney.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
-import IconWebsite from "./images/website.svg";
+// import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
 type PropsType = {
@@ -135,27 +135,29 @@ function OrdersTable(props: PropsType) {
 
 	const renderOrderSource = (orderDetail: OrderModel) => {
 		let html = null;
-		switch (orderDetail.source_code) {
-			case POS.source_code:
+		switch (orderDetail.channel_id) {
+			case POS.channel_id:
 				html = (
 					<Tooltip title="Đơn hàng tại quầy">
 						<img src={IconStore} alt="" />
 					</Tooltip>
 				);
 				break;
-			case "shopee":
+			case SHOPEE.channel_id:
 				html = (
-					<Tooltip title="Đơn hàng tại shopee">
+					<Tooltip title="Đơn hàng tại Shopee">
+						<img src={IconShopee} alt="" />
+					</Tooltip>
+				);
+				break;
+			case FACEBOOK.channel_id:
+				html = (
+					<Tooltip title="Đơn hàng từ Facebook">
 						<img src={IconShopee} alt="" />
 					</Tooltip>
 				);
 				break;
 			default:
-				html = (
-					<Tooltip title="Đơn hàng từ Website">
-						<img src={IconWebsite} alt="" />
-					</Tooltip>
-				);
 				break;
 		}
 		return html;
@@ -348,17 +350,22 @@ function OrdersTable(props: PropsType) {
 								thousandSeparator={true}
 							/>
 						</span>
-						<br />
-						<span style={{ color: "#EF5B5B" }}>
-							{" "}
-							-
-							<NumberFormat
-								value={record.total_discount}
-								className="foo"
-								displayType={"text"}
-								thousandSeparator={true}
-							/>
-						</span>
+						{record.total_discount && (
+							<React.Fragment>
+								<br />
+								<span style={{ color: "#EF5B5B" }}>
+									{" "}
+									-
+									<NumberFormat
+										value={record.total_discount}
+										className="foo"
+										displayType={"text"}
+										thousandSeparator={true}
+									/>
+								</span>
+
+							</React.Fragment>
+						)}
 					</React.Fragment>
 				),
 				key: "customer.amount_money",
@@ -375,7 +382,7 @@ function OrdersTable(props: PropsType) {
 				},
 				visible: true,
 				align: "left",
-				width: 100,
+				width: 120,
 			},
 			{
 				title: "Vận chuyển",
@@ -385,7 +392,7 @@ function OrdersTable(props: PropsType) {
 					const sortedFulfillments = record.fulfillments?.sort(
 						(a: any, b: any) => b.id - a.id
 					);
-					if (record.source_code === POS.source_code || (sortedFulfillments && sortedFulfillments[0]?.delivery_type === ShipmentMethod.PICK_AT_STORE)) {
+					if (record.source_code === POS.channel_code || (sortedFulfillments && sortedFulfillments[0]?.delivery_type === ShipmentMethod.PICK_AT_STORE)) {
 						return (
 							<React.Fragment>
 								<div className="single">
@@ -399,10 +406,10 @@ function OrdersTable(props: PropsType) {
 						if (sortedFulfillments[0]?.shipment) {
 							switch (sortedFulfillments[0].shipment.delivery_service_provider_type) {
 								case ShipmentMethod.EXTERNAL_SERVICE:
-									const service_code =
-										sortedFulfillments[0].shipment.delivery_service_provider_code;
+									const thirdPLId =
+										sortedFulfillments[0].shipment.delivery_service_provider_id;
 									const service = deliveryServices.find(
-										(service) => service.external_service_code === service_code
+										(service) => service.id === thirdPLId
 									);
 									return (
 										<React.Fragment>
