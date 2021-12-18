@@ -1,17 +1,17 @@
 import styled from "styled-components";
 import {borderColor} from "utils/global-styles/variables";
-export const nameQuantityWidth = 220;
+export const nameQuantityWidth = 290;
 const quantityWidth = 40;
 const massWidth = 100;
 const priceWidth = 100;
-const nameWidth = nameQuantityWidth - quantityWidth;
+const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponent = styled.div`
   th {
     text-align: center !important;
   }
   .ant-table-cell.customer-column,
-  .ant-table-cell.productNameQuantity,
+  .ant-table-cell.productNameQuantityPrice,
   .ant-table-cell.orderStatus,
 	.ant-table-cell.notes {
     padding: 0 !important;
@@ -19,7 +19,7 @@ export const StyledComponent = styled.div`
   td {
     position: relative;
   }
-  .productNameQuantityHeader {
+  .productNameQuantityPriceHeader {
     display: flex;
     justify-content: space-between;
   }
@@ -174,6 +174,8 @@ export const StyledComponent = styled.div`
 			img {
 				max-width: 100%;
 				margin-right: 5px;
+				position: relative;
+				top: -1px;
 			}
 		}
 	}
