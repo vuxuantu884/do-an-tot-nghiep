@@ -18,6 +18,7 @@ import useAuthorization from "hook/useAuthorization";
 import TreeDepartment from "../component/TreeDepartment";
 import AccountSearchSelect from "component/custom/select-search/account-select";
 import { RegUtil } from "utils/RegUtils"
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 
 const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
@@ -36,6 +37,11 @@ const DepartmentCreateScreen: React.FC = () => {
   const [allowCreateDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.CREATE],
   });
+
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
+  const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
 
   const searchAccount = useCallback(
     (query: AccountSearchQuery, paging: boolean) => {
@@ -60,6 +66,21 @@ const DepartmentCreateScreen: React.FC = () => {
       }
     }));
   }, [dispatch, history]);
+
+  const backAction = ()=>{  
+    setModalConfirm({
+      visible: true,
+      onCancel: () => {
+        setModalConfirm({visible: false});
+      },
+      onOk: () => { 
+        history.push(UrlConfig.DEPARTMENT);
+      },
+      title: "Bạn có muốn quay lại?",
+      subTitle:
+        "Sau khi quay lại thay đổi sẽ không được lưu.",
+    }); 
+  };
 
   useEffect(() => {
     searchAccount({}, false);
@@ -174,7 +195,8 @@ const DepartmentCreateScreen: React.FC = () => {
           </Row>
         </Card>
         <BottomBarContainer
-          back="Quay lại"
+          back="Quay lại trang danh sách"
+          backAction={backAction}
           rightComponent={
             <Space>
               {allowCreateDep && <Button loading={loading} htmlType="submit" type="primary">
@@ -184,6 +206,16 @@ const DepartmentCreateScreen: React.FC = () => {
           }
         />
       </Form>
+      <ModalConfirm
+        onCancel={() => {
+          setIsShowModalConfirm(false);
+        }}
+        onOk={() => {
+          history.push(UrlConfig.DEPARTMENT);
+        }}
+        visible={isShowModalConfirm}
+      />
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 }; 
