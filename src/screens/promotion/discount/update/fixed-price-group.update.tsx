@@ -280,7 +280,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               }),
             ]}
           >
-            <NumberInput min={0} />
+            <NumberInput min={1} />
           </Form.Item>
         </Col>
 

@@ -79,14 +79,19 @@ function DiscountUpdateForm({ form,
                                             required: !unlimitedQuantity,
                                             message: "Vui lòng nhập số lượng áp dụng",
                                         },
+                                        {
+                                            type: "integer",
+                                            message: "Số lượng áp dụng phải là số nguyên",
+                                        }
                                     ]}
                                 >
                                     <InputNumber
                                         disabled={unlimitedQuantity}
                                         style={{ borderRadius: "5px", width: "100%" }}
                                         placeholder="Nhập số lượng khuyến mại"
-                                        min={0}
-                                        maxLength={6}
+                                        min={1}
+                                        max={999999}
+                                        step={1}
                                     />
                                 </Form.Item>
                             </Col>
