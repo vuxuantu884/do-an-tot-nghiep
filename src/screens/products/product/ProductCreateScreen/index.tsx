@@ -350,22 +350,25 @@ const ProductCreateScreen: React.FC = () => {
     dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
   };
 
-  const onSizeChange = useCallback(
-    (values: Array<number>) => {
-      let filter = sizes.items.filter((item) => values.includes(item.id));
+  const onSizeSelected = useCallback(
+    (value: number) => {
+      let sizeSel = [...variants.map(e=>e.size_id),value];
+      let filter = sizes.items.filter((item) => sizeSel.includes(item.id));
       setSizeSelected([...filter]);
       listVariantsFilter(colorSelected, filter);
     },
-    [colorSelected, listVariantsFilter, sizes.items]
+    [colorSelected, listVariantsFilter, sizes.items, variants]
   );
 
-  const onColorChange = useCallback(
-    (values: Array<number>) => {
-      let filter = colors.items.filter((item) => values.includes(item.id));
-      setColorSelected([...filter]);
-      listVariantsFilter(filter, sizeSelected);
+  const onColorSelectd = useCallback(
+    (value: number) => {
+      let colorSel = [...variants.map(e=>e.color_id),value];
+      
+       let filter = colors.items.filter((item) => colorSel.includes(item.id));
+       setColorSelected([...filter]);
+       listVariantsFilter(filter, sizeSelected);
     },
-    [colors.items, listVariantsFilter, sizeSelected]
+    [colors.items, listVariantsFilter, sizeSelected, variants]
   );
 
   const statusValue = useMemo(() => {
@@ -1297,7 +1300,7 @@ const ProductCreateScreen: React.FC = () => {
                         maxTagCount="responsive"
                         showArrow
                         allowClear
-                        onChange={onColorChange}
+                        onSelect={onColorSelectd}
                         onSearch={(key) => getColors(key, 1)}
                         onPageChange={(key, page) => getColors(key, page)}
                         placeholder="Chọn màu sắc"
@@ -1314,7 +1317,7 @@ const ProductCreateScreen: React.FC = () => {
                     <Item name="size" label="Kích cỡ">
                       <SelectPaging
                         metadata={sizes.metadata}
-                        onChange={onSizeChange}
+                        onSelect={onSizeSelected}
                         showSearch={false}
                         notFoundContent={"Không có dữ liệu"}
                         placeholder="Chọn kích cỡ"
