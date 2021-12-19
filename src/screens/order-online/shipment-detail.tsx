@@ -50,7 +50,8 @@ const ShipmentDetail: React.FC = () => {
     switch (fulfillmentDetail.shipment?.delivery_service_provider_type) {
       case ShipmentMethod.EXTERNAL_SERVICE:
         return "Hãng vận chuyển";
-      case ShipmentMethod.SHIPPER:
+      case ShipmentMethod.EMPLOYEE:
+      case ShipmentMethod.EXTERNAL_SHIPPER:
         return "Đối tác";
       case ShipmentMethod.PICK_AT_STORE:
         return "Nhận tại cửa hàng";

@@ -486,7 +486,8 @@ function OrdersTable(props: PropsType) {
 											)}
 										</React.Fragment>
 									);
-								case ShipmentMethod.SHIPPER:
+								case ShipmentMethod.EMPLOYEE:
+								case ShipmentMethod.EXTERNAL_SHIPPER:
 									return `Đối tác - ${sortedFulfillments[0].shipment.shipper_code} - ${sortedFulfillments[0].shipment.shipper_name}`;
 								case ShipmentMethod.PICK_AT_STORE:
 									return `Nhận tại - ${record.store}`;
