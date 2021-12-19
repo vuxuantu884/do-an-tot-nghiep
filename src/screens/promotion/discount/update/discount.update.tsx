@@ -210,7 +210,6 @@ const DiscountUpdate = () => {
     const handleSubmit = (values: any) => {
         try {
             const body = transformData(values);
-            console.log(body);
             body.id = idNumber;
             dispatch(updatePriceRuleByIdAction(body, updateCallback));
         } catch (error: any) {
