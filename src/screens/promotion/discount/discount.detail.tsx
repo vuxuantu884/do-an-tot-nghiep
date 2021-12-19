@@ -23,8 +23,10 @@ import {
 import { bulkDisablePriceRules } from "../../../service/promotion/discount/discount.service";
 import { showError } from "../../../utils/ToastUtils";
 import GeneralConditionDetail from "../shared/general-condition.detail";
-import { columnDiscountQuantity, columnFixedPrice, discountStatus } from "./constants";
+import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, discountStatus } from "./constants";
 import "./discount.scss";
+import { useHistory } from "react-router-dom";
+import DiscountRuleInfo from "./components/discount-rule-info";
 
 export interface ProductParams {
   id: string;
@@ -44,6 +46,7 @@ type detailMapping = {
 const PromotionDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const { id } = useParams<{ id: string }>();
+  const history = useHistory();
   const idNumber = parseInt(id);
 
   const [error, setError] = useState(false);
@@ -266,7 +269,7 @@ const PromotionDetailScreen: React.FC = () => {
                             </Col>
                             <Col span={12} style={{ paddingLeft: 0 }}>
                               <span
-                                 className="text-truncate-2"
+                                className="text-truncate-2"
                               >
                                 {detail.value ? detail.value : "---"}
                               </span>
@@ -367,8 +370,19 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {/* TODO : CÒN THIẾU PHẦN TABLE RULE */}
-                <CustomTable
+
+                {dataDiscount.entitled_method === "ORDER_THRESHOLD" &&
+                  <>
+                    <DiscountRuleInfo dataDiscount={dataDiscount} />
+                    <CustomTable
+                      columns={columnDiscountByRule}
+                      dataSource={dataDiscount.rule?.conditions}
+                      pagination={false}
+                      rowKey={(record: any) => record}
+                    />
+                  </>}
+
+                {dataDiscount.entitled_method !== "ORDER_THRESHOLD" && <CustomTable
                   dataSource={dataVariants}
                   columns={
                     dataVariants.length > 1
@@ -376,13 +390,15 @@ const PromotionDetailScreen: React.FC = () => {
                       : quantityColumn.filter((column: any) => column.title !== "STT") // show only when have more than 1 entitlement
                   }
                   pagination={false}
-                />
+                />}
+
               </Card>
             </Col>
             <GeneralConditionDetail data={dataDiscount} />
           </Row>
           <BottomBarContainer
             back="Quay lại danh sách khuyến mại"
+            backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
               <Space>
                 {allowUpdatePromoCode && <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>}

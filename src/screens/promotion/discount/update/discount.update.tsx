@@ -115,14 +115,14 @@ const DiscountUpdate = () => {
         body.starts_date = values.starts_date.format();
         body.ends_date = values.ends_date?.format() || null;
 
-        body.entitlements = values?.entitlements.map((item: EntilementFormModel) => {
+        body.entitlements = values?.entitlements ? values?.entitlements?.map((item: EntilementFormModel) => {
             delete item.selectedProducts;
             if (isAllProduct) {
                 item.entitled_product_ids = [];
                 item.entitled_variant_ids = [];
             }
             return item;
-        });
+        }) : null;
 
         // ==Đối tượng khách hàng==
         // Áp dụng tất cả
@@ -202,7 +202,7 @@ const DiscountUpdate = () => {
      */
     const updateCallback = (data: DiscountResponse) => {
         if (data) {
-            showSuccess("Thêm thành công");
+            showSuccess("Cập nhật chiết khấu thành công");
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
         }
     };
@@ -313,15 +313,11 @@ const DiscountUpdate = () => {
                     path: UrlConfig.HOME,
                 },
                 {
-                    name: "Khuyến mại",
-                    path: `${UrlConfig.PROMOTION}`,
-                },
-                {
                     name: "Chiết khấu",
                     path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
                 },
                 {
-                    name: "Tạo Chiết khấu",
+                    name: "Sửa Chiết khấu",
                     path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`,
                 },
             ]}
@@ -356,6 +352,7 @@ const DiscountUpdate = () => {
 
                 <BottomBarContainer
                     back="Quay lại danh sách chiết khấu"
+                    backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
                     rightComponent={<Button type="primary" htmlType="submit">
                         Lưu
                     </Button>}

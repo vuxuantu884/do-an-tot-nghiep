@@ -1,10 +1,7 @@
 import { Form, Input, InputNumber } from "antd";
-import CategorySearchSelect from "component/custom/select-search/category-search";
-import ColorSelectSearch from "component/custom/select-search/color-select";
-import SizeSearchSelect from "component/custom/select-search/size-search";
 import TagStatus from "component/tag/tag-status";
 import UrlConfig from "config/url.config";
-import { EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
+import { DiscountConditionRule, EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
 import { Rule } from "rc-field-form/lib/interface";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
@@ -33,13 +30,16 @@ export const FieldSelectOptions = [
     label: "Danh mục sản phẩm",
     value: "category_name",
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <CategorySearchSelect
-        placeholder="Danh mục sản phẩm"
-        name={name}
-        rules={rules}
-        defaultValue={defaultValue ? Number(defaultValue) : undefined}
-        label=""
-      />
+      // <CategorySearchSelect
+      //   placeholder="Danh mục sản phẩm"
+      //   name={name}
+      //   rules={rules}
+      //   defaultValue={defaultValue ? Number(defaultValue) : undefined}
+      //   label=""
+      // />
+      <Item name={name} rules={rules}>
+        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} />
+      </Item>
     ),
   },
   {
@@ -47,7 +47,7 @@ export const FieldSelectOptions = [
     value: "product_tag",
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Tag sản phẩm" defaultValue={defaultValue} />
+        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} />
       </Item>
     ),
   },
@@ -55,21 +55,27 @@ export const FieldSelectOptions = [
     label: "Kích cỡ",
     value: "product_size",
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <SizeSearchSelect placeholder="Kích cỡ" name={name} rules={rules} label="" defaultValue={defaultValue} />
+      // <SizeSearchSelect placeholder="Nhập kích cỡ" name={name} rules={rules} label="" defaultValue={defaultValue} />
+      <Item name={name} rules={rules}>
+        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} />
+      </Item>
     ),
   },
   {
     label: "Màu sắc",
     value: "option_color",
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <ColorSelectSearch
-        placeholder="Màu sắc"
-        name={name}
-        rules={rules}
-        label=""
-        querySearch={{ is_main_color: 0 }}
-        defaultValue={defaultValue}
-      />
+      // <ColorSelectSearch
+      //   placeholder="Màu sắc"
+      //   name={name}
+      //   rules={rules}
+      //   label=""
+      //   querySearch={{ is_main_color: 0 }}
+      //   defaultValue={defaultValue}
+      // />
+      <Item name={name} rules={rules}>
+        <Input placeholder="Nhập màu sắc" defaultValue={defaultValue} />
+      </Item>
     ),
   },
   {
@@ -77,7 +83,7 @@ export const FieldSelectOptions = [
     value: "subtotal",
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <InputNumber placeholder="Giá trị đơn hàng" defaultValue={defaultValue} formatter={(value) => formatDiscountValue(Number(value), false)} />
+        <InputNumber style={{ width: '100%' }} placeholder="Giá trị đơn hàng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} />
       </Item>
     ),
   },
@@ -86,7 +92,7 @@ export const FieldSelectOptions = [
     value: "quantity",
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <InputNumber placeholder="Số lượng" defaultValue={defaultValue} formatter={(value) => formatDiscountValue(Number(value), false)} />
+        <InputNumber style={{ width: '100%' }} placeholder="Số lượng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={999999} />
       </Item>
     ),
   },
@@ -237,7 +243,7 @@ export const columnFixedPrice = [
       if (entitlement) {
         const { value, value_type } = entitlement.prerequisite_quantity_ranges[0]
         return renderDiscountValue(value || 0, value_type || '');
-      }else{
+      } else {
         return ''
       }
     }
@@ -363,6 +369,39 @@ export const columnDiscountQuantity = [
         return '';
       }
     }
+  },
+];
+
+export const columnDiscountByRule = [
+  {
+    title: "STT",
+
+    width: "5%",
+    render: (value: any, item: DiscountConditionRule, index: number) => index + 1,
+  },
+  {
+    title: "Thuộc tính",
+    dataIndex: "field",
+    visible: true,
+    width: "20%",
+    render: (field: string) => {
+      return (FieldSelectOptions.find(x => x.value === field)?.label || '');
+    }
+  },
+  {
+    title: "Loại điều kiện",
+    dataIndex: "operator",
+    visible: true,
+    width: "20%",
+    render: (operator: string) => {
+      return (OperatorSelectOptions.find(x => x.value === operator)?.label || '');
+    }
+  },
+  {
+    title: "Giá trị",
+    dataIndex: "value",
+    visible: true,
+    width: "20%"
   },
 ];
 
