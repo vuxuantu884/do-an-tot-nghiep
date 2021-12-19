@@ -21,6 +21,7 @@ import {
   getAccountDetail,
   updateMeService,
   searchAccountPublicApi,
+  externalShipperApi,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
@@ -250,6 +251,25 @@ function* ShipperSearchSaga(action: YodyAction) {
   } catch (error) {}
 }
 
+function* ShipperExternalSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<any>> = yield call(
+      externalShipperApi
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
 function* powerBIEmbededSaga(action: YodyAction) {
   let { params, setData } = action.payload;
   try {
@@ -346,6 +366,7 @@ export function* accountSaga() {
   );
   yield takeLatest(AccountType.GET_LIST_POSITION_REQUEST, PositionGetListSaga);
   yield takeLatest(AccountType.GET_LIST_SHIPPER_REQUEST, ShipperSearchSaga);
+  yield takeLatest(AccountType.GET_LIST_EXTERNAL_SHIPPER_REQUEST, ShipperExternalSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_DETAIL_REQUEST, AccountGetByIdSaga);
   yield takeLatest(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
   yield takeLatest(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);

@@ -786,7 +786,7 @@ const ScreenReturnCreate = (props: PropType) => {
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
-          delivery_service_provider_type: ShipmentMethod.SHIPPER,
+          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
           shipper_code: value.shipper_code,
           shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
