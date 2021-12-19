@@ -201,6 +201,21 @@ const PromotionDetailScreen: React.FC = () => {
   }, [dispatch, handleResponse, idNumber, onResult]);
 
   useEffect(() => {
+    if (dataVariants.length === 0) {
+      const ranges = dataDiscount?.entitlements[0]?.prerequisite_quantity_ranges[0]
+      setDataVariants([{
+        variant_title: <span style={{ color: "#2A2A86", fontWeight: 500 }}>Tất cả sản phẩm</span>,
+        sku: "",
+        limit: ranges?.allocation_limit,
+        cost: -1,
+        open_quantity: 0,
+        product_id: 0,
+        variant_id: 0,
+        entitlement: dataDiscount?.entitlements[0],
+        isParentProduct: true,
+        price_rule_id: 0,
+      }])
+    }
     setQuantityColumn(dataDiscount?.entitled_method !== "FIXED_PRICE" ? columnFixedPrice : columnDiscountQuantity);
   }, [dataDiscount, dataVariants]);
 

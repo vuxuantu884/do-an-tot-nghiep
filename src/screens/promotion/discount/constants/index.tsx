@@ -223,7 +223,7 @@ export const columnFixedPrice = [
           <Link to={url}>
             {sku}
           </Link>
-          <div>{item.title}</div>
+          <div>{item.variant_title}</div>
         </div>
       );
     },
@@ -233,7 +233,7 @@ export const columnFixedPrice = [
     align: "center",
     visible: false,
     dataIndex: "cost",
-    render: (value: string) => formatCurrency(value),
+    render: (value: number) => value === -1 ? "-": formatCurrency(value),
   },
   {
     title: "Chiết khấu",
@@ -253,7 +253,7 @@ export const columnFixedPrice = [
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
+      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 && record.cost>=0) {
         const { value, value_type } = entitlement.prerequisite_quantity_ranges[0]
 
         return <span style={{ color: "#E24343" }}>{
@@ -264,7 +264,7 @@ export const columnFixedPrice = [
           )
         }</span>
       } else {
-        return ""
+        return "-"
       }
 
     },

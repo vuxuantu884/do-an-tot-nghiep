@@ -106,7 +106,7 @@ export interface ProductEntitlements {
   sku: string;
   variant_id?: number;
   product_id: number;
-  variant_title: string;
+  variant_title: string | React.ReactNode;
   entitlement?: EntilementFormModel;
   open_quantity: number;
   price_rule_id?: number;

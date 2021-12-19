@@ -305,8 +305,8 @@ const FixedPriceGroupUpdate = (props: Props) => {
               </Form.Item>
             </DiscountMethodStyled>
             <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} label=" "
-              valuePropName="selected"
-              trigger="onBlur"
+              // valuePropName="selected"
+              // trigger="onBlur"
             // shouldUpdate
             >
               <Select
