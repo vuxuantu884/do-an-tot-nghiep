@@ -46,8 +46,9 @@ export interface AccountSearchQuery extends BaseQuery {
   position_ids?: number;
   role_id?: Array<number>;
   store_ids?: Array<number>;
-  status?:string
-  codes?: Array<string>
+  status?:string;
+  codes?: Array<string>;
+  is_shipper?: number;
 }
 
 export interface AccountPublicSearchQuery extends BaseQuery {

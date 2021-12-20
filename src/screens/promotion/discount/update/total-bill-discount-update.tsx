@@ -1,3 +1,7 @@
+/**
+ * need to refactor this component
+ */
+
 import {
   Button,
   Col,
@@ -19,7 +23,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import { formatDiscountValue } from "utils/PromotionUtils";
 import { TotalBillDiscountStyle } from "../create/total-bill-discount.style";
-import { FieldSelectOptions } from "../constants";
+import { FieldSelectOptions, OperatorSelectOptions } from "../constants";
 import { DiscountUpdateContext } from "./discount-update-provider";
 const rule = "rule";
 const conditions = "conditions";
@@ -52,48 +56,7 @@ const defaultValueComponent = (name: string | Array<any>, rules: Rule[], default
 );
 
 
-const OperatorSelectOptions = [
-  {
-    label: "Bằng",
-    value: "EQUALS",
-  },
-  {
-    label: "Không bằng",
-    value: "NOT_EQUAL_TO",
-  },
-  {
-    label: "Chứa",
-    value: "CONTAINS",
-  },
-  {
-    label: "Không chứa",
-    value: "DOES_NOT_CONTAIN",
-  },
-  {
-    label: "Bắt đầu với",
-    value: "STARTS_WITH",
-  },
-  {
-    label: "Kết thúc với",
-    value: "ENDS_WITH",
-  },
-  {
-    label: "Lớn hơn",
-    value: "GREATER_THAN",
-  },
-  {
-    label: "Lớn hơn hoặc bằng",
-    value: "GREATER_THAN_OR_EQUAL_TO",
-  },
-  {
-    label: "Nhỏ hơn",
-    value: "LESS_THAN",
-  },
-  {
-    label: "Nhỏ hơn hoặc bằng",
-    value: "LESS_THAN_OR_EQUAL_TO",
-  },
-];
+
 
 export default function TotalBillDiscountUpdate(props: Props): ReactElement {
   const { form } = props;
@@ -101,7 +64,7 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
   const discountUpdateContext = useContext(DiscountUpdateContext);
   const { discountData } = discountUpdateContext;
   const [isDiscountByPercentage, setIsDiscountByPercentage] = React.useState<boolean>(false);
-  const [dataSource, setDataSource] = React.useState<Array<DiscountConditionRule>>([]);
+  // const [dataSource, setDataSource] = React.useState<Array<DiscountConditionRule>>([]);
   const [ValueComponentList, setValueComponentList] = React.useState<Array<any>>([
     defaultValueComponent,
   ]);
@@ -121,7 +84,7 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
         }
       });
       //set state list display
-      setDataSource(temps);
+      // setDataSource(temps);
       //set state value component
       const tempValueComponentList = _.cloneDeep(ValueComponentList);
       tempValueComponentList.splice(index, 1);
@@ -133,7 +96,7 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
     setValueComponentList([...ValueComponentList, defaultValueComponent]);
 
     const discountList: Array<any> = form.getFieldValue(rule)?.conditions;
-    const temps = _.cloneDeep(discountList);
+    let temps: any = _.cloneDeep(discountList);
     if (Array.isArray(temps)) {
       temps.push(blankRow);
       form.setFieldsValue({
@@ -141,7 +104,15 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
           [conditions]: temps
         }
       });
-      setDataSource(temps);
+      // setDataSource(temps);
+    } else {
+      temps = [blankRow];
+      form.setFieldsValue({
+        [rule]: {
+          [conditions]: temps
+        }
+      });
+      // setDataSource(temps);
     }
   };
 
@@ -175,20 +146,20 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
         },
       });
 
-      setDataSource(form.getFieldValue(rule).conditions);
+      // setDataSource(form.getFieldValue(rule).conditions);
     }
   }, [form]);
 
   useEffect(() => {
     const temp: any[] = [];
-    setDataSource(discountData?.rule?.conditions || []);
+    // setDataSource(discountData?.rule?.conditions || []);
     discountData?.rule?.conditions.forEach((element: DiscountConditionRule) => {
       temp.push(_.find(FieldSelectOptions, ["value", element.field])?.valueComponent);
     });
     setValueComponentList(temp);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [discountData?.rule?.conditions.length]);
+    
+  }, [discountData?.rule?.conditions]);
 
   return (
     <TotalBillDiscountStyle>
@@ -216,56 +187,68 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
                 </tr>
               </thead>
               <tbody>
-                {dataSource.map((item, index) => (
-                  <tr key={index}>
-                    <td>
-                      <Form.Item
-                        name={[rule, conditions, index, ColumnIndex.field]}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Thuộc tính không được để trống",
-                          },
-                        ]}
-                      >
-                        <Select
-                          options={FieldSelectOptions}
-                          onChange={(value) => handleChangeFieldSelect(value, index)}
-                        />
-                      </Form.Item>
-                    </td>
-                    <td>
-                      <Form.Item
-                        name={[rule, conditions, index, ColumnIndex.operator]}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Loại điều kiện không được để trống",
-                          },
-                        ]}
-                      >
-                        <Select options={OperatorSelectOptions} />
-                      </Form.Item>
-                    </td>
-                    <td>
-                      {ValueComponentList[index] &&
-                        ValueComponentList[index](
-                          [rule, conditions, index, ColumnIndex.value],
-                          [{ required: true, message: "Giá trị không được để trống" }],
-                          item.value
-                        )}
-                    </td>
-                    <td>
-                      <Button
-                        className="remove-btn"
-                        danger
-                        onClick={() => handleDelete(index)}
-                      >
-                        <AiOutlineClose />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                <Form.List name={[rule, conditions]}>
+                  {(fields, { add, remove }) => {
+                    const conditionData: any[] = form.getFieldValue(rule)?.conditions;
+
+                    return (<>
+
+                      {/* {fields.map((field, index) => { */}
+                      {conditionData?.map((item: any, index) => {
+                        return (
+
+                          <tr key={index}>
+                            <td>
+                              <Form.Item
+                                name={[index, ColumnIndex.field]}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Thuộc tính không được để trống",
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  options={FieldSelectOptions}
+                                  onChange={(value) => handleChangeFieldSelect(value, index)}
+                                />
+                              </Form.Item>
+                            </td>
+                            <td>
+                              <Form.Item
+                                name={[index, ColumnIndex.operator]}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Loại điều kiện không được để trống",
+                                  },
+                                ]}
+                              >
+                                <Select options={OperatorSelectOptions} />
+                              </Form.Item>
+                            </td>
+                            <td>
+                              {ValueComponentList[index] &&
+                                ValueComponentList[index](
+                                  [index, ColumnIndex.value],
+                                  [{ required: true, message: "Giá trị không được để trống" }],
+                                )}
+                            </td>
+                            <td>
+                              <Button
+                                className="remove-btn"
+                                danger
+                                onClick={() => handleDelete(index)}
+                              >
+                                <AiOutlineClose />
+                              </Button>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </>)
+                  }}
+                </Form.List>
                 <tr>
                   <td>
                     <Button className="add-btn" onClick={() => handleAdd()}>

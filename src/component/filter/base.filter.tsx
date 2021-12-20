@@ -1,4 +1,4 @@
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, StarOutlined } from "@ant-design/icons";
 import { Button, Drawer, Row, Space } from "antd";
 import { Scrollbars } from "react-custom-scrollbars";
 
@@ -10,13 +10,15 @@ type BaseFilterProps = {
   deleteButtonTitle?: any;
   footerStyle?: any;
   children: React.ReactNode;
+  allowSave?: boolean;
   onCancel?: () => void;
   onFilter?: () => void;
   onClearFilter?: () => void;
+  onSaveFilter?:()=> void;
 };
 
 const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
-  const { visible, width, className, children, onFilter, onClearFilter, onCancel, confirmButtonTitle, deleteButtonTitle, footerStyle } = props;
+  const { visible, allowSave, width, className, children, onFilter, onClearFilter, onCancel,onSaveFilter, confirmButtonTitle, deleteButtonTitle, footerStyle } = props;
   return (
     <Drawer
       placement="right"
@@ -32,6 +34,12 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
             <Button style={{ color: '#E24343'}} icon={<DeleteOutlined />} onClick={onClearFilter}>
               {deleteButtonTitle || "Xoá bộ lọc"}
             </Button>
+            {
+              allowSave && 
+              <Button icon={<StarOutlined />} onClick={onSaveFilter}>
+                {deleteButtonTitle || "Lưu bộ lọc"}
+              </Button>
+            }
             <Button onClick={onFilter} type="primary">
               {confirmButtonTitle || "Áp dụng bộ lọc"}
             </Button>

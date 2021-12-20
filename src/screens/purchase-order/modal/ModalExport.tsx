@@ -77,6 +77,7 @@ const ModalExport: React.FC<ModalImportProps> = (
           }else if (response.data && response.data.status === EnumJobStatus.error) {
             setJobExportStatus(EnumJobStatus.error);
             setUploadStatus(EnumJobStatus.error);
+            setExportRes(response.data.message);
             return
           }
           setJobExportStatus(EnumJobStatus.processing);

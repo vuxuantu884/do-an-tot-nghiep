@@ -59,7 +59,8 @@ type PropsType = {
       name: string;
       path?: string;
     }[];
-  }
+  };
+	isHideTab?: boolean;
 };
 
 function OrderList(props: PropsType) {
@@ -91,7 +92,7 @@ function OrderList(props: PropsType) {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { location, initQuery, pageTitle } = props;
+  const { location, initQuery, pageTitle, isHideTab=false } = props;
   const queryParamsParsed: { [key: string]: string | string[] | null } = queryString.parse(
     location.search
   );
@@ -105,6 +106,7 @@ function OrderList(props: PropsType) {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [shippers, setShippers] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
@@ -175,14 +177,16 @@ function OrderList(props: PropsType) {
     setSelectedRowCodes(selectedRowCodes);
   }, []);
 
+	console.log('location', location)
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      history.push(`${UrlConfig.ORDER}?${queryParam}`);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, params]
+    [history, location.pathname, params]
   );
   const onFilter = useCallback(
     (values) => {
@@ -374,6 +378,13 @@ function OrderList(props: PropsType) {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(AccountSearchAction({
+			is_shipper: 1
+		}, (response) => {
+			if(response) {
+				setShippers(response.items)
+			}
+		}));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
@@ -471,13 +482,15 @@ function OrderList(props: PropsType) {
             listSource={listSource}
             listStore={listStore}
             accounts={accounts}
+            shippers={shippers}
             deliveryService={deliveryServices}
             listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
+						isHideTab= {isHideTab}
           />
-					{deliveryServices.length > 0 && (
+					{ deliveryServices.length > 0 && (
 						<OrdersTable
 							tableLoading={tableLoading}
 							data={data}

@@ -5,17 +5,17 @@ import {
 	updateOrderPartial
 } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderItemModel, OrderModel } from "model/order/order.model";
+import { OrderModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderLineItemResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
-import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
-import { dangerColor } from "utils/global-styles/variables";
+import { COD, FACEBOOK, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
+import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
@@ -27,7 +27,7 @@ import IconPaymentCash from "./images/paymentMoney.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
-import IconWebsite from "./images/website.svg";
+// import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
 type PropsType = {
@@ -55,21 +55,10 @@ function OrdersTable(props: PropsType) {
 		setData,
 	} = props;
 
-	console.log('deliveryServices3333', deliveryServices)
-
 	const dispatch = useDispatch();
 	const status_order = useSelector(
 		(state: RootReducerType) => state.bootstrapReducer.data?.order_status
 	);
-
-	let data1: any = {
-		metadata: {
-			limit: 30,
-			page: 1,
-			total: 0,
-		},
-		items: [],
-	};
 
 	const paymentIcons = [
 		{
@@ -107,26 +96,22 @@ function OrdersTable(props: PropsType) {
 	const onSuccessEditNote = useCallback(
 		(newNote, noteType, orderID) => {
 			console.log("ok ok");
-			const indexOrder = data1.items.findIndex((item: any) => item.id === orderID);
-			const newItems = [...data1.items];
-			console.log("data", data1);
+			const newItems = [...data.items];
+			const indexOrder = newItems.findIndex((item: any) => item.id === orderID);
 			if (indexOrder > -1) {
-				const newItem: any = newItems[indexOrder];
-				newItems.splice(indexOrder, 1, {
-					...newItem,
-					note: noteType === "note" ? newNote : newItem.note,
-					customer_note: noteType === "customer_note" ? newNote : newItem.customer_note,
-				});
+				if (noteType === "note") {
+					newItems[indexOrder].note = newNote;
+				} else if (noteType === "customer_note") {
+					newItems[indexOrder].customer_note = newNote;
+				}
 			}
 			const newData = {
-				...data1,
+				...data,
 				items: newItems,
 			};
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			data1 = newData;
 			setData(newData);
 		},
-		[data1]
+		[data, setData]
 	);
 
 	const editNote = useCallback(
@@ -141,7 +126,7 @@ function OrdersTable(props: PropsType) {
 			}
 			dispatch(
 				updateOrderPartial(params, orderID, () =>
-					onSuccessEditNote(newNote, noteType, orderID)
+					onSuccessEditNote(newNote, noteType, orderID),
 				)
 			);
 		},
@@ -150,27 +135,29 @@ function OrdersTable(props: PropsType) {
 
 	const renderOrderSource = (orderDetail: OrderModel) => {
 		let html = null;
-		switch (orderDetail.source_code) {
-			case POS.source_code:
+		switch (orderDetail.channel_id) {
+			case POS.channel_id:
 				html = (
 					<Tooltip title="Đơn hàng tại quầy">
 						<img src={IconStore} alt="" />
 					</Tooltip>
 				);
 				break;
-			case "shopee":
+			case SHOPEE.channel_id:
 				html = (
-					<Tooltip title="Đơn hàng tại shopee">
+					<Tooltip title="Đơn hàng tại Shopee">
+						<img src={IconShopee} alt="" />
+					</Tooltip>
+				);
+				break;
+			case FACEBOOK.channel_id:
+				html = (
+					<Tooltip title="Đơn hàng từ Facebook">
 						<img src={IconShopee} alt="" />
 					</Tooltip>
 				);
 				break;
 			default:
-				html = (
-					<Tooltip title="Đơn hàng từ Website">
-						<img src={IconWebsite} alt="" />
-					</Tooltip>
-				);
 				break;
 		}
 		return html;
@@ -203,38 +190,47 @@ function OrdersTable(props: PropsType) {
 			return (
 				<React.Fragment>
 					{renderOrderPaymentMethods(orderDetail)}
-					{orderDetail.total_discount ? (
-						<div className="totalDiscount" style={{ color: dangerColor }}>
-							<span>
-								{" "}
-								-
-								<NumberFormat
-									value={orderDetail.total_discount}
-									className="foo"
-									displayType={"text"}
-									thousandSeparator={true}
-								/>
-							</span>
-						</div>
-					) : null}
+					{/* {orderDetail.total_discount ? (
+						<Tooltip title="Chiết khấu đơn hàng">
+							<div className="totalDiscount" style={{ color: dangerColor }}>
+								<span>
+									{" "}
+									-
+									<NumberFormat
+										value={orderDetail.total_discount}
+										className="foo"
+										displayType={"text"}
+										thousandSeparator={true}
+									/>
+								</span>
+							</div>
+						</Tooltip>
+
+					) : null} */}
 				</React.Fragment>
 			);
 		},
 		[renderOrderPaymentMethods]
 	);
 
-	const renderCustomerAddress = (orderDetail: OrderModel) => {
-		let html = orderDetail.customer_address;
-		if (orderDetail.customer_ward) {
-			html += ` - ${orderDetail.customer_ward}`;
+	const renderShippingAddress = (orderDetail: OrderModel) => {
+		const sortedFulfillments = orderDetail.fulfillments?.sort(
+			(a: any, b: any) => b.id - a.id
+		);
+		console.log('sortedFulfillments', sortedFulfillments)
+		if (!sortedFulfillments || !sortedFulfillments[0] || !sortedFulfillments[0].shipment?.shipping_address) {
+			return "";
 		}
-		if (orderDetail.customer_district) {
-			html += ` - ${orderDetail.customer_district}`;
-		}
-		if (orderDetail.customer_city) {
-			html += ` - ${orderDetail.customer_city}`;
-		}
-		return html;
+		let shipping_address = sortedFulfillments[0].shipment?.shipping_address;
+		return (
+			<React.Fragment>
+				{sortedFulfillments[0].shipment?.shipping_address && (
+					<Tooltip title="Địa chỉ giao hàng">
+						<span style={{ fontSize: "0.86em" }}>{`${shipping_address.full_address}-${shipping_address.ward}-${shipping_address.district}-${shipping_address.city}`}</span>
+					</Tooltip>
+				)}
+			</React.Fragment>
+		)
 	};
 
 	const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
@@ -257,10 +253,20 @@ function OrdersTable(props: PropsType) {
 								{moment(i.created_date).format("hh:mm DD-MM-YYYY")}
 							</div>
 							<div style={{ fontSize: "0.86em", marginTop: 5 }}>
-								<Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
-									{i.store}
-								</Link>
+								<Tooltip title="Cửa hàng">
+									<Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
+										{i.store}
+									</Link>
+								</Tooltip>
 							</div>
+							{i.source && (
+								<div style={{ fontSize: "0.86em", marginTop: 5 }}>
+									<Tooltip title="Nguồn đơn hàng">
+										{i.source}
+									</Tooltip>
+								</div>
+
+							)}
 						</React.Fragment>
 					);
 				},
@@ -291,7 +297,7 @@ function OrdersTable(props: PropsType) {
 								</a>
 							</div>
 						)}
-						<div className="p-b-3">{renderCustomerAddress(record)}</div>
+						<div className="p-b-3">{renderShippingAddress(record)}</div>
 					</div>
 				),
 				key: "customer",
@@ -300,17 +306,24 @@ function OrdersTable(props: PropsType) {
 			},
 			{
 				title: (
-					<div className="productNameQuantityHeader">
-						<span className="productNameWidth">Sản phẩm</span>
+					<div className="productNameQuantityPriceHeader">
+						<span className="productNameWidth">Sản phẩm
+							<span className="separator">, </span>
+						</span>
 						<span className="quantity quantityWidth">
-							<span>SL</span>
+							<span>SL
+								<span className="separator">, </span>
+							</span>
+						</span>
+						<span className="price priceWidth">
+							<span>Giá </span>
 						</span>
 					</div>
 				),
 				dataIndex: "items",
-				key: "productNameQuantity",
-				className: "productNameQuantity",
-				render: (items: Array<OrderItemModel>) => {
+				key: "productNameQuantityPrice",
+				className: "productNameQuantityPrice",
+				render: (items: Array<OrderLineItemResponse>) => {
 					return (
 						<div className="items">
 							{items.map((item, i) => {
@@ -333,6 +346,26 @@ function OrdersTable(props: PropsType) {
 										<div className="quantity quantityWidth">
 											<span>{item.quantity}</span>
 										</div>
+										<div className="price priceWidth">
+											<div>
+												<Tooltip title="Giá sản phẩm">
+													<span>{formatCurrency(item.price)}</span>
+												</Tooltip>
+
+												{item?.discount_items && item.discount_items[0]?.value && (
+													<Tooltip title="Khuyến mại sản phẩm">
+														<div className="itemDiscount" style={{ color: dangerColor }}>
+															<span>
+																{" "}
+																-{" "}
+																{formatCurrency(item.discount_items[0].rate)}%
+															</span>
+														</div>
+													</Tooltip>
+
+												)}
+											</div>
+										</div>
 									</div>
 								);
 							})}
@@ -351,29 +384,40 @@ function OrdersTable(props: PropsType) {
 			//   align: "center",
 			// },
 			{
-				title: "Giá",
+				title: "Thành tiền",
 				// dataIndex: "",
 				render: (record: any) => (
 					<React.Fragment>
-						<span>
-							<NumberFormat
-								value={record.total_line_amount_after_line_discount}
-								className="foo"
-								displayType={"text"}
-								thousandSeparator={true}
-							/>
-						</span>
-						<br />
-						<span style={{ color: "#EF5B5B" }}>
-							{" "}
-							-
-							<NumberFormat
-								value={record.total_discount}
-								className="foo"
-								displayType={"text"}
-								thousandSeparator={true}
-							/>
-						</span>
+						<Tooltip title="Thành tiền">
+							<span>
+								<NumberFormat
+									value={record.total_line_amount_after_line_discount}
+									className="foo"
+									displayType={"text"}
+									thousandSeparator={true}
+								/>
+							</span>
+						</Tooltip>
+
+						{record.total_discount && (
+							<React.Fragment>
+								<br />
+								<Tooltip title="Chiết khấu đơn hàng">
+									<span style={{ color: "#EF5B5B" }}>
+										{" "}
+										-
+										<NumberFormat
+											value={record.total_discount}
+											className="foo"
+											displayType={"text"}
+											thousandSeparator={true}
+										/>
+									</span>
+								</Tooltip>
+
+
+							</React.Fragment>
+						)}
 					</React.Fragment>
 				),
 				key: "customer.amount_money",
@@ -390,7 +434,7 @@ function OrdersTable(props: PropsType) {
 				},
 				visible: true,
 				align: "left",
-				width: 100,
+				width: 120,
 			},
 			{
 				title: "Vận chuyển",
@@ -400,9 +444,7 @@ function OrdersTable(props: PropsType) {
 					const sortedFulfillments = record.fulfillments?.sort(
 						(a: any, b: any) => b.id - a.id
 					);
-					console.log('sortedFulfillments', sortedFulfillments)
-					console.log('deliveryServices', deliveryServices)
-					if (record.source_code === POS.source_code || (sortedFulfillments && sortedFulfillments[0]?.delivery_type === ShipmentMethod.PICK_AT_STORE)) {
+					if (record.source_code === POS.channel_code || (sortedFulfillments && sortedFulfillments[0]?.delivery_type === ShipmentMethod.PICK_AT_STORE)) {
 						return (
 							<React.Fragment>
 								<div className="single">
@@ -416,10 +458,10 @@ function OrdersTable(props: PropsType) {
 						if (sortedFulfillments[0]?.shipment) {
 							switch (sortedFulfillments[0].shipment.delivery_service_provider_type) {
 								case ShipmentMethod.EXTERNAL_SERVICE:
-									const service_code =
-										sortedFulfillments[0].shipment.delivery_service_provider_code;
+									const thirdPLId =
+										sortedFulfillments[0].shipment.delivery_service_provider_id;
 									const service = deliveryServices.find(
-										(service) => service.external_service_code === service_code
+										(service) => service.id === thirdPLId
 									);
 									return (
 										<React.Fragment>
@@ -431,40 +473,147 @@ function OrdersTable(props: PropsType) {
 															alt=""
 														/>
 													</div>
-													{record?.total_weight && (
+													<Tooltip title="Tổng khối lượng">
 														<div className="single">
 															<img
 																src={iconWeight}
 																alt=""
 															/>
-															{record.total_weight} gr
+															<span>{record.total_weight || 0} gr</span>
 														</div>
+													</Tooltip>
+													<Tooltip title="Phí ship báo khách">
+														<div className="single">
+															<img
+																src={iconShippingFeeInformedToCustomer}
+																alt=""
+															/>
+															<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+														</div>
+													</Tooltip>
 
-													)}
-													<div className="single">
-														<img
-															src={iconShippingFeeInformedToCustomer}
-															alt=""
-														/>
-														{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}
-													</div>
-													<div className="single">
-														<img
-															src={iconShippingFeePay3PL}
-															alt=""
-														/>
-														{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
-													</div>
+													<Tooltip title="Phí vận chuyển">
+														<div className="single">
+															<img
+																src={iconShippingFeePay3PL}
+																alt=""
+															/>
+															{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+														</div>
+													</Tooltip>
+
 												</React.Fragment>
 											)}
 										</React.Fragment>
 									);
-								case ShipmentMethod.SHIPPER:
-									return `Đối tác - ${sortedFulfillments[0].shipment.shipper_code} - ${sortedFulfillments[0].shipment.shipper_name}`;
+								case ShipmentMethod.EMPLOYEE:
+								case ShipmentMethod.EXTERNAL_SHIPPER:
+									return (<React.Fragment>
+										<div className="single">
+											Đối tác {" - "}
+											<span style={{ color: primaryColor }}>{sortedFulfillments[0].shipment.shipper_code}-{sortedFulfillments[0].shipment.shipper_name}</span>
+										</div>
+										<Tooltip title="Tổng khối lượng">
+											<div className="single">
+												<img
+													src={iconWeight}
+													alt=""
+												/>
+												<span>{record.total_weight || 0} gr</span>
+											</div>
+										</Tooltip>
+										<Tooltip title="Phí ship báo khách">
+											<div className="single">
+												<img
+													src={iconShippingFeeInformedToCustomer}
+													alt=""
+												/>
+												<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+											</div>
+										</Tooltip>
+
+										<Tooltip title="Phí vận chuyển">
+											<div className="single">
+												<img
+													src={iconShippingFeePay3PL}
+													alt=""
+												/>
+												{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+											</div>
+										</Tooltip>
+
+									</React.Fragment>)
 								case ShipmentMethod.PICK_AT_STORE:
-									return `Nhận tại - ${record.store}`;
+									return (<React.Fragment>
+										<div className="single">
+											Nhận tại {" - "}
+											<Link target="_blank" to={`${UrlConfig.STORE}/${record?.store_id}`}>
+												{record.store}
+											</Link>
+										</div>
+										<Tooltip title="Tổng khối lượng">
+											<div className="single">
+												<img
+													src={iconWeight}
+													alt=""
+												/>
+												<span>{record.total_weight || 0} gr</span>
+											</div>
+										</Tooltip>
+										<Tooltip title="Phí ship báo khách">
+											<div className="single">
+												<img
+													src={iconShippingFeeInformedToCustomer}
+													alt=""
+												/>
+												<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+											</div>
+										</Tooltip>
+
+										<Tooltip title="Phí vận chuyển">
+											<div className="single">
+												<img
+													src={iconShippingFeePay3PL}
+													alt=""
+												/>
+												{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+											</div>
+										</Tooltip>
+
+									</React.Fragment>)
 								default:
-									return "";
+									return (
+										<React.Fragment>
+											<Tooltip title="Tổng khối lượng">
+												<div className="single">
+													<img
+														src={iconWeight}
+														alt=""
+													/>
+													<span>{record.total_weight || 0} gr</span>
+												</div>
+											</Tooltip>
+											<Tooltip title="Phí ship báo khách">
+												<div className="single">
+													<img
+														src={iconShippingFeeInformedToCustomer}
+														alt=""
+													/>
+													<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+												</div>
+											</Tooltip>
+
+											<Tooltip title="Phí vận chuyển">
+												<div className="single">
+													<img
+														src={iconShippingFeePay3PL}
+														alt=""
+													/>
+													{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+												</div>
+											</Tooltip>
+										</React.Fragment>
+									);
 							}
 						}
 					}
@@ -511,7 +660,7 @@ function OrdersTable(props: PropsType) {
 									{record.status === OrderStatus.FINALIZED && (
 										<div
 											style={{
-												color: "#2A2A86",
+												color: "#FCAF17",
 											}}
 										>
 											{status?.name}
@@ -556,6 +705,7 @@ function OrdersTable(props: PropsType) {
 								<EditNote
 									note={record.customer_note}
 									title="Khách hàng: "
+									color={primaryColor}
 									onOk={(newNote) => {
 										console.log("newNote", newNote);
 										editNote(newNote, "customer_note", record.id);
@@ -566,6 +716,7 @@ function OrdersTable(props: PropsType) {
 								<EditNote
 									note={record.note}
 									title="Nội bộ: "
+									color={primaryColor}
 									onOk={(newNote) => {
 										console.log("newNote", newNote);
 										editNote(newNote, "note", record.id);
@@ -586,7 +737,7 @@ function OrdersTable(props: PropsType) {
 				key: "total_quantity",
 				visible: true,
 				align: "center",
-				width: 75,
+				width: 80,
 			},
 			{
 				title: "NV bán hàng",
@@ -672,13 +823,19 @@ function OrdersTable(props: PropsType) {
 			},
 			{
 				title: "Mã tham chiếu",
-				dataIndex: "linked_order_code",
-				key: "linked_order_code",
-				render: (value) => (
-					<Link target="_blank" to={`${UrlConfig.ORDER}/${value}`}>
-						{value}
-					</Link>
-				),
+				dataIndex: "reference_code",
+				key: "reference_code",
+				render: (value, record: OrderModel) => {
+					let result: React.ReactNode = null;
+					if (record?.url) {
+						result = (
+							<a href={record?.url}>{value}</a>
+						)
+					} else {
+						result = value
+					}
+					return result;
+				},
 				visible: true,
 				width: 120,
 			},

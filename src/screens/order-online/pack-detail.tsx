@@ -281,7 +281,6 @@ const PackDetail: React.FC = () => {
 								__html: htmlContent,
 							}}
 						>
-							{/* {renderHtml(fake_printer_content())} */}
 						</div>
 					</div>
 				</div>

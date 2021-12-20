@@ -272,6 +272,7 @@ export interface ShipmentResponse extends BaseObject {
   fulfillment_id: string | null;
   cod: number;
   office_time: string | null;
+  info_shipper: string | null;
 }
 
 export interface DeliveryServiceResponse {

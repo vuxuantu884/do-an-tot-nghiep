@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { primaryColor } from "utils/global-styles/variables";
+import {primaryColor} from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .order-options {
@@ -36,37 +36,29 @@ export const StyledComponent = styled.div`
         }
         .page-filter-right {
           width: 88%;
+          padding-left: 20px;
           .ant-space.ant-space-horizontal {
             width: 100%;
             .ant-space-item {
               width: 100%;
 
               .ant-form.ant-form-inline {
-                display: flex;
-                // justify-content: space-between;
-                justify-content: flex-end;
-                .ant-form-item {
-                  // margin-right: 0;
-                }
-                @media screen and (min-width: 1400px) {
-                  .input-search {
-                    width: 70%;
+                position: relative;
+                padding-right: 310px;
+                display: block;
+                .buttonGroup {
+                  position: absolute;
+                  top: 0;
+                  z-index: 1;
+                  right: 0;
+                  display: flex;
+                  align-items: center;
+                  button {
+                    margin-right: 15px;
                   }
                 }
-                @media screen and (max-width: 1399px) {
-                  .input-search {
-                    width: 60%;
-                  }
-                }
-                @media screen and (max-width: 1099px) {
-                  .input-search {
-                    width: 50%;
-                  }
-                }
-                @media screen and (max-width: 799px) {
-                  .input-search {
-                    width: 40%;
-                  }
+                .input-search {
+                  width: 100%;
                 }
               }
             }
@@ -79,7 +71,7 @@ export const StyledComponent = styled.div`
     }
   }
   .order-filter-tags {
-		margin-bottom: 20px;
+    margin-bottom: 20px;
     .tag {
       padding: 10px 10px;
       margin-bottom: 15px;
@@ -91,9 +83,9 @@ export const StyledComponent = styled.div`
     }
     a {
       color: ${primaryColor};
-			&:hover {
-				text-decoration: underline;
-			}
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 
@@ -310,22 +302,6 @@ export const StyledComponent = styled.div`
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
       }
-      // .ant-select {
-      //   .ant-select-selector {
-      //     .ant-select-selection-item {
-      //       background-color: #2A2A86;
-      //       border-radius: 6px;
-      //       font-style: normal;
-      //       font-weight: normal;
-      //       font-size: 14px;
-      //       line-height: 18px;
-      //       font-family: Roboto;
-      //       .ant-select-selection-item-content, .ant-select-selection-item-remove {
-      //         color: #FFFFFF;
-      //       }
-      //     }
-      //   }
-      // }
       .active {
         color: #ffffff;
         border-color: rgba(42, 42, 134, 0.1);
@@ -342,8 +318,31 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  #search_term {
+    &::placeholder {
+      /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: #737373;
+      opacity: 1; /* Firefox */
+    }
 
-  .dupticate-filter > .page-filter {
-    padding: 10px 0px 10px 0px !important;
+    &:-ms-input-placeholder {
+      /* Internet Explorer 10-11 */
+      color: #737373;
+    }
+
+    &::-ms-input-placeholder {
+      /* Microsoft Edge */
+      color: #737373;
+    }
   }
+	/* .ant-select-selection-item {
+		background-color: ${primaryColor};
+		border-radius: 6px;
+		font-size: 1em;
+		line-height: 18px;
+		.ant-select-selection-item-content,
+		.ant-select-selection-item-remove {
+			color: #ffffff;
+		}
+	} */
 `;

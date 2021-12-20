@@ -1138,8 +1138,9 @@ const onChangeNote = useCallback(
                       label={<b>File đính kèm:</b>}
                       colon={false}
                     >
-                        <Upload
-                          disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED}
+                      {
+                       data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && 
+                          <Upload 
                           beforeUpload={onBeforeUpload}
                           multiple={true}
                           fileList={fileListUpdate}
@@ -1149,6 +1150,7 @@ const onChangeNote = useCallback(
                         >
                           <Button icon={<UploadOutlined />}>Chọn file</Button>
                         </Upload>
+                      }
                       </Form.Item>
 
                     <Form.Item noStyle hidden name="attached_files">

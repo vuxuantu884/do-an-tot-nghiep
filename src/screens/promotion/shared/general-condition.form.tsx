@@ -85,11 +85,14 @@ function GeneralConditionForm({
                 placeholder="Từ ngày"
                 showTime={{ format: "HH:mm" }}
                 format={DATE_FORMAT.DDMMYY_HHmm}
-                disabledDate={(currentDate) =>
-                  currentDate.isBefore(moment()) ||
-                  (form.getFieldValue("ends_date")
-                    ? currentDate.valueOf() > form.getFieldValue("ends_date")
-                    : false)
+                disabledDate={(currentDate) => {
+                  currentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+                  console.log('currentDate', currentDate);
+                  return currentDate.isBefore(moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 })) ||
+                    (form.getFieldValue("ends_date")
+                      ? currentDate.valueOf() > form.getFieldValue("ends_date")
+                      : false)
+                }
                 }
                 showNow={true}
               />
@@ -155,7 +158,7 @@ function GeneralConditionForm({
               >
                 <Select placeholder="Chọn ngày" mode="multiple">
                   {getDayOptions().map((day) => (
-                    <Option value={day.key}>{day.value}</Option>
+                    <Option value={day.key} key={day.value}>{day.value}</Option>
                   ))}
                 </Select>
               </Form.Item>
@@ -178,7 +181,7 @@ function GeneralConditionForm({
                 optionFilterProp="children"
               >
                 {listStore?.map((store: any) => (
-                  <Option value={store.id}>{store.name}</Option>
+                  <Option value={store.id} key={store.name}>{store.name}</Option>
                 ))}
               </Select>
             </Form.Item>
@@ -214,7 +217,7 @@ function GeneralConditionForm({
                 className="ant-select-selector-min-height"
               >
                 {listChannel?.map((channel: any) => (
-                  <Option value={channel.name}>{channel.name}</Option>
+                  <Option value={channel.name} key={channel.name}>{channel.name}</Option>
                 ))}
               </Select>
             </Form.Item>

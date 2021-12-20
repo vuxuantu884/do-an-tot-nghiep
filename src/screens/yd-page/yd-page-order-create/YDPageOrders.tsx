@@ -44,6 +44,7 @@ import {
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import {
+	ADMIN_ORDER,
   DEFAULT_COMPANY,
   OrderStatus,
   PaymentMethodCode,
@@ -52,7 +53,6 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
-import {DEFAULT_CHANNEL_ID} from "utils/Order.constants";
 import {showError, showSuccess} from "utils/ToastUtils";
 import {useQuery} from "utils/useQuery";
 
@@ -510,7 +510,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
   };
   const onFinish = (values: OrderRequest) => {
-    values.channel_id = DEFAULT_CHANNEL_ID;
+    values.channel_id = ADMIN_ORDER.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -801,7 +801,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 switch (
                   response.fulfillments[0].shipment?.delivery_service_provider_type
                 ) {
-                  case ShipmentMethod.SHIPPER:
+                  case ShipmentMethod.EMPLOYEE:
+								  case ShipmentMethod.EXTERNAL_SHIPPER:
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
                     break;
                   case ShipmentMethod.EXTERNAL_SERVICE:

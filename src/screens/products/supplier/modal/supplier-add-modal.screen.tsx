@@ -51,7 +51,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
       );
       if (checkUser !== -1 && currentUserCode !== undefined) {
         formSupplierAdd.setFieldsValue({
-          person_in_charge: currentUserCode,
+          pic_code: currentUserCode,
         });
       }
     },
@@ -124,7 +124,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
           email: "",
           fax: "",
           goods: [],
-          person_in_charge: null,
+          pic_code: null,
           moq: null,
           note: "",
           name: "",
@@ -211,7 +211,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
                   message: "Vui lòng chọ nhân viên phụ trách",
                 },
               ]}
-              name="person_in_charge"
+              name="pic_code"
               label="Nhân viên phụ trách"
             >
               <Select
