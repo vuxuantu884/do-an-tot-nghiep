@@ -40,7 +40,7 @@ const Collection = () => {
     getParams.goods = undefined;
   }
   const [params, setPrams] = useState<CollectionQuery>(getParams);
-  const [data, setData] = useState<PageResponse<Array<CollectionResponse>>>({
+  const [data, setData] = useState<PageResponse<CollectionResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -198,7 +198,7 @@ const Collection = () => {
     [history]
   );
 
-  const onGetSuccess = useCallback((results: PageResponse<Array<CollectionResponse>>) => {
+  const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
     setLoading(false);
     
     if (results && results.items) {

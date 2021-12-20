@@ -118,3 +118,15 @@ export interface HistoryInventoryQuery extends BaseQuery {
   to_transaction_date?: string,
   variant_id?: number
 }
+
+export interface InventorySaveRequest{
+  filter_name?: string,
+  save_filter_type?: number,
+  version?: number,
+  filter_id?:number|null
+}
+
+export interface AllInventoryQuery extends BaseQuery {
+  info?: string,
+  store_ids?: number|Array<number>|null, 
+}
