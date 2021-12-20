@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
 import { COD, FACEBOOK, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
-import { dangerColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
@@ -247,10 +247,20 @@ function OrdersTable(props: PropsType) {
 								{moment(i.created_date).format("hh:mm DD-MM-YYYY")}
 							</div>
 							<div style={{ fontSize: "0.86em", marginTop: 5 }}>
-								<Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
-									{i.store}
-								</Link>
+								<Tooltip title="Cửa hàng">
+									<Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
+										{i.store}
+									</Link>
+								</Tooltip>
 							</div>
+							{i.source && (
+								<div style={{ fontSize: "1em", marginTop: 5}}>
+									<Tooltip title="Nguồn đơn hàng">
+										{i.source}
+									</Tooltip>
+								</div>
+
+							)}
 						</React.Fragment>
 					);
 				},
@@ -640,7 +650,7 @@ function OrdersTable(props: PropsType) {
 									{record.status === OrderStatus.FINALIZED && (
 										<div
 											style={{
-												color: "#2A2A86",
+												color: "#FCAF17",
 											}}
 										>
 											{status?.name}
