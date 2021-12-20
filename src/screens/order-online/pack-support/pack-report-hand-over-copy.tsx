@@ -25,6 +25,8 @@ import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
 import {MenuAction} from "component/table/ActionButton";
 import {Link} from "react-router-dom";
 import {showError, showSuccess} from "utils/ToastUtils";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -36,29 +38,11 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   ecommerce_id: null,
   good_receipt_type_id: null,
   good_receipt_id: null,
-  order_id: null,
+  order_codes: null,
   from_date: "",
   to_date: "",
 };
 
-const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "In biên bản đầy đủ ",
-    icon: <PrinterOutlined />,
-  },
-  {
-    id: 2,
-    name: "In biên bản rút gọn ",
-    icon: <PrinterOutlined />,
-  },
-  {
-    id: 3,
-    name: "Xóa",
-    icon: <DeleteOutlined />,
-    color: "#E24343",
-  },
-];
 
 type PackReportHandOverProps = {
   query: any;
@@ -77,6 +61,30 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     ...initQueryGoodsReceipts,
     ...getQueryParams(query),
   };
+  const [allowDeleteGoodsReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.DELETE_GOODS_RECEIPT],
+    not: false,
+  });
+
+  const actions: Array<MenuAction> = [
+    {
+      id: 1,
+      name: "In biên bản đầy đủ ",
+      icon: <PrinterOutlined />,
+    },
+    {
+      id: 2,
+      name: "In biên bản rút gọn ",
+      icon: <PrinterOutlined />,
+    },
+    {
+      id: 3,
+      name: "Xóa",
+      icon: <DeleteOutlined />,
+      color: allowDeleteGoodsReceipt ? "#E24343" : "rgba(0,0,0,.25)",
+      disabled: !allowDeleteGoodsReceipt
+    },
+  ];
 
   let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(dataQuery);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -374,6 +382,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   const onFilter = useCallback(
     (values) => {
       let newPrams = {...params, ...values, page: 1};
+      console.log("newPrams",newPrams)
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       //setIsFilter(true)
@@ -478,7 +487,7 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
 
   console.log("GoodsReceipts", data);
   // console.log("newQuery", query);
-  // console.log("newPrams", params);
+  console.log("newPrams", params);
 
   return (
     <>

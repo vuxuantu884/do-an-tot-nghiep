@@ -1,8 +1,8 @@
-import { LoadingOutlined } from "@ant-design/icons";
-import { Spin, Table as ANTTable, TableProps } from "antd";
-import { ColumnType, TableLocale } from "antd/lib/table/interface";
-import { PageConfig } from "config/page.config";
-import React, { useCallback } from "react";
+import {LoadingOutlined} from "@ant-design/icons";
+import {Spin, Table as ANTTable, TableProps} from "antd";
+import {ColumnType, TableLocale} from "antd/lib/table/interface";
+import {PageConfig} from "config/page.config";
+import React, {useCallback} from "react";
 import CustomPagination from "./CustomPagination";
 
 export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
@@ -14,11 +14,12 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   isRowSelection?: boolean;
   selectedRowKey?: any[];
   onChangeRowKey?: (rowKey: any[]) => void;
+  rowSelectionRenderCell?: ((value: boolean, record: any, index: number, originNode: React.ReactNode) => React.ReactNode) | undefined
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
   visible?: boolean;
-  titleCustom?: string
+  titleCustom?: string;
 }
 
 export interface ICustomTablePaginationConfig {
@@ -39,9 +40,9 @@ const defaultLocale: TableLocale = {
   filterEmptyText: "Không tìm thấy bản ghi nào",
   selectNone: "Bỏ chọn",
   selectAll: "Chọn tất cả",
-  cancelSort: "Loại bỏ sắp xếp",
-  triggerAsc: "Sắp xếp tăng dần",
-  triggerDesc: "Sắp xếp giảm dần",
+  triggerDesc: "Chọn để sắp xếp giảm dần",
+  triggerAsc: "Chọn để sắp xếp tăng dần",
+  cancelSort: "Chọn để loại bỏ sắp xếp",
 };
 
 const defaultPagination: ICustomTablePaginationConfig = {
@@ -63,6 +64,7 @@ const CustomTable = (props: ICustomTableProps) => {
     isRowSelection,
     selectedRowKey,
     onChangeRowKey,
+    rowSelectionRenderCell,
   } = props;
 
   const configSettingColumns: ICustomTableColumType<any>[] = [];
@@ -91,22 +93,17 @@ const CustomTable = (props: ICustomTableProps) => {
                 onSelectAll: onSelectAll,
                 onChange: onChangeRowKey,
                 columnWidth: 60,
+                renderCell: rowSelectionRenderCell,
               }
             : undefined
         }
-        columns={
-          showColumnSetting ? columns?.concat(configSettingColumns) : columns
-        }
+        columns={showColumnSetting ? columns?.concat(configSettingColumns) : columns}
         locale={locale}
         loading={
           isLoading
             ? {
                 indicator: (
-                  <Spin
-                    indicator={
-                      <LoadingOutlined style={{ fontSize: 24 }} spin />
-                    }
-                  />
+                  <Spin indicator={<LoadingOutlined style={{fontSize: 24}} spin />} />
                 ),
               }
             : false

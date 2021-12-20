@@ -1,4 +1,15 @@
-import {Button, Col, Form, FormInstance, Input, Row, Tag,Space,Menu, Dropdown} from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  FormInstance,
+  Input,
+  Row,
+  Tag,
+  Space,
+  Menu,
+  Dropdown,
+} from "antd";
 
 import {MenuAction} from "component/table/ActionButton";
 import {
@@ -15,10 +26,12 @@ import {SettingOutlined, FilterOutlined, DownOutlined} from "@ant-design/icons";
 import "./order.filter.scss";
 import CustomSelect from "component/custom/select.custom";
 import CustomRangeDatePicker from "component/custom/new-date-range-picker";
-import { OrderPackContext } from "contexts/order-pack/order-pack-context";
-import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
+import {OrderPackContext} from "contexts/order-pack/order-pack-context";
+import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
@@ -52,9 +65,10 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
 
-  // const loadingFilter = useMemo(() => {
-  //   return isLoading ? true : false;
-  // }, [isLoading]);
+  const [allowCreateGoodsReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+    not: false,
+  });
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
@@ -98,8 +112,8 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
         case "good_receipt_type_id":
           onFilter && onFilter({...params, good_receipt_type_id: undefined});
           break;
-        case 'created':
-          setCreatedClick('')
+        case "created":
+          setCreatedClick("");
           onFilter && onFilter({...params, from_date: null, to_date: null});
           break;
 
@@ -120,83 +134,88 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
       // delivery_service_ids: Array.isArray(params.delivery_service_id) ? params.delivery_service_id : [params.delivery_service_id],
       // good_receipt_type_ids: Array.isArray(params.good_receipt_type_id) ? params.good_receipt_type_id : [params.good_receipt_type_id],
       // store_ids: Array.isArray(params.store_id) ? params.store_id : [params.store_id],
-  }}, [params])
+    };
+  }, [params]);
 
-  console.log("params",params)
-  console.log("initialValues",initialValues);
+  console.log("params", params);
+  console.log("initialValues", initialValues);
 
   const onFinish = useCallback(
     (values) => {
       let error = false;
-      formRef?.current
-        ?.getFieldsError([
-          "from_date",
-          "to_date"
-        ])
-        .forEach((field) => {
-          if (field.errors.length) {
-            error = true;
-          }
-        });
+      formRef?.current?.getFieldsError(["from_date", "to_date"]).forEach((field) => {
+        if (field.errors.length) {
+          error = true;
+        }
+      });
       if (!error) {
         setVisible(false);
-        const valuesForm = {
-          ...params,
-          store_id:values.store_id,
-          delivery_service_id:values.delivery_service_id,
-          ecommerce_id:values.ecommerce_id,
-          good_receipt_type_id:values.good_receipt_type_id,
-          good_receipt_id:values.good_receipt_id,
-          order_id:values.order_id,
-          from_date:values.from_date,
-          to_date:values.to_date,
-          
-        };
-
-        onFilter && onFilter(valuesForm);
+        // const valuesForm = {
+        //   ...params,
+        //   store_id: values.store_id,
+        //   delivery_service_id: values.delivery_service_id,
+        //   ecommerce_id: values.ecommerce_id,
+        //   good_receipt_type_id: values.good_receipt_type_id,
+        //   good_receipt_id: values.good_receipt_id,
+        //   order_id: values.order_id,
+        //   from_date: values.from_date,
+        //   to_date: values.to_date,
+        // };
+        // console.log("valuesForm",params)
+        // console.log("valuesForm",valuesForm)
+        // console.log("valuesForm",valuesForm)
+        onFilter && onFilter(values);
         setRerender(false);
       }
     },
-    [formRef, onFilter,params]
+    [formRef, onFilter]
   );
 
   let filters = useMemo(() => {
     let list = [];
 
     if (initialValues.store_id) {
-      let textStores =listStores.find((x)=>x.id===Number(initialValues.store_id))?.name;
+      let textStores = listStores.find(
+        (x) => x.id === Number(initialValues.store_id)
+      )?.name;
       list.push({
-        key: 'store',
-        name: 'Cửa hàng',
-        value: textStores
-      })
+        key: "store",
+        name: "Cửa hàng",
+        value: textStores,
+      });
     }
 
     if (initialValues.delivery_service_id) {
-      let textDeliveryService = listThirdPartyLogistics.find((x)=>x.id===Number(initialValues.delivery_service_id))?.name;
+      let textDeliveryService = listThirdPartyLogistics.find(
+        (x) => x.id === Number(initialValues.delivery_service_id)
+      )?.name;
       list.push({
-        key: 'delivery_service_id',
-        name: 'Hãng vận chuyển',
-        value: textDeliveryService
-      })
+        key: "delivery_service_id",
+        name: "Hãng vận chuyển",
+        value: textDeliveryService,
+      });
     }
 
     if (initialValues.ecommerce_id) {
-      let text=listChannels.find((x)=>x.id===Number(initialValues.ecommerce_id))?.name;
+      let text = listChannels.find(
+        (x) => x.id === Number(initialValues.ecommerce_id)
+      )?.name;
       list.push({
-        key: 'ecommerce_id',
-        name: 'Biên bản sàn',
-        value: text
-      })
+        key: "ecommerce_id",
+        name: "Biên bản sàn",
+        value: text,
+      });
     }
 
     if (initialValues.good_receipt_type_id) {
-      let text = listGoodsReceiptsType.find((x)=>x.id===Number(initialValues.good_receipt_type_id))?.name;
+      let text = listGoodsReceiptsType.find(
+        (x) => x.id === Number(initialValues.good_receipt_type_id)
+      )?.name;
       list.push({
-        key: 'good_receipt_type_id',
-        name: 'Loại biên bản',
-        value: text
-      })
+        key: "good_receipt_type_id",
+        name: "Loại biên bản",
+        value: text,
+      });
     }
 
     if (initialValues.from_date || initialValues.to_date) {
@@ -222,7 +241,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
     listStores,
     listChannels,
     listGoodsReceiptsType,
-    listThirdPartyLogistics
+    listThirdPartyLogistics,
   ]);
 
   const widthScreen = () => {
@@ -248,7 +267,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
   return (
     <div>
       <div className="order-filter">
-      <div className="page-filter">
+        <div className="page-filter">
           <div className="page-filter-heading">
             <div className="page-filter-left" style={{width: "35%"}}>
               <Space size={12}>
@@ -256,19 +275,19 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                   overlayStyle={{minWidth: "10rem"}}
                   overlay={
                     <Menu>
-                    {actions &&
-                      actions.map((item) => (
-                        <Menu.Item
-                          disabled={item.disabled}
-                          key={item.id}
-                          onClick={() => onActionClick && onActionClick(item.id)}
-                          icon={item.icon}
-                          style={{color:item.color}}
-                        >
-                          {item.name}
-                        </Menu.Item>
-                      ))}
-                  </Menu>
+                      {actions &&
+                        actions.map((item) => (
+                          <Menu.Item
+                            disabled={item.disabled}
+                            key={item.id}
+                            onClick={() => onActionClick && onActionClick(item.id)}
+                            icon={item.icon}
+                            style={{color: item.color}}
+                          >
+                            {item.name}
+                          </Menu.Item>
+                        ))}
+                    </Menu>
                   }
                   trigger={["click"]}
                 >
@@ -281,6 +300,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
               <Space size={12} style={{marginLeft: "10px"}}>
                 <ButtonCreate
                   path={`${UrlConfig.PACK_SUPPORT}/report-hand-over-create`}
+                  disabled={!allowCreateGoodsReceipt}
                 />
               </Space>
             </div>
@@ -304,7 +324,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                     />
                   </Item>
 
-                  <Item name="order_id" style={{width: "30%"}}>
+                  <Item name="order_codes" style={{width: "30%"}}>
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="Mã đơn hàng"
@@ -374,7 +394,7 @@ const PackCopyFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                       ))}
                     </CustomSelect>
                   </Item>
-                  <p>Hãng vẫn chuyển</p>
+                  <p>Hãng vận chuyển</p>
                   <Item name="delivery_service_id">
                     <CustomSelect
                       //mode="multiple"

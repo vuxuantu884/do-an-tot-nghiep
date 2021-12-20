@@ -1,7 +1,8 @@
 import { POProcumentType } from "domain/types/purchase-order.type";
 import BaseAction from "base/base.action";
-import { ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { ImportProcument, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { PageResponse } from "model/base/base-metadata.response";
+import BaseResponse from "base/base.response";
 
 export const PoProcumentCreateAction = (
   poId: number,
@@ -62,3 +63,14 @@ export const POSearchProcurement = (
     onResult
   });
 };
+
+export const importProcumentAction = (
+  params: ImportProcument,
+  onResult: (result: BaseResponse<any>|false) => void
+) => {
+  return BaseAction(POProcumentType.IMPORT_PROCUMENT, {
+    params,
+    onResult
+  });
+};
+

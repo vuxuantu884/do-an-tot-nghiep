@@ -29,7 +29,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {VscError} from "react-icons/all";
 import {RiUpload2Line} from "react-icons/ri";
 import {useDispatch} from "react-redux";
-import { useParams} from "react-router";
+import {useHistory, useParams} from "react-router";
 import {Link} from "react-router-dom";
 import {showSuccess} from "utils/ToastUtils";
 import {getQueryParams, useQuery} from "utils/useQuery";
@@ -119,6 +119,7 @@ const csvColumnMapping: any = {
 
 const PromotionDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const token = getToken() || "";
 
   const {id} = useParams() as any;
@@ -264,10 +265,10 @@ const PromotionDetailScreen: React.FC = () => {
   //   history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
   // }, [dispatch, history]);
 
-  // section EDIT item
+  
   const onEdit = useCallback(() => {
-    // TO DO
-  }, []);
+    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}/update`);
+  }, [history, idNumber]);
 
   const renderDiscountInfo = (value: any, type: any) => {
     if (type === "PERCENTAGE") return `Giảm ${value}%`;
@@ -727,11 +728,7 @@ const PromotionDetailScreen: React.FC = () => {
                 Xoá
               </Button>
             ) : null} */}
-            {allowUpdatePromoCode ? (
-              <Button disabled onClick={onEdit}>
-                Sửa
-              </Button>
-            ) : null}
+            {allowUpdatePromoCode && data?.state!=='DISABLED' ? <Button onClick={onEdit}>Sửa</Button> : null}
 
             {allowCreatePromoCode ? <Button disabled>Nhân bản</Button> : null}
             {allowCancelPromoCode ? renderActionButton() : null}

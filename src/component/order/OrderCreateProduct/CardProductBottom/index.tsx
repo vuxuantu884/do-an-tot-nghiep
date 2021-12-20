@@ -1,6 +1,6 @@
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Col, Divider, Row, Space, Tag, Typography } from "antd";
-import { OrderLineItemRequest } from "model/request/order.request";
+import { OrderDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency, handleDisplayCoupon } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
@@ -10,7 +10,7 @@ type PropType = {
   orderAmount: number;
   totalAmountExchangePlusShippingFee?: number;
   items: OrderLineItemRequest[] | undefined;
-  discountRate?: number;
+  promotion: OrderDiscountRequest | null;
   discountValue?: number;
   totalAmountCustomerNeedToPay: number;
   shippingFeeInformedToCustomer?: number | null;
@@ -21,8 +21,7 @@ type PropType = {
   couponInputText?: string;
   showDiscountModal: () => void;
   showCouponModal: () => void;
-  setDiscountRate?: (value: number) => void;
-  setDiscountValue?: (value: number) => void;
+  setPromotion?: (value: OrderDiscountRequest) => void;
   setCoupon?: (value: string) => void;
   setCouponInputText?: (value: string) => void;
   calculateChangeMoney: (
@@ -43,8 +42,7 @@ function CardProductBottom(props: PropType) {
     orderAmount,
     totalAmountExchangePlusShippingFee,
     items,
-    discountRate,
-    discountValue,
+    promotion,
     couponInputText,
     // changeMoney,
     amount,
@@ -55,8 +53,7 @@ function CardProductBottom(props: PropType) {
     isCouponValid,
     showDiscountModal,
     showCouponModal,
-    setDiscountRate,
-    setDiscountValue,
+    setPromotion,
     calculateChangeMoney,
     setCoupon,
     setCouponInputText,
@@ -64,6 +61,9 @@ function CardProductBottom(props: PropType) {
   } = props;
 
   console.log('isDisableOrderDiscount', isDisableOrderDiscount)
+
+	let discountRate = promotion?.rate || 0;
+	let discountValue = promotion?.value || 0;
 
   // console.log('coupon33', coupon)
   // console.log('discountRate', discountRate);
@@ -87,7 +87,7 @@ function CardProductBottom(props: PropType) {
 
           <Row className="paymentRow" justify="space-between" align="middle">
             <Space align="center">
-              {setDiscountRate && !isDisableOrderDiscount && items && items.length > 0 ? (
+              {setPromotion && !isDisableOrderDiscount && items && items.length > 0 ? (
                 <Typography.Link
                   className="font-weight-400"
                   onClick={showDiscountModal}
@@ -111,7 +111,7 @@ function CardProductBottom(props: PropType) {
                     backgroundColor: "#F5F5F5",
                   }}
                   className="orders-tag orders-tag-danger"
-                  closable
+                  closable = {!isDisableOrderDiscount}
                   onClose={() => {
                     setCoupon && setCoupon("");
                     calculateChangeMoney(items, amount, 0, 0);
@@ -128,7 +128,7 @@ function CardProductBottom(props: PropType) {
 
           <Row className="paymentRow" justify="space-between" align="middle">
             <Space align="center">
-              {setDiscountRate && !isDisableOrderDiscount && items && items.length > 0 ? (
+              {setPromotion && !isDisableOrderDiscount && items && items.length > 0 ? (
                 <Typography.Link
                   className="font-weight-400"
                   onClick={showCouponModal}
@@ -154,8 +154,13 @@ function CardProductBottom(props: PropType) {
                   className="orders-tag orders-tag-danger"
                   closable
                   onClose={() => {
-                    setDiscountRate && setDiscountRate(0);
-                    setDiscountValue && setDiscountValue(0);
+										setPromotion && setPromotion({
+											amount: 0,
+											discount_code: null,
+											promotion_id: null,
+											rate: 0,
+											reason: ""
+										})
                     handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
                     setCouponInputText && setCouponInputText("");

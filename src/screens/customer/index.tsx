@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -70,40 +70,64 @@ const Customer = () => {
     (state: RootReducerType) => state.bootstrapReducer
   );
   const LIST_GENDER = bootstrapReducer.data?.gender;
-  const params: CustomerSearchQuery = useMemo(
+  const initQuery: CustomerSearchQuery = useMemo(
     () => ({
-      request: "",
       page: 1,
       limit: 30,
+      request: "",
       gender: null,
+      customer_group_ids: [],
+      customer_level_ids: [],
+      responsible_staff_codes: null,
+      customer_type_ids: [],
+      assign_store_ids: [],
+      store_ids: [],
+      channel_ids: [],
+      day_of_birth_from:undefined,
+      day_of_birth_to:undefined,
+      month_of_birth_from:undefined,
+      month_of_birth_to:undefined,
+      year_of_birth_from:undefined,
+      year_of_birth_to:undefined,
+      age_from: null,
+      age_to: null,
+      city_ids: [],
+      district_ids: [],
+      ward_ids: [],
+      total_finished_order_from: undefined,
+      total_finished_order_to: undefined,
+      total_paid_amount_from: undefined,
+      total_paid_amount_to: undefined,
+      total_returned_order_from: undefined,
+      total_returned_order_to: undefined,
+      remain_amount_to_level_up_from: undefined,
+      remain_amount_to_level_up_to: undefined,
+      average_order_amount_from: undefined,
+      average_order_amount_to: undefined,
+      total_returned_amount_from: undefined,
+      total_returned_amount_to: undefined,
+      store_of_first_order_ids: [],
+      store_of_last_order_ids: [],
+      number_of_days_without_purchase_from: undefined,
+      number_of_days_without_purchase_to: undefined,
+      point_from: undefined,
+      point_to: undefined,
+      first_order_time_from: null,
+      first_order_time_to: null,
+      last_order_time_from: null,
+      last_order_time_to: null,
+
       from_birthday: null,
       to_birthday: null,
       company: null,
       from_wedding_date: null,
       to_wedding_date: null,
-      customer_type_id: undefined,
-      customer_group_id: undefined,
       customer_level_id: undefined,
-      responsible_staff_code: null,
     }),
     []
   );
-  const [query, setQuery] = useState<CustomerSearchQuery>({
-    page: 1,
-    limit: 30,
-    request: null,
-    gender: null,
-    from_birthday: null,
-    to_birthday: null,
-    company: null,
-    from_wedding_date: null,
-    to_wedding_date: null,
-    customer_type_id: undefined,
-    customer_group_id: undefined,
-    customer_level_id: undefined,
-    responsible_staff_code: "",
-  });
-
+  
+  const [params, setParams] = useState<CustomerSearchQuery>(initQuery);
 
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
@@ -255,9 +279,9 @@ const Customer = () => {
 
   const onPageChange = React.useCallback(
     (page, limit) => {
-      setQuery({ ...query, page, limit });
+      setParams({ ...params, page, limit });
     },
-    [query]
+    [params]
   );
 
   const columnFinal = React.useMemo(
@@ -285,19 +309,18 @@ const Customer = () => {
 
   React.useEffect(() => {
     setIsLoading(true);
-    dispatch(getCustomerListAction(query, setResult));
-  }, [dispatch, query, setResult]);
+    dispatch(getCustomerListAction(params, setResult));
+  }, [dispatch, params, setResult]);
   
 
-  const onFilterClick = React.useCallback((values: CustomerSearchQuery) => {
-    let newPrams = { ...query, ...values, page: 1 };
-    setQuery(newPrams);
-  }, [query]);
-
-  const onClearFilterAdvanceClick = React.useCallback(() => {
-    setQuery(params);
+  const onFilter = useCallback((values: CustomerSearchQuery) => {
+    let newPrams = { ...params, ...values, page: 1 };
+    setParams(newPrams);
   }, [params]);
 
+  const onClearAdvancedFilter = useCallback(() => {
+    setParams(initQuery);
+  }, [initQuery]);
 
   // handle export file
   const [isVisibleExportModal, setIsVisibleExportModal] = useState(false);
@@ -380,11 +403,11 @@ const Customer = () => {
           {(allowed: boolean) => (allowed ?
             <Card>
               <CustomerListFilter
-                onClearFilter={onClearFilterAdvanceClick}
-                onFilter={onFilterClick}
+                onClearFilter={onClearAdvancedFilter}
+                onFilter={onFilter}
                 isLoading={isLoading}
-                params={query}
-                initQuery={params}
+                params={params}
+                initQuery={initQuery}
                 groups={groups}
                 types={types}
                 setShowSettingColumn={() => setShowSettingColumn(true)}

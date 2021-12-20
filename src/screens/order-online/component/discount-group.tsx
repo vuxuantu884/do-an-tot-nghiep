@@ -40,13 +40,29 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
       }
       let _items = [...items];
       let _item = _items[props.index];
+			if(_item.discount_items.length === 0) {
+				_item.discount_items = [{
+					rate: 0,
+					value: 0,
+					amount: 0,
+					promotion_id: undefined,
+					reason: "",
+					discount_code: undefined,
+				}]
+			}
 			let _itemDiscount = _item.discount_items[0];
       let _price = _items[props.index].price;
       if (selected === MoneyType.MONEY) {
+				if(_itemDiscount.value === v) {
+					return;
+				}
         _itemDiscount.value = v;
         _itemDiscount.rate = (v / _price) * 100;
        
       } else {
+				if(_itemDiscount.rate === v) {
+					return;
+				}
         _itemDiscount.value = Math.round((v * _price) / 100);
         _itemDiscount.rate = v;
       }

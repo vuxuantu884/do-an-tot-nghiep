@@ -10,12 +10,13 @@ import {StyledComponent} from "../index.screen.styles";
 const {Item} = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
+  setSelectedOrderList:(data:GoodsReceiptsOrderListModel[])=>void;
   actions: Array<MenuAction>;
   handleSearchOrder: (item: any) => void;
   onMenuClick: (item: number) => void;
 };
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
-  const {packOrderList, actions, handleSearchOrder, onMenuClick} = props;
+  const {packOrderList, actions, handleSearchOrder, onMenuClick, setSelectedOrderList} = props;
   const formSearchOrderRef = createRef<FormInstance>();
 
   const [dataPackOrderList, setDataPackOrderList]= useState<GoodsReceiptsOrderListModel[]>([]);
@@ -212,6 +213,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   const rowSelection = {
     onChange: (selectedRowKeys: any, selectedRows: any) => {
       console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+      setSelectedOrderList(selectedRows);
     },
     onSelect: (record: any, selected: any, selectedRows: any) => {
       console.log(record, selected, selectedRows);
@@ -233,7 +235,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               <div className="page-filter-right" style={{width: "40%"}}>
                 <Space size={4}>
                   <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}>
-                    <Item name="search_term" style={{width: "calc(98% - 62px)"}}>
+                    <Item name="search_term" style={{width: "calc(92% - 62px)"}}>
                       <Input
                         style={{width: "100%"}}
                         prefix={<img src={search} alt="" />}
@@ -241,7 +243,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                       />
                     </Item>
 
-                    <Item>
+                    <Item style={{width: "62px", marginLeft:16, marginRight:0}}>
                       <Button
                         type="primary"
                         htmlType="submit"

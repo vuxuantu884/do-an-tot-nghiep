@@ -1,8 +1,8 @@
-import {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
-import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload} from "antd";
+import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload, Form} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
@@ -44,6 +44,7 @@ import {
   getDetailInventoryAdjustmentAction,
   getLinesItemAdjustmentAction,
   InventoryAdjustmentGetPrintContentAction,
+  updateInventoryAdjustmentAction,
   updateItemOnlineInventoryAction,
   updateOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
@@ -70,6 +71,7 @@ import NumberInput from "component/custom/number-input.custom";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
+import TextArea from "antd/es/input/TextArea";
 
 const {TabPane} = Tabs;
 
@@ -96,6 +98,7 @@ export const STATUS_IMPORT_EXPORT = {
 };
 
 const DetailInvetoryAdjustment: FC = () => {
+  const [form] = Form.useForm();
   const [activeTab, setActiveTab] = useState<string>("1");
   const history = useHistory();
   const dispatch = useDispatch();
@@ -130,6 +133,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const [importProgress, setImportProgress] = useState<number>(0);
   const [statusImport, setStatusImport] = useState<number>(1);
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
+  const [fileListUpdate, setFileListUpdate] = useState<Array<UploadFile>>([]);
   const [dataImport, setDataImport] = useState<ImportResponse>();
   const [hasImportUrl, setHasImportUrl] = useState<boolean>(false);
 
@@ -388,10 +392,47 @@ const DetailInvetoryAdjustment: FC = () => {
     }
   };
 
+  const onCustomUpdateRequest = (options: UploadRequestOption<any>) => {
+    const {file} = options;
+    let files: Array<File> = [];
+    if (file instanceof File) {
+      let uuid = file.uid;
+      files.push(file);
+      dispatch(
+        inventoryUploadFileAction({files: files}, (data: false | Array<string>) => {
+          let index = fileListUpdate.findIndex((item) => item.uid === uuid);
+          if (!!data) {
+            if (index !== -1) {
+              fileListUpdate[index].status = "done";
+              fileListUpdate[index].url = data[0];
+              let fileCurrent: Array<string> = form.getFieldValue("attached_files");
+              if (!fileCurrent) {
+                fileCurrent = [];
+              }
+              fileCurrent.push(data[0]);
+              let newFileCurrent = [...fileCurrent];
+              form.setFieldsValue({attached_files: newFileCurrent});
+
+              updateAdjustment();
+            }
+          } else {
+            fileListUpdate.splice(index, 1);
+            showError("Upload file không thành công");
+          }
+          setFileListUpdate([...fileListUpdate]);
+        })
+      );
+    }
+  };
+
   const onChangeFile = useCallback((info) => {
     setFileList([info.file]);
     setShowImportModal(true);
   }, []);
+
+  const onChangeFileUpdate = useCallback((info) => {
+    setFileListUpdate(info.fileList);
+  }, []); 
 
   const onPrintAction = () => {
     if (data) {
@@ -502,12 +543,14 @@ const DetailInvetoryAdjustment: FC = () => {
                     row.on_hand_adj = totalDiff;
                     row.on_hand_adj_dis = `${totalDiff}`;
                   }
-
+                  
                   dispatch(
-                    updateItemOnlineInventoryAction(data?.id, row, (result) => {
+                    updateItemOnlineInventoryAction(data?.id, row, (result: LineItemAdjustment) => {
                       if (result) {
                         showSuccess("Nhập tồn thực tế thành công.");
                         onEnterFilterVariant(null);
+                        const version = form.getFieldValue('version');
+                        form.setFieldsValue({version: version + 1});
                       }
                     })
                   );
@@ -558,7 +601,7 @@ const DetailInvetoryAdjustment: FC = () => {
         }
       },
     },
-  ];
+  ]; 
 
   const onResult = useCallback(
     (result) => {
@@ -572,6 +615,7 @@ const DetailInvetoryAdjustment: FC = () => {
         setHasError(false);
         setFormStoreData(data?.store);
         setData(data);
+        form.setFieldsValue(result);
 
         dispatch(
           getLinesItemAdjustmentAction(
@@ -582,8 +626,34 @@ const DetailInvetoryAdjustment: FC = () => {
         );
       }
     },
-    [idNumber, keySearch, onResultDataTable, dispatch]
+    [idNumber, keySearch, form, onResultDataTable, dispatch]
   );
+
+  const updateAdjustment = React.useMemo(() =>
+  _.debounce(() => {
+    const dataUpdate = {...data,
+                     note: form.getFieldValue('note'),
+                     version: form.getFieldValue('version'),
+                     line_items: dataLinesItem.items,
+                     attached_files: form.getFieldValue('attached_files')} as InventoryAdjustmentDetailItem; 
+     
+    if (data && dataUpdate) {
+      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, (res)=>{
+        onResult(res);
+        showSuccess("Cập nhật phiếu kiểm kho thành công");
+      }));
+    }
+  }, 500),
+  [dispatch, data, form, dataLinesItem,  onResult]
+) 
+
+const onChangeNote = useCallback(
+  (note: string) => {
+    if (note && note.length > 500) return;
+    updateAdjustment();
+  },
+  [updateAdjustment]
+)  
 
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
@@ -857,6 +927,7 @@ const DetailInvetoryAdjustment: FC = () => {
       >
         {data && (
           <>
+          <Form form={form}>
             <Row gutter={24}>
               <Col span={18}>
                 <Card
@@ -1027,28 +1098,23 @@ const DetailInvetoryAdjustment: FC = () => {
                     }
                   </Col>
                 </Card>
-                <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
+                <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}> 
                   <Row className="" gutter={5} style={{flexDirection: "column"}}>
-                    <Col span={24} style={{marginBottom: 6}}>
-                      <b>Ghi chú nội bộ:</b>
-                    </Col>
-                    <Col span={24}>
-                      <span className="text-focus" style={{wordWrap: "break-word"}}>
-                        {data?.note !== "" && data?.note !== "string"
-                          ? data?.note
-                          : "Không có ghi chú"}
-                      </span>
-                    </Col>
-                  </Row>
-
+                    <Form.Item
+                      name={"note"}
+                      label={<b>Ghi chú nội bộ:</b>}
+                      colon={false}
+                      labelCol={{span: 24, offset: 0}}
+                      rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
+                    >
+                      <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
+                    </Form.Item> 
+                  </Row>  
                   <Row
                     className="margin-top-10"
                     gutter={5}
                     style={{flexDirection: "column"}}
                   >
-                    <Col span={24} style={{marginBottom: 6}}>
-                      <b>File đính kèm:</b>
-                    </Col>
                     <Col span={24}>
                       <span className="text-focus">
                         {data.attached_files?.map((link: string, index: number) => {
@@ -1066,11 +1132,38 @@ const DetailInvetoryAdjustment: FC = () => {
                         })}
                       </span>
                     </Col>
+
+                    <Form.Item
+                      labelCol={{span: 24, offset: 0}}
+                      label={<b>File đính kèm:</b>}
+                      colon={false}
+                    >
+                      {
+                       data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && 
+                          <Upload 
+                          beforeUpload={onBeforeUpload}
+                          multiple={true}
+                          fileList={fileListUpdate}
+                          onChange={onChangeFileUpdate}
+                          customRequest={onCustomUpdateRequest}
+                          showUploadList={false}
+                        >
+                          <Button icon={<UploadOutlined />}>Chọn file</Button>
+                        </Upload>
+                      }
+                      </Form.Item>
+
+                    <Form.Item noStyle hidden name="attached_files">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item noStyle hidden name="version">
+                      <Input />
+                    </Form.Item>
                   </Row>
                 </Card>
               </Col>
             </Row>
-
+          </Form>
             <div style={{display: "none"}}>
               <Upload fileList={fileList}></Upload>
               <div className="printContent" ref={printElementRef}>
@@ -1109,7 +1202,7 @@ const DetailInvetoryAdjustment: FC = () => {
                       </Button>
                     </AuthWrapper>
                   )}
-                  {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ? (
+                  {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
                     <>
                       <AuthWrapper
                         acceptPermissions={[InventoryAdjustmentPermission.import]}
@@ -1155,8 +1248,8 @@ const DetailInvetoryAdjustment: FC = () => {
                         </Button>
                       </AuthWrapper>
                     </>
-                  ) : null}
-                  {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ? (
+                  )}
+                  {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status &&  (
                     <AuthWrapper
                       acceptPermissions={[InventoryAdjustmentPermission.adjust]}
                     >
@@ -1171,7 +1264,7 @@ const DetailInvetoryAdjustment: FC = () => {
                         Cân tồn kho
                       </Button>
                     </AuthWrapper>
-                  ) : null}
+                  )}
                 </Space>
               }
             />

@@ -109,6 +109,16 @@ export const OrderDetailAction = (id: string, setData: (data: OrderResponse) => 
   return BaseAction(OrderType.GET_ORDER_DETAIL_REQUEST, { id, setData });
 };
 
+export const getFulfillmentDetail = (
+  fulfillment_code: string,
+  setData: (data: any) => void
+) => {
+  return BaseAction(OrderType.GET_FULFILLMENT_DETAIL, {
+    fulfillment_code,
+    setData,
+  });
+};
+
 export const getTrackingLogFulfillmentAction = (
   fulfillment_code: string,
   setData: (data: Array<TrackingLogFulfillmentResponse> | null) => void
@@ -136,6 +146,18 @@ export const UpdateFulFillmentStatusAction = (
 ) => {
   return BaseAction(OrderType.UPDATE_FULFILLMENT_METHOD, {
     request,
+    setData,
+    setError,
+  });
+};
+
+export const RePushFulFillmentAction = (
+  fulfillment_id: number,
+  setData: (data: OrderResponse) => void,
+  setError?: (error: boolean) => void
+) => {
+  return BaseAction(OrderType.REPUSH_FULFILLMENT, {
+    fulfillment_id,
     setData,
     setError,
   });
@@ -273,11 +295,13 @@ export const getDetailOrder=(orderId:any,setData:(data:OrderResponse)=>void)=>{
 
 export const getListOrderAction = (
   query: OrderSearchQuery,
-  setData: (data: PageResponse<OrderModel> | false) => void
+  setData: (data: PageResponse<OrderModel> | false) => void,
+	handleError?: () => void,
 ) => {
   return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
     query,
     setData,
+		handleError
   });
 };
 

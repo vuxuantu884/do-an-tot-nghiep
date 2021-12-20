@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import React, { useCallback, useEffect, useState } from "react";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/app.config";
 import { useHistory } from "react-router-dom";
 import {
@@ -93,39 +93,50 @@ const POCreateScreen: React.FC = () => {
 
   const [isLoading, setLoading] = useState<boolean>(true);
   const [statusAction, setStatusAction] = useState<string>("");
-  const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
+  const [winAccount, setWinAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  });
   const [listPaymentConditions, setListPaymentConditions] = useState<
     Array<PoPaymentConditions>
   >([]);
-  const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
+  const [rdAccount, setRdAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  });
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [loadingDraftButton, setLoadingDraftButton] = useState(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
-  const onResultRD = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        setError(true);
-        return;
-      }
-      setRDAccount(data.items);
-      setLoading(false);
-    },
-    []
-  );
+
+  const onResultRD = useCallback((data: PageResponse<AccountResponse>) => {
+    if (!data) {
+      setError(true);
+      return;
+    }
+    setRdAccount(data);
+  }, []);
+
   const onResultWin = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
+    (data: PageResponse<AccountResponse>) => {
+      setLoading(false);
       if (!data) {
         setError(true);
         return;
       }
-      setWinAccount(data.items);
+      setWinAccount(data);
+
       dispatch(
-        AccountSearchAction(
-          { department_ids: [AppConfig.RD_DEPARTMENT], status: "active" },
-          onResultRD
-        )
+        searchAccountPublicAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
       );
     },
     [dispatch, onResultRD]
@@ -184,16 +195,16 @@ const POCreateScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch(
-      AccountSearchAction(
+      searchAccountPublicAction(
         { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         onResultWin
       )
-    );
+    ); 
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
-  }, [dispatch, onResultWin, onResultRD]);
+  }, [dispatch, onResultWin]);
 
   return (
     <ContentContainer

@@ -451,9 +451,9 @@
             &:hover,
             &:focus,
             &.active {
-                color: $white !important;
-                background-color: $primary-color !important;
-                border-color: $primary-color !important;
+                color: $white;
+                background-color: $primary-color;
+                border-color: $primary-color;
             }
             &.light {
                 background-color: $white;
@@ -1062,19 +1062,30 @@
         .ant-menu-item-icon {
             color: #e5e5e5;
         }
+        .ant-menu-item {
+            color: #e5e5e5;
+            .ant-menu-item-icon {
+                margin-left: 25px !important;
+            }
+    
+        }
+
     }
 }
 
 .ant-menu-submenu-popup {
     .ant-menu {
         .ant-menu {
-            &-item {
+            &-item { 
                 height: 40px;
                 line-height: 40px;
                 color: $black;
                 background-color: transparent;
                 a {
                     color: $black;
+                }
+                i {
+                    margin-left: 2px !important;
                 }
                 .ant-menu-item-icon {
                     color: #e5e5e5;
@@ -1103,6 +1114,9 @@
                     &::after {
                         content: unset;
                     }
+                    i {
+                        margin-left: 2px !important;
+                    }
                     // .ant-menu-item-dot {
                     //   background-color: $primary-color;
                     // }
@@ -1110,7 +1124,7 @@
             }
             &-submenu {
                 padding: 0;
-                color: $black;
+                color: $black; 
                 background-color: transparent;
                 .ant-menu-title-content,
                 .ant-menu-submenu-arrow {
@@ -1129,6 +1143,9 @@
                     .ant-menu-item-icon {
                         color: #fcaf17;
                     }
+                }
+                i {
+                    margin-left: 2px !important;
                 }
             }
         }

@@ -8,7 +8,7 @@ import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction
@@ -29,6 +29,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
+import { ImportResponse } from "model/other/files/export-model";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
 import {
@@ -52,7 +53,12 @@ import POReturnList from "./component/po-return-list";
 import POStep from "./component/po-step";
 import POSupplierForm from "./component/po-supplier.form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
+import ModalExport from "./modal/ModalExport";
 
+const ActionMenu = {
+  EXPORT: 1,
+  DELETE: 2
+}
 
 type PurchaseOrderParam = {
   id: string;
@@ -96,8 +102,22 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
 
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status);
-  const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
-  const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
+  const [winAccount, setWinAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  });
+  const [rdAccount, setRdAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  });
 
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
@@ -118,6 +138,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
   const [isSuggest, setSuggest] = useState<boolean>(false);
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
   const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
+  const [showExportModal, setShowExportModal] = useState<boolean>(false);
   
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
@@ -161,7 +182,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       setError(true);
       return;
     }
-    setRDAccount(data.items);
+    setRdAccount(data);
   }, []);
   const onResultWin = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -169,9 +190,9 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         setError(true);
         return;
       }
-      setWinAccount(data.items);
+      setWinAccount(data);
       dispatch(
-        AccountSearchAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
+        searchAccountPublicAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
       );
     },
     [dispatch, onResultRD]
@@ -228,7 +249,19 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       loadDetail(idNumber, true, isSuggest);
     },
     [idNumber, loadDetail]
-  );
+  ); 
+
+  const ActionExport= {
+    Ok: useCallback((res: ImportResponse)=>{ 
+      if (res && res.url) {
+        window.location.assign(res.url);
+        setShowExportModal(false);
+      }
+    },[]),
+    Cancel: useCallback(()=>{
+      setShowExportModal(false);
+    },[]),
+  }
 
   const onCancel = useCallback(() => {
     dispatch(showLoading());
@@ -245,8 +278,11 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
-        case 1:
+        case ActionMenu.DELETE:
           setConfirmDelete(true);
+          break; 
+        case ActionMenu.EXPORT:
+          setShowExportModal(true);
           break;
       }
     },
@@ -272,12 +308,15 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
   }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
   const [canCancelPO] = useAuthorization({acceptPermissions:[PurchaseOrderPermission.cancel]})
   const menu: Array<MenuAction> = useMemo(() => {
-    let menuActions = [];
+    let menuActions = [{
+      id: ActionMenu.EXPORT,
+      name: "Export excel",
+    }];
     if (!poData) return [];
     let poStatus = poData.status;
     if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO)
       menuActions.push({
-        id: 1,
+        id: ActionMenu.DELETE,
         name: "Hủy",
       });
     return menuActions;
@@ -409,7 +448,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
 
   useEffect(() => { 
     dispatch(
-      AccountSearchAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultWin)
+      searchAccountPublicAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultWin)
     );
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(setListStore));
@@ -607,6 +646,18 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         />
       </Form>
       {renderModalDelete()}
+
+      <ModalExport
+        visible= {showExportModal}
+        onOk= {(res)=>{ActionExport.Ok(res)} }
+        onCancel= {ActionExport.Cancel}
+        title= "Tải đề xuất NPL"
+        okText= "Export"
+        cancelText= "Hủy"
+        templateUrl={AppConfig.PO_EXPORT_URL}
+        forder="stock-transfer" 
+        customParams={{url_template: AppConfig.PO_EXPORT_TEMPLATE_URL,conditions: poData?.id,  type: "EXPORT_PO_NPL"}}
+      />
     </ContentContainer>
   );
 };

@@ -311,7 +311,7 @@ const tab= document.getElementById("tab");
       <ContentContainer
         isError={error}
         isLoading={loading}
-        title="Chi tiết sản phẩm"
+        title={`${data?.name}`}
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -319,10 +319,10 @@ const tab= document.getElementById("tab");
           },
           {
             name: "Sản phẩm",
-            path: `${UrlConfig.PRODUCT}`,
+            path: `${UrlConfig.VARIANTS}`,
           },
           {
-            name: data !== null ? data.name : "",
+            name: data !== null ? data.code : "",
           },
         ]}
       >

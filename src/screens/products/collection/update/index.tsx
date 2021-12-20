@@ -57,8 +57,8 @@ const GroupUpdate: React.FC = () => {
   }); 
 
   const onSuccess = useCallback((result: CollectionResponse) => {
+    setLoading(false);
     if (result) {
-      setLoading(false);
       setDetail(result);
       showSuccess('Sửa nhóm hàng thành công');
       history.push(`${UrlConfig.COLLECTIONS}`);
@@ -144,6 +144,7 @@ const GroupUpdate: React.FC = () => {
           <Card>
             <Row gutter={50}>
               <Col span={12}>
+                <Form.Item name="version" hidden></Form.Item>
                 <Form.Item
                   rules={[
                     {max: 500, message: "Không được nhập quá 500 ký tự"},

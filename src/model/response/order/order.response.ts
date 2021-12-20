@@ -157,6 +157,7 @@ export interface FulFillmentResponse {
   payments: Array<OrderPaymentResponse>;
   created_date: string | null;
   cancel_date: string | null;
+  return_status: string | null;
 }
 
 export interface OrderDiscountResponse {
@@ -188,6 +189,7 @@ export interface OrderItemDiscountResponse {
 export interface OrderPaymentResponse extends BaseObject {
   payment_method_id: number;
   payment_method: string;
+  payment_method_code: string;
   amount: number;
   reference: string;
   source: string;
@@ -270,6 +272,7 @@ export interface ShipmentResponse extends BaseObject {
   fulfillment_id: string | null;
   cod: number;
   office_time: string | null;
+  info_shipper: string | null;
 }
 
 export interface DeliveryServiceResponse {

@@ -17,6 +17,8 @@ import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import TreeDepartment from "../component/TreeDepartment";
 import AccountSearchSelect from "component/custom/select-search/account-select";
+import { RegUtil } from "utils/RegUtils"
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 
 const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
@@ -35,6 +37,11 @@ const DepartmentCreateScreen: React.FC = () => {
   const [allowCreateDep] = useAuthorization({
     acceptPermissions: [DepartmentsPermissions.CREATE],
   });
+
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
+  const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
 
   const searchAccount = useCallback(
     (query: AccountSearchQuery, paging: boolean) => {
@@ -59,6 +66,21 @@ const DepartmentCreateScreen: React.FC = () => {
       }
     }));
   }, [dispatch, history]);
+
+  const backAction = ()=>{  
+    setModalConfirm({
+      visible: true,
+      onCancel: () => {
+        setModalConfirm({visible: false});
+      },
+      onOk: () => { 
+        history.push(UrlConfig.DEPARTMENT);
+      },
+      title: "Bạn có muốn quay lại?",
+      subTitle:
+        "Sau khi quay lại thay đổi sẽ không được lưu.",
+    }); 
+  };
 
   useEffect(() => {
     searchAccount({}, false);
@@ -100,6 +122,10 @@ const DepartmentCreateScreen: React.FC = () => {
                     required: true,
                     message: "Vui lòng nhập mã bộ phận",
                   },
+                  {
+                    pattern: RegUtil.BOTH_NUMBER_AND_STRING,
+                    message: "Sai định dạng mã bộ phận"
+                  }
                 ]}
                 label="Mã bộ phận"
                 name="code"
@@ -145,19 +171,32 @@ const DepartmentCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={50}>
             <Col span={8}>
-              <Form.Item name="mobile" label="Số điện thoại">
+              <Form.Item 
+                name="phone" 
+                label="Số điện thoại"
+                rules={[
+                  {
+                    pattern: RegUtil.PHONE,
+                    message: "Số điện thoại không đúng định dạng"
+                  }
+                ]}
+              >
                 <Input placeholder="Nhập số điện thoại" />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="address" label="Địa chỉ liên hệ">
+              <Form.Item 
+                name="address" 
+                label="Địa chỉ liên hệ"
+              >
                 <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
               </Form.Item>
             </Col>
           </Row>
         </Card>
         <BottomBarContainer
-          back="Quay lại"
+          back="Quay lại trang danh sách"
+          backAction={backAction}
           rightComponent={
             <Space>
               {allowCreateDep && <Button loading={loading} htmlType="submit" type="primary">
@@ -167,6 +206,16 @@ const DepartmentCreateScreen: React.FC = () => {
           }
         />
       </Form>
+      <ModalConfirm
+        onCancel={() => {
+          setIsShowModalConfirm(false);
+        }}
+        onOk={() => {
+          history.push(UrlConfig.DEPARTMENT);
+        }}
+        visible={isShowModalConfirm}
+      />
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 }; 

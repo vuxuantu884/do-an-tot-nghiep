@@ -36,4 +36,7 @@ export const reset = css`
   a {
     color: ${textLinkColor};
   }
+	ul {
+		padding-left: 15px;
+	}
 `;

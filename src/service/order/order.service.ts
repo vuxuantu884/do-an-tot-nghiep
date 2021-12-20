@@ -85,7 +85,7 @@ export const getReturnApi = (
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.CORE}/sources/listing`);
+  return BaseAxios.get(`${ApiConfig.CORE}/sources`);
 };
 
 export const getPaymentMethod = (): Promise<BaseResponse<Array<PaymentMethodResponse>>> => {
@@ -142,6 +142,13 @@ export const updateFulFillmentStatus = (
     ...request,
   };
   return BaseAxios.put(link, params);
+};
+
+export const rePushFulFillmentService = (
+  fulfillment_id: number,
+): Promise<BaseResponse<OrderResponse>> => {
+  let link = `${ApiConfig.ORDER}/fulfillments/shipping-order?fulfillmentId=${fulfillment_id}`;
+  return BaseAxios.post(link);
 };
 
 export const updateShipment = (
@@ -253,6 +260,12 @@ export const deleteMultiOrderSourceService = (
   return BaseAxios.delete(`${ApiConfig.CORE}/sources`, {
     data: {source_ids, channel_ids},
   });
+};
+
+export const getFulFillmentDetailAction = (
+  fulfillment_code: string,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/fulfillments/${fulfillment_code}`);
 };
 
 // tracking_log: Lấy ra tracking_log của fulfillment

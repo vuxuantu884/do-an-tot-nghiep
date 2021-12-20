@@ -11,10 +11,13 @@ const loyaltyAccumulateDetail = React.lazy(
 const discountPage = React.lazy(() => import("screens/promotion/discount"));
 const priceRulesPage = React.lazy(() => import("screens/promotion/promo-code"));
 const createDiscountPage = React.lazy(
-  () => import("screens/promotion/discount/discount.create")
+  () => import("screens/promotion/discount/create/discount.create")
 );
 const detailDiscountPage = React.lazy(
   () => import("screens/promotion/discount/discount.detail")
+);
+const DiscountUpdate = React.lazy(
+  () => import("screens/promotion/discount/update/discount.update")
 );
 const createPromoCodePage = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.create")
@@ -25,6 +28,10 @@ const promoCodeDetail = React.lazy(
 const promoCodeList = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.list")
 );
+const PromoCodeUpdate = React.lazy( 
+  () => import("screens/promotion/promo-code/promo-code.update")
+);
+
 // const GiftCreate = React.lazy(() => import("screens/promotion/gift/gift.create"));
 // const GiftList = React.lazy(() => import("screens/promotion/gift/gift.list"));
 
@@ -121,6 +128,18 @@ const promotion: Array<RouteMenu> = [
         subMenu: [],
         permissions: [PromoPermistion.READ],
       },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/:id/update`,
+        exact: true,
+        title: "Sửa chương trình",
+        icon: "icon-dot",
+        component: DiscountUpdate,
+        key: "submenu107",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [],
+      },
     ],
   },
   // {
@@ -170,6 +189,18 @@ const promotion: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         permissions: [PromoPermistion.CREATE],
+      },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id/update`,
+        exact: true,
+        title: "Sửa khuyến mãi",
+        icon: "icon-dot",
+        component: PromoCodeUpdate,
+        key: "submenu1074",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id`,

@@ -35,7 +35,6 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
-import ShipmentDetailsModal from "./modal/shipment-details.modal";
 import { StyledComponent } from "./list-shipments.styles";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
@@ -118,8 +117,6 @@ const ShipmentsScreen: React.FC = () => {
 
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
-  const [details, setDetails] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
   let dataQuery: ShipmentSearchQuery = {
@@ -165,10 +162,6 @@ const ShipmentsScreen: React.FC = () => {
     {name: "Đã hủy", value: "cancelled"}
   ];
 
-  const shipmentDetailModal = useCallback((record: any) => {
-    setShowDetails(true);
-    setDetails(record);
-  }, []);
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<ShipmentModel>>
   >([
@@ -176,13 +169,9 @@ const ShipmentsScreen: React.FC = () => {
       title: "Mã đơn giao",
       render: (record: ShipmentModel) => (
         <div>
-          <div
-            onClick={() => shipmentDetailModal(record)}
-            className="name p-b-3"
-            style={{ color: "#2A2A86" }}
-          >
+          <Link  target="_blank" to={`${UrlConfig.SHIPMENTS}/${record.code}`}>
             {record.code}
-          </div>
+          </Link>
           <div>
             {record.created_date
               ? ConvertUtcToLocalDate(record.created_date)
@@ -295,7 +284,8 @@ const ShipmentsScreen: React.FC = () => {
                 />
               )
             );
-					case ShipmentMethod.SHIPPER:
+					case ShipmentMethod.EMPLOYEE:
+          case ShipmentMethod.EXTERNAL_SHIPPER:
             return `Đối tác - ${record.shipment.shipper_code} - ${record.shipment.shipper_name}`;
 					case ShipmentMethod.PICK_AT_STORE:
             return `Nhận tại - ${record.store}`;
@@ -756,13 +746,6 @@ const ShipmentsScreen: React.FC = () => {
             setColumn(data);
           }}
           data={columns}
-        />
-        <ShipmentDetailsModal
-          visible={showDetails}
-          onOk={() => {
-            setShowDetails(false);
-          }}
-          shipmentDetails={details}
         />
         {showExportModal && <ExportModal
           visible={showExportModal}

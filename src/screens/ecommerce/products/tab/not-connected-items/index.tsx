@@ -64,7 +64,7 @@ import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
 
-let connectedYodyProductsRequest :object;
+let connectedYodyProductsRequest: object;
 
 const NotConnectedItems: React.FC = () => {
   const [formAdvance] = Form.useForm();
@@ -152,7 +152,7 @@ const NotConnectedItems: React.FC = () => {
     setIsLoading(true);
     dispatch(getProductEcommerceList(queryRequest, updateVariantData));
   }, [dispatch, updateVariantData]);
-  
+
   useEffect(() => {
     window.scrollTo(0, 0);
     getProductUpdated(query);
@@ -218,7 +218,7 @@ const NotConnectedItems: React.FC = () => {
       error_total: 0,
       error_list: []
     });
-    
+
     const [productSelected, setProductSelected] = useState<any>(
       ecommerceItem?.core_sku ?
         {
@@ -226,14 +226,14 @@ const NotConnectedItems: React.FC = () => {
           sku: ecommerceItem?.core_sku,
           variant_prices: null,
           retail_price: ecommerceItem?.core_price,
-          id: ecommerceItem?.core_variant_id,
+          id: ecommerceItem?.id,
           product_id: ecommerceItem?.core_product_id,
         }
         : null
     );
 
-    const isExist = copyConnectItemList?.find((item: any) => item.core_sku === ecommerceItem.core_sku)
-    if (ecommerceItem?.core_sku && productSelected && !isExist) {
+    const isExist = copyConnectItemList?.find((item: any) => item.id === ecommerceItem.id)
+    if (productSelected && !isExist) {
       const connectItem = {
         id: ecommerceItem.id,
         core_variant_id: ecommerceItem.core_variant_id,
@@ -559,7 +559,7 @@ const NotConnectedItems: React.FC = () => {
       acceptPermissions: productsDeletePermission,
       not: false,
     });
-    
+
     const isShowAction = item.connect_status === "waiting" && allowProductsDelete;
 
     return (
@@ -788,7 +788,7 @@ const NotConnectedItems: React.FC = () => {
       putConnectEcommerceItem(connectedYodyProductsRequest, updateProductList)
     );
   };
-  
+
   const handleConnectedYodyProducts = () => {
     const yodyProductConnectCheck: any[] = [];
     let isSaveAble = true;
@@ -1124,7 +1124,7 @@ const NotConnectedItems: React.FC = () => {
             Lưu các cặp đã chọn
           </Button>
         }
-        
+
       </Card>
 
       {isVisibleConfirmConnectItemsModal &&
@@ -1157,7 +1157,7 @@ const NotConnectedItems: React.FC = () => {
           <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
         </div>
       </Modal>
-      
+
     </StyledComponent>
   );
 };

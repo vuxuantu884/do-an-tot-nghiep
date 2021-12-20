@@ -183,7 +183,7 @@ export default function Order(props: PropType) {
   );
 
   const [coupon, setCoupon] = useState<string>("");
-  const [promotionId, setPromotionId] = useState<number|null>(null);
+  const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -573,47 +573,47 @@ export default function Order(props: PropType) {
   }, [dispatch, OrderDetail]); //logne
 
   const createDiscountRequest = () => {
-    let objDiscount: OrderDiscountRequest = {
-      rate: discountRate,
-      value: discountValue,
-      amount: discountValue,
-      promotion_id: null,
-      reason: "",
-      source: "",
-      discount_code: coupon,
-      order_id: null,
-    };
-    let listDiscountRequest = [];
-    if (coupon) {
-      listDiscountRequest.push({
-        discount_code: coupon,
-          rate: discountRate,
-        value: discountValue,
-        amount: discountValue,
-        promotion_id: null,
-        reason: "",
-        source: "",
-        order_id: null,
-      });
-    } else if(promotionId) {
-      listDiscountRequest.push({
-        discount_code: null,
-        rate: discountRate,
-        value: discountValue,
-        amount: discountValue,
-        promotion_id: promotionId,
-        reason: "",
-        source: "",
-        order_id: null,
-      });
-    }  else if (discountRate === 0 && discountValue === 0) {
-      return null;
-    } else {
-      listDiscountRequest.push(objDiscount);
-    }
-    
-    return listDiscountRequest;
-  };
+		let objDiscount: OrderDiscountRequest = {
+			rate: promotion?.rate,
+			value: promotion?.value,
+			amount: promotion?.value,
+			promotion_id: null,
+			reason: "",
+			source: "",
+			discount_code: coupon,
+			order_id: null,
+		};
+		let listDiscountRequest = [];
+		if (coupon) {
+			listDiscountRequest.push({
+				discount_code: coupon,
+				rate: promotion?.rate,
+				value: promotion?.value,
+				amount: promotion?.value,
+				promotion_id: null,
+				reason: "",
+				source: "",
+				order_id: null,
+			});
+		} else if (promotion?.promotion_id) {
+			listDiscountRequest.push({
+				discount_code: null,
+				rate: promotion?.rate,
+				value: promotion?.value,
+				amount: promotion?.value,
+				promotion_id: promotion?.promotion_id,
+				reason: promotion.reason,
+				source: "",
+				order_id: null,
+			});
+		} else if (!promotion) {
+			return null;
+		} else {
+			listDiscountRequest.push(objDiscount);
+		}
+
+		return listDiscountRequest;
+	};
 
   const updateOrderCallback = useCallback(
     (value: OrderResponse) => {
@@ -1027,6 +1027,14 @@ export default function Order(props: PropType) {
           if(response?.discounts && response.discounts[0]?.discount_code) {
             setCoupon(response.discounts[0].discount_code)
           }
+					if(response?.discounts) {
+            setPromotion({
+							promotion_id: response.discounts[0].promotion_id,
+							value: response.discounts[0].value,
+							amount: response.discounts[0].amount,
+							rate: response.discounts[0].rate,
+						})
+          }
         }
       })
     );
@@ -1283,10 +1291,6 @@ export default function Order(props: PropType) {
                     items={items}
                     isSplitOrder={checkIfOrderCanBeSplit}
                     setItems={setItems}
-                    discountRate={discountRate}
-                    setDiscountRate={setDiscountRate}
-                    discountValue={discountValue}
-                    setDiscountValue={setDiscountValue}
                     inventoryResponse={inventoryResponse}
                     customer={customer}
                     setInventoryResponse={setInventoryResponse}
@@ -1296,9 +1300,11 @@ export default function Order(props: PropType) {
                     levelOrder={levelOrder}
                     coupon={coupon}
                     setCoupon={setCoupon}
-                    setPromotionId={setPromotionId}
+										promotion={promotion}
+										setPromotion={setPromotion}
                     orderDetail={OrderDetail}
                     configOrder={configOrder}
+                    loyaltyPoint={loyaltyPoint}
                   />
 
                   {OrderDetail !== null &&

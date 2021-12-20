@@ -447,19 +447,19 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
           <Col md={8} style={{paddingLeft: 32, paddingRight: 40}}>
             <Form.Item
-              label="Mã đơn hàng:"
+              label="ID đơn hàng/Mã vận đơn:"
               name="order_request"
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập mã đơn hàng hoặc mã đơn giao",
+                  message: "Vui lòng nhập ID đơn hàng hoặc mã vận đơn!",
                 },
               ]}
               style={{width: "100%"}}
             >
               <Input
                 className="select-with-search"
-                placeholder="Mã đơn hàng/ Mã đơn giao"
+                placeholder="ID đơn hàng/Mã vận đơn"
                 // addonAfter={<ScanOutlined />}
                 addonAfter={<img src={barcodeIcon} alt="" />}
                 onPressEnter={(e: any) => {
@@ -486,7 +486,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 >
                   <Input
                     style={{width: "50%"}}
-                    placeholder="mã sản phẩm"
+                    placeholder="Mã sản phẩm"
                     onPressEnter={(e: any) => {
                       onKeyupProduct(e.target.value);
                     }}

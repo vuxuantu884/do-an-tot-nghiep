@@ -103,7 +103,7 @@ function AccountViewTab() {
               <span className="account-title">Số điện thoại</span>
             </td>
             <td>
-              <b>: {accountInfo?.mobile}</b>
+              <b>: {accountInfo?.phone}</b>
             </td>
             <td>
               <span className="account-title">Địa chỉ</span>

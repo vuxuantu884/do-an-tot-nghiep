@@ -1,12 +1,12 @@
 import CustomPagination from "component/table/CustomPagination";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 import {AppConfig} from "config/app.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
 import {searchVariantsRequestAction} from "domain/actions/product/products.action";
 import { HeaderSummary } from "hook/filter/HeaderSummary";
-import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
 import {
@@ -248,13 +248,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     }
   }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
-
-  const ActionComponent = useChangeHeaderToAction(
-    "Sản phẩm",
-    selected.length > 0,
-    () => {},
-    []
-  );
   
   const onSaveInventory = (
     result: Array<AllInventoryResponse>,
@@ -302,8 +295,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   useEffect(() => {
     setColumns([
       {
-        title: <ActionComponent />,
-        titleCustom: "Sản phẩm",
+        title: "Sản phẩm",
         visible: true,
         dataIndex: "sku",
         align: "left",
@@ -318,7 +310,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
                   </Link>
                 </div>
                 <div>
-                {record.name}
+                  <TextEllipsis value={record.name} line={1} />
                 </div>
                 <div>
                 {record.barcode}

@@ -1,4 +1,5 @@
 import { css } from "styled-components";
+import { primaryColor } from "./variables";
 
 export const globalCssLayoutOutsideComponent = css`
   .searchDropdown__productTitle {
@@ -24,4 +25,18 @@ export const globalCssLayoutOutsideComponent = css`
       font-weight: 500;
     }
   }
+	.ant-picker-dropdown {
+		.datePickerFooter {
+			white-space: nowrap;
+		}
+		.datePickerSelectRange {
+			text-align: center;
+			cursor: pointer;
+			color: ${primaryColor};
+			&.active,
+			&:hover {
+				font-weight: 500;
+			}
+		}
+	}
 `;

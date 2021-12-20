@@ -2,7 +2,7 @@ import { generateQuery } from 'utils/AppUtils';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { AccountSearchQuery, LoginResponse, AccountResponse, AccountRequest } from "model/account/account.model";
+import { AccountSearchQuery, LoginResponse, AccountResponse, AccountRequest, MeRequest, AccountPublicSearchQuery } from "model/account/account.model";
 import { AuthenRequest } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DepartmentResponse } from 'model/account/department.model';
@@ -13,16 +13,21 @@ export const getAccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
 } 
 
 export const loginApi = (request: AuthenRequest): Promise<BaseResponse<LoginResponse>> => {
-  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/accounts/login`, request);
+  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/login`, request);
 }
 
 export const logoutApi = (): Promise<BaseResponse<string>> => {
-  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/logout`);
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/logout`);
 }
 
 export const searchAccountApi = (query: AccountSearchQuery): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?${params}`);
+}
+
+export const searchAccountPublicApi = (query: AccountPublicSearchQuery): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
+  let params = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/public?${params}`);
 }
 
 export const AccountCreateService = (request: AccountRequest): Promise<BaseResponse<AccountResponse>> => {
@@ -31,6 +36,10 @@ export const AccountCreateService = (request: AccountRequest): Promise<BaseRespo
 
 export const AccountUpdateService = (id: number, request: AccountRequest): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.put(`${ApiConfig.ACCOUNTS}/accounts/${id}`, request)
+}
+
+export const updateMeService = (request: MeRequest): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.put(`${ApiConfig.ACCOUNTS}/me`, request)
 }
 
 export const AccountGetByIdService = (code: string): Promise<BaseResponse<AccountResponse>> => {
@@ -55,6 +64,10 @@ export const getPositionAllApi = (): Promise<BaseResponse<PositionResponse>> => 
 
 export const searchShipperApi = (): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?is_shipper=1`);
+}
+
+export const externalShipperApi = (): Promise<BaseResponse<PageResponse<any>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/delivery-partners`);
 }
 
 export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {

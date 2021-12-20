@@ -2,69 +2,51 @@ import {Card, Space, Table, Form, Input, Button, Tooltip} from "antd";
 import ActionButton, {MenuAction} from "component/table/ActionButton";
 import search from "assets/img/search.svg";
 import "component/filter/order.filter.scss";
-import {createRef, useCallback, useEffect, useState} from "react";
+import {createRef, useCallback, useContext, useEffect, useState} from "react";
 import {FormInstance} from "antd/es/form/Form";
-import {useDispatch} from "react-redux";
-import {showError, showWarning} from "utils/ToastUtils";
+import { showWarning} from "utils/ToastUtils";
 import {PackItemOrderModel} from "model/pack/pack.model";
 import UrlConfig from "config/url.config";
 import {Link} from "react-router-dom";
 import emptyProduct from "assets/icon/empty_products.svg";
-import {getOrderConcernGoodsReceipts} from "domain/actions/goods-receipts/goods-receipts.action";
 import {OrderConcernGoodsReceiptsResponse} from "model/response/pack/pack.response";
+import { AddReportHandOverContext } from "contexts/order-pack/add-report-hand-over-context";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
   orderListResponse: Array<OrderConcernGoodsReceiptsResponse>;
   setOrderListResponse: (item: Array<OrderConcernGoodsReceiptsResponse>) => void;
   onMenuClick?: (index: number) => void;
+  handleAddOrder:(code:string)=>void;
 };
 const {Item} = Form;
 
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const dispatch = useDispatch();
-  const {menu, orderListResponse, setOrderListResponse} = props;
+  const {menu, orderListResponse,handleAddOrder} = props;
   const formSearchOrderRef = createRef<FormInstance>();
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
     useState<PackItemOrderModel[]>();
 
-  // const addReportHandOverContextData = useContext(AddReportHandOverContext);
+   const addReportHandOverContextData = useContext(AddReportHandOverContext);
   // const orderListResponse= addReportHandOverContextData?.orderListResponse;
-  // const setOrderListResponse=addReportHandOverContextData?.setOrderListResponse;
+   const setOrderListResponse=addReportHandOverContextData?.setOrderListResponse;
   //
   const handleSearchOrder = useCallback(() => {
     formSearchOrderRef.current?.validateFields(["search_term"]);
     let search_term: any = formSearchOrderRef.current?.getFieldValue(["search_term"]);
     if (search_term)
     {
-      dispatch(
-        getOrderConcernGoodsReceipts(
-          search_term,
-          (data: OrderConcernGoodsReceiptsResponse[]) => {
-            if (data.length > 0) {
-              data.forEach(function (item, index) {
-                let indexOrder = orderListResponse.findIndex((p) => p.id === item.id);
-                if (indexOrder !== -1) orderListResponse.splice(indexOrder, 1);
-
-                orderListResponse.push(item);
-                setOrderListResponse([...orderListResponse]);
-                formSearchOrderRef.current?.resetFields();
-              });
-            } else {
-              showError("Không tìm thấy đơn hàng");
-            }
-          }
-        )
-      );
+      formSearchOrderRef.current?.resetFields();
+      handleAddOrder(search_term);
     }
     else{
       showWarning("Vui lòng nhập mã đơn hàng");
     }
-  }, [dispatch, formSearchOrderRef, orderListResponse, setOrderListResponse]);
+  }, [ formSearchOrderRef,handleAddOrder]);
 
   const onMenuClickExt = useCallback(
     (index: number) => {
@@ -212,7 +194,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
             <div className="page-filter-right" style={{width: "60%"}}>
               <Space size={4}>
                 <Form layout="inline" ref={formSearchOrderRef}>
-                  <Item name="search_term" style={{width: "calc(98% - 142px)"}}>
+                  <Item name="search_term" style={{width: "calc(95% - 142px)"}}>
                     <Input
                       style={{width: "100%"}}
                       prefix={<img src={search} alt="" />}
@@ -220,7 +202,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
                     />
                   </Item>
 
-                  <Item>
+                  <Item style={{width: "142px", marginLeft:16, marginRight:0}}>
                     <Button type="primary" htmlType="submit" onClick={handleSearchOrder}>
                       Thêm đơn hàng
                     </Button>

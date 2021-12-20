@@ -1,10 +1,10 @@
 import { Card, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
-import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
-import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { getListStoresSimpleAction, StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -12,35 +12,35 @@ import { getCustomerDetailAction } from "domain/actions/customer/customer.action
 import { hideLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
-  actionCreateOrderExchange,
-  actionCreateOrderReturn,
-  actionGetOrderReturnReasons
+	actionCreateOrderExchange,
+	actionCreateOrderReturn,
+	actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
 import { configOrderSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  BillingAddress,
-  ExchangeRequest,
-  FulFillmentRequest,
-  OrderDiscountRequest,
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-  OrderRequest,
-  ReturnRequest,
-  ShipmentRequest
+	BillingAddress,
+	ExchangeRequest,
+	FulFillmentRequest,
+	OrderDiscountRequest,
+	OrderLineItemRequest,
+	OrderPaymentRequest,
+	OrderRequest,
+	ReturnRequest,
+	ShipmentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  OrderConfig,
-  OrderLineItemResponse,
-  OrderResponse,
-  OrderReturnReasonModel,
-  ReturnProductModel,
-  StoreCustomResponse
+	OrderConfig,
+	OrderLineItemResponse,
+	OrderResponse,
+	OrderReturnReasonModel,
+	ReturnProductModel,
+	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
@@ -48,23 +48,24 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
-  checkIfOrderHasReturnedAll,
-  getAmountPaymentRequest,
-  getListItemsCanReturn,
-  getTotalAmountAfterDiscount,
-  scrollAndFocusToDomElement
+	checkIfOrderHasReturnedAll,
+	getAmountPaymentRequest,
+	getListItemsCanReturn,
+	getTotalAmountAfterDiscount,
+	scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
-  DEFAULT_COMPANY,
-  FulFillmentStatus,
-  OrderStatus,
-  PaymentMethodCode,
-  PaymentMethodOption,
-  ShipmentMethod,
-  ShipmentMethodOption,
-  TaxTreatment
+	ADMIN_ORDER,
+	DEFAULT_COMPANY,
+	FulFillmentStatus,
+	OrderStatus,
+	PaymentMethodCode,
+	PaymentMethodOption,
+	ShipmentMethod,
+	ShipmentMethodOption,
+	TaxTreatment
 } from "utils/Constants";
-import { DEFAULT_CHANNEL_ID, RETURN_MONEY_TYPE } from "utils/Order.constants";
+import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -180,7 +181,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [listStoreReturn, setListStoreReturn]=useState<StoreResponse[]>([]);
 
   const [coupon, setCoupon] = useState<string>("");
-  const [promotionId, setPromotionId] = useState<number|null>(null);
+  const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -569,12 +570,12 @@ const ScreenReturnCreate = (props: PropType) => {
 						reason: form.getFieldValue("reason"),
 						sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
-            channel_id: DEFAULT_CHANNEL_ID,
+            channel_id: ADMIN_ORDER.channel_id,
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
-          valuesResult.channel_id = DEFAULT_CHANNEL_ID;
+          valuesResult.channel_id = ADMIN_ORDER.channel_id;
           values.company_id = DEFAULT_COMPANY.company_id;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
@@ -785,7 +786,7 @@ const ScreenReturnCreate = (props: PropType) => {
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
-          delivery_service_provider_type: ShipmentMethod.SHIPPER,
+          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
           shipper_code: value.shipper_code,
           shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
@@ -876,47 +877,47 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   const createDiscountRequest = () => {
-    let objDiscount: OrderDiscountRequest = {
-      rate: discountRate,
-      value: discountValue,
-      amount: discountValue,
-      promotion_id: null,
-      reason: "",
-      source: "",
-      discount_code: coupon,
-      order_id: null,
-    };
-    let listDiscountRequest = [];
-    if (coupon) {
-      listDiscountRequest.push({
-        discount_code: coupon,
-          rate: discountRate,
-        value: discountValue,
-        amount: discountValue,
-        promotion_id: null,
-        reason: "",
-        source: "",
-        order_id: null,
-      });
-    } else if(promotionId) {
-      listDiscountRequest.push({
-        discount_code: null,
-        rate: discountRate,
-        value: discountValue,
-        amount: discountValue,
-        promotion_id: promotionId,
-        reason: "",
-        source: "",
-        order_id: null,
-      });
-    }  else if (discountRate === 0 && discountValue === 0) {
-      return null;
-    } else {
-      listDiscountRequest.push(objDiscount);
-    }
-    
-    return listDiscountRequest;
-  };
+		let objDiscount: OrderDiscountRequest = {
+			rate: promotion?.rate,
+			value: promotion?.value,
+			amount: promotion?.value,
+			promotion_id: null,
+			reason: "",
+			source: "",
+			discount_code: coupon,
+			order_id: null,
+		};
+		let listDiscountRequest = [];
+		if (coupon) {
+			listDiscountRequest.push({
+				discount_code: coupon,
+				rate: promotion?.rate,
+				value: promotion?.value,
+				amount: promotion?.value,
+				promotion_id: null,
+				reason: "",
+				source: "",
+				order_id: null,
+			});
+		} else if (promotion?.promotion_id) {
+			listDiscountRequest.push({
+				discount_code: null,
+				rate: promotion?.rate,
+				value: promotion?.value,
+				amount: promotion?.value,
+				promotion_id: promotion?.promotion_id,
+				reason: promotion.reason,
+				source: "",
+				order_id: null,
+			});
+		} else if (!promotion) {
+			return null;
+		} else {
+			listDiscountRequest.push(objDiscount);
+		}
+
+		return listDiscountRequest;
+	};
 
   const handleCancel = () => {
     history.push(`${UrlConfig.ORDER}/${orderId}`);
@@ -1004,14 +1005,12 @@ const ScreenReturnCreate = (props: PropType) => {
 											totalAmountExchangePlusShippingFee
                     }}
                     configOrder={configOrder}
-                    discountRate={discountRate}
-                    setDiscountRate={setDiscountRate}
-                    discountValue={discountValue}
-                    setDiscountValue={setDiscountValue}
                     coupon={coupon}
                     setCoupon={setCoupon}
-                    setPromotionId={setPromotionId}
+                    promotion={promotion}
+                    setPromotion={setPromotion}
                     customer={customer}
+                    loyaltyPoint={loyaltyPoint}
                   />
                 )}
                 {!isExchange && (
