@@ -62,7 +62,6 @@ function DiscountUpdateForm({ form,
                             disabled={true}
                             restFormItem={{
                                 rules: [
-                                    // { required: true, message: 'Vui lòng nhập mã khuyến mại' },
                                     { pattern: /^DI([0-9])+$/, message: "Mã khuyến mại sai định dạng" },
                                 ],
                             }}
@@ -153,7 +152,7 @@ function DiscountUpdateForm({ form,
                                                 prerequisite_quantity_ranges: [{
                                                     value_type: DiscountUnitType.FIXED_PRICE.value,
                                                     greater_than_or_equal_to: 1,
-                                                    value: 1
+                                                    value: 0,
                                                 }]
                                             };
                                             _.merge(item, temp);
@@ -162,9 +161,9 @@ function DiscountUpdateForm({ form,
                                         formData?.entitlements?.forEach((item: DiscountFormModel) => {
                                             const temp = {
                                                 prerequisite_quantity_ranges: [{
-                                                    value_type: DiscountUnitType.PERCENTAGE.value ,
+                                                    value_type: DiscountUnitType.PERCENTAGE.value,
                                                     greater_than_or_equal_to: 1,
-                                                    value: 1
+                                                    value: 0
                                                 }]
                                             };
                                             _.merge(item, temp);

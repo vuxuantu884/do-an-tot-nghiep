@@ -1,35 +1,32 @@
-import {Card, Col, Row} from "antd";
-import {StoreGetListAction} from "domain/actions/core/store.action";
-import {getListChannelRequest} from "domain/actions/order/order.action";
-import {getListSourceRequest} from "domain/actions/product/source.action";
-import {StoreResponse} from "model/core/store.model";
-import {SourceResponse} from "model/response/order/source.response";
-import {ChannelResponse} from "model/response/product/channel.response";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
+import { Card, Col, Row } from "antd";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { StoreResponse } from "model/core/store.model";
+import { SourceResponse } from "model/response/order/source.response";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import Countdown from "react-countdown";
-import {useDispatch} from "react-redux";
-import {DATE_FORMAT} from "utils/DateUtils";
+import { useDispatch } from "react-redux";
+import { DATE_FORMAT } from "utils/DateUtils";
 import CustomerConditionDetail from "./customer-condition.detail";
 interface Props {
   data: DiscountResponse;
 }
 
 export default function GeneralConditionDetail(props: Props): ReactElement {
-  const {data} = props;
+  const { data } = props;
   const dispatch = useDispatch();
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
-  const renderer = ({days, hours, minutes, seconds, completed}: any) => {
+  const renderer = ({ days, hours, minutes, seconds, completed }: any) => {
     if (completed) {
       // Render a complete state
       return <span>Kết thúc chương trình</span>;
     } else {
       // Render a countdown
       return (
-        <span style={{color: "#FCAF17", fontWeight: 500}}>
+        <span style={{ color: "#FCAF17", fontWeight: 500 }}>
           {days > 0 ? `${days} Ngày` : ""} {hours}:{minutes}
         </span>
       );
@@ -67,7 +64,6 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
-    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
   return (
     <Col span={24} md={6}>
@@ -93,10 +89,10 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
                     padding: "0 4px 0 0",
                   }}
                 >
-                  <span style={{color: "#666666"}}>{detail.name}</span>
-                  <span style={{fontWeight: 600}}>:</span>
+                  <span style={{ color: "#666666" }}>{detail.name}</span>
+                  <span style={{ fontWeight: 600 }}>:</span>
                 </Col>
-                <Col span={17} style={{paddingLeft: 0}}>
+                <Col span={17} style={{ paddingLeft: 0 }}>
                   <span
                     style={{
                       wordWrap: "break-word",
@@ -141,9 +137,9 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
                   padding: "0 16px",
                 }}
               >
-                {listChannel &&
-                  data.prerequisite_sales_channel_names.map((code) => (
-                    <li>{listChannel.find((channel) => channel.code === code)?.name}</li>
+                {
+                  data?.prerequisite_sales_channel_names.map((name) => (
+                    <li key={name}>{name}</li>
                   ))}
               </ul>
             ) : (
