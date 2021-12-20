@@ -84,7 +84,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		subStatus,
 		listPaymentMethod,
 		isLoading,
-		isHideTab=false,
+		isHideTab = false,
 		onMenuClick,
 		onClearFilter,
 		onFilter,
@@ -92,6 +92,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	} = props;
 	const [visible, setVisible] = useState(false);
 	const [rerender, setRerender] = useState(false);
+	const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
 	const loadingFilter = useMemo(() => {
 		return isLoading ? true : false
 	}, [isLoading])
@@ -643,6 +644,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 	}
 
+	console.log('optionsVariant', optionsVariant)
+
 	const clearFilter = () => {
 		onClearFilter && onClearFilter();
 		setIssuedClick('')
@@ -660,12 +663,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 	useEffect(() => {
 		formSearchRef.current?.setFieldsValue({
-			search_term: params.search_term
+			search_term: params.search_term,
+			variant_ids: params.variant_ids,
 		})
-	}, [formSearchRef, params.search_term])
+	}, [formSearchRef, params.search_term, params.variant_ids])
 
 	useEffect(() => {
 		if (params.variant_ids && params.variant_ids.length) {
+			setRerenderSearchVariant(false)
 			let variant_ids = Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids];
 			(async () => {
 				let variants: any = [];
@@ -680,10 +685,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 							})
 						} catch { }
 					})
-				);
-				console.log('variants', variants);
-				setOptionsVariant(variants)
+					);
+					console.log('variants', variants);
+					setOptionsVariant(variants);
+					if(variants?.length > 0) {
+						setRerenderSearchVariant(true)
+					}
 			})()
+		}else {
+			setRerenderSearchVariant(true)
 		}
 	}, [params.variant_ids]);
 
@@ -715,17 +725,39 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			<div className="order-filter">
 				<CustomFilter onMenuClick={onActionClick} menu={actions}>
 					<Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-						<Item name="search_term" className="input-search">
-							<Input
-								prefix={<img src={search} alt="" />}
-								placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
-								onBlur={(e) => {
-									formSearchRef?.current?.setFieldsValue({
-										search_term: e.target.value.trim()
-									})
-								}}
-							/>
-						</Item>
+						<div style={{width: "100%"}}>
+							<Row gutter={20}>
+								<Col span={12}>
+									<Item name="search_term" className="input-search">
+										<Input
+											prefix={<img src={search} alt="" />}
+											placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+											onBlur={(e) => {
+												formSearchRef?.current?.setFieldsValue({
+													search_term: e.target.value.trim()
+												})
+											}}
+										/>
+									</Item>
+
+								</Col>
+								<Col span={12}>
+									{rerenderSearchVariant  && (
+									<Item name="variant_ids">
+										<DebounceSelect
+											mode="multiple" showArrow maxTagCount='responsive'
+											placeholder="Sản phẩm" allowClear
+											fetchOptions={searchVariants}
+											optionsVariant={optionsVariant}
+											style={{
+												width: '100%',
+											}}
+										/>
+									</Item>
+									)}
+								</Col>
+							</Row>
+						</div>
 						<div className="buttonGroup">
 							<Button type="primary" loading={loadingFilter} htmlType="submit">
 								Lọc
@@ -1120,19 +1152,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 											</CustomSelect.Option>
 										))}
 									</CustomSelect>
-								</Item>
-							</Col>
-							<Col span={8} xxl={8}>
-								<Item name="variant_ids" label="Sản phẩm">
-									<DebounceSelect
-										mode="multiple" showArrow maxTagCount='responsive'
-										placeholder="Tìm kiếm sản phẩm" allowClear
-										fetchOptions={searchVariants}
-										optionsVariant={optionsVariant}
-										style={{
-											width: '100%',
-										}}
-									/>
 								</Item>
 							</Col>
 						</Row>
