@@ -97,37 +97,36 @@ const PromotionDetailScreen: React.FC = () => {
           name: "Tên khuyến mãi",
           value: dataDiscount.title,
           position: "left",
-          key: "1",
         },
         {
           name: "Mã khuyến mãi",
           value: dataDiscount.code ? dataDiscount.code : "",
           position: "left",
-          key: "2",
         },
         {
           name: "Phương thức km",
           value: getEntitled_method(dataDiscount),
           position: "left",
-          key: "3",
         },
         {
           name: "Số lượng đã bán",
           value: dataDiscount?.async_allocation_count,
           position: "right",
-          key: "5",
+        },
+        {
+          name: "Số lượng áp dụng",
+          value: dataDiscount?.quantity_limit || "Không giới hạn",
+          position: "right",
         },
         {
           name: "Tổng doanh thu",
           value: "---",
           position: "right",
-          key: "6",
         },
         {
           name: "Mức độ ưu tiên",
           value: dataDiscount.priority,
           position: "right",
-          key: "7",
         },
       ];
       return details;

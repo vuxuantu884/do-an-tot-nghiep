@@ -6,7 +6,7 @@ import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
 import { EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
-import { CustomerSelectionOption, DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -124,18 +124,14 @@ const DiscountUpdate = () => {
         body.starts_date = values.starts_date.format();
         body.ends_date = values.ends_date?.format() || null;
 
-        body.prerequisite_store_ids = values.prerequisite_store_ids ? values.prerequisite_store_ids : [];
-        body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names ? values.prerequisite_sales_channel_names : [];
-        body.prerequisite_order_source_ids = values.prerequisite_order_source_ids ? values.prerequisite_order_source_ids : [];
+        body.prerequisite_store_ids = values.prerequisite_store_ids ?? [];
+        body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names ?? [];
+        body.prerequisite_order_source_ids = values.prerequisite_order_source_ids ?? [];
 
         // ==Đối tượng khách hàng==
 
-        // Áp dụng tất cả
-        body.customer_selection = values.customer_selection
-            ? CustomerSelectionOption.ALL
-            : CustomerSelectionOption.PREREQUISITE;
-
-
+        // Giới tính
+        body.prerequisite_genders = values.prerequisite_genders ?? [];
         //Ngày sinh khách hàng
         const startsBirthday = values[CustomerFilterField.starts_birthday]
             ? moment(values[CustomerFilterField.starts_birthday])
@@ -191,6 +187,13 @@ const DiscountUpdate = () => {
         } else {
             body.prerequisite_wedding_duration = null;
         }
+
+        //Khách hàng thuộc nhóm
+        body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids ?? [];
+        //Khách hàng thuộc cấp độ
+        body.prerequisite_customer_loyalty_level_ids = values.prerequisite_customer_loyalty_level_ids ?? [];
+        //Nhân viên phụ trách
+        body.prerequisite_assignee_codes = values.prerequisite_assignee_codes ?? [];
 
         //==Chiết khấu nâng cao theo đơn hàng==
         //Điều kiện chung
