@@ -318,7 +318,11 @@ const ProductCreateScreen: React.FC = () => {
             variant_images: [],
           });
         }
-        setVariants([...newVariants]);
+        
+        let uniqueObjArray = [
+          ...new Map(newVariants.map((item) => [item["sku"], item])).values(),
+      ];
+        setVariants([...uniqueObjArray]);
       }
     },
     [form]
