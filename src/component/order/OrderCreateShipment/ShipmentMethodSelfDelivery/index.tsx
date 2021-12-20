@@ -1,4 +1,4 @@
-import { Checkbox, Col, Form, Radio, Row } from "antd";
+import { Checkbox, Col, Form, FormInstance, Radio, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -16,6 +16,7 @@ type PropType = {
   setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
+  form: FormInstance<any>;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -27,6 +28,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
     setThirdPL,
+    form
   } = props;
   const [is4h, setIs4h] = useState(false);
   const [typeDelivery, setTypeDelivery] = useState('employee');
@@ -36,8 +38,8 @@ function ShipmentMethodSelfDelivery(props: PropType) {
 
   const onChangeType = useCallback((e) => {
     setTypeDelivery(e.target.value);
-  }, []);
-  
+    form?.setFieldsValue({shipper_code: null});
+  }, [form]);
 
   useEffect(() => {
     setThirdPL({
