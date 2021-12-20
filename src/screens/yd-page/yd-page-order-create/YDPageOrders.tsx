@@ -801,7 +801,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 switch (
                   response.fulfillments[0].shipment?.delivery_service_provider_type
                 ) {
-                  case ShipmentMethod.SHIPPER:
+                  case ShipmentMethod.EMPLOYEE:
+								  case ShipmentMethod.EXTERNAL_SHIPPER:
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
                     break;
                   case ShipmentMethod.EXTERNAL_SERVICE:

@@ -486,7 +486,8 @@ function OrdersTable(props: PropsType) {
 											)}
 										</React.Fragment>
 									);
-								case ShipmentMethod.SHIPPER:
+								case ShipmentMethod.EMPLOYEE:
+								case ShipmentMethod.EXTERNAL_SHIPPER:
 									return (<React.Fragment>
 										<div className="single">
 											Đối tác {" - "}

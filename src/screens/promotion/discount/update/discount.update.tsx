@@ -1,8 +1,12 @@
 import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
+import { searchProductWrapperRequestAction } from "domain/actions/product/products.action";
 import { getVariants, promoGetDetail, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
 import _ from "lodash";
-import { CustomerSelectionOption, DiscountResponse, DiscountVariantResponse } from "model/response/promotion/discount/list-discount.response";
+import { PageResponse } from "model/base/base-metadata.response";
+import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
+import { EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
+import { CustomerSelectionOption, DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -19,6 +23,7 @@ import "../discount.scss";
 import DiscountUpdateForm from "./discount-update-form";
 import DiscountUpdateProvider, { DiscountUpdateContext } from "./discount-update-provider";
 const DiscountUpdate = () => {
+
     const dispatch = useDispatch();
     const [form] = Form.useForm();
     const history = useHistory();
@@ -26,8 +31,8 @@ const DiscountUpdate = () => {
     const { id } = useParams<{ id: string }>();
     const idNumber = parseInt(id);
 
-    // const [dataDiscount, setDataDiscount] = useState<DiscountResponse>();
-    const [dataVariants, setDataVariants] = useState<DiscountVariantResponse[]>([]);
+    const [dataVariants, setDataVariants] = useState<ProductEntitlements[]>([]);
+    const [dataProducts, setDataProducts] = useState<ProductResponse[]>([]);
 
     const [isAllStore, setIsAllStore] = useState(true);
     const [isAllCustomer, setIsAllCustomer] = useState(true);
@@ -37,7 +42,7 @@ const DiscountUpdate = () => {
     const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
 
     const discountUpdateContext = useContext(DiscountUpdateContext);
-    const { setIsAllProduct, setSelectedVariant, setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
+    const { setIsAllProduct, isAllProduct, setDiscountMethod, setDiscountData, discountData, setSelectedVariant } = discountUpdateContext;
 
     const parseDataToForm = useCallback(
         (result: DiscountResponse) => {
@@ -95,36 +100,29 @@ const DiscountUpdate = () => {
             setIsAllSource(result.prerequisite_order_source_ids?.length === 0);
 
             setIsAllCustomer(result.customer_selection.toLocaleUpperCase() === "ALL");
-
+            setDiscountData(formValue);
             form.setFieldsValue(formValue);
 
         },
-        [form, setDiscountMethod]
+        [form, setDiscountMethod, setDiscountData]
     );
 
 
     const transformData = (values: any) => {
-        let body: any = {};
+        let body: any = values;
         body.type = PROMO_TYPE.AUTOMATIC;
-        body.title = values.title;
-        body.priority = values.priority;
-        body.description = values.description;
 
-        body.entitled_method = values.entitled_method;
-        body.quantity_limit = values.quantity_limit;
-        body.prerequisite_store_ids = values.prerequisite_store_ids?.length
-            ? values.prerequisite_store_ids
-            : null;
-        body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names
-            ?.length
-            ? values.prerequisite_sales_channel_names
-            : null;
-        body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length
-            ? values.prerequisite_order_source_ids
-            : null;
         body.starts_date = values.starts_date.format();
         body.ends_date = values.ends_date?.format() || null;
-        body.entitlements = values?.entitlements;
+
+        body.entitlements = values?.entitlements ? values?.entitlements?.map((item: EntilementFormModel) => {
+            delete item.selectedProducts;
+            if (isAllProduct) {
+                item.entitled_product_ids = [];
+                item.entitled_variant_ids = [];
+            }
+            return item;
+        }) : null;
 
         // ==Đối tượng khách hàng==
         // Áp dụng tất cả
@@ -132,8 +130,6 @@ const DiscountUpdate = () => {
             ? CustomerSelectionOption.ALL
             : CustomerSelectionOption.PREREQUISITE;
 
-        //Giới tính khách hàng
-        body.prerequisite_genders = values.prerequisite_genders;
 
         //Ngày sinh khách hàng
         const startsBirthday = values[CustomerFilterField.starts_birthday]
@@ -191,39 +187,29 @@ const DiscountUpdate = () => {
             body.prerequisite_wedding_duration = null;
         }
 
-        //Nhóm khách hàng
-        body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids;
-
-        //Hạng khách hàng
-        body.prerequisite_customer_loyalty_level_ids =
-            values.prerequisite_customer_loyalty_level_ids;
-
-        //Nhân viên phụ trách
-        body.prerequisite_assignee_codes = values.prerequisite_assignee_codes;
-
         //==Chiết khấu nâng cao theo đơn hàng==
         //Điều kiện chung
-
-
 
         if (values?.rule && !_.isEmpty(JSON.parse(JSON.stringify(values?.rule)))) {
             body.rule = values.rule;
         }
+
         return body;
     };
 
-
+    /**
+     * Update discount
+     */
     const updateCallback = (data: DiscountResponse) => {
         if (data) {
-            showSuccess("Thêm thành công");
+            showSuccess("Cập nhật chiết khấu thành công");
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
         }
     };
-    const handleSubmit = async (values: any) => {
+
+    const handleSubmit = (values: any) => {
         try {
             const body = transformData(values);
-
-            console.log(body);
             body.id = idNumber;
             dispatch(updatePriceRuleByIdAction(body, updateCallback));
         } catch (error: any) {
@@ -231,50 +217,86 @@ const DiscountUpdate = () => {
         }
     };
 
+    /**
+     * 
+     */
     const onResult = useCallback(
         (result: DiscountResponse | false) => {
-
             if (result) {
-                setDiscountData(result);
+                // search data of parent product for entitled_product_ids
+                let product_ids: Array<number> = []
+                result.entitlements.forEach((item: EntilementFormModel) => {
+                    return item.entitled_product_ids.forEach((id: number) => {
+                        product_ids.push(id)
+                    })
+                })
+
+                const query: ProductWrapperSearchQuery = {
+                    product_ids
+                }
+                dispatch(searchProductWrapperRequestAction(query, (data: false | PageResponse<ProductResponse>) => {
+                    if (data)
+                        setDataProducts(data.items)
+                }));
+
                 parseDataToForm(result);
             }
         },
-        [parseDataToForm, setDiscountData]
+        [dispatch, parseDataToForm]
     );
 
 
+
+
+    /**
+     * Dùng entitled_product_ids và entitled_variant_ids để lấy data product
+     */
     const mergeVariantsData = useCallback(
-        (sourceData: Array<number>) => {
-            return sourceData.map((id) => {
-                const variant = dataVariants.find((v: any) => v.variant_id === id);
-                const variantData: any = { id }
-                if (variant) {
-                    variantData.name = variant.variant_title;
-                    variantData.sku = variant.sku;
-                    variantData.cost = variant.cost;
-                    variantData.on_hand = variant.open_quantity;
+        (entitled_variant_ids: Array<number>, entitled_product_ids: Array<number>) => {
+            const listProduct: Array<ProductEntitlements> = []
+            entitled_product_ids.forEach((id: number) => {
+                const product = dataProducts.find((item: ProductResponse) => item.id === id)
+                if (product) {
+                    listProduct.push({
+                        isParentProduct: true,
+                        variant_title: product.name,
+                        variant_id: undefined,
+                        product_id: product.id,
+                        sku: product.code,
+                        cost: 0,
+                        open_quantity: product.on_hand,
+                    })
                 }
-                return variantData;
+            }
+            )
+
+            const listProductFormVariant = entitled_variant_ids.map((id) => {
+                return dataVariants.find((v) => v.variant_id === id) || {} as ProductEntitlements;
             });
+            return [...listProduct, ...listProductFormVariant];
         },
-        [dataVariants]
+        [dataVariants, dataProducts]
     );
 
-    // Action: Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mãi
+    /**
+     * Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mãi
+     */
     useEffect(() => {
-        if (Array.isArray(discountData?.entitlements)) {
-            const tempMapProduct: Array<any> = [];
-            let allProduct = false;
-            discountData.entitlements.forEach((entitlement: any, index: number) => {
-                tempMapProduct.push(mergeVariantsData(entitlement.entitled_variant_ids));
-                if (entitlement?.entitled_variant_ids?.length === 0) {
+        let allProduct = false;
+        const entilelementValue: Array<EntilementFormModel> = discountData.entitlements;
+        if (entilelementValue) {
+            entilelementValue.forEach((item: EntilementFormModel) => {
+                item.selectedProducts = mergeVariantsData(item.entitled_variant_ids, item.entitled_product_ids) || [];
+                if (item?.entitled_variant_ids?.length === 0 && item?.entitled_product_ids?.length === 0) {
                     allProduct = true;
                 }
-            });
-            setSelectedVariant(tempMapProduct);
-            setIsAllProduct(allProduct);
+            })
+
+            form.setFieldsValue({ entitlements: entilelementValue });
         }
-    }, [discountData, mergeVariantsData, setSelectedVariant, setIsAllProduct]);
+
+        setIsAllProduct(allProduct);
+    }, [discountData, setIsAllProduct, form, setSelectedVariant, mergeVariantsData]);
 
     useEffect(() => {
         dispatch(getVariants(idNumber, setDataVariants));
@@ -283,22 +305,18 @@ const DiscountUpdate = () => {
 
     return (
         <ContentContainer
-            title="Tạo chiết khấu"
+            title={discountData.title}
             breadcrumb={[
                 {
                     name: "Tổng quan",
                     path: UrlConfig.HOME,
                 },
                 {
-                    name: "Khuyến mại",
-                    path: `${UrlConfig.PROMOTION}`,
-                },
-                {
                     name: "Chiết khấu",
                     path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
                 },
                 {
-                    name: "Tạo Chiết khấu",
+                    name: "Sửa Chiết khấu",
                     path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`,
                 },
             ]}
@@ -309,7 +327,7 @@ const DiscountUpdate = () => {
                 onFinish={(values: any) => handleSubmit(values)}
                 layout="vertical"
                 scrollToFirstError
-
+                initialValues={discountData}
             >
                 <Row gutter={24}>
 
@@ -333,6 +351,7 @@ const DiscountUpdate = () => {
 
                 <BottomBarContainer
                     back="Quay lại danh sách chiết khấu"
+                    backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
                     rightComponent={<Button type="primary" htmlType="submit">
                         Lưu
                     </Button>}

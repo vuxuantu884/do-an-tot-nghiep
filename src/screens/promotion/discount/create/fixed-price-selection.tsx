@@ -5,7 +5,7 @@ import _ from "lodash";
 import {
   DiscountFormModel,
   DiscountMethod,
-  VariantEntitlementsResponse,
+  VariantEntitlementsFileImport,
 } from "model/promotion/discount.create.model";
 import React, { useLayoutEffect, useState } from "react";
 import { VscError } from "react-icons/all";
@@ -49,7 +49,7 @@ const FixedPriceSelection = (props: Props) => {
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [allProduct, setAllProduct] = useState<boolean>(false);
   const [entitlementsResponse, setEntitlementsResponse] = useState<
-    Array<VariantEntitlementsResponse>
+    Array<VariantEntitlementsFileImport>
   >([]);
   const [entitlementErrorsResponse, setEntitlementErrorsResponse] = useState<Array<any>>(
     []
@@ -59,7 +59,7 @@ const FixedPriceSelection = (props: Props) => {
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
 
-  const [importProduct, setImportProduct] = useState<Array<Array<VariantEntitlementsResponse>>>([]);
+  const [importProduct, setImportProduct] = useState<Array<Array<VariantEntitlementsFileImport>>>([]);
   // import file
   const handleImportEntitlements = () => {
     const newVariantList = Object.assign(
