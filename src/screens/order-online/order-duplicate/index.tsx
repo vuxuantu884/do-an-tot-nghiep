@@ -885,7 +885,7 @@ const OrderDuplicate: React.FC = () => {
     }
   }, []);
 
-  const handleSearchResult=useCallback(()=>{
+  const handleSearchResult = useCallback(() => {
     setTableLoading(true);
 
     let _issued_on_min = moment(new Date().setHours(-24)).format('DD-MM-YYYY');
@@ -897,7 +897,7 @@ const OrderDuplicate: React.FC = () => {
       , issued_on_min: params.issued_on_min && params.issued_on_min.length > 0 ? params.issued_on_min : _issued_on_min
       , issued_on_max: params.issued_on_max && params.issued_on_max.length > 0 ? params.issued_on_max : _issued_on_max
     }, setSearchResult));
-  },[dispatch, params, setSearchResult, customer_phone]);
+  }, [dispatch, params, setSearchResult, customer_phone]);
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -959,13 +959,12 @@ const OrderDuplicate: React.FC = () => {
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
     dispatch(putOrderDuplicateMerge(value, selectedOrderIds, (data: OrderModel) => {
       console.log(data)
-      if(data)
-      {
+      if (data) {
         handleSearchResult();
         setMergeOrderVisible(false);
       }
     }));
-  }, [dispatch, selectedOrder,handleSearchResult])
+  }, [dispatch, selectedOrder, handleSearchResult])
 
   const hanldMergeOrderCancel = () => {
     console.log("Cancel");
@@ -974,20 +973,19 @@ const OrderDuplicate: React.FC = () => {
 
   //hủy đơn trùng
   const hanldCancelOrderOk = useCallback(() => {
-    if (selectedOrder.length <= 0)return;
+    if (selectedOrder.length <= 0) return;
 
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
     dispatch(putOrderDuplicateCancel(selectedOrderIds, (data: any) => {
-      if(data===true)
-      {
+      if (data === true) {
         handleSearchResult();
         setCancelOrderComfirm(false);
       }
       console.log(data)
-      
+
     }));
-    
-  },[dispatch,selectedOrder, handleSearchResult]);
+
+  }, [dispatch, selectedOrder, handleSearchResult]);
 
   ///arrow function
 
@@ -1043,7 +1041,7 @@ const OrderDuplicate: React.FC = () => {
           },
           {
             name: "Đơn trùng",
-            path:UrlConfig.ORDERS_DUPLICATE
+            path: UrlConfig.ORDERS_DUPLICATE
           },
           {
             name: "Danh sách đơn trùng",
