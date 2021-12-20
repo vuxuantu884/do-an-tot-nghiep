@@ -9,6 +9,7 @@ const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 export const StyledComponent = styled.div`
   th {
     text-align: center !important;
+		padding: 12px 5px !important;
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantityPrice,
@@ -175,7 +176,7 @@ export const StyledComponent = styled.div`
 				max-width: 100%;
 				margin-right: 5px;
 				position: relative;
-				top: -1px;
+				top: -2px;
 			}
 		}
 	}

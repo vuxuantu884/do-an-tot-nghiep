@@ -328,7 +328,7 @@ function OrdersTable(props: PropsType) {
 										</div>
 										<div className="price priceWidth">
 											<div>
-												<Tooltip title="Giá">
+												<Tooltip title="Giá sản phẩm">
 													<span>{formatCurrency(item.price)}</span>
 												</Tooltip>
 
@@ -489,7 +489,43 @@ function OrdersTable(props: PropsType) {
 								case ShipmentMethod.SHIPPER:
 									return `Đối tác - ${sortedFulfillments[0].shipment.shipper_code} - ${sortedFulfillments[0].shipment.shipper_name}`;
 								case ShipmentMethod.PICK_AT_STORE:
-									return `Nhận tại - ${record.store}`;
+									return (<React.Fragment>
+										<div className="single">
+											Nhận tại {" "}
+											<Link target="_blank" to={`${UrlConfig.STORE}/${record?.store_id}`}>
+												{record.store}
+											</Link>
+										</div>
+										<Tooltip title="Tổng khối lượng">
+											<div className="single">
+												<img
+													src={iconWeight}
+													alt=""
+												/>
+												<span>{record.total_weight || 0} gr</span>
+											</div>
+										</Tooltip>
+										<Tooltip title="Phí ship báo khách">
+											<div className="single">
+												<img
+													src={iconShippingFeeInformedToCustomer}
+													alt=""
+												/>
+												<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+											</div>
+										</Tooltip>
+
+										<Tooltip title="Phí vận chuyển">
+											<div className="single">
+												<img
+													src={iconShippingFeePay3PL}
+													alt=""
+												/>
+												{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+											</div>
+										</Tooltip>
+
+									</React.Fragment>)
 								default:
 									return "";
 							}
@@ -613,7 +649,7 @@ function OrdersTable(props: PropsType) {
 				key: "total_quantity",
 				visible: true,
 				align: "center",
-				width: 75,
+				width: 80,
 			},
 			{
 				title: "NV bán hàng",
