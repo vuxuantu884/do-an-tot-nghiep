@@ -1,4 +1,4 @@
-import { Button, Card, Col, Divider, Row, Space } from "antd";
+import { Button, Card, Col, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
@@ -9,7 +9,7 @@ import { DiscountResponse } from "model/response/promotion/discount/list-discoun
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import BottomBarContainer from "../../../component/container/bottom-bar.container";
 import CustomTable from "../../../component/table/CustomTable";
 import { HttpStatus } from "../../../config/http-status.config";
@@ -23,10 +23,9 @@ import {
 import { bulkDisablePriceRules } from "../../../service/promotion/discount/discount.service";
 import { showError } from "../../../utils/ToastUtils";
 import GeneralConditionDetail from "../shared/general-condition.detail";
+import DiscountRuleInfo from "./components/discount-rule-info";
 import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, discountStatus } from "./constants";
 import "./discount.scss";
-import { useHistory } from "react-router-dom";
-import DiscountRuleInfo from "./components/discount-rule-info";
 
 export interface ProductParams {
   id: string;
@@ -365,7 +364,7 @@ const PromotionDetailScreen: React.FC = () => {
                     </Col>
                   </Col>
                 </Row>
-                <Divider />
+                {/* <Divider />
                 <Row gutter={30}>
                   <Col span={24} style={{ textAlign: "right" }}>
                     <Space size={"large"}>
@@ -373,7 +372,7 @@ const PromotionDetailScreen: React.FC = () => {
                       <Link to={`#`}>Xem kết quả khuyến mãi</Link>
                     </Space>
                   </Col>
-                </Row>
+                </Row> */}
               </Card>
               <Card
                 className="card"
@@ -393,11 +392,12 @@ const PromotionDetailScreen: React.FC = () => {
                       columns={columnDiscountByRule}
                       dataSource={dataDiscount.rule?.conditions}
                       pagination={false}
-                      rowKey={(record: any) => record}
+                      rowKey="id"
                     />
                   </>}
 
                 {dataDiscount.entitled_method !== "ORDER_THRESHOLD" && <CustomTable
+                  rowKey="id"
                   dataSource={dataVariants}
                   columns={
                     dataVariants.length > 1

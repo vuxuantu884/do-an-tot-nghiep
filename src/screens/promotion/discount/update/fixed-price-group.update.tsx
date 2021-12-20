@@ -270,7 +270,11 @@ const FixedPriceGroupUpdate = (props: Props) => {
               { required: true, message: "Cần nhập số lượng tối thiểu", },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-
+                  if (typeof value === "number" && value <= 0) {
+                    return Promise.reject(
+                      new Error("Số lượng tối thiểu phải lớn hơn 0")
+                    );
+                  }
                   const quantity_limit = getFieldValue("quantity_limit");
                   if (!quantity_limit) {
                     return Promise.resolve();
@@ -293,7 +297,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               }),
             ]}
           >
-            <NumberInput min={1} />
+            <NumberInput min={0} />
           </Form.Item>
         </Col>
 
@@ -302,9 +306,20 @@ const FixedPriceGroupUpdate = (props: Props) => {
             <DiscountMethodStyled>
               <Form.Item
                 name={[name, "prerequisite_quantity_ranges", 0, "value"]}
-                label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
+                label={discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu"}
                 style={{ flex: "1 1 auto" }}
-                rules={[{ required: true, message: "Cần nhập chiết khấu" }]}
+                rules={[{ required: true, message: "Cần nhập chiết khấu" }, () => ({
+                  validator(_, value) {
+                    let msg = discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu";
+
+                    if (typeof value === "number" && value <= 0) {
+                      return Promise.reject(
+                        new Error(msg + " phải lớn hơn 0")
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                })]}
               >
                 <InputNumber
                   style={{ width: '100%' }}
@@ -312,7 +327,6 @@ const FixedPriceGroupUpdate = (props: Props) => {
                   max={discountType === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
                   step={discountType === DiscountUnitType.PERCENTAGE.value ? 0.01 : 1}
                 // formatter={(value) => formatDiscountValue(value, discountType === DiscountUnitType.PERCENTAGE.value)}
-
                 />
               </Form.Item>
             </DiscountMethodStyled>

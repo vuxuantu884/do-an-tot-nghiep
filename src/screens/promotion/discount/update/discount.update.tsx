@@ -111,11 +111,6 @@ const DiscountUpdate = () => {
 
     const transformData = (values: any) => {
         let body: any = values;
-        body.type = PROMO_TYPE.AUTOMATIC;
-
-        body.starts_date = values.starts_date.format();
-        body.ends_date = values.ends_date?.format() || null;
-
         body.entitlements = values?.entitlements ? values?.entitlements?.map((item: EntilementFormModel) => {
             delete item.selectedProducts;
             if (isAllProduct) {
@@ -125,7 +120,16 @@ const DiscountUpdate = () => {
             return item;
         }) : null;
 
+        body.type = PROMO_TYPE.AUTOMATIC;
+        body.starts_date = values.starts_date.format();
+        body.ends_date = values.ends_date?.format() || null;
+
+        body.prerequisite_store_ids = values.prerequisite_store_ids ? values.prerequisite_store_ids : [];
+        body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names ? values.prerequisite_sales_channel_names : [];
+        body.prerequisite_order_source_ids = values.prerequisite_order_source_ids ? values.prerequisite_order_source_ids : [];
+
         // ==Đối tượng khách hàng==
+
         // Áp dụng tất cả
         body.customer_selection = values.customer_selection
             ? CustomerSelectionOption.ALL
