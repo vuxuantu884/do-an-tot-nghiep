@@ -286,16 +286,6 @@ export const columnFixedPrice = [
       }
     }
   },
-  {
-    title: "Giới hạn",
-    align: "center",
-    dataIndex: "entitlement",
-    render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
-        return entitlement.prerequisite_quantity_ranges[0].allocation_limit;
-      }
-    }
-  },
 ];
 
 export const columnDiscountQuantity = [
@@ -367,21 +357,7 @@ export const columnDiscountQuantity = [
         return '';
       }
     }
-  },
-  {
-    title: "Giới hạn",
-    align: "center",
-    dataIndex: "entitlement",
-    render: (entitlement: EntilementFormModel) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
-        return (
-          <span>{entitlement.prerequisite_quantity_ranges[0].allocation_limit || ''}</span>
-        )
-      } else {
-        return '';
-      }
-    }
-  },
+  }
 ];
 
 export const columnDiscountByRule = [

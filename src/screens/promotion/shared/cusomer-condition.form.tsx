@@ -96,8 +96,19 @@ export default function CustomerFilter(props: Props): ReactElement {
   };
   const handleCheckedAll = (value: boolean) => {
     setCheckedAll(value);
+
     if (value) {
       resetError();
+      form.setFieldsValue({
+        [CustomerFilterField.prerequisite_genders]: undefined,
+        [CustomerFilterField.starts_birthday]: undefined,
+        [CustomerFilterField.ends_birthday]: undefined,
+        [CustomerFilterField.starts_wedding_day]: undefined,
+        [CustomerFilterField.ends_wedding_day]: undefined,
+        [CustomerFilterField.prerequisite_customer_group_ids]: undefined,
+        [CustomerFilterField.prerequisite_customer_loyalty_level_ids]: undefined,
+        [CustomerFilterField.prerequisite_assignee_codes]: undefined,
+      })
     }
   };
 
