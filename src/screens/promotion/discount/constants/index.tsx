@@ -7,6 +7,13 @@ import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
 import { formatDiscountValue, renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 const { Item } = Form;
+
+export const DiscountUnitType = {
+  PERCENTAGE: { value: "PERCENTAGE", label: "%" },
+  FIXED_PRICE: { value: "FIXED_PRICE", label: "đ" },
+  FIXED_AMOUNT: { value: "FIXED_AMOUNT", label: "đ" },
+};
+
 export const FieldSelectOptions = [
   {
     label: "Tên sản phẩm",
@@ -233,7 +240,7 @@ export const columnFixedPrice = [
     align: "center",
     visible: false,
     dataIndex: "cost",
-    render: (value: number) => value === -1 ? "-": formatCurrency(value),
+    render: (value: number) => value >= 0 ? formatCurrency(value) : "-",
   },
   {
     title: "Chiết khấu",
@@ -253,7 +260,7 @@ export const columnFixedPrice = [
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 && record.cost>=0) {
+      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 && record.cost >= 0) {
         const { value, value_type } = entitlement.prerequisite_quantity_ranges[0]
 
         return <span style={{ color: "#E24343" }}>{
@@ -325,15 +332,20 @@ export const columnDiscountQuantity = [
     align: "center",
     visible: false,
     dataIndex: "cost",
-    render: (value: string) => formatCurrency(value),
+    render: (cost: number) => {
+      if (cost >= 0) {
+        return formatCurrency(cost)
+      } else {
+        return "-"
+      }
+    },
   },
   {
     title: "Giá cố định",
     align: "center",
     dataIndex: "entitlement",
-    render: (entitlement: EntilementFormModel) => {
-      console.log('prerequisite_quantity_ranges', entitlement);
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
+    render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
+      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 && record.cost >= 0) {
         return (
           <span style={{ color: "#E24343" }}>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || '')}</span>
         )

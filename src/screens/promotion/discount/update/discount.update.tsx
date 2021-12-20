@@ -38,9 +38,9 @@ const DiscountUpdate = () => {
     const [isAllCustomer, setIsAllCustomer] = useState(true);
     const [isAllChannel, setIsAllChannel] = useState(true);
     const [isAllSource, setIsAllSource] = useState(true);
-
     const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const discountUpdateContext = useContext(DiscountUpdateContext);
     const { setIsAllProduct, isAllProduct, setDiscountMethod, setDiscountData, discountData, setSelectedVariant } = discountUpdateContext;
 
@@ -90,6 +90,7 @@ const DiscountUpdate = () => {
                 ends_wedding_day: result.prerequisite_wedding_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.ends_mmdd_key)) : undefined,
 
             };
+
             setDiscountMethod(result.entitled_method)
             //set default checked Loại khuyến mãi
             setIsUnlimitQuantity(typeof result.quantity_limit !== "number");
@@ -203,16 +204,19 @@ const DiscountUpdate = () => {
     const updateCallback = (data: DiscountResponse) => {
         if (data) {
             showSuccess("Cập nhật chiết khấu thành công");
+            setIsSubmitting(true)
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
         }
     };
 
     const handleSubmit = (values: any) => {
         try {
+            setIsSubmitting(true)
             const body = transformData(values);
             body.id = idNumber;
             dispatch(updatePriceRuleByIdAction(body, updateCallback));
         } catch (error: any) {
+            setIsSubmitting(true)
             showError(error.message);
         }
     };
@@ -240,6 +244,7 @@ const DiscountUpdate = () => {
                 }));
 
                 parseDataToForm(result);
+
             }
         },
         [dispatch, parseDataToForm]
@@ -352,7 +357,7 @@ const DiscountUpdate = () => {
                 <BottomBarContainer
                     back="Quay lại danh sách chiết khấu"
                     backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
-                    rightComponent={<Button type="primary" htmlType="submit">
+                    rightComponent={<Button type="primary" htmlType="submit" loading={isSubmitting}>
                         Lưu
                     </Button>}
                 />
