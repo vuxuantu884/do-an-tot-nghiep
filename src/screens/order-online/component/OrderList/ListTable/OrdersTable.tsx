@@ -213,18 +213,24 @@ function OrdersTable(props: PropsType) {
 		[renderOrderPaymentMethods]
 	);
 
-	const renderCustomerAddress = (orderDetail: OrderModel) => {
-		let html = orderDetail.customer_address;
-		if (orderDetail.customer_ward) {
-			html += ` - ${orderDetail.customer_ward}`;
+	const renderShippingAddress = (orderDetail: OrderModel) => {
+		const sortedFulfillments = orderDetail.fulfillments?.sort(
+			(a: any, b: any) => b.id - a.id
+		);
+		console.log('sortedFulfillments', sortedFulfillments)
+		if (!sortedFulfillments || !sortedFulfillments[0] || !sortedFulfillments[0].shipment?.shipping_address) {
+			return "";
 		}
-		if (orderDetail.customer_district) {
-			html += ` - ${orderDetail.customer_district}`;
-		}
-		if (orderDetail.customer_city) {
-			html += ` - ${orderDetail.customer_city}`;
-		}
-		return html;
+		let shipping_address = sortedFulfillments[0].shipment?.shipping_address;
+		return (
+			<React.Fragment>
+				{sortedFulfillments[0].shipment?.shipping_address && (
+					<Tooltip title="Địa chỉ giao hàng">
+						<span style={{fontSize: "0.86em"}}>{`${shipping_address.full_address}-${shipping_address.ward}-${shipping_address.district}-${shipping_address.city}`}</span>
+					</Tooltip>
+				)}
+			</React.Fragment>
+		)
 	};
 
 	const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
@@ -254,7 +260,7 @@ function OrdersTable(props: PropsType) {
 								</Tooltip>
 							</div>
 							{i.source && (
-								<div style={{ fontSize: "1em", marginTop: 5}}>
+								<div style={{ fontSize: "1em", marginTop: 5 }}>
 									<Tooltip title="Nguồn đơn hàng">
 										{i.source}
 									</Tooltip>
@@ -291,7 +297,7 @@ function OrdersTable(props: PropsType) {
 								</a>
 							</div>
 						)}
-						<div className="p-b-3">{renderCustomerAddress(record)}</div>
+						<div className="p-b-3">{renderShippingAddress(record)}</div>
 					</div>
 				),
 				key: "customer",
@@ -501,7 +507,7 @@ function OrdersTable(props: PropsType) {
 									return (<React.Fragment>
 										<div className="single">
 											Đối tác {" - "}
-											{sortedFulfillments[0].shipment.shipper_code}  {sortedFulfillments[0].shipment.shipper_name}
+											<span style={{color: primaryColor}}>{sortedFulfillments[0].shipment.shipper_code}-{sortedFulfillments[0].shipment.shipper_name}</span>
 										</div>
 										<Tooltip title="Tổng khối lượng">
 											<div className="single">
