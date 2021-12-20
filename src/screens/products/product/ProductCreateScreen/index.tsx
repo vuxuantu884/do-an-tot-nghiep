@@ -351,24 +351,27 @@ const ProductCreateScreen: React.FC = () => {
   };
 
   const onSizeSelected = useCallback(
-    (value: number) => {
-      let sizeSel = [...variants.map(e=>e.size_id),value];
-      let filter = sizes.items.filter((item) => sizeSel.includes(item.id));
+    (value: number, objSize: any) => {
+      const sizerCode = objSize?.children.substr(0,3);
+      const newSize = {id: value, code: sizerCode } as SizeResponse;
+      let filter = [...variants.filter(e=>e.size !== null).map(e=>({id: e.size_id, code: e.size})), newSize] as Array<SizeResponse>;
+      
       setSizeSelected([...filter]);
       listVariantsFilter(colorSelected, filter);
     },
-    [colorSelected, listVariantsFilter, sizes.items, variants]
+    [colorSelected, listVariantsFilter, variants]
   );
 
-  const onColorSelectd = useCallback(
-    (value: number) => {
-      let colorSel = [...variants.map(e=>e.color_id),value];
+  const onColorSelected = useCallback(
+    (value: number, objColor: any) => {
+      const colorCode = objColor?.children.substr(0,3);
+      const newColor = {id: value, name: colorCode,  code: colorCode } as ColorResponse;
+      let filter = [...variants.filter(e=>e.color !== null).map(e=>({id: e.color_id,name: e.color, code: e.color})), newColor] as Array<ColorResponse>;
       
-       let filter = colors.items.filter((item) => colorSel.includes(item.id));
        setColorSelected([...filter]);
        listVariantsFilter(filter, sizeSelected);
     },
-    [colors.items, listVariantsFilter, sizeSelected, variants]
+    [listVariantsFilter, sizeSelected, variants]
   );
 
   const statusValue = useMemo(() => {
@@ -1300,7 +1303,7 @@ const ProductCreateScreen: React.FC = () => {
                         maxTagCount="responsive"
                         showArrow
                         allowClear
-                        onSelect={onColorSelectd}
+                        onSelect={onColorSelected}
                         onSearch={(key) => getColors(key, 1)}
                         onPageChange={(key, page) => getColors(key, page)}
                         placeholder="Chọn màu sắc"
