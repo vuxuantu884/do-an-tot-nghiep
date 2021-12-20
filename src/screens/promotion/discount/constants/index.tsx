@@ -345,9 +345,9 @@ export const columnDiscountQuantity = [
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 && record.cost >= 0) {
+      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 ) {
         return (
-          <span style={{ color: "#E24343" }}>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || '')}</span>
+          <span style={{ color: "#E24343" }}>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || '')}</span>
         )
       } else {
         return '';
@@ -361,7 +361,7 @@ export const columnDiscountQuantity = [
     render: (entitlement: EntilementFormModel) => {
       if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
         return (
-          <span>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || '')}</span>
+          <span>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || '')}</span>
         )
       } else {
         return '';
