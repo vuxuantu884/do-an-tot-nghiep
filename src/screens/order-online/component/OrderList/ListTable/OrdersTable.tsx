@@ -226,7 +226,7 @@ function OrdersTable(props: PropsType) {
 			<React.Fragment>
 				{sortedFulfillments[0].shipment?.shipping_address && (
 					<Tooltip title="Địa chỉ giao hàng">
-						<span style={{fontSize: "0.86em"}}>{`${shipping_address.full_address}-${shipping_address.ward}-${shipping_address.district}-${shipping_address.city}`}</span>
+						<span style={{ fontSize: "0.86em" }}>{`${shipping_address.full_address}-${shipping_address.ward}-${shipping_address.district}-${shipping_address.city}`}</span>
 					</Tooltip>
 				)}
 			</React.Fragment>
@@ -260,7 +260,7 @@ function OrdersTable(props: PropsType) {
 								</Tooltip>
 							</div>
 							{i.source && (
-								<div style={{ fontSize: "1em", marginTop: 5 }}>
+								<div style={{ fontSize: "0.86em", marginTop: 5 }}>
 									<Tooltip title="Nguồn đơn hàng">
 										{i.source}
 									</Tooltip>
@@ -307,12 +307,16 @@ function OrdersTable(props: PropsType) {
 			{
 				title: (
 					<div className="productNameQuantityPriceHeader">
-						<span className="productNameWidth">Sản phẩm</span>
+						<span className="productNameWidth">Sản phẩm
+							<span className="separator">, </span>
+						</span>
 						<span className="quantity quantityWidth">
-							<span>SL</span>
+							<span>SL
+								<span className="separator">, </span>
+							</span>
 						</span>
 						<span className="price priceWidth">
-							<span>Giá</span>
+							<span>Giá </span>
 						</span>
 					</div>
 				),
@@ -507,7 +511,7 @@ function OrdersTable(props: PropsType) {
 									return (<React.Fragment>
 										<div className="single">
 											Đối tác {" - "}
-											<span style={{color: primaryColor}}>{sortedFulfillments[0].shipment.shipper_code}-{sortedFulfillments[0].shipment.shipper_name}</span>
+											<span style={{ color: primaryColor }}>{sortedFulfillments[0].shipment.shipper_code}-{sortedFulfillments[0].shipment.shipper_name}</span>
 										</div>
 										<Tooltip title="Tổng khối lượng">
 											<div className="single">
@@ -701,6 +705,7 @@ function OrdersTable(props: PropsType) {
 								<EditNote
 									note={record.customer_note}
 									title="Khách hàng: "
+									color={primaryColor}
 									onOk={(newNote) => {
 										console.log("newNote", newNote);
 										editNote(newNote, "customer_note", record.id);
@@ -711,6 +716,7 @@ function OrdersTable(props: PropsType) {
 								<EditNote
 									note={record.note}
 									title="Nội bộ: "
+									color={primaryColor}
 									onOk={(newNote) => {
 										console.log("newNote", newNote);
 										editNote(newNote, "note", record.id);

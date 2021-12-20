@@ -10,6 +10,9 @@ export const StyledComponent = styled.div`
   th {
     text-align: center !important;
 		padding: 12px 5px !important;
+		.separator {
+			display: none;
+		}
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantityPrice,

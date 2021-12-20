@@ -1184,9 +1184,9 @@ function OrderCreateProduct(props: PropType) {
       tax_exempt: false,
     };
 
-    dispatch(showLoading());
+    // dispatch(showLoading());
     const checkingDiscountResponse = await applyDiscountService(params).finally(() => {
-      dispatch(hideLoading());
+      // dispatch(hideLoading());
     });
     // console.log("checkingDiscountResponse", checkingDiscountResponse);
     if (
@@ -1241,7 +1241,7 @@ function OrderCreateProduct(props: PropType) {
         taxes_included: true,
         tax_exempt: false,
       };
-      dispatch(showLoading());
+      // dispatch(showLoading());
       await applyDiscountService(params)
         .then(async (response: BaseResponse<ApplyCouponResponseModel>) => {
           switch (response.code) {
@@ -1398,7 +1398,7 @@ function OrderCreateProduct(props: PropType) {
           showError("Có lỗi khi kết nối api tính mã giảm giá!");
         })
         .finally(() => {
-          dispatch(hideLoading());
+          // dispatch(hideLoading());
         });
       setIsVisiblePickCoupon(false);
     }
@@ -1693,7 +1693,7 @@ function OrderCreateProduct(props: PropType) {
     });
     await setItems(_items);
     await handleChangeItems(_items);
-    showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
+    // showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
   };
 
   const handleRemoveAllDiscount = async () => {
@@ -1720,7 +1720,7 @@ function OrderCreateProduct(props: PropType) {
       lineItem.discount_rate = 0;
       lineItem.discount_value = 0;
     });
-    showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
+    // showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
   };
 
   useLayoutEffect(() => {

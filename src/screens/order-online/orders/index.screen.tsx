@@ -66,7 +66,7 @@ function OrdersScreen(props: PropTypes) {
     payment_method_ids: [],
     delivery_types: [],
     delivery_provider_ids: [],
-    shipper_ids: [],
+    shipper_codes: [],
     note: null,
     customer_note: null,
     tags: [],

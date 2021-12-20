@@ -106,6 +106,7 @@ function OrderList(props: PropsType) {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [shippers, setShippers] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
@@ -377,6 +378,13 @@ function OrderList(props: PropsType) {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(AccountSearchAction({
+			is_shipper: 1
+		}, (response) => {
+			if(response) {
+				setShippers(response.items)
+			}
+		}));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
@@ -474,6 +482,7 @@ function OrderList(props: PropsType) {
             listSource={listSource}
             listStore={listStore}
             accounts={accounts}
+            shippers={shippers}
             deliveryService={deliveryServices}
             listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}
@@ -481,7 +490,7 @@ function OrderList(props: PropsType) {
             onClearFilter={() => onClearFilter()}
 						isHideTab= {isHideTab}
           />
-					{data.items.length > 0 && deliveryServices.length > 0 && (
+					{ deliveryServices.length > 0 && (
 						<OrdersTable
 							tableLoading={tableLoading}
 							data={data}
