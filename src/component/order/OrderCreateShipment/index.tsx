@@ -451,6 +451,7 @@ function OrderCreateShipment(props: PropType) {
               renderButtonCreateActionHtml={renderButtonCreateActionHtml}
               setThirdPL={setThirdPL}
               listExternalShippers={listExternalShippers}
+              form={form}
             />
           )}
           {/*--- Nhận tại cửa hàng ----*/}

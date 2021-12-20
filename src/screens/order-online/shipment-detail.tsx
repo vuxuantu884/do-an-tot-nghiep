@@ -167,7 +167,7 @@ const ShipmentDetail: React.FC = () => {
     value.status = FulFillmentStatus.RETURNED;
     dispatch(UpdateFulFillmentStatusAction(value, () => {
       showSuccess(
-        'Bạn đã nhận hàng trả lại'
+        'Nhận hàng thành công'
       );
       setFulfillmentDetail({
         ...fulfillmentDetail,
