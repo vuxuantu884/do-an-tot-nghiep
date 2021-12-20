@@ -39,7 +39,7 @@ export const bulkEnablePriceRules = (body: any) : Promise<any> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/active`, body)
 }
 
-export const bulkDisablePriceRules = (body: any) : Promise<any> => {
+export const bulkDisablePriceRules = (body: any) : Promise<BaseResponse<{count: number}>> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/disable`, body)
 }
 

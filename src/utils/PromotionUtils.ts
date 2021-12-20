@@ -1,24 +1,103 @@
 import {FormInstance} from "antd";
 import {YodyAction} from "base/base.action";
-import {searchProductWrapperRequestAction} from "domain/actions/product/products.action";
+import {
+  productGetDetail,
+  searchProductWrapperRequestAction,
+} from "domain/actions/product/products.action";
 import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
 import {ProductResponse, VariantResponse} from "model/product/product.model";
 import {
   DiscountFormModel,
-  VariantEntitlementsResponse,
+  EntilementFormModel,
+  ProductEntitlements,
+  VariantEntitlementsFileImport,
 } from "model/promotion/discount.create.model";
 import {Dispatch} from "redux";
 import {formatCurrency} from "./AppUtils";
 import {showError} from "./ToastUtils";
 
+//refacor
+/**
+ * Đóng modal xác nhận thêm mã cha
+ */
+export const handleDenyParentProduct = (
+  setIsVisibleConfirmModal: (value: boolean) => void,
+  selectedProductParentRef: any
+) => {
+  selectedProductParentRef.current = null;
+  setIsVisibleConfirmModal(false);
+};
+
+export const shareDiscountImportedProduct = (
+  oldEntilementList: Array<EntilementFormModel>,
+  newVariantList: Array<VariantEntitlementsFileImport>,
+  form: FormInstance
+) => {
+  const discountMap = new Map<number, EntilementFormModel>();
+  const ignoreVariantMap = new Map<string, ProductEntitlements>();
+
+  oldEntilementList.forEach((item) => {
+    if (item.prerequisite_quantity_ranges[0].value) {
+      discountMap.set(item.prerequisite_quantity_ranges[0].value, item);
+    }
+
+    item?.selectedProducts?.forEach((child) => {
+      ignoreVariantMap.set(child.sku, child);
+    });
+  });
+
+  newVariantList.forEach((item) => {
+    let discount = discountMap.get(item.discount_value);
+    console.log("parent", typeof discount?.selectedProducts);
+    const itemParseFromFileToDisplay = {
+      ...item,
+      cost: item.price,
+      open_quantity: item.quantity,
+      variant_title: item.variant_title,
+      product_id: item.product_id,
+    };
+    if (!discount) {
+      const discount: EntilementFormModel = {
+        selectedProducts: [itemParseFromFileToDisplay],
+        entitled_variant_ids: [item.variant_id],
+        entitled_product_ids: item.product_id ? [item.product_id] : [],
+        prerequisite_quantity_ranges: [
+          {
+            value: item.discount_value,
+            allocation_limit: item.limit,
+            greater_than_or_equal_to: item.min_quantity,
+            value_type:
+              form.getFieldValue("entitled_method") === "FIXED_PRICE"
+                ? "FIXED_AMOUNT"
+                : item.discount_type,
+          },
+        ],
+      };
+
+      oldEntilementList.push(discount);
+      discountMap.set(item.discount_value, discount);
+    } else if (discount && !ignoreVariantMap.get(item.sku)) {
+      discount.selectedProducts?.push(itemParseFromFileToDisplay);
+      discount.entitled_variant_ids.push(item.variant_id);
+
+      ignoreVariantMap.set(item.sku, itemParseFromFileToDisplay);
+    }
+  });
+
+  form.setFieldsValue({entitlements: oldEntilementList});
+
+  // return oldEntilementList.map((item) => item.);
+};
+
+// need to remove
 export const shareDiscount = (
   oldDiscountList: Array<DiscountFormModel>,
-  newVariantList: Array<VariantEntitlementsResponse>,
+  newVariantList: Array<VariantEntitlementsFileImport>,
   form: FormInstance
 ) => {
   const discountMap = new Map<number, DiscountFormModel>();
-  const ignoreVariantMap = new Map<number, VariantEntitlementsResponse>();
+  const ignoreVariantMap = new Map<number, VariantEntitlementsFileImport>();
 
   oldDiscountList.forEach((item) => {
     if (item["prerequisite_quantity_ranges.value"]) {
@@ -29,7 +108,7 @@ export const shareDiscount = (
       ignoreVariantMap.set(child.variant_id, child);
     });
   });
-  
+
   newVariantList.forEach((item, index) => {
     let discount = discountMap.get(item.discount_value);
     console.log("parent", typeof discount?.variants);
@@ -55,7 +134,7 @@ export const shareDiscount = (
       ignoreVariantMap.set(item.variant_id, item);
     }
   });
-  
+
   form.setFieldsValue({entitlements: oldDiscountList});
 
   return oldDiscountList.map((item) => item.variants);
@@ -174,14 +253,134 @@ export const handleSearchProduct = _.debounce(
 /**
  *
  * @param value : selected product
- * @param isVariant : is variant or parent product
- * @param dataSearchVariant : result of search when typing in search variant
  * @param selectedProductParentRef : ref of selected product parent
- * @param setIsVisibleConfirmModal : set visible confirm modal
- * @param selectedProduct : the products display in table
- * @param setSelectedProduct : set selected product to display in table
- * @returns none
+ * @param variantIdOfSelectedProdcutRef : ref of selected product parent
+ * @param setIsVisibleConfirmModal : variant id of selected product
+ * @param form : form
+ * @param name : number of discount group
+ * @param dispatch  : dispatch
+ * @returns : none
  */
+export const onSelectVariantAndProduct = (
+  value: string,
+  selectedProductParentRef: any,
+  variantIdOfSelectedProdcutRef: any,
+  setIsVisibleConfirmModal: (isVisible: boolean) => void,
+  form: FormInstance,
+  name: number, // index of a group entilement
+  dispatch: Dispatch<YodyAction>
+) => {
+  const entitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+  const currentProductList: Array<ProductEntitlements> =
+    entitlements[name].selectedProducts || [];
+
+  const selectedItem = JSON.parse(value);
+
+  const isVariant = !!selectedItem?.sku;
+
+  if (!isVariant) {
+    // sp cha không có sku => set sku = code
+    selectedItem.sku = selectedItem.code;
+  }
+
+  /**
+   *  Check sản phẩm đã tồn tại trong danh sách hay chưa
+   */
+  const checkExist = currentProductList.some(
+    (e) => e.sku === (selectedItem.sku ?? selectedItem.code)
+  );
+  if (checkExist) {
+    showError("Sản phẩm đã được chọn!");
+    return;
+  }
+
+  /**
+   * Trường hợp trên ds đã có mã cha
+   * → tìm kiếm sp variant thì thông báo lỗi đã đưa mã cha vào ds
+   * → Nếu muốn thay đổi thì xóa mã cha
+   */
+  if (isVariant && currentProductList.some((e) => selectedItem?.sku?.includes(e?.sku))) {
+    showError("Sản phẩm đã được chọn mã cha");
+    return;
+  }
+
+  /**
+   * Trường hợp trên ds đã có mã variant
+   * → tìm kiếm sp  cha thì thông báo đã có mã variant vào ds
+   * → popup thông báo sẽ áp dụng các variant còn lại của mã này
+   * → Bấm XÁC NHẬN/ HỦY
+   */
+  if (
+    !isVariant &&
+    currentProductList.some((e) => e?.sku?.startsWith(selectedItem?.sku))
+  ) {
+    selectedProductParentRef.current = selectedItem;
+
+    dispatch(
+      productGetDetail(selectedItem.id, (result: ProductResponse | false) => {
+        if (result) {
+          variantIdOfSelectedProdcutRef.current = result.variants;
+        }
+      })
+    );
+    setIsVisibleConfirmModal(true);
+    return;
+  }
+
+  /**
+   * Pass hết các trường hợp trên thì thêm vào ds
+   */
+  let itemParseFromSelectToTable: ProductEntitlements = {} as ProductEntitlements;
+  if (selectedItem && isVariant) {
+    itemParseFromSelectToTable = {
+      ...selectedItem,
+      cost: 0,
+      open_quantity: selectedItem.on_hand,
+      variant_title: selectedItem.name,
+      product_id: selectedItem.product_id, // id của sp cha
+      variant_id: selectedItem.id, // id của sp variant
+      sku: selectedItem.sku,
+      isParentProduct: false,
+    };
+
+    entitlements[name].entitled_variant_ids.unshift(selectedItem.id);
+  } else if (selectedItem && !isVariant) {
+    itemParseFromSelectToTable = parseSelectProductToTableData(selectedItem);
+    entitlements[name].entitled_product_ids.unshift(selectedItem.id);
+  }
+
+  currentProductList.unshift(itemParseFromSelectToTable);
+  entitlements[name].selectedProducts = currentProductList;
+  form.setFieldsValue({
+    entitlements: _.cloneDeep(entitlements),
+  });
+};
+
+export const parseSelectProductToTableData = (selectedItem: ProductResponse) => {
+  return {
+    ...selectedItem,
+    cost: 0,
+    open_quantity: selectedItem.on_hand || 0, // tạm thời chưa có trường on_hand của sp trong api variant
+    variant_title: selectedItem.name,
+    product_id: selectedItem.id, // id của sp cha
+    sku: selectedItem.code,
+    isParentProduct: true,
+  };
+};
+export const parseSelectVariantToTableData = (selectedItem: VariantResponse) => {
+  return {
+    ...selectedItem,
+    cost: selectedItem.variant_prices[0]?.import_price || 0,
+    open_quantity: selectedItem.on_hand || 0, // tạm thời chưa có trường on_hand của sp trong api variant
+    variant_title: selectedItem.name,
+    product_id: selectedItem.product_id, // id của sp cha
+    variant_id: selectedItem.id, // id của sp variant
+    sku: selectedItem.sku,
+    isParentProduct: false,
+  };
+};
+
+//TODO: need to remove
 export const onSelectProduct = (
   value: string,
   isVariant: boolean,
@@ -231,4 +430,55 @@ export const onSelectProduct = (
   if (selectedItem) {
     setSelectedProduct([selectedItem].concat(selectedProduct));
   }
+};
+
+export const addProductFromSelectToForm = (
+  selectedItem: VariantResponse,
+  form: FormInstance,
+  name: number
+) => {
+  const entilementFormValue: EntilementFormModel[] = form.getFieldValue("entitlements");
+  if (
+    Array.isArray(entilementFormValue) &&
+    Array.isArray(entilementFormValue[name]?.selectedProducts)
+  ) {
+    const checkExist = entilementFormValue[name]?.selectedProducts?.some(
+      (e: any) => e.id === selectedItem.id
+    );
+    if (checkExist) {
+      showError("Sản phẩm đã được chọn!");
+      return;
+    }
+  }
+
+  //parse selectedItem  to VariantEntitlements
+  const temp: ProductEntitlements = {
+    variant_id: selectedItem.id,
+    variant_title: selectedItem.name,
+    open_quantity: selectedItem.on_hand,
+    cost: selectedItem.variant_prices[0]?.import_price ?? 0,
+    price_rule_id: 0,
+    limit: 0,
+    sku: selectedItem.sku,
+    product_id: selectedItem.id,
+  };
+
+  // add variant to display
+  if (Array.isArray(entilementFormValue[name].selectedProducts)) {
+    entilementFormValue[name].selectedProducts?.push(temp);
+  } else {
+    entilementFormValue[name].selectedProducts = [temp];
+  }
+  // add variant id
+  if (Array.isArray(entilementFormValue[name].entitled_variant_ids)) {
+    entilementFormValue[name].entitled_variant_ids?.push(selectedItem.id);
+  } else {
+    entilementFormValue[name].entitled_variant_ids = [selectedItem.id];
+  }
+  //TODO
+  // add variant to form
+  form.setFieldsValue({
+    entitlements: _.cloneDeep(entilementFormValue),
+  });
+  console.log(form.getFieldValue("entitlements"));
 };

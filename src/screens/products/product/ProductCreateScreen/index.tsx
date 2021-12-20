@@ -350,22 +350,28 @@ const ProductCreateScreen: React.FC = () => {
     dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
   };
 
-  const onSizeChange = useCallback(
-    (values: Array<number>) => {
-      let filter = sizes.items.filter((item) => values.includes(item.id));
+  const onSizeSelected = useCallback(
+    (value: number, objSize: any) => {
+      const sizerCode = objSize?.children.substr(0,3);
+      const newSize = {id: value, code: sizerCode } as SizeResponse;
+      let filter = [...variants.filter(e=>e.size !== null).map(e=>({id: e.size_id, code: e.size})), newSize] as Array<SizeResponse>;
+      
       setSizeSelected([...filter]);
       listVariantsFilter(colorSelected, filter);
     },
-    [colorSelected, listVariantsFilter, sizes.items]
+    [colorSelected, listVariantsFilter, variants]
   );
 
-  const onColorChange = useCallback(
-    (values: Array<number>) => {
-      let filter = colors.items.filter((item) => values.includes(item.id));
-      setColorSelected([...filter]);
-      listVariantsFilter(filter, sizeSelected);
+  const onColorSelected = useCallback(
+    (value: number, objColor: any) => {
+      const colorCode = objColor?.children.substr(0,3);
+      const newColor = {id: value, name: colorCode,  code: colorCode } as ColorResponse;
+      let filter = [...variants.filter(e=>e.color !== null).map(e=>({id: e.color_id,name: e.color, code: e.color})), newColor] as Array<ColorResponse>;
+      
+       setColorSelected([...filter]);
+       listVariantsFilter(filter, sizeSelected);
     },
-    [colors.items, listVariantsFilter, sizeSelected]
+    [listVariantsFilter, sizeSelected, variants]
   );
 
   const statusValue = useMemo(() => {
@@ -1297,7 +1303,7 @@ const ProductCreateScreen: React.FC = () => {
                         maxTagCount="responsive"
                         showArrow
                         allowClear
-                        onChange={onColorChange}
+                        onSelect={onColorSelected}
                         onSearch={(key) => getColors(key, 1)}
                         onPageChange={(key, page) => getColors(key, page)}
                         placeholder="Chọn màu sắc"
@@ -1314,7 +1320,7 @@ const ProductCreateScreen: React.FC = () => {
                     <Item name="size" label="Kích cỡ">
                       <SelectPaging
                         metadata={sizes.metadata}
-                        onChange={onSizeChange}
+                        onSelect={onSizeSelected}
                         showSearch={false}
                         notFoundContent={"Không có dữ liệu"}
                         placeholder="Chọn kích cỡ"

@@ -13,7 +13,7 @@ import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
-import {ShipperGetListAction} from "domain/actions/account/account.action";
+import {ExternalShipperGetListAction, ShipperGetListAction} from "domain/actions/account/account.action";
 import {DeliveryServicesGetList, getFeesAction} from "domain/actions/order/order.action";
 import {
   actionGetOrderConfig,
@@ -127,6 +127,7 @@ function OrderCreateShipment(props: PropType) {
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
   const [listShippers, setListShippers] = useState<Array<AccountResponse> | null>(null);
+  const [listExternalShippers, setListExternalShippers] = useState<Array<AccountResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
@@ -295,6 +296,7 @@ function OrderCreateShipment(props: PropType) {
 
   useEffect(() => {
     dispatch(ShipperGetListAction(setListShippers));
+    dispatch(ExternalShipperGetListAction(setListExternalShippers));
   }, [dispatch]);
 
   useEffect(() => {
@@ -447,6 +449,8 @@ function OrderCreateShipment(props: PropType) {
               isCancelValidateDelivery={isCancelValidateDelivery}
               listShippers={listShippers}
               renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+              setThirdPL={setThirdPL}
+              listExternalShippers={listExternalShippers}
             />
           )}
           {/*--- Nhận tại cửa hàng ----*/}

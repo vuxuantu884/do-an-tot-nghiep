@@ -155,7 +155,7 @@ function GeneralConditionForm({
               >
                 <Select placeholder="Chọn ngày" mode="multiple">
                   {getDayOptions().map((day) => (
-                    <Option value={day.key}>{day.value}</Option>
+                    <Option value={day.key} key={day.value}>{day.value}</Option>
                   ))}
                 </Select>
               </Form.Item>
@@ -178,7 +178,7 @@ function GeneralConditionForm({
                 optionFilterProp="children"
               >
                 {listStore?.map((store: any) => (
-                  <Option value={store.id}>{store.name}</Option>
+                  <Option value={store.id} key={store.name}>{store.name}</Option>
                 ))}
               </Select>
             </Form.Item>
@@ -214,7 +214,7 @@ function GeneralConditionForm({
                 className="ant-select-selector-min-height"
               >
                 {listChannel?.map((channel: any) => (
-                  <Option value={channel.name}>{channel.name}</Option>
+                  <Option value={channel.name} key={channel.name}>{channel.name}</Option>
                 ))}
               </Select>
             </Form.Item>

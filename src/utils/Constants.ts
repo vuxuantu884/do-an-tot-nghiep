@@ -71,7 +71,8 @@ export const ShipmentMethodOption = {
 export const ShipmentMethod = {
   PICK_AT_STORE: "pick_at_store",
   EXTERNAL_SERVICE: "external_service",
-  SHIPPER: "Shipper",
+  EMPLOYEE: "employee",
+  EXTERNAL_SHIPPER: "external_shipper",
 };
 
 export const TRANSPORTS = {

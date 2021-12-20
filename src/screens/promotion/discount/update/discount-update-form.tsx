@@ -79,14 +79,19 @@ function DiscountUpdateForm({ form,
                                             required: !unlimitedQuantity,
                                             message: "Vui lòng nhập số lượng áp dụng",
                                         },
+                                        {
+                                            type: "integer",
+                                            message: "Số lượng áp dụng phải là số nguyên",
+                                        }
                                     ]}
                                 >
                                     <InputNumber
                                         disabled={unlimitedQuantity}
-                                        style={{ borderRadius: "5px" }}
+                                        style={{ borderRadius: "5px", width: "100%" }}
                                         placeholder="Nhập số lượng khuyến mại"
-                                        min={0}
-                                        maxLength={6}
+                                        min={1}
+                                        max={999999}
+                                        step={1}
                                     />
                                 </Form.Item>
                             </Col>
@@ -147,7 +152,7 @@ function DiscountUpdateForm({ form,
                                             const temp = {
                                                 prerequisite_quantity_ranges: [{
                                                     value_type: "FIXED_AMOUNT",
-                                                    greater_than_or_equal_to: 0,
+                                                    greater_than_or_equal_to: 1,
                                                     value: 1
                                                 }]
                                             };
@@ -158,13 +163,16 @@ function DiscountUpdateForm({ form,
                                             const temp = {
                                                 prerequisite_quantity_ranges: [{
                                                     value_type: "PERCENTAGE",
-                                                    greater_than_or_equal_to: 0,
+                                                    greater_than_or_equal_to: 1,
                                                     value: 1
                                                 }]
                                             };
                                             _.merge(item, temp);
                                         });
                                     }
+                                    form.setFieldsValue({
+                                        entitlements: _.cloneDeep(formData?.entitlements)
+                                    })
                                 }}
                             >
                                 <Option value={DiscountMethod.FIXED_PRICE.toString()}>Đồng giá</Option>

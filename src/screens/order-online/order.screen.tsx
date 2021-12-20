@@ -355,7 +355,8 @@ export default function Order() {
 			case ShipmentMethodOption.SELF_DELIVER:
 				return {
 					...objShipment,
-					delivery_service_provider_type: "Shipper",
+					delivery_service_provider_type: thirdPL.delivery_service_provider_code,
+					service: thirdPL.service,
 					shipper_code: value.shipper_code,
 					shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
 					shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
@@ -762,7 +763,8 @@ export default function Order() {
 								switch (
 								response.fulfillments[0].shipment?.delivery_service_provider_type
 								) {
-									case ShipmentMethod.SHIPPER:
+									case ShipmentMethod.EMPLOYEE:
+									case ShipmentMethod.EXTERNAL_SHIPPER:
 										newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
 										break;
 									case ShipmentMethod.EXTERNAL_SERVICE:

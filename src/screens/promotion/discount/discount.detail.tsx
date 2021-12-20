@@ -4,12 +4,12 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
+import { ProductEntitlements } from "model/promotion/discount.create.model";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
-import { renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 import BottomBarContainer from "../../../component/container/bottom-bar.container";
 import CustomTable from "../../../component/table/CustomTable";
 import { HttpStatus } from "../../../config/http-status.config";
@@ -18,13 +18,15 @@ import { hideLoading, showLoading } from "../../../domain/actions/loading.action
 import {
   bulkEnablePriceRules,
   getVariants,
-  promoGetDetail,
+  promoGetDetail
 } from "../../../domain/actions/promotion/discount/discount.action";
 import { bulkDisablePriceRules } from "../../../service/promotion/discount/discount.service";
-import { formatCurrency } from "../../../utils/AppUtils";
 import { showError } from "../../../utils/ToastUtils";
 import GeneralConditionDetail from "../shared/general-condition.detail";
+import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, discountStatus } from "./constants";
 import "./discount.scss";
+import { useHistory } from "react-router-dom";
+import DiscountRuleInfo from "./components/discount-rule-info";
 
 export interface ProductParams {
   id: string;
@@ -39,67 +41,21 @@ type detailMapping = {
   isWebsite?: boolean;
 };
 
-const discountStatuses = [
-  {
-    code: "ACTIVE",
-    value: "Đang áp dụng",
-    style: {
-      background: "rgba(42, 42, 134, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(42, 42, 134)",
-      padding: "5px 10px",
-      marginLeft: "20px",
-    },
-  },
-  {
-    code: "DISABLED",
-    value: "Tạm ngưng",
-    style: {
-      background: "rgba(252, 175, 23, 0.1)",
-      borderRadius: "100px",
-      color: "#FCAF17",
-      padding: "5px 10px",
-      marginLeft: "20px",
-    },
-  },
-  {
-    code: "DRAFT",
-    value: "Chờ áp dụng",
-    style: {
-      background: "rgb(245, 245, 245)",
-      borderRadius: "100px",
-      color: "rgb(102, 102, 102)",
-      padding: "5px 10px",
-      marginLeft: "20px",
-    },
-  },
-  {
-    code: "CANCELLED",
-    value: "Đã huỷ",
-    style: {
-      background: "rgba(226, 67, 67, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(226, 67, 67)",
-      padding: "5px 10px",
-      marginLeft: "20px",
-    },
-  },
-];
+
 
 const PromotionDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
-
-  const { id } = useParams() as any;
+  const { id } = useParams<{ id: string }>();
+  const history = useHistory();
   const idNumber = parseInt(id);
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const [data, setData] = useState<DiscountResponse | null>(null);
-  const [costType, setCostType] = useState<string>();
-  const [dataVariants, setDataVariants] = useState<any | null>(null);
-  const [entitlements, setEntitlements] = useState<Array<any>>([]);
+  const [dataDiscount, setDataDiscount] = useState<DiscountResponse | null>(null);
   const [quantityColumn, setQuantityColumn] = useState<any>([]);
+
+  const [dataVariants, setDataVariants] = useState<Array<ProductEntitlements>>([]);
 
   //phân quyền
   const [allowCancelPromoCode] = useAuthorization({
@@ -117,7 +73,7 @@ const PromotionDetailScreen: React.FC = () => {
     if (!result) {
       setError(true);
     } else {
-      setData(result);
+      setDataDiscount(result);
     }
   }, []);
 
@@ -130,220 +86,35 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      dispatch(promoGetDetail(idNumber, onResult));
-      dispatch(getVariants(idNumber, handleResponse));
-    }, 500);
-  }, [dispatch, handleResponse, idNumber, onResult]);
-
-  const spreadData = (data: any) => {
-    let result: any[] = [];
-    if (data?.entitlements && data?.entitlements.length > 0) {
-      data?.entitlements.forEach((entitlement: any) => {
-        entitlement.entitled_variant_ids.forEach((vId: any) => {
-          const value = entitlement.prerequisite_quantity_ranges[0]["value"];
-          const valueType = entitlement.prerequisite_quantity_ranges[0]["value_type"];
-          result.push({
-            id: vId,
-            minimum:
-              entitlement.prerequisite_quantity_ranges[0]["greater_than_or_equal_to"],
-            allocationLimit:
-              entitlement.prerequisite_quantity_ranges[0]["allocation_limit"],
-            value: value,
-            valueType: valueType,
-          });
-        });
-      });
-    }
-    return result;
-  };
-
-  const mergeVariants = useCallback(
-    (sourceData: Array<any>) => {
-      return sourceData.map((s) => {
-        const variant = dataVariants.find((v: any) => v.variant_id === s.id);
-        if (variant) {
-          s.title = variant.variant_title;
-          s.sku = variant.sku;
-          s.cost = variant.cost;
-          s.discountValue = `${renderDiscountValue(s.value, s.valueType)}`;
-          s.total = `${renderTotalBill(variant.cost, s.value, s.valueType)}`;
-        }
-        return s;
-      });
-    },
-    [dataVariants]
-  );
-
-  useEffect(() => {
-    if (dataVariants && data && data.entitlements.length > 0) {
-      setCostType(data.entitled_method);
-      const flattenData: Array<any> = spreadData(data);
-      const listEntitlements: Array<any> = mergeVariants(flattenData);
-
-      if (!listEntitlements || listEntitlements.length === 0) {
-        const rawEntitlement = data.entitlements[0];
-        const quantityRange = rawEntitlement.prerequisite_quantity_ranges[0];
-        listEntitlements.push({
-          title: <span style={{ color: "#2A2A86", fontWeight: 500 }}>Tất cả sản phẩm</span>,
-          sku: null,
-          minimum: quantityRange.greater_than_or_equal_to,
-          allocationLimit: quantityRange.allocation_limit,
-          discountValue: `${renderDiscountValue(
-            quantityRange.value,
-            quantityRange.value_type
-          )}`,
-          total: `${renderTotalBill(
-            quantityRange.cost,
-            quantityRange.value,
-            quantityRange.value_type
-          )}`,
-        });
-      }
-      setEntitlements(listEntitlements);
-    }
-  }, [data, dataVariants, mergeVariants]);
-
-  useEffect(() => {
-    const column = [
-      {
-        title: "STT",
-        align: "center",
-        width: "5%",
-        render: (value: any, item: any, index: number) => index + 1,
-      },
-      {
-        title: "Sản phẩm",
-        dataIndex: "sku",
-        visible: true,
-        align: "left",
-        width: "20%",
-        render: (value: string, item: any, index: number) => {
-          return (
-            <div>
-              <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
-                {value}
-              </Link>
-              <div>{item.title}</div>
-            </div>
-          );
-        },
-      },
-      {
-        title: "Giá bán",
-        align: "center",
-        visible: false,
-        dataIndex: "cost",
-        render: (value: string) => formatCurrency(value),
-      },
-      {
-        title: "Chiết khấu",
-        align: "center",
-        dataIndex: "discountValue",
-      },
-      {
-        title: "Giá sau chiết khấu",
-        align: "center",
-        dataIndex: "total",
-        render: (value: string) => <span style={{ color: "#E24343" }}>{value}</span>,
-      },
-      {
-        title: "SL Tối thiểu",
-        align: "center",
-        dataIndex: "minimum",
-      },
-      {
-        title: "Giới hạn",
-        align: "center",
-        dataIndex: "allocationLimit",
-      },
-    ];
-    const column2 = [
-      {
-        title: "STT",
-        align: "center",
-        width: "5%",
-        // visible: entitlements.length > 1,
-        visible: false,
-        render: (value: any, item: any, index: number) => index + 1,
-      },
-      {
-        title: "Sản phẩm",
-        dataIndex: "sku",
-        visible: true,
-        align: "left",
-        width: "20%",
-        render: (value: string, item: any, index: number) => {
-          return (
-            <div>
-              <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
-                {value}
-              </Link>
-              <div>{item.title}</div>
-            </div>
-          );
-        },
-      },
-      {
-        title: "Giá bán",
-        align: "center",
-        visible: false,
-        dataIndex: "cost",
-        render: (value: string) => formatCurrency(value),
-      },
-      {
-        title: "Giá cố định",
-        align: "center",
-        dataIndex: "total",
-        render: (value: any) => (
-          <span style={{ color: "#E24343" }}>{formatCurrency(value)}</span>
-        ),
-      },
-      {
-        title: "SL Tối thiểu",
-        align: "center",
-        dataIndex: "minimum",
-      },
-      {
-        title: "Giới hạn",
-        align: "center",
-        dataIndex: "allocationLimit",
-      },
-    ];
-    setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
-  }, [costType, idNumber]);
-
-
   const getEntitled_method = (data: DiscountResponse) => {
     if (data.entitled_method === "FIXED_PRICE") return "Đồng giá";
     if (data.entitled_method === "QUANTITY") return "Chiết khấu theo từng sản phẩm";
   };
 
   const promoDetail: Array<any> | undefined = React.useMemo(() => {
-    if (data) {
+    if (dataDiscount) {
       const details = [
         {
           name: "Tên khuyến mãi",
-          value: data.title,
+          value: dataDiscount.title,
           position: "left",
           key: "1",
         },
         {
           name: "Mã khuyến mãi",
-          value: data.code ? data.code : "",
+          value: dataDiscount.code ? dataDiscount.code : "",
           position: "left",
           key: "2",
         },
         {
           name: "Phương thức km",
-          value: getEntitled_method(data),
+          value: getEntitled_method(dataDiscount),
           position: "left",
           key: "3",
         },
         {
           name: "Số lượng đã bán",
-          value: data?.async_allocation_count,
+          value: dataDiscount?.async_allocation_count,
           position: "right",
           key: "5",
         },
@@ -355,18 +126,19 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Mức độ ưu tiên",
-          value: data.priority,
+          value: dataDiscount.priority,
           position: "right",
           key: "7",
         },
       ];
       return details;
     }
-  }, [data]);
+  }, [dataDiscount]);
 
   const renderStatus = (data: DiscountResponse) => {
-    const status = discountStatuses.find((status) => status.code === data.state);
-    return <span style={status?.style}>{status?.value}</span>;
+    const status = discountStatus.find((status) => status.code === data.state);
+    return <span style={{ marginLeft: "20px" }}>{status?.Component}</span>;
+
   };
 
   const onActivate = () => {
@@ -402,7 +174,7 @@ const PromotionDetailScreen: React.FC = () => {
   }, [dispatch, idNumber, onResult]);
 
   const renderActionButton = () => {
-    switch (data?.state) {
+    switch (dataDiscount?.state) {
       case "ACTIVE":
         return (
           <Button type="primary" onClick={onDeactivate}>
@@ -421,11 +193,37 @@ const PromotionDetailScreen: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+
+    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getVariants(idNumber, handleResponse));
+
+  }, [dispatch, handleResponse, idNumber, onResult]);
+
+  useEffect(() => {
+    if (dataVariants.length === 0) {
+      const ranges = dataDiscount?.entitlements[0]?.prerequisite_quantity_ranges[0]
+      setDataVariants([{
+        variant_title: <span style={{ color: "#2A2A86", fontWeight: 500 }}>Tất cả sản phẩm</span>,
+        sku: "",
+        limit: ranges?.allocation_limit,
+        cost: -1,
+        open_quantity: 0,
+        product_id: 0,
+        variant_id: 0,
+        entitlement: dataDiscount?.entitlements[0],
+        isParentProduct: true,
+        price_rule_id: 0,
+      }])
+    }
+    setQuantityColumn(dataDiscount?.entitled_method !== "FIXED_PRICE" ? columnFixedPrice : columnDiscountQuantity);
+  }, [dataDiscount, dataVariants]);
+
   return (
     <ContentContainer
       isError={error}
       isLoading={loading}
-      title={data ? data.title : "Chi tiết đợt khuyến mãi"}
+      title={dataDiscount ? dataDiscount.title : "Chi tiết đợt khuyến mãi"}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -444,16 +242,16 @@ const PromotionDetailScreen: React.FC = () => {
         },
       ]}
     >
-      {data !== null && (
+      {dataDiscount !== null && (
         <React.Fragment>
           <Row gutter={24}>
             <Col span={24} md={18}>
               <Card
                 className="card"
                 title={
-                  <div style={{ alignItems: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center" }}>
                     <span className="title-card">THÔNG TIN CÁ NHÂN</span>
-                    {renderStatus(data)}
+                    {renderStatus(dataDiscount)}
                   </div>
                 }
               >
@@ -486,9 +284,7 @@ const PromotionDetailScreen: React.FC = () => {
                             </Col>
                             <Col span={12} style={{ paddingLeft: 0 }}>
                               <span
-                                style={{
-                                  wordWrap: "break-word",
-                                }}
+                                className="text-truncate-2"
                               >
                                 {detail.value ? detail.value : "---"}
                               </span>
@@ -563,7 +359,7 @@ const PromotionDetailScreen: React.FC = () => {
                             wordWrap: "break-word",
                           }}
                         >
-                          {data.description ? data.description : "---"}
+                          {dataDiscount.description ? dataDiscount.description : "---"}
                         </span>
                       </Col>
                     </Col>
@@ -573,8 +369,8 @@ const PromotionDetailScreen: React.FC = () => {
                 <Row gutter={30}>
                   <Col span={24} style={{ textAlign: "right" }}>
                     <Space size={"large"}>
-                      <Link to={``}>Xem lịch sử chỉnh sửa</Link>
-                      <Link to={``}>Xem kết quả khuyến mãi</Link>
+                      <Link to={`#`}>Xem lịch sử chỉnh sửa</Link>
+                      <Link to={`#`}>Xem kết quả khuyến mãi</Link>
                     </Space>
                   </Col>
                 </Row>
@@ -589,21 +385,35 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                <CustomTable
-                  dataSource={entitlements}
+
+                {dataDiscount.entitled_method === "ORDER_THRESHOLD" &&
+                  <>
+                    <DiscountRuleInfo dataDiscount={dataDiscount} />
+                    <CustomTable
+                      columns={columnDiscountByRule}
+                      dataSource={dataDiscount.rule?.conditions}
+                      pagination={false}
+                      rowKey={(record: any) => record}
+                    />
+                  </>}
+
+                {dataDiscount.entitled_method !== "ORDER_THRESHOLD" && <CustomTable
+                  dataSource={dataVariants}
                   columns={
-                    entitlements.length > 1
+                    dataVariants.length > 1
                       ? quantityColumn
-                      : quantityColumn.filter((column: any) => column.title !== "STT")
+                      : quantityColumn.filter((column: any) => column.title !== "STT") // show only when have more than 1 entitlement
                   }
                   pagination={false}
-                />
+                />}
+
               </Card>
             </Col>
-            <GeneralConditionDetail data={data} />
+            <GeneralConditionDetail data={dataDiscount} />
           </Row>
           <BottomBarContainer
             back="Quay lại danh sách khuyến mại"
+            backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
               <Space>
                 {allowUpdatePromoCode && <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>}

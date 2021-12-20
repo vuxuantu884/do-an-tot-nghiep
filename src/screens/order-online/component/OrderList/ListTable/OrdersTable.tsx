@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
 import { COD, FACEBOOK, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
-import { dangerColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
@@ -247,10 +247,20 @@ function OrdersTable(props: PropsType) {
 								{moment(i.created_date).format("hh:mm DD-MM-YYYY")}
 							</div>
 							<div style={{ fontSize: "0.86em", marginTop: 5 }}>
-								<Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
-									{i.store}
-								</Link>
+								<Tooltip title="Cửa hàng">
+									<Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
+										{i.store}
+									</Link>
+								</Tooltip>
 							</div>
+							{i.source && (
+								<div style={{ fontSize: "1em", marginTop: 5}}>
+									<Tooltip title="Nguồn đơn hàng">
+										{i.source}
+									</Tooltip>
+								</div>
+
+							)}
 						</React.Fragment>
 					);
 				},
@@ -486,12 +496,47 @@ function OrdersTable(props: PropsType) {
 											)}
 										</React.Fragment>
 									);
-								case ShipmentMethod.SHIPPER:
-									return `Đối tác - ${sortedFulfillments[0].shipment.shipper_code} - ${sortedFulfillments[0].shipment.shipper_name}`;
+								case ShipmentMethod.EMPLOYEE:
+								case ShipmentMethod.EXTERNAL_SHIPPER:
+									return (<React.Fragment>
+										<div className="single">
+											Đối tác {" - "}
+											{sortedFulfillments[0].shipment.shipper_code}  {sortedFulfillments[0].shipment.shipper_name}
+										</div>
+										<Tooltip title="Tổng khối lượng">
+											<div className="single">
+												<img
+													src={iconWeight}
+													alt=""
+												/>
+												<span>{record.total_weight || 0} gr</span>
+											</div>
+										</Tooltip>
+										<Tooltip title="Phí ship báo khách">
+											<div className="single">
+												<img
+													src={iconShippingFeeInformedToCustomer}
+													alt=""
+												/>
+												<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+											</div>
+										</Tooltip>
+
+										<Tooltip title="Phí vận chuyển">
+											<div className="single">
+												<img
+													src={iconShippingFeePay3PL}
+													alt=""
+												/>
+												{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+											</div>
+										</Tooltip>
+
+									</React.Fragment>)
 								case ShipmentMethod.PICK_AT_STORE:
 									return (<React.Fragment>
 										<div className="single">
-											Nhận tại {" "}
+											Nhận tại {" - "}
 											<Link target="_blank" to={`${UrlConfig.STORE}/${record?.store_id}`}>
 												{record.store}
 											</Link>
@@ -527,7 +572,38 @@ function OrdersTable(props: PropsType) {
 
 									</React.Fragment>)
 								default:
-									return "";
+									return (
+										<React.Fragment>
+											<Tooltip title="Tổng khối lượng">
+												<div className="single">
+													<img
+														src={iconWeight}
+														alt=""
+													/>
+													<span>{record.total_weight || 0} gr</span>
+												</div>
+											</Tooltip>
+											<Tooltip title="Phí ship báo khách">
+												<div className="single">
+													<img
+														src={iconShippingFeeInformedToCustomer}
+														alt=""
+													/>
+													<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+												</div>
+											</Tooltip>
+
+											<Tooltip title="Phí vận chuyển">
+												<div className="single">
+													<img
+														src={iconShippingFeePay3PL}
+														alt=""
+													/>
+													{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+												</div>
+											</Tooltip>
+										</React.Fragment>
+									);
 							}
 						}
 					}
@@ -574,7 +650,7 @@ function OrdersTable(props: PropsType) {
 									{record.status === OrderStatus.FINALIZED && (
 										<div
 											style={{
-												color: "#2A2A86",
+												color: "#FCAF17",
 											}}
 										>
 											{status?.name}
@@ -735,13 +811,19 @@ function OrdersTable(props: PropsType) {
 			},
 			{
 				title: "Mã tham chiếu",
-				dataIndex: "linked_order_code",
-				key: "linked_order_code",
-				render: (value) => (
-					<Link target="_blank" to={`${UrlConfig.ORDER}/${value}`}>
-						{value}
-					</Link>
-				),
+				dataIndex: "reference_code",
+				key: "reference_code",
+				render: (value, record: OrderModel) => {
+					let result: React.ReactNode = null;
+					if (record?.url) {
+						result = (
+							<a href={record?.url}>{value}</a>
+						)
+					} else {
+						result = value
+					}
+					return result;
+				},
 				visible: true,
 				width: 120,
 			},
