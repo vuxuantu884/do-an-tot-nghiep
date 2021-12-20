@@ -959,7 +959,6 @@ const OrderDuplicate: React.FC = () => {
 
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
     dispatch(putOrderDuplicateMerge(value, selectedOrderIds, (data: OrderModel) => {
-      console.log(data)
       if(data)
       {
         handleSearchResult();
