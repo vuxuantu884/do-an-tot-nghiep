@@ -1,8 +1,7 @@
 export enum DiscountMethod {
-  FIXED_PRICE = "FIXED_PRICE",
-  PERCENTAGE = "PERCENTAGE",
-  QUANTITY = "QUANTITY",
-  ORDER_THRESHOLD = "ORDER_THRESHOLD",
+  FIXED_PRICE = "FIXED_PRICE", // Đồng giá
+  QUANTITY = "QUANTITY", // Chiết khấu theo từng sản phẩm
+  ORDER_THRESHOLD = "ORDER_THRESHOLD", // Chiết khấu theo đơn hàng
 }
 export interface DiscountCreateModel {
   title: string;

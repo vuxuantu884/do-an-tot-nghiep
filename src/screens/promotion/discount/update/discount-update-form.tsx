@@ -3,7 +3,7 @@ import CustomInput from 'component/custom/custom-input';
 import _ from 'lodash';
 import { DiscountFormModel, DiscountMethod } from 'model/promotion/discount.create.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
-import { priorityOptions } from '../constants';
+import { DiscountUnitType, priorityOptions } from '../constants';
 import { DiscountUpdateContext } from './discount-update-provider';
 import FixedPriceSelectionUpdate from './fixed-price-selection.update';
 import TotalBillDiscountUpdate from './total-bill-discount-update';
@@ -151,7 +151,7 @@ function DiscountUpdateForm({ form,
                                         formData?.entitlements?.forEach((item: DiscountFormModel) => {
                                             const temp = {
                                                 prerequisite_quantity_ranges: [{
-                                                    value_type: "FIXED_AMOUNT",
+                                                    value_type: DiscountUnitType.FIXED_PRICE.value,
                                                     greater_than_or_equal_to: 1,
                                                     value: 1
                                                 }]
@@ -162,7 +162,7 @@ function DiscountUpdateForm({ form,
                                         formData?.entitlements?.forEach((item: DiscountFormModel) => {
                                             const temp = {
                                                 prerequisite_quantity_ranges: [{
-                                                    value_type: "PERCENTAGE",
+                                                    value_type: DiscountUnitType.PERCENTAGE.value ,
                                                     greater_than_or_equal_to: 1,
                                                     value: 1
                                                 }]

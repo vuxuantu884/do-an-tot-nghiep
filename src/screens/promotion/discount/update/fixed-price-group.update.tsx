@@ -15,13 +15,13 @@ import {
 import ParentProductItem from "component/item-select/parent-product-item";
 import ModalConfirm from "component/modal/ModalConfirm";
 import _ from "lodash";
-import { EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
-import React, { createRef, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { DiscountMethod, EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
+import React, { createRef, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { RiInformationLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { formatDiscountValue, handleDenyParentProduct, onSelectVariantAndProduct, parseSelectProductToTableData, parseSelectVariantToTableData } from "utils/PromotionUtils";
+import { handleDenyParentProduct, onSelectVariantAndProduct, parseSelectProductToTableData, parseSelectVariantToTableData } from "utils/PromotionUtils";
 import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
 import NumberInput from "../../../../component/custom/number-input.custom";
@@ -33,13 +33,10 @@ import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import { DiscountMethodStyled } from "../components/style";
+import { DiscountUnitType } from "../constants";
 import { DiscountUpdateContext } from "./discount-update-provider";
-
 const Option = Select.Option;
-const DiscountUnitType = {
-  PERCENTAGE: { value: "PERCENTAGE", name: "%" },
-  FIXED_AMOUNT: { value: "FIXED_AMOUNT", name: "đ" }
-};
+
 interface Props {
   form: FormInstance;
   remove: (index: number) => void;
@@ -55,36 +52,18 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const [dataSearchVariant, setDataSearchVariant] = useState<Array<VariantResponse>>([]);
 
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [discountType, setDiscountType] = useState("FIXED_AMOUNT");
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
   const { isAllProduct, selectedVariant: entitlementsVariantMap, discountMethod } = discountUpdateContext;
+  const [discountType, setDiscountType] = useState("FIXED_PRICE");
 
   const selectedVariant = useMemo(() => entitlementsVariantMap[name] || [], [entitlementsVariantMap, name]);
   const selectedProductParentRef = useRef<ProductResponse | null>(null)
   const variantsOfSelectedProductRef = useRef<Array<VariantResponse>>([])
   const [isVisibleConfirmReplaceProductModal, setIsVisibleConfirmReplaceProductModal] = useState<boolean>(false);
+  const [discountUnitOptions, setDiscountUnitOptions] = useState<Array<{ value: string, label: string }>>([])
 
-  const discountUnitOptions = useMemo(() => {
-
-    const listOption = [
-      {
-        value: DiscountUnitType.FIXED_AMOUNT.value,
-        name: DiscountUnitType.FIXED_AMOUNT.name
-      },
-
-    ]
-
-    if (discountMethod !== "FIXED_PRICE") {
-      listOption.unshift({
-        value: DiscountUnitType.PERCENTAGE.value,
-        name: DiscountUnitType.PERCENTAGE.name
-      })
-    }
-    return listOption;
-
-  }, [discountMethod]);
 
   // chưa cần refactor
   const onResultSearchVariant = useCallback((result: PageResponse<VariantResponse> | false) => {
@@ -229,6 +208,40 @@ const FixedPriceGroupUpdate = (props: Props) => {
     setIsVisibleConfirmReplaceProductModal(false);
   }
 
+  /**
+ * @description: nếu phương thức chiết khấu đồng giá (FIXED_PRICE) thì chỉ có 1 option là FIXED_PRICE
+ * nếu phương thức chiết khấu theo từng sản phẩm (FIXED_AMOUNT)  thì có 2 option là PERCENTAGE (default) và FIXED_AMOUNT
+ */
+  useEffect(() => {
+
+    let option: Array<{ value: string, label: string }> = [];
+    if (discountMethod === DiscountMethod.FIXED_PRICE) {
+      setDiscountType(DiscountUnitType.FIXED_PRICE.value);
+
+      option = [
+        {
+          value: DiscountUnitType.FIXED_PRICE.value,
+          label: DiscountUnitType.FIXED_PRICE.label
+        },]
+    }
+
+    if (discountMethod === DiscountMethod.QUANTITY) {
+      setDiscountType(DiscountUnitType.PERCENTAGE.value);
+      option = [
+        {
+          value: DiscountUnitType.PERCENTAGE.value,
+          label: DiscountUnitType.PERCENTAGE.label
+        },
+        {
+          value: DiscountUnitType.FIXED_AMOUNT.value,
+          label: DiscountUnitType.FIXED_AMOUNT.label
+        },
+      ]
+    }
+
+    setDiscountUnitOptions(option)
+  }, [discountMethod])
+
   return (
     <div
       key={name}
@@ -267,7 +280,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
                     entitlements[name]?.prerequisite_quantity_ranges.allocation_limit;
                   if (value && quantity_limit && value > quantity_limit) {
                     return Promise.reject(
-                      new Error("SL Tối thiểu phải nhỏ hơn Số lượng áp dụng")
+                      new Error("SL Tối thiểu phải nhỏ hơn số lượng áp dụng")
                     );
                   } else if (value && allocateLimit && value > allocateLimit) {
                     return Promise.reject(
@@ -294,23 +307,19 @@ const FixedPriceGroupUpdate = (props: Props) => {
                 rules={[{ required: true, message: "Cần nhập chiết khấu" }]}
               >
                 <InputNumber
-                  key={`${key}-discount`}
-                  style={{ textAlign: "end", borderRadius: "0px", width: '100%' }}
+                  style={{ width: '100%' }}
                   min={1}
-                  max={discountType === "FIXED_AMOUNT" ? 999999999 : 100}
-                  step={discountType === "FIXED_AMOUNT" ? 1 : 0.01}
-                  formatter={(value) => formatDiscountValue(value, discountType !== "FIXED_AMOUNT")}
+                  max={discountType === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
+                  step={discountType === DiscountUnitType.PERCENTAGE.value ? 0.01 : 1}
+                // formatter={(value) => formatDiscountValue(value, discountType === DiscountUnitType.PERCENTAGE.value)}
 
                 />
               </Form.Item>
             </DiscountMethodStyled>
             <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} label=" "
-              // valuePropName="selected"
-              // trigger="onBlur"
-            // shouldUpdate
             >
               <Select
-                defaultValue={DiscountUnitType.FIXED_AMOUNT.value}
+                defaultValue={DiscountUnitType.FIXED_PRICE.value}
                 style={{ borderRadius: "0px" }}
                 onSelect={(e) => {
                   setDiscountType(e?.toString() || "");
@@ -323,7 +332,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               >
                 {discountUnitOptions.map(item => (
                   <Option key={item.value} value={item.value}>
-                    {item.name}
+                    {item.label}
                   </Option>
                 ))}
               </Select>
@@ -345,7 +354,6 @@ const FixedPriceGroupUpdate = (props: Props) => {
                 dropdownMatchSelectWidth={456}
                 style={{ width: "100%" }}
                 onSelect={(value) => onSelectVariantAndProduct(value, selectedProductParentRef, variantsOfSelectedProductRef, setIsVisibleConfirmReplaceProductModal, form, name, dispatch)}
-
                 options={renderResult}
                 ref={productSearchRef}
                 textEmpty={"Không tìm thấy sản phẩm"}
