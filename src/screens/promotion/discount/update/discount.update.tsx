@@ -2,7 +2,6 @@ import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { searchProductWrapperRequestAction } from "domain/actions/product/products.action";
 import { getVariants, promoGetDetail, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
-import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
 import { EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
@@ -11,13 +10,10 @@ import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { PROMO_TYPE } from "utils/Constants";
-import { DATE_FORMAT } from "utils/DateUtils";
-import { getDateFormDuration } from "utils/PromotionUtils";
+import { getDateFormDuration, transformData } from "utils/PromotionUtils";
 import ContentContainer from "../../../../component/container/content.container";
 import UrlConfig from "../../../../config/url.config";
 import { showError, showSuccess } from "../../../../utils/ToastUtils";
-import { CustomerFilterField } from "../../shared/cusomer-condition.form";
 import GeneralConditionForm from "../../shared/general-condition.form";
 import "../discount.scss";
 import DiscountUpdateForm from "./discount-update-form";
@@ -109,101 +105,7 @@ const DiscountUpdate = () => {
     );
 
 
-    const transformData = (values: any) => {
-        let body: any = values;
-        body.entitlements = values?.entitlements ? values?.entitlements?.map((item: EntilementFormModel) => {
-            delete item.selectedProducts;
-            if (isAllProduct) {
-                item.entitled_product_ids = [];
-                item.entitled_variant_ids = [];
-            }
-            return item;
-        }) : null;
 
-        body.type = PROMO_TYPE.AUTOMATIC;
-        body.starts_date = values.starts_date.format();
-        body.ends_date = values.ends_date?.format() || null;
-
-        body.prerequisite_store_ids = values.prerequisite_store_ids ?? [];
-        body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names ?? [];
-        body.prerequisite_order_source_ids = values.prerequisite_order_source_ids ?? [];
-
-        // ==Đối tượng khách hàng==
-
-        // Giới tính
-        body.prerequisite_genders = values.prerequisite_genders ?? [];
-        //Ngày sinh khách hàng
-        const startsBirthday = values[CustomerFilterField.starts_birthday]
-            ? moment(values[CustomerFilterField.starts_birthday])
-            : null;
-        const endsBirthday = values[CustomerFilterField.ends_birthday]
-            ? moment(values[CustomerFilterField.ends_birthday])
-            : null;
-        if (startsBirthday || endsBirthday) {
-            body.prerequisite_birthday_duration = {
-                starts_mmdd_key: startsBirthday
-                    ? Number(
-                        (startsBirthday.month() + 1).toString().padStart(2, "0") +
-                        startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-                    )
-                    : null,
-                ends_mmdd_key: endsBirthday
-                    ? Number(
-                        (endsBirthday.month() + 1).toString().padStart(2, "0") +
-                        endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-                    )
-                    : null,
-            };
-        } else {
-            body.prerequisite_birthday_duration = null;
-        }
-
-        //==Ngày cưới khách hàng
-        const startsWeddingDays = values[CustomerFilterField.starts_wedding_day]
-            ? moment(values[CustomerFilterField.starts_wedding_day])
-            : null;
-        const endsWeddingDays = values[CustomerFilterField.ends_wedding_day]
-            ? moment(values[CustomerFilterField.ends_wedding_day])
-            : null;
-
-        if (startsWeddingDays || endsWeddingDays) {
-            body.prerequisite_wedding_duration = {
-                starts_mmdd_key: startsWeddingDays
-                    ? Number(
-                        (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
-                        startsWeddingDays
-                            .format(DATE_FORMAT.DDMM)
-                            .substring(0, 2)
-                            .padStart(2, "0")
-                    )
-                    : null,
-                ends_mmdd_key: endsWeddingDays
-                    ? Number(
-                        (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
-                        endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-                    )
-                    : null,
-            };
-        } else {
-            body.prerequisite_wedding_duration = null;
-        }
-
-        //Khách hàng thuộc nhóm
-        body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids ?? [];
-        //Khách hàng thuộc cấp độ
-        body.prerequisite_customer_loyalty_level_ids = values.prerequisite_customer_loyalty_level_ids ?? [];
-        //Nhân viên phụ trách
-        body.prerequisite_assignee_codes = values.prerequisite_assignee_codes ?? [];
-
-        //==Chiết khấu nâng cao theo đơn hàng==
-        //Điều kiện chung
-
-        if (values?.rule && !_.isEmpty(JSON.parse(JSON.stringify(values?.rule)))) {
-            body.rule = values.rule;
-        }
-
-        return body;
-    };
 
     /**
      * Update discount
@@ -211,7 +113,7 @@ const DiscountUpdate = () => {
     const updateCallback = (data: DiscountResponse) => {
         if (data) {
             showSuccess("Cập nhật chiết khấu thành công");
-            setIsSubmitting(true)
+            setIsSubmitting(false)
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
         }
     };
@@ -219,11 +121,11 @@ const DiscountUpdate = () => {
     const handleSubmit = (values: any) => {
         try {
             setIsSubmitting(true)
-            const body = transformData(values);
+            const body = transformData(values, isAllProduct);
             body.id = idNumber;
             dispatch(updatePriceRuleByIdAction(body, updateCallback));
         } catch (error: any) {
-            setIsSubmitting(true)
+            setIsSubmitting(false)
             showError(error.message);
         }
     };
@@ -329,7 +231,7 @@ const DiscountUpdate = () => {
                 },
                 {
                     name: "Sửa Chiết khấu",
-                    path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`,
+                    path: `#`,
                 },
             ]}
         >

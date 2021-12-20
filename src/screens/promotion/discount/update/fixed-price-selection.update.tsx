@@ -3,7 +3,7 @@ import { Button, Checkbox, Col, Divider, Form, FormInstance, message, Modal, Row
 import Dragger from "antd/es/upload/Dragger";
 import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import _ from "lodash";
-import { EntilementFormModel, VariantEntitlementsFileImport } from "model/promotion/discount.create.model";
+import { DiscountMethod, EntilementFormModel, VariantEntitlementsFileImport } from "model/promotion/discount.create.model";
 import React, { useContext, useState } from "react";
 import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
@@ -11,6 +11,7 @@ import { shareDiscountImportedProduct } from "utils/PromotionUtils";
 import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
+import { DiscountUnitType, newEntitlements } from "../constants";
 import "../discount.scss";
 import { DiscountUpdateContext } from "./discount-update-provider";
 import FixedPriceGroupUpdate from "./fixed-price-group.update";
@@ -58,7 +59,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
-  const { isAllProduct, setIsAllProduct } = discountUpdateContext;
+  const { isAllProduct, setIsAllProduct, discountMethod } = discountUpdateContext;
 
   // import file
   const handleImportEntitlements = () => {
@@ -93,12 +94,16 @@ const FixedPriceSelectionUpdate = (props: Props) => {
         {(fields: FormListFieldData[], { add, remove }: FormListOperation, { errors }: {
           errors: React.ReactNode[];
         }) => {
+          let initValue = newEntitlements;
           const addBlankEntitlement = () => {
-            // const temp = _.cloneDeep(entitlementsVariantMap);
-
-            // temp.unshift([]);
-            // setSelectedVariant(temp);
-            add({}, 0);
+            if (discountMethod === DiscountMethod.FIXED_PRICE) {
+              initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.FIXED_PRICE.value
+            }
+            if (discountMethod === DiscountMethod.QUANTITY) {
+              initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.PERCENTAGE.value
+            }
+            initValue.selectedProducts = [];
+            add(initValue, 0);
           };
 
           const removeEntitlementItem = (index: number) => {

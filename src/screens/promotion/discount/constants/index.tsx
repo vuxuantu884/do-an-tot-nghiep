@@ -8,6 +8,22 @@ import { formatCurrency } from "utils/AppUtils";
 import { formatDiscountValue, renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 const { Item } = Form;
 
+export const newEntitlements: EntilementFormModel = {
+  entitled_variant_ids: [],
+  entitled_product_ids: [],
+  selectedProducts: [],
+  prerequisite_variant_ids: [],
+  entitled_category_ids: [],
+  prerequisite_quantity_ranges: [
+    {
+      greater_than_or_equal_to: 0,
+      less_than_or_equal_to: null,
+      allocation_limit: undefined,
+      value: 0,
+      value_type: undefined,
+    }
+  ],
+}
 export const DiscountUnitType = {
   PERCENTAGE: { value: "PERCENTAGE", label: "%" },
   FIXED_PRICE: { value: "FIXED_PRICE", label: "đ" },
@@ -335,7 +351,7 @@ export const columnDiscountQuantity = [
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 ) {
+      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
         return (
           <span style={{ color: "#E24343" }}>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || '')}</span>
         )
@@ -437,3 +453,4 @@ export const OperatorSelectOptions = [
     value: "LESS_THAN_OR_EQUAL_TO",
   },
 ];
+
