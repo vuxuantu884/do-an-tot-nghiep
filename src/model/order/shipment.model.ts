@@ -26,7 +26,7 @@ export interface Shipment {
   };
   shipping_fee_paid_to_three_pls: number;
   service: string;
-  cancel_reason: string;
+  reason_ids: string;
   cod: number;
 	reference_status: string;
 }
@@ -106,7 +106,7 @@ export interface ShipmentSearchQuery {
   note: string | null;
   customer_note: string | null;
   tags: [];
-  cancel_reason: [];
+  reason_ids: [];
 }
 
 export interface thirdPLModel {

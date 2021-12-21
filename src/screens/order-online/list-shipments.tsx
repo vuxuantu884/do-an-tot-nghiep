@@ -108,7 +108,7 @@ const initQuery: ShipmentSearchQuery = {
 	note: null,
 	customer_note: null,
 	tags: [],
-	cancel_reason: [],
+	reason_ids: [],
 };
 
 const ShipmentsScreen: React.FC = (props: any) => {
