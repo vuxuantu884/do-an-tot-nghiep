@@ -43,8 +43,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
   } = props;
-console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
-
 
   const sercivesFee = useMemo(() => {
     let services: any = []
@@ -66,8 +64,6 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
-      console.log("3333");
-      console.log('transportType', transportType)
       const customerShippingAddress = customer?.shipping_addresses.find(
         (single) => single.default
       );
@@ -120,8 +116,6 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
       // filter thời gian, active
       const filteredShippingServiceConfig = shippingServiceConfig.filter((single) => {
-        console.log('single', single)
-        console.log('transportType', transportType)
         return (
           checkIfIsInTimePeriod(single.start_date, single.end_date) &&
           single.status === ORDER_SETTINGS_STATUS.active &&
@@ -132,8 +126,6 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
           )
         );
       });
-      console.log('shippingServiceConfig', shippingServiceConfig)
-      console.log('filteredShippingServiceConfig', filteredShippingServiceConfig)
 
       // filter city
       let listCheckedShippingFeeConfig = [];
@@ -142,7 +134,6 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
         for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
           const checkedShippingFeeConfig =
             singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
-              console.log('checkIfSameCity(single.city_id, customerShippingAddressCityId)', checkIfSameCity(single.city_id, customerShippingAddressCityId))
               return (
                 checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
                 checkIfPrice(orderPrice, single.from_price, single.to_price)
@@ -152,7 +143,6 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
         }
       }
 
-      console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
 
       //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
       const flattenArray = (arr: any) => {
@@ -167,7 +157,6 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
         listCheckedShippingFeeConfig
       );
 
-      console.log('listCheckedShippingFeeConfigFlatten', listCheckedShippingFeeConfigFlatten)
 
       // lấy số nhỏ nhất
       if (
@@ -180,7 +169,6 @@ console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
             result = single.transport_fee;
           }
         });
-        console.log("result", result);
         form?.setFieldsValue({shipping_fee_informed_to_customer: result});
         setShippingFeeInformedToCustomer(result);
       } else {
