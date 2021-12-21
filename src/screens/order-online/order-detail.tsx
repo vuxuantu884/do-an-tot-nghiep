@@ -528,30 +528,6 @@ const OrderDetail = (props: PropType) => {
     setShipmentMethod(value);
   };
 
-  const renderShipment = () => {
-    if (true) {
-      return (
-        <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
-          <OrderCreateShipment
-            shipmentMethod={shipmentMethod}
-            orderPrice={OrderDetail?.total_line_amount_after_line_discount}
-            storeDetail={storeDetail}
-            customer={customerDetail}
-            items={OrderDetail?.items}
-            isCancelValidateDelivery={false}
-            totalAmountCustomerNeedToPay={10000}
-            setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
-            onSelectShipment={onSelectShipment}
-            thirdPL={thirdPL}
-            setThirdPL={setThirdPL}
-            form={form}
-          />
-        </Card>
-      );
-    }
-  };
-  console.log(renderShipment);
-
   useEffect(() => {
     window.addEventListener("scroll", scroll);
     return () => {
@@ -649,7 +625,7 @@ const OrderDetail = (props: PropType) => {
               {OrderDetail !== null &&
                 ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
                   (OrderDetail.fulfillments &&
-                    OrderDetail.fulfillments[0]?.shipment?.cod)) && (
+                    OrderDetail.fulfillments[0]?.shipment?.cod !== 0 && OrderDetail.fulfillments[0]?.shipment?.cod !== undefined)) && (
                   <Card
                     title={
                       <Space>
