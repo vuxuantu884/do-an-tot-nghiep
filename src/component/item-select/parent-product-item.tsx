@@ -27,13 +27,7 @@ const ParentProductItem: React.FC<ParentProductItemProps> = (props: ParentProduc
                     <span className="product-item-sku">{data.code}</span>
                 </div>
                 <div className="product-item-info-right">
-
-                    <span className="product-item-price">-<span className="currency"></span></span>
-
-                    <span className="product-item-inventory">Số lượng tồn: <span className="value">
-                        {/* {data.on_hand ? data.on_hand : 0} */}
-                        -
-                    </span></span>
+                    Sản phẩm cha
                 </div>
             </div>
         </div>

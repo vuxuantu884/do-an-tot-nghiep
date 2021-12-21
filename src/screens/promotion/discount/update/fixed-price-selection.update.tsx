@@ -93,7 +93,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
         {(fields: FormListFieldData[], { add, remove }: FormListOperation, { errors }: {
           errors: React.ReactNode[];
         }) => {
-          let initValue = newEntitlements;
+          let initValue = {...newEntitlements};
           const addBlankEntitlement = () => {
             if (discountMethod === DiscountMethod.FIXED_PRICE) {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.FIXED_PRICE.value
@@ -102,6 +102,9 @@ const FixedPriceSelectionUpdate = (props: Props) => {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.PERCENTAGE.value
             }
             initValue.selectedProducts = [];
+            initValue.entitled_variant_ids = [];
+            initValue.entitled_product_ids = [];
+
             add(initValue, 0);
           };
 
