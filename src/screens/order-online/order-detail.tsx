@@ -493,6 +493,7 @@ const OrderDetail = (props: PropType) => {
           : 0)
       );
     }
+		return 0;
   };
 
   const customerNeedToPayValue = customerNeedToPay();

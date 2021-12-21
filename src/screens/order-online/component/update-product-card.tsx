@@ -32,7 +32,7 @@ type ProductCardUpdateProps = {
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   props: ProductCardUpdateProps
 ) => {
-  const { OrderDetail, totalAmountReturnProducts } = props;
+  const { OrderDetail, totalAmountReturnProducts, customerNeedToPayValue = 0 } = props;
   const ProductColumn = {
     title: () => (
       <div className="text-center">
@@ -389,7 +389,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               <strong className="font-size-text">
                 {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả:"}
               </strong>
-              <strong>{formatCurrency(props.customerNeedToPayValue)}</strong>
+              <strong>{formatCurrency(customerNeedToPayValue)}</strong>
             </Row>
             {totalAmountReturnProducts ? (
               <Row className="payment-row" justify="space-between">
@@ -405,13 +405,13 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                 />
                 <Row className="payment-row" justify="space-between">
                   <strong className="font-size-text" style={{ fontWeight: "bold" }}>
-                    {props.customerNeedToPayValue - totalAmountReturnProducts < 0
+                    {customerNeedToPayValue - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
                       : "Khách cần trả:"}
                   </strong>
                   <strong className="text-success font-size-price">
                     {formatCurrency(
-                      Math.abs(props.customerNeedToPayValue - totalAmountReturnProducts)
+                      Math.abs(customerNeedToPayValue - totalAmountReturnProducts)
                     )}
                   </strong>
                 </Row>
