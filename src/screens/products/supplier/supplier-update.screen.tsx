@@ -15,9 +15,9 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
 import SelectPaging from "component/custom/SelectPaging";
-import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
-import {AppConfig} from "config/app.config";
-import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { AppConfig } from "config/app.config";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
@@ -31,22 +31,22 @@ import {
   SupplierResponse,
   SupplierUpdateRequest,
 } from "model/core/supplier.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory, useParams} from "react-router";
-import {CompareObject} from "utils/CompareObject";
-import {RegUtil} from "utils/RegUtils";
-import {showSuccess} from "utils/ToastUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router";
+import { CompareObject } from "utils/CompareObject";
+import { RegUtil } from "utils/RegUtils";
+import { showSuccess } from "utils/ToastUtils";
 
-const {Item} = Form;
-const {Option} = Select;
+const { Item } = Form;
+const { Option } = Select;
 type SupplierParam = {
   id: string;
 };
 
 const UpdateSupplierScreen: React.FC = () => {
-  const {id} = useParams<SupplierParam>();
+  const { id } = useParams<SupplierParam>();
   let idNumber = parseInt(id);
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -144,10 +144,10 @@ const UpdateSupplierScreen: React.FC = () => {
       setModalConfirm({
         visible: true,
         onCancel: () => {
-          setModalConfirm({visible: false});
+          setModalConfirm({ visible: false });
         },
         onOk: () => {
-          setModalConfirm({visible: false});
+          setModalConfirm({ visible: false });
           history.goBack();
         },
         title: "Bạn có muốn quay lại?",
@@ -161,7 +161,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const getAccounts = useCallback((search: string, page: number) => {
     dispatch(
       AccountSearchAction(
-        {info: search, department_ids: [AppConfig.WIN_DEPARTMENT],  page: page},
+        { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page },
         (response: PageResponse<AccountResponse> | false) => {
           if (response) {
             setAccounts(response);
@@ -326,7 +326,7 @@ const UpdateSupplierScreen: React.FC = () => {
                     >
                       <SelectPaging
                         allowClear
-                        placeholder="Nhân viên phục trách"
+                        placeholder="Nhân viên phụ trách"
                         searchPlaceholder={"Tìm kiếm nhân viên phụ trách"}
                         metadata={accounts.metadata}
                         onPageChange={(key, page) => {
@@ -373,11 +373,11 @@ const UpdateSupplierScreen: React.FC = () => {
                           <NumberInput
                             placeholder="Nhập số lượng"
                             isFloat
-                            style={{width: "70%"}}
+                            style={{ width: "70%" }}
                           />
                         </Item>
                         <Item name="moq_unit" noStyle>
-                          <Select className="selector-group" style={{width: "30%"}}>
+                          <Select className="selector-group" style={{ width: "30%" }}>
                             {moq_unit?.map((item) => (
                               <Option key={item.value} value={item.value}>
                                 {item.name}
@@ -400,7 +400,7 @@ const UpdateSupplierScreen: React.FC = () => {
                       /> */}
                           <NumberInput
                             isFloat
-                            style={{width: "70%"}}
+                            style={{ width: "70%" }}
                             placeholder="Nhập thời gian công nợ"
                           />
                         </Item>
@@ -408,7 +408,7 @@ const UpdateSupplierScreen: React.FC = () => {
                           <Select
                             className="selector-group"
                             defaultActiveFirstOption
-                            style={{width: "30%"}}
+                            style={{ width: "30%" }}
                           >
                             {date_unit?.map((item) => (
                               <Option key={item.value} value={item.value}>
@@ -425,7 +425,7 @@ const UpdateSupplierScreen: React.FC = () => {
                   <Col span={24}>
                     <Item label="Ghi chú" name="note">
                       <Input.TextArea
-                        style={{height: 105}}
+                        style={{ height: 105 }}
                         placeholder="Nhập ghi chú"
                         maxLength={500}
                       />

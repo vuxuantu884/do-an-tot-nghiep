@@ -56,13 +56,6 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
 
   const [ecommerceList] = useState<Array<any>>([
     {
-      title: "Sàn Tiki",
-      icon: tikiIcon,
-      id: 2,
-      isActive: false,
-      key: "tiki"
-    },
-    {
       title: "Sàn Shopee",
       icon: shopeeIcon,
       id: 1,
@@ -72,9 +65,16 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
     {
       title: "Sàn Lazada",
       icon: lazadaIcon,
-      id: 3,
+      id: 2,
       isActive: false,
       key: "lazada",
+    },
+    {
+      title: "Sàn Tiki",
+      icon: tikiIcon,
+      id: 3,
+      isActive: false,
+      key: "tiki"
     },
     {
       title: "Sàn Sendo",
@@ -116,9 +116,7 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
     if (!dates || dates.length === 0) {
       return false;
     }
-    const tooLate = dates[0] && current.diff(dates[0], 'days') > 14;
-    const tooEarly = dates[1] && dates[1].diff(current, 'days') > 14;
-    return tooEarly || tooLate;
+    return isLoading;
   };
 
   const onOpenChange = (open: any) => {
@@ -277,8 +275,6 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
             onOpenChange={onOpenChange}
           />
         </div>
-
-        <div style={{ marginTop: "20px" }}><i>Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b></i></div>
       </StyledUpdateProductDataModal>
     </Modal>
   );
