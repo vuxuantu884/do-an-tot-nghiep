@@ -14,7 +14,7 @@ import {
 import { RefSelectProps } from "antd/lib/select";
 
 import moment from "moment";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { generateQuery } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -1252,7 +1252,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       }
 
       let queryParams = generateQuery(params);
-      window.open(`${UrlConfig.CUSTOMER}/point-adjustments/create?${queryParams}`);
+      window.open(`${BASE_NAME_ROUTER}${UrlConfig.CUSTOMER}/point-adjustments/create?${queryParams}`, "_blank");
     }
   }
 
