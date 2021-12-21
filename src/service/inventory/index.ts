@@ -90,11 +90,10 @@ const createInventoryConfigService = (
 };
 
 const updateInventoryConfigService = (
-  id: number,
   request: FilterConfigRequest
 ): Promise<BaseResponse<FilterConfig>> => {
-  return BaseAxios.put(
-    `${ApiConfig.INVENTORY}/config/${id}`,
+  return BaseAxios.post(
+    `${ApiConfig.INVENTORY}/config`,
       request
   );
 };

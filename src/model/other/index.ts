@@ -18,7 +18,7 @@ export interface RouteMenu {
 export interface FilterConfigRequest extends BaseObject{
   json_content: string,
   type: string,
-  name: string
+  name: string,
 }
 
 export interface FilterConfig extends FilterConfigRequest{

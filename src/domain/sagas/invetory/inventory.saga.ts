@@ -219,11 +219,10 @@ function* createConfigInventorySaga(action: YodyAction) {
 }
 
 function* updateConfigInventorySaga(action: YodyAction) {
-  const {id, request, onResult } = action.payload;
+  const { request, onResult } = action.payload;
   try {
     let response: BaseResponse<FilterConfig> = yield call(
       updateInventoryConfigService,
-      id,
       request
     );
     switch (response.code) {
