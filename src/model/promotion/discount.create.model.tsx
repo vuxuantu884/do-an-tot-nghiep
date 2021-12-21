@@ -99,6 +99,17 @@ export interface DiscountRule {
 /**
  * refactor
  */
+
+export enum WeekDays {
+  SUN = "SUN",
+  MON = "MON",
+  TUE = "TUE",
+  WED = "WED",
+  THU = "THU",
+  FRI = "FRI",
+  SAT = "SAT",
+}
+
 export interface ProductEntitlements {
   limit?: number;
   cost: number;

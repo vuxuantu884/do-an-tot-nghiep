@@ -54,10 +54,9 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
-  const { selectedVariant: entitlementsVariantMap, discountMethod } = discountUpdateContext;
-  const [discountType, setDiscountType] = useState("FIXED_PRICE");
+  const { discountMethod } = discountUpdateContext;
+  const [discountType, setDiscountType] = useState(DiscountUnitType.FIXED_PRICE.value);
 
-  const selectedVariant = useMemo(() => entitlementsVariantMap[name] || [], [entitlementsVariantMap, name]);
   const selectedProductParentRef = useRef<ProductResponse | null>(null)
   const variantsOfSelectedProductRef = useRef<Array<VariantResponse>>([])
   const [isVisibleConfirmReplaceProductModal, setIsVisibleConfirmReplaceProductModal] = useState<boolean>(false);
@@ -81,7 +80,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
         searchVariantsRequestAction(
           {
             status: "active",
-            limit: 100,
+            limit: 200,
             page: 1,
             info: value.trim(),
           },
@@ -123,7 +122,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
 
   // todo : refactor
   const onPickManyProduct = (items: Array<VariantResponse>) => {
-    console.log(items, selectedVariant);
+
     if (items.length) {
       let selectedVariantId: number[] = [];
       const newProducts = items.map(item => {
@@ -143,6 +142,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
       }
 
       form.setFieldsValue({ entitlements: _.cloneDeep(entilementFormValue) });
+      setVisibleManyProduct(false);
     }
 
   }
@@ -296,7 +296,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               }),
             ]}
           >
-            <InputNumber min={0} style={{ width: '100%' }} />
+            <InputNumber min={1} max={999999} style={{ width: '100%' }} />
           </Form.Item>
         </Col>
 

@@ -38,7 +38,7 @@ const DiscountUpdate = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const discountUpdateContext = useContext(DiscountUpdateContext);
-    const { setDiscountMethod, setDiscountData, discountData, setSelectedVariant } = discountUpdateContext;
+    const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
 
     const parseDataToForm = useCallback(
         (result: DiscountResponse) => {
@@ -210,7 +210,7 @@ const DiscountUpdate = () => {
             form.setFieldsValue({ entitlements: entilelementValue });
         }
 
-    }, [discountData, form, setSelectedVariant, mergeVariantsData]);
+    }, [discountData, form, mergeVariantsData]);
 
     useEffect(() => {
         dispatch(getVariants(idNumber, setDataVariants));

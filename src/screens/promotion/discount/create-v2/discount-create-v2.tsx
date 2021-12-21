@@ -1,32 +1,23 @@
 import { Button, Col, Form, Row } from 'antd';
+import AuthWrapper from 'component/authorization/AuthWrapper';
 import BottomBarContainer from 'component/container/bottom-bar.container';
 import ContentContainer from 'component/container/content.container';
-import { HttpStatus } from 'config/http-status.config';
 import { PromoPermistion } from 'config/permissions/promotion.permisssion';
 import UrlConfig from 'config/url.config';
-import { unauthorizedAction } from 'domain/actions/auth/auth.action';
-import useAuthorization from 'hook/useAuthorization';
+import { createPriceRuleAction } from 'domain/actions/promotion/discount/discount.action';
 import { DiscountMethod } from 'model/promotion/discount.create.model';
 import moment from 'moment';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import GeneralConditionForm from 'screens/promotion/shared/general-condition.form';
-import { createPriceRule } from 'service/promotion/discount/discount.service';
 import { transformData } from 'utils/PromotionUtils';
 import { showError, showSuccess } from 'utils/ToastUtils';
-import { DiscountUnitType, newEntitlements } from '../constants';
+import { DiscountUnitType } from '../constants';
 import DiscountUpdateForm from '../update/discount-update-form';
 import DiscountUpdateProvider from '../update/discount-update-provider';
 
-const initEntilements = newEntitlements;
-initEntilements.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.FIXED_PRICE.value;
-const initialValues = {
-    starts_date: moment(),
-    entitled_method: DiscountMethod.FIXED_PRICE.toString(),
-    priority: 1,
-    entitlements: [initEntilements]
-}
+
 
 function DiscountCreateV2(): ReactElement {
     const history = useHistory();
@@ -36,58 +27,71 @@ function DiscountCreateV2(): ReactElement {
     const [isSubmittingAndActive, setIsSubmittingAndActive] = useState(false);
     let activeDiscout = true;
 
-    //phân quyền
-    const [allowCreatePromoCode] = useAuthorization({
-        acceptPermissions: [PromoPermistion.CREATE],
-    });
-
-    const handleCreateSuccess = (response: any) => {
-        switch (response.code) {
-            case HttpStatus.SUCCESS:
-                showSuccess("Lưu thành công");
-                history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${response.data.id}`);
-                break;
-            case HttpStatus.UNAUTHORIZED:
-                dispatch(unauthorizedAction);
-                break;
-            default:
-                response.errors.forEach((e: string) => showError(e));
-                break;
-        }
-    };
-
-    async function handleSubmit(values: any): Promise<void> {
+    function handleSubmit(values: any) {
         try {
             const body = transformData(values);
             body.activated = activeDiscout;
-            // need move to saga
-            const createResponse = await createPriceRule(body);
-            handleCreateSuccess(createResponse);
-            setIsSubmitting(false)
-            setIsSubmittingAndActive(false)
+            if (activeDiscout) {
+                setIsSubmittingAndActive(true)
+            } else {
+                setIsSubmitting(true)
+            }
+            dispatch(createPriceRuleAction(body, (data) => {
+                if (data) {
+                    showSuccess("Lưu thành công");
+                    history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${data.id}`);
+                }
+                setIsSubmitting(false)
+                setIsSubmittingAndActive(false)
+
+            }));
+
         } catch (error: any) {
             setIsSubmitting(false)
             setIsSubmittingAndActive(false)
-            if (error.response.data?.errors) {
-                error.response.data.errors?.forEach((e: string) => showError(e));
-            } else {
-                showError("Hệ thống gặp lỗi lạ vui lòng thử lại sau");
-            }
+            showError("Lỗi dư liệu đầu vào");
         }
     }
 
     const handleSaveAndActive = () => {
-        setIsSubmittingAndActive(true)
         activeDiscout = true;
         form.submit();
     };
 
     const save = () => {
-        setIsSubmitting(true)
         activeDiscout = false;
         form.submit();
     };
 
+    /**
+     * init data
+     */
+    useEffect(() => {
+        const initEntilements = {
+            entitled_variant_ids: [],
+            entitled_product_ids: [],
+            selectedProducts: [],
+            prerequisite_variant_ids: [],
+            entitled_category_ids: [],
+            prerequisite_quantity_ranges: [
+                {
+                    greater_than_or_equal_to: 0,
+                    less_than_or_equal_to: null,
+                    allocation_limit: undefined,
+                    value: 0,
+                    value_type: DiscountUnitType.FIXED_PRICE.value,
+                }
+            ],
+        }
+        
+        const initialValues = {
+            starts_date: moment(),
+            entitled_method: DiscountMethod.FIXED_PRICE.toString(),
+            priority: 1,
+            entitlements: [initEntilements]
+        }
+        form.setFieldsValue(initialValues);
+    }, [form])
 
     return (
         <ContentContainer
@@ -109,11 +113,10 @@ function DiscountCreateV2(): ReactElement {
         >
             <Form
                 form={form}
-                name="discount_update"
+                name="discount_create"
                 onFinish={(values: any) => handleSubmit(values)}
                 layout="vertical"
                 scrollToFirstError
-                initialValues={initialValues}
             >
                 <Row gutter={24}>
 
@@ -138,25 +141,23 @@ function DiscountCreateV2(): ReactElement {
                 <BottomBarContainer
                     back="Quay lại danh sách chiết khấu"
                     rightComponent={
-                        allowCreatePromoCode && (
-                            <>
-                                <Button
-                                    onClick={() => save()}
-                                    style={{
-                                        marginLeft: ".75rem",
-                                        marginRight: ".75rem",
-                                        borderColor: "#2a2a86",
-                                    }}
-                                    type="ghost"
-                                    loading={isSubmitting}
-                                >
-                                    Lưu
-                                </Button>
-                                <Button type="primary" onClick={() => handleSaveAndActive()} loading={isSubmittingAndActive} >
-                                    Lưu và kích hoạt
-                                </Button>
-                            </>
-                        )
+                        <AuthWrapper acceptPermissions={[PromoPermistion.CREATE]}>
+                            <Button
+                                onClick={() => save()}
+                                style={{
+                                    marginLeft: ".75rem",
+                                    marginRight: ".75rem",
+                                    borderColor: "#2a2a86",
+                                }}
+                                type="ghost"
+                                loading={isSubmitting}
+                            >
+                                Lưu
+                            </Button>
+                            <Button type="primary" onClick={() => handleSaveAndActive()} loading={isSubmittingAndActive} >
+                                Lưu và kích hoạt
+                            </Button>
+                        </AuthWrapper>
                     }
                 />
             </Form>
