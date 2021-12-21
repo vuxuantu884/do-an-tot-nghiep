@@ -171,7 +171,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                    width: 130,
                    dataIndex: POProcumentLineItemField.ordered_quantity,
                    render: (value, item, index) => (
-                     <div style={{ textAlign: "right" }}>{value}</div>
+                     <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
                    ),
                  },
                  {

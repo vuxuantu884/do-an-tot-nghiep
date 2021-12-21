@@ -391,7 +391,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   title: "Ngày nhận dự kiến",
                   dataIndex: "expect_receipt_date",
                   render: (value, record, index: number) =>
-                    ConvertUtcToLocalDate(value),
+                    ConvertUtcToLocalDate(value,DATE_FORMAT.DDMMYYY),
                 },
                 ...columns,
               ]}

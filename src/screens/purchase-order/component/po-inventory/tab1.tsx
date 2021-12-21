@@ -132,7 +132,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                   width: 150,
                   dataIndex: "quantity",
                   render: (value, item, index) => (
-                    <div style={{ textAlign: "right" }}>{value}</div>
+                    <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
                   ),
                 },
                 {
