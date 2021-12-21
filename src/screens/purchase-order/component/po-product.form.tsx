@@ -843,7 +843,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           <div
                             style={{ color: "#2A2A86", fontWeight: "normal" }}
                           >
-                            ({POUtils.totalQuantity(items)})
+                            ({formatCurrency(POUtils.totalQuantity(items),".")})
                           </div>
                         </div>
                       ),

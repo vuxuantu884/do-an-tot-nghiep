@@ -318,7 +318,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           visible={visible}
           width={customWidth()}
           className="order-filter-drawer"
-          allowSave={false}
+          allowSave={true}
           onSaveFilter={onShowSaveFilter}
         >
           <Form

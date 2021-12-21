@@ -13,6 +13,7 @@ import { Moment } from "moment";
 
 import ProcumentCommonModal from "./procument.common.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { formatCurrency } from "utils/AppUtils";
 
 type ProcumentConfirmProps = {
   visible: boolean;
@@ -168,7 +169,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   width: 130,
                   dataIndex: POProcumentLineItemField.ordered_quantity,
                   render: (value, item, index) => (
-                    <div style={{ textAlign: "right" }}>{value}</div>
+                    <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
                   ),
                 },
                 {
@@ -193,7 +194,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                     let itemSku = items.find((item1) => item1.sku === value)
                     let quantity =  itemSku ? itemSku.receipt_quantity : 0
                     return (
-                    <div style={{ textAlign: "right" }}>{quantity}</div>
+                    <div style={{ textAlign: "right" }}>{formatCurrency(quantity,".")}</div>
                   )},
                 },
                 {
@@ -213,7 +214,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   dataIndex: POProcumentLineItemField.planned_quantity,
                   render: (value, item, index) => (
                     <div style={{ textAlign: "right" }}>
-                      {value ? value : 0}
+                      {value ? formatCurrency(value,".") : 0}
                     </div>
                   ),
                 },
@@ -290,22 +291,22 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={1}>
                         <div style={{ fontWeight: 700 }}>
-                          {ordered_quantity}
+                          {formatCurrency(ordered_quantity,".")}
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={2}>
                         <div style={{ fontWeight: 700 }}>
-                          {real_quantity}
+                          {formatCurrency(real_quantity,".")}
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={3}>
                         <div style={{ fontWeight: 700 }}>
-                          {planned_quantity}
+                          {formatCurrency(planned_quantity,".")}
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={4}>
                         <div style={{ fontWeight: 700, marginRight: 15 }}>
-                          {quantity}
+                          {formatCurrency(quantity,".")}
                         </div>
                       </Table.Summary.Cell>
                     </Table.Summary.Row>
