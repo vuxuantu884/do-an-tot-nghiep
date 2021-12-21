@@ -11,7 +11,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
@@ -25,6 +25,9 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import DebounceSelect from "./component/debounce-select";
 import { searchVariantsApi, getVariantApi } from "service/product/product.service";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import UrlConfig from "config/url.config";
+import { Link } from "react-router-dom";
 
 type OrderFilterProps = {
   params: ShipmentSearchQuery;
@@ -32,6 +35,7 @@ type OrderFilterProps = {
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
+  shippers: Array<AccountResponse>;
   deliveryService: Array<any>;
   reasons: Array<{id: number; name: string}>;
   isLoading?: boolean;
@@ -68,6 +72,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     listSource,
     listStore,
     accounts,
+    shippers,
     deliveryService,
     reasons,
     isLoading,
@@ -118,6 +123,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string}[]>([]);
 
+	const [accountData, setAccountData] = useState<Array<AccountResponse>>(
+		[]
+	);
+	
   const onChangeOrderOptions = useCallback((e) => {
     onFilter && onFilter({...params, status: e.target.value});
   }, [onFilter, params]);
@@ -179,8 +188,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'delivery_provider_ids':
           onFilter && onFilter({...params, delivery_provider_ids: []});
           break;
-        case 'shipper_ids':
-          onFilter && onFilter({...params, shipper_ids: []});
+        case 'shipper_codes':
+          onFilter && onFilter({...params, shipper_codes: []});
           break;  
         // trạng thái in
         case 'print_status':
@@ -235,7 +244,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       reference_status: Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status],
-      shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
+      shipper_codes: Array.isArray(params.shipper_codes) ? params.shipper_codes : [params.shipper_codes],
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
       delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
       print_status: Array.isArray(params.print_status) ? params.print_status : [params.print_status],
@@ -245,6 +254,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       cancel_reason: Array.isArray(params.cancel_reason) ? params.cancel_reason : [params.cancel_reason],
   }}, [params])
+
+	console.log('initialValues', initialValues)
   
   const [print, setPrint] = useState<any[]>(initialValues.print_status);
   const [pushing, setPushing] = useState<any[]>(initialValues.pushing_status);
@@ -368,6 +379,50 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [formRef, print, pushing, control, onFilter]
   );
   let filters = useMemo(() => {
+
+		const splitCharacter = ", ";
+
+		const renderSplitCharacter = (index: number, mappedArray: any[]) => {
+			let result = null;
+			if (index !== mappedArray.length - 1) {
+				result = (
+					<React.Fragment>
+						{splitCharacter}
+					</React.Fragment>
+				)
+			}
+			return result;
+		};
+
+		const getFilterString = (mappedArray: any[] | undefined, keyValue: string, endPoint?: string, objectLink?: string, type?: string) => {
+			let result = null;
+			if (!mappedArray) {
+				return null;
+			};
+			if (type === "assignee_codes") {
+				
+			} else {
+				result = mappedArray.map((single, index) => {
+					if (objectLink && endPoint && single[objectLink]) {
+						return (
+							<Link to={`${endPoint}/${single[objectLink]}`} target="_blank" key={single[keyValue]}>
+								{single[keyValue]}
+								{renderSplitCharacter(index, mappedArray)}
+							</Link>
+						)
+					}
+					return (
+						<React.Fragment>
+							{single[keyValue]}
+							{renderSplitCharacter(index, mappedArray)}
+						</React.Fragment>
+					)
+				})
+
+			}
+			return <React.Fragment>{result}</React.Fragment>;
+		};
+
     let list = []
     if (initialValues.store_ids.length) {
       let textStores = ""
@@ -448,18 +503,17 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.shipper_ids.length) {
-      let textAccount = ""
-      initialValues.shipper_ids.forEach(i => {
-        const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id.toString() === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-      })
-      list.push({
-        key: 'shipper_ids',
-        name: 'Đối tác giao hàng',
-        value: textAccount
-      })
-    }
+		if (initialValues.shipper_codes.length) {
+			let mappedShippers = shippers?.filter((account) => initialValues.shipper_codes?.some((single) => single === account.code.toString()))
+			console.log('mappedShippers', mappedShippers)
+			console.log('shippers', shippers)
+			let text = getFilterString(mappedShippers, "full_name", UrlConfig.ACCOUNTS, "code");
+			list.push({
+				key: 'shipper_codes',
+				name: 'Đối tác giao hàng',
+				value: text,
+			})
+		}
     if (initialValues.delivery_provider_ids.length) {
       let textService = ""
       initialValues.delivery_provider_ids.forEach((i: any) => {
@@ -587,7 +641,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_ids, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, accounts, deliveryService, printStatus, pushingStatus, optionsVariant, serviceType, reasons]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, accounts, deliveryService, printStatus, pushingStatus, optionsVariant, serviceType, reasons]
   );
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -613,6 +667,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   useLayoutEffect(() => {
     window.addEventListener('resize', () => setVisible(false))
   }, []);
+
+	useEffect(() => {
+		if (accounts) {
+			setAccountData(accounts)
+		}
+	}, [accounts])
 
   useEffect(() => {
     if (params.variant_ids.length) {
@@ -842,38 +902,33 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={12} xxl={8}>
                 <p>Đối tác giao hàng</p>
-                <Item name="shipper_ids">
-                <Select
-                  mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
-                  notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children" showArrow maxTagCount='responsive'
-                  getPopupContainer={trigger => trigger.parentNode} allowClear
-                >
-                  {accounts.filter(account => account.is_shipper === true)?.map((account) => (
-                    <Option key={account.id} value={account.id.toString()}>
-                      {account.full_name} - {account.code}
-                    </Option>
-                  ))}
-                </Select>
+                <Item name="shipper_codes">
+                <CustomSelect
+										mode="multiple" showSearch allowClear
+										showArrow placeholder="Chọn đối tác giao hàng"
+										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+										optionFilterProp="children"
+										getPopupContainer={trigger => trigger.parentNode}
+										maxTagCount='responsive'
+									>
+										{shippers && shippers.map((shipper) => (
+											<CustomSelect.Option key={shipper.code} value={shipper.code}>
+												{shipper.full_name} - {shipper.code}
+											</CustomSelect.Option>
+										))}
+									</CustomSelect>
                 </Item>
                 <p>Nhân viên tạo đơn</p>
                 <Item name="account_codes">
-                  <Select
-                    mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
-                    notFoundContent="Không tìm thấy kết quả" showArrow maxTagCount='responsive'
-                    optionFilterProp="children" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode} allowClear
-                  >
-                    {accounts.map((item, index) => (
-                      <Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.code.toString()}
-                      >
-                        {`${item.full_name} - ${item.code}`}
-                      </Option>
-                    ))}
-                  </Select>
+									<AccountCustomSearchSelect
+											placeholder="Tìm theo họ tên hoặc mã nhân viên"
+											dataToSelect={accountData}
+											setDataToSelect={setAccountData}
+											initDataToSelect={accounts}
+											mode="multiple"
+											getPopupContainer={(trigger: any) => trigger.parentNode}
+											maxTagCount='responsive'
+									/>
                 </Item>
               </Col>
               <Col span={12} xxl={8}>
