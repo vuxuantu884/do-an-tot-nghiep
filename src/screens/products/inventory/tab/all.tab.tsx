@@ -5,7 +5,7 @@ import TextEllipsis from "component/table/TextEllipsis";
 import {AppConfig} from "config/app.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
-import {searchVariantsRequestAction} from "domain/actions/product/products.action";
+import {searchVariantsInventoriesRequestAction} from "domain/actions/product/products.action";
 import { HeaderSummary } from "hook/filter/HeaderSummary";
 import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -280,7 +280,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       setLoading(true);
       const temps = {...params,info: keyword?.trim() };
       delete temps.status; 
-      dispatch(searchVariantsRequestAction(temps, onResult));
+      dispatch(searchVariantsInventoriesRequestAction(temps, onResult));
     }, 300),
     [dispatch, params, onResult]
   ) 
@@ -458,7 +458,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     const temps = {...params, limit: params.limit ?? 50};
     delete temps.status; 
     
-    dispatch(searchVariantsRequestAction(temps, onResult));
+    dispatch(searchVariantsInventoriesRequestAction(temps, onResult));
   }, [dispatch, onResult, params]);
 
   const storeRef = useRef<Map<number, string>>(new Map<number, string>());

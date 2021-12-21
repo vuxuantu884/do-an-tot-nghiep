@@ -232,6 +232,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   }, [dispatch, props.OrderDetail]);
   //#endregion
 
+	const sortedFulfillments = useMemo(() => {
+    return OrderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
+  }, [OrderDetail?.fulfillments])
+
   //#region Update Fulfillment Status
   // let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
@@ -270,6 +274,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setIsvibleShippedConfirm(false);
     onReload && onReload();
   };
+	
   const onCancelSuccess = (value: OrderResponse) => {
     setCancelShipment(false);
     setReload(true);
@@ -306,6 +311,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setIsvibleGoodsReturn(false);
     onReload && onReload();
   };
+
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number, dataCancelFFM: any = {}) => {
     let value: UpdateFulFillmentStatusRequest = {
@@ -748,10 +754,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   console.log(addressError)
   // end
 
-  // const onPrint = () => {
-  //   onOkShippingConfirm();
-  //   setReload(true);
-  // };
+  const onPrint = () => {
+    onOkShippingConfirm();
+    setReload(true);
+  };
 
   const renderPushingStatusWhenDeliverPartnerFailed = () => {
     if(!OrderDetail || !OrderDetail.fulfillments) {
@@ -1007,11 +1013,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           <FulfillmentStatusTag fulfillment={fulfillment} />
                           {!(fulfillment.status === FulFillmentStatus.CANCELLED ||
                             fulfillment.status === FulFillmentStatus.RETURNING ||
-                            fulfillment.status === FulFillmentStatus.RETURNED) &&
+                            fulfillment.status === FulFillmentStatus.RETURNED || 
+														(sortedFulfillments && sortedFulfillments[0]?.shipment?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE)) &&
                             <PrintShippingLabel
                               fulfillment={fulfillment}
                               orderSettings={orderSettings}
                               orderId={OrderDetail?.id}
+															onPrint={onPrint}
                             />}
                         </div>
 
