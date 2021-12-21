@@ -1,56 +1,57 @@
-import React , { useState, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
 import { Tag, TreeSelect } from "antd";
-import _ from 'lodash';
+import _ from "lodash";
 import { FormInstance } from 'antd';
-import { DepartmentGetListAction } from "domain/actions/account/account.action";
-import { DepartmentResponse } from "model/account/department.model";
+import { StoreResponse } from "model/core/store.model";
 
 interface Props {
-  form:  FormInstance;
+  form: FormInstance;
   name: string;
-  placeholder: string;
-  codeDepartment: string;
+  placeholder?: string;
+  listStore: Array<StoreResponse> | undefined;
 }
 
 const TreeStore = (props: Props) => {
-  const { form, name, placeholder, codeDepartment } = props;
-  const dispatch = useDispatch();
-  const isFirstLoad = useRef(true);
-  const [listDepartment, setListDepartment] = useState<Array<DepartmentResponse>>();
-  const [departments, setDepartments] = useState<DepartmentResponse>();
+  const { form, name, placeholder, listStore } = props;
+  const [stores, setStores] = useState<Array<StoreResponse>>();
 
   useEffect(() => {
-    if ( isFirstLoad.current) {
-      dispatch(DepartmentGetListAction(setListDepartment));
+    const groupBy = (list: Array<StoreResponse>, keyGetter: any) => {
+      const map = new Map();
+      list.forEach((item) => {
+           const key = keyGetter(item);
+           const collection = map.get(key);
+           if (!collection) {
+               map.set(key, [item]);
+           } else {
+               collection.push(item);
+           }
+      });
+      return map;
     }
 
-    isFirstLoad.current = false;
-  }, [dispatch]);
-
-  useEffect(() => {
-    const newDepartments = _.find(listDepartment, ['code', codeDepartment]); 
-    newDepartments?.children.splice(0, 1);
-    setDepartments(newDepartments);
-  }, [listDepartment, codeDepartment]);
+    const grouped: any = listStore !== undefined ? groupBy(listStore, (store: StoreResponse) => store.department) : [];
+    const newStores = _.filter([...grouped], store => store[0]?.startsWith('ASM'));
+    setStores(newStores);
+  }, [listStore]);
 
   function tagRender(props: any) {
-      const { label, closable, onClose } = props;
-      const onPreventMouseDown = (event: any) => {
-        event.preventDefault();
-        event.stopPropagation();
-      };
-      return (
-        <Tag
-          className="primary-bg"
-          onMouseDown={onPreventMouseDown}
-          closable={closable}
-          onClose={onClose}
-        >
-          {label}
-        </Tag>
-      );
-    }
+    const { label, closable, onClose } = props;
+    const onPreventMouseDown = (event: any) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    return (
+      <Tag
+        className="primary-bg"
+        onMouseDown={onPreventMouseDown}
+        closable={closable}
+        onClose={onClose}
+      >
+        {label}
+      </Tag>
+    );
+  }
 
   return (
     <TreeSelect
@@ -67,16 +68,17 @@ const TreeStore = (props: Props) => {
       onChange={(value) => form.setFieldsValue({ [name]: value })}
     >
       {
-        departments?.children.map((departmentItem: DepartmentResponse) => (
+        stores?.map((departmentItem: any) => {
+          return (
           <TreeSelect.TreeNode
-            key={departmentItem.id}
-            value={departmentItem.id}
-            title={departmentItem.name}
+            key={departmentItem[0]}
+            value={`${_.find(listStore, ["department", departmentItem[0]])?.department_id || ''}`}
+            title={departmentItem[0]}
           >
             {
               <React.Fragment>
                 {
-                  departmentItem.children.map((storeItem: any) => (
+                  departmentItem[1].map((storeItem: any) => (
                     <TreeSelect.TreeNode 
                       key={storeItem.id} 
                       value={storeItem.id} 
@@ -87,13 +89,12 @@ const TreeStore = (props: Props) => {
               </React.Fragment>
             }
           </TreeSelect.TreeNode>
-        ))
+        )})
       }
-
-      {
-      }     
     </TreeSelect>
   );
 };
-
+TreeStore.defaultProps = {
+  placeholder : "Chọn cửa hàng"
+}
 export default TreeStore;

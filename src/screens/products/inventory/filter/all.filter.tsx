@@ -1,5 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Collapse, Form, Input, Space, Tag} from "antd";
+import { Button, Collapse, Form, Input, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
 import { FilterWrapper } from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
@@ -12,7 +12,7 @@ import {
   AvdAllFilter,
   InventoryQueryField
 } from "model/inventory/field";
-import React, { useCallback, useEffect, useState } from "react"; 
+import React, { useCallback, useEffect, useState } from "react";
 import BaseFilter from "component/filter/base.filter";
 import NumberInputRange from "component/filter/component/number-input-range";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
@@ -20,7 +20,6 @@ import { convertCategory } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import TreeStore from "./TreeStore";
-import { AppConfig } from "config/app.config";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -33,15 +32,15 @@ export interface InventoryFilterProps {
   onChangeKeySearch: (value: string) => void;
 }
 
-const {Item} = Form;
-const {Panel} = Collapse; 
+const { Item } = Form;
+const { Panel } = Collapse;
 
 const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   props: InventoryFilterProps
 ) => {
   const {
-    params, 
-    // listStore, 
+    params,
+    listStore,
     onFilter,
     openColumn,
     onChangeKeySearch
@@ -57,33 +56,34 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
+  
 
-  const FilterList = ({filters, resetField}: any) => {
+  const FilterList = ({ filters, resetField }: any) => {
     let filtersKeys = Object.keys(filters);
     let renderTxt: any = null;
-    
+
     return (
       <div>
         {filtersKeys.map((filterKey) => {
-          
+
           let value = filters[filterKey];
-          
+
           if (!value) return null;
-          if (!AllInventoryMappingField[filterKey]) return null; 
+          if (!AllInventoryMappingField[filterKey]) return null;
           renderTxt = `${AllInventoryMappingField[filterKey]} : ${value[0]} ~ ${value[1]}`;
 
           if (filterKey === AvdAllFilter.category) {
-            const category = listCategory.find(e=>e.id === value)?.name;
+            const category = listCategory.find(e => e.id === value)?.name;
             renderTxt = `${AllInventoryMappingField[filterKey]} : ${category}`;
           }
-           
+
           return (
             <Tag
               onClose={() => resetField(filterKey)}
               key={filterKey}
               className="fade"
               closable
-              style={{marginBottom: 20}}
+              style={{ marginBottom: 20 }}
             >{`${renderTxt}`}</Tag>
           );
         })}
@@ -105,7 +105,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       onFilter && onFilter(data);
     },
     [formBaseFilter, onFilter]
-  ); 
+  );
 
   const onAdvanceFinish = useCallback(
     (values: InventoryQuery) => {
@@ -152,8 +152,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, [params, dispatch, setDataCategory]);
 
   useEffect(() => {
-    formBaseFilter.setFieldsValue({...advanceFilters});
-    formAdvanceFilter.setFieldsValue({...advanceFilters});
+    formBaseFilter.setFieldsValue({ ...advanceFilters });
+    formAdvanceFilter.setFieldsValue({ ...advanceFilters });
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
@@ -170,31 +170,31 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           <Item name="info" className="search">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
               placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
-              onChange={(e)=>{onChangeKeySearch(e.target.value)}}
+              onChange={(e) => { onChangeKeySearch(e.target.value) }}
             />
           </Item>
-          <Item 
-            name={InventoryQueryField.store_ids} className="store" 
-            style={{ minWidth: '260px'}}
+          <Item
+            name={InventoryQueryField.store_ids} className="store"
+            style={{ minWidth: '260px' }}
           >
-            <TreeStore 
-              form={formBaseFilter} 
+            <TreeStore
+              form={formBaseFilter}
               name={InventoryQueryField.store_ids}
               placeholder="Chọn cửa hàng"
-              codeDepartment={AppConfig.KD_DEPARTMENT_CODE}
+              listStore={listStore}
             />
-          </Item>  
+          </Item>
           <Item>
             <Button type="primary" htmlType="submit">
               Lọc
             </Button>
           </Item>
           <Item>
-              <Button icon={<FilterOutlined />} onClick={openFilter}>
-                Thêm bộ lọc
-              </Button>
+            <Button icon={<FilterOutlined />} onClick={openFilter}>
+              Thêm bộ lọc
+            </Button>
           </Item>
           <Item>
             <ButtonSetting onClick={openColumn} />
@@ -215,7 +215,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           initialValues={{}}
           form={formAdvanceFilter}
         >
-          <Space className="po-filter" direction="vertical" style={{width: "100%"}}>
+          <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
             {Object.keys(AvdAllFilter).map((field) => {
               let component: any = null;
               switch (field) {
@@ -224,7 +224,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                     <CustomSelect
                       optionFilterProp="children"
                       showSearch
-                      placeholder="Chọn danh mục" 
+                      placeholder="Chọn danh mục"
                     >
                       {listCategory.map((item) => (
                         <CustomSelect.Option key={item.id} value={item.id}>
@@ -233,10 +233,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       ))}
                     </CustomSelect>
                   );
-                  break; 
-                default: 
-                 component = <NumberInputRange />;
-                  break; 
+                  break;
+                default:
+                  component = <NumberInputRange />;
+                  break;
               }
 
               return (
