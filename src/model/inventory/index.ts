@@ -1,5 +1,6 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
+import { ProductResponse } from "model/product/product.model";
 
 
 export interface InventoryResponse extends BaseObject {
@@ -25,6 +26,7 @@ export interface InventoryResponse extends BaseObject {
   shipping: number;
   retail_price: number;
   import_price: number;
+  product: ProductResponse | null
 }
 
 export interface InventoryQuery extends BaseQuery {
@@ -55,7 +57,6 @@ export interface InventoryQuery extends BaseQuery {
   to_on_way?: number,
   from_shipping?: number,
   to_shipping?: number,
-  from_import_price?: number,
   to_import_price?: number,
   from_mac?: number,
   to_mac?: number,
@@ -64,7 +65,11 @@ export interface InventoryQuery extends BaseQuery {
   variant_id?: number
   status?: string;
 } 
-
+export interface InventoryVariantListQuery extends InventoryQuery {
+  variant_ids?: Array<number>;
+  store_ids?: Array<number>;
+  is_detail?: boolean;
+}
 export interface AllInventoryResponse {
   id: number,
   sku: string,
@@ -96,6 +101,8 @@ export interface HistoryInventoryResponse extends BaseObject{
   document_type: string;
   transaction_date: string;
   account_id: number;
+  account: string|null;
+  account_code: string|null;
   import_price: number;
   retail_price: number;
   total: number;
@@ -104,10 +111,22 @@ export interface HistoryInventoryResponse extends BaseObject{
 
 export interface HistoryInventoryQuery extends BaseQuery {
   condition?: string,
-  store_id?: number|Array<number>,
+  store_ids?: number|Array<number>|null,
   from_created_date?: string,
   to_created_date?: string,
   from_transaction_date?: string,
   to_transaction_date?: string,
   variant_id?: number
+}
+
+export interface InventorySaveRequest{
+  filter_name?: string,
+  save_filter_type?: number,
+  version?: number,
+  filter_id?:number|null
+}
+
+export interface AllInventoryQuery extends BaseQuery {
+  info?: string,
+  store_ids?: number|Array<number>|null, 
 }

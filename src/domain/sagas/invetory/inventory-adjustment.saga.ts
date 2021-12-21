@@ -13,6 +13,7 @@ import {
   getLinesItemAdjustmentApi,
   getListInventoryAdjustmentApi,
   getPrintTicketIdsService,
+  updateInventorAdjustmentApi,
   updateItemOnlineInventoryApi,
   updateOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
@@ -210,6 +211,33 @@ function* getLinesItemAdjustmentSaga(action: YodyAction) {
   }
 }
 
+function* updateInventoryAdjustmentSaga(action: YodyAction) {
+  let {data,id, onResult} = action.payload;
+
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(
+      updateInventorAdjustmentApi,
+      id,
+      data
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* inventoryAdjustmentSaga() {
   yield takeLatest(
     InventoryType.GET_LIST_INVENTORY_ADJUSTMENT,
@@ -231,4 +259,5 @@ export function* inventoryAdjustmentSaga() {
   yield takeLatest(InventoryType.UPDATE_ADJUSTMENT_INVENTORY, adjustInventorySaga);
   yield takeLatest(InventoryType.PRINT_ADJUSTMENT_INVENTORY, printAdjustInventorySaga);
   yield takeLatest(InventoryType.GET_LINES_ITEM_ADJUSTMENT, getLinesItemAdjustmentSaga);
+  yield takeLatest(InventoryType.UPDATE_ADJUSTMENT, updateInventoryAdjustmentSaga);
 }

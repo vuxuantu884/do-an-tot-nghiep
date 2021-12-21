@@ -1,4 +1,6 @@
 import { Button, Form, Table } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { POField } from "model/purchase-order/po-field";
 import {
   POProcumentField,
@@ -46,7 +48,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
             rowClassName="product-table-row"
             dataSource={items}
             tableLayout="fixed"
-            scroll={{ y: 250, x: 845 }}
+            scroll={{y: 250, x: 845}}
             pagination={false}
             columns={[
               {
@@ -69,9 +71,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                       confirmInventory(item, true);
                     }}
                   >
-                    <div
-                      style={{ color: "#5D5D8A", textDecoration: "underline" }}
-                    >
+                    <div style={{color: "#5D5D8A", textDecoration: "underline"}}>
                       {value}
                     </div>
                   </Button>
@@ -108,16 +108,24 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                 width: 200,
                 dataIndex: POProcumentField.status,
                 render: (value, item, index: number) => (
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <div style={{display: "flex", justifyContent: "flex-end"}}>
                     {item.is_cancelled ? (
                       <Button disabled>Đã huỷ</Button>
                     ) : (
-                      <Button
-                        onClick={() => confirmInventory(item, false)}
-                        type="primary"
+                      <AuthWrapper
+                        acceptPermissions={[PurchaseOrderPermission.procurements_confirm]}
                       >
-                        Xác nhận nhập
-                      </Button>
+                        <Button
+                          onClick={() => {
+                            console.log(item);
+                            
+                            confirmInventory(item, false)
+                          }}
+                          type="primary"
+                        >
+                          Xác nhận nhập
+                        </Button>
+                      </AuthWrapper>
                     )}
                   </div>
                 ),

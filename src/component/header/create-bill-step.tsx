@@ -3,7 +3,7 @@ import { Steps } from "antd";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import { useEffect, useMemo, useState } from "react";
-import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import { FulFillmentStatus, OrderStatus, POS } from "utils/Constants";
 // import { FulFillmentStatus } from "utils/Constants";
 import "./create-bill-step.scss";
 
@@ -22,12 +22,15 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   }, [orderDetail?.fulfillments])
 
   const renderStepPackedDescription = () => {
+    if(orderDetail?.source_code === POS.channel_code && orderDetail.finished_on) {
+      return moment(orderDetail.finished_on).format(formatDate);
+    }
     let result = undefined;
     if (fulfillments && fulfillments?.length > 0) {
       if (orderDetail?.status !== OrderStatus.CANCELLED) {
-        if (fulfillments[0].status !== FulFillmentStatus.CANCELLED &&
-          fulfillments[0].status !== FulFillmentStatus.RETURNING &&
-          fulfillments[0].status !== FulFillmentStatus.RETURNED) {
+        if (!(fulfillments[0].status === FulFillmentStatus.CANCELLED ||
+          fulfillments[0].status === FulFillmentStatus.RETURNING ||
+          fulfillments[0].status === FulFillmentStatus.RETURNED)) {
             result = fulfillments[0].packed_on ? moment(fulfillments[0].packed_on).format(formatDate) : undefined;
           }
       }
@@ -36,12 +39,15 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   const renderStepShippingDescription = () => {
+    if(orderDetail?.source_code === POS.channel_code && orderDetail.finished_on) {
+      return moment(orderDetail.finished_on).format(formatDate);
+    }
     let result = undefined;
     if (fulfillments && fulfillments?.length > 0) {
       if (orderDetail?.status !== OrderStatus.CANCELLED) {
-        if (fulfillments[0].status !== FulFillmentStatus.CANCELLED &&
-          fulfillments[0].status !== FulFillmentStatus.RETURNING &&
-          fulfillments[0].status !== FulFillmentStatus.RETURNED) {
+        if (!(fulfillments[0].status === FulFillmentStatus.CANCELLED ||
+          fulfillments[0].status === FulFillmentStatus.RETURNING ||
+          fulfillments[0].status === FulFillmentStatus.RETURNED)) {
             result = fulfillments[0].export_on ? moment(fulfillments[0].export_on).format(formatDate) : undefined;
           }
       }
@@ -49,7 +55,23 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     return result;
   };
 
+  const renderStepFinishDescription = () => {
+    if(orderDetail?.source_code === POS.channel_code && orderDetail.finished_on) {
+      return moment(orderDetail.finished_on).format(formatDate);
+    }
+    if (fulfillments && fulfillments?.length > 0 &&  fulfillments[0].shipped_on) {
+      return moment(fulfillments[0].shipped_on).format(formatDate)
+    }
+    if(orderDetail?.status === "cancelled" && orderDetail?.cancelled_on) {
+      return moment(props.orderDetail?.cancelled_on).format(formatDate)
+    }
+    return undefined;
+  };
+
   useEffect(() => {
+    if(!orderDetail) {
+      return;
+    }
     switch (props.status) {
       case "draff":
         setCurrentStep(0);
@@ -57,13 +79,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       case "finalized":
         // const confirmDraftOrderSubStatusId = 1;
         if (orderDetail) {
-          if (
-            // orderDetail.sub_status_id === confirmDraftOrderSubStatusId ||
-            (orderDetail.payments && orderDetail.payments?.length > 0) ||
-            (orderDetail.fulfillments && orderDetail.fulfillments?.length > 0)
-          ) {
-            setCurrentStep(1);
-          }
+          setCurrentStep(1);
         }
         break;
       case "picked":
@@ -76,6 +92,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         setCurrentStep(3);
         break;
       case "shipped":
+      case "finished":
       case "cancelled":
         setCurrentStep(4);
         break;
@@ -106,19 +123,13 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         title="Xác nhận"
         description={
           props.orderDetail &&
-          fulfillments &&
-          fulfillments.length > 0 &&
-          fulfillments[0].created_date &&
-          moment(fulfillments[0].created_date).format(formatDate)
+          props.orderDetail.finalized_on &&
+          moment(props.orderDetail.finalized_on).format(formatDate)
         }
         className={
-          !(
-            props.orderDetail &&
-            fulfillments &&
-            fulfillments.length > 0
-          )
-            ? "inactive"
-            : ""
+          props.status === 'draff'
+          ? "inactive"
+          : ""
         }
       />
       <Steps.Step
@@ -130,7 +141,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             fulfillments &&
             fulfillments.length > 0 &&
             fulfillments[0].packed_on &&
-            fulfillments[0].status !== "returned"
+            fulfillments[0].status !== "returned" &&
+            fulfillments[0].status !== "cancelled" &&
+            fulfillments[0].status !== "returning"
           ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""
@@ -144,7 +157,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             props.orderDetail &&
             fulfillments &&
             fulfillments.length > 0 &&
-            fulfillments[0].export_on
+            fulfillments[0].export_on &&
+            fulfillments[0].status !== "returned" &&
+            fulfillments[0].status !== "cancelled" &&
+            fulfillments[0].status !== "returning"
           ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""
@@ -152,16 +168,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       />
       <Steps.Step
         title={!(orderDetail?.status === "cancelled") ? "Hoàn thành" : "Huỷ đơn"}
-        description={
-          props.orderDetail &&
-          ((fulfillments &&
-            fulfillments.length > 0 &&
-            fulfillments[0].shipped_on &&
-            moment(fulfillments[0].shipped_on).format(formatDate)) ||
-            (orderDetail?.status === "cancelled" &&
-              props.orderDetail?.cancelled_on &&
-              moment(props.orderDetail?.cancelled_on).format(formatDate)))
-        }
+        description={renderStepFinishDescription()}
         className={orderDetail?.status === "cancelled" ? "cancelled" : ""}
       />
     </Steps>

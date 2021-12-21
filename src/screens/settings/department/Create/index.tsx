@@ -1,21 +1,30 @@
-import {Button, Card, Col, Form, Input, Row, Space, Select, TreeSelect} from "antd";
+import {Button, Card, Col, Form, Input, Row, Space, TreeSelect} from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import {AccountSearchAction} from "domain/actions/account/account.action";
-import {departmentCreateAction, searchDepartmentAction} from "domain/actions/account/department.action";
+import {
+  departmentCreateAction,
+  searchDepartmentAction,
+} from "domain/actions/account/department.action";
 import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
 import {DepartmentRequest, DepartmentResponse} from "model/account/department.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import { useHistory } from "react-router";
+import {useHistory} from "react-router";
+import {DepartmentsPermissions} from "config/permissions/account.permisssion";
+import useAuthorization from "hook/useAuthorization";
+import TreeDepartment from "../component/TreeDepartment";
+import AccountSearchSelect from "component/custom/select-search/account-select";
+import { RegUtil } from "utils/RegUtils"
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 
 const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [departments, setDepartment] = useState<Array<DepartmentResponse>>([]);
-  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+  const [, setAccounts] = useState<PageResponse<AccountResponse>>({
     metadata: {
       limit: 20,
       page: 1,
@@ -23,13 +32,23 @@ const DepartmentCreateScreen: React.FC = () => {
     },
     items: [],
   });
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false); 
+  //phân quyền
+  const [allowCreateDep] = useAuthorization({
+    acceptPermissions: [DepartmentsPermissions.CREATE],
+  });
+
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
+  const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
+
   const searchAccount = useCallback(
     (query: AccountSearchQuery, paging: boolean) => {
       dispatch(
         AccountSearchAction({...query, limit: 20}, (result) => {
           if (result) {
-            setAccounts(result);
+            setAccounts(result); 
           }
         })
       );
@@ -39,6 +58,7 @@ const DepartmentCreateScreen: React.FC = () => {
 
   const onFinish = useCallback((value: DepartmentRequest) => {
     setLoading(true);
+    value.status = 'active';
     dispatch(departmentCreateAction(value, (result) => {
       setLoading(false);
       if(result) {
@@ -46,6 +66,21 @@ const DepartmentCreateScreen: React.FC = () => {
       }
     }));
   }, [dispatch, history]);
+
+  const backAction = ()=>{  
+    setModalConfirm({
+      visible: true,
+      onCancel: () => {
+        setModalConfirm({visible: false});
+      },
+      onOk: () => { 
+        history.push(UrlConfig.DEPARTMENT);
+      },
+      title: "Bạn có muốn quay lại?",
+      subTitle:
+        "Sau khi quay lại thay đổi sẽ không được lưu.",
+    }); 
+  };
 
   useEffect(() => {
     searchAccount({}, false);
@@ -59,14 +94,14 @@ const DepartmentCreateScreen: React.FC = () => {
   }, [dispatch, searchAccount]);
   return (
     <ContentContainer
-      title="Quản lý phòng ban/bộ phận"
+      title="Quản lý bộ phận"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý phòng ban/bộ phận",
+          name: "Quản lý bộ phận",
           path: UrlConfig.DEPARTMENT,
         },
         {
@@ -75,20 +110,27 @@ const DepartmentCreateScreen: React.FC = () => {
       ]}
     >
       <Form onFinish={onFinish} layout="vertical">
-        <Card title="Thông tin Phòng ban/Bộ phận">
+        <Card title="Thông tin bộ phận">
+          <Form.Item name="status" hidden>
+            <Input />
+          </Form.Item>
           <Row gutter={50}>
             <Col span={8}>
               <Form.Item
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập Tên phòng ban",
+                    message: "Vui lòng nhập mã bộ phận",
                   },
+                  {
+                    pattern: RegUtil.BOTH_NUMBER_AND_STRING,
+                    message: "Sai định dạng mã bộ phận"
+                  }
                 ]}
-                label="Mã phòng ban"
+                label="Mã bộ phận"
                 name="code"
               >
-                <Input placeholder="Nhập phòng ban" />
+                <Input maxLength={13} placeholder="Nhập mã bộ phận" />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -96,46 +138,30 @@ const DepartmentCreateScreen: React.FC = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập mã phòng ban",
+                    message: "Vui lòng nhập tên bộ phận",
                   },
                 ]}
-                label="Tên phòng ban"
+                label="Tên bộ phận"
                 name="name"
               >
-                <Input placeholder="Tên phòng ban" />
+                <Input maxLength={255} placeholder="Tên bộ phận" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={50}>
             <Col span={8}>
-              <Form.Item name="manager_code" label="Quản lý">
-                <Select
-                  onSearch={(value) => {
-                    searchAccount({info: value}, false);
-                    console.log(value);
-                  }}
-                  notFoundContent="Không có dữ liệu"
-                  placeholder="Chọn quản lý"
-                  allowClear
-                  showSearch
-                >
-                  {accounts.items.map((item) => (
-                    <Select.Option key={item.id} value={item.code}>
-                      {item.code} - {item.full_name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
+              <AccountSearchSelect name="manager_code" label="Quản lý" />
             </Col>
             <Col span={8}>
-              <Form.Item name="parent_id" label="Thuộc về phòng ban/Bộ phận">
+              <Form.Item name="parent_id" label="Thuộc về bộ phận">
                 <TreeSelect
-                  placeholder="Chọn phòng ban/Bộ phận"
+                  placeholder="Chọn bộ phận"
                   treeDefaultExpandAll
                   className="selector"
                   allowClear
                   showSearch
-                >
+                  treeNodeFilterProp='title'
+                  >
                   {departments.map((item, index) => (
                     <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
                   ))}
@@ -145,43 +171,53 @@ const DepartmentCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={50}>
             <Col span={8}>
-              <Form.Item name="mobile" label="Số điện thoại">
+              <Form.Item 
+                name="phone" 
+                label="Số điện thoại"
+                rules={[
+                  {
+                    pattern: RegUtil.PHONE,
+                    message: "Số điện thoại không đúng định dạng"
+                  }
+                ]}
+              >
                 <Input placeholder="Nhập số điện thoại" />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="address" label="Địa chỉ liên hệ">
-                <Input placeholder="Địa chỉ liên hệ" />
+              <Form.Item 
+                name="address" 
+                label="Địa chỉ liên hệ"
+              >
+                <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
               </Form.Item>
             </Col>
           </Row>
         </Card>
         <BottomBarContainer
-          back="Quay lại"
+          back="Quay lại trang danh sách"
+          backAction={backAction}
           rightComponent={
             <Space>
-              <Button>Hủy</Button>
-              <Button loading={loading} htmlType="submit" type="primary">Tạo mới</Button>
+              {allowCreateDep && <Button loading={loading} htmlType="submit" type="primary">
+                  Tạo bộ phận
+                </Button>}
             </Space>
           }
         />
       </Form>
+      <ModalConfirm
+        onCancel={() => {
+          setIsShowModalConfirm(false);
+        }}
+        onOk={() => {
+          history.push(UrlConfig.DEPARTMENT);
+        }}
+        visible={isShowModalConfirm}
+      />
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
-};
-
-const TreeDepartment = (item: DepartmentResponse) => {
-  return (
-    <TreeSelect.TreeNode value={item.id} title={item.name}>
-      {item.children.length > 0 && (
-        <React.Fragment>
-          {item.children.map((item, index) => (
-            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-          ))}
-        </React.Fragment>
-      )}
-    </TreeSelect.TreeNode>
-  );
-};
+}; 
 
 export default DepartmentCreateScreen;

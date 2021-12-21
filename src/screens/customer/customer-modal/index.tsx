@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
 
 import { FormInstance } from "antd";
-import { CustomerGroupPermissions } from "config/permissions/customer.permission";
+import { CustomerGroupPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 
-export type modalActionType = "create" | "edit" | "delete";
+export type modalActionType = "create" | "edit" | "delete" | "onlyedit";
 
 export interface CustomModalFormModel {
   visible: boolean;
@@ -37,7 +37,7 @@ export interface CustomModalType {
 }
 
 
-const updateCustomerGroupPermission = [CustomerGroupPermissions.UPDATE];
+const updateCustomerGroupPermission = [CustomerGroupPermission.groups_update];
 
 const CustomModal = (props: CustomModalType) => {
   const {

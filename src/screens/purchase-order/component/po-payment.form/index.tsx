@@ -15,7 +15,9 @@ import {
   Tag,
   Timeline
 } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { PoPaymentUpdateAction } from "domain/actions/po/po-payment.action";
 import { PoUpdateFinancialStatusAction } from "domain/actions/po/po.action";
 import { POField } from "model/purchase-order/po-field";
@@ -227,18 +229,22 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               }
               return (
                 checkStatus && (
-                  <Button
-                    onClick={ShowPaymentModal}
-                    style={{
-                      alignItems: "center",
-                      display: "flex",
-                    }}
-                    icon={<AiOutlinePlus size={16} />}
-                    type="primary"
-                    className="create-button-custom ant-btn-outline fixed-button"
+                  <AuthWrapper
+                    acceptPermissions={[PurchaseOrderPermission.payments_create]}
                   >
-                    Tạo thanh toán
-                  </Button>
+                    <Button
+                      onClick={ShowPaymentModal}
+                      style={{
+                        alignItems: "center",
+                        display: "flex",
+                      }}
+                      icon={<AiOutlinePlus size={16} />}
+                      type="primary"
+                      className="create-button-custom ant-btn-outline fixed-button"
+                    >
+                      Tạo thanh toán
+                    </Button>
+                  </AuthWrapper>
                 )
               );
             }}
@@ -465,46 +471,41 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                 {item.status === PoPaymentStatus.PAID ? (
                                   <Col md={8}>
                                     <div className="timeline__status">
-                                      <CheckCircleOutlined
-                                        style={{ fontSize: "18px" }}
-                                      />{" "}
+                                      <CheckCircleOutlined style={{fontSize: "18px"}} />{" "}
                                       Đã duyệt
                                     </div>
                                     <div>
                                       Duyệt thanh toán <br />
                                       <strong>
-                                        {ConvertUtcToLocalDate(
-                                          item.updated_date
-                                        )}
+                                        {ConvertUtcToLocalDate(item.updated_date)}
                                       </strong>
                                     </div>
                                   </Col>
-                                ) : item.status !==
-                                  PoPaymentStatus.CANCELLED ? (
+                                ) : item.status !== PoPaymentStatus.CANCELLED ? (
                                   <Col md={8}>
                                     <div className="timeline__groupButtons">
-                                      <Button
-                                        onClick={() => editPayment(item, index)}
+                                      <AuthWrapper
+                                        acceptPermissions={[
+                                          PurchaseOrderPermission.payments_update,
+                                        ]}
                                       >
-                                        <EditOutlined
-                                          style={{ fontSize: "18px" }}
-                                        />{" "}
-                                        Sửa
-                                      </Button>
-                                      <Button
-                                        type="primary"
-                                        onClick={() => onApprovalPayment(item)}
-                                        loading={
-                                          item.id
-                                            ? loadingApproval[item.id]
-                                            : false
-                                        }
-                                      >
-                                        <CheckCircleOutlined
-                                          style={{ fontSize: "18px" }}
-                                        />{" "}
-                                        Duyệt
-                                      </Button>
+                                        <Button onClick={() => editPayment(item, index)}>
+                                          <EditOutlined style={{fontSize: "18px"}} /> Sửa
+                                        </Button>
+
+                                        <Button
+                                          type="primary"
+                                          onClick={() => onApprovalPayment(item)}
+                                          loading={
+                                            item.id ? loadingApproval[item.id] : false
+                                          }
+                                        >
+                                          <CheckCircleOutlined
+                                            style={{fontSize: "18px"}}
+                                          />{" "}
+                                          Duyệt
+                                        </Button>
+                                      </AuthWrapper>
                                     </div>
                                   </Col>
                                 ) : (
@@ -516,16 +517,12 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                           color: "#E24343",
                                         }}
                                       />{" "}
-                                      <div style={{ color: "#E24343" }}>
-                                        Đã hủy
-                                      </div>
+                                      <div style={{color: "#E24343"}}>Đã hủy</div>
                                     </div>
                                     <div>
                                       Hủy thanh toán <br />
                                       <strong>
-                                        {ConvertUtcToLocalDate(
-                                          item.updated_date
-                                        )}
+                                        {ConvertUtcToLocalDate(item.updated_date)}
                                       </strong>
                                     </div>
                                   </Col>
@@ -564,14 +561,18 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               financial_status !== PoFinancialStatus.CANCELLED &&
               financial_status !== PoFinancialStatus.PAID &&
               financial_status !== PoFinancialStatus.FINISHED && (
-                <div className="card__footer">
-                  <Button
-                    onClick={finishPayment}
-                    className="create-button-custom ant-btn-outline fixed-button"
-                  >
-                    Kết thúc thanh toán
-                  </Button>
-                </div>
+                <AuthWrapper
+                  acceptPermissions={[PurchaseOrderPermission.payments_finish]}
+                >
+                  <div className="card__footer">
+                    <Button
+                      onClick={finishPayment}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                    >
+                      Kết thúc thanh toán
+                    </Button>
+                  </div>
+                </AuthWrapper>
               )
             );
           }}

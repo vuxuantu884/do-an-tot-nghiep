@@ -6,7 +6,8 @@ import {
   bulkEnablePriceRules,
   bulkDeletePriceRules,
   bulkDisablePriceRules,
-  getVariantApi
+  getVariantApi,
+  updatePriceRuleById
 } from 'service/promotion/discount/discount.service';
 import { DiscountResponse } from 'model/response/promotion/discount/list-discount.response';
 import { YodyAction } from "../../../../base/base.action";
@@ -183,13 +184,14 @@ function* bulkDisablePriceRulesAct(action: YodyAction) {
   console.log('bulkDisablePriceRulesAct - action : ', action);
   const { body, disableCallback } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<{count: number}> = yield call(
       bulkDisablePriceRules,
       body
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        disableCallback(true)
+        //Số lượng bản ghi đc disable thành công
+        disableCallback(response.data.count)
         break;
       case HttpStatus.UNAUTHORIZED:
         disableCallback(false);
@@ -233,6 +235,32 @@ function* bulkDeletePriceRulesAct(action: YodyAction) {
   }
 }
 
+function* updatePriceRuleByIdSaga(action: YodyAction) { 
+  const { body, onResult } = action.payload;
+  try {
+    const response: BaseResponse<DiscountResponse> = yield call(
+      updatePriceRuleById,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(true)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* discountSaga() {
   yield all([
     takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
@@ -242,6 +270,7 @@ export function* discountSaga() {
     takeLatest(DiscountType.ENABLE_PRICE_RULE, bulkEnablePriceRulesAct),
     takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesAct),
     takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct),
-    takeLatest(DiscountType.GET_VARIANTS, getVariantsAct)
+    takeLatest(DiscountType.GET_VARIANTS, getVariantsAct),
+    takeLatest(DiscountType.UPDATE_PRICE_RULE_BY_ID, updatePriceRuleByIdSaga)
   ])
 }

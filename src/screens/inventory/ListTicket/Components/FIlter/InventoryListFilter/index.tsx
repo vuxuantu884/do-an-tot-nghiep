@@ -26,6 +26,9 @@ import BaseFilter from "component/filter/base.filter";
 import { InventoryTransferSearchQuery, Store } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
 import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/ListTicket/constants";
+import ButtonSetting from "component/table/ButtonSetting";
+import "assets/css/custom-filter.scss";
+import { FormatTextMonney } from "utils/FormatMonney";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -350,7 +353,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_total_amount || initialValues.to_total_amount) {
-      let textTotalAmount = (initialValues.from_total_amount ? initialValues.from_total_amount : " ?? ") + " ~ " + (initialValues.to_total_amount ? initialValues.to_total_amount : " ?? ")
+      let textTotalAmount = (initialValues.from_total_amount ? FormatTextMonney(initialValues.from_total_amount) : " 0 ") + " ~ " + (initialValues.to_total_amount ? FormatTextMonney(initialValues.to_total_amount) : " 0 ")
       list.push({
         key: 'total_amount',
         name: 'Thành tiền',
@@ -407,17 +410,17 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     return list
   }, [initialValues, accounts]);
 
-  return (
-  <InventoryFiltersWrapper>
+  return ( 
+    <InventoryFiltersWrapper>
+      <div className="custom-filter"> 
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-          <Row gutter={20} className="row-filter">
-            <Col flex="200px">
               <Item
                 name="from_store_id"
                 className="select-item"
               >
                 <Select
+                  style={{width: '200px'}}
                   optionFilterProp="children"
                   placeholder="Kho gửi"
                   showArrow
@@ -437,13 +440,12 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                     ))}
                 </Select>
               </Item>
-            </Col>
-            <Col flex="200px">
               <Item
                 name="to_store_id"
                 className="select-item"
               >
                 <Select
+                style={{width: '200px'}}
                   placeholder="Kho nhận"
                   showArrow
                   showSearch
@@ -463,10 +465,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                     ))}
                 </Select>
               </Item >
-            </Col>
-            <Col flex="auto">
               <Item name="condition" className="input-search">
                 <Input
+                  className="input-search"
                   prefix={<img src={search} alt="" />}
                   placeholder="Tìm kiếm theo ID phiếu, tên sản phẩm"
                   onBlur={(e) => {
@@ -476,26 +477,18 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   }}
                 />
               </Item>
-            </Col>
-            <Col flex="80px">
               <Item>
-                <Button type="primary" loading={loadingFilter} htmlType="submit">
+                <Button style={{width: '80px'}} type="primary" loading={loadingFilter} htmlType="submit">
                   Lọc
                 </Button>
               </Item>
-            </Col>
-            <Col flex="180px">
               <Item>
-                <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+                <Button style={{width: '180px'}} icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
               </Item>
-            </Col>
-            <Col flex="60px">
-              <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
-            </Col>
-          </Row>
+              <ButtonSetting onClick={onShowColumnSetting} />
         </Form>
       </CustomFilter>
-
+      </div>
       <BaseFilter
         onClearFilter={onClearFilterClick}
         onFilter={onFilterClick}
@@ -554,18 +547,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                           max="100000000"
                         />
                       </Item>
-                      
-                      <Input
+                      <div
                         className="site-input-split"
-                        style={{
-                          width: '10%',
-                          borderLeft: 0,
-                          borderRight: 0,
-                          pointerEvents: 'none',
-                        }}
-                        placeholder="~"
-                        readOnly
-                      />
+                      >~</div>
                       <Item name="to_total_variant" style={{width: '45%',textAlign: 'center'}}>
                         <InputNumber
                           className="site-input-right price_max"
@@ -592,18 +576,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                           max="100000000"
                         />
                       </Item>
-                      
-                      <Input
+                      <div
                         className="site-input-split"
-                        style={{
-                          width: '10%',
-                          borderLeft: 0,
-                          borderRight: 0,
-                          pointerEvents: 'none',
-                        }}
-                        placeholder="~"
-                        readOnly
-                      />
+                      >~</div>
                       <Item name="to_total_quantity" style={{width: '45%',textAlign: 'center'}}>
                         <InputNumber
                           className="site-input-right price_max"
@@ -626,26 +601,19 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                         <InputNumber
                           className="price_min"
                           placeholder="Từ"
+                          formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
                           min="0"
                           max="100000000"
                         />
                       </Item>
-                      
-                      <Input
+                      <div
                         className="site-input-split"
-                        style={{
-                          width: '10%',
-                          borderLeft: 0,
-                          borderRight: 0,
-                          pointerEvents: 'none',
-                        }}
-                        placeholder="~"
-                        readOnly
-                      />
+                      >~</div>
                       <Item name="to_total_amount" style={{width: '45%',textAlign: 'center'}}>
                         <InputNumber
                           className="site-input-right price_max"
                           placeholder="Đến"
+                          formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
                           min="0"
                           max="1000000000"
                         />

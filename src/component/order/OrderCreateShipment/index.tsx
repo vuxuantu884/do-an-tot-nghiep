@@ -13,8 +13,8 @@ import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
-import {ShipperGetListAction} from "domain/actions/account/account.action";
-import {getFeesAction} from "domain/actions/order/order.action";
+import {ExternalShipperGetListAction, ShipperGetListAction} from "domain/actions/account/account.action";
+import {DeliveryServicesGetList, getFeesAction} from "domain/actions/order/order.action";
 import {
   actionGetOrderConfig,
   actionListConfigurationShippingServiceAndShippingFee,
@@ -24,7 +24,7 @@ import {thirdPLModel} from "model/order/shipment.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import {OrderLineItemRequest} from "model/request/order.request";
 import {CustomerResponse} from "model/response/customer/customer.response";
-import {StoreCustomResponse} from "model/response/order/order.response";
+import {DeliveryServiceResponse, StoreCustomResponse} from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
@@ -33,7 +33,7 @@ import moment from "moment";
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {getShippingAddressDefault, SumWeight} from "utils/AppUtils";
-import {ShipmentMethodOption} from "utils/Constants";
+import {ShipmentMethodOption, SHIPPING_REQUIREMENT} from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -62,6 +62,7 @@ type PropType = {
   setShippingFeeInformedToCustomer: (value: number) => void;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   handleCreateShipment?: () => void;
+  creating?: boolean;
   handleCancelCreateShipment?: () => void;
 };
 
@@ -96,6 +97,8 @@ type PropType = {
  *
  * handleCreateShipment: xử lý khi click nút tạo đơn giao hàng trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  *
+ * creating: loading status create
+ * 
  * handleCancelCreateShipment: xử lý khi click nút hủy trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  */
 function OrderCreateShipment(props: PropType) {
@@ -115,22 +118,28 @@ function OrderCreateShipment(props: PropType) {
     onSelectShipment,
     setShippingFeeInformedToCustomer,
     handleCreateShipment,
+    creating,
     handleCancelCreateShipment,
   } = props;
+  // console.log('props', props)
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
   const [listShippers, setListShippers] = useState<Array<AccountResponse> | null>(null);
+  const [listExternalShippers, setListExternalShippers] = useState<Array<AccountResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
   >([]);
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+
+// console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
     setShippingFeeInformedToCustomer(0);
-    if(value ===ShipmentMethodOption.DELIVER_PARTNER) {
+    if(value === ShipmentMethodOption.DELIVER_PARTNER) {
       setThirdPL({
         delivery_service_provider_code: "",
         delivery_service_provider_id: null,
@@ -141,6 +150,7 @@ function OrderCreateShipment(props: PropType) {
         shipping_fee_paid_to_three_pls: null,
       });
     }
+    form.setFieldsValue({shipping_fee_informed_to_customer: 0})
   };
 
   const shipping_requirements = useSelector(
@@ -214,6 +224,7 @@ function OrderCreateShipment(props: PropType) {
             onClick={() => {
               handleCreateShipment && handleCreateShipment();
             }}
+            loading={creating}
           >
             Tạo đơn giao hàng
           </Button>
@@ -223,6 +234,7 @@ function OrderCreateShipment(props: PropType) {
               handleCancelCreateShipment && handleCancelCreateShipment();
             }}
             style={{float: "right"}}
+            disabled={creating}
           >
             Hủy
           </Button>
@@ -233,10 +245,6 @@ function OrderCreateShipment(props: PropType) {
   };
 
   useEffect(() => {
-    if (!storeDetail) {
-      setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
-      return;
-    }
     if (
       customer &&
       storeDetail &&
@@ -245,6 +253,11 @@ function OrderCreateShipment(props: PropType) {
       getShippingAddressDefault(customer)?.ward_id &&
       getShippingAddressDefault(customer)?.full_address
     ) {
+      if (!((storeDetail.city_id || storeDetail.district_id) &&
+          storeDetail.ward_id && storeDetail.address)) {
+        setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
+        return;
+      }
       let request = {
         from_city_id: storeDetail?.city_id,
         from_city: storeDetail?.city_name,
@@ -272,7 +285,7 @@ function OrderCreateShipment(props: PropType) {
         coupon: "",
         cod: 0,
       };
-      console.log("request", request);
+      // console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
@@ -283,6 +296,7 @@ function OrderCreateShipment(props: PropType) {
 
   useEffect(() => {
     dispatch(ShipperGetListAction(setListShippers));
+    dispatch(ExternalShipperGetListAction(setListExternalShippers));
   }, [dispatch]);
 
   useEffect(() => {
@@ -293,19 +307,28 @@ function OrderCreateShipment(props: PropType) {
    * Chọn yêu cầu xem hàng
    */
   useEffect(() => {
-    if (orderConfig) {
+    if (orderConfig && !form.getFieldValue('requirements')) {
       if (orderConfig.for_all_order) {
         form?.setFieldsValue({
           requirements: orderConfig.order_config_action,
         });
-      }
+      } else {
+				form?.setFieldsValue({
+          requirements: shipping_requirements?.find(requirement => requirement.value === SHIPPING_REQUIREMENT.default)?.value,
+        });
+			}
     }
-  }, [form, orderConfig]);
+  }, [form, orderConfig, shipping_requirements]);
 
   useEffect(() => {
     dispatch(
       actionListConfigurationShippingServiceAndShippingFee((response) => {
         setShippingServiceConfig(response);
+      })
+    );
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
       })
     );
   }, [dispatch]);
@@ -339,8 +362,8 @@ function OrderCreateShipment(props: PropType) {
           </Col>
 
           <Col md={6}>
-            <Form.Item name="office_time">
-              <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+            <Form.Item name="office_time" valuePropName="checked">
+              <Checkbox  style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
             </Form.Item>
           </Col>
           <Col md={9}>
@@ -407,6 +430,7 @@ function OrderCreateShipment(props: PropType) {
               setThirdPL={setThirdPL}
               shippingServiceConfig={shippingServiceConfig}
               setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+              deliveryServices={deliveryServices}
               infoFees={infoFees}
               addressError={addressError}
               levelOrder={levelOrder}
@@ -425,6 +449,9 @@ function OrderCreateShipment(props: PropType) {
               isCancelValidateDelivery={isCancelValidateDelivery}
               listShippers={listShippers}
               renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+              setThirdPL={setThirdPL}
+              listExternalShippers={listExternalShippers}
+              form={form}
             />
           )}
           {/*--- Nhận tại cửa hàng ----*/}
@@ -432,6 +459,7 @@ function OrderCreateShipment(props: PropType) {
             <ShipmentMethodReceiveAtStore
               storeDetail={storeDetail}
               isCancelValidateDelivery={isCancelValidateDelivery}
+              renderButtonCreateActionHtml={renderButtonCreateActionHtml}
             />
           )}
         </div>

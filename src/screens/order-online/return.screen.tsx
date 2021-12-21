@@ -33,6 +33,8 @@ import { HttpStatus } from "config/http-status.config";
 import { showError, showSuccess } from "utils/ToastUtils";
 import ExportModal from "./modal/export.modal";
 import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 
 const actions: Array<MenuAction> = [
   {
@@ -429,19 +431,23 @@ const ListOrderScreen: React.FC = () => {
       extra={
         <Row>
           <Space>
-            <Button
-              type="default"
-              className="light"
-              size="large"
-              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              // onClick={onExport}
-              onClick={() => {
-                setShowExportModal(true);
-              }}
-            >
-              Xuất file
-            </Button>
-            {/* <ButtonCreate path={`${UrlConfig.ORDER}/create`} /> */}
+            <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+              {(isPassed: boolean) => 
+              <Button
+                type="default"
+                className="light"
+                size="large"
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                // onClick={onExport}
+                onClick={() => {
+                  console.log("export");
+                  setShowExportModal(true);
+                }}
+                disabled={!isPassed}
+              >
+                Xuất file
+              </Button>}
+            </AuthWrapper>
           </Space>
         </Row>
       }

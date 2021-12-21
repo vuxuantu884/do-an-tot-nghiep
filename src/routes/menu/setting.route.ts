@@ -1,14 +1,18 @@
 import UrlConfig from "config/url.config";
 import React from "react";
 import {RouteMenu} from "model/other";
+import {
+  AccountPermissions,
+  DepartmentsPermissions,
+} from "config/permissions/account.permisssion";
+import { PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
+import AccountMeScreen from "screens/settings/account/account.me.screen";
 
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
 );
 
-const AccountDetailScreen = React.lazy(
-  () => import("screens/settings/account/detail")
-);
+const AccountDetailScreen = React.lazy(() => import("screens/settings/account/detail"));
 // const ManageStoreScreen = React.lazy(
 //   () => import("screens/setting/manage-store.screen")
 // );
@@ -18,11 +22,17 @@ const RoleListScreen = React.lazy(
 const RoleCreateScreen = React.lazy(
   () => import("screens/settings/roles/role-create.screen")
 );
+const RoleUpdateScreen = React.lazy(
+  () => import("screens/settings/roles/update/role-update.screen")
+);
 const AccountCreateScreen = React.lazy(
   () => import("screens/settings/account/account.create.screen")
 );
 const AccountUpdateScreen = React.lazy(
   () => import("screens/settings/account/account.update.screen")
+);
+const AccountUpdatePassScreen = React.lazy(
+  () => import("screens/settings/account/account.update.pass.screen")
 );
 
 //store
@@ -87,6 +97,7 @@ const setting: Array<RouteMenu> = [
     key: "subMenu91",
     isShow: true,
     header: null,
+    permissions: [AccountPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.ACCOUNTS}/create`,
@@ -98,9 +109,10 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [AccountPermissions.CREATE],
       },
       {
-        path: `${UrlConfig.ACCOUNTS}/edit/:code`,
+        path: `${UrlConfig.ACCOUNTS}/:code/update`,
         exact: true,
         title: "Chỉnh sửa người dùng",
         icon: "icon-dot",
@@ -110,6 +122,30 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [AccountPermissions.UPDATE],
+      }, {
+        path: `${UrlConfig.ACCOUNTS}/me/update-password`,
+        exact: true,
+        title: "Đặt lại mật khẩu",
+        icon: "icon-dot",
+        component: AccountUpdatePassScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [AccountPermissions.UPDATE],
+      },
+      {
+        path: `${UrlConfig.ACCOUNTS}/me`,
+        exact: true,
+        title: "Thông tin tài khoản",
+        icon: "icon-dot",
+        component: AccountMeScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [AccountPermissions.UPDATE],
       },
       {
         path: `${UrlConfig.ACCOUNTS}/:code`,
@@ -121,18 +157,20 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [AccountPermissions.READ],
       },
     ],
   },
   {
     path: UrlConfig.DEPARTMENT,
     exact: true,
-    title: "Quản lý phòng ban/bộ phận",
+    title: "Quản lý bộ phận",
     icon: "icon-dot",
     component: DepartmentSearchScreen,
     key: "subMenu910",
     isShow: true,
     header: null,
+    permissions: [DepartmentsPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.DEPARTMENT}/create`,
@@ -144,11 +182,12 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [DepartmentsPermissions.CREATE],
       },
       {
         path: `${UrlConfig.DEPARTMENT}/:id`,
         exact: true,
-        title: "Chi tiết Phòng ban/Bộ phận",
+        title: "Chi tiết bộ phận",
         icon: "icon-dot",
         component: DepartmentDetailScreen,
         key: "account2",
@@ -156,17 +195,19 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [DepartmentsPermissions.READ],
       },
       {
-        path: `${UrlConfig.DEPARTMENT}/:id/edit`,
+        path: `${UrlConfig.DEPARTMENT}/:id/update`,
         exact: true,
-        title: "Chi tiết Phòng ban/Bộ phận",
+        title: "Chi tiết bộ phận",
         icon: "icon-dot",
         component: DepartmentUpdateScreen,
         key: "account2",
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [DepartmentsPermissions.UPDATE],
       },
     ],
   },
@@ -179,6 +220,7 @@ const setting: Array<RouteMenu> = [
     key: "subMenu92",
     isShow: true,
     header: null,
+    permissions: [StorePermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.STORE}/create`,
@@ -190,19 +232,21 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [StorePermissions.CREATE],
       },
       {
         path: `${UrlConfig.STORE}/:id`,
         exact: true,
-        title: "Sửa cửa hàng",
+        title: "Chi tiết cửa hàng",
         icon: "icon-dot",
         component: StoreDetailScreen,
         key: "subMenu922",
         isShow: true,
         header: null,
+        permissions: [StorePermissions.READ],
         subMenu: [
           {
-            path: `${UrlConfig.STORE}/:id/edit`,
+            path: `${UrlConfig.STORE}/:id/update`,
             exact: true,
             title: "Sửa cửa hàng",
             icon: "icon-dot",
@@ -212,6 +256,7 @@ const setting: Array<RouteMenu> = [
             header: null,
             subMenu: [],
             pathIgnore: ["create"],
+            permissions: [StorePermissions.UPDATE],
           },
         ],
         pathIgnore: ["create"],
@@ -227,6 +272,7 @@ const setting: Array<RouteMenu> = [
     key: "subMenu93",
     isShow: true,
     header: null,
+    permissions: [PrintPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.PRINTER}/create`,
@@ -238,6 +284,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [PrintPermissions.CREATE],
       },
       {
         path: `${UrlConfig.PRINTER}/:id`,
@@ -250,6 +297,7 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [PrintPermissions.CREATE],
       },
     ],
   },
@@ -270,6 +318,17 @@ const setting: Array<RouteMenu> = [
         icon: "icon-dot",
         component: RoleCreateScreen,
         key: "subMenu941",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ROLES}/:id/update`,
+        exact: true,
+        title: "Chỉnh sửa nhóm quyền",
+        icon: "icon-dot",
+        component: RoleUpdateScreen,
+        key: "subMenu942",
         isShow: true,
         header: null,
         subMenu: [],
@@ -310,6 +369,7 @@ const setting: Array<RouteMenu> = [
     key: UrlConfig.ORDER_SOURCES,
     isShow: true,
     header: null,
+    permissions: [SourcePermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.ORDER_SOURCES}/create`,
@@ -321,6 +381,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [SourcePermissions.CREATE],
       },
       {
         path: `${UrlConfig.ORDER_SOURCES}/:id`,
@@ -333,6 +394,7 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [SourcePermissions.UPDATE],
       },
     ],
   },

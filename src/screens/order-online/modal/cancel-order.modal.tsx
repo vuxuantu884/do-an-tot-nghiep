@@ -1,12 +1,13 @@
+/* eslint-disable eqeqeq */
 import { Modal, Input, Form } from "antd";
 import CustomSelect from "component/custom/select.custom";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 type CancelOrderModalProps = {
   visible: boolean;
   orderCode?: string | undefined;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  onOk: (reasonID: number, reason: string) => void;
+  onOk: (reason_id: string, sub_reason_id: string, reason: string) => void;
   reasons: any;
 };
 
@@ -15,13 +16,30 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
 ) => {
   const { visible, orderCode, onCancel, onOk, reasons } =
     props;
-  const [reasonID, setReasonID] = useState<string>('2');
+  const [reasonID, setReasonID] = useState<string>('1');
+  // const [reasonSubs, setReasonSubs] = useState<any[]>([]);
+  const [reasonSubID, setReasonSubID] = useState<string>('');
   const [reason, setReason] = useState<string>('');
+  const [reasonSubs, setReasonSubs] = useState<any[]>([]);
+
+  const onChangeReasonID = useCallback((value) => {
+    setReasonID(value)
+    setReason('')
+    const reasonDetails = reasons.find((reason: any) => reason.id == value)
+    console.log('set reasonSubs', reasonID, reasonDetails);
+    if (reasonDetails && reasonDetails.sub_reasons.length) {
+      setReasonSubID(reasonDetails.sub_reasons[0].id.toString())
+      setReasonSubs(reasonDetails.sub_reasons)
+    } else {
+      setReasonSubID('')
+      setReasonSubs([])
+    }
+  }, [reasonID, reasons])
   return (
     <Modal
       title={`Huỷ đơn hàng ${orderCode}`}
       onCancel={onCancel}
-      onOk={() => onOk(Number(reasonID), reason)}
+      onOk={() => onOk(reasonID, reasonSubID, reason)}
       visible={visible}
       centered
       okText="Xác nhận huỷ đơn"
@@ -29,27 +47,43 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
       width={600}
     >
       <div>
-        <Form.Item label="Chọn lý do" labelCol={{span: 4}} style={{alignItems:"center"}}>
+        <Form.Item label="Chọn lý do" labelCol={{span: 6}} style={{alignItems:"center"}}>
           <CustomSelect
-            showSearch placeholder="Chọn lý do huỷ đơn"
+            showSearch placeholder="Chọn lý do"
             notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
             optionFilterProp="children" showArrow
             getPopupContainer={trigger => trigger.parentNode}
-            onSelect={(value) => {
-              console.log('aaaa', value, reasonID);
-              setReasonID(value)
-            }}
+            onSelect={(value) => onChangeReasonID(value)}
             value={reasonID}
           >
             {reasons.map((reason: any) => (
-              <CustomSelect.Option key={reason.id.toString()} value={reason.id.toString()}>
+              <CustomSelect.Option key={reason.id} value={reason.id.toString()}>
                 {reason.name}
               </CustomSelect.Option>
             ))}
           </CustomSelect>
         </Form.Item>
-        {(reasonID === '1') && (
-        <Form.Item label="Lý do khác" labelCol={{span: 4}}>
+        {reasonSubs.length > 0 &&
+        <Form.Item label="Chọn lý do chi tiết" labelCol={{span: 6}} style={{alignItems:"center"}}>
+          <CustomSelect
+            showSearch placeholder="Chọn lý do chi tiết"
+            notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+            optionFilterProp="children" showArrow
+            getPopupContainer={trigger => trigger.parentNode}
+            onSelect={(value) => {
+              setReasonSubID(value)
+            }}
+            value={reasonSubID}
+          >
+            {reasonSubs.map((reasonSub: any) => (
+              <CustomSelect.Option key={reasonSub.id} value={reasonSub.id.toString()}>
+                {reasonSub.name}
+              </CustomSelect.Option>
+            ))}
+          </CustomSelect>
+        </Form.Item>}
+        {!(reasonSubs.length > 0) && (
+        <Form.Item label="Lý do khác" labelCol={{span: 6}}>
           <Input.TextArea
             onChange={(e) => setReason(e.target.value)}
             style={{ width: "100%", height: '80px' }}

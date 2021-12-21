@@ -4,9 +4,10 @@ export interface DepartmentResponse extends BaseObject {
   name: string,
   manager_code: string,
   manager: string,
-  mobile: string,
+  phone: string,
   address: string,
   parent_id: number,
+  department_id: number,
   parent: string,
   children: Array<DepartmentResponse>,
 }
@@ -16,7 +17,7 @@ export interface DepartmentView extends BaseObject {
   level: number,
   manager_code: string,
   manager: string,
-  mobile: string,
+  phone: string,
   address: string,
   parent: DepartmentParent | null
 }
@@ -24,10 +25,11 @@ export interface DepartmentView extends BaseObject {
 export interface DepartmentRequest {
   code: string,
   name: string,
-  mobile: string,
+  phone: string,
   address: string,
   parent_id: string,
   manager_code: string,
+  status: string,
 }
 
 

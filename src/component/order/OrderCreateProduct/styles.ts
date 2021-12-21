@@ -52,6 +52,11 @@ export const StyledComponent = styled.div`
       &:hover {
         border-color: ${primaryColor};
       }
+      @media screen and (max-width: 1439px) {
+        width: 25px;
+        height: 25px;
+        line-height: 23px;
+      }
     }
   }
   td.yody-pos-name {
@@ -65,5 +70,22 @@ export const StyledComponent = styled.div`
   .splitOrder {
     display: flex;
     align-items: center;
+  }
+  .discountGroup {
+    .ant-input-group {
+      display: flex;
+      flex-direction: row-reverse;
+      .ant-select:first-child {
+        border-radius: 0;
+        border-left: none;
+        > .ant-select-selector {
+          border-radius: 0;
+          border-left: none;
+        }
+      }
+      .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        padding: 0 10px;
+      }
+    }
   }
 `;

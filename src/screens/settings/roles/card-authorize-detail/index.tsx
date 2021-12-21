@@ -1,11 +1,12 @@
 import {Card, Checkbox, Collapse, Form} from "antd";
 import {FormInstance} from "antd/es/form/Form";
 import {CheckboxChangeEvent} from "antd/lib/checkbox";
+import {ADMIN_MODULE} from "config/permissions/admin.permission";
 import _ from "lodash";
 import {ModuleAuthorize} from "model/auth/module.model";
 import {PermissionsAuthorize} from "model/auth/permission.model";
 import {PageResponse} from "model/base/base-metadata.response";
-import {Fragment, useCallback} from "react";
+import {Fragment, useCallback, useMemo} from "react";
 import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
 import {
   handleCheckedModule,
@@ -31,6 +32,7 @@ interface AuthorizeDetailCardProps {
     permission: PermissionsAuthorize
   ) => void;
   isShowTitle?: boolean;
+  disabled?: boolean;
 }
 
 export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
@@ -46,6 +48,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
     onChangeCheckboxModule,
     onChangeCheckboxPermission,
     isShowTitle,
+    disabled,
   } = props;
 
   const handleChangeModule = (e: CheckboxChangeEvent, module: ModuleAuthorize) => {
@@ -89,9 +92,19 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
       return 1;
     }
 
-    // names must be equal
+    // names is equal
     return 0;
   }, []);
+
+  const finalModule = useMemo(() => {
+    if (Array.isArray(moduleData?.items)) {
+      return _.filter(moduleData?.items, function (item) {
+        return item.code !== ADMIN_MODULE;
+      });
+    }
+    return [];
+  }, [moduleData]);
+
   return (
     <RoleStyled>
       <Card title={isShowTitle ? "PHÂN QUYỀN CHI TIẾT" : ""}>
@@ -104,7 +117,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
           expandIcon={() => <Fragment />}
           className="site-collapse-custom-collapse"
         >
-          {moduleData?.items.map((module: ModuleAuthorize) => {
+          {finalModule.map((module: ModuleAuthorize) => {
             const isIndeterminate = indeterminateModules.includes(module.code);
             const isChecked = checkedModules.includes(module.code);
 
@@ -116,6 +129,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                       onChange={(e) => handleChangeModule(e, module)}
                       indeterminate={isIndeterminate && !isChecked}
                       checked={isChecked || isIndeterminate}
+                      disabled={disabled}
                     >
                       <b>{_.capitalize(module.name)}</b>
                     </Checkbox>
@@ -140,6 +154,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                             onChange={(e) =>
                               handleChangeCheckboxPermission(e, module, value)
                             }
+                            disabled={disabled}
                           >
                             {_.capitalize(value.name)}
                           </Checkbox>
@@ -154,4 +169,8 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
       </Card>
     </RoleStyled>
   );
+};
+
+AuthorizeDetailCard.defaultProps = {
+  disabled: false,
 };

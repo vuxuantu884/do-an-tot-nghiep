@@ -1,4 +1,5 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row, Space } from "antd";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { createMaterialAction } from "domain/actions/product/material.action";
@@ -41,10 +42,8 @@ const AddMaterial: React.FC = () => {
       dispatch(createMaterialAction(newValue, onSuccess));
     },
     [dispatch, onSuccess]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
+  
   return (
     <ContentContainer
       title="Thêm chất liệu"
@@ -187,18 +186,18 @@ const AddMaterial: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-        </Card>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
-          <Space size={12}>
-            <Button type="default" onClick={onCancel}>
-              Hủy
-            </Button>
-            <Button htmlType="submit" type="primary">
-              Lưu
-            </Button>
-          </Space>
-        </div>
-      </Form>
+        </Card> 
+        <BottomBarContainer
+          back={"Quay lại danh sách"}
+          rightComponent={
+            <Space>
+              <Button htmlType="submit" type="primary">
+                Tạo chất liệu
+              </Button>
+            </Space>
+          }
+        />
+      </Form> 
     </ContentContainer>
   );
 };

@@ -162,7 +162,7 @@ const UpdateTicket: FC = () => {
           },
           {
             name: "Chuyển hàng",
-            path: `${UrlConfig.INVENTORY_TRANSFER}`,
+            path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
             name: `Nhập file`,
@@ -352,7 +352,7 @@ const UpdateTicket: FC = () => {
                 disabled={!!dataUploadError}
                 type="primary"
                 onClick={() => {
-                  history.push(`${UrlConfig.INVENTORY_TRANSFER}/createImport`, data);
+                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, data);
                 }}>
                 Xác nhận
               </Button>,

@@ -1,0 +1,106 @@
+
+@import "assets/css/variable";
+
+.fulfillment-detail {
+  .fulfillment-info {
+    .ant-card-head {
+      .title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+    .ant-card-body {
+      display: flex;
+      justify-content: space-between;
+      .details {
+        width: 50%;
+        padding: 0px 20px;
+        .detail {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
+          .name {
+            width: 50%;
+            color: #737373;
+          }
+          .value {
+            width: 50%;
+            color: #222222,
+          }
+        }
+      }
+      
+    }
+    
+  }
+  .info {
+    width: 100%;
+    .detail {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      .name {
+        width: 50%;
+        color: #737373;
+      }
+      .value {
+        width: 50%;
+        color: #222222,
+      }
+    }
+  }
+  
+}
+
+.ant-card-body {
+  .orders-timeline-custom {
+    position: relative;
+    // margin-left: 20px;
+    // &::before {
+    //   position: absolute;
+    //   content: "";
+    //   width: 14px;
+    //   height: 14px;
+    //   top: 20px;
+    //   left: -4px;
+    //   border-radius: 50%;
+    // }
+    &.currentTimeline {
+      &:after {
+        background-color: $green !important;
+      }
+      b, i, span {
+        color: $green !important;
+      }
+      &.hasError {
+        &:after {
+          background-color: $red !important;
+        }
+        b, i, span {
+          color: $red !important;
+        }
+      }
+    }
+  }
+  .orders-timeline-custom.order-shipment-dot-default {
+    &::before {
+      background-color: #e5e5e5;
+    }
+  }
+  .orders-timeline-custom.order-shipment-dot-active {
+    &::before {
+      background-color: $green;
+    }
+  }
+  .orders-timeline-custom.order-shipment-dot-cancelled {
+    // &::before {
+      .saleorder-header-content {
+        .text-field {
+          color: #e24343 !important;
+        }
+      }
+      // background-color: #e24343;
+    // }
+  }
+}

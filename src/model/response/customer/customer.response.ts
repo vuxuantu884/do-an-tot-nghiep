@@ -8,7 +8,7 @@ export interface CustomerResponse extends BaseObject {
   email: string | null;
   channel: string | null;
   facebook_url: string | null;
-  group_id: number;
+  customer_group_id: number;
   type_id: number;
   company_id: number;
   company: string | null;
@@ -17,11 +17,11 @@ export interface CustomerResponse extends BaseObject {
   card_number: string | null;
   customer_level_id: number;
   customer_level: string | null;
-  wedding_date: number;
-  birthday: number;
+  wedding_date: string|null;
+  birthday: string|null;
   gender: string;
   website: string | null;
-  responsible_staff_code: number;
+  responsible_staff_code: string|null;
   responsible_staff: string;
   affiliate_code: string | null;
   loyalty: number;
@@ -36,7 +36,9 @@ export interface CustomerResponse extends BaseObject {
   district: string | null;
   city: string | null;
   district_id: number| null;
-  ward_id: number| null;
+  ward_id: number | null;
+  report: any;
+  loyalty_level_id: number | null;
 }
 
 export interface note extends BaseObject {

@@ -26,6 +26,16 @@ export const searchVariantsRequestAction = (
   });
 };
 
+export const searchVariantsInventoriesRequestAction = (
+  query: VariantSearchQuery,
+  setData: (data: PageResponse<VariantResponse>|false) => void
+) => {
+  return BaseAction(ProductType.SEARCH_VARIANTS_INVENTORIES_REQUEST, {
+    query,
+    setData,
+  });
+};
+
 export const searchProductWrapperRequestAction = (
   query: ProductWrapperSearchQuery,
   setData: (data: PageResponse<ProductResponse>|false) => void
@@ -55,11 +65,13 @@ export const productWrapperUpdateAction = (
 
 export const searchVariantsOrderRequestAction = (
   query: VariantSearchQuery,
-  setData: (data: PageResponse<VariantResponse>) => void
+  setData: (data: PageResponse<VariantResponse>) => void,
+  handleError?: ()=>void,
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST, {
     query,
     setData,
+    handleError,
   });
 };
 

@@ -38,6 +38,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { exportFile, getFile} from "service/other/import.inventory.service";
 import {STATUS_IMPORT_EXPORT} from "screens/inventory-adjustment/DetailInvetoryAdjustment";
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
+import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -65,17 +67,6 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   status: [],
   audit_type: [],
 };
-
-const actions: Array<MenuAction> = [
-  {
-    id: ACTIONS_INDEX.PRINT,
-    name: "In phiếu",
-  },
-  {
-    id: ACTIONS_INDEX.EXPORT,
-    name: "Xuất Excel",
-  },
-];
 
 const InventoryAdjustment: React.FC = () => {
   const history = useHistory();
@@ -114,6 +105,27 @@ const InventoryAdjustment: React.FC = () => {
     items: [],
   });
 
+  //phân quyền
+  const [allowPrint] = useAuthorization({
+    acceptPermissions: [InventoryAdjustmentPermission.print],
+  });
+  const [allowExportTicket] = useAuthorization({
+    acceptPermissions: [InventoryAdjustmentPermission.export],
+  });
+
+  const actions: Array<MenuAction> = [
+    {
+      id: ACTIONS_INDEX.PRINT,
+      name: "In phiếu",
+      disabled: !allowPrint,
+    },
+    {
+      id: ACTIONS_INDEX.EXPORT,
+      name: "Xuất Excel",
+      disabled: !allowExportTicket,
+    },
+  ];
+
   const pageBreak = "<div class='pageBreak'></div>";
   const printContentCallback = useCallback(
     (printContent) => {
@@ -150,7 +162,7 @@ const InventoryAdjustment: React.FC = () => {
       render: (value: string, row: InventoryAdjustmentDetailItem) => (
         <>
           <Link
-            to={`${UrlConfig.INVENTORY_ADJUSTMENT}/${row.id}`}
+            to={`${UrlConfig.INVENTORY_ADJUSTMENTS}/${row.id}`}
             style={{fontWeight: 500}}
           >
             {value}
@@ -397,7 +409,7 @@ const InventoryAdjustment: React.FC = () => {
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
     },
     [history, params]
   );
@@ -442,7 +454,7 @@ const InventoryAdjustment: React.FC = () => {
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}?${queryParam}`);
+    history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
   }, [history]);
 
   const onSelectedChange = useCallback(
@@ -485,6 +497,7 @@ const InventoryAdjustment: React.FC = () => {
         />
 
         <CustomTable
+          bordered
           isRowSelection
           isLoading={tableLoading}
           scroll={{x: 1300}}

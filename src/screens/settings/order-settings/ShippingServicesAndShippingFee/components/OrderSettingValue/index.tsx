@@ -141,7 +141,7 @@ function OrderSettingValue(props: PropType) {
   return (
     <StyledComponent>
       <Card title="Cài đặt theo giá trị đơn hàng">
-        <div>
+        <div id="orderSettingValue">
           <Form.List name="shipping_fee_configs">
             {(shipping_fee_configs, { add, remove }) => {
               return (

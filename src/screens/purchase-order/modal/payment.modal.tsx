@@ -17,6 +17,8 @@ import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { HttpStatus } from "config/http-status.config";
 import CustomInputChange from "component/custom/custom-input-change";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 type PaymentModalProps = {
   visible: boolean;
@@ -165,6 +167,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       onCancel={handleCancel}
       footer={
         purchasePayment && [
+          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.payments_delete]}>
           <Button
             danger
             onClick={() => {
@@ -173,7 +176,9 @@ const PaymentModal: React.FC<PaymentModalProps> = (
             style={{ float: "left" }}
           >
             <DeleteOutlined /> Xoá
-          </Button>,
+          </Button>
+          </AuthWrapper>
+          ,
           <Button key="back" onClick={handleCancel}>
             Huỷ
           </Button>,

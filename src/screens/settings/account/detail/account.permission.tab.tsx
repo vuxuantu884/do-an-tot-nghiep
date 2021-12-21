@@ -1,8 +1,10 @@
 import {Col, Divider, Form, Row} from "antd";
 import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import {getAllModuleParam} from "config/module.config";
+import { AccountPermissions } from "config/permissions/account.permisssion";
 import {getModuleAction} from "domain/actions/auth/module.action";
 import {updateAccountPermissionAction} from "domain/actions/auth/permission.action";
+import useAuthorization from "hook/useAuthorization";
 import _ from "lodash";
 import {ModuleAuthorize} from "model/auth/module.model";
 import {PermissionsAuthorize, UserPermissionRequest} from "model/auth/permission.model";
@@ -29,6 +31,10 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   const [activePanel, setActivePanel] = useState<string | string[]>([]);
   const [indeterminateModules, setIndeterminateModules] = useState<string[]>([]);
   const [checkedModules, setCheckedModules] = useState<string[]>([]);
+  //phân quyền
+  const [allowUpdateAcc] = useAuthorization({
+    acceptPermissions: [AccountPermissions.UPDATE],
+  });
 
   const detailContext = useContext(AccountDetailContext);
   const {accountInfo} = detailContext;
@@ -147,22 +153,18 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   return (
     <>
       <div className="padding-top-20 permission">
-        <Row gutter={80}>
-          <Col className="col-info">
-            <Row className="permission-account">
-              <span className="account-title">Mã nhân viên</span>
-              <b> : {accountInfo?.code}</b>
-            </Row>
-            <Row className="permission-account">
-              <span className="account-title">Họ và tên </span>
-              <b> : {accountInfo?.full_name}</b>
-            </Row>
+        <Row gutter={30}>
+          <Col className="col-info" span={8}>
+            <span className="account-title">Mã nhân viên</span>
+            <b> : {accountInfo?.code}</b>
           </Col>
-          <Col className="col-info">
-            <Row className="permission-account" gutter={48}>
-              <span className="account-title">Nhóm quyền </span>
-              <b> : {accountInfo?.role_name} </b>
-            </Row>
+          <Col className="col-info" span={8}>
+            <span className="account-title">Họ và tên </span>
+            <b> : {accountInfo?.full_name}</b>
+          </Col>
+          <Col className="col-info" span={8}>
+            <span className="account-title">Nhóm quyền </span>
+            <b> : {accountInfo?.role_name} </b>
           </Col>
         </Row>
         <h4 className="margin-top-20">PHÂN QUYỀN CHI TIẾT</h4>
@@ -181,6 +183,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
             form={form}
             onChangeCheckboxPermission={onChangeCheckBoxPermission}
             onChangeCheckboxModule={onChangeCheckBoxModule}
+            disabled={!allowUpdateAcc}
           />
         </Form>
       </CreateRoleStyled>

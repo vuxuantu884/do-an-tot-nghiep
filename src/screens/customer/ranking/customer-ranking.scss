@@ -1,0 +1,16 @@
+.customer-ranking {
+    .status {
+        width: 120px;
+        padding: 5px 0;
+        text-align: center;
+        margin: auto;
+        color: white;
+        border-radius: 100px;
+        &__ACTIVE {
+            background-color: #27AE60;
+        }
+        &__INACTIVE {
+            background-color: #676767;
+        }
+    }
+}

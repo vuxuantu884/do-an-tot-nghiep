@@ -3,19 +3,39 @@ import PackFilter from "component/filter/pack.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
 import IconPack from "assets/icon/Pack.svg";
+import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
+import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
+import { useDispatch } from "react-redux";
+import { getGoodsReceiptsSerch } from "domain/actions/goods-receipts/goods-receipts.action";
+
+const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
+  limit: 30,
+  page: 1,
+  sort_column: "",
+  sort_type: "",
+  store_id: null,
+  delivery_service_id: null,
+  ecommerce_id: null,
+  good_receipt_type_id: null,
+  good_receipt_id:null,
+  order_codes:null,
+  from_date: "",
+  to_date: "",
+};
 
 const PackReportHandOver: React.FC = () => {
-  
+  const dispatch = useDispatch();
+  //const [listGoodsReceiptsSearch, setListGoodsReceiptsSearch] = useState<GoodsReceiptsResponse[]>([]);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  let [params, setPrams] = useState<any>();
   const [tableLoading] = useState(true);
+  let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(initQueryGoodsReceipts);
 
-  const [data] = useState<PageResponse<any>>({
+  const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -23,33 +43,6 @@ const PackReportHandOver: React.FC = () => {
     },
     items: [],
   });
-
-  // const dataSource = [
-  //   {
-  //     key: '1',
-  //     name: 'John Brown',
-  //     age: 32,
-  //     address: 'New York No. 1 Lake Park',
-  //   },
-  //   {
-  //     key: '2',
-  //     name: 'Jim Green',
-  //     age: 42,
-  //     address: 'London No. 1 Lake Park',
-  //   },
-  //   {
-  //     key: '3',
-  //     name: 'Joe Black',
-  //     age: 32,
-  //     address: 'Sidney No. 1 Lake Park',
-  //   },
-  //   {
-  //     key: '4',
-  //     name: 'Disabled User',
-  //     age: 99,
-  //     address: 'Sidney No. 1 Lake Park',
-  //   },
-  // ];
 
   const onMenuClick = useCallback((index: number) => {
     console.log(index);
@@ -67,9 +60,218 @@ const PackReportHandOver: React.FC = () => {
 
   }
 
+  const  goodsReceiptsIdColumns:ICustomTableColumType<any>={
+    title: "ID biên bản bàn giao",
+    key: "1",
+    dataIndex:"key1",
+    visible: true,
+    width: "200px",
+    fixed:"left",
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      // console.log(a)
+      // console.log("field",listGoodsReceiptsSearch);
+      return (
+          <div className="t-success">
+             1
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsStoreNameColumns:ICustomTableColumType<any>={
+    title: "Tên cửa hàng",
+    key: "2",
+    dataIndex:"key2",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  
+  const  goodsReceiptsTypeNameColumns:ICustomTableColumType<any>={
+    title: "Loại",
+    key: "3",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsProductQuanlityColumns:ICustomTableColumType<any>={
+    title: "SL sản phẩm",
+    key: "4",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsOrderQuanlityColumns:ICustomTableColumType<any>={
+    title: "Số đơn",
+    key: "5",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsSendHVCColumns:ICustomTableColumType<any>={
+    title: "Đơn đã gửi HVC",
+    
+    key: "6",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsNotGetOrderColumns:ICustomTableColumType<any>={
+    title: "Đơn chưa lấy",
+    
+    key: "7",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsMovingOrderColumns:ICustomTableColumType<any>={
+    title: "Đơn đang chuyển",
+    
+    key: "8",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsCancelOrderColumns:ICustomTableColumType<any>={
+    title: "Đơn hủy",
+    
+    key: "9",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsTransferCompleteColumns:ICustomTableColumType<any>={
+    title: "Đang chuyển hoàn",
+    
+    key: "10",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsSuccessOrderColumns:ICustomTableColumType<any>={
+    title: "Đơn thành công",
+    
+    key: "11",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsCompleteOrderColumns:ICustomTableColumType<any>={
+    title: "Đơn hoàn",
+    
+    key: "12",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
+  const  goodsReceiptsCreatorColumns:ICustomTableColumType<any>={
+    title: "Người tạo",
+    
+    key: "13",
+    visible: true,
+    width: "200px",
+    
+    render: (a: GoodsReceiptsResponse, item: any, index: number) => {
+      return (
+          <div className="t-success">
+             ok
+          </div>
+      );
+    },
+  }
+
   const actionColumn = (handlePrint: any, handleExportHVC: any, handleAddPack: any) => {
     const _actionColumn = {
       title: "",
+      key: "14",
       visible: true,
       width: "5%",
       className: "saleorder-product-card-action ",
@@ -158,103 +360,22 @@ const PackReportHandOver: React.FC = () => {
     return _actionColumn;
   };
 
-  const [columns,setColumn] = useState<
-    Array<ICustomTableColumType<any>>
-  >([
-    {
-      title: "ID biên bản bàn giao",
-      dataIndex: "ID1",
-      key: "1",
-      visible: true,
-      width: "200px",
-      fixed: 'left',
-    },
-    {
-      title: "Tên cửa hàng",
-      dataIndex: "key2",
-      key: "2",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Loại",
-      dataIndex: "key3",
-      key: "3",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "SL sản phẩm",
-      dataIndex: "key4",
-      key: "4",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Số đơn",
-      dataIndex: "key5",
-      key: "5",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Đơn đã gửi HVC",
-      dataIndex: "key6",
-      key: "6",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Đơn chưa lấy",
-      dataIndex: "key7",
-      key: "7",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Đơn đang chuyển",
-      dataIndex: "key8",
-      key: "8",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Đơn hủy",
-      dataIndex: "key9",
-      key: "9",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Đang chuyển hoàn",
-      dataIndex: "key10",
-      key: "10",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Đơn thành công",
-      dataIndex: "key11",
-      key: "11",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Đơn hoàn",
-      dataIndex: "key12",
-      key: "12",
-      visible: true,
-      width: "200px",
-    },
-    {
-      title: "Người tạo",
-      dataIndex: "key13",
-      key: "13",
-      visible: true,
-      width: "200px",
-    },
-   actionColumn(handlePrint,handleExportHVC,handleAddPack)
-  ]);
+  const [columns,setColumn] = useState< Array<ICustomTableColumType<any>>>([
+    goodsReceiptsIdColumns,
+    goodsReceiptsStoreNameColumns,
+    goodsReceiptsTypeNameColumns,
+    goodsReceiptsProductQuanlityColumns,
+    goodsReceiptsOrderQuanlityColumns,
+    goodsReceiptsSendHVCColumns,
+    goodsReceiptsNotGetOrderColumns,
+    goodsReceiptsMovingOrderColumns,
+    goodsReceiptsCancelOrderColumns,
+    goodsReceiptsTransferCompleteColumns,
+    goodsReceiptsSuccessOrderColumns,
+    goodsReceiptsCompleteOrderColumns,
+    goodsReceiptsCreatorColumns,
+    actionColumn(handlePrint,handleExportHVC,handleAddPack)
+  ])
 
   const columnFinal = useMemo(
     () => columns.filter((item:any) => item.visible === true),
@@ -270,6 +391,43 @@ const PackReportHandOver: React.FC = () => {
     [params]
   );
 
+  useEffect(() => {
+    //const toDate = new Date();
+    // Trừ đi 1 ngày
+    //const fromDate = new Date().setDate(toDate.getDate() - 1);
+
+    //initQueryGoodsReceipts.limit = 3;
+    // initQueryGoodsReceipts.page = 1;
+    // initQueryGoodsReceipts.sort_type = "desc";
+    // initQueryGoodsReceipts.sort_column = "updated_date";
+    // initQueryGoodsReceipts.from_date = moment(fromDate).format("DD-MM-YYYY");
+    // initQueryGoodsReceipts.to_date = moment(toDate).format("DD-MM-YYYY");
+
+    dispatch(
+      getGoodsReceiptsSerch(initQueryGoodsReceipts, (data:PageResponse<GoodsReceiptsResponse>)=>{
+        let dataResult:Array<GoodsReceiptsResponse>=[];
+        data.items.forEach((item:GoodsReceiptsResponse,index:number)=>{
+          dataResult.push(
+            {...item, key:index}
+          );
+        })
+        //setListGoodsReceiptsSearch(dataResult)
+        setData({
+          metadata: {
+            limit: data.metadata.limit,
+            page: data.metadata.page,
+            total: data.metadata.total,
+          },
+          items: dataResult
+        });
+      })
+    );
+
+    console.log("initQueryGoodsReceipts", initQueryGoodsReceipts);
+  }, [dispatch]);
+
+
+
   return (
     <>
       <div style={{ padding: "0px 24px 0 24px" }}>
@@ -280,7 +438,7 @@ const PackReportHandOver: React.FC = () => {
             isRowSelection
             //isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630, y: 350 }}
+            scroll={{ x: 3630, y: 600 }}
             pagination={
                 tableLoading ? false : {
                 pageSize: data.metadata.limit,
@@ -292,7 +450,7 @@ const PackReportHandOver: React.FC = () => {
               }
             }
             //onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-            dataSource={[]}
+            dataSource={data.items}
             columns={columnFinal}
             onRow={(record: any) => {
               return {
@@ -303,27 +461,8 @@ const PackReportHandOver: React.FC = () => {
               };
             }}
             className="ecommerce-order-list"
+            key={Math.random()}
           />
-      {/* <Table
-        rowSelection={{
-          type: 'checkbox',
-          columnWidth: 60,
-        }}
-        columns={columnFinal}
-        dataSource={dataSource}
-        rowKey={(item: any) => item.id}
-            onRow={(record: any) => {
-              return {
-                onClick: (event) => {
-                  setSinglePack(record);
-                  console.log("record",record);
-                  //setModalAction("edit");
-                  // setIsShowModalShipping(true);
-                }, // click row
-              };
-            }}
-        className="ecommerce-order-list"
-      /> */}
       </div>
 
       {showSettingColumn &&

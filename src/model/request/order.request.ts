@@ -3,6 +3,7 @@ import { Moment } from "moment";
 export interface OrderRequest {
   action: string | null;
   store_id: number | null;
+  company_id: number | null;
   price_type: string | null;
   tax_treatment: string | null;
   source_id: number | null;
@@ -14,6 +15,10 @@ export interface OrderRequest {
   marketer_code?: string | null;
   coordinator_code?: string | null;
   customer_id?: number | null;
+  customer_address?: string | null;
+  customer_ward?: string | null;
+  customer_district?: string | null;
+  customer_city?: string | null;
   reference_code: string | null;
   url: string | null;
   total_line_amount_after_line_discount: number | null;
@@ -36,12 +41,22 @@ export interface OrderRequest {
   fulfillments: Array<FulFillmentRequest> | null;
   payments: Array<OrderPaymentRequest> | null;
   channel_id?: number | null;
+  finalized?: boolean;
+  sub_status_code?: string; 
+	automatic_discount?: boolean;
 }
 
 export interface ReturnRequest extends OrderRequest {
   reason_id: number;
+  reason_name: string | null;
+  reason: string | null;
+  sub_reason_id: string|null;
   received: boolean;
   order_returns?: any[];
+  store:string;
+  store_code:string;
+  store_phone_number:string;
+  store_full_address:string;
 }
 
 export interface ExchangeRequest extends OrderRequest {
@@ -242,6 +257,7 @@ export interface OrderLineItemRequest {
   show_note: boolean;
   variant_barcode: string;
   product_id: number;
+  product_code?: string;
   product_type: string;
   quantity: number;
   price: number;
@@ -266,6 +282,7 @@ export interface OrderLineItemRequest {
   position?: number;
   gifts: Array<OrderLineItemRequest>;
   available:number|null;
+  maxQuantityToApplyDiscount?: number; // số lượng tối đa để hưởng chiết khấu nếu có
 }
 
 export interface OrderItemDiscountRequest {
@@ -273,16 +290,19 @@ export interface OrderItemDiscountRequest {
   value: number;
   amount: number;
   promotion_id?: number;
+  discount_code?: string;
   reason: string | null;
 }
 
 export interface OrderDiscountRequest {
-  rate: number | null;
-  value: number | null;
-  amount: number | null;
-  promotion_id: number | null;
-  reason: string | null;
-  source: string | null;
+  rate?: number | null;
+  value?: number | null;
+  amount?: number | null;
+  promotion_id?: number | null;
+  order_id?: number | null;
+  reason?: string | null;
+  discount_code?: string | null;
+  source?: string | null;
 }
 
 export interface UpdateFulFillmentStatusRequest {

@@ -25,6 +25,8 @@ import { ConvertDateToUtc } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import moment, { Moment } from "moment";
 import { showError } from "utils/ToastUtils";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
@@ -293,10 +295,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         onOk={() => {
           if (type === "confirm" && !isEdit) {
             //duyet
-            form.setFieldsValue({ status: ProcumentStatus.NOT_RECEIVED });
+            form.setFieldsValue({status: ProcumentStatus.NOT_RECEIVED});
           } else if (type === "inventory" && !isEdit) {
             //nhap kho
-            form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
+            form.setFieldsValue({status: ProcumentStatus.RECEIVED});
           }
           form.submit();
         }}
@@ -305,20 +307,22 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         okText={okText}
       >
         {item && (
-          <Button
-            type="default"
-            className="danger"
-            style={{
-              position: "absolute",
-              bottom: 10,
-              left: 30,
-            }}
-            onClick={() => {
-              setVisibleDelete(true);
-            }}
-          >
-            Xóa
-          </Button>
+          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
+            <Button
+              type="default"
+              className="danger"
+              style={{
+                position: "absolute",
+                bottom: 10,
+                left: 30,
+              }}
+              onClick={() => {
+                setVisibleDelete(true);
+              }}
+            >
+              Xóa
+            </Button>
+          </AuthWrapper>
         )}
         <Form
           initialValues={{
@@ -328,14 +332,11 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
             expect_receipt_date: ConvertDateToUtc(now),
           }}
           form={form}
-          onFinishFailed={({ errorFields }: any) => {
-            const element: any = document.getElementById(
-              errorFields[0].name.join("")
-            );
+          onFinishFailed={({errorFields}: any) => {
+            const element: any = document.getElementById(errorFields[0].name.join(""));
             element?.focus();
-            const y =
-              element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-            window.scrollTo({ top: y, behavior: "smooth" });
+            const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+            window.scrollTo({top: y, behavior: "smooth"});
           }}
           onFinish={onFinish}
           layout="vertical"
@@ -368,7 +369,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                       current[POProcumentField.store_id]
                     }
                   >
-                    {({ getFieldValue }) => {
+                    {({getFieldValue}) => {
                       let store = getFieldValue(POProcumentField.store);
                       return (
                         <div>
@@ -385,16 +386,14 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                       current[POProcumentField.expect_receipt_date]
                     }
                   >
-                    {({ getFieldValue }) => {
+                    {({getFieldValue}) => {
                       let expect_receipt_date = getFieldValue(
                         POProcumentField.expect_receipt_date
                       );
                       return (
                         <div>
                           Ngày dự kiến{" "}
-                          <strong>
-                            {ConvertUtcToLocalDate(expect_receipt_date)}
-                          </strong>
+                          <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
                         </div>
                       );
                     }}
@@ -443,7 +442,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                   >
                     <CustomDatepicker
                       disableDate={(date) => date < moment().startOf("days")}
-                      style={{ width: "100%" }}
+                      style={{width: "100%"}}
                     />
                   </Form.Item>
                 </Col>
@@ -452,7 +451,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
           </Row>
           {!isConfirmModal && (
             <Row>
-              <Input.Group style={{ flex: 1, marginRight: 20 }}>
+              <Input.Group style={{flex: 1, marginRight: 20}}>
                 <CustomAutoComplete
                   id="#product_procument_search"
                   dropdownClassName="product"
@@ -460,7 +459,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                   placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
                   onSearch={onSearch}
                   dropdownMatchSelectWidth={456}
-                  style={{ width: "100%" }}
+                  style={{width: "100%"}}
                   onSelect={onSelectProduct}
                   options={renderResult}
                 />
@@ -474,12 +473,12 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                   );
                 }}
               >
-                {({ getFieldValue }) => {
+                {({getFieldValue}) => {
                   let checked = false;
-                  let procurement_items: Array<PurchaseProcumentLineItem> =
-                    getFieldValue(POProcumentField.procurement_items);
-                  checked =
-                    procurement_items.length === allProcurementItems.length;
+                  let procurement_items: Array<PurchaseProcumentLineItem> = getFieldValue(
+                    POProcumentField.procurement_items
+                  );
+                  checked = procurement_items.length === allProcurementItems.length;
                   return (
                     <Checkbox
                       checked={checked}
@@ -494,7 +493,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
               </Form.Item>
             </Row>
           )}
-          <div className="margin-top-20">
+          <div>
             <Form.Item
               shouldUpdate={(prev, current) => {
                 return (
@@ -504,10 +503,8 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
               }}
               noStyle
             >
-              {({ getFieldValue }) => {
-                let line_items = getFieldValue(
-                  POProcumentField.procurement_items
-                )
+              {({getFieldValue}) => {
+                let line_items = getFieldValue(POProcumentField.procurement_items)
                   ? getFieldValue(POProcumentField.procurement_items)
                   : [];
                 if (props.children) {

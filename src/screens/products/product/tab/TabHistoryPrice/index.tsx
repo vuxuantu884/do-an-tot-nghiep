@@ -2,7 +2,7 @@ import CustomTable, {
   ICustomTableColumType
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig from "config/url.config";
+import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { productGetHistoryAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { OFFSET_HEADER_TABLE  } from "utils/Constants";
 import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
@@ -58,7 +58,7 @@ const TabHistoryPrice: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setParams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}#4?${queryParam}`);
+      history.replace(`${ProductTabUrl.HISTORY_PRICES}?${queryParam}`);
     },
     [history, params]
   );
@@ -150,9 +150,10 @@ const TabHistoryPrice: React.FC = () => {
     {
       title: "Thời gian",
       visible: true,
-      align: "center",
+      align: "left",
       dataIndex: "created_date",
       render: (value) => ConvertUtcToLocalDate(value),
+      width: 120
     },
   ]);
   useEffect(() => {
@@ -163,8 +164,8 @@ const TabHistoryPrice: React.FC = () => {
   return (
     <div>
       <HistoryProductFilter
-        onFinish={(values: any) => {
-          let { from_action_date, to_action_date } = values;
+        onFinish={(values: any) => { 
+          let { from_action_date, to_action_date, condition } = values;
       
           if (from_action_date) {
             values.from_action_date = getStartOfDay(from_action_date)
@@ -172,12 +173,12 @@ const TabHistoryPrice: React.FC = () => {
           if (to_action_date) {
             values.to_action_date = getEndOfDay(to_action_date)
           }
-
+          values.condition = condition.trim();
           let newParams = { ...params, ...values, page: 1 };
 
           setParams(newParams);
           let queryParam = generateQuery(newParams);
-          history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
+          history.replace(`${ProductTabUrl.HISTORY_PRICES}?${queryParam}`);
         }}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         onMenuClick={() => { }}

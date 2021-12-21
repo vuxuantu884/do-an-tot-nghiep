@@ -1,25 +1,38 @@
-import {Checkbox, Col, Form, Input, InputNumber, Row, Select, Tooltip} from "antd";
-import React, {useState} from "react";
-import "../promo-code.scss";
+import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from "antd";
+import { FormInstance } from "antd/es/form/Form";
 import NumberInput from "component/custom/number-input.custom";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { InfoCircleOutlined } from "@ant-design/icons";
-
-const ChooseDiscount = (props: any) => {
-  const {form} = props;
+import React, { useLayoutEffect, useState } from "react";
+import { formatDiscountValue } from "utils/PromotionUtils";
+import "../promo-code.scss";
+interface Props {
+  form: FormInstance;
+  isUnlimitUsagePerUser?: boolean;
+  isUnlimitUsage?: boolean;
+  typeUnit?: string;
+}
+const ChooseDiscount = (props: Props) => {
+  const { form, isUnlimitUsage, isUnlimitUsagePerUser, typeUnit: typeUnitProps } = props;
   const [typeUnit, setTypeUnit] = useState("PERCENTAGE");
-  const [isUsageLimit, setIsUsageLimit] = useState(false);
-  const [isUsageLimitPerCus, setIsUsageLimitPerCus] = useState(false);
+
+  const [isUnlimitUsageState, setIsUnlimitUsageState] = useState(false);
+
+  const [isUnlimitUsagePerCustomerState, setIsUnlimitUsagePerCustomerState] =
+    useState(true);
+
+  useLayoutEffect(() => {
+    setIsUnlimitUsageState(typeof isUnlimitUsage === "boolean" ? isUnlimitUsage : false);
+    setIsUnlimitUsagePerCustomerState(
+      typeof isUnlimitUsagePerUser === "boolean" ? isUnlimitUsagePerUser : true
+    );
+    typeUnitProps && setTypeUnit(typeUnitProps);
+  }, [isUnlimitUsage, isUnlimitUsagePerUser, typeUnitProps]);
 
   return (
     <Col span={24}>
       <Row gutter={30}>
         {/* Giá trị khuyến mại */}
         <Col span={11}>
-          <Form.Item
-            required
-            label="Giá trị khuyến mại:"
-          >
+          <Form.Item required label="Giá trị khuyến mại:">
             <Input.Group compact>
               <Form.Item
                 rules={[
@@ -31,17 +44,12 @@ const ChooseDiscount = (props: any) => {
                 name="value"
                 noStyle
               >
-                <NumberInput
-                  isFloat={typeUnit === 'PERCENTAGE'}
-                  className="product-item-discount-input"
-                  style={{ width: "65%", textAlign: "right" }}
-                  placeholder="Nhập giá trị khuyến mãi"
-                  format={(a) => typeUnit === 'PERCENTAGE' ? a : formatCurrency(a)}
-                  replace={(a) => typeUnit === 'PERCENTAGE' ? a:  replaceFormatString(a)}
+                <InputNumber
+                  style={{ textAlign: "end", borderRadius: "0px", width: "65%" }}
                   min={1}
-                  default={1}
-                  // maxLength={typeUnit === "FIXED_AMOUNT" ? 15 : }
-                  max={typeUnit === "FIXED_AMOUNT" ? 9999999 : 99}
+                  max={typeUnit === "FIXED_AMOUNT" ? 999999999 : 100}
+                  step={typeUnit === "FIXED_AMOUNT" ? 1 : 0.01}
+                  formatter={(value) => formatDiscountValue(value, typeUnit !== "FIXED_AMOUNT")}
                 />
               </Form.Item>
               <Form.Item name="value_type" noStyle>
@@ -52,11 +60,18 @@ const ChooseDiscount = (props: any) => {
                   value={typeUnit}
                   onChange={(value: string) => {
                     setTypeUnit(value);
-                    form.setFieldsValue({value_type: value})
+                    form.setFieldsValue({
+                      value_type: value,
+                      value: 0,
+                    });
                   }}
                 >
-                  <Select.Option key='PERCENTAGE' value="PERCENTAGE"> {"%"} </Select.Option>
-                  <Select.Option key='FIXED_AMOUNT' value="FIXED_AMOUNT"> {"đ"} </Select.Option>
+                  <Select.Option key="PERCENTAGE" value="PERCENTAGE">
+                    {"%"}
+                  </Select.Option>
+                  <Select.Option key="FIXED_AMOUNT" value="FIXED_AMOUNT">
+                    {"đ"}
+                  </Select.Option>
                 </Select>
               </Form.Item>
             </Input.Group>
@@ -69,32 +84,32 @@ const ChooseDiscount = (props: any) => {
             name="usage_limit"
             rules={[
               {
-                required: !isUsageLimit,
+                required: !isUnlimitUsageState,
                 message: "Mã được sử dụng không được để trống",
-              }
+              },
             ]}
           >
-            <InputNumber
-              style={{
-                textAlign: "right",
-                width: "100%",
-                color: "#222222",
-              }}
-              max={999999}
+            <NumberInput
+              maxLength={11}
               minLength={0}
-              disabled={isUsageLimit}
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              min={0}
+              disabled={isUnlimitUsageState}
             />
           </Form.Item>
         </Col>
         <Col span={5}>
           <Form.Item label=" ">
-            <Checkbox onChange={value => {
-              setIsUsageLimit(value.target.checked);
-              form.setFieldsValue({
-                usage_limit: null
-              });
-            }}> Không giới hạn </Checkbox>
+            <Checkbox
+              checked={isUnlimitUsageState}
+              onChange={(value) => {
+                setIsUnlimitUsageState(value.target.checked);
+                form.setFieldsValue({
+                  usage_limit: null,
+                });
+              }}
+            >
+              Không giới hạn
+            </Checkbox>
           </Form.Item>
         </Col>
       </Row>
@@ -102,18 +117,18 @@ const ChooseDiscount = (props: any) => {
         {/* Tối đa */}
         <Col span={11}>
           <Form.Item label="Tối đa:">
-          <NumberInput
-            style={{
-              textAlign: "right",
-              width: "15%",
-              color: "#222222",
-            }}
-            maxLength={999}
-            minLength={0}
-            min={0}
-            max={100}
-            disabled={typeUnit !== "PERCENT"}
-          />
+            <NumberInput
+              style={{
+                textAlign: "right",
+                width: "15%",
+                color: "#222222",
+              }}
+              maxLength={999}
+              minLength={0}
+              min={0}
+              max={100}
+              disabled={typeUnit !== "PERCENT"}
+            />
           </Form.Item>
         </Col>
         {/* Mỗi khách được sử dụng tối đa */}
@@ -122,40 +137,41 @@ const ChooseDiscount = (props: any) => {
             name="usage_limit_per_customer"
             label="Mỗi khách được sử dụng tối đa:"
           >
-            <InputNumber
-              style={{
-                textAlign: "right",
-                width: "100%",
-                color: "#222222",
-              }}
+            <NumberInput
+              maxLength={11}
               minLength={0}
-              max={999999}
-              disabled={isUsageLimitPerCus}
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              min={0}
+              disabled={isUnlimitUsagePerCustomerState}
             />
           </Form.Item>
         </Col>
         <Col span={5}>
-        <Form.Item label=" ">
-            <Checkbox onChange={value => {
-              setIsUsageLimitPerCus(value.target.checked);
-              form.setFieldsValue({
-                usage_limit_per_customer: null
-              });
-            }}> Không giới hạn </Checkbox>
-        </Form.Item>
+          <Form.Item label=" ">
+            <Checkbox
+              checked={isUnlimitUsagePerCustomerState}
+              onChange={(value) => {
+                setIsUnlimitUsagePerCustomerState(value.target.checked);
+                form.setFieldsValue({
+                  usage_limit_per_customer: null,
+                });
+              }}
+            >
+              Không giới hạn
+            </Checkbox>
+          </Form.Item>
         </Col>
       </Row>
-      <hr style={{marginTop: "0"}} />
+      {/* <hr style={{marginTop: "0"}} />
       <Row gutter={30} style={{padding: "0 16px 0"}}>
-        <Checkbox> Áp dụng chung với các mã khuyến mại khác&nbsp;&nbsp;
+        <Checkbox>
+          Áp dụng chung với các mã khuyến mại khác&nbsp;&nbsp;
           <Tooltip title="Bao gồm chiết khấu khách hàng, chiết khấu tích điểm, chiết khấu tự nhập cho đơn hàng và chương trình khuyến mãi">
             <InfoCircleOutlined />
           </Tooltip>
         </Checkbox>
-      </Row>
+      </Row> */}
     </Col>
   );
-}
+};
 
 export default ChooseDiscount;

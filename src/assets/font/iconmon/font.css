@@ -1,65 +1,75 @@
 @font-face {
-  font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?pea0lw');
-  src:  url('fonts/icomoon.eot?pea0lw#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?pea0lw') format('truetype'),
-    url('fonts/icomoon.woff?pea0lw') format('woff'),
-    url('fonts/icomoon.svg?pea0lw#icomoon') format('svg');
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
+    font-family: 'icomoon';
+    src: url('fonts/icomoon.eot?pea0lw');
+    src: url('fonts/icomoon.eot?pea0lw#iefix') format('embedded-opentype'), url('fonts/icomoon.ttf?pea0lw') format('truetype'), url('fonts/icomoon.woff?pea0lw') format('woff'), url('fonts/icomoon.svg?pea0lw#icomoon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
 }
 
-
-
-[class^="icon-"], [class*=" icon-"] {
-  /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'icomoon' !important;
-  speak: never;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+[class^="icon-"],
+[class*=" icon-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'icomoon' !important;
+    speak: never;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .icon-sale:before {
-  content: url("assets/icon/menu-pos.svg");
+    content: url("assets/icon/menu-pos.svg");
 }
+
 .icon-customer:before {
-  content: url("assets/icon/menu-customer.svg");
+    content: url("assets/icon/menu-customer.svg");
 }
+
 .icon-dashboard:before {
-  content: url("assets/icon/menu-dash-board.svg");
+    content: url("assets/icon/menu-dash-board.svg");
 }
+
 .icon-dot:before {
-  content: "\e903";
+    content: "\e903";
 }
+
 .icon-report:before {
-  content: url("assets/icon/menu-report-chart.svg");
+    content: url("assets/icon/menu-report-chart.svg");
 }
+
 .icon-inventory:before {
-  content: url("assets/icon/menu-ware-house.svg");
+    content: url("assets/icon/menu-ware-house.svg");
 }
+
 .icon-order:before {
-  content: url("assets/icon/menu-order-paper.svg");
+    content: url("assets/icon/menu-order-paper.svg");
 }
+
 .icon-product:before {
-  content: url("assets/icon/menu-clothe.svg");
+    content: url("assets/icon/menu-clothe.svg");
 }
+
 .icon-promotion:before {
-  content: url("assets/icon/menu-promotion.svg");
+    content: url("assets/icon/menu-promotion.svg");
 }
+
 .icon-setting:before {
-  content: url("assets/icon/menu-setting.svg");
+    content: url("assets/icon/menu-setting.svg");
 }
+
 .icon-transport:before {
-  content: url("assets/icon/menu-transport.svg");
+    content: url("assets/icon/menu-transport.svg");
 }
+
 .icon-ecommerce:before {
-  content: url("assets/icon/menu-ecommerce.svg");
+    content: url("assets/icon/menu-ecommerce.svg");
+}
+
+.icon-YDpage:before {
+    content: url("assets/icon/menu-yd-page.svg");
 }

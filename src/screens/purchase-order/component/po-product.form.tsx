@@ -41,7 +41,7 @@ import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { AppConfig } from "config/app.config";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { Link } from "react-router-dom";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { POStatus } from "utils/Constants";
 type POProductProps = {
   formMain: FormInstance;
@@ -648,6 +648,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       onSelect={onSelectProduct}
                       options={renderResult}
                       ref={productSearchRef}
+                      onClickAddNew={() => {
+                        window.open(
+                          `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                          "_blank"
+                        );
+                      }}
                     />
                     <Button
                       onClick={() => setVisibleManyProduct(true)}

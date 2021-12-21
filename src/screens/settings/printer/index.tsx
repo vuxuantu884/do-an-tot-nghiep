@@ -1,20 +1,23 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Form } from "antd";
+import {PlusOutlined} from "@ant-design/icons";
+import {Button, Card, Form} from "antd";
 import ContentContainer from "component/container/content.container";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import {PrintPermissions} from "config/permissions/setting.permisssion";
 import UrlConfig from "config/url.config";
-import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
+import {actionFetchListPrinter} from "domain/actions/printer/printer.action";
 import purify from "dompurify";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { BasePrinterModel, PrinterResponseModel } from "model/response/printer.response";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory, useLocation } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
+import useAuthorization from "hook/useAuthorization";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import {BasePrinterModel, PrinterResponseModel} from "model/response/printer.response";
+import {useCallback, useEffect, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {Link, useHistory, useLocation} from "react-router-dom";
+import NoPermission from "screens/no-permission.screen";
+import {generateQuery} from "utils/AppUtils";
 import FormFilter from "./component/FormFilter";
 import IconEdit from "./images/iconEdit.svg";
 import IconPrintHover from "./images/iconPrintHover.svg";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 const SettingPrinter: React.FC = () => {
   const FAKE_PRINT_CONTENT = "<p>This is fake print content print screen</p>";
@@ -40,6 +43,13 @@ const SettingPrinter: React.FC = () => {
     searchInput: searchInputValue,
   };
 
+  //phân quyền
+  const [allowReadPrint] = useAuthorization({
+    acceptPermissions: [PrintPermissions.READ],
+  });
+  const [allowCreatePrint] = useAuthorization({
+    acceptPermissions: [PrintPermissions.CREATE],
+  }); 
   const query = useQuery();
 
   let queryName = query.get("name");
@@ -64,7 +74,7 @@ const SettingPrinter: React.FC = () => {
       queryParams.page = page;
       queryParams.limit = size;
       let queryParam = generateQuery(queryParams);
-      setQueryParams({ ...queryParams });
+      setQueryParams({...queryParams});
       history.replace(`${UrlConfig.PRINTER}?${queryParam}`);
       window.scrollTo(0, 0);
     },
@@ -133,7 +143,7 @@ const SettingPrinter: React.FC = () => {
       width: "15%",
       render: (value, row, index) => {
         if (value) {
-          return <span style={{ color: "#27AE60" }}>Áp dụng</span>;
+          return <span style={{color: "#27AE60"}}>Áp dụng</span>;
         }
       },
     },
@@ -145,15 +155,17 @@ const SettingPrinter: React.FC = () => {
       render: (value, row, index) => {
         return (
           <div className="columnAction">
-            <Button
-              className="columnAction__singleButton columnAction__singleButton--edit"
-              onClick={(e) => {
-                handleEdit(e, value);
-              }}
-            >
-              <img src={IconEdit} alt="" className="icon--normal" />
-              Sửa
-            </Button>
+            {allowCreatePrint ? (
+              <Button
+                className="columnAction__singleButton columnAction__singleButton--edit"
+                onClick={(e) => {
+                  handleEdit(e, value);
+                }}
+              >
+                <img src={IconEdit} alt="" className="icon--normal" />
+                Sửa
+              </Button>
+            ) : null}
             <Button
               className="columnAction__singleButton columnAction__singleButton--print"
               onClick={(e) => {
@@ -178,17 +190,21 @@ const SettingPrinter: React.FC = () => {
 
   const createPrinterHtml = () => {
     return (
-      <Link to={`${UrlConfig.PRINTER}/create`}>
-        <Button
-          type="primary"
-          className="ant-btn-primary"
-          size="large"
-          onClick={() => {}}
-          icon={<PlusOutlined />}
-        >
-          Thêm mẫu in
-        </Button>
-      </Link>
+      <>
+        {allowCreatePrint ? (
+          <Link to={`${UrlConfig.PRINTER}/create`}>
+            <Button
+              type="primary"
+              className="ant-btn-primary"
+              size="large"
+              onClick={() => {}}
+              icon={<PlusOutlined />}
+            >
+              Thêm mẫu in
+            </Button>
+          </Link>
+        ) : null}
+      </>
     );
   };
 
@@ -217,7 +233,7 @@ const SettingPrinter: React.FC = () => {
             initialValues={initialFormValue}
             onFinish={handleSubmit}
             className="searchForm"
-            style={{ width: "100%" }}
+            style={{width: "100%"}}
           >
             <FormFilter isCanEditFormHeader={true} isPagePrinterDetail={false} />
           </Form>
@@ -262,60 +278,64 @@ const SettingPrinter: React.FC = () => {
 
   return (
     <StyledComponent>
-      <ContentContainer
-        title="Danh sách mẫu in"
-        breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
-            name: "Cài đặt",
-            path: UrlConfig.ACCOUNTS,
-          },
-          {
-            name: "Danh sách mẫu in",
-          },
-        ]}
-        extra={createPrinterHtml()}
-      >
-        {renderSearch()}
-        <Card>
-          <CustomTable
-            isLoading={tableLoading}
-            showColumnSetting={false}
-            // scroll={{ x: 1080 }}
-            pagination={{
-              pageSize: queryParams.limit,
-              total: total,
-              current: queryParams.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            dataSource={listPrinter}
-            columns={columnFinal()}
-            rowKey={(item: BasePrinterModel) => item.id}
-            onRow={(record: BasePrinterModel) => {
-              return {
-                onClick: (event) => {
-                  goToPageDetail(record.id);
-                }, // click row
-              };
-            }}
-          />
-        </Card>
-        <div style={{ display: "none" }}>
-          <div className="printContent" ref={printElementRef}>
-            <div
-              dangerouslySetInnerHTML={{
-                // __html: FAKE_PRINT_CONTENT,
-                __html: purify.sanitize(FAKE_PRINT_CONTENT),
+      {allowReadPrint ? (
+        <ContentContainer
+          title="Danh sách mẫu in"
+          breadcrumb={[
+            {
+              name: "Tổng quan",
+              path: UrlConfig.HOME,
+            },
+            {
+              name: "Cài đặt",
+              path: UrlConfig.ACCOUNTS,
+            },
+            {
+              name: "Danh sách mẫu in",
+            },
+          ]}
+          extra={createPrinterHtml()}
+        >
+          {renderSearch()}
+          <Card>
+            <CustomTable
+              isLoading={tableLoading}
+              showColumnSetting={false}
+              // scroll={{ x: 1080 }}
+              pagination={{
+                pageSize: queryParams.limit,
+                total: total,
+                current: queryParams.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
               }}
-            ></div>
+              dataSource={listPrinter}
+              columns={columnFinal()}
+              rowKey={(item: BasePrinterModel) => item.id}
+              onRow={(record: BasePrinterModel) => {
+                return {
+                  onClick: (event) => {
+                    goToPageDetail(record.id);
+                  }, // click row
+                };
+              }}
+            />
+          </Card>
+          <div style={{display: "none"}}>
+            <div className="printContent" ref={printElementRef}>
+              <div
+                dangerouslySetInnerHTML={{
+                  // __html: FAKE_PRINT_CONTENT,
+                  __html: purify.sanitize(FAKE_PRINT_CONTENT),
+                }}
+              ></div>
+            </div>
           </div>
-        </div>
-      </ContentContainer>
+        </ContentContainer>
+      ) : (
+        <NoPermission />
+      )}
     </StyledComponent>
   );
 };

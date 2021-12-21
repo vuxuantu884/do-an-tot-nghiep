@@ -2,8 +2,6 @@ import { BaseMetadata } from "model/base/base-metadata.response";
 import { BaseObject } from "model/base/base.response";
 
 export interface CustomerGroupModel extends BaseObject {
-  code: string;
-  id: number;
   name: string;
   note: string;
   status:string;

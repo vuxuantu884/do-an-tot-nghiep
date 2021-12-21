@@ -117,7 +117,6 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
       formAddress.setFieldsValue(addressInfo);
     }
   }, [addressInfo, formAddress, visible]);
-
   return (
     <Modal
       title="Chỉnh sửa thông tin địa chỉ"
@@ -159,11 +158,10 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
           </Col>
 
           <Col xs={24} lg={12}>
-            <Item name="country" label="Quốc gia">
+            <Item name="country_id" label="Quốc gia">
               <Select
                 defaultValue={VietNamId}
                 showSearch
-                className="selector"
                 placeholder="Chọn quốc gia"
                 allowClear
                 optionFilterProp="children"

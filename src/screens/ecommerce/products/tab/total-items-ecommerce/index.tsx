@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -21,15 +21,17 @@ import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
-import TotalItemActionColumn from "./TotalItemActionColumn";
+import TotalItemActionColumn from "screens/ecommerce/products/tab/total-items-ecommerce/TotalItemActionColumn";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   getShopEcommerceList,
   deleteEcommerceItem,
   disconnectEcommerceItem,
   postSyncStockEcommerceProduct,
+  getProductEcommerceList,
 } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -44,22 +46,21 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 import {
   StyledBaseFilter,
 } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
-import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
+import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 
 
-type TotalItemsEcommerceProps = {
-  variantData: any;
-  getProductUpdated: any;
-  tableLoading: any;
-};
+const STATUS = {
+  WAITING: "waiting",
+  CONNECTED: "connected"
+}
 
-const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
-  props: TotalItemsEcommerceProps
-) => {
-  const { variantData, getProductUpdated, tableLoading } = props;
+const TotalItemsEcommerce: React.FC = () => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
+  
+  const [isLoading, setIsLoading] = useState(false);
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
@@ -70,6 +71,15 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
+
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
 
   const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
@@ -100,6 +110,23 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     connected_date_to: null,
   });
 
+
+  const updateVariantData = useCallback((result: PageResponse<any> | false) => {
+    setIsLoading(false);
+    if (!!result) {
+      setVariantData(result);
+    }
+  }, []);
+
+  const getProductUpdated = useCallback((queryRequest: any) => {
+    setIsLoading(true);
+    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+  }, [dispatch, updateVariantData]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    getProductUpdated(query);
+  }, [getProductUpdated, query]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -236,15 +263,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       visible: true,
       render: (item: any, v: any, i: any) => {
         return (
-          <StyledProductLink>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
-            >
-              {item.core_variant}
-            </Link>
-            <div>{item.core_sku}</div>
-          </StyledProductLink>
+          <>
+            {item.connect_status === STATUS.CONNECTED &&
+              <StyledProductLink>
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
+                >
+                  {item.core_variant}
+                </Link>
+                <div>{item.core_sku}</div>
+              </StyledProductLink>
+            }
+          </>
         );
       },
     },
@@ -253,8 +284,14 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       visible: true,
       align: "center",
       width: "100px",
-      render: (l: any, v: any, i: any) => {
-        return <span>{formatCurrency(l.core_price)}</span>;
+      render: (item: any, row: any, index: any) => {
+        return (
+          <>
+            {item.connect_status === STATUS.CONNECTED &&
+              <span>{formatCurrency(item.core_price)}</span>
+            }
+          </>
+        );
       },
     },
     {
@@ -271,16 +308,17 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       visible: true,
       align: "center",
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, row: any, index: any) => {
         return (
-          <StyledProductConnectStatus>
-            {l.connect_status === "connected" && (
-              <span className="success-status">Thành công</span>
-            )}
-            {l.connect_status === "waiting" && (
-              <span className="not-connect-status">Chưa ghép nối</span>
-            )}
-          </StyledProductConnectStatus>
+          <StyledStatus>
+            {item.connect_status === STATUS.CONNECTED && 
+              <div className="green-status" style={{ width: 120 }}>Thành công</div>
+            }
+
+            {item.connect_status === STATUS.WAITING && 
+              <div className="blue-status" style={{ width: 120 }}>Chưa ghép nối</div>
+            }
+          </StyledStatus>
         );
       },
     },
@@ -292,12 +330,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
             <Tooltip
               overlay="Kết quả đồng bộ tồn kho lần gần nhất"
               placement="top"
-              trigger="click"
               color="blue"
             >
               <img
                 src={warningCircleIcon}
-                style={{ marginLeft: 5, cursor: "pointer" }}
+                style={{ marginLeft: 5 }}
                 alt=""
               />
             </Tooltip>
@@ -307,25 +344,29 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       visible: true,
       align: "center",
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, row: any, index: any) => {
         return (
-          <StyledProductConnectStatus>
-            {l.sync_stock_status === "done" && (
-              <Tooltip title={convertDateTimeFormat(l.updated_date)}>
-                <span className="success-status">Thành công</span>
-              </Tooltip>
-            )}
-
-            {l.sync_stock_status === "error" && (
-              <Tooltip title="error">
-                <span className="error-status">Thất bại</span>
-              </Tooltip>
-            )}
-
-            {l.sync_stock_status === "in_progress" && (
-              <span className="warning-status">Đang xử lý</span>
-            )}
-          </StyledProductConnectStatus>
+          <>
+            {item.connect_status === STATUS.CONNECTED &&
+              <StyledStatus>
+                {item.sync_stock_status === "done" && (
+                  <Tooltip title={convertDateTimeFormat(item.updated_date)}>
+                    <div className="green-status" style={{ width: 120 }}>Thành công</div>
+                  </Tooltip>
+                )}
+    
+                {item.sync_stock_status === "error" && (
+                  <Tooltip title="error">
+                    <div className="red-status" style={{ width: 120 }}>Thất bại</div>
+                  </Tooltip>
+                )}
+    
+                {item.sync_stock_status === "in_progress" && (
+                  <div className="yellow-status" style={{ width: 120 }}>Đang xử lý</div>
+                )}
+              </StyledStatus>
+            }
+          </>
         );
       },
     },
@@ -576,7 +617,6 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       let startDateValue = null;
       let endDateValue = null;
 
-
       switch (value) {
         case "today":
           startDateValue = ConvertDateToUtc(moment());
@@ -587,19 +627,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
           endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week"));
+          startDateValue = ConvertDateToUtc(moment().startOf("week").add(7, 'h'));
           endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks"));
+          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, 'h'));
           endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
           break;
         case "thismonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month"));
+          startDateValue = ConvertDateToUtc(moment().startOf("month").add(7, 'h'));
           endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months"));
+          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, 'h'));
           endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
           break;
         default:
@@ -637,7 +677,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   placeholder="Chọn sàn"
                   allowClear
                   onSelect={(value) => handleSelectEcommerce(value)}
@@ -663,7 +703,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
                 {isEcommerceSelected && (
                   <Select
                     showSearch
-                    disabled={tableLoading || !isEcommerceSelected}
+                    disabled={isLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(false)}
@@ -687,7 +727,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
               <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
                 <Input
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="SKU, tên sản phẩm sàn"
                 />
@@ -695,20 +735,20 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
               <Form.Item name="sku_or_name_core" className="yody-search">
                 <Input
-                  disabled={tableLoading}
+                  disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="SKU, Sản phẩm Yody"
                 />
               </Form.Item>
 
               <Form.Item className="filter-item">
-                <Button type="primary" htmlType="submit" disabled={tableLoading}>
+                <Button type="primary" htmlType="submit" disabled={isLoading}>
                   Lọc
                 </Button>
               </Form.Item>
 
               <Form.Item className="filter-item">
-                <Button onClick={openFilter} disabled={tableLoading}>
+                <Button onClick={openFilter} disabled={isLoading}>
                   <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
                   <span>Thêm bộ lọc</span>
                 </Button>
@@ -718,7 +758,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
         </StyledProductFilter>
 
         <CustomTable
-          isLoading={tableLoading}
+          bordered
+          isLoading={isLoading}
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 1500 }}
@@ -778,7 +819,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               {isEcommerceSelected && (
                 <Select
                   showSearch
-                  disabled={tableLoading || !isEcommerceSelected}
+                  disabled={isLoading || !isEcommerceSelected}
                   placeholder={getPlaceholderSelectShop()}
                   allowClear={shopIdSelected && shopIdSelected.length > 0}
                   dropdownRender={() => renderShopList(true)}

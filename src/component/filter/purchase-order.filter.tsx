@@ -6,6 +6,7 @@ import CustomSelect from "component/custom/select.custom";
 import CustomRangepicker from "component/filter/component/range-picker.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
+import CustomFilter from "component/table/custom.filter";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
@@ -365,6 +366,8 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     listRdAccount,
     listStore, 
     onFilter,
+    onMenuClick,
+    actions,
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -416,7 +419,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setVisible(false);
   }, [formAdvanceFilter, advanceFilters]);
   const onResetFilter = useCallback(() => {
-    // debugger;
     let fields = formAdvanceFilter.getFieldsValue(true);
     console.log(fields);
     for (let key in fields) {
@@ -453,11 +455,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   return (
     <div className="purchase-order-form">
       <Form.Provider
-        onFormFinish={(name, { values, forms }) => {
-          const { formBaseFilter, formAdvanceFilter } = forms;
+        onFormFinish={(name, {values, forms}) => {
+          const {formBaseFilter, formAdvanceFilter} = forms;
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
-          let data = { ...baseValues, ...advanceValues };
+          let data = {...baseValues, ...advanceValues};
           let orderDate = data[filterFields.order_date],
             activatedDate = data[filterFields.activated_date],
             completedDate = data[filterFields.completed_date],
@@ -475,8 +477,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             [from_cancelled_date, to_cancelled_date] = cancelledDate
               ? cancelledDate
               : [undefined, undefined],
-            [from_expect_import_date, to_expect_import_date] =
-              expectedImportDate ? expectedImportDate : [undefined, undefined];
+            [from_expect_import_date, to_expect_import_date] = expectedImportDate
+              ? expectedImportDate
+              : [undefined, undefined];
           for (let key in data) {
             if (data[key] instanceof Array) {
               if (data[key].length === 0) data[key] = undefined;
@@ -495,79 +498,81 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             from_expect_import_date,
             to_expect_import_date,
           };
-          formBaseFilter.setFieldsValue({ ...data });
+          formBaseFilter.setFieldsValue({...data});
           formAdvanceFilter?.setFieldsValue({
             ...data,
           });
         }}
       >
+        <div className="base-filter">
           <Form
             form={formBaseFilter}
             name="formBaseFilter"
             onFinish={onBaseFinish}
             initialValues={advanceFilters}
             layout="inline"
-          >  <div className="group-filter">
-            <Item name="info" className="search">
-              <Input
-                prefix={<img src={search} alt="" />}
-               
-                placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT nhà cung cấp"
-              />
-            </Item>
-            <Item name={filterFields.merchandiser}>
-              <CustomSelect
-                showArrow
-                placeholder="Merchandise"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                style={{
-                  width: 150,
-                }}
-                notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive"
-              >
-                {listSupplierAccount?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.full_name}>
-                    {`${item.code} - ${item.full_name}`}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Item>
-            <Item name={filterFields.status}>
-              <CustomSelect
-                showArrow
-                placeholder="Trạng thái đặt hàng"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 200 }}
-                maxTagCount="responsive"
-              >
-                {Object.keys(listPOStatus)?.map((key) => (
-                  <CustomSelect.Option key={key} value={key}>
-                    {listPOStatus[key]}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Item>
-            <Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Item>
-            <Item>
-              <Button icon={<FilterOutlined />} onClick={openFilter}>
-                Thêm bộ lọc
-              </Button>
-            </Item>
-            <Item>
-              <ButtonSetting onClick={props.openSetting} />
-            </Item>
-            </div>
+          >
+            <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+              <Item name="info" className="search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT nhà cung cấp"
+                />
+              </Item>
+              <Item name={filterFields.merchandiser}>
+                <CustomSelect
+                  showArrow
+                  placeholder="Merchandise"
+                  mode="multiple"
+                  allowClear
+                  tagRender={tagRender}
+                  style={{
+                    width: 150,
+                  }}
+                  notFoundContent="Không tìm thấy kết quả"
+                  maxTagCount="responsive"
+                >
+                  {listSupplierAccount?.map((item) => (
+                    <CustomSelect.Option key={item.id} value={item.full_name}>
+                      {`${item.code} - ${item.full_name}`}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
+              </Item>
+              <Item name={filterFields.status}>
+                <CustomSelect
+                  showArrow
+                  placeholder="Trạng thái đặt hàng"
+                  mode="multiple"
+                  allowClear
+                  tagRender={tagRender}
+                  notFoundContent="Không tìm thấy kết quả"
+                  style={{width: 200}}
+                  maxTagCount="responsive"
+                >
+                  {Object.keys(listPOStatus)?.map((key) => (
+                    <CustomSelect.Option key={key} value={key}>
+                      {listPOStatus[key]}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
+              </Item>
+              <Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>
+                  Thêm bộ lọc
+                </Button>
+              </Item>
+              <Item>
+                <ButtonSetting onClick={props.openSetting} />
+              </Item>
+            </CustomFilter>
           </Form>
+        </div>
         <FilterList filters={advanceFilters} resetField={resetField} />
         <BaseFilter
           onClearFilter={onResetFilter}
@@ -584,9 +589,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             layout="vertical"
             onFieldsChange={(changedFields: any, allFields: any) => {
               let fieldNames =
-                changedFields &&
-                changedFields.length > 0 &&
-                changedFields[0].name;
+                changedFields && changedFields.length > 0 && changedFields[0].name;
               if (!fieldNames) return;
               let filtersSelected: any = {};
               fieldNames.forEach((fieldName: any) => {

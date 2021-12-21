@@ -1,14 +1,15 @@
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { inventoryGetHistoryAction } from "domain/actions/inventory/inventory.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
+import { Link, useHistory } from "react-router-dom"; 
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams } from "utils/useQuery";
@@ -20,6 +21,8 @@ enum DocumentType {
   ORDER = "order",
   RETURN_ORDER = "return_order",
   RETURN_PO = "return_po",
+  INVENTORY_TRANSFER = "inventory_transfer",
+  INVENTORY_ADJUSTMENT = "inventory_adjustment",
 }
 
 const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
@@ -44,13 +47,14 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<HistoryInventoryQuery>(dataQuery);
+
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.replace(
-        `${UrlConfig.INVENTORY}#3?${queryParam}`
+        `${InventoryTabUrl.HISTORIES}?${queryParam}`
       );
     },
     [history, params]
@@ -72,7 +76,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       setPrams({ ...params });
 
       history.replace(
-        `${UrlConfig.INVENTORY}#3?${queryParam}`
+        `${InventoryTabUrl.HISTORIES}?${queryParam}`
       );
     },
     [history, params]
@@ -86,9 +90,13 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         return UrlConfig.ORDERS_RETURN;
       case DocumentType.PURCHASE_ORDER:
       case DocumentType.RETURN_PO:
-        return UrlConfig.PURCHASE_ORDER;
-      default:
-        return type;
+        return UrlConfig.PURCHASE_ORDERS;
+      case DocumentType.INVENTORY_TRANSFER:
+        return UrlConfig.INVENTORY_TRANSFERS;
+      case DocumentType.INVENTORY_ADJUSTMENT:
+        return UrlConfig.INVENTORY_ADJUSTMENTS;
+        default:
+          return type;
     }
   };
   const [selected, setSelected] = useState<Array<HistoryInventoryResponse>>([]);
@@ -147,7 +155,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       align: "center",
       title: "Thời gian",
       visible: true,
-      dataIndex: "created_date",
+      dataIndex: "transaction_date",
       render: (value) => ConvertUtcToLocalDate(value),
     },
     {
@@ -155,25 +163,46 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       title: "SL thay đổi",
       visible: true,
       dataIndex: "quantity",
-      render: (value) => (parseInt(value) > 0 ? `+${value}` : value),
+      render: (value) => {
+        let newValue = parseInt(value),
+              text: string = formatCurrency(newValue,".");
+
+        if (newValue && parseInt(value) > 0) {
+          text = `+${text}`;
+        }
+        return text;
+      } 
     },
     {
       align: "right",
       title: "Tồn trong kho",
       visible: true,
       dataIndex: "on_hand",
+      render: (value) => formatCurrency(value,".")
     },
     {
-      align: "center",
       title: "Kho hàng",
       visible: true,
       dataIndex: "store",
     },
     {
-      align: "center",
       title: "Người sửa",
       visible: true,
-      dataIndex: "updated_name",
+      render: (item: HistoryInventoryResponse)=>{
+        return (
+          <>
+           {item.account_code ?  
+            <div>
+                <Link to={`${UrlConfig.ACCOUNTS}/${item.account_code}`}> 
+                  {item.account_code} 
+                </Link>  
+            </div> : ""}
+            <div>
+              {item.account ?? ""}
+            </div>
+          </>
+        );
+      }
     },
   ];
   const columnFinal = useMemo(
@@ -190,12 +219,43 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   }, []);
   
   useLayoutEffect(() => {
-    setColumn(defaultColumns);
+    setColumn(defaultColumns); 
+    const search = new URLSearchParams(history.location.search); 
+    if (search) {
+      let condition =  search.get('condition');
+      condition = condition && condition.trim();
+      const store_ids =  search.get('store_ids');
+      if ((condition && condition !== null)) { 
+        setPrams({...params, condition: condition ?? ""});
+      }
+      if ((store_ids && store_ids !== null)) {
+        setPrams({...params,condition: condition ?? "", store_ids:  parseInt(store_ids ?? "")});
+      }
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected])
+  }, [selected, history.location.search]);
+
+  const debouncedSearch = React.useMemo(() =>
+  _.debounce((keyword: string) => {
+    setLoading(true);
+    const temps = {...params,condition: keyword?.trim() };
+    dispatch(inventoryGetHistoryAction(temps, onResult));
+  }, 300),
+  [dispatch, params, onResult]
+) 
+
+  const onChangeKeySearch = useCallback(
+    (keyword: string) => {
+      debouncedSearch(keyword)
+    },
+    [debouncedSearch]
+  )
+
   useEffect(() => {
+    setLoading(true);
     dispatch(inventoryGetHistoryAction(params, onResult));
-  }, [dispatch, onResult, params])
+  }, [dispatch, onResult, params]) 
+
   return (
     <div>
       <HistoryInventoryFilter
@@ -205,6 +265,9 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         actions={[]}
         onClearFilter={() => { }}
         listStore={stores}
+        onChangeKeySearch={(value: string)=>{
+          onChangeKeySearch(value);
+        }}
       />
       <CustomTable
         isLoading={loading}

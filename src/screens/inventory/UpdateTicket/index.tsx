@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { StyledWrapper } from "./index.style";
+import './index.scss';
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
@@ -124,8 +124,9 @@ const UpdateTicket: FC = () => {
         return;
       } else {
         form.setFieldsValue(result);
-        setInitDataForm(result);
+        setInitDataForm(result); 
         setDataTable(result.line_items);
+        console.log(result.line_items);
         const listFile: any = result.attached_files?.map((item: string ) => {
           return {
             name: item,
@@ -174,7 +175,7 @@ const UpdateTicket: FC = () => {
       
       if (stateImport) {
         form.setFieldsValue(stateImport);
-        setInitDataForm(stateImport);
+        setInitDataForm(stateImport); 
         setDataTable(stateImport.line_items);
       }
     } else {
@@ -384,7 +385,7 @@ const UpdateTicket: FC = () => {
       if (result) {
         setIsLoading(false);
         showSuccess("Đổi dữ liệu thành công");
-        history.push(`${UrlConfig.INVENTORY_TRANSFER}/${result.id}`);
+        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
       }
       else {
         setIsLoading(false);
@@ -393,6 +394,34 @@ const UpdateTicket: FC = () => {
     },
     [history]
   );  
+
+  const onResultGetDetailVariantIds = useCallback( result => {    
+    if (result) {
+      setIsLoadingTable(false);
+      const newDataTable = dataTable.map((itemOld: VariantResponse) => {
+        let newAvailable, newOnHand;
+        debugger
+        result?.forEach((itemNew: InventoryResponse) => {
+          if (itemNew.variant_id === itemOld.variant_id) {
+            newAvailable = itemNew.available;
+            newOnHand = itemNew.on_hand;
+          }
+        });
+        return {  
+          ...itemOld,
+          available: newAvailable,
+          on_hand: newOnHand,
+        };
+      });
+      
+      setDataTable(newDataTable);
+    } else {
+      setIsLoadingTable(false);
+      setDataTable([]); 
+      form.setFieldsValue({ [VARIANTS_FIELD]: [] });
+    }
+    setModalConfirm({ visible: false });
+  }, [dataTable, form])
 
   const onChangeFromStore = useCallback(
     (storeData: Store) => {
@@ -408,44 +437,18 @@ const UpdateTicket: FC = () => {
         },
         onOk: () => {
           setFormStoreData(storeData);
-          const variants_id = dataTable?.map((item: VariantResponse) => {
-            return item.id ? item.id : item.variant_id;
-          });
-      
+          const variants_id = dataTable?.map((item: VariantResponse) => item.variant_id);
           if (variants_id?.length > 0) {
-            setIsLoadingTable(true);
+            setIsLoadingTable(true); 
             dispatch(
-              inventoryGetDetailVariantIdsAction(variants_id, storeData.id, (result: Array<InventoryResponse> | null) => {
-                if (result && result.length > 0) {
-                  
-                  setModalConfirm({ visible: false });
-                  setIsLoadingTable(false);
-                  const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-                    let newAvailable;
-                    result?.forEach((itemNew) => {
-                      if (itemNew.variant_id === itemOld.id) {
-                        newAvailable = itemNew.available;
-                      }
-                    });
-                    return {
-                      ...itemOld,
-                      available: newAvailable,
-                    };
-                  });
-                  setDataTable(newDataTable);
-                } else {
-                  setModalConfirm({ visible: false });
-                  setIsLoadingTable(false);
-                  setDataTable([]);
-                }
-              })
+              inventoryGetDetailVariantIdsAction(variants_id, storeData.id, onResultGetDetailVariantIds)
             );
           } else {
             setModalConfirm({ visible: false })
           }
         },
       });
-    }, [dataTable, dispatch, form, fromStoreData, initDataForm]
+    }, [dataTable, dispatch, form, fromStoreData, initDataForm, onResultGetDetailVariantIds]
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
@@ -627,7 +630,7 @@ const UpdateTicket: FC = () => {
           if (!result) {
             return;
           } else {
-            history.push(`${UrlConfig.INVENTORY_TRANSFER}`);
+            history.push(`${UrlConfig.INVENTORY_TRANSFERS}`);
           }
         }
       )
@@ -663,7 +666,7 @@ const UpdateTicket: FC = () => {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataTable, hasError]);
+  }, [dataTable]);
 
   const columns: ColumnsType<any> = [
     {
@@ -759,8 +762,7 @@ const UpdateTicket: FC = () => {
   ];
 
   return (
-    <StyledWrapper>
-      <ContentContainer
+     <ContentContainer
         title={ (CopyId || stateImport) ? 'Thêm mới Phiếu chuyển hàng' : `Sửa phiếu chuyển hàng ${initDataForm? initDataForm.code : ''}`}
         breadcrumb={(CopyId || stateImport) ? [] : [
           {
@@ -769,7 +771,7 @@ const UpdateTicket: FC = () => {
           },
           { 
             name: "Chuyển hàng",
-            path: `${UrlConfig.INVENTORY_TRANSFER}`,
+            path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
             name: `${initDataForm? initDataForm.code : ''}`,
@@ -1029,7 +1031,7 @@ const UpdateTicket: FC = () => {
               leftComponent = {
                 <div onClick={() => setIsVisibleModalWarning(true)} style={{ cursor: "pointer" }}>
                   <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-                  {"Quay lại danh sách"}
+                  {"Quay lại trang chi tiết"}
                 </div>
               }
               rightComponent={
@@ -1080,7 +1082,7 @@ const UpdateTicket: FC = () => {
             onCancel={() => {
               setIsVisibleModalWarning(false);
             }}
-            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}`)}
+            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${idNumber}`)}
             okText="Đồng ý"
             cancelText="Tiếp tục"
             title={`Bạn có muốn rời khỏi trang?`}
@@ -1088,8 +1090,7 @@ const UpdateTicket: FC = () => {
             visible={isVisibleModalWarning}
           />
         }
-      </ContentContainer>
-    </StyledWrapper>
+     </ContentContainer>
   );
 };
 

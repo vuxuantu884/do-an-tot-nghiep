@@ -1,6 +1,8 @@
-import { Button, Card, Col, Form, FormInstance, Input, Row, Space } from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Row} from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import {
@@ -14,6 +16,7 @@ import {
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
+import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 
@@ -31,6 +34,9 @@ const UpdateMaterial: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  }); 
 
   const onUpdate = useCallback(
     (material: MaterialResponse | false) => {
@@ -60,11 +66,7 @@ const UpdateMaterial: React.FC = () => {
       dispatch(updateMaterialAction(idNumber, newValue, onUpdate));
     },
     [dispatch, id, onUpdate]
-  );
-
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
 
   const onGetDetail = useCallback((material: MaterialResponse | false) => {
     setLoadData(false);
@@ -74,6 +76,26 @@ const UpdateMaterial: React.FC = () => {
       setData(material);
     }
   }, []);
+
+  const backAction = ()=>{ 
+    if (!CompareObject(formRef.current?.getFieldsValue(),oldData)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  };
 
   useEffect(() => {
     let idNumber = parseInt(id);
@@ -226,21 +248,21 @@ const UpdateMaterial: React.FC = () => {
                 </Form.Item>
               </Col>
             </Row>
-          </Card>
-          <div className="margin-top-10" style={{textAlign: "right"}}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
+          </Card> 
+          <BottomBarContainer
+            back={"Quay lại danh sách"}
+            backAction={backAction}
+            rightComponent={
               <AuthWrapper acceptPermissions={[ProductPermission.materials_update]}>
                 <Button loading={loading} htmlType="submit" type="primary">
-                  Lưu
+                  Lưu lại
                 </Button>
-              </AuthWrapper>
-            </Space>
-          </div>
+            </AuthWrapper>
+            }
+          />       
         </Form>
       )}
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

@@ -1,14 +1,37 @@
 import CustomTable from "component/table/CustomTable";
+import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryResponse } from "model/inventory";
+import { Link } from "react-router-dom";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 interface IProps {
   data: PageResponse<HistoryInventoryResponse>;
   onChange: (page: number, pageSize?: number) => void;
 }
+enum DocumentType {
+  PURCHASE_ORDER = "purchase_order",
+  ORDER = "order",
+  RETURN_ORDER = "return_order",
+  RETURN_PO = "return_po",
+}
+
 const TabProductHistory: React.FC<IProps> = (props: IProps) => {
   const { data, onChange } = props;
+
+  const getUrlByDocumentType = (type: string) => {
+    switch (type) {
+      case DocumentType.ORDER:
+        return UrlConfig.ORDER;
+      case DocumentType.RETURN_ORDER:
+        return UrlConfig.ORDERS_RETURN;
+      case DocumentType.PURCHASE_ORDER:
+      case DocumentType.RETURN_PO:
+        return UrlConfig.PURCHASE_ORDERS;
+      default:
+        return type;
+    }
+  };
   return (
     <div>
       <CustomTable
@@ -25,6 +48,20 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
           {
             title: "Mã chứng từ",
             dataIndex: "code",
+            render: (value, record: HistoryInventoryResponse) => {
+              let id = record.parent_document_id;
+              if (record.document_type === DocumentType.RETURN_ORDER) {
+                id = record.document_id;
+              }
+      
+              return (
+                <div>
+                  <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>
+                    {value}
+                  </Link>
+                </div>
+              );
+            },
           },
           {
             title: 'Thao tác',
@@ -34,7 +71,8 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
             title: "Thời gian",
             dataIndex: "transaction_date",
             render: (value) => ConvertUtcToLocalDate(value),
-            align: 'center',
+            align: 'left',
+            width: 120
           },
           {
             title: "SL Thay đổi",
@@ -47,7 +85,6 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
             dataIndex: "on_hand",
             align: 'center',
           },
-           
           {
             title: "Kho hàng",
             dataIndex: "store",

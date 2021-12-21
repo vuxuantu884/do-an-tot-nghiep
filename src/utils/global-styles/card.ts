@@ -13,7 +13,7 @@ export const globalCssCustomCard = css`
   }
   .ant-card-head {
     font-size: 1.143rem;
-    padding: 11px ${cardPaddingLeftAndRight} 7px ${cardPaddingLeftAndRight};
+    padding: 12px ${cardPaddingLeftAndRight};
     min-height: 40px;
     border-bottom: 1px solid ${borderColor};
   }

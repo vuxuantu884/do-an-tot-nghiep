@@ -152,10 +152,9 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                     )}
                   </div>
                   <div className="variant-price">
-                    {" "}
                     {`${
-                      item.variant_prices[0].retail_price
-                        ? formatCurrency(item.variant_prices[0].retail_price)
+                      item.variant_prices[0]?.retail_price
+                        ? formatCurrency(item.variant_prices[0]?.retail_price)
                         : "-"
                     }`}
                   </div>

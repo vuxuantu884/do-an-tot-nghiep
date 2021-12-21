@@ -1,14 +1,17 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Select } from "antd";
 import HashTag from "component/custom/hashtag";
+import RowDetail from "component/custom/RowDetail";
+import SelectPaging from "component/custom/SelectPaging";
 import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import { POField } from "model/purchase-order/po-field";
 import { Fragment } from "react";
 import { POStatus } from "utils/Constants";
 
 type POInfoFormProps = {
-  winAccount: Array<AccountResponse>;
-  rdAccount: Array<AccountResponse>;
+  winAccount: PageResponse<AccountResponse>;
+  rdAccount: PageResponse<AccountResponse>
   isEdit: boolean;
   isEditDetail?: boolean;
 };
@@ -50,12 +53,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               {({ getFieldValue }) => {
                 let code = getFieldValue(POField.code);
                 return (
-                  <div className="row-view">
-                    <div className="row-view-title">Mã đơn mua hàng:</div>
-                    <div className="row-view-result row-view-result-id">
-                      {code}
-                    </div>
-                  </div>
+                  <RowDetail title="Mã đơn mua hàng" value={code} />
                 );
               }}
             </Form.Item>
@@ -70,12 +68,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   POField.merchandiser_code
                 );
                 return (
-                  <div className="row-view">
-                    <div className="row-view-title">Merchandiser:</div>
-                    <div className="row-view-result">
-                      {merchandiser_code} - {merchandiser}
-                    </div>
-                  </div>
+                  <RowDetail title="Merchandiser" value={`${merchandiser_code} - ${merchandiser}`} />
                 );
               }}
             </Form.Item>
@@ -376,50 +369,52 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                     name={POField.merchandiser_code}
                     label="Merchandiser"
                   >
-                    <Select
+                    <SelectPaging
+                      metadata={winAccount.metadata}
                       showArrow
+                      searchPlaceholder="Tìm kiếm merchandiser"
                       allowClear
                       optionFilterProp="children"
                       placeholder="Chọn Merchandiser"
                     >
-                      {winAccount.map((item) => (
-                        <Select.Option key={item.code} value={item.code}>
+                      {winAccount.items.map((item) => (
+                        <SelectPaging.Option key={item.code} value={item.code}>
                           {[item.code, item.full_name].join(" - ")}
-                        </Select.Option>
+                        </SelectPaging.Option>
                       ))}
-                    </Select>
+                    </SelectPaging>
                   </Form.Item>
                   <Form.Item name={POField.qc_code} label="QC">
-                    <Select
-                      showArrow
-                      showSearch
-                      allowClear
-                      optionFilterProp="children"
-                      placeholder="Chọn QC"
-                    >
-                      <Select.Option value="">Chọn QC</Select.Option>
-                      {rdAccount.map((item) => (
-                        <Select.Option key={item.code} value={item.code}>
-                          {item.code} - {item.full_name}
-                        </Select.Option>
-                      ))}
-                    </Select>
+                    <SelectPaging
+                        metadata={rdAccount.metadata}
+                        showArrow
+                        searchPlaceholder="Tìm kiếm QC"
+                        allowClear
+                        optionFilterProp="children"
+                        placeholder="Chọn QC"
+                      >
+                        {rdAccount.items.map((item) => (
+                            <Select.Option key={item.code} value={item.code}>
+                              {[item.code, item.full_name].join(" - ")}
+                            </Select.Option>
+                          ))}
+                    </SelectPaging> 
                   </Form.Item>
                   <Form.Item name={POField.designer_code} label="Thiết kế">
-                    <Select
+                    <SelectPaging
+                      metadata={winAccount.metadata}
                       showArrow
-                      showSearch
+                      searchPlaceholder="Tìm kiếm nhà thiết kế"
                       allowClear
                       optionFilterProp="children"
                       placeholder="Chọn nhà thiết kế"
                     >
-                      {winAccount.map((item) => (
-                        <Select.Option key={item.code} value={item.code}>
-                          {[item.code, item.full_name].join(" - ")}
-                        </Select.Option>
-                      ))}
-                      <Select.Option value="">Chọn thiết kế</Select.Option>
-                    </Select>
+                      {winAccount.items.map((item) => (
+                          <Select.Option key={item.code} value={item.code}>
+                            {[item.code, item.full_name].join(" - ")}
+                          </Select.Option>
+                        ))}
+                    </SelectPaging>
                   </Form.Item>
                   <Form.Item
                     tooltip={{

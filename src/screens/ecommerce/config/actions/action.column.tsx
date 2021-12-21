@@ -1,34 +1,35 @@
 import { Button, Dropdown, Menu } from "antd";
+import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
+import useAuthorization from "hook/useAuthorization";
+
 import threeDot from "assets/icon/three-dot.svg";
 import editIcon from "assets/icon/edit.svg";
 import lockIcon from "assets/icon/lock.svg";
-import { StyledMenu } from "./styles";
-import { EcommerceConfigPermissions } from "config/permissions/ecommerce.permission";
-import useAuthorization from "hook/useAuthorization";
+import { StyledMenu } from "screens/ecommerce/config/actions/styles";
 
 
-const updateShopPermission = [EcommerceConfigPermissions.UPDATE_SHOP];
-const deleteShopPermission = [EcommerceConfigPermissions.DELETE_SHOP];
+const shopsUpdatePermission = [EcommerceConfigPermission.shops_update];
+const shopsDeletePermission = [EcommerceConfigPermission.shops_delete];
 
 
 const actionColumn = (handleUpdate: any, handleDelete: any) => {
   const RenderActionColumn = (l: any, item: any, index: number) => {
-    const [allowUpdateShop] = useAuthorization({
-      acceptPermissions: updateShopPermission,
+    const [allowShopsUpdate] = useAuthorization({
+      acceptPermissions: shopsUpdatePermission,
       not: false,
     });
 
-    const [allowDeleteShop] = useAuthorization({
-      acceptPermissions: deleteShopPermission,
+    const [allowShopsDelete] = useAuthorization({
+      acceptPermissions: shopsDeletePermission,
       not: false,
     });
     
-    const isShowAction = allowUpdateShop || allowDeleteShop;
+    const isShowAction = allowShopsUpdate || allowShopsDelete;
     
     const menu = (
       <StyledMenu>
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-          {allowUpdateShop &&
+          {allowShopsUpdate &&
             <Menu.Item key="1">
               <Button
                 icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
@@ -40,7 +41,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
             </Menu.Item>
           }
           
-          {allowDeleteShop &&
+          {allowShopsDelete &&
             <Menu.Item key="2">
               <Button
                 icon={<img style={{ marginRight: 12 }} alt="" src={lockIcon} />}
@@ -77,7 +78,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
-    width: "5%",
+    width: 70,
     className: "saleorder-product-card-action ",
     render: (l: any, item: any, index: number) => RenderActionColumn(l, item, index)
   };

@@ -1,30 +1,36 @@
-import { Button, Card, Row, Space, Tabs } from "antd";
+import {Button, Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
-import UrlConfig from "config/url.config";
+import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router";
+import { useHistory, useRouteMatch } from "react-router";
 import HistoryInventoryTransferTab from "./ListTicketTab/HistoryInventoryTransfer";
 import InventoryTransferTab from "./ListTicketTab/InventoryTransfer";
 import { ListTicketStylesWrapper } from "./Styles";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
+import importIcon from "assets/icon/import.svg";
+
 const { TabPane } = Tabs;
 
 const InventoryListScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>("1");
+  const [activeTab, setActiveTab] = useState<string>(InventoryTransferTabUrl.LIST);
   const history = useHistory();
+  const {path} = useRouteMatch();
 
   useEffect(() => {
-    if (history.location.hash) {
-      let hash = history.location.hash.split("?");
-      switch (hash[0]) {
-        case "#2":
-          setActiveTab("2");
-          break;
-        default:
-          setActiveTab("1");
-      }
+    let redirectUrl = path;
+    if (redirectUrl) {
+        if (redirectUrl === InventoryTransferTabUrl.LIST) {
+          history.replace(redirectUrl);
+          setActiveTab(InventoryTransferTabUrl.LIST);
+        }
+        if (redirectUrl === InventoryTransferTabUrl.HISTORIES) {
+          history.replace(redirectUrl);
+          setActiveTab(InventoryTransferTabUrl.HISTORIES);
+        } 
     }
-  }, [history.location.hash, history.location.search]);
+  }, [history, path]);
 
   return (
     <ListTicketStylesWrapper>
@@ -40,34 +46,40 @@ const InventoryListScreen: React.FC = () => {
           },
         ]}
         extra={
-          parseInt(activeTab) === 1 &&
-          <Row>
-            <Space>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                onClick={() => {}}
-              >
-                Xin hàng
-              </Button>
-              <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFER}/create`} />
-            </Space>
-          </Row>
+          activeTab === InventoryTransferTabUrl.LIST && (
+            <Row>
+              <Space>
+                <AuthWrapper acceptPermissions={[InventoryTransferPermission.import]}>
+                  <Button
+                   className="light"
+                   size="large"
+                   icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
+                    onClick={() =>
+                      history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`)
+                    }
+                    type="ghost"
+                  >
+                    Nhập file
+                  </Button>
+                </AuthWrapper>
+                <AuthWrapper acceptPermissions={[InventoryTransferPermission.create]}>
+                  <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
+                </AuthWrapper>
+              </Space>
+            </Row>
+          )
         }
       >
         <Card>
           <Tabs
-            style={{ overflow: "initial" }}
+            style={{overflow: "initial"}}
             activeKey={activeTab}
-            onChange={(active) =>
-              history.replace(`${history.location.pathname}#${active}`)
-            }
+            onChange={(active) => history.replace(active)}
           >
-            <TabPane tab="Danh sách phiếu" key="1">
+            <TabPane tab="Danh sách phiếu" key={InventoryTransferTabUrl.LIST}>
               <InventoryTransferTab />
             </TabPane>
-            <TabPane tab="Lịch sử phiếu" key="2">
+            <TabPane tab="Lịch sử phiếu" key={InventoryTransferTabUrl.HISTORIES}>
               <HistoryInventoryTransferTab />
             </TabPane>
           </Tabs>

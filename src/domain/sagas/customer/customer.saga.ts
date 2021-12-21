@@ -24,6 +24,7 @@ import {
   createNote,
   updateNote,
   deleteNote,
+  getCustomersSo,
 } from "service/customer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
@@ -54,6 +55,32 @@ function* onKeySearchCustomerChange(action: YodyAction) {
   }
 }
 
+function* onKeySearchCustomerChangeSo(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    if (query.request.length >= 3) {
+      const response: BaseResponse<PageResponse<CustomerResponse>> = yield call(
+        getCustomersSo,
+        query
+      );
+      switch (response.code) {
+        case HttpStatus.SUCCESS:
+          setData(response.data.items);
+          
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
+        default:
+          response.errors.forEach((e) => showError(e));
+          break;
+      }
+    }
+  } catch (error) {
+    showError("Có lỗi khi lấy danh sách khách hàng! Vui lòng thử lại sau!");
+  }
+}
+
 function* getCustomerList(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
@@ -70,9 +97,11 @@ function* getCustomerList(action: YodyAction) {
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        setData(false);
         break;
     }
   } catch (error) {
+    setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -552,6 +581,7 @@ export default function* customerSagas() {
     CustomerType.KEY_SEARCH_CUSTOMER_CHANGE,
     onKeySearchCustomerChange
   );
+  yield takeLatest(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE_SO, onKeySearchCustomerChangeSo);
   yield takeLatest(CustomerType.CUSTOMER_LIST, getCustomerList);
 
   yield takeLatest(CustomerType.CUSTOMER_SEARCH_BY_PHONE, getCustomerByPhone);

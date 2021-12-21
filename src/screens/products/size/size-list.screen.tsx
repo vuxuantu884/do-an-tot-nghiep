@@ -1,70 +1,76 @@
-import { Button, Card, Form, Input, Select, Tag, Tooltip } from "antd";
-import { MenuAction } from "component/table/ActionButton";
+import {Button, Card, Form, Input} from "antd";
+import {MenuAction} from "component/table/ActionButton";
 import search from "assets/img/search.svg";
 import CustomTable from "component/table/CustomTable";
 import {
-  SizeCategory,
   SizeResponse,
   SizeQuery,
+  SizeDetail,
+  SizeCreateRequest,
+  SizeUpdateRequest,
 } from "model/product/size.model";
-import { Link, useHistory } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PageResponse } from "model/base/base-metadata.response";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { convertCategory, generateQuery } from "utils/AppUtils";
-import { useDispatch } from "react-redux";
+import {useHistory} from "react-router-dom";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {PageResponse} from "model/base/base-metadata.response";
+import {getQueryParams, useQuery} from "utils/useQuery";
+import {generateQuery} from "utils/AppUtils";
+import {useDispatch} from "react-redux";
 import {
+  sizeCreateAction,
   sizeDeleteManyAction,
   sizeDeleteOneAction,
   sizeSearchAction,
+  sizeUpdateAction,
 } from "domain/actions/product/size.action";
-import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import { CategoryResponse, CategoryView } from "model/product/category.model";
 import UrlConfig from "config/url.config";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import {showSuccess, showWarning} from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant-design/icons";
-import ButtonCreate from "component/header/ButtonCreate";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ExportOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import useAuthorization from "hook/useAuthorization";
-import { ProductPermission } from "config/permissions/product.permission";
+import {ProductPermission} from "config/permissions/product.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
+import "assets/css/custom-filter.scss";
+import {modalActionType} from "model/modal/modal.model";
+import FormSize from "./conponents";
+import CustomModal from "component/modal/CustomModal";
 
 const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
-    icon:<EditOutlined />
+    icon: <EditOutlined />,
   },
   {
     id: 2,
     name: "Xóa",
-    icon:<DeleteOutlined />
+    icon: <DeleteOutlined />,
   },
   {
     id: 3,
     name: "Export",
-    icon:<ExportOutlined />
+    icon: <ExportOutlined />,
   },
 ];
 
-const initialQuery: SizeQuery = {
-  category_id: "",
-};
-
-const { Option } = Select;
 const SizeListScreen: React.FC = () => {
-  const [categories, setCategories] = useState<Array<CategoryView>>([]);
   const query = useQuery();
   const history = useHistory();
   const [selected, setSelected] = useState<Array<SizeResponse>>([]);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [loadingTable, setLoadingTable] = useState<boolean>(true);
   const dispatch = useDispatch();
+  const [isShowModalDetail, setIsShowModalDetail] = useState(false);
+  const [modalAction, setModalAction] = useState<modalActionType>("create");
+  const [sizeDetail, setSizeDetail] = useState<SizeDetail>(); 
 
   let [params, setPrams] = useState<SizeQuery>({
-    ...initialQuery,
     ...getQueryParams(query),
   });
 
@@ -81,29 +87,6 @@ const SizeListScreen: React.FC = () => {
     {
       title: "Kích cỡ",
       dataIndex: "code",
-      render: (value: string, item: SizeResponse) => {
-        return <Link to={`${UrlConfig.SIZES}/${item.id}`}>{value}</Link>;
-      },
-    },
-    {
-      title: "Danh mục",
-      dataIndex: "categories",
-      render: (value: Array<SizeCategory>) => {
-        return (
-          // <Tooltip placement="bottomLeft" title={value.map((item) => <div>{item.category_name}</div>)}>
-          //   <div>{`${value.length} danh mục`}</div>
-          // </Tooltip>
-          <span>
-            {value.map((stores) => {
-              return (
-                <Tag color="blue" key={stores.category_id}>
-                  {stores.category_name}
-                </Tag>
-              );
-            })}
-          </span>
-        );
-      },
     },
     {
       title: "Người tạo",
@@ -112,12 +95,15 @@ const SizeListScreen: React.FC = () => {
   ];
 
   const onPageChange = useCallback(
-    (size, page) => {
-      params.page = page - 1;
-      params.limit = size;
+    (page, size) => {
+      const newParams = {...params, 
+        code: params.code?.trim(),
+        page: page,
+        limit: size}
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
-      history.replace(`/colors?${queryParam}`);
+     
+      setPrams({...newParams});
+      history.replace(`${UrlConfig.SIZES}?${queryParam}`);
     },
     [history, params]
   );
@@ -130,15 +116,12 @@ const SizeListScreen: React.FC = () => {
     );
   }, []);
 
-  const setCategory = useCallback((data: Array<CategoryResponse>) => {
-    let newData = convertCategory(data);
-    setCategories(newData);
-  }, []);
-
   const onFinish = useCallback(
     (values: SizeQuery) => {
       let query = generateQuery(values);
-      setPrams({ ...values });
+
+      values= {...values, code: values.code?.trim() }
+      setPrams({...values});
       return history.replace(`${UrlConfig.SIZES}?${query}`);
     },
     [history]
@@ -162,13 +145,10 @@ const SizeListScreen: React.FC = () => {
     });
   }, [selected, canUpdateSizes, canDeleteSizes]);
 
-  const searchSizeCallback = useCallback(
-    (listResult: PageResponse<SizeResponse>) => {
-      setLoadingTable(false);
-      setData(listResult);
-    },
-    []
-  );
+  const searchSizeCallback = useCallback((listResult: PageResponse<SizeResponse>) => {
+    setLoadingTable(false);
+    setData(listResult);
+  }, []);
 
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
@@ -222,14 +202,35 @@ const SizeListScreen: React.FC = () => {
 
   const isFirstLoad = useRef(true);
 
+  const actionsForm = {
+    Create: useCallback(
+      (values: SizeCreateRequest) => {
+        setIsShowModalDetail(false);
+        dispatch(
+          sizeCreateAction(values, () => {
+              showSuccess("Thêm kích cỡ thành công.");
+              dispatch(sizeSearchAction(params, searchSizeCallback));
+          })
+        );
+      },
+      [dispatch,params,searchSizeCallback]
+    ),
+    Update: useCallback((data: SizeUpdateRequest) => { 
+      if (sizeDetail && sizeDetail.id) {
+        setIsShowModalDetail(false);
+        dispatch(sizeUpdateAction(sizeDetail.id, data, ()=>{
+            showSuccess("Cập nhật kích cỡ thành công."); 
+            dispatch(sizeSearchAction(params, searchSizeCallback));
+        }));
+      }
+    },[dispatch,params, sizeDetail,searchSizeCallback])
+  };
+
   useEffect(() => {
-    setLoadingTable(true);
-    if (isFirstLoad.current) {
-      dispatch(getCategoryRequestAction({}, setCategory));
-    }
+    setLoadingTable(true); 
     isFirstLoad.current = false;
     dispatch(sizeSearchAction(params, searchSizeCallback));
-  }, [dispatch, params, searchSizeCallback, setCategory]);
+  }, [dispatch, history, params, searchSizeCallback]);
 
   return (
     <ContentContainer
@@ -248,41 +249,39 @@ const SizeListScreen: React.FC = () => {
           path: `${UrlConfig.SIZES}`,
         },
       ]}
-      extra={<AuthWrapper acceptPermissions={[ProductPermission.sizes_create]}><ButtonCreate path={`${UrlConfig.SIZES}/create`} /></AuthWrapper>}
+      extra={
+        <AuthWrapper acceptPermissions={[ProductPermission.sizes_create]}>
+          <Button
+            className="ant-btn-primary"
+            size="large"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setModalAction("create");
+              setIsShowModalDetail(true);
+            }}
+          >
+            Thêm kích cỡ
+          </Button>
+        </AuthWrapper>
+      }
     >
       <Card>
-        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-          <Form layout="inline" initialValues={params} onFinish={onFinish}>
-            <Form.Item name="code">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Kích cỡ"
-              />
-            </Form.Item>
-            <Form.Item name="category_id">
-              <Select style={{ width: 200 }}>
-                <Option value="">Chọn danh mục</Option>
-                {categories.map((item) => (
-                  <Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Form.Item>
-            <Form.Item>
-              <Tooltip overlay="Lưu bộ lọc" placement="top">
-                <Button icon={<StarOutlined />} />
-              </Tooltip>
-            </Form.Item>
-          </Form>
-        </CustomFilter>
+        <div className="custom-filter">
+          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+            <Form layout="inline" initialValues={params} onFinish={onFinish}>
+              <Form.Item name="code" className="input-search">
+                <Input prefix={<img src={search} alt="" />} placeholder="Kích cỡ" />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Form.Item>
+            </Form>
+          </CustomFilter>
+        </div>
         <CustomTable
+          className="tr-hover"
           isRowSelection
           pagination={{
             pageSize: data.metadata.limit,
@@ -297,12 +296,20 @@ const SizeListScreen: React.FC = () => {
           columns={columns}
           onSelectedChange={onSelectedChange}
           rowKey={(item: SizeResponse) => item.id}
+          onRow={(item: SizeResponse) => {
+            return {
+              onClick: () => {
+                setModalAction("onlyedit");
+                setSizeDetail(item);
+                setIsShowModalDetail(true);
+              },
+            };
+          }}
         />
         <ModalDeleteConfirm
           onCancel={() => setConfirmDelete(false)}
           onOk={() => {
             setConfirmDelete(false);
-            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
             onDelete();
           }}
           title="Bạn chắc chắn xóa kích cỡ ?"
@@ -310,6 +317,19 @@ const SizeListScreen: React.FC = () => {
           visible={isConfirmDelete}
         />
       </Card>
+      <CustomModal
+        createText="Tạo kích thước"
+        updateText="Lưu lại"
+        visible={isShowModalDetail}
+        onCreate={(formValues: SizeCreateRequest) => actionsForm.Create(formValues)}
+        onEdit={(formValues: SizeUpdateRequest) => actionsForm.Update(formValues)}
+        onDelete={()=>{}}
+        onCancel={() => setIsShowModalDetail(false)}
+        modalAction={modalAction}
+        componentForm={FormSize}
+        formItem={sizeDetail}
+        modalTypeText="Kích cỡ"
+      />
     </ContentContainer>
   );
 };

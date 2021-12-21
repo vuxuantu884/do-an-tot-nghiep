@@ -16,10 +16,16 @@ import {
   AccountGetByIdService,
   AccountUpdateService,
   AccountDeleteService,
+  powerBIEmbededApi,
+  accountUpdatePassScreenService,
+  getAccountDetail,
+  updateMeService,
+  searchAccountPublicApi,
+  externalShipperApi,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { unauthorizedAction } from "domain/actions/auth/auth.action"; 
 
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -111,6 +117,30 @@ function* AccountUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("AccountUpdateSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* AccountUpdatePassSaga(action: YodyAction) {
+  const { request, setData } = action.payload;
+  try {
+    let response: BaseResponse<AccountResponse> = yield call(
+      accountUpdatePassScreenService,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("AccountUpdatePassScreenService:" + error);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -221,6 +251,112 @@ function* ShipperSearchSaga(action: YodyAction) {
   } catch (error) {}
 }
 
+function* ShipperExternalSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<any>> = yield call(
+      externalShipperApi
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
+function* powerBIEmbededSaga(action: YodyAction) {
+  let { params, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
+      powerBIEmbededApi, params
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
+function* getAccountMeSaga(action: YodyAction) {
+  let {  onResult } = action.payload;
+  //TODO: Handle token here
+    try {
+      let response: BaseResponse<AccountResponse> = yield call(getAccountDetail); 
+      switch(response.code) {
+        case HttpStatus.SUCCESS:
+          onResult(response.data);
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
+        default:
+          onResult(false);
+          break;
+      }
+    } catch (error) {
+      onResult(false);
+    } 
+}
+
+function* updateMeSaga(action: YodyAction) {
+  const {request, setData } = action.payload;
+  try {
+    let response: BaseResponse<AccountResponse> = yield call(
+      updateMeService,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("MeUpdateSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* searchAccountPublicSaga(action: YodyAction) {
+  const {query, onResult } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
+      searchAccountPublicApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* accountSaga() {
   yield takeEvery(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
@@ -230,8 +366,14 @@ export function* accountSaga() {
   );
   yield takeLatest(AccountType.GET_LIST_POSITION_REQUEST, PositionGetListSaga);
   yield takeLatest(AccountType.GET_LIST_SHIPPER_REQUEST, ShipperSearchSaga);
+  yield takeLatest(AccountType.GET_LIST_EXTERNAL_SHIPPER_REQUEST, ShipperExternalSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_DETAIL_REQUEST, AccountGetByIdSaga);
   yield takeLatest(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
   yield takeLatest(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
+  yield takeLatest(AccountType.UPDATE_PASSS_REQUEST, AccountUpdatePassSaga);
   yield takeLatest(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
+  yield takeLatest(AccountType.POWER_BI_EMBEDED_REQUEST, powerBIEmbededSaga);
+  yield takeLatest(AccountType.GET_ACCOUNT_ME, getAccountMeSaga);
+  yield takeLatest(AccountType.UPDATE_ME, updateMeSaga);
+  yield takeEvery(AccountType.SEARCH_ACCOUNT_PUBLIC, searchAccountPublicSaga);
 }

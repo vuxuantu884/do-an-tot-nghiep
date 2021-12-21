@@ -1,8 +1,9 @@
-import { Col, Form, Row } from "antd";
+import { Checkbox, Col, Form, FormInstance, Radio, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
-import { AccountResponse } from "model/account/account.model";
-import React from "react";
+import { thirdPLModel } from "model/order/shipment.model";
+// import { AccountResponse } from "model/account/account.model";
+import React, { useCallback, useEffect, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -10,9 +11,12 @@ type PropType = {
   totalAmountCustomerNeedToPay: number;
   levelOrder?: number;
   isCancelValidateDelivery: boolean;
-  listShippers: AccountResponse[] | null;
+  listShippers: any;
+  listExternalShippers: any;
   setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
+  setThirdPL: (thirdPl: thirdPLModel) => void;
+  form: FormInstance<any>;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -20,12 +24,44 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     totalAmountCustomerNeedToPay,
     isCancelValidateDelivery,
     listShippers,
+    listExternalShippers,
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
+    setThirdPL,
+    form
   } = props;
+  const [is4h, setIs4h] = useState(false);
+  const [typeDelivery, setTypeDelivery] = useState('employee');
+  const onChange = useCallback((e) => {
+    setIs4h(e.target.checked);
+  }, []);
+
+  const onChangeType = useCallback((e) => {
+    setTypeDelivery(e.target.value);
+    form?.setFieldsValue({shipper_code: null});
+  }, [form]);
+
+  useEffect(() => {
+    setThirdPL({
+      delivery_service_provider_code: typeDelivery,
+      delivery_service_provider_id: null,
+      insurance_fee: null,
+      delivery_service_provider_name: "",
+      delivery_transport_type: "",
+      service: is4h ? '4h_delivery' : "",
+      shipping_fee_paid_to_three_pls: null,
+    })
+  }, [is4h, setThirdPL, typeDelivery])
   return (
     <StyledComponent>
       <div>
+        <Row className="options">
+          <Checkbox value={is4h} onChange={onChange} className="shipment4h">Đơn giao 4H</Checkbox>
+          <Radio.Group value={typeDelivery} onChange={onChangeType}>
+            <Radio value="employee">Nhân viên YODY</Radio>
+            <Radio value="external_shipper">Đối tác khác</Radio>
+          </Radio.Group>
+        </Row>
         <Row gutter={20}>
           <Col md={12}>
             <Form.Item
@@ -59,13 +95,22 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 }}
                 disabled={levelOrder > 3}
               >
-                {listShippers?.map((item, index) => (
+                {typeDelivery === 'employee' && listShippers?.map((item: any, index: number) => (
                   <CustomSelect.Option
                     style={{width: "100%"}}
                     key={index.toString()}
                     value={item.code}
                   >
-                    {`${item.full_name} - ${item.mobile}`}
+                    {`${item.full_name} - ${item.phone}`}
+                  </CustomSelect.Option>
+                ))}
+                {typeDelivery === 'external_shipper' && listExternalShippers?.map((item: any, index: number) => (
+                  <CustomSelect.Option
+                    style={{width: "100%"}}
+                    key={index.toString()}
+                    value={item.code}
+                  >
+                    {`${item.name} - ${item.phone}`}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>

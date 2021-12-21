@@ -1,4 +1,6 @@
 import { Button, Form, Table } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { POField } from "model/purchase-order/po-field";
 import {
   POProcumentField,
@@ -39,7 +41,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
             rowClassName="product-table-row"
             dataSource={items}
             tableLayout="fixed"
-            scroll={{ y: 250, x: 845 }}
+            scroll={{y: 250, x: 845}}
             pagination={false}
             columns={[
               {
@@ -62,9 +64,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                       confirmDraft(item, true);
                     }}
                   >
-                    <div
-                      style={{ color: "#5D5D8A", textDecoration: "underline" }}
-                    >
+                    <div style={{color: "#5D5D8A", textDecoration: "underline"}}>
                       {value}
                     </div>
                   </Button>
@@ -95,16 +95,18 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                 dataIndex: "procurement_items",
                 width: 200,
                 render: (value, item, index: number) => (
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                     {item.is_cancelled ? (
+                  <div style={{display: "flex", justifyContent: "flex-end"}}>
+                    {item.is_cancelled ? (
                       <Button disabled>Đã huỷ</Button>
                     ) : (
-                    <Button
-                      onClick={() => confirmDraft(item, false)}
-                      type="primary"
-                    >
-                      Duyệt phiếu
-                    </Button>)}
+                      <AuthWrapper
+                        acceptPermissions={[PurchaseOrderPermission.procurements_approve]}
+                      >
+                        <Button onClick={() => confirmDraft(item, false)} type="primary">
+                          Duyệt phiếu
+                        </Button>
+                      </AuthWrapper>
+                    )}
                   </div>
                 ),
               },

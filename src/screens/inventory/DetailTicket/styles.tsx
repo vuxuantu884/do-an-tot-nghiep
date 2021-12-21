@@ -3,8 +3,6 @@ import { STATUS_INVENTORY_TRANSFER } from "../ListTicket/constants";
 import { BG_COLOR_TAG } from "../ListTicket/ListTicketTab/InventoryTransfer/styles";
 
 export const StyledWrapper = styled.div`
-  position: relative;
-
   .file-pin {
     display: inline-block;
     width: 100%;

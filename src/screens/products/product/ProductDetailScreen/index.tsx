@@ -82,7 +82,7 @@ const ProductDetailScreen: React.FC = () => {
   });
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
+    history.push(`${UrlConfig.PRODUCT}/${idNumber}/update`);
   }, [history, idNumber]);
   const onResult = useCallback((result: ProductResponse | false) => {
     setLoading(false);
@@ -311,7 +311,7 @@ const tab= document.getElementById("tab");
       <ContentContainer
         isError={error}
         isLoading={loading}
-        title="Chi tiết sản phẩm"
+        title={`${data?.name}`}
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -319,10 +319,10 @@ const tab= document.getElementById("tab");
           },
           {
             name: "Sản phẩm",
-            path: `${UrlConfig.PRODUCT}`,
+            path: `${UrlConfig.VARIANTS}`,
           },
           {
-            name: data !== null ? data.name : "",
+            name: data !== null ? data.code : "",
           },
         ]}
       >
@@ -637,10 +637,10 @@ const tab= document.getElementById("tab");
           </React.Fragment>
         )}
         <BottomBarContainer
-          back="Quay lại sản phẩm"
+          back="Quay lại danh sách"
           rightComponent={
             <AuthWrapper acceptPermissions={[ProductPermission.update]}>
-              <Button onClick={onEdit}>Chỉnh sửa thông tin</Button>
+              <Button onClick={onEdit}>Sửa sản phẩm</Button>
             </AuthWrapper>
           }
         />

@@ -1,9 +1,12 @@
 import { Layout, Menu } from "antd";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useMemo } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import menu from "routes/menu";
 import { findCurrentRoute } from "utils/AppUtils";
+import { checkUserPermission } from "utils/AuthUtil";
 
 type SidebarContainerProps = {
   path: string;
@@ -14,6 +17,14 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
   props: SidebarContainerProps
 ) => {
   const { path, collapsed } = props;
+  const currentRoles: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer?.permissions
+  );
+
+  const checkPermisson = (permission: string[] | undefined) => {
+
+    return permission ? checkUserPermission(permission, currentRoles) : true;
+  }
   let currentRoute = useMemo(() => findCurrentRoute(menu, path), [path]);
   let defaultSelectedKeys: Array<string> = [];
   if (currentRoute.current != null) {
@@ -29,6 +40,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
       collapsedWidth={52}
       width={240}
       style={{ zIndex: 2 }}
+
     >
       <Scrollbars autoHide>
         <Menu
@@ -40,10 +52,12 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
           {menu.map((route) => {
             if (route.subMenu.length > 0) {
               return (
+                checkPermisson(route.permissions) &&
                 <Menu.SubMenu
                   icon={<i className={route.icon} style={{ fontSize: 18 }} />}
-                  title={route.title}
+                  title={<div title={route.title}>{route.title}</div>}
                   key={route.key}
+
                 >
                   {route.subMenu.map((item) => {
                     if (
@@ -51,6 +65,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                       item.showMenuThird === true
                     ) {
                       return (
+                        checkPermisson(item.permissions) &&
                         <Menu.SubMenu
                           icon={
                             <i
@@ -70,6 +85,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                 />
                               }
                               key={item2.key}
+															title={item2.subTitle || item2.title}
                             >
                               <Link to={item2.path}>{item2.title}</Link>
                             </Menu.Item>
@@ -78,6 +94,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                       );
                     }
                     return (
+                      checkPermisson(item.permissions) &&
                       <Menu.Item
                         icon={
                           <i
@@ -86,6 +103,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                           />
                         }
                         key={item.key}
+												title={item.subTitle || item.title}
                       >
                         {
                           <Link
@@ -118,6 +136,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
               );
             }
             return (
+              checkPermisson(route.permissions) &&
               <Menu.Item
                 onClick={() => {
                   if (!route.isShow) {
@@ -126,9 +145,10 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                 }}
                 icon={<i className={route.icon} style={{ fontSize: 18 }} />}
                 key={route.key}
+								title={route.subTitle || route.title}
               >
                 {route.isShow ? (
-                  <Link to={route.path}>{route.title}</Link>
+                  <Link to={route.path} title={route.subTitle || route.title}>{route.title}</Link>
                 ) : (
                   route.title
                 )}

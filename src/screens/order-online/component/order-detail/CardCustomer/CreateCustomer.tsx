@@ -7,32 +7,39 @@ import {
   PhoneOutlined,
   TeamOutlined,
   UpOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
 import {
-  Button, Checkbox, Col, DatePicker, Divider, Form, FormInstance, Input,
+  Button,
+  Checkbox,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  FormInstance,
+  Input,
   Row,
-  Select
+  Select,
 } from "antd";
-import { WardGetByDistrictAction } from "domain/actions/content/content.action";
+import {WardGetByDistrictAction} from "domain/actions/content/content.action";
 import {
   CreateShippingAddress,
   CustomerCreateAction,
-  CustomerDetail,
-  UpdateShippingAddress
+  getCustomerDetailAction,
+  UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
-import { WardResponse } from "model/content/ward.model";
+import {WardResponse} from "model/content/ward.model";
 import {
   CustomerContactClass,
   CustomerModel,
-  CustomerShippingAddress
+  CustomerShippingAddress,
 } from "model/request/customer.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import {CustomerResponse} from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
-import { RegUtil } from "utils/RegUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import React, {createRef, useCallback, useLayoutEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {RegUtil} from "utils/RegUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 
 type CreateCustomerProps = {
   areas: any;
@@ -42,6 +49,7 @@ type CreateCustomerProps = {
   handleChangeCustomer: any;
   keySearchCustomer: string;
   ShippingAddressChange: (items: any) => void;
+  CustomerDeleteInfo: () => void;
 };
 
 const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
@@ -53,6 +61,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     handleChangeCustomer,
     ShippingAddressChange,
     keySearchCustomer,
+    CustomerDeleteInfo
   } = props;
 
   const dispatch = useDispatch();
@@ -60,15 +69,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const formRef = createRef<FormInstance>();
   const shippingFormRef = createRef<FormInstance>();
 
-  const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
-    useState(false);
+  const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
   const [isVisibleShipping, setVisibleShipping] = useState(true);
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
 
-  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
-    []
-  );
+  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
   var pattern = new RegExp(RegUtil.PHONE);
   const initialFormValueCustomer = pattern.test(keySearchCustomer)
@@ -77,52 +83,45 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       }
     : {};
 
-  //element
-  const txtCustomerFullname = document.getElementById("customer_add_full_name");
-  const txtCustomerPhone = document.getElementById("customer_add_phone");
-  const txtCustomerNumber = document.getElementById("customer_add_card_number");
-  const txtCustomerFullAddress = document.getElementById(
-    "customer_add_full_address"
-  );
-  const txtCustomerBirthday = document.getElementById("customer_add_birthday");
-  //
-  const txtShippingAddName = document.getElementById(
-    "shippingAddress_add_name"
-  );
-  const txtShippingAddPhone = document.getElementById(
-    "shippingAddress_add_phone"
-  );
-  const txtShippingFullAddress = document.getElementById(
-    "shippingAddress_add_full_address"
-  );
+  useLayoutEffect(() => {
+    const txtCustomerFullName: any = document.getElementById("customer_add_full_name");
+    const txtCustomerPhone = document.getElementById("customer_add_phone");
+    const txtCustomerNumber = document.getElementById("customer_add_card_number");
+    const txtCustomerFullAddress = document.getElementById("customer_add_full_address");
+    const txtCustomerBirthday = document.getElementById("customer_add_birthday");
+    //
+    const txtShippingAddName = document.getElementById("shippingAddress_add_name");
+    const txtShippingAddPhone = document.getElementById("shippingAddress_add_phone");
+    const txtShippingFullAddress = document.getElementById(
+      "shippingAddress_add_full_address"
+    );
 
-  //event
-  txtCustomerFullname?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
+    //event
+    txtCustomerFullName?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+    txtCustomerPhone?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+    txtCustomerNumber?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+    txtCustomerFullAddress?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+    txtCustomerBirthday?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+    txtShippingAddName?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+    txtShippingAddPhone?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+    txtShippingFullAddress?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
   });
-  txtCustomerPhone?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
-  txtCustomerNumber?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
-  txtCustomerFullAddress?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
-  txtCustomerBirthday?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
-  txtShippingAddName?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
-  txtShippingAddPhone?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
-  txtShippingFullAddress?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
-
-  console.log("isVisibleBtnUpdate", isVisibleBtnUpdate);
 
   const DefaultWard = () => {
     let value = customerForm.getFieldsValue();
@@ -146,8 +145,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         if (isVisibleShipping === false) {
           shippingFormRef.current?.validateFields();
 
-          let district_id =
-            shippingFormRef.current?.getFieldValue("district_id");
+          let district_id = shippingFormRef.current?.getFieldValue("district_id");
           let area = areas.find((area: any) => area.id === district_id);
 
           let shippingAddress = {
@@ -172,8 +170,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             district_id: shippingFormRef.current?.getFieldValue("district_id"),
             ward_id: shippingFormRef.current?.getFieldValue("ward_id"),
             city_id: area ? area.city_id : null,
-            full_address:
-              shippingFormRef.current?.getFieldValue("full_address"),
+            full_address: shippingFormRef.current?.getFieldValue("full_address"),
           };
 
           dispatch(
@@ -186,11 +183,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     UpdateShippingAddress(
                       data.id,
                       result.id,
-                      {...data,is_default:true},
+                      {...data, is_default: true},
                       (data: any) => {
                         if (data) {
                           dispatch(
-                            CustomerDetail(
+                            getCustomerDetailAction(
                               result.id,
                               (data_i: CustomerResponse) => {
                                 handleChangeCustomer(data_i);
@@ -232,7 +229,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       areas,
       shippingFormRef,
       isVisibleShipping,
-      ShippingAddressChange,
+      ShippingAddressChange
     ]
   );
 
@@ -249,9 +246,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         card_number: values.card_number,
         full_address: values.full_address,
         gender: values.gender,
-        birthday: values.birthday
-          ? new Date(values.birthday).toUTCString()
-          : null,
+        birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
         customer_group_id: values.customer_group_id,
         wedding_date: values.wedding_date
           ? new Date(values.wedding_date).toUTCString()
@@ -269,10 +264,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         ],
       };
       dispatch(
-        CustomerCreateAction(
-          { ...new CustomerModel(), ...piece },
-          createCustomerCallback
-        )
+        CustomerCreateAction({...new CustomerModel(), ...piece}, createCustomerCallback)
       );
     },
     [dispatch, createCustomerCallback, areas]
@@ -281,7 +273,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const onOkPress = useCallback(() => {
     customerForm.submit();
   }, [customerForm]);
-
+  
   return (
     <>
       <Form
@@ -310,7 +302,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             >
               <Input
                 placeholder="Nhập Tên khách hàng"
-                prefix={<UserOutlined style={{ color: "#71767B" }} />}
+                prefix={<UserOutlined style={{color: "#71767B"}} />}
+                id="customer_add_full_name"
                 //suffix={<img src={arrowDownIcon} alt="down" />}
               />
             </Form.Item>
@@ -333,11 +326,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 allowClear
                 placeholder={
                   <React.Fragment>
-                    <EnvironmentOutlined style={{ color: "#71767B" }} />
+                    <EnvironmentOutlined style={{color: "#71767B"}} />
                     <span> Chọn khu vực</span>
                   </React.Fragment>
                 }
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 onChange={(value) => {
                   handleChangeArea(value);
                   DefaultWard();
@@ -370,7 +363,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             >
               <Input
                 placeholder="Nhập số điện thoại"
-                prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
+                prefix={<PhoneOutlined style={{color: "#71767B"}} />}
               />
             </Form.Item>
           </Col>
@@ -391,10 +384,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 showSearch
                 allowClear
                 optionFilterProp="children"
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 placeholder={
                   <React.Fragment>
-                    <EnvironmentOutlined style={{ color: "#71767B" }} />
+                    <EnvironmentOutlined style={{color: "#71767B"}} />
                     <span> Chọn phường/xã</span>
                   </React.Fragment>
                 }
@@ -415,7 +408,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             <Form.Item name="card_number">
               <Input
                 placeholder="Nhập mã thẻ"
-                prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
+                prefix={<BarcodeOutlined style={{color: "#71767B"}} />}
               />
             </Form.Item>
           </Col>
@@ -424,19 +417,19 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             <Form.Item name="full_address">
               <Input
                 placeholder="Địa chỉ"
-                prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
+                prefix={<EnvironmentOutlined style={{color: "#71767B"}} />}
               />
             </Form.Item>
           </Col>
         </Row>
 
         {isVisibleCollapseCustomer === false && (
-          <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
+          <Divider orientation="left" style={{padding: 0, margin: 0}}>
             <div>
               <Button
                 type="link"
                 icon={<DownOutlined />}
-                style={{ padding: "0px" }}
+                style={{padding: "0px"}}
                 onClick={() => {
                   setVisibleCollapseCustomer(true);
                 }}
@@ -460,7 +453,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     optionFilterProp="children"
                     placeholder={
                       <React.Fragment>
-                        <ManOutlined style={{ color: "#71767B" }} />
+                        <ManOutlined style={{color: "#71767B"}} />
                         <span> Giới tính</span>
                       </React.Fragment>
                     }
@@ -491,9 +484,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       validator: async (_, birthday) => {
                         if (birthday && birthday > new Date()) {
                           return Promise.reject(
-                            new Error(
-                              "Ngày sinh không được lớn hơn ngày hiện tại"
-                            )
+                            new Error("Ngày sinh không được lớn hơn ngày hiện tại")
                           );
                         }
                       },
@@ -501,14 +492,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   ]}
                 >
                   <DatePicker
-                    style={{ width: "100%" }}
+                    style={{width: "100%"}}
                     placeholder="Chọn ngày sinh"
                     format={"DD/MM/YYYY"}
                     defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
                     suffixIcon={
-                      <CalendarOutlined
-                        style={{ color: "#71767B", float: "left" }}
-                      />
+                      <CalendarOutlined style={{color: "#71767B", float: "left"}} />
                     }
                     onChange={() => {
                       setVisibleBtnUpdate(true);
@@ -528,7 +517,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     optionFilterProp="children"
                     placeholder={
                       <React.Fragment>
-                        <TeamOutlined style={{ color: "#71767B" }} />
+                        <TeamOutlined style={{color: "#71767B"}} />
                         <span> Nhóm khách hàng</span>
                       </React.Fragment>
                     }
@@ -552,15 +541,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       </Form>
 
       {isVisibleCollapseCustomer === true && (
-        <Divider
-          orientation="left"
-          style={{ padding: 0, margin: 0, color: "#5656A1" }}
-        >
+        <Divider orientation="left" style={{padding: 0, margin: 0, color: "#5656A1"}}>
           <div>
             <Button
               type="link"
               icon={<UpOutlined />}
-              style={{ padding: "0px" }}
+              style={{padding: "0px"}}
               onClick={() => {
                 setVisibleCollapseCustomer(false);
               }}
@@ -572,43 +558,51 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       )}
 
       <div className="send-order-box">
-        <Row gutter={12} style={{ marginTop: 15 }}>
+        <Row gutter={12} style={{marginTop: 15}}>
           <Col md={12}>
             <Checkbox
               className="checkbox-style"
               onChange={() => {
                 setVisibleShipping(!isVisibleShipping);
               }}
-              style={{ marginLeft: "3px" }}
+              style={{marginLeft: "3px"}}
               checked={isVisibleShipping}
               //disabled={levelOrder > 3}
             >
               Địa chỉ của KH cũng là địa chỉ giao hàng
             </Checkbox>
           </Col>
-          {isVisibleShipping === true && isVisibleBtnUpdate === true && (
-            <Col md={12} style={{ float: "right", marginTop: "-10px" }}>
+          {isVisibleShipping === true && (
+            <Col md={12} style={{float: "right", marginTop: "-10px"}}>
+              {isVisibleBtnUpdate === true && (
+                <Button
+                  type="primary"
+                  style={{padding: "0 25px", fontWeight: 400, float: "right"}}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={() => {
+                    onOkPress();
+                  }}
+                >
+                  Thêm mới
+                </Button>
+              )}
+
               <Button
-                type="primary"
-                style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                className="create-button-custom ant-btn-outline fixed-button"
+                style={{padding: "0 25px", fontWeight: 400, float: "right"}}
+                className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => {
-                  onOkPress();
+                  CustomerDeleteInfo();
                 }}
               >
-                Thêm mới
+                Hủy
               </Button>
             </Col>
           )}
         </Row>
 
         {isVisibleShipping === false && (
-          <Form
-            ref={shippingFormRef}
-            layout="vertical"
-            name="shippingAddress_add"
-          >
-            <Row gutter={24} style={{ marginTop: "14px" }}>
+          <Form ref={shippingFormRef} layout="vertical" name="shippingAddress_add">
+            <Row gutter={24} style={{marginTop: "14px"}}>
               <Col xs={24} lg={12}>
                 <Form.Item
                   rules={[
@@ -625,7 +619,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 >
                   <Input
                     placeholder="Nhập Tên khách hàng"
-                    prefix={<UserOutlined style={{ color: "#71767B" }} />}
+                    prefix={<UserOutlined style={{color: "#71767B"}} />}
                     //suffix={<img src={arrowDownIcon} alt="down" />}
                   />
                 </Form.Item>
@@ -643,7 +637,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 >
                   <Input
                     placeholder="Nhập số điện thoại"
-                    prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
+                    prefix={<PhoneOutlined style={{color: "#71767B"}} />}
                   />
                 </Form.Item>
               </Col>
@@ -663,11 +657,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     allowClear
                     placeholder={
                       <React.Fragment>
-                        <EnvironmentOutlined style={{ color: "#71767B" }} />
+                        <EnvironmentOutlined style={{color: "#71767B"}} />
                         <span> Chọn khu vực</span>
                       </React.Fragment>
                     }
-                    style={{ width: "100%" }}
+                    style={{width: "100%"}}
                     onChange={(value: number) => {
                       let values = shippingFormRef.current?.getFieldsValue();
                       values.ward_id = null;
@@ -700,10 +694,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     showSearch
                     allowClear
                     optionFilterProp="children"
-                    style={{ width: "100%" }}
+                    style={{width: "100%"}}
                     placeholder={
                       <React.Fragment>
-                        <EnvironmentOutlined style={{ color: "#71767B" }} />
+                        <EnvironmentOutlined style={{color: "#71767B"}} />
                         <span> Chọn phường/xã</span>
                       </React.Fragment>
                     }
@@ -728,9 +722,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 >
                   <Input
                     placeholder="Địa chỉ"
-                    prefix={
-                      <EnvironmentOutlined style={{ color: "#71767B" }} />
-                    }
+                    prefix={<EnvironmentOutlined style={{color: "#71767B"}} />}
                   />
                 </Form.Item>
               </Col>
@@ -740,12 +732,12 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       </div>
 
       {isVisibleShipping === false && (
-        <Row style={{ marginTop: 15 }}>
-          <Col md={24} style={{ float: "right", marginTop: "-10px" }}>
+        <Row style={{marginTop: 15}}>
+          <Col md={24} style={{float: "right", marginTop: "-10px"}}>
             {isVisibleBtnUpdate === true && (
               <Button
                 type="primary"
-                style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                style={{padding: "0 25px", fontWeight: 400, float: "right"}}
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => {
                   onOkPress();
@@ -754,6 +746,15 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 Thêm mới
               </Button>
             )}
+            <Button
+              style={{padding: "0 25px", fontWeight: 400, float: "right"}}
+              className="ant-btn-outline fixed-button cancle-button"
+              onClick={() => {
+                CustomerDeleteInfo();
+              }}
+            >
+              Hủy
+            </Button>
           </Col>
         </Row>
       )}

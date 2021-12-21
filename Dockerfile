@@ -1,8 +1,9 @@
-FROM node:11 as builder
+FROM node:14 as builder
 
 WORKDIR /app
 COPY package.json /app
 RUN npm install
+RUN export NODE_OPTIONS="--max-old-space-size=8000"
 COPY . /app
 RUN npm run build:testing
 

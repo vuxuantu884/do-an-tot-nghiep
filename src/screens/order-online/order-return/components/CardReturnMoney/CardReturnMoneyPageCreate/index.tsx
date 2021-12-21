@@ -6,7 +6,7 @@ import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.respons
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, getAmountPayment } from "utils/AppUtils";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 
@@ -41,6 +41,11 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const isReturnMoneyToCustomer =
     totalAmountCustomerNeedToPay !== undefined && totalAmountCustomerNeedToPay <= 0;
+
+	 /**
+   * tổng số tiền đã trả
+   */
+		const totalAmountPayment = getAmountPayment(payments);
 
   const renderWhenReturnMoneyToCustomer = () => {
     return (
@@ -117,8 +122,8 @@ function CardReturnMoneyPageCreate(props: PropType) {
                       <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
                       <strong>
                         {formatCurrency(
-                          totalAmountCustomerNeedToPay > 0
-                            ? totalAmountCustomerNeedToPay
+                          (totalAmountCustomerNeedToPay-totalAmountPayment) > 0
+                            ? (totalAmountCustomerNeedToPay-totalAmountPayment)
                             : 0
                         )}
                       </strong>

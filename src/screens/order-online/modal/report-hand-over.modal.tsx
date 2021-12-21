@@ -2,7 +2,7 @@ import { Modal, Form, Select, FormInstance, Row, Col } from "antd";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
 
 import { Input } from "antd";
@@ -31,8 +31,8 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
 
   const listStores = orderPackContextData.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
-  const listGoodsReceipts= orderPackContextData.listGoodsReceipts;
-  const listSourcesEcommerce=orderPackContextData.listSourcesEcommerce;
+  const listGoodsReceiptsType= orderPackContextData.listGoodsReceiptsType;
+  const listChannels=orderPackContextData.listChannels;
   //const data=orderPackContextData.data;
 
   const dataCanAccess = useMemo(() => {
@@ -178,7 +178,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {listGoodsReceipts.map((item, index) => (
+                  {listGoodsReceiptsType.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -221,7 +221,10 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {listSourcesEcommerce.map((item, index) => (
+                  <Select.Option key={-1} value={-1}>
+                      Mặc định
+                  </Select.Option>
+                  {listChannels.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -230,62 +233,17 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
               </Form.Item>
             </Col>
           </Row>
-
-          {/* <Row gutter={24}>
-            <Col md={24}>
-              <Form.Item
-                label="ID đơn hàng"
-                name="codes"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn kiểu biên bản",
-                  },
-                ]}
-              >
-                <Select
-                  className="select-with-search"
-                  showSearch
-                  allowClear
-                  mode="multiple"
-                  style={{ width: "100%" }}
-                  placeholder="Chọn ID đơn hàng/ Mã hãng vận chuyển"
-                  notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                    console.log(value);
-                  }}
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
-                >
-                  {testAraay.map((item, index) => (
-                    <Select.Option key={index.toString()} value={item.id}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row> */}
-
           <Row gutter={24}>
             <Col md={24}>
               <Form.Item
                 label="Mô tả:"
                 name="description"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập mô tả",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng nhập mô tả",
+                //   },
+                // ]}
               >
                 <TextArea
                   rows={4}

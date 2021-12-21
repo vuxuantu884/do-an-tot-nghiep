@@ -20,3 +20,21 @@ export function getQueryParams(params: URLSearchParams) {
   }
   return paramObj;
 }
+
+export function getQueryParamsFromQueryString(params: { [key: string]: string | string[] | null; }) {
+  let paramObj = {};
+  for (var key of Object.keys(params)) {
+    let value = params[key];
+		if (Array.isArray(value)) {
+			return paramObj
+		};
+    if(value != null && value.includes(',')) {
+      paramObj = {...paramObj, [key]: value.split(',')}
+    } else if(value != null && RegUtil.UTC.test(value)) {
+      paramObj = {...paramObj, [key]: new Date(value)}
+    } else {
+      paramObj = {...paramObj, [key]: value}
+    }
+  }
+  return paramObj;
+}

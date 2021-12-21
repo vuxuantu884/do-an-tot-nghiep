@@ -18,9 +18,9 @@ import { FilterOutlined } from "@ant-design/icons"
 type DiscountFilterProps = {
   params: DiscountSearchQuery;
   actions: Array<MenuAction>;
-  listStore: Array<StoreResponse> | undefined;
-  listSource: Array<SourceResponse>;
-  listCustomerCategories: Array<CustomerGroupModel>;
+  listStore?: Array<StoreResponse>;
+  listSource?: Array<SourceResponse>;
+  listCustomerCategories?: Array<CustomerGroupModel>;
   // tableLoading: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (value: DiscountSearchQuery | Object) => void;
@@ -89,7 +89,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   // useState
   // const [visible, setVisible] = useState(false);
   let [advanceFilters,] = useState<any>({});
-
+  const [form] = Form.useForm();
 
   // useCallback
   const onFinish = useCallback((values: DiscountSearchQuery) => {
@@ -117,11 +117,12 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     <StyledComponent>
       <div className="discount-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onFinish} initialValues={params} layout="inline">
+          <Form onFinish={onFinish} initialValues={params} layout="inline" form={form}>
             <Item name="query" className="search">
               <Input
                 prefix={<img src={search} alt=""/>}
                 placeholder="Tìm kiếm theo mã, tên chương trình"
+                onBlur={(e) => {form.setFieldsValue({query: e.target.value?.trim() || ''})}}
               />
             </Item>
             <Item name="state" >

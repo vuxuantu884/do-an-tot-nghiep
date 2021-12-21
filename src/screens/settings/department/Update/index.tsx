@@ -1,6 +1,9 @@
-import {Button, Card, Col, Form, Input, Row, Space, Select, TreeSelect} from "antd";
+import {Button, Card, Col, Form, Input, Row, Space, TreeSelect} from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import AccountSearchSelect from "component/custom/select-search/account-select";
+import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
+import {DepartmentsPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {AccountSearchAction} from "domain/actions/account/account.action";
 import {
@@ -8,6 +11,7 @@ import {
   departmentUpdateAction,
   searchDepartmentAction,
 } from "domain/actions/account/department.action";
+import useAuthorization from "hook/useAuthorization";
 import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
 import {DepartmentRequest, DepartmentResponse} from "model/account/department.model";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -27,7 +31,7 @@ const DepartmentUpdateScreen: React.FC = () => {
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [departments, setDepartment] = useState<Array<DepartmentResponse>>([]);
-  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+  const [, setAccounts] = useState<PageResponse<AccountResponse>>({
     metadata: {
       limit: 20,
       page: 1,
@@ -37,6 +41,18 @@ const DepartmentUpdateScreen: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<DepartmentResponse | null>(null);
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
+  const [form] = Form.useForm();
+  const [dataOrigin, setDataOrigin] = useState<DepartmentRequest | null>(null);
+
+  //phân quyền
+  const [allowUpdateDep] = useAuthorization({
+    acceptPermissions: [DepartmentsPermissions.UPDATE],
+    not: false,
+  });
+
   const searchAccount = useCallback(
     (query: AccountSearchQuery, paging: boolean) => {
       dispatch(
@@ -53,6 +69,7 @@ const DepartmentUpdateScreen: React.FC = () => {
   const onFinish = useCallback(
     (value: DepartmentRequest) => {
       setLoading(true);
+      value.status = "active";
       dispatch(
         departmentUpdateAction(idNumber, value, (result) => {
           setLoading(false);
@@ -65,18 +82,39 @@ const DepartmentUpdateScreen: React.FC = () => {
     [dispatch, history, idNumber]
   );
 
+  const backAction = () => {
+    if (JSON.stringify(form.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => {
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
+      });
+    } else {
+      history.goBack();
+    }
+  };
+
   useEffect(() => {
     searchAccount({}, false);
     dispatch(
       searchDepartmentAction((result) => {
         if (result) {
           setDepartment(result);
+          form.setFieldsValue(result);
+          setDataOrigin(form.getFieldsValue());
         }
       })
     );
-  }, [dispatch, searchAccount]);
+  }, [form, dispatch, searchAccount]);
   useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(true);
     dispatch(
       departmentDetailAction(idNumber, (result) => {
         setIsLoading(false);
@@ -92,41 +130,52 @@ const DepartmentUpdateScreen: React.FC = () => {
     <ContentContainer
       isError={error}
       isLoading={isLoading}
-      title="Quản lý phòng ban/bộ phận"
+      title="Quản lý bộ phận"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Quản lý phòng ban/bộ phận",
+          name: "Quản lý bộ phận",
           path: UrlConfig.DEPARTMENT,
         },
         {
           name: data ? data.name : "",
-          path: `${UrlConfig.DEPARTMENT}/${idNumber}`
+          path: `${UrlConfig.DEPARTMENT}/${idNumber}`,
         },
         {
-          name: "Cập nhật"
-        }
+          name: "Cập nhật",
+        },
       ]}
     >
       {data !== null && (
-        <Form initialValues={{...data, parent_id: data.parent_id === -1 ? null : data.parent_id}} onFinish={onFinish} layout="vertical">
-          <Card title="Thông tin Phòng ban/Bộ phận">
+        <Form
+          initialValues={{
+            ...data,
+            parent_id: data.parent_id === -1 ? null : data.parent_id,
+          }}
+          onFinish={onFinish}
+          form={form}
+          layout="vertical"
+        >
+          <Card title="Thông tin bộ phận">
+            <Form.Item name="status" hidden>
+              <Input />
+            </Form.Item>
             <Row gutter={50}>
               <Col span={8}>
                 <Form.Item
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập Tên phòng ban",
+                      message: "Vui lòng nhập mã bộ phận",
                     },
                   ]}
-                  label="Mã phòng ban"
+                  label="Mã bộ phận"
                   name="code"
                 >
-                  <Input placeholder="Nhập phòng ban" />
+                  <Input maxLength={13} placeholder="Nhập mã bộ phận" />
                 </Form.Item>
               </Col>
               <Col span={8}>
@@ -134,45 +183,29 @@ const DepartmentUpdateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập mã phòng ban",
+                      message: "Vui lòng nhập tên bộ phận",
                     },
                   ]}
-                  label="Tên phòng ban"
+                  label="Tên bộ phận"
                   name="name"
                 >
-                  <Input placeholder="Tên phòng ban" />
+                  <Input maxLength={255} placeholder="Tên bộ phận" />
                 </Form.Item>
               </Col>
             </Row>
             <Row gutter={50}>
               <Col span={8}>
-                <Form.Item name="manager_code" label="Quản lý">
-                  <Select
-                    onSearch={(value) => {
-                      searchAccount({info: value}, false);
-                      console.log(value);
-                    }}
-                    notFoundContent="Không có dữ liệu"
-                    placeholder="Chọn quản lý"
-                    allowClear
-                    showSearch
-                  >
-                    {accounts.items.map((item) => (
-                      <Select.Option key={item.id} value={item.code}>
-                        {item.code} - {item.full_name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
+                <AccountSearchSelect name="manager_code" label="Quản lý" form={form} />
               </Col>
               <Col span={8}>
-                <Form.Item name="parent_id" label="Thuộc về phòng ban/Bộ phận">
+                <Form.Item name="parent_id" label="Thuộc về bộ phận">
                   <TreeSelect
-                    placeholder="Chọn phòng ban/Bộ phận"
+                    placeholder="Chọn bộ phận"
                     treeDefaultExpandAll
                     className="selector"
                     allowClear
                     showSearch
+                    treeNodeFilterProp="title"
                   >
                     {departments.map((item, index) => (
                       <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
@@ -183,30 +216,33 @@ const DepartmentUpdateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={8}>
-                <Form.Item name="mobile" label="Số điện thoại">
+                <Form.Item name="phone" label="Số điện thoại">
                   <Input placeholder="Nhập số điện thoại" />
                 </Form.Item>
               </Col>
               <Col span={8}>
                 <Form.Item name="address" label="Địa chỉ liên hệ">
-                  <Input placeholder="Địa chỉ liên hệ" />
+                  <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
                 </Form.Item>
               </Col>
             </Row>
           </Card>
           <BottomBarContainer
             back="Quay lại"
+            backAction={backAction}
             rightComponent={
               <Space>
-                <Button htmlType="reset">Hủy</Button>
-                <Button loading={loading} htmlType="submit" type="primary">
-                  Cập nhật
-                </Button>
+                {allowUpdateDep && (
+                  <Button loading={loading} htmlType="submit" type="primary">
+                    Lưu lại
+                  </Button>
+                )}
               </Space>
             }
           />
         </Form>
       )}
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

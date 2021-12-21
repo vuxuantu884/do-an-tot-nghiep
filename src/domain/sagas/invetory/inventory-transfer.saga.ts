@@ -7,12 +7,10 @@ import { InventoryType } from "domain/types/inventory.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
-  HistoryInventoryResponse,
 } from "model/inventory";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
   inventoryGetApi,
-  inventoryGetHistoryApi,
   logisticGateAwayGetApi,
 } from "service/inventory";
 import { showError } from "utils/ToastUtils";
@@ -215,30 +213,7 @@ function* inventoryTransferDeleteSaga(action: YodyAction) {
     setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
-}
-
-function* inventoryGetHistorySaga(action: YodyAction) {
-  let { query, onResult } = action.payload;
-  try {
-    const response: BaseResponse<PageResponse<HistoryInventoryResponse>> =
-      yield call(inventoryGetHistoryApi, query);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        onResult(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        onResult(false);
-        break;
-    }
-  } catch (error) {
-    onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
-  }
-}
+} 
 
 function* inventorySenderStoreSaga(action: YodyAction) {
   let { queryParams, onResult } = action.payload;
@@ -568,7 +543,6 @@ export function* inventoryTransferSaga() {
   yield takeLatest(InventoryType.RECEIVED_INVENTORY__TRANSFER, receivedInventoryTransferSaga);
   yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT_TRANSFER, inventoryGetDetailVariantIdsSaga);
   yield takeLatest(InventoryType.GET, inventoryGetSaga);
-  yield takeLatest(InventoryType.GET_HISTORY, inventoryGetHistorySaga);
   yield takeLatest(InventoryType.GET_STORE, inventorySenderStoreSaga);
   yield takeLatest(
     InventoryType.GET_VARIANT_BY_STORE,

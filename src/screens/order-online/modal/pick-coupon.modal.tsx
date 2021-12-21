@@ -8,17 +8,19 @@ type PropType = {
   visible: boolean;
   onCancelCouponModal: (e: React.MouseEvent<HTMLElement>) => void;
   onOkCouponModal: (type: string, value: number, rate: number, coupon: string) => void;
-  coupon: string;
+  couponInputText?: string;
+  coupon?: string;
 };
 
 function PickCouponModal(props: PropType){
-  const { visible, onCancelCouponModal, onOkCouponModal, coupon } = props;
-  const [_coupon, setCoupon] = useState<string>(coupon);
+  const { visible, onCancelCouponModal, onOkCouponModal, couponInputText } = props;
+	console.log('couponInputText', couponInputText)
+  const [_coupon, setCoupon] = useState<string>(couponInputText || "");
 
   const formRef = createRef<FormInstance>();
   const onSubmit = () => {
     onOkCouponModal("", 0, 0, _coupon);
-    setCoupon("");
+    // setCoupon(_coupon);
   };
 
   const onchangeCoupon = (e: any) => {
@@ -31,16 +33,15 @@ function PickCouponModal(props: PropType){
   };
 
   useEffect(() => {
-    return () => {
-      setCoupon("")
-    }
-  }, [])
+    if(couponInputText !==undefined) {
+			setCoupon(couponInputText)
+		}
+  }, [couponInputText])
 
   return (
     <Modal
       title="Mã giảm giá"
       onCancel={(e) => {
-        setCoupon("")
         onCancelCouponModal(e)
       }}
       centered

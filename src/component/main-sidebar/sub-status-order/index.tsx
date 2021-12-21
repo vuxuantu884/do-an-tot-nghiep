@@ -66,8 +66,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           //   {
           //     id: 1,
           //     status: "Chờ xác nhận",
-          //     company_id: DEFAULT_FORM_VALUE.company_id,
-          //     company: DEFAULT_FORM_VALUE.company,
+          //     company_id: DEFAULT_COMPANY.company_id,
+          //     company: DEFAULT_COMPANY.company,
           //     sub_status: "Chờ xác nhận",
           //     note: "",
           //     is_active: true,

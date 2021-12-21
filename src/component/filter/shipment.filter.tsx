@@ -108,6 +108,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Chưa in", value: 'false'},
     {name: "Đã in", value: 'true'},
   ], []);
+  const pushingStatus = useMemo(() => [
+    {name: "Thành công", value: 'completed'},
+    {name: "Không thành công", value: 'failed'},
+  ], []);
   
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
@@ -182,6 +186,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'print_status':
           onFilter && onFilter({...params, print_status: []});
           break;
+        case 'pushing_status':
+          onFilter && onFilter({...params, pushing_status: []});
+          break;  
         case 'shipping_address':
           onFilter && onFilter({...params, shipping_address: ""});
           break;
@@ -232,6 +239,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
       delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
       print_status: Array.isArray(params.print_status) ? params.print_status : [params.print_status],
+      pushing_status: Array.isArray(params.pushing_status) ? params.pushing_status : [params.pushing_status],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
@@ -239,6 +247,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }}, [params])
   
   const [print, setPrint] = useState<any[]>(initialValues.print_status);
+  const [pushing, setPushing] = useState<any[]>(initialValues.pushing_status);
   const [control, setControl] = useState<any[]>(initialValues.reference_status);
   const changeStatusPrint = useCallback((status) => {
     let newPrintStatus = [...print]
@@ -268,6 +277,35 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     
     setPrint(newPrintStatus)
   }, [print]);
+
+  const changeStatusPushing = useCallback((status) => {
+    let newPushingStatus = [...pushing]
+    console.log('status', status);
+    
+    switch (status) {
+      case 'completed':
+        const index1 = newPushingStatus.indexOf('completed');
+        if (index1 > -1) {
+          newPushingStatus.splice(index1, 1);
+        } else {
+          newPushingStatus.push('completed')
+        }
+        break;
+      case 'failed':
+        const index2 = newPushingStatus.indexOf('failed');
+        if (index2 > -1) {
+          newPushingStatus.splice(index2, 1);
+        } else {
+          newPushingStatus.push('failed')
+        }
+        break;
+      
+      default: break;  
+    }
+    console.log('newPushingStatus', newPushingStatus);
+    
+    setPushing(newPushingStatus)
+  }, [pushing]);
 
   const changeControl = useCallback((status) => {
     let newControl = [...control]
@@ -320,13 +358,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         const valuesForm = {
           ...values,
           print_status: print,
+          pushing_status: pushing,
           reference_status: control
         }
         onFilter && onFilter(valuesForm);
         setRerender(false)
       }
     },
-    [formRef, print, control, onFilter]
+    [formRef, print, pushing, control, onFilter]
   );
   let filters = useMemo(() => {
     let list = []
@@ -423,8 +462,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     if (initialValues.delivery_provider_ids.length) {
       let textService = ""
-      initialValues.delivery_provider_ids.forEach(i => {
-        const findService = deliveryService?.find(item => item.id === i)
+      initialValues.delivery_provider_ids.forEach((i: any) => {
+        const findService = deliveryService?.find(item => item.id.toString() === i.toString())
         textService = findService ? textService + findService.name + "; " : textService
       })
       list.push({
@@ -443,6 +482,18 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       list.push({
         key: 'print_status',
         name: 'Trạng thái in',
+        value: textStatus
+      })
+    }
+    if (initialValues.pushing_status.length) {
+      let textStatus = ""
+      initialValues.pushing_status.forEach(i => {
+        const findStatus = pushingStatus?.find(item => item.value === i)
+        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
+      })
+      list.push({
+        key: 'pushing_status',
+        name: 'Trạng thái đẩy đơn',
         value: textStatus
       })
     }
@@ -536,7 +587,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_ids, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, accounts, deliveryService, printStatus, optionsVariant, serviceType, reasons]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_ids, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, accounts, deliveryService, printStatus, pushingStatus, optionsVariant, serviceType, reasons]
   );
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -584,8 +635,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })()
     }
     setPrint(Array.isArray(params.print_status) ? params.print_status : [params.print_status])
+    setPushing(Array.isArray(params.pushing_status) ? params.pushing_status : [params.pushing_status])
     setControl(Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status])
-  }, [params.reference_status, params.print_status, params.variant_ids]);
+  }, [params.reference_status, params.print_status, params.variant_ids, params.pushing_status]);
 
   return (
     <div>
@@ -867,7 +919,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   getPopupContainer={trigger => trigger.parentNode} allowClear
                 >
                   {deliveryService?.map((item) => (
-                    <Option key={item.id} value={item.id}>
+                    <Option key={item.id} value={item.id.toString()}>
                       {item.name}
                     </Option>
                   ))}
@@ -910,6 +962,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="note">
                   <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
                 </Item>
+              </Col>
+              <Col span={12} xxl={8}>
+                <p>Trạng thái đẩy đơn</p>
+                <div className="button-option-1">
+                  <Button
+                    onClick={() => changeStatusPushing('completed')}
+                    className={pushing.includes('completed') ? 'active' : 'deactive'}
+                  >
+                    Thành công
+                  </Button>
+                  <Button
+                    onClick={() => changeStatusPushing('failed')}
+                    className={pushing.includes('failed') ? 'active' : 'deactive'}
+                  >
+                    Không thành công
+                  </Button>
+                </div>
               </Col>
             </Row>
             

@@ -5,8 +5,6 @@ export const StyledComponent = styled.div`
     white-space: normal;
   }
   .cardTitle {
-    color: #5d5d8a;
-    font-size: 14px;
     padding-left: 30px;
     position: relative;
     img {

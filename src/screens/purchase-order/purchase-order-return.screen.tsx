@@ -43,7 +43,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const dispatch = useDispatch();
   const onUpdateCall = useCallback(() => {
     setLoading(false);
-    history.replace(`${UrlConfig.PURCHASE_ORDER}/${id}`);
+    history.replace(`${UrlConfig.PURCHASE_ORDERS}/${id}`);
   }, [history, id]);
   const onFinish = useCallback(
     (values: any) => {
@@ -64,7 +64,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
     [dispatch, idNumber, onUpdateCall]
   );
   const onCancelButton = () => {
-    history.replace(`${UrlConfig.PURCHASE_ORDER}/${id}`);
+    history.replace(`${UrlConfig.PURCHASE_ORDERS}/${id}`);
   };
   const onConfirmButton = useCallback(() => {
     formMain.validateFields().then((values) => {
@@ -142,11 +142,11 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
         },
         {
           name: "Đặt hàng",
-          path: `${UrlConfig.PURCHASE_ORDER}`,
+          path: `${UrlConfig.PURCHASE_ORDERS}`,
         },
         {
           name: `Đơn hàng`,
-          path: `${UrlConfig.PURCHASE_ORDER}/${id}`,
+          path: `${UrlConfig.PURCHASE_ORDERS}/${id}`,
         },
       ]}
     >
@@ -192,6 +192,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
                         totalVat={totalVat}
                         totalReturn={totalReturn}
                         listStore={listStoreFilter}
+                        poData={poData}
                       />
                       <POReturnPaymentForm
                         formMain={formMain}

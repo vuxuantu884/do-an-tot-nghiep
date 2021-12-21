@@ -1,8 +1,8 @@
-import {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
-import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload} from "antd";
+import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
+import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload, Form} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
@@ -44,6 +44,7 @@ import {
   getDetailInventoryAdjustmentAction,
   getLinesItemAdjustmentAction,
   InventoryAdjustmentGetPrintContentAction,
+  updateInventoryAdjustmentAction,
   updateItemOnlineInventoryAction,
   updateOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
@@ -66,7 +67,11 @@ import {UploadFile} from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
 import {importFile, exportFile, getFile} from "service/other/import.inventory.service";
 import {ImportResponse} from "model/other/files/export-model";
-import NumberInput from "component/custom/number-input.custom"; 
+import NumberInput from "component/custom/number-input.custom";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
+import useAuthorization from "hook/useAuthorization";
+import TextArea from "antd/es/input/TextArea";
 
 const {TabPane} = Tabs;
 
@@ -93,6 +98,7 @@ export const STATUS_IMPORT_EXPORT = {
 };
 
 const DetailInvetoryAdjustment: FC = () => {
+  const [form] = Form.useForm();
   const [activeTab, setActiveTab] = useState<string>("1");
   const history = useHistory();
   const dispatch = useDispatch();
@@ -127,6 +133,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const [importProgress, setImportProgress] = useState<number>(0);
   const [statusImport, setStatusImport] = useState<number>(1);
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
+  const [fileListUpdate, setFileListUpdate] = useState<Array<UploadFile>>([]);
   const [dataImport, setDataImport] = useState<ImportResponse>();
   const [hasImportUrl, setHasImportUrl] = useState<boolean>(false);
 
@@ -148,6 +155,11 @@ const DetailInvetoryAdjustment: FC = () => {
     TotalOnHand: 0,
     TotalRealOnHand: 0,
   });  
+
+  //phân quyền
+  const [allowUpdate] = useAuthorization({
+    acceptPermissions: [InventoryAdjustmentPermission.update],
+  });
 
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
     if (!data) {
@@ -380,10 +392,47 @@ const DetailInvetoryAdjustment: FC = () => {
     }
   };
 
+  const onCustomUpdateRequest = (options: UploadRequestOption<any>) => {
+    const {file} = options;
+    let files: Array<File> = [];
+    if (file instanceof File) {
+      let uuid = file.uid;
+      files.push(file);
+      dispatch(
+        inventoryUploadFileAction({files: files}, (data: false | Array<string>) => {
+          let index = fileListUpdate.findIndex((item) => item.uid === uuid);
+          if (!!data) {
+            if (index !== -1) {
+              fileListUpdate[index].status = "done";
+              fileListUpdate[index].url = data[0];
+              let fileCurrent: Array<string> = form.getFieldValue("attached_files");
+              if (!fileCurrent) {
+                fileCurrent = [];
+              }
+              fileCurrent.push(data[0]);
+              let newFileCurrent = [...fileCurrent];
+              form.setFieldsValue({attached_files: newFileCurrent});
+
+              updateAdjustment();
+            }
+          } else {
+            fileListUpdate.splice(index, 1);
+            showError("Upload file không thành công");
+          }
+          setFileListUpdate([...fileListUpdate]);
+        })
+      );
+    }
+  };
+
   const onChangeFile = useCallback((info) => {
     setFileList([info.file]);
     setShowImportModal(true);
   }, []);
+
+  const onChangeFileUpdate = useCallback((info) => {
+    setFileListUpdate(info.fileList);
+  }, []); 
 
   const onPrintAction = () => {
     if (data) {
@@ -428,7 +477,7 @@ const DetailInvetoryAdjustment: FC = () => {
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
+                to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
               >
                 {record.sku}
               </Link>
@@ -469,7 +518,7 @@ const DetailInvetoryAdjustment: FC = () => {
       align: "center",
       width: 100,
       render: (value, row: LineItemAdjustment, index: number) => {
-        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT) {
+        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate) {
           return (
             <NumberInput
               min={0}
@@ -494,12 +543,14 @@ const DetailInvetoryAdjustment: FC = () => {
                     row.on_hand_adj = totalDiff;
                     row.on_hand_adj_dis = `${totalDiff}`;
                   }
-
+                  
                   dispatch(
-                    updateItemOnlineInventoryAction(data?.id, row, (result) => {
+                    updateItemOnlineInventoryAction(data?.id, row, (result: LineItemAdjustment) => {
                       if (result) {
                         showSuccess("Nhập tồn thực tế thành công.");
                         onEnterFilterVariant(null);
+                        const version = form.getFieldValue('version');
+                        form.setFieldsValue({version: version + 1});
                       }
                     })
                   );
@@ -550,7 +601,7 @@ const DetailInvetoryAdjustment: FC = () => {
         }
       },
     },
-  ];
+  ]; 
 
   const onResult = useCallback(
     (result) => {
@@ -564,6 +615,7 @@ const DetailInvetoryAdjustment: FC = () => {
         setHasError(false);
         setFormStoreData(data?.store);
         setData(data);
+        form.setFieldsValue(result);
 
         dispatch(
           getLinesItemAdjustmentAction(
@@ -574,8 +626,34 @@ const DetailInvetoryAdjustment: FC = () => {
         );
       }
     },
-    [idNumber, keySearch, onResultDataTable, dispatch]
+    [idNumber, keySearch, form, onResultDataTable, dispatch]
   );
+
+  const updateAdjustment = React.useMemo(() =>
+  _.debounce(() => {
+    const dataUpdate = {...data,
+                     note: form.getFieldValue('note'),
+                     version: form.getFieldValue('version'),
+                     line_items: dataLinesItem.items,
+                     attached_files: form.getFieldValue('attached_files')} as InventoryAdjustmentDetailItem; 
+     
+    if (data && dataUpdate) {
+      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, (res)=>{
+        onResult(res);
+        showSuccess("Cập nhật phiếu kiểm kho thành công");
+      }));
+    }
+  }, 500),
+  [dispatch, data, form, dataLinesItem,  onResult]
+) 
+
+const onChangeNote = useCallback(
+  (note: string) => {
+    if (note && note.length > 500) return;
+    updateAdjustment();
+  },
+  [updateAdjustment]
+)  
 
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
@@ -834,7 +912,7 @@ const DetailInvetoryAdjustment: FC = () => {
           },
           {
             name: "Kiểm kho",
-            path: `${UrlConfig.INVENTORY_ADJUSTMENT}`,
+            path: `${UrlConfig.INVENTORY_ADJUSTMENTS}`,
           },
           {
             name: `${data?.code}`,
@@ -849,6 +927,7 @@ const DetailInvetoryAdjustment: FC = () => {
       >
         {data && (
           <>
+          <Form form={form}>
             <Row gutter={24}>
               <Col span={18}>
                 <Card
@@ -907,61 +986,65 @@ const DetailInvetoryAdjustment: FC = () => {
                     </Card>
                   ) : (
                     <Card title="Thông tin sản phẩm" bordered={false}>
-                      <Input.Group style={{paddingTop: 16}} className="display-flex">
-                        <CustomAutoComplete
-                          id="#product_search_variant"
-                          dropdownClassName="product"
-                          placeholder="Thêm sản phẩm vào phiếu kiểm"
-                          onSearch={onSearchProduct}
-                          dropdownMatchSelectWidth={456}
-                          style={{width: "100%"}}
-                          showAdd={true}
-                          textAdd="Thêm mới sản phẩm"
-                          onSelect={onSelectProduct}
-                          options={renderResult}
-                          ref={productSearchRef}
-                          onClickAddNew={() => {
-                            window.open(
-                              `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                              "_blank"
-                            );
-                          }}
-                        />
-                        <Button
-                          onClick={() => {
-                            setVisibleManyProduct(true);
-                            return;
-                          }}
-                          style={{width: 132, marginLeft: 10}}
-                          icon={<img src={PlusOutline} alt="" />}
-                        >
-                          &nbsp;&nbsp; Chọn nhiều
-                        </Button>
+                      <AuthWrapper
+                        acceptPermissions={[InventoryAdjustmentPermission.update]}
+                      >
+                        <Input.Group style={{paddingTop: 16}} className="display-flex">
+                          <CustomAutoComplete
+                            id="#product_search_variant"
+                            dropdownClassName="product"
+                            placeholder="Thêm sản phẩm vào phiếu kiểm"
+                            onSearch={onSearchProduct}
+                            dropdownMatchSelectWidth={456}
+                            style={{width: "100%"}}
+                            showAdd={true}
+                            textAdd="Thêm mới sản phẩm"
+                            onSelect={onSelectProduct}
+                            options={renderResult}
+                            ref={productSearchRef}
+                            onClickAddNew={() => {
+                              window.open(
+                                `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                                "_blank"
+                              );
+                            }}
+                          />
+                          <Button
+                            onClick={() => {
+                              setVisibleManyProduct(true);
+                              return;
+                            }}
+                            style={{width: 132, marginLeft: 10}}
+                            icon={<img src={PlusOutline} alt="" />}
+                          >
+                            &nbsp;&nbsp; Chọn nhiều
+                          </Button>
 
-                        <Input
-                          name="key_search"
-                          value={keySearch}
-                          onChange={(e) => {
-                            setKeySearch(e.target.value);
-                          }}
-                          onKeyPress={(event) => {
-                            if (event.key === "Enter") {
-                              event.preventDefault();
-                              onEnterFilterVariant(null);
-                            }
-                          }}
-                          style={{marginLeft: 8}}
-                          placeholder="Tìm kiếm sản phẩm trong phiếu"
-                          addonAfter={
-                            <SearchOutlined
-                              onClick={() => {
+                          <Input
+                            name="key_search"
+                            value={keySearch}
+                            onChange={(e) => {
+                              setKeySearch(e.target.value);
+                            }}
+                            onKeyPress={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
                                 onEnterFilterVariant(null);
-                              }}
-                              style={{color: "#2A2A86"}}
-                            />
-                          }
-                        />
-                      </Input.Group>
+                              }
+                            }}
+                            style={{marginLeft: 8}}
+                            placeholder="Tìm kiếm sản phẩm trong phiếu"
+                            addonAfter={
+                              <SearchOutlined
+                                onClick={() => {
+                                  onEnterFilterVariant(null);
+                                }}
+                                style={{color: "#2A2A86"}}
+                              />
+                            }
+                          />
+                        </Input.Group>
+                      </AuthWrapper>
                       <CustomTable
                         isLoading={tableLoading}
                         tableLayout="fixed"
@@ -1015,28 +1098,23 @@ const DetailInvetoryAdjustment: FC = () => {
                     }
                   </Col>
                 </Card>
-                <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
+                <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}> 
                   <Row className="" gutter={5} style={{flexDirection: "column"}}>
-                    <Col span={24} style={{marginBottom: 6}}>
-                      <b>Ghi chú nội bộ:</b>
-                    </Col>
-                    <Col span={24}>
-                      <span className="text-focus" style={{wordWrap: "break-word"}}>
-                        {data?.note !== "" && data?.note !== "string"
-                          ? data?.note
-                          : "Không có ghi chú"}
-                      </span>
-                    </Col>
-                  </Row>
-
+                    <Form.Item
+                      name={"note"}
+                      label={<b>Ghi chú nội bộ:</b>}
+                      colon={false}
+                      labelCol={{span: 24, offset: 0}}
+                      rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
+                    >
+                      <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
+                    </Form.Item> 
+                  </Row>  
                   <Row
                     className="margin-top-10"
                     gutter={5}
                     style={{flexDirection: "column"}}
                   >
-                    <Col span={24} style={{marginBottom: 6}}>
-                      <b>File đính kèm:</b>
-                    </Col>
                     <Col span={24}>
                       <span className="text-focus">
                         {data.attached_files?.map((link: string, index: number) => {
@@ -1054,11 +1132,38 @@ const DetailInvetoryAdjustment: FC = () => {
                         })}
                       </span>
                     </Col>
+
+                    <Form.Item
+                      labelCol={{span: 24, offset: 0}}
+                      label={<b>File đính kèm:</b>}
+                      colon={false}
+                    >
+                      {
+                       data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && 
+                          <Upload 
+                          beforeUpload={onBeforeUpload}
+                          multiple={true}
+                          fileList={fileListUpdate}
+                          onChange={onChangeFileUpdate}
+                          customRequest={onCustomUpdateRequest}
+                          showUploadList={false}
+                        >
+                          <Button icon={<UploadOutlined />}>Chọn file</Button>
+                        </Upload>
+                      }
+                      </Form.Item>
+
+                    <Form.Item noStyle hidden name="attached_files">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item noStyle hidden name="version">
+                      <Input />
+                    </Form.Item>
                   </Row>
                 </Card>
               </Col>
             </Row>
-
+          </Form>
             <div style={{display: "none"}}>
               <Upload fileList={fileList}></Upload>
               <div className="printContent" ref={printElementRef}>
@@ -1072,7 +1177,7 @@ const DetailInvetoryAdjustment: FC = () => {
             <BottomBarContainer
               leftComponent={
                 <div
-                  onClick={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}`)}
+                  onClick={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}`)}
                   style={{cursor: "pointer"}}
                 >
                   <img style={{marginRight: "10px"}} src={arrowLeft} alt="" />
@@ -1082,64 +1187,84 @@ const DetailInvetoryAdjustment: FC = () => {
               rightComponent={
                 <Space>
                   {data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
-                    <Button
-                      type="default"
-                      onClick={() => {
-                        onPrintAction();
-                      }}
+                    <AuthWrapper
+                      acceptPermissions={[InventoryAdjustmentPermission.print]}
                     >
-                      <Space>
-                        <PrinterOutlined /> In phiếu
-                      </Space>
-                    </Button>
-                  )}
-                  {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ? (
-                    <>
-                      <Upload
-                        beforeUpload={onBeforeUpload}
-                        multiple={false}
-                        showUploadList={false}
-                        onChange={onChangeFile}
-                        customRequest={onCustomRequest}
-                      >
-                        <Button icon={<UploadOutlined />}>Nhập excel</Button>
-                      </Upload>
                       <Button
                         type="default"
-                        className="light"
-                        size="large"
-                        icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
                         onClick={() => {
-                          setShowExportModal(true);
-                          onExport();
+                          onPrintAction();
                         }}
                       >
-                        Xuất excel
+                        <Space>
+                          <PrinterOutlined /> In phiếu
+                        </Space>
                       </Button>
+                    </AuthWrapper>
+                  )}
+                  {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
+                    <>
+                      <AuthWrapper
+                        acceptPermissions={[InventoryAdjustmentPermission.import]}
+                      >
+                        <Upload
+                          beforeUpload={onBeforeUpload}
+                          multiple={false}
+                          showUploadList={false}
+                          onChange={onChangeFile}
+                          customRequest={onCustomRequest}
+                        >
+                          <Button icon={<UploadOutlined />}>Nhập excel</Button>
+                        </Upload>
+                      </AuthWrapper>
+                      <AuthWrapper
+                        acceptPermissions={[InventoryAdjustmentPermission.export]}
+                      >
+                        <Button
+                          type="default"
+                          className="light"
+                          size="large"
+                          icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                          onClick={() => {
+                            setShowExportModal(true);
+                            onExport();
+                          }}
+                        >
+                          Xuất excel
+                        </Button>
+                      </AuthWrapper>
+                      <AuthWrapper
+                        acceptPermissions={[InventoryAdjustmentPermission.audit]}
+                      >
+                        <Button
+                          type="primary"
+                          onClick={() => {
+                            setIsShowConfirmAdited(true);
+                          }}
+                          loading={isLoading}
+                          disabled={hasError || isLoading}
+                        >
+                          Hoàn thành kiểm
+                        </Button>
+                      </AuthWrapper>
+                    </>
+                  )}
+                  {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status &&  (
+                    <AuthWrapper
+                      acceptPermissions={[InventoryAdjustmentPermission.adjust]}
+                    >
                       <Button
                         type="primary"
                         onClick={() => {
-                          setIsShowConfirmAdited(true);
+                          seIsShowConfirmAdj(true);
                         }}
                         loading={isLoading}
                         disabled={hasError || isLoading}
                       >
-                        Hoàn thành kiểm
+                        Cân tồn kho
                       </Button>
-                    </>
-                  ) : null}
-                  {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ? (
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        seIsShowConfirmAdj(true);
-                      }}
-                      loading={isLoading}
-                      disabled={hasError || isLoading}
-                    >
-                      Cân tồn kho
-                    </Button>
-                  ) : null}
+                    </AuthWrapper>
+                  )}
                 </Space>
               }
             />

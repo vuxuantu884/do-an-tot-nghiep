@@ -1,0 +1,40 @@
+ 
+.custom-filter {
+  .page-filter {
+    padding-top: 0px;
+    .page-filter-heading {
+      width: 100%;
+      display: inline-flex;
+      justify-content: space-between;
+      .page-filter-left {
+        min-width: 100px;
+      }
+      .page-filter-right {
+        padding-left: 16px;
+        width: 100%;
+        .ant-space.ant-space-horizontal {
+          width: 100%;
+          .ant-space-item {
+            width: 100%; 
+            .ant-form.ant-form-inline {
+              display: flex;
+              justify-content: space-between;
+              .ant-form-item {
+                margin-right: 10px;
+              }
+              .ant-form-item:last-child {
+                margin-right: 0px;
+              }
+              .input-search {
+                flex: 1;
+              }
+            }
+          }
+        }
+        .ant-collapse>.ant-collapse-item>.ant-collapse-header {
+          background-color: #f5f5f5;
+        }
+      }
+    }
+  } 
+} 

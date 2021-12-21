@@ -33,24 +33,44 @@
     white-space: unset;
   }
 }
-// .ant-form-inline{
-//   flex-wrap: nowrap;
-// }
 
-.group-filter {
-  display: flex;
-  width: 100%;
+.base-filter {
   padding-bottom: 20px;
-  justify-content: space-between;
-  .search {
-    width: 60%;
-    min-width: 250px;
-  }
-  .ant-form-item:last-child {
-    margin-right: 0;
-  }
-  .ant-form-item {
-    flex: auto;
+  .page-filter {
+    width: 100%;
+    .ant-form-item {
+      flex: auto;
+    }
+    .ant-form-item:last-child {
+      margin-right: 0;
+    }
+    .page-filter-left {
+      margin-right: 20px;
+    }
+    .page-filter-right {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      .ant-space {
+        width: 100%;
+        gap: 0 !important;
+        &-item{
+          margin-right: 20px;
+        }
+        &-item:first-child{
+          width: 100%;
+        }
+        &-item:last-child{
+          margin-right: 0 !important;
+        }
+        
+      }
+    }
+    .search {
+      width: 100%;
+      min-width: 250px;
+    }
   }
 }
+
 

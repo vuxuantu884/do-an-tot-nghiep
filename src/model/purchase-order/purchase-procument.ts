@@ -44,6 +44,7 @@ export interface PurchaseProcurementPOCreate {
 export interface PurchaseProcumentPOCreateLineItem {
   id?: number;
   code?: string;
+  barcode: string,
   line_item_id?: number;
   sku: string;
   variant: string;
@@ -58,6 +59,7 @@ export interface PurchaseProcumentPOCreateLineItem {
 
 export interface PurchaseProcumentLineItem {
   id?: number;
+  barcode: string;
   code?: string;
   line_item_id: number;
   sku: string;
@@ -73,7 +75,7 @@ export interface PurchaseProcumentLineItem {
 
 const POProcumentField = {
   id: "id",
-  code: "code",
+  code: "code", 
   reference: "reference",
   store_id: "store_id",
   store: "store",
@@ -91,6 +93,7 @@ const POProcumentLineItemField = {
   id: "id",
   line_item_id: "line_item_id",
   sku: "sku",
+  barcode: "barcode",
   variant: "variant",
   variant_image: "variant_image",
   ordered_quantity: "ordered_quantity",
@@ -115,6 +118,13 @@ export interface ProcurementQuery extends BaseQuery, ParsedUrlQueryInput {
   expect_receipt_from?: string,
   expect_receipt_to?: string,
   is_cancel?: boolean
+}
+
+export interface ImportProcument {
+  url: string;
+  conditions: string;
+  type: string; 
+  url_template?: string
 }
 
 export { POProcumentField, POProcumentLineItemField };

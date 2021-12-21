@@ -19,23 +19,23 @@ function OrderShortDetailsReturn(props: PropType) {
   return (
     <StyledComponent>
       <Card className="card-block card-block-normal" title="Thông tin Đơn TRẢ hàng">
-        <Row className="rowDetail" gutter={5}>
-          <Col span={9}>Mã đơn hàng:</Col>
+			<Row className="rowDetail" gutter={5}>
+          <Col span={9}>Mã đơn trả hàng:</Col>
           <Col span={15}>
             <span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
-              <Link to={`${UrlConfig.ORDER}/${OrderDetail?.order_id}`} target="_blank">
-                {OrderDetail?.order_code}
+              <Link to={`${UrlConfig.ORDERS_RETURN}/${OrderDetail?.id}`} target="_blank">
+                {OrderDetail?.code}
               </Link>
             </span>
           </Col>
         </Row>
         <Row className="rowDetail" gutter={5}>
-          <Col span={9}>Mã đơn đổi hàng:</Col>
+          <Col span={9}>Mã đơn hàng gốc:</Col>
           <Col span={15}>
             <span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
               {OrderDetail?.order_code && OrderDetail.order_id ? (
                 <Link to={`${UrlConfig.ORDER}/${OrderDetail.order_id}`} target="_blank">
-                  {OrderDetail?.code}
+                  {OrderDetail?.order_code}
                 </Link>
               ) : (
                 "-"

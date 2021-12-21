@@ -192,7 +192,7 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
     setIsVisibleContactModal(false);
   };
   return (
-    <Row style={{ marginTop: 16 }}>
+    <Row>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}

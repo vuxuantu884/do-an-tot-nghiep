@@ -1,7 +1,7 @@
 import { Col, Input, Modal, Row, Select, Form } from "antd";
 //import arrowDownIcon from "assets/img/drow-down.svg";
 import { CountryGetAllAction, DistrictGetByCountryAction, WardGetByDistrictAction } from "domain/actions/content/content.action";
-import { CreateShippingAddress, CustomerDetail, UpdateShippingAddress } from "domain/actions/customer/customer.action";
+import { CreateShippingAddress, getCustomerDetailAction, UpdateShippingAddress } from "domain/actions/customer/customer.action";
 import { CustomerShippingAddress } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { ShippingAddress } from "model/response/order/order.response";
@@ -148,7 +148,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
               (data: ShippingAddress) => {
                 if (data) {
                   dispatch(
-                    CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                    getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                       handleChangeCustomer(datas);
                     })
                   );
@@ -171,7 +171,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
               (data: CustomerShippingAddress) => {
                 if (data) {
                   dispatch(
-                    CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                    getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                       handleChangeCustomer(datas);
                     })
                   );

@@ -1,6 +1,6 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useState} from "react";
-import {StyledWrapper} from "./styles";
-import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
+import "./index.scss";
+import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {Button, Card, Col, Form, Input, Row, Select, Space, Upload, Empty} from "antd";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
@@ -49,6 +49,7 @@ import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
 import {DATE_FORMAT} from "utils/DateUtils";
 import moment from "moment";
+import SelectPaging from "component/custom/SelectPaging";
 
 const {Option} = Select;
 
@@ -69,6 +70,7 @@ export interface Summary {
 }
 
 const CreateInventoryAdjustment: FC = () => {
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
@@ -84,7 +86,10 @@ const CreateInventoryAdjustment: FC = () => {
   const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 }
+  });
   const [auditType, setAuditType] = useState<string>(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
   const [adjustStoreIdBak, setAdjustStoreIdBak] = useState<number | null>(null);
 
@@ -119,10 +124,18 @@ const CreateInventoryAdjustment: FC = () => {
     if (!data) {
       return;
     }
-    setAccounts(data.items);
-  }, []);
+    setAccounts(data);
+  }, []); 
 
-  const dispatch = useDispatch();
+  const getAccounts = useCallback((code: string, page: number) => {
+    dispatch(
+      AccountSearchAction(
+        { info: code, page: page, status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
 
   const onFinish = (data: InventoryAdjustmentDetailItem) => {
     const storeCurr = stores.find(
@@ -137,6 +150,7 @@ const CreateInventoryAdjustment: FC = () => {
       showError("Vui lòng chọn sản phẩm");
       return;
     }
+    
     data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
       const variantPrice =
         item &&
@@ -292,7 +306,7 @@ const CreateInventoryAdjustment: FC = () => {
   const onBeforeUpload = useCallback((file) => {
     const isLt2M = file.size / 1024 / 1024 < 10;
     if (!isLt2M) {
-      showWarning("Cần chọn ảnh nhỏ hơn 10mb");
+      showWarning("Cần chọn file nhỏ hơn 10mb");
     }
     return isLt2M ? true : Upload.LIST_IGNORE;
   }, []);
@@ -320,7 +334,7 @@ const CreateInventoryAdjustment: FC = () => {
             }
           } else {
             fileList.splice(index, 1);
-            showError("Upload ảnh không thành công");
+            showError("Upload file không thành công");
           }
           setFileList([...fileList]);
         })
@@ -354,7 +368,7 @@ const CreateInventoryAdjustment: FC = () => {
         setIsLoading(false);
         if (result) {
           showSuccess("Thêm mới dữ liệu thành công");
-          history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}/${result.id}`);
+          history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}/${result.id}`);
         }
       } else {
         setIsLoading(false);
@@ -410,7 +424,7 @@ const CreateInventoryAdjustment: FC = () => {
               <div className="product-item-sku">
                 <Link
                   target="_blank"
-                  to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
+                  to={`${UrlConfig.PRODUCT}/${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
                 >
                   {record.sku}
                 </Link>
@@ -648,7 +662,7 @@ const CreateInventoryAdjustment: FC = () => {
               <div className="product-item-sku">
                 <Link
                   target="_blank"
-                  to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
+                  to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
                 >
                   {record.sku}
                 </Link>
@@ -673,7 +687,6 @@ const CreateInventoryAdjustment: FC = () => {
   ];
 
   return (
-    <StyledWrapper>
       <ContentContainer
         title="Thêm mới phiếu kiểm kho"
         breadcrumb={[
@@ -683,7 +696,7 @@ const CreateInventoryAdjustment: FC = () => {
           },
           {
             name: "Kiểm kho",
-            path: `${UrlConfig.INVENTORY_ADJUSTMENT}`,
+            path: `${UrlConfig.INVENTORY_ADJUSTMENTS}`,
           },
           {
             name: "Thêm mới",
@@ -972,26 +985,31 @@ const CreateInventoryAdjustment: FC = () => {
                       message: "Vui lòng chọn người kiểm",
                   }]}
                 >
-                  <CustomSelect
+                  <SelectPaging
                     mode="multiple"
-                    showSearch
+                    metadata={accounts.metadata}
+                    showSearch={false}
+                    allowClear
                     placeholder="Chọn người kiểm"
+                    searchPlaceholder="Tìm kiếm người kiểm"
                     notFoundContent="Không tìm thấy kết quả"
                     style={{width: "100%"}}
                     optionFilterProp="children"
                     maxTagCount="responsive"
                     getPopupContainer={(trigger) => trigger.parentNode}
+                    onPageChange={(key, page) => getAccounts(key, page)}
+                    onSearch={(key) => getAccounts(key, 1)}
                   >
-                    {accounts.map((item, index) => (
-                      <Option
+                    {accounts.items.map((item, index) => (
+                      <SelectPaging.Option
                         style={{width: "100%"}}
                         key={index.toString()}
                         value={item.code.toString()}
                       >
-                        {`${item.full_name}`}
-                      </Option>
+                        {`${item.code} - ${item.full_name}`}
+                      </SelectPaging.Option>
                     ))}
-                  </CustomSelect>
+                  </SelectPaging>
                 </Form.Item>
               </Card>
               <Card title={"GHI CHÚ"} bordered={false} className={"note"}>
@@ -1023,7 +1041,7 @@ const CreateInventoryAdjustment: FC = () => {
                 </Form.Item>
                 <Form.Item noStyle hidden name="attached_files">
                   <Input />
-                </Form.Item>
+                </Form.Item> 
               </Card>
             </Col>
           </Row>
@@ -1065,7 +1083,7 @@ const CreateInventoryAdjustment: FC = () => {
               onCancel={() => {
                 setIsVisibleModalWarning(false);
               }}
-              onOk={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}`)}
+              onOk={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}`)}
               okText="Đồng ý"
               cancelText="Tiếp tục"
               title={`Bạn có muốn rời khỏi trang?`}
@@ -1105,7 +1123,6 @@ const CreateInventoryAdjustment: FC = () => {
           )}
         </Form>
       </ContentContainer>
-    </StyledWrapper>
   );
 };
 

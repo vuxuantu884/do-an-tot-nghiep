@@ -13,7 +13,7 @@ export interface SizeResponse extends BaseObject {
 }
 
 export interface SizeDetail extends BaseObject {
-  category_ids: Array<number>
+  code: string,
 }
 
 
@@ -23,8 +23,8 @@ export interface SizeQuery extends BaseQuery {
 }
 
 
-export interface SizeCreateRequest {
-  category_ids: Array<number>
+export interface SizeCreateRequest { 
+  id: number|null,
   code: string,
 }
 

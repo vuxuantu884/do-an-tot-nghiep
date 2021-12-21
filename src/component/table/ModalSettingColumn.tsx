@@ -116,6 +116,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       title="Cài đặt ẩn hiện cột"
       closable={false}
       visible={visible}
+			onCancel={onCancel}
       footer={
         [
           <div
@@ -176,7 +177,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
                   onChange={(e) => onCheckedChange(index, e)}
                   checked={item.visible}
                 >
-                  {item.title}
+                  {item.titleCustom ?? item.title}
                   <span style={{ color: '#2a2a86', fontWeight: 500, marginLeft: '30px' }}>{item.fixed ? 'Cố định' : ''}</span>
                 </Checkbox>
               </List.Item>

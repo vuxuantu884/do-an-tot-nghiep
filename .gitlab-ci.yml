@@ -4,7 +4,7 @@ cache:
     - .npm/
 
 variables:
-  SERVICE_PATH: /unicorn/admin
+  SERVICE_PATH: /admin
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 stages:
@@ -14,10 +14,11 @@ stages:
 docker build dev:
   stage: docker_build
   tags:
-  - build-yody-tag
+  - npd-dev
   only:
     - develop
   variables:
+    PREFIX: dev
     DOCKER_FILE: Dockerfile
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
@@ -27,10 +28,11 @@ docker build dev:
 docker build uat:
   stage: docker_build
   tags:
-  - build-yody-tag
+  - npd-dev
   only:
     - uat
   variables:
+    PREFIX: uat
     DOCKER_FILE: Dockerfile-uat
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
@@ -40,10 +42,11 @@ docker build uat:
 docker build production:
   stage: docker_build
   tags:
-  - build-yody-tag
+  - npd-dev
   only:
     - master
   variables:
+    PREFIX: prod
     DOCKER_FILE: Dockerfile-production
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
@@ -54,11 +57,13 @@ deploy to dev:
   stage: deploy
   cache: {}
   tags:
-    - nonprod-deploy
+    - npd-deploy
   only:
     - develop
+  when: manual
   variables:
-    HOST: dev.yody.io
+    PREFIX: dev
+    HOST: dev.unicorn.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
     SERVICE_NAME: yody-app-admin
@@ -71,11 +76,12 @@ deploy to uat:
   cache: {}
   when: manual
   tags:
-    - nonprod-deploy
+    - npd-deploy
   only:
     - uat
   variables:
-    HOST: uat.yody.io
+    PREFIX: uat
+    HOST: uat.unicorn.yody.io
     NAMESPACE: uat
     ENVIRONMENT: uat
     SERVICE_NAME: yody-app-admin
@@ -92,6 +98,7 @@ deploy to production:
   only:
     - master
   variables:
+    PREFIX: prod
     HOST: unicorn.yody.io
     NAMESPACE: production
     ENVIRONMENT: production

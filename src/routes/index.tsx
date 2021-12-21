@@ -31,6 +31,7 @@ const listExtraMenu = () => {
 const listRoutesNotShowInMenu = () => {
   let list: Array<RouteMenu> = [];
   routesNotShowInMenu.forEach((item) => list = [...list, ...getAllRoute(item)]);
+
   return list;
 }
 
@@ -48,7 +49,7 @@ const getAllRoute = (route: RouteMenu) => {
     } else {
       temps.push(route);
     }
-  }
+  }  
   return temps;
 }
 

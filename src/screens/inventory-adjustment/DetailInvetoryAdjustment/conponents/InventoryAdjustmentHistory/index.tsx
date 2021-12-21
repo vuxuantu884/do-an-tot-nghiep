@@ -6,7 +6,7 @@ import {
 import {Col, Input, Row, Space, Table} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import {Link} from "react-router-dom";
-import UrlConfig from "config/url.config";
+import { InventoryTabUrl } from "config/url.config";
 import {VariantResponse} from "model/product/product.model";
 import {useDispatch} from "react-redux";
 import _ from "lodash";
@@ -15,6 +15,8 @@ import {showSuccess} from "utils/ToastUtils";
 import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "screens/inventory-adjustment/constants";
 import {SearchOutlined} from "@ant-design/icons";
 import {ICustomTableColumType} from "component/table/CustomTable";
+import useAuthorization from "hook/useAuthorization";
+import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 const {TextArea} = Input;
 
 type propsInventoryAdjustment = {
@@ -50,6 +52,11 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
 
   const dispatch = useDispatch();
   const {data, dataLinesItem} = props;
+
+  //phân quyền
+  const [allowUpdate] = useAuthorization({
+    acceptPermissions: [InventoryAdjustmentPermission.update],
+  });
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
@@ -152,7 +159,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
+                to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
               >
                 {record.sku}
               </Link>
@@ -240,7 +247,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       align: "left",
       width: 200,
       render: (value, row: LineItemAdjustment, index: number) => {
-        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED) {
+        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
           return (
             <TextArea
               placeholder="Lý do lệch tồn"

@@ -1,14 +1,20 @@
+import React from "react";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
-import React from "react";
+import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
 
 const Config = React.lazy(() => import("screens/ecommerce/config"));
-const Orders = React.lazy(() => import("screens/ecommerce/orders"));
+const EcommerceOrders = React.lazy(() => import("screens/ecommerce/orders"));
+const OrdersMapping = React.lazy(() => import("screens/ecommerce/orders-mapping"));
 const Products = React.lazy(() => import("screens/ecommerce/products"));
 
 //@todo: implement later
 // const ForControl = React.lazy(() => import("screens/ecommerce/for-control"));
 // const Report = React.lazy(() => import("screens/ecommerce/report"));
+
+
+const ordersMappingViewPermission = [EcommerceOrderPermission?.orders_mapping_view];
+
 
 const ecommerce: Array<RouteMenu> = [
   {
@@ -16,11 +22,23 @@ const ecommerce: Array<RouteMenu> = [
     exact: true,
     title: "Đơn hàng",
     icon: "icon-dot",
-    component: Orders,
+    component: EcommerceOrders,
     key: "submenu400",
     isShow: true,
     header: null,
     subMenu: [],
+  },
+  {
+    path: `${UrlConfig.ECOMMERCE}/orders-mapping`,
+    exact: true,
+    title: "Đơn hàng mapping",
+    icon: "icon-dot",
+    component: OrdersMapping,
+    key: "orders-mapping",
+    isShow: true,
+    header: null,
+    subMenu: [],
+    permissions: ordersMappingViewPermission
   },
   {
     path: `${UrlConfig.ECOMMERCE}/products`,

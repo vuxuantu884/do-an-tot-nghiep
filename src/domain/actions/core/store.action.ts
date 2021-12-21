@@ -1,4 +1,4 @@
-import { StoreResponse, StoreValidateRequest } from "model/core/store.model";
+import { StoreResponse, StoreTypeRequest, StoreValidateRequest } from "model/core/store.model";
 import BaseAction from "base/base.action";
 import { StoreType } from "domain/types/core.type";
 import { StoreQuery } from "model/core/store.model";
@@ -81,3 +81,13 @@ export const StoreValidateAction = (
 ) => {
   return BaseAction(StoreType.STORE_VALIDATE, { data, setData });
 };
+
+export const StoreGetTypeAction = (
+  onSuccess: (data: Array<StoreTypeRequest>) => void
+) => {
+  return BaseAction(StoreType.STORE_TYPE, { onSuccess });
+};
+
+export const getStoreSearchIdsAction=(storeids:number[],setData:(data:PageResponse<StoreResponse>)=>void)=>{
+  return BaseAction(StoreType.STORE_SEARCH_IDS, { storeids,setData });
+}

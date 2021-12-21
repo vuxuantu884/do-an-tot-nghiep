@@ -1,22 +1,10 @@
 import { BaseObject } from "model/base/base.response";
 import { BaseQuery } from "model/base/base.query";
 
-
-export interface GoodsObj {
-  value: string,
-  name: string
-}
-
 export interface SupplierResponse extends BaseObject {
   name: string,
   type: string,
   type_name: string,
-  goods: Array<GoodsObj>,
-  address: string,
-  country_id: number,
-  country_name: string,
-  city_id: number,
-  city_name: string,
   contact_name: string,
   identity_number: string|null
   phone: string|null,
@@ -37,20 +25,55 @@ export interface SupplierResponse extends BaseObject {
   scorecard: string|null,
   scorecard_name: string|null,
   note: string|null,
-  district_id: number,
-  district_name: string,
-  person_in_charge: string,
-  name_person_in_charge: string,
+  pic_code: string,
+  pic: string,
   debt_time: number|null,
   debt_time_unit: string|null,
   debt_time_unit_name: string|null,
+  payments: Array<SupplierPaymentResposne>,
+  addresses: Array<SupplierAddressResposne>,
+  contacts: Array<SupplierContactResposne>,
+}
+
+export interface SupplierContactResposne {
+  id: number,
+  code: string,
+  supplier_id: number,
+  name: string,
+  phone: string,
+  fax: string,
+  email: string,
+  website: string,
+  is_default: boolean,
+}
+
+export interface SupplierAddressResposne {
+  id: number,
+  code: string,
+  supplier_id: number,
+  country_id: number,
+  country: string,
+  city_id: number,
+  city: string,
+  district_id: number,
+  district: string,
+  is_default: boolean,
+  address: string,
+}
+
+export interface SupplierPaymentResposne {
+  id: number,
+  code: string,
+  name: string,
+  brand: string,
+  number: string,
+  beneficiary: string,
 }
 
 export interface SupplierDetail extends BaseObject {
   name: string,
   type: string,
   type_name: string,
-  goods: Array<String>,
   address: string,
   country_id: number,
   country_name: string,
@@ -78,8 +101,8 @@ export interface SupplierDetail extends BaseObject {
   note: string|null,
   district_id: number,
   district_name: string,
-  person_in_charge: string,
-  name_person_in_charge: string,
+  pic: string,
+  pic_code: string,
   debt_time: number|null,
   debt_time_unit: string|null,
   debt_time_unit_name: string|null,
@@ -93,44 +116,66 @@ export interface SupplierQuery extends BaseQuery {
   created_name?: string,
   from_created_date?: string,
   to_created_date?: string,
-  info?: string,
+  condition?: string,
   note?: string,
-  pic?: string,
+  pics?: Array<string>,
   scorecard?: string,
   sort_column?: string,
   sort_type?: string,
   status?: string,
   type?: string,
-  goods?: string,
-  query?:string
 }
 
 export interface SupplierCreateRequest {
-  address: string|null,
   bank_brand: string|null,
   bank_name: string|null,
   bank_number: string|null,
   beneficiary_name: string|null,
   certifications: Array<string>,
-  city_id: number|null,
-  contact_name: string,
-  country_id: number|null,
   debt_time: number|null,
   debt_time_unit: string|null,
-  district_id: number|null,
-  email: string|null,
-  fax: string|null,
   goods: Array<string>,
   moq: number|null,
   name: string,
   note: string|null,
   person_in_charge: string|null,
-  phone: string|null,
   scorecard: string|null,
   status: string,
   tax_code: string|null,
   type: string,
-  website: string|null
+  addresses: Array<SupplierAddress>,
+  contacts: Array<SupplierContact>,
+  payments: Array<SupplierPayment>,
+}
+
+export interface SupplierAddress {
+  id: number|null,
+  country_id: number|null,
+  city_id: number|null,
+  district_id: number|null,
+  address: string|null,
+  is_default: boolean,
+  supplier_id: number|null
+}
+
+export interface SupplierContact {
+  id: number|null,
+  name: string,
+  email: string|null,
+  fax: string|null,
+  phone: string|null,
+  website: string|null,
+  is_default: boolean,
+  supplier_id: number|null
+}
+
+export interface SupplierPayment {
+  id: number|null,
+  name: string|null,
+  brand: string|null,
+  number: string|null,
+  beneficiary: string|null,
+  supplier_id: number|null
 }
 
 export interface SupplierUpdateRequest extends SupplierCreateRequest {

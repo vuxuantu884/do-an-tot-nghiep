@@ -1,10 +1,10 @@
-import { productBarcodeApi, productCheckDuplicateCodeApi, productDetailApi, productImportApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
+import { productBarcodeApi, productCheckDuplicateCodeApi, productDetailApi, productImportApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi, searchVariantsInventoriesApi } from 'service/product/product.service';
 import {
   ProductHistoryResponse,
   ProductResponse,
   VariantResponse,
 } from "model/product/product.model";
-import { call, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
+import { call, delay, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -29,6 +29,31 @@ function* searchVariantSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchVariantsApi,
+      query
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response);
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* searchVariantsInventoriesSaga(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
+      searchVariantsInventoriesApi,
       query
     );
 
@@ -123,8 +148,9 @@ function* productWrapperUpdateSaga(action: YodyAction) {
 }
 
 function* searchVariantOrderSaga(action: YodyAction) {
-  const { query, setData } = action.payload;
+  const { query, setData, handleError } = action.payload;
   try {
+		yield delay(500);
     if (query.info.length >= 3) {
       let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
         searchVariantsApi,
@@ -141,11 +167,13 @@ function* searchVariantOrderSaga(action: YodyAction) {
           break;
         default:
           response.errors.forEach((e) => showError(e));
+          handleError && handleError();
           break;
       }
     }
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    handleError && handleError();
+		showError("Có lỗi khi lấy dữ liệu tồn kho sản phẩm! Vui lòng thử lại sau!");
   }
 }
 
@@ -502,5 +530,6 @@ export function* productSaga() {
   yield takeLatest(ProductType.VARIANT_UPDATE_SALEABLE, variantUpdateSaleableSaga)
   yield takeLatest(ProductType.VARIANT_DELETE, variantDeleteSaga);
   yield takeLatest(SearchType.SEARCH_BAR_CODE, searchBarCodeSaga);
-  yield takeLatest(ProductType.DUPLICATE_PRODUCT_CODE, checkDuplicateSkuSaga);
+  yield takeLatest(ProductType.DUPLICATE_PRODUCT_CODE, checkDuplicateSkuSaga); 
+  yield takeLatest(ProductType.SEARCH_VARIANTS_INVENTORIES_REQUEST, searchVariantsInventoriesSaga); 
 }

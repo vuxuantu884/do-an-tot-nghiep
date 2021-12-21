@@ -9,6 +9,7 @@ import {
   Select,
   Space
 } from "antd";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
@@ -35,18 +36,18 @@ const SizeCreateScreen: React.FC = () => {
       dispatch(sizeCreateAction(values, onSuccess));
     },
     [dispatch, onSuccess]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
+
   const setCategory = useCallback((data: Array<CategoryResponse>) => {
     let newData = convertCategory(data);
     setCategories(newData);
   }, []);
+
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setCategory));
     return () => {};
   }, [dispatch, setCategory]);
+  
   return (
     <ContentContainer
       title="Thêm mới kích cỡ"
@@ -107,6 +108,7 @@ const SizeCreateScreen: React.FC = () => {
                   mode="multiple"
                   placeholder="Chọn danh mục"
                   showArrow
+                  maxTagCount="responsive"
                 >
                   {categories.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -117,17 +119,17 @@ const SizeCreateScreen: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-        </Card>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
-          <Space size={12}>
-            <Button type="default" onClick={onCancel}>
-              Hủy
-            </Button>
-            <Button htmlType="submit" type="primary">
-              Lưu
-            </Button>
-          </Space>
-        </div>
+        </Card> 
+        <BottomBarContainer
+          back={"Quay lại danh sách"}
+          rightComponent={
+            <Space>
+              <Button htmlType="submit" type="primary">
+                Tạo kích thước
+              </Button>
+            </Space>
+          }
+        /> 
       </Form>
     </ContentContainer>
   );

@@ -3,7 +3,7 @@ if [[ -z $1 ]]; then
     echo "Please provide module in the first argument"
     exit 1
 fi
-MODULE_DIR="deployment/k8s/$ENVIRONMENT/$1"
+MODULE_DIR="deployment/k8s/$ENVIRONMENT"
 
 if [[ -z $IMAGE_TAG ]]; then
   echo "IMAGE_TAG is empty"
@@ -25,11 +25,9 @@ if [[ -z $NAMESPACE ]]; then
     exit 1
 fi
 
-envsubst < $MODULE_DIR/main.$ENVIRONMENT.yml >k8s-main.yml
-
+envsubst < $MODULE_DIR/main.$ENVIRONMENT.yml > k8s-main.yml
 
 # Apply deployment template
-
 kubectl apply -f k8s-main.yml -n $NAMESPACE
 if [[ $? != 0 ]]; then exit 1; fi
 

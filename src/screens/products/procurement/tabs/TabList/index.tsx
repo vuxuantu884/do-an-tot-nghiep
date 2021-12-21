@@ -76,7 +76,7 @@ const TabList: React.FC = () => {
             width: 120,
             render: (value, record, index) => (
               <Link
-                to={`${UrlConfig.PURCHASE_ORDER}/${record.purchase_order.id}/#procurement_${record.id}`}
+                to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}/#procurement_${record.id}`}
               >
                 {value}
               </Link>
@@ -88,7 +88,7 @@ const TabList: React.FC = () => {
             fixed: "left",
             width: 120,
             render: (value, record, index) => (
-              <Link to={`${UrlConfig.PURCHASE_ORDER}/${value.id}`}>{value.code}</Link>
+              <Link to={`${UrlConfig.PURCHASE_ORDERS}/${value.id}`}>{value.code}</Link>
             ),
           },
           {

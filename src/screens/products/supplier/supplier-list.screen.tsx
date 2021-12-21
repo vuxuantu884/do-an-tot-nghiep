@@ -1,21 +1,15 @@
-import { Card } from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { PageResponse } from "model/base/base-metadata.response";
-import {
-  SupplierResponse,
-  GoodsObj,
-  SupplierQuery,
-} from "model/core/supplier.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import {Card} from "antd";
+import {MenuAction} from "component/table/ActionButton";
+import {PageResponse} from "model/base/base-metadata.response";
+import {SupplierResponse, SupplierQuery, SupplierContactResposne} from "model/core/supplier.model";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {Link, useHistory} from "react-router-dom";
+import {generateQuery} from "utils/AppUtils";
+import {getQueryParams, useQuery} from "utils/useQuery";
+import {useDispatch, useSelector, shallowEqual} from "react-redux";
 import SupplierFilter from "component/filter/supplier.filter";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -25,34 +19,36 @@ import {
 } from "domain/actions/core/supplier.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { showSuccess, showWarning } from "utils/ToastUtils";
-import { DistrictResponse } from "model/content/district.model";
-import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
+import {showSuccess, showWarning} from "utils/ToastUtils";
+import {DistrictResponse} from "model/content/district.model";
+import {DistrictGetByCountryAction} from "domain/actions/content/content.action";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {DeleteOutlined} from "@ant-design/icons";
+import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import useAuthorization from "hook/useAuthorization";
+import NoPermission from "screens/no-permission.screen";
+import {AccountSearchAction} from "domain/actions/account/account.action";
+import {AccountResponse} from "model/account/account.model";
+import {AppConfig} from "config/app.config";
 
-const actions: Array<MenuAction> = [
+const ACTIONS_INDEX = {
+  DELETE: 1,
+};
+
+const actionsDefault: Array<MenuAction> = [
   {
-    id: 1,
+    id: ACTIONS_INDEX.DELETE,
     name: "Xóa",
-    icon:<DeleteOutlined />
-  },
-  {
-    id: 2,
-    name: "Export",
-    icon:<ExportOutlined />
+    icon: <DeleteOutlined />,
   },
 ];
+
 const DefaultCountry = 233;
 const initQuery: SupplierQuery = {
-  goods: "",
-  status: "",
   district_id: "",
-  scorecard: "",
   note: "",
-  type: "",
   contact: "",
-  pic: "",
+  pics: [],
   from_created_date: "",
   to_created_date: "",
 };
@@ -68,16 +64,36 @@ const ListSupplierScreen: React.FC = () => {
   const supplierStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.supplier_status;
   }, shallowEqual);
-  const goods = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.goods
-  );
+
+  //phân quyền
+  const [allowDeleteSup] = useAuthorization({
+    acceptPermissions: [SuppliersPermissions.DELETE],
+  });
+
+  const [allowReadSup] = useAuthorization({
+    acceptPermissions: [SuppliersPermissions.READ],
+  });
+
+  const [allowCreateSup] = useAuthorization({
+    acceptPermissions: [SuppliersPermissions.CREATE],
+  });
+
+  const actions = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === ACTIONS_INDEX.DELETE) {
+        return allowDeleteSup;
+      }
+      return false;
+    });
+  }, [allowDeleteSup]);
+
   const scorecard = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.scorecard
   );
   const listSupplierType = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
   );
-  let dataQuery: SupplierQuery = { ...initQuery, ...getQueryParams(query) };
+  let dataQuery: SupplierQuery = {...initQuery, ...getQueryParams(query)};
   let [params, setPrams] = useState<SupplierQuery>(dataQuery);
   const [selected, setSelected] = useState<Array<SupplierResponse>>([]);
   const [data, setData] = useState<PageResponse<SupplierResponse>>({
@@ -88,9 +104,7 @@ const ListSupplierScreen: React.FC = () => {
     },
     items: [],
   });
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<SupplierResponse>>
-  >([
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<SupplierResponse>>>([
     {
       title: "Mã",
       dataIndex: "code",
@@ -112,20 +126,6 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
     {
-      title: "Ngành hàng",
-      dataIndex: "goods",
-      render: (values: Array<GoodsObj>) => {
-        return (
-          <div>
-            {values.map((item, index) => (
-              <div key={index}>{item.name}</div>
-            ))}
-          </div>
-        );
-      },
-      visible: true,
-    },
-    {
       title: "Quốc gia",
       dataIndex: "country_name",
       visible: false,
@@ -142,12 +142,32 @@ const ListSupplierScreen: React.FC = () => {
     },
     {
       title: "Người liên hệ",
-      dataIndex: "contact_name",
+      dataIndex: "contacts",
       visible: true,
+      render: (contacts: Array<SupplierContactResposne>) => {
+        let index = contacts.findIndex((value) => value.is_default);
+        if(index === -1) {
+          if(contacts.length > 0) {
+            return contacts[0].name;
+          }
+          return '';
+        }
+        return contacts[index].name;
+      },
     },
     {
       title: "Số điện thoại",
-      dataIndex: "phone",
+      dataIndex: "contacts",
+      render: (contacts: Array<SupplierContactResposne>) => {
+        let index = contacts.findIndex((value) => value.is_default);
+        if(index === -1) {
+          if(contacts.length > 0) {
+            return contacts[0].phone;
+          }
+          return '';
+        }
+        return contacts[index].phone;
+      },
       visible: true,
     },
     {
@@ -171,9 +191,7 @@ const ListSupplierScreen: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "status_name",
       render: (value: string, item: SupplierResponse) => (
-        <div
-          className={item.status === "active" ? "text-success" : "text-error"}
-        >
+        <div className={item.status === "active" ? "text-success" : "text-error"}>
           {value}
         </div>
       ),
@@ -193,12 +211,21 @@ const ListSupplierScreen: React.FC = () => {
     );
   }, []);
 
+  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20,
+      page: 1,
+      total: 0,
+    },
+  });
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+      setPrams({...params});
       history.replace(`${UrlConfig.SUPPLIERS}?${queryParam}`);
     },
     [history, params]
@@ -219,12 +246,7 @@ const ListSupplierScreen: React.FC = () => {
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
   }, [dispatch, params, searchSupplierCallback, selected]);
 
-  const onDelete = useCallback(() => {
-    if (selected.length === 0) {
-      showWarning("Vui lòng chọn phần tử cần xóa");
-      return;
-    }
-
+  const onDelete = useCallback(() => { 
     if (selected.length === 1) {
       let id = selected[0].id;
       dispatch(SupplierDeleteAction(id, deleteCallback));
@@ -233,7 +255,7 @@ const ListSupplierScreen: React.FC = () => {
   }, [deleteCallback, dispatch, selected]);
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+      let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.replace(`${UrlConfig.SUPPLIERS}?${queryParam}`);
@@ -242,89 +264,122 @@ const ListSupplierScreen: React.FC = () => {
   );
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
-      case 1:
-        setConfirmDelete(true);
-        // onDelete();
+      case ACTIONS_INDEX.DELETE: 
+      if (selected.length === 0) {
+        showWarning("Vui lòng chọn nhà cung cấp cần xóa");
+        return;
+      }
+      setConfirmDelete(true);
         break;
     }
-  }, []);
+  }, [selected]);
+
+  const getAccounts = useCallback(
+    (search: string, page: number) => {
+      dispatch(
+        AccountSearchAction(
+          {info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page},
+          (response: PageResponse<AccountResponse> | false) => {
+            if (response) {
+              setAccounts(response);
+            }
+          }
+        )
+      );
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     setTableLoading(true);
     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
-  }, [dispatch, params, searchSupplierCallback]);
+    getAccounts("", 1);
+  }, [dispatch, getAccounts, params, searchSupplierCallback]);
   return (
-    <ContentContainer
-      title="Quản lý nhà cung cấp"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Sản phẩm",
-          path: `${UrlConfig.PRODUCT}`,
-        },
-        {
-          name: "Nhà cung cấp",
-        },
-      ]}
-      extra={<ButtonCreate path={`${UrlConfig.SUPPLIERS}/create`} />}
-    >
-      <Card>
-        <SupplierFilter
-          onMenuClick={onMenuClick}
-          listDistrict={listDistrict}
-          actions={actions}
-          onFilter={onFilter}
-          goods={goods}
-          supplierStatus={supplierStatus}
-          scorecard={scorecard}
-          params={params}
-          initValue={initQuery}
-          listSupplierType={listSupplierType}
-        />
-        <CustomTable
-          isRowSelection
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          columns={columnFinal}
-          onSelectedChange={onSelect}
-          dataSource={data.items}
-          rowKey={(item: SupplierResponse) => item.id}
-        />
-        <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data);
-          }}
-          data={columns}
-        />
-        <ModalDeleteConfirm
-          onCancel={() => setConfirmDelete(false)}
-          onOk={() => {
-            setConfirmDelete(false);
-            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
-            onDelete();
-          }}
-          title="Bạn chắc chắn xóa nhà cung cấp ?"
-          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-          visible={isConfirmDelete}
-        />
-      </Card>
-    </ContentContainer>
+    <>
+      {allowReadSup ? (
+        <ContentContainer
+          title="Quản lý nhà cung cấp"
+          breadcrumb={[
+            {
+              name: "Tổng quan",
+              path: UrlConfig.HOME,
+            },
+            {
+              name: "Sản phẩm",
+              path: `${UrlConfig.PRODUCT}`,
+            },
+            {
+              name: "Nhà cung cấp",
+            },
+          ]}
+          extra={
+            allowCreateSup ? (
+              <ButtonCreate
+                child="Thêm nhà cung cấp"
+                path={`${UrlConfig.SUPPLIERS}/create`}
+              />
+            ) : null
+          }
+        >
+          <Card>
+            <SupplierFilter
+              accounts={accounts}
+              onAccountPageChange={(key, page) => getAccounts(key, page)}
+              onMenuClick={onMenuClick}
+              listDistrict={listDistrict}
+              actions={actions}
+              onFilter={onFilter}
+              supplierStatus={supplierStatus}
+              scorecard={scorecard}
+              params={params}
+              initValue={initQuery}
+              listSupplierType={listSupplierType}
+            />
+            <CustomTable
+              isRowSelection
+              pagination={{
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
+              }}
+              isLoading={tableLoading}
+              showColumnSetting={true}
+              onShowColumnSetting={() => setShowSettingColumn(true)}
+              columns={columnFinal}
+              onSelectedChange={onSelect}
+              dataSource={data.items}
+              rowKey={(item: SupplierResponse) => item.id}
+            />
+            <ModalSettingColumn
+              visible={showSettingColumn}
+              onCancel={() => setShowSettingColumn(false)}
+              onOk={(data) => {
+                setShowSettingColumn(false);
+                setColumn(data);
+              }}
+              data={columns}
+            />
+            <ModalDeleteConfirm
+              onCancel={() => setConfirmDelete(false)}
+              onOk={() => {
+                setConfirmDelete(false);
+                onDelete();
+              }}
+              title="Bạn chắc chắn xóa nhà cung cấp ?"
+              subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+              visible={isConfirmDelete}
+            />
+          </Card>
+        </ContentContainer>
+      ) : (
+        <NoPermission />
+      )}
+    </>
   );
 };
 

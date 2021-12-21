@@ -7,7 +7,6 @@ import {
   Input,
   Row,
   Select,
-  Space,
 } from "antd";
 import UrlConfig from "config/url.config";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
@@ -33,6 +32,9 @@ import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "../../../utils/ToastUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import { CompareObject } from "utils/CompareObject";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 
 const { Option } = Select;
 
@@ -53,27 +55,30 @@ const SizeUpdateScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const isFirstLoad = useRef(true);
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  }); 
 
   //Function callback
   const onSuccess = useCallback(() => {
     setLoading(false);
     history.push(UrlConfig.SIZES);
-    showSuccess("Sửa kích thước thành công");
+    showSuccess("Sửa kích cỡ thành công");
   }, [history]);
+
   const onFinish = useCallback(
     (values: SizeUpdateRequest) => {
       setLoading(true);
       dispatch(sizeUpdateAction(idNumber, values, onSuccess));
     },
     [dispatch, idNumber, onSuccess]
-  );
-  const onCancel = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  ); 
+
   const setCategory = useCallback((data: Array<CategoryResponse>) => {
     let newData = convertCategory(data);
     setCategories(newData);
   }, []);
+
   const setSizeDetail = useCallback((data: SizeResponse | false) => {
     setLoadingData(false);
     if (!data) {
@@ -83,6 +88,27 @@ const SizeUpdateScreen: React.FC = () => {
       setSize(newData);
     }
   }, []);
+
+  const backAction = ()=>{ 
+    
+    if (!CompareObject(formRef.current?.getFieldsValue(),size)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.push(UrlConfig.SIZES);
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.push(UrlConfig.SIZES);
+    }
+  };
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -165,7 +191,7 @@ const SizeUpdateScreen: React.FC = () => {
                   name="category_ids"
                   label="Danh mục"
                 >
-                  <Select mode="multiple" placeholder="Chọn danh mục" showArrow>
+                  <Select mode="multiple" placeholder="Chọn danh mục" showArrow maxTagCount="responsive">
                     {categories.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -176,20 +202,20 @@ const SizeUpdateScreen: React.FC = () => {
               </Col>
             </Row>
           </Card>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
+          <BottomBarContainer
+            back={"Quay lại danh sách"}
+            backAction={backAction}
+            rightComponent={
               <AuthWrapper acceptPermissions={[ProductPermission.sizes_update]}>
-              <Button loading={loading} htmlType="submit" type="primary">
-                Lưu
-              </Button>
+                <Button loading={loading} htmlType="submit" type="primary">
+                  Lưu lại
+                </Button>
               </AuthWrapper>
-            </Space>
-          </div>
+            }
+          /> 
         </Form>
       )}
+       <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

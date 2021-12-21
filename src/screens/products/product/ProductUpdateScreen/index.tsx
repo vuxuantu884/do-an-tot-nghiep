@@ -115,7 +115,6 @@ const ProductDetailScreen: React.FC = () => {
   const productStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_status
   );
-
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ProductResponse | null>(null);
@@ -137,6 +136,7 @@ const ProductDetailScreen: React.FC = () => {
   const [visiblePrice, setVisiblePrice] = useState(false);
   const [visibleUpdatePrice, setVisibleUpdatePrice] = useState(false);
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
+  const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
 
   const categoryFilter = useMemo(() => {
     if (data === null) {
@@ -382,10 +382,10 @@ const ProductDetailScreen: React.FC = () => {
 
   const onFinish = useCallback(
     (values: ProductRequest) => {
-      setLoadingButton(true);
+      setLoadingButton(true); 
       dispatch(productUpdateAction(idNumber, values, onResultFinish));
     },
-    [dispatch, idNumber, onResultFinish]
+    [dispatch, idNumber,onResultFinish]
   );
 
   const beforeUpload = useCallback((file: RcFile) => {
@@ -495,8 +495,29 @@ const ProductDetailScreen: React.FC = () => {
     [form]
   );
   const productDetailRef = useRef<ProductResponse>();
+
+  const backAction = ()=>{
+    if (JSON.stringify(form.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          history.goBack();
+        },
+        title: "Bạn có muốn quay lại?",
+        subTitle:
+          "Sau khi quay lại thay đổi sẽ không được lưu.",
+      }); 
+    }else{
+      history.goBack();
+    }
+  }
+
   const resetProductDetail = useCallback(() => {
-    setChangePrice(false);
+    setChangePrice(false); 
     if (productDetailRef.current && typeof active === "number") {
       form.setFieldsValue(productDetailRef.current);
       let fieldList = Products.convertAvatarToFileList(
@@ -504,7 +525,28 @@ const ProductDetailScreen: React.FC = () => {
       );
       setFieldList(fieldList);
     }
+    showSuccess("Đặt lại dữ liệu thành công"); 
   }, [productDetailRef, active, form]);
+
+  const resetOnClick = useCallback(()=>{
+    if (JSON.stringify(form.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
+      setModalConfirm({
+        visible: true,
+        onCancel: () => {
+          setModalConfirm({visible: false});
+        },
+        onOk: () => { 
+          setModalConfirm({visible: false});
+          resetProductDetail();  
+        },
+        title: "Bạn có muốn đặt lại thông tin đã cập nhật",
+        subTitle:
+          "Sau khi đặt lại thay đổi sẽ không được lưu. Bạn có muốn đặt lại?",
+      }); 
+    }else{
+      resetProductDetail();
+    }
+  },[form, dataOrigin, resetProductDetail]); 
 
   const onActive = useCallback(
     (active1: number) => {
@@ -518,7 +560,7 @@ const ProductDetailScreen: React.FC = () => {
               form.submit();
             },
             onCancel: () => {
-              resetProductDetail();
+              resetOnClick();
               let variants: Array<VariantResponse> = form.getFieldValue("variants");
               if (variants[active].id) {
                 setModalConfirm({visible: false});
@@ -549,7 +591,7 @@ const ProductDetailScreen: React.FC = () => {
         }
       }
     },
-    [active, form, isChange, isChangePrice, setCurrentVariant, resetProductDetail]
+    [active, form, isChange, isChangePrice, setCurrentVariant, resetOnClick]
   );
   const onResult = useCallback(
     (result: ProductResponse | false) => {
@@ -561,6 +603,7 @@ const ProductDetailScreen: React.FC = () => {
         setStatus(result.status);
         productDetailRef.current = JSON.parse(JSON.stringify(result));
         form.setFieldsValue(result);
+        setDataOrigin(form.getFieldsValue());
       }
     },
     [form]
@@ -605,7 +648,7 @@ const ProductDetailScreen: React.FC = () => {
           },
           {
             name: "Sản phẩm",
-            path: `${UrlConfig.PRODUCT}`,
+            path: `${UrlConfig.VARIANTS}`,
           },
           {
             name: data !== null ? data.name : "",
@@ -720,7 +763,7 @@ const ProductDetailScreen: React.FC = () => {
                               placeholder="Chọn danh mục"
                               suffix={
                                 <Button
-                                  style={{width: 37, height: 37}}
+                                  style={{width: 37, height: 37, padding: 0}}
                                   icon={<PlusOutlined />}
                                   onClick={() =>
                                     window.open(
@@ -1607,9 +1650,10 @@ const ProductDetailScreen: React.FC = () => {
         )}
         <BottomBarContainer
           back="Quay lại"
+          backAction={backAction}
           rightComponent={
             <Space>
-              <Button onClick={resetProductDetail}>Đặt lại</Button>
+              <Button onClick={resetOnClick}>Đặt lại</Button>
               <Button loading={loadingButton} onClick={onSave} type="primary">
                 Lưu lại
               </Button>
@@ -1635,7 +1679,7 @@ const ProductDetailScreen: React.FC = () => {
           onCancel={() => {
             // check has new item => remove new item
             setActive(tempActive);
-            resetProductDetail();
+            resetOnClick();
             const variants = form.getFieldValue("variants");
             variants.forEach((item: VariantResponse, index: number) => {
               if (!item.id) {

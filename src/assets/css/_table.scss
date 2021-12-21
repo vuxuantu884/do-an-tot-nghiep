@@ -17,7 +17,7 @@
       background: #f5f5f5;
       box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.1);
       > tr > th {
-        padding: 11px 15px;
+        padding: 11px 12px;
         // background: none;
         color: #222;
       }
@@ -156,6 +156,14 @@
     input,
     label {
       cursor: pointer;
+    }
+  }
+  .tr-hover{
+    tr {
+      cursor: pointer;
+      &:hover {
+        color: #2a2a86;
+      }
     }
   }
 }

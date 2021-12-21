@@ -2,10 +2,11 @@ import { DownOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
-import React from "react";
+import React, { useCallback } from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import IconPrint from "assets/icon/printer-blue.svg";
 import { StyledComponent } from "./styles";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -19,6 +20,7 @@ type PropType = {
   disabledBottomActions?: boolean;
   isSaveDraft?: boolean;
   updating?: boolean;
+  updatingConfirm?: boolean;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
@@ -37,6 +39,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     creating,
     isSaveDraft,
     updating,
+    updatingConfirm,
     isShowConfirmOrderButton,
     disabledBottomActions,
     handleTypeButton,
@@ -46,12 +49,35 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     onConfirmOrder,
   } = props;
 
+  const acceptPermissionsUpdate = useCallback(() => {
+    switch(stepsStatusValue) {
+      case 'packed':
+        return [ODERS_PERMISSIONS.UPDATE_PACKED];
+      case 'shipping':
+        return [ODERS_PERMISSIONS.UPDATE_SHIPPING]
+      case 'shipped':
+        return [ODERS_PERMISSIONS.UPDATE_FINISHED]
+      case 'finalized':
+        return [ODERS_PERMISSIONS.UPDATE_COMFIRMED]
+      default: return []
+    }
+  }, [stepsStatusValue]);
+  const acceptPermissionsCancel = useCallback(() => {
+    switch(stepsStatusValue) {
+      case 'packed':
+        return [ODERS_PERMISSIONS.CANCEL_PACKED];
+      case 'finalized':
+        return [ODERS_PERMISSIONS.CANCEL_CONFIRMED]
+      default: return []
+    }
+  }, [stepsStatusValue]);
+
   return (
     <StyledComponent>
       <div className="bottomBar">
         <Row gutter={24}>
           <Col md={12}>
-            <CreateBillStep status={stepsStatusValue} orderDetail={orderDetail} />
+            <CreateBillStep orderDetail={orderDetail} status={stepsStatusValue} />
           </Col>
           {isVisibleGroupButtons &&
             formRef &&
@@ -110,62 +136,70 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 >
                   Huỷ
                 </Button>
-
-                <Button
+                {stepsStatusValue === OrderStatus.DRAFT && <Button
                   style={{ padding: "0 25px", fontWeight: 400 }}
                   type="primary"
+                  ghost
                   className="create-button-custom"
                   id="save-and-confirm"
                   onClick={() => {
                     handleTypeButton(OrderStatus.FINALIZED);
-                    // console.log(
-                    //   "formRef.current.value",
-                    //   formRef?.current?.getFieldsValue()
-                    // );
                     formRef.current?.submit();
                   }}
-                  loading={updating}
+                  loading={updatingConfirm}
                 >
-                  Cập nhật đơn hàng
-                </Button>
+                  Cập nhật và xác nhận
+                </Button>}
+                <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
+                  {(isPassed: boolean) => 
+                  <Button
+                    style={{ padding: "0 25px", fontWeight: 400 }}
+                    type="primary"
+                    className="create-button-custom"
+                    id="save-and-confirm"
+                    onClick={() => {
+                      formRef.current?.submit();
+                    }}
+                    loading={updating}
+                    disabled={!isPassed}
+                  >
+                    Cập nhật đơn hàng
+                  </Button>}
+                </AuthWrapper>
               </Col>
             )}
           {isVisibleActionsButtons && (
             <Col md={12} style={{ marginTop: "8px" }}>
               <Dropdown
-                // overlayStyle={{ minWidth: "15rem" }}
                 getPopupContainer={(trigger) => trigger}
                 disabled={disabledBottomActions}
                 overlay={
                   <Menu>
-                    <Menu.Item
-                      key="update"
-                      onClick={() => orderActionsClick && orderActionsClick("update")}
-                      disabled={
-                        stepsStatusValue === OrderStatus.CANCELLED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPING
-                      }
-                    >
-                      Sửa đơn hàng
-                    </Menu.Item>
-                    <Menu.Item
-                      key="cancel"
-                      onClick={() => orderActionsClick && orderActionsClick("cancel")}
-                      disabled={
-                        stepsStatusValue === OrderStatus.CANCELLED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                        stepsStatusValue === FulFillmentStatus.SHIPPING
-                      }
-                    >
-                      Huỷ đơn hàng
-                    </Menu.Item>
-                    <Menu.Item
-                      key="clone"
-                      onClick={() => orderActionsClick && orderActionsClick("clone")}
-                    >
-                      Sao chép đơn hàng
-                    </Menu.Item>
+                    
+                    <AuthWrapper acceptPermissions={acceptPermissionsCancel()} passThrough>
+                      {(isPassed: boolean) => 
+                      <Menu.Item
+                        key="cancel"
+                        onClick={() => orderActionsClick && orderActionsClick("cancel")}
+                        disabled={
+                          stepsStatusValue === OrderStatus.CANCELLED ||
+                          stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                          stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed
+                        }
+                      >
+                        Huỷ đơn hàng
+                      </Menu.Item>}
+                    </AuthWrapper>
+                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                      {(isPassed: boolean) => 
+                      <Menu.Item
+                        key="clone"
+                        onClick={() => orderActionsClick && orderActionsClick("clone")}
+                        disabled={!isPassed}
+                      >
+                        Sao chép đơn hàng
+                      </Menu.Item>}
+                    </AuthWrapper>
                   </Menu>
                 }
                 trigger={["click"]}
@@ -174,38 +208,23 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   Thêm thao tác <DownOutlined />
                 </Button>
               </Dropdown>
-              <Dropdown
-                // overlayStyle={{ minWidth: "15rem" }}
-                getPopupContainer={(trigger) => trigger}
-                overlay={
-                  <Menu>
-                    <Menu.Item
-                      onClick={() =>
-                        props.orderActionsClick && props.orderActionsClick("print")
-                      }
-                    >
-                      In nhanh
-                    </Menu.Item>
-                    <Menu.Item
-                      onClick={() =>
-                        props.orderActionsClick && props.orderActionsClick("print")
-                      }
-                    >
-                      In tuỳ chọn
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={["click"]}
-              >
+              <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
+                {(isPassed: boolean) => 
                 <Button
                   type="primary"
                   ghost
                   style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                  onClick={() => orderActionsClick && orderActionsClick("update")}
+                  disabled={
+                    disabledBottomActions ||
+										orderDetail?.status === OrderStatus.FINISHED ||
+										orderDetail?.status === OrderStatus.COMPLETED ||
+                    stepsStatusValue === OrderStatus.CANCELLED || !isPassed
+                  }
                 >
-                  <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In đơn
-                  hàng
-                </Button>
-              </Dropdown>
+                  Sửa đơn hàng
+                </Button>}
+              </AuthWrapper>
               {isShowConfirmOrderButton && (
                 <Button
                   type="primary"
