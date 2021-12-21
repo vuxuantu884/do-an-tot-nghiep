@@ -6,14 +6,13 @@ type ButtonCreateProps = {
   path: string;
   disabled?: boolean;
   child?: any;
-  currentPage?: boolean;
 };
 
 const ButtonCreate: React.FC<ButtonCreateProps> = (
   props: ButtonCreateProps
 ) => {
   return (
-    <Link to={props.path} target={`${!props.currentPage ? '_blank':'_parent'}`}>
+    <Link to={props.path}>
       <Button
         type="primary"
         className="ant-btn-primary"

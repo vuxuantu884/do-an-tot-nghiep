@@ -3,7 +3,7 @@ import CustomInput from 'component/custom/custom-input';
 import _ from 'lodash';
 import { DiscountFormModel, DiscountMethod } from 'model/promotion/discount.create.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
-import { priorityOptions } from '../constants';
+import { DiscountUnitType, priorityOptions } from '../constants';
 import { DiscountUpdateContext } from './discount-update-provider';
 import FixedPriceSelectionUpdate from './fixed-price-selection.update';
 import TotalBillDiscountUpdate from './total-bill-discount-update';
@@ -62,7 +62,6 @@ function DiscountUpdateForm({ form,
                             disabled={true}
                             restFormItem={{
                                 rules: [
-                                    // { required: true, message: 'Vui lòng nhập mã khuyến mại' },
                                     { pattern: /^DI([0-9])+$/, message: "Mã khuyến mại sai định dạng" },
                                 ],
                             }}
@@ -143,36 +142,37 @@ function DiscountUpdateForm({ form,
                     <Col span={24}>
                         <Form.Item name="entitled_method" label={<b>Phương thức chiết khấu</b>}>
                             <Select
-                                defaultValue={DiscountMethod.FIXED_PRICE}
-                                onChange={(value) => {
-                                    setDiscountMethod(value);
-                                    const formData = form.getFieldsValue(true);
-                                    if (value === DiscountMethod.FIXED_PRICE.toString()) {
-                                        formData?.entitlements?.forEach((item: DiscountFormModel) => {
-                                            const temp = {
-                                                prerequisite_quantity_ranges: [{
-                                                    value_type: "FIXED_AMOUNT",
-                                                    greater_than_or_equal_to: 1,
-                                                    value: 1
-                                                }]
-                                            };
-                                            _.merge(item, temp);
-                                        });
-                                    } else if (value === DiscountMethod.QUANTITY.toString()) {
-                                        formData?.entitlements?.forEach((item: DiscountFormModel) => {
-                                            const temp = {
-                                                prerequisite_quantity_ranges: [{
-                                                    value_type: "PERCENTAGE",
-                                                    greater_than_or_equal_to: 1,
-                                                    value: 1
-                                                }]
-                                            };
-                                            _.merge(item, temp);
-                                        });
+                                onChange={(value: string) => {
+                                    if (value) {
+                                        setDiscountMethod(value);
+                                        const formData = form.getFieldsValue(true);
+                                        if (value === DiscountMethod.FIXED_PRICE.toString()) {
+                                            formData?.entitlements?.forEach((item: DiscountFormModel) => {
+                                                const temp = {
+                                                    prerequisite_quantity_ranges: [{
+                                                        value_type: DiscountUnitType.FIXED_PRICE.value,
+                                                        greater_than_or_equal_to: 1,
+                                                        value: 0,
+                                                    }]
+                                                };
+                                                _.merge(item, temp);
+                                            });
+                                        } else if (value === DiscountMethod.QUANTITY.toString()) {
+                                            formData?.entitlements?.forEach((item: DiscountFormModel) => {
+                                                const temp = {
+                                                    prerequisite_quantity_ranges: [{
+                                                        value_type: DiscountUnitType.PERCENTAGE.value,
+                                                        greater_than_or_equal_to: 1,
+                                                        value: 0
+                                                    }]
+                                                };
+                                                _.merge(item, temp);
+                                            });
+                                        }
+                                        form.setFieldsValue({
+                                            entitlements: _.cloneDeep(formData?.entitlements)
+                                        })
                                     }
-                                    form.setFieldsValue({
-                                        entitlements: _.cloneDeep(formData?.entitlements)
-                                    })
                                 }}
                             >
                                 <Option value={DiscountMethod.FIXED_PRICE.toString()}>Đồng giá</Option>

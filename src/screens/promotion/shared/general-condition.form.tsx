@@ -85,11 +85,14 @@ function GeneralConditionForm({
                 placeholder="Từ ngày"
                 showTime={{ format: "HH:mm" }}
                 format={DATE_FORMAT.DDMMYY_HHmm}
-                disabledDate={(currentDate) =>
-                  currentDate.isBefore(moment()) ||
-                  (form.getFieldValue("ends_date")
-                    ? currentDate.valueOf() > form.getFieldValue("ends_date")
-                    : false)
+                disabledDate={(currentDate) => {
+                  currentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+                  console.log('currentDate', currentDate);
+                  return currentDate.isBefore(moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 })) ||
+                    (form.getFieldValue("ends_date")
+                      ? currentDate.valueOf() > form.getFieldValue("ends_date")
+                      : false)
+                }
                 }
                 showNow={true}
               />

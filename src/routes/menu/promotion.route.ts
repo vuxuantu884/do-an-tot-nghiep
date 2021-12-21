@@ -11,7 +11,7 @@ const loyaltyAccumulateDetail = React.lazy(
 const discountPage = React.lazy(() => import("screens/promotion/discount"));
 const priceRulesPage = React.lazy(() => import("screens/promotion/promo-code"));
 const createDiscountPage = React.lazy(
-  () => import("screens/promotion/discount/create/discount.create")
+  () => import("screens/promotion/discount/create-v2/discount-create-v2")
 );
 const detailDiscountPage = React.lazy(
   () => import("screens/promotion/discount/discount.detail")

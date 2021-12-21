@@ -7,6 +7,29 @@ import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
 import { formatDiscountValue, renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 const { Item } = Form;
+
+export const newEntitlements: EntilementFormModel = {
+  entitled_variant_ids: [],
+  entitled_product_ids: [],
+  selectedProducts: [],
+  prerequisite_variant_ids: [],
+  entitled_category_ids: [],
+  prerequisite_quantity_ranges: [
+    {
+      greater_than_or_equal_to: 0,
+      less_than_or_equal_to: null,
+      allocation_limit: undefined,
+      value: 0,
+      value_type: undefined,
+    }
+  ],
+}
+export const DiscountUnitType = {
+  PERCENTAGE: { value: "PERCENTAGE", label: "%" },
+  FIXED_PRICE: { value: "FIXED_PRICE", label: "đ" },
+  FIXED_AMOUNT: { value: "FIXED_AMOUNT", label: "đ" },
+};
+
 export const FieldSelectOptions = [
   {
     label: "Tên sản phẩm",
@@ -233,7 +256,7 @@ export const columnFixedPrice = [
     align: "center",
     visible: false,
     dataIndex: "cost",
-    render: (value: number) => value === -1 ? "-": formatCurrency(value),
+    render: (value: number) => value >= 0 ? formatCurrency(value) : "-",
   },
   {
     title: "Chiết khấu",
@@ -253,7 +276,7 @@ export const columnFixedPrice = [
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 && record.cost>=0) {
+      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 && record.cost >= 0) {
         const { value, value_type } = entitlement.prerequisite_quantity_ranges[0]
 
         return <span style={{ color: "#E24343" }}>{
@@ -276,16 +299,6 @@ export const columnFixedPrice = [
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
       if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
         return entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to;
-      }
-    }
-  },
-  {
-    title: "Giới hạn",
-    align: "center",
-    dataIndex: "entitlement",
-    render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
-        return entitlement.prerequisite_quantity_ranges[0].allocation_limit;
       }
     }
   },
@@ -325,17 +338,22 @@ export const columnDiscountQuantity = [
     align: "center",
     visible: false,
     dataIndex: "cost",
-    render: (value: string) => formatCurrency(value),
+    render: (cost: number) => {
+      if (cost >= 0) {
+        return formatCurrency(cost)
+      } else {
+        return "-"
+      }
+    },
   },
   {
     title: "Giá cố định",
     align: "center",
     dataIndex: "entitlement",
-    render: (entitlement: EntilementFormModel) => {
-      console.log('prerequisite_quantity_ranges', entitlement);
+    render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
       if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
         return (
-          <span style={{ color: "#E24343" }}>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || '')}</span>
+          <span style={{ color: "#E24343" }}>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || '')}</span>
         )
       } else {
         return '';
@@ -349,27 +367,13 @@ export const columnDiscountQuantity = [
     render: (entitlement: EntilementFormModel) => {
       if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
         return (
-          <span>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || '')}</span>
+          <span>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || '')}</span>
         )
       } else {
         return '';
       }
     }
-  },
-  {
-    title: "Giới hạn",
-    align: "center",
-    dataIndex: "entitlement",
-    render: (entitlement: EntilementFormModel) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
-        return (
-          <span>{entitlement.prerequisite_quantity_ranges[0].allocation_limit || ''}</span>
-        )
-      } else {
-        return '';
-      }
-    }
-  },
+  }
 ];
 
 export const columnDiscountByRule = [
@@ -449,3 +453,4 @@ export const OperatorSelectOptions = [
     value: "LESS_THAN_OR_EQUAL_TO",
   },
 ];
+
