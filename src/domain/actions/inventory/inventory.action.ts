@@ -1,5 +1,6 @@
 import BaseAction from "base/base.action";
-import {InventoryType} from "domain/types/inventory.type";
+import BaseResponse from "base/base.response";
+import {InventoryConfigType, InventoryType} from "domain/types/inventory.type";
 import {PageResponse} from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
@@ -9,6 +10,7 @@ import {
   InventoryResponse,
   InventoryVariantListQuery,
 } from "model/inventory";
+import { FilterConfig, FilterConfigRequest } from "model/other";
 
 const inventoryGetListAction = (
   query: InventoryQuery,
@@ -58,6 +60,34 @@ const inventoryGetDetailVariantIdsExt = (
     variant_id,
     store_id,
     setData,
+  });
+};
+
+export const getConfigInventoryAction = (
+  code: string,
+  onResult: (result: BaseResponse<Array<FilterConfig>>) => void
+) => {
+  return BaseAction(InventoryConfigType.GET_INVENTORY_CONFIG, {
+    code,
+    onResult
+  });
+};
+export const createConfigInventoryAction = (
+  request: FilterConfigRequest,
+  onResult: (result: BaseResponse<FilterConfig>) => void
+) => {
+  return BaseAction(InventoryConfigType.CREATE_INVENTORY_CONFIG, {
+    request,
+    onResult
+  });
+};
+export const updateConfigInventoryAction = (
+  request: FilterConfigRequest,
+  onResult: (result: BaseResponse<FilterConfig>) => void
+) => {
+  return BaseAction(InventoryConfigType.UPDATE_INVENTORY_CONFIG, {
+    request,
+    onResult
   });
 };
 

@@ -7,9 +7,6 @@ import POInventoryForm from "./component/po-inventory.form";
 import POInfoForm from "./component/po-info.form";
 import { useDispatch } from "react-redux";
 import React, { useCallback, useEffect, useState } from "react";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/app.config";
 import { useHistory } from "react-router-dom";
 import {
@@ -85,63 +82,21 @@ const POCreateScreen: React.FC = () => {
     cancelled_date: null,
     completed_date: null,
   };
-  const [isError, setError] = useState(false);
 
   const dispatch = useDispatch();
   const history = useHistory();
   const [formMain] = Form.useForm();
 
-  const [isLoading, setLoading] = useState<boolean>(true);
-  const [statusAction, setStatusAction] = useState<string>("");
-  const [winAccount, setWinAccount] = useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: {
-      limit: 20, 
-      page: 1,
-      total: 0
-    }
-  });
+  const [statusAction, setStatusAction] = useState<string>(""); 
   const [listPaymentConditions, setListPaymentConditions] = useState<
     Array<PoPaymentConditions>
-  >([]);
-  const [rdAccount, setRdAccount] = useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: {
-      limit: 20, 
-      page: 1,
-      total: 0
-    }
-  });
+  >([]); 
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [loadingDraftButton, setLoadingDraftButton] = useState(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
-
-  const onResultRD = useCallback((data: PageResponse<AccountResponse>) => {
-    if (!data) {
-      setError(true);
-      return;
-    }
-    setRdAccount(data);
-  }, []);
-
-  const onResultWin = useCallback(
-    (data: PageResponse<AccountResponse>) => {
-      setLoading(false);
-      if (!data) {
-        setError(true);
-        return;
-      }
-      setWinAccount(data);
-
-      dispatch(
-        searchAccountPublicAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
-      );
-    },
-    [dispatch, onResultRD]
-  );
-
+ 
   const createCallback = useCallback(
     (result: PurchaseOrder) => {
       if (result) {
@@ -193,23 +148,15 @@ const POCreateScreen: React.FC = () => {
     [createCallback, dispatch, statusAction]
   );
 
-  useEffect(() => {
-    dispatch(
-      searchAccountPublicAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
-        onResultWin
-      )
-    ); 
+  useEffect(() => { 
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
-  }, [dispatch, onResultWin]);
+  }, [dispatch]);
 
   return (
     <ContentContainer
-      isLoading={isLoading}
-      isError={isError}
       title="Quản lý đơn đặt hàng"
       breadcrumb={[
         {
@@ -282,8 +229,6 @@ const POCreateScreen: React.FC = () => {
           <Col md={6}>
             <POInfoForm
               isEdit={false}
-              winAccount={winAccount}
-              rdAccount={rdAccount}
             />
           </Col>
         </Row>

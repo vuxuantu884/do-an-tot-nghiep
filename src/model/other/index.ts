@@ -1,3 +1,4 @@
+import { BaseObject } from "model/base/base.response";
 import React from "react";
 export interface RouteMenu {
   path: string;
@@ -13,4 +14,13 @@ export interface RouteMenu {
   component: React.ReactNode;
   showMenuThird?: boolean;
   permissions?: Array<string>
+}
+export interface FilterConfigRequest extends BaseObject{
+  json_content: string,
+  type: string,
+  name: string
+}
+
+export interface FilterConfig extends FilterConfigRequest{
+  status: string,
 }

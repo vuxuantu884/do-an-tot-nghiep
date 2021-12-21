@@ -35,4 +35,10 @@ const InventoryType = {
   UPDATE_ADJUSTMENT: 'UPDATE_ADJUSTMENT',
 }
 
-export {InventoryType};
+const InventoryConfigType ={
+  CREATE_INVENTORY_CONFIG: "CREATE_INVENTORY_CONFIG",
+  UPDATE_INVENTORY_CONFIG: "UPDATE_INVENTORY_CONFIG",
+  GET_INVENTORY_CONFIG: "GET_INVENTORY_CONFIG"
+}
+
+export {InventoryType, InventoryConfigType};

@@ -6,7 +6,7 @@ import CustomSelect from "component/custom/select.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import { StoreResponse } from "model/core/store.model";
-import { InventoryQuery, InventorySaveRequest } from "model/inventory";
+import { InventoryQuery } from "model/inventory";
 import {
   AllInventoryMappingField,
   AvdAllFilter,
@@ -30,8 +30,13 @@ import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/app.config"; 
 import CustomModal from "component/modal/CustomModal";
-import FormSaveFilter from "./components";
 import { modalActionType } from "model/modal/modal.model";
+import FormSaveFilter from "./components/FormSaveFilter";
+import { FilterConfig, FilterConfigRequest } from "model/other";
+import { createConfigInventoryAction } from "domain/actions/inventory/inventory.action";
+import BaseResponse from "base/base.response";
+import { FILTER_CONFIG_TYPE } from "utils/Constants";
+import { showSuccess } from "utils/ToastUtils";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -180,9 +185,26 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     setShowModalSaveFilter(true);
   }, []);
 
-  const onSaveFilter = useCallback((detail: InventorySaveRequest) => {
+  const onResult = useCallback((res: BaseResponse<FilterConfig>) =>{
+    if (res) {
+      showSuccess("Thêm bộ lọc thành công");
+      setShowModalSaveFilter(false);
+    }
+  },[]);
+
+  const onSaveFilter = useCallback((request: FilterConfigRequest) => {
+    if (request) {
+      let json_content = JSON.stringify(
+        formAdvanceFilter.getFieldsValue(),
+        function(k, v) { return v === undefined ? null : v; }
+      );;
+      request.type = FILTER_CONFIG_TYPE.FILTER_INVENTORY;
+      request.json_content = json_content;
+
+      dispatch(createConfigInventoryAction(request ,onResult))
+    }
     
-  }, []);
+  }, [dispatch,formAdvanceFilter, onResult]);
 
   const onBaseFinish = useCallback(
     (values: InventoryQuery) => {

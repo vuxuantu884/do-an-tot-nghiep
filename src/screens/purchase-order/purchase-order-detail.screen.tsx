@@ -8,7 +8,6 @@ import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction
@@ -24,7 +23,6 @@ import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
@@ -101,23 +99,7 @@ const PODetailScreen: React.FC = () => {
 const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
 
   const [isError, setError] = useState(false);
-  const [status, setStatus] = useState<string>(initPurchaseOrder.status);
-  const [winAccount, setWinAccount] = useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: {
-      limit: 20, 
-      page: 1,
-      total: 0
-    }
-  });
-  const [rdAccount, setRdAccount] = useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: {
-      limit: 20, 
-      page: 1,
-      total: 0
-    }
-  });
+  const [status, setStatus] = useState<string>(initPurchaseOrder.status); 
 
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
@@ -176,27 +158,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     setIsEditDetail(true);
     formMain.submit();
   }, [formMain]);
-
-  const onResultRD = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      setError(true);
-      return;
-    }
-    setRdAccount(data);
-  }, []);
-  const onResultWin = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        setError(true);
-        return;
-      }
-      setWinAccount(data);
-      dispatch(
-        searchAccountPublicAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
-      );
-    },
-    [dispatch, onResultRD]
-  );
+ 
   const onStoreResult = useCallback((result: PageResponse<StoreResponse> | false) => {
     if (!!result) {
       setListStore(result.items);
@@ -446,10 +408,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     content: () => printElementRef.current,
   });
 
-  useEffect(() => { 
-    dispatch(
-      searchAccountPublicAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultWin)
-    );
+  useEffect(() => {  
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
@@ -461,7 +420,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     } else {
       setError(true);
     }
-  }, [dispatch, idNumber, loadDetail, onResultWin, onStoreResult, printContentCallback]);
+  }, [dispatch, idNumber, loadDetail, onStoreResult, printContentCallback]);
 
   const handleExport = () => {
     var temp = document.createElement("div");
@@ -630,8 +589,6 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
           <Col md={6}>
             <POInfoForm
               isEdit={true}
-              winAccount={winAccount}
-              rdAccount={rdAccount}
               isEditDetail={isEditDetail}
             />
           </Col>

@@ -3,12 +3,13 @@ import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { InventoryType } from "domain/types/inventory.type";
+import { InventoryConfigType, InventoryType } from "domain/types/inventory.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AllInventoryResponse, HistoryInventoryResponse } from "model/inventory";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { getInventoryByVariantsApi, inventoryGetApi, inventoryGetDetailApi, inventoryGetDetailVariantIdsApi, inventoryGetDetailVariantIdsExtApi, inventoryGetHistoryApi } from "service/inventory";
+import { createInventoryConfigService, getInventoryByVariantsApi, getInventoryConfigService, inventoryGetApi, inventoryGetDetailApi, inventoryGetDetailVariantIdsApi, inventoryGetDetailVariantIdsExtApi, inventoryGetHistoryApi, updateInventoryConfigService } from "service/inventory";
 import { showError } from "utils/ToastUtils";
+import { FilterConfig } from 'model/other';
 
 function* inventoryGetSaga(action: YodyAction) {
   let { query, onResult } = action.payload;
@@ -167,6 +168,83 @@ function* inventoryByVariantsSaga(action: YodyAction) {
   }
 }
 
+function* getConfigInventorySaga(action: YodyAction) {
+  const {code, onResult } = action.payload;
+  try {
+    let response: BaseResponse<Array<FilterConfig>> = yield call(
+      getInventoryConfigService,
+      code
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* createConfigInventorySaga(action: YodyAction) {
+  const { request, onResult } = action.payload;
+  try {
+    let response: BaseResponse<FilterConfig> = yield call(
+      createInventoryConfigService,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* updateConfigInventorySaga(action: YodyAction) {
+  const {id, request, onResult } = action.payload;
+  try {
+    let response: BaseResponse<FilterConfig> = yield call(
+      updateInventoryConfigService,
+      id,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* inventorySaga() {
   yield takeLatest(InventoryType.GET, inventoryGetSaga);
   yield takeLatest(InventoryType.GET_DETAIL, inventoryGetDetailSaga);
@@ -174,4 +252,8 @@ export function* inventorySaga() {
   yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT, inventoryGetDetailVariantIdsSaga);
   yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT_EXT, inventoryGetDetailVariantIdsExtSaga);
   yield takeLatest(InventoryType.GET_BY_VARIANTS, inventoryByVariantsSaga);
+ 
+  yield takeLatest(InventoryConfigType.GET_INVENTORY_CONFIG, getConfigInventorySaga);
+  yield takeLatest(InventoryConfigType.CREATE_INVENTORY_CONFIG, createConfigInventorySaga);
+  yield takeLatest(InventoryConfigType.UPDATE_INVENTORY_CONFIG, updateConfigInventorySaga);
 }
