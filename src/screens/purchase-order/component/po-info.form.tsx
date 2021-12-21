@@ -1,6 +1,7 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Select } from "antd";
 import HashTag from "component/custom/hashtag";
+import RowDetail from "component/custom/RowDetail";
 import SelectPaging from "component/custom/SelectPaging";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -52,12 +53,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               {({ getFieldValue }) => {
                 let code = getFieldValue(POField.code);
                 return (
-                  <div className="row-view">
-                    <div className="row-view-title">Mã đơn mua hàng:</div>
-                    <div className="row-view-result row-view-result-id">
-                      {code}
-                    </div>
-                  </div>
+                  <RowDetail title="Mã đơn mua hàng" value={code} />
                 );
               }}
             </Form.Item>
@@ -72,12 +68,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   POField.merchandiser_code
                 );
                 return (
-                  <div className="row-view">
-                    <div className="row-view-title">Merchandiser:</div>
-                    <div className="row-view-result">
-                      {merchandiser_code} - {merchandiser}
-                    </div>
-                  </div>
+                  <RowDetail title="Merchandiser" value={`${merchandiser_code} - ${merchandiser}`} />
                 );
               }}
             </Form.Item>

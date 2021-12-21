@@ -3,7 +3,7 @@ import { CollectionType } from "domain/types/product.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CollectionQuery, CollectionResponse, CollectionCreateRequest, CollectionUpdateRequest } from "model/product/collection.model";
 
-export const getCollectionRequestAction = (query: CollectionQuery, setData: (data: PageResponse<Array<CollectionResponse>>) => void) => {
+export const getCollectionRequestAction = (query: CollectionQuery, setData: (data: PageResponse<CollectionResponse>) => void) => {
   return BaseAction(CollectionType.GET_COLLECTION_REQUEST, {query, setData});
 }
 

@@ -1029,10 +1029,10 @@ export default function Order(props: PropType) {
           }
 					if(response?.discounts) {
             setPromotion({
-							promotion_id: response.discounts[0].promotion_id,
-							value: response.discounts[0].value,
-							amount: response.discounts[0].amount,
-							rate: response.discounts[0].rate,
+							promotion_id: response.discounts[0]?.promotion_id,
+							value: response.discounts[0]?.value,
+							amount: response.discounts[0]?.amount,
+							rate: response.discounts[0]?.rate,
 						})
           }
         }

@@ -1,6 +1,6 @@
-import {Button, Dropdown, Menu} from "antd";
+import { Button, Dropdown, Menu } from "antd";
 import CustomTable from "component/table/CustomTable";
-import {SupplierAddress, SupplierAddressResposne} from "model/core/supplier.model";
+import { SupplierAddress, SupplierAddressResposne } from "model/core/supplier.model";
 import threeDot from "assets/icon/three-dot.svg";
 
 type SupplierAddressTabProps = {
@@ -14,11 +14,11 @@ type SupplierAddressTabProps = {
 const SupplierAddressTab: React.FC<SupplierAddressTabProps> = (
   props: SupplierAddressTabProps
 ) => {
-  const {data, loading, onDetail, onDefault, onDelete} = props;
+  const { data, loading, onDetail, onDefault, onDelete } = props;
   return (
     <CustomTable
       isLoading={loading}
-      style={{marginTop: "10px"}}
+      style={{ marginTop: "10px" }}
       pagination={false}
       dataSource={data}
       rowKey={(data) => data.id}
@@ -41,12 +41,12 @@ const SupplierAddressTab: React.FC<SupplierAddressTabProps> = (
           dataIndex: "address",
         },
         {
-          title: <div style={{textAlign: 'center'}}>Thao tác</div>,
+          title: <div style={{ textAlign: 'center' }}>Thao tác</div>,
           dataIndex: "id",
           render: (value: number, record: SupplierAddressResposne, index: number) => {
             const menu = (
               <Menu onClick={(info) => {
-                switch(info.key) {
+                switch (info.key) {
                   case '1':
                     let supplier: SupplierAddress = {
                       ...record,
@@ -75,15 +75,15 @@ const SupplierAddressTab: React.FC<SupplierAddressTabProps> = (
                   justifyContent: 'center'
                 }}
               >
-                  <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-                    <Button
-                      style={{width: 30, height: 30, lineHeight: '20px', padding: 0}}
-                      icon={<img src={threeDot} alt=""></img>}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                    />
-                  </Dropdown>
+                <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+                  <Button
+                    style={{ width: 30, height: 30, lineHeight: '20px', padding: 0 }}
+                    icon={<img src={threeDot} alt=""></img>}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  />
+                </Dropdown>
               </div>
             );
           },

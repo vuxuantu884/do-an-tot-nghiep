@@ -308,7 +308,8 @@ const OrderDuplicate: React.FC = () => {
                     />
                   )
                 );
-              case ShipmentMethod.SHIPPER:
+              case ShipmentMethod.EMPLOYEE:
+              case ShipmentMethod.EXTERNAL_SHIPPER:
                 return `Đối tác - ${newFulfillments[0].shipment.shipper_code} - ${newFulfillments[0].shipment.shipper_name}`;
               case ShipmentMethod.PICK_AT_STORE:
                 return `Nhận tại - ${record.store}`;
@@ -958,7 +959,6 @@ const OrderDuplicate: React.FC = () => {
 
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
     dispatch(putOrderDuplicateMerge(value, selectedOrderIds, (data: OrderModel) => {
-      console.log(data)
       if(data)
       {
         handleSearchResult();

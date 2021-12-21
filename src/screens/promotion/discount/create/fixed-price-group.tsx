@@ -13,7 +13,7 @@ import {
 } from "antd";
 import ModalConfirm from "component/modal/ModalConfirm";
 import _ from "lodash";
-import { DiscountFormModel, VariantEntitlementsResponse } from "model/promotion/discount.create.model";
+import { DiscountFormModel, VariantEntitlementsFileImport } from "model/promotion/discount.create.model";
 import React, { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { RiInformationLine } from "react-icons/ri";
@@ -165,9 +165,10 @@ const FixedPriceGroup = (props: any) => {
     entitlementForm[name].variants?.splice(index, 1);
 
     //xoá trong danh sách file import product
-    const importProductTemp: Array<VariantEntitlementsResponse> = [...importProduct];
+
+    const importProductTemp: Array<VariantEntitlementsFileImport> = [...importProduct];
     importProductTemp.splice(index, 1);
-    setImportProduct((prev: Array<Array<VariantEntitlementsResponse>>) => {
+    setImportProduct((prev: Array<Array<VariantEntitlementsFileImport>>) => {
       prev[name] = importProductTemp;
       return prev;
     })
@@ -466,7 +467,7 @@ const FixedPriceGroup = (props: any) => {
               <Col span={24}>
                 <Button icon={<DeleteOutlined />} danger onClick={() => {
                   remove(name);
-                  setImportProduct((prev: Array<Array<VariantEntitlementsResponse>>) => {
+                  setImportProduct((prev: Array<Array<VariantEntitlementsFileImport>>) => {
                     prev.splice(name, 1);
                     return prev;
                   })

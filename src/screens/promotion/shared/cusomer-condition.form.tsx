@@ -10,16 +10,16 @@ import {
   Switch,
 } from "antd";
 import AccountSearchSelect from "component/custom/select-search/account-select";
-import {CustomerGroups} from "domain/actions/customer/customer.action";
-import {LoyaltyRankSearch} from "domain/actions/loyalty/rank/loyalty-rank.action";
+import { CustomerGroups } from "domain/actions/customer/customer.action";
+import { LoyaltyRankSearch } from "domain/actions/loyalty/rank/loyalty-rank.action";
 import _ from "lodash";
-import {PageResponse} from "model/base/base-metadata.response";
-import {LoyaltyRankResponse} from "model/response/loyalty/ranking/loyalty-rank.response";
-import {Gender} from "model/response/promotion/discount/list-discount.response";
-import React, {ReactElement, useCallback, useEffect, useMemo} from "react";
-import {useDispatch} from "react-redux";
-import {DATE_FORMAT} from "utils/DateUtils";
-const {Option} = Select;
+import { PageResponse } from "model/base/base-metadata.response";
+import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
+import { Gender } from "model/response/promotion/discount/list-discount.response";
+import React, { ReactElement, useCallback, useEffect, useMemo } from "react";
+import { useDispatch } from "react-redux";
+import { DATE_FORMAT } from "utils/DateUtils";
+const { Option } = Select;
 
 interface Props {
   form: FormInstance;
@@ -53,7 +53,7 @@ const genderOptions = [
 ];
 
 export default function CustomerFilter(props: Props): ReactElement {
-  const {form, isAllCustomer} = props;
+  const { form, isAllCustomer } = props;
   const dispatch = useDispatch();
 
   const [checkedAll, setCheckedAll] = React.useState<boolean>(true);
@@ -96,8 +96,19 @@ export default function CustomerFilter(props: Props): ReactElement {
   };
   const handleCheckedAll = (value: boolean) => {
     setCheckedAll(value);
+
     if (value) {
       resetError();
+      form.setFieldsValue({
+        [CustomerFilterField.prerequisite_genders]: undefined,
+        [CustomerFilterField.starts_birthday]: undefined,
+        [CustomerFilterField.ends_birthday]: undefined,
+        [CustomerFilterField.starts_wedding_day]: undefined,
+        [CustomerFilterField.ends_wedding_day]: undefined,
+        [CustomerFilterField.prerequisite_customer_group_ids]: undefined,
+        [CustomerFilterField.prerequisite_customer_loyalty_level_ids]: undefined,
+        [CustomerFilterField.prerequisite_assignee_codes]: undefined,
+      })
     }
   };
 
@@ -145,14 +156,14 @@ export default function CustomerFilter(props: Props): ReactElement {
                 ]}
                 help={false}
                 colon={false}
-                labelCol={{span: 24}}
+                labelCol={{ span: 24 }}
               >
                 <Select
                   placeholder="Chọn giới tính"
                   showArrow
                   mode="multiple"
                   showSearch={false}
-                  style={{height: "auto"}}
+                  style={{ height: "auto" }}
                 >
                   {genderOptions.map((option) => (
                     <Option key={option.value} value={option.value}>
@@ -166,11 +177,11 @@ export default function CustomerFilter(props: Props): ReactElement {
                 <Col span={24}>
                   <div
                     className="ant-form-item-label-no-colon"
-                    style={{width: "100%", textAlign: "left", height: "32px"}}
+                    style={{ width: "100%", textAlign: "left", height: "32px" }}
                   >
                     <label
                       htmlFor={CustomerFilterField.starts_birthday}
-                      style={{fontWeight: 500, color: "black"}}
+                      style={{ fontWeight: 500, color: "black" }}
                     >
                       Ngày sinh
                     </label>
@@ -187,9 +198,9 @@ export default function CustomerFilter(props: Props): ReactElement {
                     help={false}
                   >
                     <DatePicker
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       placeholder="Từ ngày"
-                      showTime={{format: DATE_FORMAT.DDMM}}
+                      showTime={{ format: DATE_FORMAT.DDMM }}
                       format={DATE_FORMAT.DDMM}
                       showNow={false}
                       disabledDate={(currentDate) => {
@@ -217,9 +228,9 @@ export default function CustomerFilter(props: Props): ReactElement {
                     help={false}
                   >
                     <DatePicker
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       placeholder="Đến ngày"
-                      showTime={{format: DATE_FORMAT.DDMM}}
+                      showTime={{ format: DATE_FORMAT.DDMM }}
                       format={DATE_FORMAT.DDMM}
                       disabledDate={(currentDate) => {
                         const cur = currentDate.set({
@@ -241,10 +252,10 @@ export default function CustomerFilter(props: Props): ReactElement {
                 <Col span={24}>
                   <div
                     className="ant-form-item-label-no-colon"
-                    style={{width: "100%", textAlign: "left", height: "32px"}}
+                    style={{ width: "100%", textAlign: "left", height: "32px" }}
                   >
                     <label
-                      style={{fontWeight: 500, color: "black"}}
+                      style={{ fontWeight: 500, color: "black" }}
                       htmlFor={CustomerFilterField.starts_wedding_day}
                     >
                       Ngày cưới
@@ -262,9 +273,9 @@ export default function CustomerFilter(props: Props): ReactElement {
                     ]}
                   >
                     <DatePicker
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       placeholder="Từ ngày"
-                      showTime={{format: DATE_FORMAT.DDMM}}
+                      showTime={{ format: DATE_FORMAT.DDMM }}
                       format={DATE_FORMAT.DDMM}
                       showNow={false}
                       disabledDate={(currentDate) => {
@@ -292,9 +303,9 @@ export default function CustomerFilter(props: Props): ReactElement {
                     ]}
                   >
                     <DatePicker
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       placeholder="Đến ngày"
-                      showTime={{format: DATE_FORMAT.DDMM}}
+                      showTime={{ format: DATE_FORMAT.DDMM }}
                       format={DATE_FORMAT.DDMM}
                       showNow={false}
                       disabledDate={(currentDate) => {
@@ -321,7 +332,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   },
                 ]}
                 help={false}
-                labelCol={{span: 24}}
+                labelCol={{ span: 24 }}
               >
                 <Select
                   placeholder="Chọn nhóm khách hàng"
@@ -347,7 +358,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   },
                 ]}
                 help={false}
-                labelCol={{span: 24}}
+                labelCol={{ span: 24 }}
               >
                 <Select
                   mode="multiple"

@@ -63,6 +63,7 @@ export const InventoryTabUrl = {
   ALL: UrlConfig.INVENTORY,
   DETAIL: UrlConfig.INVENTORY+ "/details",
   HISTORIES: UrlConfig.INVENTORY + "/histories",
+  INVENTORY: UrlConfig.VARIANTS + "/inventories",
 };
 
 export const ProcurementTabUrl = {
