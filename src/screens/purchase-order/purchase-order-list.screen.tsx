@@ -505,7 +505,7 @@ const PurchaseOrderListScreen: React.FC = () => {
                 Xuất file
               </Button>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
-                <ButtonCreate currentPage={true} child="Thêm đơn đặt hàng" path={`${UrlConfig.PURCHASE_ORDERS}/create`} />
+                <ButtonCreate child="Thêm đơn đặt hàng" path={`${UrlConfig.PURCHASE_ORDERS}/create`} />
               </AuthWrapper>
             </Space>
           </Row>

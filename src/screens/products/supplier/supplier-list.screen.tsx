@@ -32,7 +32,7 @@ import {AccountResponse} from "model/account/account.model";
 import {AppConfig} from "config/app.config";
 
 const ACTIONS_INDEX = {
-  DELETE: 2,
+  DELETE: 1,
 };
 
 const actionsDefault: Array<MenuAction> = [
@@ -246,12 +246,7 @@ const ListSupplierScreen: React.FC = () => {
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
   }, [dispatch, params, searchSupplierCallback, selected]);
 
-  const onDelete = useCallback(() => {
-    if (selected.length === 0) {
-      showWarning("Vui lòng chọn phần tử cần xóa");
-      return;
-    }
-
+  const onDelete = useCallback(() => { 
     if (selected.length === 1) {
       let id = selected[0].id;
       dispatch(SupplierDeleteAction(id, deleteCallback));
@@ -269,12 +264,15 @@ const ListSupplierScreen: React.FC = () => {
   );
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
-      case 1:
-        setConfirmDelete(true);
-        // onDelete();
+      case ACTIONS_INDEX.DELETE: 
+      if (selected.length === 0) {
+        showWarning("Vui lòng chọn nhà cung cấp cần xóa");
+        return;
+      }
+      setConfirmDelete(true);
         break;
     }
-  }, []);
+  }, [selected]);
 
   const getAccounts = useCallback(
     (search: string, page: number) => {

@@ -32,9 +32,16 @@ const AvdInventoryFilter = {
   transferring: 'transferring',
   on_way: 'on_way',
   shipping: 'shipping',
-  // import_price: 'import_price',
-  // mac: 'mac',
-  // retail_price: 'retail_price',
+  info: 'info',
+  store_ids: 'store_ids', 
+  made_in_id: 'made_in_id',
+  designer_code: 'designer_code',
+  merchandiser_code: 'merchandiser_code',
+  collection_code: 'collection_code',
+  category_code: 'category_code',
+  variant_prices: 'variant_prices',
+  from_price: 'from_price',
+  to_price: 'to_price'
 }
 
 const BasicInventoryFilter = {

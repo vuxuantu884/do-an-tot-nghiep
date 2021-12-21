@@ -20,7 +20,7 @@ export const searchVariantsApi = (
   query: VariantSearchQuery
 ): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PRODUCT}/variants?${queryString}`);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/inventories?${queryString}`);
 };
 
 export const getVariantApi = (

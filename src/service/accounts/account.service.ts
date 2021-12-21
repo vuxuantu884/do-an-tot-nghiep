@@ -66,6 +66,10 @@ export const searchShipperApi = (): Promise<BaseResponse<PageResponse<AccountRes
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?is_shipper=1`);
 }
 
+export const externalShipperApi = (): Promise<BaseResponse<PageResponse<any>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/delivery-partners`);
+}
+
 export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.ACCOUNTS}/power-bi/groups/${params.group_id}/reports/${params.report_id}`,
   {

@@ -23,7 +23,7 @@ import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
 import { InventoryTransferLogSearchQuery, Store } from "model/inventory/transfer";
-import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
+import { BaseFilterWrapper } from "./styles";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 
@@ -335,7 +335,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
   }, [initialValues, accounts]);  
     
   return (
-    <InventoryFiltersWrapper>
+    <BaseFilterWrapper>
       <div className="custom-filter"> 
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
@@ -517,7 +517,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
           )
         })}
       </div>
-    </InventoryFiltersWrapper>
+    </BaseFilterWrapper>
   );
 };
 

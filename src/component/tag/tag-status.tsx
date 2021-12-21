@@ -53,7 +53,7 @@ function TagStatus(props: TagStatusProps) {
   }
   return (
     <TagStatusStyle>
-      <Tag color={bgColor} style={{color: color}} className={isOutline ? "outline" :""}>
+      <Tag color={bgColor} style={{color: color, margin: 0}} className={isOutline ? "outline" :""}>
         {children}
       </Tag>
     </TagStatusStyle>

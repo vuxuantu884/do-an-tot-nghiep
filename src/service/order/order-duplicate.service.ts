@@ -22,7 +22,7 @@ export const putOrderMergeService = (
   ids: number[]
 ): Promise<BaseResponse<OrderModel>> => {
   return BaseAxios.put(
-    `${ApiConfig.ORDER}/orders-duplicate/combine?origin_id=${origin_id}& ids=${ids}`
+    `${ApiConfig.ORDER}/order-duplicate/combine?origin_id=${origin_id}&ids=${ids}`
   );
 };
 

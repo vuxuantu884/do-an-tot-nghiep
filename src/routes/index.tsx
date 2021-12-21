@@ -19,21 +19,18 @@ const childRoute : Array<RouteMenu> = [];
 const listMenu = () => {
   let list: Array<RouteMenu> = [];
   menu.forEach((item) => list = [...list, ...getAllRoute(item)]);
-  console.log('list list list', list);
   return list;
 }
 
 const listExtraMenu = () => {
   let list: Array<RouteMenu> = [];
   extra.forEach((item) => list = [...list, ...getAllRoute(item)]);
-  console.log('list list list', list);
   return list;
 }
 
 const listRoutesNotShowInMenu = () => {
   let list: Array<RouteMenu> = [];
   routesNotShowInMenu.forEach((item) => list = [...list, ...getAllRoute(item)]);
-  console.log('list list list', list);
 
   return list;
 }

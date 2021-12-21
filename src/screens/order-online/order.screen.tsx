@@ -58,6 +58,7 @@ import {
 	scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
+	ADMIN_ORDER,
 	DEFAULT_COMPANY,
 	OrderStatus,
 	PaymentMethodCode,
@@ -66,7 +67,6 @@ import {
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
-import { DEFAULT_CHANNEL_ID } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
@@ -355,7 +355,8 @@ export default function Order() {
 			case ShipmentMethodOption.SELF_DELIVER:
 				return {
 					...objShipment,
-					delivery_service_provider_type: "Shipper",
+					delivery_service_provider_type: thirdPL.delivery_service_provider_code,
+					service: thirdPL.service,
 					shipper_code: value.shipper_code,
 					shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
 					shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
@@ -448,7 +449,7 @@ export default function Order() {
 	};
 
 	const onFinish = (values: OrderRequest) => {
-		values.channel_id = DEFAULT_CHANNEL_ID;
+		values.channel_id = ADMIN_ORDER.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
 		const element2: any = document.getElementById("save-and-confirm");
 		element2.disable = true;
@@ -762,7 +763,8 @@ export default function Order() {
 								switch (
 								response.fulfillments[0].shipment?.delivery_service_provider_type
 								) {
-									case ShipmentMethod.SHIPPER:
+									case ShipmentMethod.EMPLOYEE:
+									case ShipmentMethod.EXTERNAL_SHIPPER:
 										newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
 										break;
 									case ShipmentMethod.EXTERNAL_SERVICE:

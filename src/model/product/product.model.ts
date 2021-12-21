@@ -61,6 +61,7 @@ export interface ProductResponse extends BaseObject {
   product_collections: Array<ProductCollectionsResponse>,
   specifications: string,
   variants: Array<VariantResponse>
+  on_hand:number,
 }
 
 export interface ProductWrapperResponse extends BaseObject {
@@ -216,6 +217,7 @@ export interface ProductWrapperSearchQuery extends BaseQuery {
   to_create_date?:string,
   status?: string,
   goods?: string,
+  product_ids?: Array<number>,
 }
 
 export interface VariantPriceRequest {

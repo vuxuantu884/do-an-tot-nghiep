@@ -43,6 +43,10 @@ spec:
               memory: "500Mi"
               cpu: "0.5"
           imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "30"]
           ports:
             - name: http
               containerPort: 80

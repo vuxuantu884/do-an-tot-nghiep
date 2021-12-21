@@ -71,7 +71,8 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
             title: "Thời gian",
             dataIndex: "transaction_date",
             render: (value) => ConvertUtcToLocalDate(value),
-            align: 'center',
+            align: 'left',
+            width: 120
           },
           {
             title: "SL Thay đổi",

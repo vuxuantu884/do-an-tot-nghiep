@@ -520,3 +520,13 @@ label {
         flex-direction: row;
     }
 }
+@for $i from 1 through 20 {
+.text-truncate-#{$i} {
+    display: -webkit-box;
+    -webkit-line-clamp: #{$i};
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+  }
+}

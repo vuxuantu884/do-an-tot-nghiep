@@ -37,10 +37,12 @@ type PropTypes = {
 	listSource: Array<SourceResponse>;
 	listStore: Array<StoreResponse> | undefined;
 	accounts: Array<AccountResponse>;
+	shippers?: Array<AccountResponse>;
 	deliveryService: Array<any>;
 	listPaymentMethod: Array<PaymentMethodResponse>;
 	subStatus: Array<OrderProcessingStatusModel>;
-	isLoading?: Boolean;
+	isLoading?: boolean;
+	isHideTab?: boolean;
 	listShippers?: AccountResponse[];
 	onMenuClick?: (index: number) => void;
 	onFilter?: (values: OrderSearchQuery | Object) => void;
@@ -77,10 +79,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		listSource,
 		listStore,
 		accounts,
+		shippers,
 		deliveryService,
 		subStatus,
 		listPaymentMethod,
 		isLoading,
+		isHideTab = false,
 		onMenuClick,
 		onClearFilter,
 		onFilter,
@@ -88,6 +92,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	} = props;
 	const [visible, setVisible] = useState(false);
 	const [rerender, setRerender] = useState(false);
+	const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
 	const loadingFilter = useMemo(() => {
 		return isLoading ? true : false
 	}, [isLoading])
@@ -261,8 +266,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				case 'delivery_provider_ids':
 					onFilter && onFilter({ ...params, delivery_provider_ids: [] });
 					break;
-				case 'shipper_ids':
-					onFilter && onFilter({ ...params, shipper_ids: [] });
+				case 'shipper_codes':
+					onFilter && onFilter({ ...params, shipper_codes: [] });
 					break;
 				case 'note':
 					onFilter && onFilter({ ...params, note: "" });
@@ -292,7 +297,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 
 	const listSources = useMemo(() => {
-		return listSource.filter((item) => item.code !== POS.source_code);
+		return listSource.filter((item) => item.code !== POS.channel_code);
 	}, [listSource]);
 
 	const initialValues = useMemo(() => {
@@ -309,7 +314,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
 			payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
 			delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
-			shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
+			shipper_codes: Array.isArray(params.shipper_codes) ? params.shipper_codes : [params.shipper_codes],
 			tags: Array.isArray(params.tags) ? params.tags : [params.tags],
 			variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
 			assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
@@ -574,11 +579,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				value: text,
 			})
 		}
-		if (initialValues.shipper_ids.length) {
-			let mappedAccounts = accounts?.filter((account) => initialValues.shipper_ids?.some((single) => single === account.code.toString()))
-			let text = getFilterString(mappedAccounts, "full_name", UrlConfig.ACCOUNTS, "code");
+		if (initialValues.shipper_codes.length) {
+			let mappedShippers = shippers?.filter((account) => initialValues.shipper_codes?.some((single) => single === account.code.toString()))
+			console.log('mappedShippers', mappedShippers)
+			console.log('shippers', shippers)
+			let text = getFilterString(mappedShippers, "full_name", UrlConfig.ACCOUNTS, "code");
 			list.push({
-				key: 'shipper_ids',
+				key: 'shipper_codes',
 				name: 'Đối tác giao hàng',
 				value: text,
 			})
@@ -625,7 +632,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 		// console.log('filters list', list);
 		return list
-	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, accountFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, listPaymentMethod, serviceType, deliveryService, accounts]);
+	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
 
 	const widthScreen = () => {
 		if (window.innerWidth >= 1600) {
@@ -636,6 +643,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			return 800
 		}
 	}
+
+	console.log('optionsVariant', optionsVariant)
 
 	const clearFilter = () => {
 		onClearFilter && onClearFilter();
@@ -654,12 +663,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 	useEffect(() => {
 		formSearchRef.current?.setFieldsValue({
-			search_term: params.search_term
+			search_term: params.search_term,
+			variant_ids: params.variant_ids,
 		})
-	}, [formSearchRef, params.search_term])
+	}, [formSearchRef, params.search_term, params.variant_ids])
 
 	useEffect(() => {
 		if (params.variant_ids && params.variant_ids.length) {
+			setRerenderSearchVariant(false)
 			let variant_ids = Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids];
 			(async () => {
 				let variants: any = [];
@@ -674,10 +685,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 							})
 						} catch { }
 					})
-				);
-				console.log('variants', variants);
-				setOptionsVariant(variants)
+					);
+					console.log('variants', variants);
+					setOptionsVariant(variants);
+					if(variants?.length > 0) {
+						setRerenderSearchVariant(true)
+					}
 			})()
+		}else {
+			setRerenderSearchVariant(true)
 		}
 	}, [params.variant_ids]);
 
@@ -697,42 +713,58 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 	return (
 		<StyledComponent>
-			<div className="order-options">
-				<Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
-					<Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
-					<Radio.Button value="true">Đơn hàng online</Radio.Button>
-					<Radio.Button value="false">Đơn hàng offline</Radio.Button>
-				</Radio.Group>
-			</div>
+			{!isHideTab && (
+				<div className="order-options">
+					<Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
+						<Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
+						<Radio.Button value="true">Đơn hàng online</Radio.Button>
+						<Radio.Button value="false">Đơn hàng offline</Radio.Button>
+					</Radio.Group>
+				</div>
+			)}
 			<div className="order-filter">
 				<CustomFilter onMenuClick={onActionClick} menu={actions}>
 					<Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-						<Item name="search_term" className="input-search">
-							<Input
-								prefix={<img src={search} alt="" />}
-								placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
-								onBlur={(e) => {
-									formSearchRef?.current?.setFieldsValue({
-										search_term: e.target.value.trim()
-									})
-								}}
-							/>
-						</Item>
+						<div style={{width: "100%"}}>
+							<Row gutter={20}>
+								<Col span={12}>
+									<Item name="search_term" className="input-search">
+										<Input
+											prefix={<img src={search} alt="" />}
+											placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+											onBlur={(e) => {
+												formSearchRef?.current?.setFieldsValue({
+													search_term: e.target.value.trim()
+												})
+											}}
+										/>
+									</Item>
 
-						<Item>
+								</Col>
+								<Col span={12}>
+									{rerenderSearchVariant  && (
+									<Item name="variant_ids">
+										<DebounceSelect
+											mode="multiple" showArrow maxTagCount='responsive'
+											placeholder="Sản phẩm" allowClear
+											fetchOptions={searchVariants}
+											optionsVariant={optionsVariant}
+											style={{
+												width: '100%',
+											}}
+										/>
+									</Item>
+									)}
+								</Col>
+							</Row>
+						</div>
+						<div className="buttonGroup">
 							<Button type="primary" loading={loadingFilter} htmlType="submit">
 								Lọc
 							</Button>
-						</Item>
-						{/* <Item>
-              <Tooltip overlay="Lưu bộ lọc" placement="top">
-                <Button icon={<StarOutlined />} />
-              </Tooltip>
-            </Item> */}
-						<Item>
 							<Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
-						</Item>
-						<Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
+							<Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
+						</div>
 					</Form>
 				</CustomFilter>
 
@@ -987,7 +1019,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 								</div>
 							</Col>
 							<Col span={8} xxl={8}>
-								<Item name="shipper_ids" label="Đối tác giao hàng">
+								<Item name="shipper_codes" label="Đối tác giao hàng">
 									<CustomSelect
 										mode="multiple" showSearch allowClear
 										showArrow placeholder="Chọn đối tác giao hàng"
@@ -996,9 +1028,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 										getPopupContainer={trigger => trigger.parentNode}
 										maxTagCount='responsive'
 									>
-										{accounts.filter(account => account.is_shipper === true)?.map((account) => (
-											<CustomSelect.Option key={account.id} value={account.id}>
-												{account.full_name} - {account.code}
+										{shippers && shippers.map((shipper) => (
+											<CustomSelect.Option key={shipper.code} value={shipper.code}>
+												{shipper.full_name} - {shipper.code}
 											</CustomSelect.Option>
 										))}
 									</CustomSelect>
@@ -1120,19 +1152,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 											</CustomSelect.Option>
 										))}
 									</CustomSelect>
-								</Item>
-							</Col>
-							<Col span={8} xxl={8}>
-								<Item name="variant_ids" label="Sản phẩm">
-									<DebounceSelect
-										mode="multiple" showArrow maxTagCount='responsive'
-										placeholder="Tìm kiếm sản phẩm" allowClear
-										fetchOptions={searchVariants}
-										optionsVariant={optionsVariant}
-										style={{
-											width: '100%',
-										}}
-									/>
 								</Item>
 							</Col>
 						</Row>
