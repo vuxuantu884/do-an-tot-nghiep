@@ -876,9 +876,9 @@ function OrdersTable(props: PropsType) {
 				scroll={{ x: (2400 * columnFinal.length) / (columns.length ? columns.length : 1) }}
 				sticky={{ offsetScroll: 10, offsetHeader: 55 }}
 				pagination={{
-					pageSize: data.metadata.limit,
-					total: data.metadata.total,
-					current: data.metadata.page,
+					pageSize: data.metadata?.limit,
+					total: data.metadata?.total,
+					current: data.metadata?.page,
 					showSizeChanger: true,
 					onChange: onPageChange,
 					onShowSizeChange: onPageChange,
