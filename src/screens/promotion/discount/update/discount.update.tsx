@@ -10,7 +10,7 @@ import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { getDateFormDuration, transformData } from "utils/PromotionUtils";
+import { parseDurationToMoment, transformData } from "utils/PromotionUtils";
 import ContentContainer from "../../../../component/container/content.container";
 import UrlConfig from "../../../../config/url.config";
 import { showError, showSuccess } from "../../../../utils/ToastUtils";
@@ -38,7 +38,7 @@ const DiscountUpdate = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const discountUpdateContext = useContext(DiscountUpdateContext);
-    const { setIsAllProduct, isAllProduct, setDiscountMethod, setDiscountData, discountData, setSelectedVariant } = discountUpdateContext;
+    const { setDiscountMethod, setDiscountData, discountData, setSelectedVariant } = discountUpdateContext;
 
     const parseDataToForm = useCallback(
         (result: DiscountResponse) => {
@@ -80,10 +80,12 @@ const DiscountUpdate = () => {
                 prerequisite_customer_group_ids: result.prerequisite_customer_group_ids,
                 prerequisite_customer_loyalty_level_ids: result.prerequisite_customer_loyalty_level_ids,
                 prerequisite_assignee_codes: result.prerequisite_assignee_codes,
-                starts_birthday: result.prerequisite_birthday_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_birthday_duration?.starts_mmdd_key)) : undefined,
-                ends_birthday: result.prerequisite_birthday_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_birthday_duration?.ends_mmdd_key)) : undefined,
-                starts_wedding_day: result.prerequisite_wedding_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.starts_mmdd_key)) : undefined,
-                ends_wedding_day: result.prerequisite_wedding_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.ends_mmdd_key)) : undefined,
+
+                starts_birthday: parseDurationToMoment(result.prerequisite_birthday_duration?.starts_mmdd_key),
+                ends_birthday: parseDurationToMoment(result.prerequisite_birthday_duration?.ends_mmdd_key),
+
+                starts_wedding_day: parseDurationToMoment(result.prerequisite_wedding_duration?.starts_mmdd_key),
+                ends_wedding_day: parseDurationToMoment(result.prerequisite_wedding_duration?.ends_mmdd_key)
 
             };
 
@@ -115,13 +117,15 @@ const DiscountUpdate = () => {
             showSuccess("Cập nhật chiết khấu thành công");
             setIsSubmitting(false)
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
+        } else {
+            setIsSubmitting(false)
         }
     };
 
     const handleSubmit = (values: any) => {
         try {
             setIsSubmitting(true)
-            const body = transformData(values, isAllProduct);
+            const body = transformData(values);
             body.id = idNumber;
             dispatch(updatePriceRuleByIdAction(body, updateCallback));
         } catch (error: any) {
@@ -196,21 +200,17 @@ const DiscountUpdate = () => {
      * Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mãi
      */
     useEffect(() => {
-        let allProduct = false;
         const entilelementValue: Array<EntilementFormModel> = discountData.entitlements;
         if (entilelementValue) {
             entilelementValue.forEach((item: EntilementFormModel) => {
                 item.selectedProducts = mergeVariantsData(item.entitled_variant_ids, item.entitled_product_ids) || [];
-                if (item?.entitled_variant_ids?.length === 0 && item?.entitled_product_ids?.length === 0) {
-                    allProduct = true;
-                }
+
             })
 
             form.setFieldsValue({ entitlements: entilelementValue });
         }
 
-        setIsAllProduct(allProduct);
-    }, [discountData, setIsAllProduct, form, setSelectedVariant, mergeVariantsData]);
+    }, [discountData, form, setSelectedVariant, mergeVariantsData]);
 
     useEffect(() => {
         dispatch(getVariants(idNumber, setDataVariants));
