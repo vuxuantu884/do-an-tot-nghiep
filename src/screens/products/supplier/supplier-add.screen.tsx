@@ -1,33 +1,33 @@
-import {Button, Card, Col, Form, Input, Radio, Row, Select, Space, Switch} from "antd";
+import { Button, Card, Col, Form, Input, Radio, Row, Select, Space, Switch } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
 import SelectPaging from "component/custom/SelectPaging";
-import {AppConfig} from "config/app.config";
-import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import { AppConfig } from "config/app.config";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import {SupplierCreateAction} from "domain/actions/core/supplier.action";
+import { SupplierCreateAction } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {CountryResponse} from "model/content/country.model";
-import {DistrictResponse} from "model/content/district.model";
-import {SupplierCreateRequest} from "model/core/supplier.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
+import { SupplierCreateRequest } from "model/core/supplier.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import React from "react";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router";
-import {VietNamId} from "utils/Constants";
-import {RegUtil} from "utils/RegUtils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { VietNamId } from "utils/Constants";
+import { RegUtil } from "utils/RegUtils";
 
-const {Item} = Form;
-const {Option} = Select;
+const { Item } = Form;
+const { Option } = Select;
 
 const DefaultCountry = VietNamId;
 const initRequest: SupplierCreateRequest = {
@@ -163,7 +163,9 @@ const CreateSupplierScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-      console.log(values);
+
+      console.log("dataaa", values);
+
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
@@ -184,7 +186,7 @@ const CreateSupplierScreen: React.FC = () => {
     (search: string, page: number) => {
       dispatch(
         AccountSearchAction(
-          {info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page},
+          { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page },
           (response: PageResponse<AccountResponse> | false) => {
             if (response) {
               setAccounts(response);
@@ -333,7 +335,7 @@ const CreateSupplierScreen: React.FC = () => {
                   >
                     <SelectPaging
                       allowClear
-                      placeholder="Nhân viên phục trách"
+                      placeholder="Nhân viên phụ trách"
                       searchPlaceholder={"Tìm kiếm nhân viên phụ trách"}
                       metadata={accounts.metadata}
                       onPageChange={(key, page) => {
@@ -373,9 +375,9 @@ const CreateSupplierScreen: React.FC = () => {
             </Card>
             <Card title="Địa chỉ nhà cung cấp">
               <Form.List name="addresses">
-                {(fields, {add, remove}) => (
+                {(fields, { add, remove }) => (
                   <>
-                    {fields.map(({key, name, fieldKey, ...restField}, index) => (
+                    {fields.map(({ key, name, fieldKey, ...restField }, index) => (
                       <React.Fragment key={key}>
                         <Row gutter={50}>
                           <Col span={12}>
@@ -431,7 +433,7 @@ const CreateSupplierScreen: React.FC = () => {
                                 },
                               ]}
                               label="Địa chỉ"
-                              name="address"
+                              name={[name,"address"]}
                             >
                               <Input placeholder="Nhập địa chỉ" maxLength={100} />
                             </Item>
@@ -452,11 +454,11 @@ const CreateSupplierScreen: React.FC = () => {
                         <NumberInput
                           placeholder="Nhập số lượng"
                           isFloat
-                          style={{width: "70%"}}
+                          style={{ width: "70%" }}
                         />
                       </Item>
                       <Item name="moq_unit" noStyle>
-                        <Select className="selector-group" style={{width: "30%"}}>
+                        <Select className="selector-group" style={{ width: "30%" }}>
                           {moq_unit?.map((item) => (
                             <Option key={item.value} value={item.value}>
                               {item.name}
@@ -479,7 +481,7 @@ const CreateSupplierScreen: React.FC = () => {
                       /> */}
                         <NumberInput
                           isFloat
-                          style={{width: "70%"}}
+                          style={{ width: "70%" }}
                           placeholder="Nhập thời gian công nợ"
                         />
                       </Item>
@@ -487,7 +489,7 @@ const CreateSupplierScreen: React.FC = () => {
                         <Select
                           className="selector-group"
                           defaultActiveFirstOption
-                          style={{width: "30%"}}
+                          style={{ width: "30%" }}
                         >
                           {date_unit?.map((item) => (
                             <Option key={item.value} value={item.value}>
@@ -504,7 +506,7 @@ const CreateSupplierScreen: React.FC = () => {
                 <Col span={24}>
                   <Item label="Ghi chú" name="note">
                     <Input.TextArea
-                      style={{height: 105}}
+                      style={{ height: 105 }}
                       placeholder="Nhập ghi chú"
                       maxLength={500}
                     />
@@ -516,9 +518,9 @@ const CreateSupplierScreen: React.FC = () => {
           <Col span={8}>
             <Card title="Thông tin liên hệ">
               <Form.List name="contacts">
-                {(fields, {add, remove}) => (
+                {(fields, { add, remove }) => (
                   <>
-                    {fields.map(({key, name, fieldKey, ...restField}, index) => (
+                    {fields.map(({ key, name, fieldKey, ...restField }, index) => (
                       <React.Fragment key={key}>
                         <Row>
                           <Col span={24}>
@@ -532,7 +534,17 @@ const CreateSupplierScreen: React.FC = () => {
                         </Row>
                         <Row>
                           <Col span={24}>
-                            <Item name={[name, "phone"]} label="Số điện thoại">
+                            <Item
+                              name={[name, "phone"]} 
+                              label="Số điện thoại"
+                              rules={[
+                                { required: true, message: "Vui lòng nhập số điện thoại" },
+                                {
+                                  pattern: RegUtil.PHONE,
+                                  message: "Số điện thoại không đúng định dạng",
+                                },
+                              ]}
+                            >
                               <Input
                                 placeholder="Nhập số điện thoại liên hệ"
                                 maxLength={255}
@@ -544,7 +556,7 @@ const CreateSupplierScreen: React.FC = () => {
                           <Col span={24}>
                             <Item name={[name, "fax"]} label="Fax">
                               <Input
-                                placeholder="Nhập số điện thoại liên hệ"
+                                placeholder="Nhập số fax liên hệ"
                                 maxLength={255}
                               />
                             </Item>
@@ -581,9 +593,9 @@ const CreateSupplierScreen: React.FC = () => {
             </Card>
             <Card title="Thông tin thanh toán">
               <Form.List name="payments">
-                {(fields, {add, remove}) => (
+                {(fields, { add, remove }) => (
                   <>
-                    {fields.map(({key, name, fieldKey, ...restField}, index) => (
+                    {fields.map(({ key, name, fieldKey, ...restField }, index) => (
                       <React.Fragment key={key}>
                         <Row>
                           <Col span={24}>
