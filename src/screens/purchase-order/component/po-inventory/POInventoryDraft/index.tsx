@@ -18,6 +18,7 @@ import { useCallback } from "react";
 import moment from "moment";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { ProcumentStatus } from "utils/Constants";
+import { formatCurrency } from "utils/AppUtils";
 
 type POInventoryDraftProps = {
   stores: Array<StoreResponse>;
@@ -363,7 +364,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                 value: Array<PurchaseProcumentLineItem>,
                 record,
                 indexProcument
-              ) => value.find(item1 => item1.sku === item.sku)?.quantity
+              ) => formatCurrency(value.find(item1 => item1.sku === item.sku)?.quantity ?? 0,".")
             });
           });
           return (
@@ -425,7 +426,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                       {
                         new_line_items.map((new_line_items, index) => (
                           <Table.Summary.Cell align="right" index={index + 2}>
-                            <div>{newTotal[new_line_items.sku]}</div>
+                            <div>{formatCurrency(newTotal[new_line_items.sku],".")}</div>
                           </Table.Summary.Cell>
                         ))
                       }

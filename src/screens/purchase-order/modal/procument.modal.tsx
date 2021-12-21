@@ -228,10 +228,11 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         min={0}
                         // max={item.ordered_quantity}
                         default={0}
-                        maxLength={6}
+                        maxLength={8}
                         onChange={(quantity: number | null) => {
                           onQuantityChange(quantity, index);
                         }}
+                        format={(a: string) => formatCurrency(a)}
                       />
                     ),
                   },
@@ -293,7 +294,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                           </div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={4}>
-                          <div style={{ fontWeight: 700 }}>{quantity}</div>
+                          <div style={{ fontWeight: 700 }}>{formatCurrency(quantity,".")}</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={5}>
                           <div style={{ fontWeight: 700 }}></div>
