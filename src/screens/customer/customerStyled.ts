@@ -1,11 +1,9 @@
 import styled from "styled-components";
 
-
 export const StyledCustomer = styled.div`
   .page-header {
     height: auto;
   }
-
 `;
 
 export const StyledCustomerFilter = styled.div`
@@ -29,7 +27,6 @@ export const StyledCustomerFilter = styled.div`
       border-radius: 50px;
     }
   }
-
 `;
 
 export const StyledCustomerBaseFilter = styled.div`
@@ -43,15 +40,15 @@ export const StyledCustomerBaseFilter = styled.div`
       .left-filter {
         width: 33%;
       }
-  
+
       .center-filter {
         width: 33%;
       }
-  
+
       .right-filter {
         width: 30%;
       }
-    }  
+    }
 
     .title {
       font-weight: 500;
@@ -74,12 +71,12 @@ export const StyledCustomerBaseFilter = styled.div`
       width: 32%;
       padding: 0 6px;
     }
-
   }
-  
 `;
 
 export const StyledCustomerExtraButton = styled.div`
+  display: flex;
+
   .import-file-button {
     margin-right: 15px;
   }
@@ -87,7 +84,6 @@ export const StyledCustomerExtraButton = styled.div`
   .export-file-button {
     margin-right: 15px;
   }
-  
 `;
 
 export const StyledCustomerInfo = styled.div`
@@ -138,7 +134,7 @@ export const StyledCustomerInfo = styled.div`
         .ant-form-item {
           margin-bottom: 16px;
           &:last-child {
-              margin-bottom: 0;
+            margin-bottom: 0;
           }
           textarea.ant-input {
             min-height: 80px;
@@ -155,7 +151,7 @@ export const StyledCustomerInfo = styled.div`
       .ant-form-item {
         margin-bottom: 20px;
         &:last-child {
-            margin-bottom: 0;
+          margin-bottom: 0;
         }
       }
     }
@@ -212,5 +208,4 @@ export const StyledCustomerInfo = styled.div`
       }
     }
   }
-  
 `;
