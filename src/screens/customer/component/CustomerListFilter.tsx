@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
-  Button, Form,
+  Button,
+  Dropdown, 
+  Menu,
+  Form,
   Input,
   Select,
   Tag
@@ -11,6 +14,8 @@ import {
 import { RefSelectProps } from "antd/lib/select";
 
 import moment from "moment";
+import UrlConfig from "config/url.config";
+import { generateQuery } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { VietNamId } from "utils/Constants";
@@ -36,6 +41,7 @@ type CustomerListFilterProps = {
   isLoading?: boolean;
   params: any;
   initQuery: any;
+  selectedCustomerIds: any;
   onFilter?: (values: CustomerSearchQuery) => void;
   setShowSettingColumn?: () => void;
   onClearFilter?: () => void;
@@ -63,6 +69,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     isLoading,
     params,
     initQuery,
+    selectedCustomerIds,
     onClearFilter,
     onFilter,
     setShowSettingColumn,
@@ -1226,6 +1233,42 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     [firstOrderDateFrom, firstOrderDateTo, lastOrderDateFrom, lastOrderDateTo, onFilter]
   );
 
+  const actionList = [
+    {
+      name: "Tặng điểm",
+      type: "add"
+    },
+    {
+      name: "Trừ điểm",
+      type: "subtract"
+    }
+  ];
+
+  const changeCustomerPoint = (changeType: string) => {
+    if (selectedCustomerIds && selectedCustomerIds.length) {
+      const params = {
+        type: changeType,
+        customer_ids: selectedCustomerIds
+      }
+
+      let queryParams = generateQuery(params);
+      window.open(`${UrlConfig.CUSTOMER}/point-adjustments/create?${queryParams}`);
+    }
+  }
+
+  const dropdownMenuList = (
+    <Menu>
+      {actionList.map((item, index) => {
+        return (
+          <Menu.Item key={item.type} disabled={selectedCustomerIds?.length < 1}>
+            <span onClick={() => changeCustomerPoint(item.type)}>{item.name}</span>
+          </Menu.Item>
+        );
+      })}
+    </Menu>
+  );
+  // end handle action button
+
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
       return 1400;
@@ -1246,6 +1289,17 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         layout="inline"
         className="inline-filter"
       >
+        <Dropdown
+          overlay={dropdownMenuList}
+          trigger={["click"]}
+          disabled={isLoading}
+        >
+          <Button style={{ marginRight: 15 }}>
+            <span style={{ marginRight: 10 }}>Thao tác</span>
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+        
         <Form.Item name="request" className="input-search">
           <Input
             disabled={isLoading}

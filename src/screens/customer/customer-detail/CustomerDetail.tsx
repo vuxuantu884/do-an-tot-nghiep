@@ -37,7 +37,6 @@ import useAuthorization from "hook/useAuthorization";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import { StyledCustomerDetail } from "screens/customer/customer-detail/customerDetailStyled";
-import { showWarning } from "utils/ToastUtils";
 
 
 const { TabPane } = Tabs;
@@ -93,14 +92,14 @@ const CustomerDetail = () => {
       id: 2,
       name: "Trừ điểm",
     },
-    {
-      id: 3,
-      name: "Tặng tiền tích lũy",
-    },
-    {
-      id: 4,
-      name: "Trừ tiền tích lũy",
-    },
+    // {
+    //   id: 3,
+    //   name: "Tặng tiền tích lũy",
+    // },
+    // {
+    //   id: 4,
+    //   name: "Trừ tiền tích lũy",
+    // },
   ];
 
   const [orderHistory, setOrderHistory] = React.useState<PageResponse<OrderModel>>({
@@ -428,12 +427,12 @@ const CustomerDetail = () => {
             `${UrlConfig.CUSTOMER}/point-adjustments/create?customer_ids=${customer?.id}&type=subtract`
           );
           break;
-        case 3:
-          showWarning("Sẽ làm chức năng này sau bạn nhé!");
-          break;
-        case 4:
-          showWarning("Sẽ làm chức năng này sau bạn nhé!");
-          break;
+        // case 3:
+        //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
+        //   break;
+        // case 4:
+        //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
+        //   break;
       }
     },
     [customer, history]

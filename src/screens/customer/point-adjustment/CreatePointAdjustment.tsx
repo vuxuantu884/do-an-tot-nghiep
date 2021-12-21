@@ -126,7 +126,7 @@ const CreatePointAdjustment = () => {
         );
       }
     }
-  }, []); // eslint-disable-line
+  }, [dispatch, formRef, query, type]);
 
   const fetchCustomer = _.debounce((keyword: string) => {
     let query: any = { request: keyword };
