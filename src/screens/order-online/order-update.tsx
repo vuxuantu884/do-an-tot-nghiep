@@ -2167,11 +2167,7 @@ export default function Order(props: PropType) {
                                               <Collapse.Panel
                                                 header={
                                                   <Row>
-                                                    <Col
-                                                      style={{
-                                                        alignItems: "center",
-                                                      }}
-                                                    >
+                                                    <Col style={{display: "flex", width: "100%", alignItems: "center"}}>
                                                       <span
                                                         style={{
                                                           marginRight: "10px",
