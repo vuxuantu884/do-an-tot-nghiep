@@ -33,6 +33,7 @@ function DiscountCreateV2(): ReactElement {
     const [form] = Form.useForm();
     const dispatch = useDispatch();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmittingAndActive, setIsSubmittingAndActive] = useState(false);
     let activeDiscout = true;
 
     //phân quyền
@@ -44,8 +45,6 @@ function DiscountCreateV2(): ReactElement {
         switch (response.code) {
             case HttpStatus.SUCCESS:
                 showSuccess("Lưu thành công");
-                setIsSubmitting(false)
-
                 history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${response.data.id}`);
                 break;
             case HttpStatus.UNAUTHORIZED:
@@ -59,25 +58,32 @@ function DiscountCreateV2(): ReactElement {
 
     async function handleSubmit(values: any): Promise<void> {
         try {
-            setIsSubmitting(true)
             const body = transformData(values);
             body.activated = activeDiscout;
             // need move to saga
             const createResponse = await createPriceRule(body);
             handleCreateSuccess(createResponse);
             setIsSubmitting(false)
+            setIsSubmittingAndActive(false)
         } catch (error: any) {
             setIsSubmitting(false)
-            error.response.data?.errors?.forEach((e: string) => showError(e));
+            setIsSubmittingAndActive(false)
+            if (error.response.data?.errors) {
+                error.response.data.errors?.forEach((e: string) => showError(e));
+            } else {
+                showError("Hệ thống gặp lỗi lạ vui lòng thử lại sau");
+            }
         }
     }
 
     const handleSaveAndActive = () => {
+        setIsSubmittingAndActive(true)
         activeDiscout = true;
         form.submit();
     };
 
     const save = () => {
+        setIsSubmitting(true)
         activeDiscout = false;
         form.submit();
     };
@@ -146,7 +152,7 @@ function DiscountCreateV2(): ReactElement {
                                 >
                                     Lưu
                                 </Button>
-                                <Button type="primary" onClick={() => handleSaveAndActive()} loading={isSubmitting} >
+                                <Button type="primary" onClick={() => handleSaveAndActive()} loading={isSubmittingAndActive} >
                                     Lưu và kích hoạt
                                 </Button>
                             </>
