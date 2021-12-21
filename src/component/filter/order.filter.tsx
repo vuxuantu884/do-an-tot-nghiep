@@ -384,6 +384,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						)
 					})
 				}
+			} else if(type === "account_codes") {
+				result = mappedArray.map((single, index) => {
+					return (
+						<Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+							{single.code} - {single.full_name}
+							{renderSplitCharacter(index, mappedArray)}
+						</Link>
+					)
+				})
 			} else {
 				result = mappedArray.map((single, index) => {
 					if (objectLink && endPoint && single[objectLink]) {
