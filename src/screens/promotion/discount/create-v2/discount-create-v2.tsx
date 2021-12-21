@@ -6,24 +6,33 @@ import { PromoPermistion } from 'config/permissions/promotion.permisssion';
 import UrlConfig from 'config/url.config';
 import { unauthorizedAction } from 'domain/actions/auth/auth.action';
 import useAuthorization from 'hook/useAuthorization';
-import React, { ReactElement, useContext, useState } from 'react'
+import { DiscountMethod } from 'model/promotion/discount.create.model';
+import moment from 'moment';
+import React, { ReactElement, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import GeneralConditionForm from 'screens/promotion/shared/general-condition.form';
 import { createPriceRule } from 'service/promotion/discount/discount.service';
 import { transformData } from 'utils/PromotionUtils';
 import { showError, showSuccess } from 'utils/ToastUtils';
+import { DiscountUnitType, newEntitlements } from '../constants';
 import DiscountUpdateForm from '../update/discount-update-form';
-import DiscountUpdateProvider, { DiscountUpdateContext } from '../update/discount-update-provider';
-import { DiscountMethod } from 'model/promotion/discount.create.model';
-import { newEntitlements } from '../constants';
+import DiscountUpdateProvider from '../update/discount-update-provider';
+
+const initEntilements = newEntitlements;
+initEntilements.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.FIXED_PRICE.value;
+const initialValues = {
+    starts_date: moment(),
+    entitled_method: DiscountMethod.FIXED_PRICE.toString(),
+    priority: 1,
+    entitlements: [initEntilements]
+}
 
 function DiscountCreateV2(): ReactElement {
     const history = useHistory();
     const [form] = Form.useForm();
     const dispatch = useDispatch();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { isAllProduct } = useContext(DiscountUpdateContext);
     let activeDiscout = true;
 
     //phân quyền
@@ -51,12 +60,12 @@ function DiscountCreateV2(): ReactElement {
     async function handleSubmit(values: any): Promise<void> {
         try {
             setIsSubmitting(true)
-            const body = transformData(values, isAllProduct);
+            const body = transformData(values);
             body.activated = activeDiscout;
             // need move to saga
             const createResponse = await createPriceRule(body);
             handleCreateSuccess(createResponse);
-
+            setIsSubmitting(false)
         } catch (error: any) {
             setIsSubmitting(false)
             error.response.data?.errors?.forEach((e: string) => showError(e));
@@ -72,11 +81,7 @@ function DiscountCreateV2(): ReactElement {
         activeDiscout = false;
         form.submit();
     };
-    const initialValues = {
-        entitled_method: DiscountMethod.FIXED_PRICE.toString(),
-        priority: 1,
-        entitlements: [newEntitlements]
-    }
+
 
     return (
         <ContentContainer
