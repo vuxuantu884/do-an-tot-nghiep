@@ -16,6 +16,7 @@ import { Fragment, useCallback, useState } from "react";
 import importIcon from "assets/icon/import.svg";
 import ModalImport from "component/modal/ModalImport";
 import { AppConfig } from "config/app.config";
+import { formatCurrency } from "utils/AppUtils";
 
 type ProducmentInventoryModalProps = {
   visible: boolean;
@@ -163,7 +164,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                      >
                        SL Đặt hàng
                        <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
-                         ({POUtils.totalOrderQuantityProcument(line_items)})
+                         ({formatCurrency(POUtils.totalOrderQuantityProcument(line_items),".")})
                        </div>
                      </div>
                    ),

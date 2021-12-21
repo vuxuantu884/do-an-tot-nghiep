@@ -6,6 +6,7 @@ import {
   POProcumentField,
   PurchaseProcument,
 } from "model/purchase-order/purchase-procument";
+import { formatCurrency } from "utils/AppUtils";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
@@ -101,7 +102,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                 title: "SL Nhận hàng được duyệt",
                 dataIndex: POProcumentField.procurement_items,
                 render: (value, item, index: number) =>
-                  POUtils.totalQuantityProcument(value),
+                  formatCurrency(POUtils.totalQuantityProcument(value),".")
               },
               {
                 title: "",
