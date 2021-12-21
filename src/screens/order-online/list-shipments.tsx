@@ -2,9 +2,9 @@ import { Button, Card, Row, Space } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, withRouter } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import ShipmentFilter from "component/filter/shipment.filter";
 import CustomTable, {
@@ -36,6 +36,7 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
 import { StyledComponent } from "./list-shipments.styles";
+import queryString from "query-string";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -110,7 +111,12 @@ const initQuery: ShipmentSearchQuery = {
 	cancel_reason: [],
 };
 
-const ShipmentsScreen: React.FC = () => {
+const ShipmentsScreen: React.FC = (props: any) => {
+	const {location} = props;
+	console.log('location', location)
+	const queryParamsParsed: { [key: string]: string | string[] | null } = queryString.parse(
+    location.search
+  );
 	const query = useQuery();
 	const history = useHistory();
 	const dispatch = useDispatch();
@@ -472,16 +478,57 @@ const ShipmentsScreen: React.FC = () => {
 		},
 		[history, params]
 	);
-	const onFilter = useCallback(
-		(values) => {
-			let newPrams = { ...params, ...values, page: 1 };
-			setPrams(newPrams);
-			let queryParam = generateQuery(newPrams);
-			setIsFilter(true)
-			history.push(`${UrlConfig.SHIPMENTS}?${queryParam}`);
+
+	const setSearchResult = useCallback(
+		(result: PageResponse<ShipmentModel> | false) => {
+			setTableLoading(false);
+			setIsFilter(false);
+			if (!!result) {
+				setData(result);
+			}
 		},
-		[history, params]
+		[]
 	);
+
+	const fetchData = useCallback(
+    (params) => {
+      return new Promise<void>((resolve, reject) => {
+        setTableLoading(true);
+        setIsFilter(true);
+        dispatch(getShipmentsAction(params, setSearchResult, ()=> {
+					setTableLoading(false);
+        	setIsFilter(false);
+				}));
+        resolve();
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, setSearchResult]
+  );
+
+	const handleFetchData = useCallback(
+    (params) => {
+      fetchData(params).catch(() => {
+        setTableLoading(false);
+        setIsFilter(false);
+      });
+    },
+    [fetchData]
+  );
+
+	const onFilter = useCallback(
+    (values) => {
+      let newPrams = { ...params, ...values, page: 1 };
+      let currentParam = generateQuery(params);
+      let queryParam = generateQuery(newPrams);
+      if (currentParam === queryParam) {
+        handleFetchData(newPrams);
+      } else {
+        history.push(`${UrlConfig.SHIPMENTS}?${queryParam}`);
+      }
+    },
+    [handleFetchData, history, params]
+  );
 
 	const onClearFilter = useCallback(
 		() => {
@@ -612,17 +659,6 @@ const ShipmentsScreen: React.FC = () => {
 		}
 	}, [selectedRow]);
 
-	const setSearchResult = useCallback(
-		(result: PageResponse<ShipmentModel> | false) => {
-			setTableLoading(false);
-			setIsFilter(false);
-			if (!!result) {
-				setData(result);
-			}
-		},
-		[]
-	);
-
 	const columnFinal = useMemo(
 		() => columns.filter((item) => item.visible === true),
 		[columns]
@@ -634,11 +670,6 @@ const ShipmentsScreen: React.FC = () => {
 		}
 		setAccounts(data.items);
 	};
-
-	useEffect(() => {
-		setTableLoading(true);
-		dispatch(getShipmentsAction(params, setSearchResult));
-	}, [dispatch, params, setSearchResult]);
 
 	useEffect(() => {
 		dispatch(AccountSearchAction({}, setDataAccounts));
@@ -653,6 +684,16 @@ const ShipmentsScreen: React.FC = () => {
 		dispatch(StoreGetListAction(setStore));
 		dispatch(getListReasonRequest(setReasons));
 	}, [dispatch]);
+
+	useEffect(() => {
+    let dataQuery: ShipmentSearchQuery = {
+      ...initQuery,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    };
+    setPrams(dataQuery);
+    handleFetchData(dataQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, handleFetchData, setSearchResult, location.search]);
 
 	return (
 		<StyledComponent>
@@ -780,4 +821,4 @@ const ShipmentsScreen: React.FC = () => {
 	);
 };
 
-export default ShipmentsScreen;
+export default withRouter(ShipmentsScreen);

@@ -147,7 +147,7 @@ function* getListOrderCustomerSaga(action: YodyAction) {
 }
 
 function* getShipmentsSaga(action: YodyAction) {
-  let { query, setData } = action.payload;
+  let { query, setData, handleError } = action.payload;
   try {
     let response: BaseResponse<Array<ShipmentModel>> = yield call(getShipmentApi, query);
     switch (response.code) {
@@ -159,6 +159,7 @@ function* getShipmentsSaga(action: YodyAction) {
     }
   } catch (error) {
 		console.log('error', error);
+		handleError();
 		showError("Có lỗi khi lấy dữ liệu đơn giao hàng! Vui lòng thử lại sau!")
 	}
 }
