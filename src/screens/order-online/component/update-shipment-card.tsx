@@ -270,6 +270,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setIsvibleShippedConfirm(false);
     onReload && onReload();
   };
+	
   const onCancelSuccess = (value: OrderResponse) => {
     setCancelShipment(false);
     setReload(true);
@@ -306,6 +307,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setIsvibleGoodsReturn(false);
     onReload && onReload();
   };
+
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number, dataCancelFFM: any = {}) => {
     let value: UpdateFulFillmentStatusRequest = {
@@ -748,10 +750,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   console.log(addressError)
   // end
 
-  // const onPrint = () => {
-  //   onOkShippingConfirm();
-  //   setReload(true);
-  // };
+  const onPrint = () => {
+    onOkShippingConfirm();
+    setReload(true);
+  };
 
   const renderPushingStatusWhenDeliverPartnerFailed = () => {
     if(!OrderDetail || !OrderDetail.fulfillments) {
@@ -1012,6 +1014,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               fulfillment={fulfillment}
                               orderSettings={orderSettings}
                               orderId={OrderDetail?.id}
+															onPrint={onPrint}
                             />}
                         </div>
 
