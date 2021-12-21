@@ -255,9 +255,10 @@ function* updatePriceRuleByIdSaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {
+  } catch (error: any) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    error.response.data?.errors?.forEach((e: string) => showError(e));
+
   }
 }
 

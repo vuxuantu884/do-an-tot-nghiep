@@ -174,6 +174,17 @@ export const getDateFormDuration = (duration: number) => {
   }
 };
 
+export const parseDurationToMoment = (duration?: number) => {
+  if (duration) {
+    const day = duration % 100;
+    const month = (duration - day) / 100;
+    const year = moment().year();
+    return moment(`${year}-${month}-${day}`);
+  } else {
+    return undefined;
+  }
+};
+
 export const renderDiscountValue = (value: number, valueType: string) => {
   let result = "";
   switch (valueType) {
@@ -488,15 +499,11 @@ export const addProductFromSelectToForm = (
   console.log(form.getFieldValue("entitlements"));
 };
 
-export const transformData = (values: any, isAllProduct: boolean) => {
+export const transformData = (values: any) => {
   let body: any = values;
   body.entitlements = values?.entitlements
     ? values?.entitlements?.map((item: EntilementFormModel) => {
         delete item.selectedProducts;
-        if (isAllProduct) {
-          item.entitled_product_ids = [];
-          item.entitled_variant_ids = [];
-        }
         return item;
       })
     : null;

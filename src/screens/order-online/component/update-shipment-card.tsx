@@ -874,7 +874,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       )
     }
   }
-  //////////////////
 
   return (
     <div>
