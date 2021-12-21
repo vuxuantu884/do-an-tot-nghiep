@@ -49,7 +49,7 @@ function PrintShippingLabel(props: PropTypes): JSX.Element {
         printType = LIST_PRINTER_TYPES.stock_export;
         break;
       default:
-        printType = LIST_PRINTER_TYPES.order;
+        printType = LIST_PRINTER_TYPES.shipment;
         break;
     }
   };
