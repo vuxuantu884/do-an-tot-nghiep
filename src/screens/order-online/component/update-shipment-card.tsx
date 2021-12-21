@@ -1014,7 +1014,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           {!(fulfillment.status === FulFillmentStatus.CANCELLED ||
                             fulfillment.status === FulFillmentStatus.RETURNING ||
                             fulfillment.status === FulFillmentStatus.RETURNED || 
-														(sortedFulfillments && sortedFulfillments[0].shipment?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE)) &&
+														(sortedFulfillments && sortedFulfillments[0]?.shipment?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE)) &&
                             <PrintShippingLabel
                               fulfillment={fulfillment}
                               orderSettings={orderSettings}
