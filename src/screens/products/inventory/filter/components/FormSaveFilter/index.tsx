@@ -11,7 +11,8 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { getConfigInventoryAction } from "domain/actions/inventory/inventory.action";
 
 type FormValuesType = { 
-  filter_name: string | null; 
+  id: number|null,
+  name: string | null; 
   save_filter_type: string;
   version: number | null
 };
@@ -29,9 +30,9 @@ const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormMo
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
-      ? {filter_name: formItem.filter_name, 
+      ? {id: formItem.id,name: formItem.name, 
         save_filter_type: formItem.save_filter_type,
-        version: formItem.version } : { filter_name: null, save_filter_type: 1, version: null};
+        version: formItem.version } : { id:null, name: null, save_filter_type: 1, version: null};
 
    const [lstFilterConfig, setLstFilterConfig] = useState<Array<FilterConfig>>();
 
@@ -66,8 +67,11 @@ const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormMo
    }, [dispatch, onResult, account]);
 
   useEffect(() => {
-    getConfigPo();
-  }, [formItem, getConfigPo, visible]);
+    if (visible) {
+      form.resetFields();
+      getConfigPo();
+    }
+  }, [form, formItem, getConfigPo, visible]);
  
   return (
       <Form
@@ -86,7 +90,7 @@ const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormMo
                   <Space direction="vertical" className="display-block">
                     <Radio value={FILTER_TYPE_CONSTANT.NEW} className="display-block">Lưu bộ lọc mới
                       {filterType === FILTER_TYPE_CONSTANT.NEW && 
-                          <Form.Item name="filter_name" rules={[
+                          <Form.Item name="name" rules={[
                             {
                               required: filterType === FILTER_TYPE_CONSTANT.NEW ? true : false,
                               message: "Bạn chưa nhập tên bộ lọc mới",
@@ -98,7 +102,7 @@ const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormMo
                     <Radio value={FILTER_TYPE_CONSTANT.UPDATE} className="display-block">
                       Lưu vào bộ lọc đã có
                       {filterType === FILTER_TYPE_CONSTANT.UPDATE && <div className="item-radio-option">
-                          <Form.Item rules={[
+                          <Form.Item name="id" rules={[
                                   {
                                     required: filterType === FILTER_TYPE_CONSTANT.UPDATE ? true : false,
                                     message: "Bạn chưa chọn tên bộ lọc",

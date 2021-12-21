@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
+import { formatCurrency } from "utils/AppUtils";
 import {
   OFFSET_HEADER_TABLE,
   ProcurementStatus,
@@ -218,7 +219,7 @@ const TabList: React.FC = () => {
               value.forEach((item: PurchaseProcumentLineItem) => {
                 totalRealQuantity += item.real_quantity;
               });
-              return totalRealQuantity;
+              return formatCurrency(totalRealQuantity,".");
             },
           },
           {
