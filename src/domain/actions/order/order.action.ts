@@ -327,11 +327,13 @@ export const GetListOrderCustomerAction = (
 
 export const getShipmentsAction = (
   query: ShipmentSearchQuery,
-  setData: (data: PageResponse<ShipmentModel> | false) => void
+  setData: (data: PageResponse<ShipmentModel> | false) => void,
+	handleError?: () => void,
 ) => {
   return BaseAction(OrderType.GET_SHIPMENTS_REQUEST, {
     query,
     setData,
+		handleError
   });
 };
 

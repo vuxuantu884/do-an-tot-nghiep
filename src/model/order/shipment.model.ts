@@ -61,6 +61,10 @@ export interface ShipmentModel {
   discount_amount: string | null;
   total_line_amount_after_line_discount: string | null;
   finished_order_on: string | null;
+	reason?: {
+		id: number;
+		name: string;
+	}
 }
 
 export interface ShipmentSearchQuery {
@@ -71,7 +75,8 @@ export interface ShipmentSearchQuery {
   search_term: string | null;
   status: string | null;
   stock_location_ids: [];
-  shipper_ids: [];
+  shipper_ids?: [];
+  shipper_codes?: [];
   delivery_provider_ids: [];
   delivery_types: [];
   reference_status: [];

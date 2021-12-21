@@ -11,7 +11,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
@@ -25,6 +25,11 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import DebounceSelect from "./component/debounce-select";
 import { searchVariantsApi, getVariantApi } from "service/product/product.service";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import UrlConfig from "config/url.config";
+import { Link } from "react-router-dom";
+import { searchAccountApi } from "service/accounts/account.service";
+import { StyledComponent } from "component/filter/shipment.filter.styles";
 
 type OrderFilterProps = {
   params: ShipmentSearchQuery;
@@ -32,6 +37,7 @@ type OrderFilterProps = {
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
+  shippers: Array<AccountResponse>;
   deliveryService: Array<any>;
   reasons: Array<{id: number; name: string}>;
   isLoading?: boolean;
@@ -68,6 +74,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     listSource,
     listStore,
     accounts,
+    shippers,
     deliveryService,
     reasons,
     isLoading,
@@ -101,7 +108,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const controlStatus = useMemo(() => [
     {name: "Chưa đối soát", value: "notControl"},
     {name: "Đang đối soát", value: "controlling"},
-    {name: "Đã đối sát", value: "hasControl"},
+    {name: "Đã đối soát", value: "hasControl"},
   ], []);
 
   const printStatus = useMemo(() => [
@@ -118,6 +125,25 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string}[]>([]);
 
+	const [accountData, setAccountData] = useState<Array<AccountResponse>>(
+		[]
+	);
+
+	const [accountFound, setAccountFound] = useState<Array<AccountResponse>>(
+		[]
+	);
+
+	useEffect(() => {
+		if (params.account_codes && params.account_codes?.length > 0) {
+			searchAccountApi({
+				codes: params.account_codes
+			}).then((response) => {
+				setAccountFound(response.data.items)
+			})
+		}
+
+	}, [params.account_codes])
+	
   const onChangeOrderOptions = useCallback((e) => {
     onFilter && onFilter({...params, status: e.target.value});
   }, [onFilter, params]);
@@ -179,8 +205,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'delivery_provider_ids':
           onFilter && onFilter({...params, delivery_provider_ids: []});
           break;
-        case 'shipper_ids':
-          onFilter && onFilter({...params, shipper_ids: []});
+        case 'shipper_codes':
+          onFilter && onFilter({...params, shipper_codes: []});
           break;  
         // trạng thái in
         case 'print_status':
@@ -235,7 +261,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       reference_status: Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status],
-      shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
+      shipper_codes: Array.isArray(params.shipper_codes) ? params.shipper_codes : [params.shipper_codes],
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
       delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
       print_status: Array.isArray(params.print_status) ? params.print_status : [params.print_status],
@@ -251,8 +277,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const [control, setControl] = useState<any[]>(initialValues.reference_status);
   const changeStatusPrint = useCallback((status) => {
     let newPrintStatus = [...print]
-    console.log('status', status);
-    
+
     switch (status) {
       case 'true':
         const index1 = newPrintStatus.indexOf('true');
@@ -273,14 +298,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       
       default: break;  
     }
-    console.log('newPrintStatus', newPrintStatus);
     
     setPrint(newPrintStatus)
   }, [print]);
 
   const changeStatusPushing = useCallback((status) => {
     let newPushingStatus = [...pushing]
-    console.log('status', status);
     
     switch (status) {
       case 'completed':
@@ -302,7 +325,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       
       default: break;  
     }
-    console.log('newPushingStatus', newPushingStatus);
     
     setPushing(newPushingStatus)
   }, [pushing]);
@@ -368,31 +390,78 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [formRef, print, pushing, control, onFilter]
   );
   let filters = useMemo(() => {
+
+		const splitCharacter = ", ";
+
+		const renderSplitCharacter = (index: number, mappedArray: any[]) => {
+			let result = null;
+			if (index !== mappedArray.length - 1) {
+				result = (
+					<React.Fragment>
+						{splitCharacter}
+					</React.Fragment>
+				)
+			}
+			return result;
+		};
+
+		const getFilterString = (mappedArray: any[] | undefined, keyValue: string, endPoint?: string, objectLink?: string, type?: string) => {
+			let result = null;
+			if (!mappedArray) {
+				return null;
+			};
+			if (type === "assignee_codes") {
+				
+			} else if(type === "account_codes") {
+				result = mappedArray.map((single, index) => {
+					return (
+						<Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+							{single.code} - {single.full_name}
+							{renderSplitCharacter(index, mappedArray)}
+						</Link>
+					)
+				})
+			} else {
+				result = mappedArray.map((single, index) => {
+					if (objectLink && endPoint && single[objectLink]) {
+						return (
+							<Link to={`${endPoint}/${single[objectLink]}`} target="_blank" key={single[keyValue]}>
+								{single[keyValue]}
+								{renderSplitCharacter(index, mappedArray)}
+							</Link>
+						)
+					}
+					return (
+						<React.Fragment>
+							{single[keyValue]}
+							{renderSplitCharacter(index, mappedArray)}
+						</React.Fragment>
+					)
+				})
+
+			}
+			return <React.Fragment>{result}</React.Fragment>;
+		};
+
     let list = []
     if (initialValues.store_ids.length) {
-      let textStores = ""
-      initialValues.store_ids.forEach(store_id => {
-        const store = listStore?.find(store => store.id.toString() === store_id)
-        textStores = store ? textStores + store.name + "; " : textStores
-      })
-      list.push({
-        key: 'store',
-        name: 'Cửa hàng',
-        value: textStores
-      })
-    }
-    if (initialValues.source_ids.length) {
-      let textSource = ""
-      initialValues.source_ids.forEach(source_id => {
-        const source = listSources?.find(source => source.id.toString() === source_id)
-        textSource = source ? textSource + source.name + "; " : textSource
-      })
-      list.push({
-        key: 'source',
-        name: 'Nguồn',
-        value: textSource
-      })
-    }
+			let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
+			let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
+			list.push({
+				key: 'store',
+				name: 'Cửa hàng',
+				value: text,
+			})
+		}
+		if (initialValues.source_ids.length) {
+			let mappedSources = listSources?.filter((source) => initialValues.source_ids?.some((single) => single === source.id.toString()))
+			let text = getFilterString(mappedSources, "name", undefined, undefined);
+			list.push({
+				key: 'source',
+				name: 'Nguồn',
+				value: text,
+			})
+		}
     if (initialValues.packed_on_min || initialValues.packed_on_max) {
       let textOrderCreateDate = (initialValues.packed_on_min ? initialValues.packed_on_min : '??') + " ~ " + (initialValues.packed_on_max ? initialValues.packed_on_max : '??')
       list.push({
@@ -436,79 +505,60 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.reference_status.length) {
-      let textStatus = ""
-      
-      initialValues.reference_status.forEach(i => {
-        const findStatus = controlStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
-      })
-      list.push({
-        key: 'reference_status',
+			let mappedSources = controlStatus?.filter((item) => initialValues.reference_status?.some((single) => single === item.value))
+			let text = getFilterString(mappedSources, "name", undefined, undefined);
+			list.push({
+				key: 'reference_status',
         name: 'Trạng thái đối soát',
-        value: textStatus
-      })
+				value: text,
+			})
     }
-    if (initialValues.shipper_ids.length) {
-      let textAccount = ""
-      initialValues.shipper_ids.forEach(i => {
-        const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id.toString() === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-      })
-      list.push({
-        key: 'shipper_ids',
-        name: 'Đối tác giao hàng',
-        value: textAccount
-      })
-    }
+		if (initialValues.shipper_codes.length) {
+			let mappedShippers = shippers?.filter((account) => initialValues.shipper_codes?.some((single) => single === account.code.toString()))
+			let text = getFilterString(mappedShippers, "full_name", undefined, undefined);
+			list.push({
+				key: 'shipper_codes',
+				name: 'Đối tác giao hàng',
+				value: text,
+			})
+		}
     if (initialValues.delivery_provider_ids.length) {
-      let textService = ""
-      initialValues.delivery_provider_ids.forEach((i: any) => {
-        const findService = deliveryService?.find(item => item.id.toString() === i.toString())
-        textService = findService ? textService + findService.name + "; " : textService
-      })
-      list.push({
-        key: 'delivery_provider_ids',
-        name: 'Đơn vị vận chuyển',
-        value: textService
-      })
-    }
+			let mappedDeliverProviderIds = deliveryService?.filter((deliveryServiceSingle) => initialValues.delivery_provider_ids?.some((item) => item === deliveryServiceSingle.id.toString()))
+			let text = getFilterString(mappedDeliverProviderIds, "name", undefined, undefined);
+			list.push({
+				key: 'delivery_provider_ids',
+				name: 'Đơn vị vận chuyển',
+				value: text,
+			})
+		}
 
     if (initialValues.print_status.length) {
-      let textStatus = ""
-      initialValues.print_status.forEach(i => {
-        const findStatus = printStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
-      })
-      list.push({
-        key: 'print_status',
+			let mappedPaymentMethods = printStatus?.filter((single) => initialValues.print_status?.some((item) => item === single.value))
+			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
+			list.push({
+				key: 'print_status',
         name: 'Trạng thái in',
-        value: textStatus
-      })
+				value: text,
+			})
     }
     if (initialValues.pushing_status.length) {
-      let textStatus = ""
-      initialValues.pushing_status.forEach(i => {
-        const findStatus = pushingStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
-      })
-      list.push({
-        key: 'pushing_status',
+			let mappedPaymentMethods = pushingStatus?.filter((single) => initialValues.pushing_status?.some((item) => item === single.value))
+			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
+			list.push({
+				key: 'pushing_status',
         name: 'Trạng thái đẩy đơn',
-        value: textStatus
-      })
+				value: text,
+			})
     }
+
     if (initialValues.account_codes.length) {
-      let textAccount = ""
-      initialValues.account_codes.forEach(i => {
-        const findAccount = accounts?.find(item => item.code === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-      })
-      list.push({
-        key: 'account_codes',
-        name: 'Nhân viên tạo đơn',
-        value: textAccount
-      })
-    }
+			let text = getFilterString(accountFound, "full_name", UrlConfig.ACCOUNTS, "code", "account_codes");
+			list.push({
+				key: 'account_codes',
+				name: 'Nhân viên tạo đơn',
+				value: text,
+			})
+		}
 
     if (initialValues.shipping_address) {
       list.push({
@@ -519,75 +569,75 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.variant_ids.length) {
-      let textVariant = ""
-      
-      console.log('optionsVariant', optionsVariant)
-      optionsVariant.forEach(i => {
-        textVariant = textVariant + i.label + "; "
-      })
-      list.push({
-        key: 'variant_ids',
-        name: 'Sản phẩm',
-        value: textVariant
-      })
-    }
+			let textVariant = "";
+			for (let i = 0; i < optionsVariant.length; i++) {
+				if (i < optionsVariant.length - 1) {
+					textVariant = textVariant + optionsVariant[i].label + splitCharacter
+				} else {
+					textVariant = textVariant + optionsVariant[i].label;
+				}
+			}
+			list.push({
+				key: 'variant_ids',
+				name: 'Sản phẩm',
+				value: <React.Fragment>{textVariant}</React.Fragment>
+			})
+		}
 
     if (initialValues.delivery_types.length) {
-      let textType = ""
-      initialValues.delivery_types.forEach(i => {
-        const findVariant = serviceType?.find(item => item.value === i)
-        textType = findVariant ? textType + findVariant.name + "; " : textType
-      })
-      list.push({
-        key: 'delivery_types',
-        name: 'Hình thức vận chuyển',
-        value: textType
-      })
-    }
+			let mappedDeliverTypes = serviceType?.filter((deliverType) => initialValues.delivery_types?.some((item) => item === deliverType.value.toString()))
+			let text = getFilterString(mappedDeliverTypes, "name", undefined, undefined);
+			list.push({
+				key: 'delivery_types',
+				name: 'Hình thức vận chuyển',
+				value: text,
+			})
+		}
+
     if (initialValues.cancel_reason.length) {
-      let textReason = ""
-      initialValues.cancel_reason.forEach(cancel_id => {
-        const reason = reasons?.find(reason => reason.id.toString() === cancel_id)
-        textReason = reason ? textReason + reason.name + "; " : textReason
-      })
-      
-      list.push({
-        key: 'cancel_reason',
+			let mappedPaymentMethods = reasons?.filter((single) => initialValues.cancel_reason?.some((item) => item === single.id.toString()))
+			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
+			list.push({
+				key: 'cancel_reason',
         name: 'Lý do huỷ giao',
-        value: textReason
-      })
+				value: text,
+			})
     }
     if (initialValues.note) {
-      list.push({
-        key: 'note',
-        name: 'Ghi chú nội bộ',
-        value: initialValues.note
-      })
-    }
+			list.push({
+				key: 'note',
+				name: 'Ghi chú nội bộ',
+				value: <React.Fragment>{initialValues.note}</React.Fragment>
+			})
+		}
 
-    if (initialValues.customer_note) {
-      list.push({
-        key: 'customer_note',
-        name: 'Ghi chú của khách',
-        value: initialValues.customer_note
-      })
-    }
+		if (initialValues.customer_note) {
+			list.push({
+				key: 'customer_note',
+				name: 'Ghi chú của khách',
+				value: <React.Fragment>{initialValues.customer_note}</React.Fragment>
+			})
+		}
 
     if (initialValues.tags.length) {
-      let textStatus = ""
-      initialValues.tags.forEach(i => {
-        textStatus = textStatus + i + "; "
-      })
-      list.push({
-        key: 'tags',
-        name: 'Tags',
-        value: textStatus
-      })
-    }
+			let textStatus = "";
+			for (let i = 0; i < initialValues.tags.length; i++) {
+				if (i < initialValues.tags.length - 1) {
+					textStatus = textStatus + initialValues.tags[i] + splitCharacter
+				} else {
+					textStatus = textStatus + initialValues.tags[i];
+				}
+			}
+			list.push({
+				key: 'tags',
+				name: 'Tags',
+				value: <React.Fragment>{textStatus}</React.Fragment>
+			})
+		}
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_ids, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, accounts, deliveryService, printStatus, pushingStatus, optionsVariant, serviceType, reasons]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons]
   );
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -614,12 +664,19 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     window.addEventListener('resize', () => setVisible(false))
   }, []);
 
+	useEffect(() => {
+		if (accounts) {
+			setAccountData(accounts)
+		}
+	}, [accounts])
+
   useEffect(() => {
     if (params.variant_ids.length) {
+			let variant_ids = Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids];
       (async () => {
         let variants: any = [];
         await Promise.all(
-          params.variant_ids.map(async (variant_id) => {
+          variant_ids.map(async (variant_id) => {
             try {
               const result = await getVariantApi(variant_id)
 
@@ -630,7 +687,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             } catch {}
           })
         );
-        console.log('variants', variants);
         setOptionsVariant(variants)
       })()
     }
@@ -640,7 +696,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }, [params.reference_status, params.print_status, params.variant_ids, params.pushing_status]);
 
   return (
-    <div>
+    <StyledComponent>
       <div className="order-options">
         <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.status}>
           <Radio.Button value={null}>Tất cả đơn giao hàng</Radio.Button>
@@ -842,38 +898,33 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={12} xxl={8}>
                 <p>Đối tác giao hàng</p>
-                <Item name="shipper_ids">
-                <Select
-                  mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
-                  notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children" showArrow maxTagCount='responsive'
-                  getPopupContainer={trigger => trigger.parentNode} allowClear
-                >
-                  {accounts.filter(account => account.is_shipper === true)?.map((account) => (
-                    <Option key={account.id} value={account.id.toString()}>
-                      {account.full_name} - {account.code}
-                    </Option>
-                  ))}
-                </Select>
+                <Item name="shipper_codes">
+                <CustomSelect
+										mode="multiple" showSearch allowClear
+										showArrow placeholder="Chọn đối tác giao hàng"
+										notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+										optionFilterProp="children"
+										getPopupContainer={trigger => trigger.parentNode}
+										maxTagCount='responsive'
+									>
+										{shippers && shippers.map((shipper) => (
+											<CustomSelect.Option key={shipper.code} value={shipper.code}>
+												{shipper.full_name} - {shipper.code}
+											</CustomSelect.Option>
+										))}
+									</CustomSelect>
                 </Item>
                 <p>Nhân viên tạo đơn</p>
                 <Item name="account_codes">
-                  <Select
-                    mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
-                    notFoundContent="Không tìm thấy kết quả" showArrow maxTagCount='responsive'
-                    optionFilterProp="children" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode} allowClear
-                  >
-                    {accounts.map((item, index) => (
-                      <Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.code.toString()}
-                      >
-                        {`${item.full_name} - ${item.code}`}
-                      </Option>
-                    ))}
-                  </Select>
+									<AccountCustomSearchSelect
+											placeholder="Tìm theo họ tên hoặc mã nhân viên"
+											dataToSelect={accountData}
+											setDataToSelect={setAccountData}
+											initDataToSelect={accounts}
+											mode="multiple"
+											getPopupContainer={(trigger: any) => trigger.parentNode}
+											maxTagCount='responsive'
+									/>
                 </Item>
               </Col>
               <Col span={12} xxl={8}>
@@ -992,7 +1043,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           )
         })}
       </div>
-    </div>
+    </StyledComponent>
   );
 };
 
