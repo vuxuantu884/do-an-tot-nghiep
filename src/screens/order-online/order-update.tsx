@@ -95,6 +95,7 @@ import {
 	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
+	ShipmentMethod,
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
@@ -1950,7 +1951,7 @@ export default function Order(props: PropType) {
                                           <Row gutter={30}>
                                             <Col span={10}>
                                               <p className="text-field">
-                                                Đối tác giao hàng: 1
+                                                Đối tác giao hàng:
                                               </p>
                                             </Col>
                                             <Col span={14}>
@@ -1984,6 +1985,14 @@ export default function Order(props: PropType) {
                                                       fulfillment.shipment
                                                         ?.shipper_code === s.code
                                                   )?.full_name}
+
+																								{fulfillment.shipment
+                                                  ?.delivery_service_provider_type ===
+                                                  ShipmentMethod.EXTERNAL_SHIPPER &&
+                                                  (
+																										<span>{fulfillment.shipment.shipper_code} - {fulfillment.shipment.shipper_name}</span>
+																									)
+																									}
                                               </b>
                                             </Col>
                                           </Row>

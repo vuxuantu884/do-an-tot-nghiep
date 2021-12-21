@@ -65,7 +65,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
         <Row gutter={20}>
           <Col md={12}>
             <Form.Item
-              label="Đối tác giao hàng"
+              label={typeDelivery === 'employee' ? "Nhân viên Yody" : "Đối tác khác"}
               name="shipper_code"
               rules={
                 // khi lưu nháp không validate
