@@ -30,7 +30,7 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {getShippingAddressDefault, SumWeight} from "utils/AppUtils";
 import {ShipmentMethodOption, SHIPPING_REQUIREMENT} from "utils/Constants";
@@ -121,7 +121,6 @@ function OrderCreateShipment(props: PropType) {
     creating,
     handleCancelCreateShipment,
   } = props;
-  // console.log('props', props)
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
@@ -134,7 +133,6 @@ function OrderCreateShipment(props: PropType) {
   >([]);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
-// console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
@@ -285,7 +283,6 @@ function OrderCreateShipment(props: PropType) {
         coupon: "",
         cod: 0,
       };
-      // console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {

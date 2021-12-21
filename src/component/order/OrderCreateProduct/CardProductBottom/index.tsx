@@ -60,7 +60,7 @@ function CardProductBottom(props: PropType) {
     handleRemoveAllDiscount,
   } = props;
 
-  console.log('isDisableOrderDiscount', isDisableOrderDiscount)
+  // console.log('isDisableOrderDiscount', isDisableOrderDiscount)
 
 	let discountRate = promotion?.rate || 0;
 	let discountValue = promotion?.value || 0;
