@@ -265,7 +265,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     shipping_address: null,
     billing_address: null,
     payments: [],
-    channel_id: null,
+    channel_id: 2,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
