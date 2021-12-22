@@ -21,6 +21,7 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import {
+  DuplicateOrderDetailQuery,
   OrderItemModel,
   OrderModel,
   OrderPaymentModel,
@@ -76,7 +77,7 @@ const actions: Array<MenuAction> = [
   },
 ];
 
-const initQuery: OrderSearchQuery = {
+const initQuery: DuplicateOrderDetailQuery = {
   page: 1,
   limit: 30,
   is_online: null,
@@ -117,11 +118,16 @@ const initQuery: OrderSearchQuery = {
   payment_method_ids: [],
   delivery_types: [],
   delivery_provider_ids: [],
-  shipper_ids: [],
+  shipper_codes: [],
   note: null,
   customer_note: null,
   tags: [],
   reference_code: null,
+  full_address: "",
+  ward: "",
+  district: "",
+  city: "",
+  country: "",
 };
 
 const OrderDuplicate: React.FC = () => {
@@ -730,9 +736,12 @@ const OrderDuplicate: React.FC = () => {
   };
 
   const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowCodes = selectedRow.map((row: any) => row.code);
-    setSelectedRowCodes(selectedRowCodes);
-    setSelectedOrder(selectedRow);
+    console.log("selectedRowCodes", selectedRow);
+    if (selectedRow[0]) {
+      //const selectedRowCodes = selectedRow.map((row: any) => row.code);
+      //setSelectedRowCodes(selectedRowCodes);
+      setSelectedOrder(selectedRow);
+    }
   }, []);
 
   const onPageChange = useCallback(
@@ -771,7 +780,10 @@ const OrderDuplicate: React.FC = () => {
       }
       switch (index) {
         case 1:
-          setMergeOrderVisible(true);
+          if (selectedOrder.length <= 1)
+            showError("Bạn phải chọn từ 2 đơn hàng trở lên")
+          else
+            setMergeOrderVisible(true);
           break;
         case 2:
           setCancelOrderComfirm(true);
@@ -956,13 +968,18 @@ const OrderDuplicate: React.FC = () => {
       showWarning("Yêu cầu chọn đơn hàng cần gộp");
       return;
     }
-
+    setTableLoading(true);
+    setMergeOrderVisible(false);
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
     dispatch(putOrderDuplicateMerge(value, selectedOrderIds, (data: OrderModel) => {
-      if(data)
-      {
+      if (data) {
+        setSelectedRowCodes([]);
+        setSelectedOrder([]);
         handleSearchResult();
-        setMergeOrderVisible(false);
+        showSuccess("Gộp đơn thành công");
+      }
+      else {
+        setTableLoading(false);
       }
     }));
   }, [dispatch, selectedOrder, handleSearchResult])
@@ -1161,6 +1178,7 @@ const OrderDuplicate: React.FC = () => {
           hanldOk={hanldMergeOrderOk}
           hanldCancel={hanldMergeOrderCancel}
           selectedOrder={selectedOrder}
+          deliveryServices={deliveryServices}
         />
 
         <ModalDeleteConfirm

@@ -11,14 +11,14 @@ import {LIST_PRINTER_TYPES} from "utils/Printer.constants";
 import IconPrint from "./images/iconPrint.svg";
 import {StyledComponent} from "./styles";
 
-type PropType = {
+type PropTypes = {
   fulfillment: FulFillmentResponse | null | undefined;
   orderSettings?: OrderSettingsModel;
   orderId?: number;
   onPrint?: () => void;
 };
 
-const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
+function PrintShippingLabel(props: PropTypes): JSX.Element {
   const {fulfillment, orderId, onPrint} = props;
   const dispatch = useDispatch();
   const [printContent, setPrintContent] = useState("");
@@ -49,7 +49,7 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
         printType = LIST_PRINTER_TYPES.stock_export;
         break;
       default:
-        printType = LIST_PRINTER_TYPES.order;
+        printType = LIST_PRINTER_TYPES.shipment;
         break;
     }
   };

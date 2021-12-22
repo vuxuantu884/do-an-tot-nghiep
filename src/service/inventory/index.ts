@@ -10,6 +10,7 @@ import {
   InventoryVariantListQuery,
 } from "model/inventory";
 import { LogisticGateAwayResponse } from "model/inventory/transfer";
+import { FilterConfig, FilterConfigRequest } from "model/other";
 import { generateQuery } from "utils/AppUtils";
 
 const inventoryGetApi = (
@@ -79,6 +80,40 @@ const getInventoryByVariantsApi = (
   return BaseAxios.get(url);
 };
 
+const createInventoryConfigService = (
+  request: FilterConfigRequest
+): Promise<BaseResponse<FilterConfig>> => {
+  return BaseAxios.post(
+    `${ApiConfig.INVENTORY}/config`,
+      request
+  );
+};
+
+const updateInventoryConfigService = (
+  request: FilterConfigRequest
+): Promise<BaseResponse<FilterConfig>> => {
+  return BaseAxios.post(
+    `${ApiConfig.INVENTORY}/config`,
+      request
+  );
+};
+
+const getInventoryConfigService = (
+  code: string
+): Promise<BaseResponse<Array<FilterConfig>>> => {
+  return BaseAxios.get(
+    `${ApiConfig.INVENTORY}/config/${code}`,
+  );
+};
+
+const deleteInventoryConfigService = (
+  id: number
+): Promise<BaseResponse<Array<FilterConfig>>> => {
+  return BaseAxios.delete(
+    `${ApiConfig.INVENTORY}/config/${id}`,
+  );
+};
+
 export {
   inventoryGetApi,
   inventoryGetDetailApi,
@@ -86,5 +121,9 @@ export {
   inventoryGetDetailVariantIdsApi,
   logisticGateAwayGetApi,
   inventoryGetDetailVariantIdsExtApi,
-  getInventoryByVariantsApi
+  getInventoryByVariantsApi,
+  createInventoryConfigService,
+  updateInventoryConfigService,
+  getInventoryConfigService,
+  deleteInventoryConfigService
 };

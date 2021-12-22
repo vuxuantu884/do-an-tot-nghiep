@@ -44,8 +44,7 @@ import {
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import {
-	ADMIN_ORDER,
-  DEFAULT_COMPANY,
+  DEFAULT_COMPANY, FACEBOOK,
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
@@ -510,7 +509,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
   };
   const onFinish = (values: OrderRequest) => {
-    values.channel_id = ADMIN_ORDER.channel_id;
+    values.channel_id = FACEBOOK.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;

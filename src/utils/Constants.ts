@@ -209,3 +209,13 @@ export const FACEBOOK = {
 export const SHIPPING_REQUIREMENT = {
   default: "open_try"
 };
+
+export const FILTER_CONFIG_TYPE = {
+  FILTER_PO: "filter_po",
+  FILTER_INVENTORY:  "filter_inventory"
+};
+
+export const COLUMN_CONFIG_TYPE = {
+  COLUMN_INVENTORY: "column_inventory",
+  COLUMN_PO:  "column_po"
+};

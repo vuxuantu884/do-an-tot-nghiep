@@ -79,24 +79,23 @@ const CustomerDuplicate: React.FC = () => {
       ),
       dataIndex: "customer",
       render: (value: string, i: CustomerDuplicateModel) => {
-        if (params.issued_on_min !== "" || params.issued_on_max !== "") {
-          return (
-            <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?store_ids=${i.store_id}&issued_on_min=${params.issued_on_min}&issued_on_max=${params.issued_on_max}`}>
-                {value}
-              </Link>
-            </React.Fragment>
-          )
-        }
-        else {
-          return (
-            <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?store_ids=${i.store_id}`}>
-                {value}
-              </Link>
-            </React.Fragment>
-          )
-        }
+        let queryParamDetail=generateQuery({
+          store_ids:i.store_id,
+          issued_on_min:params.issued_on_min,
+          issued_on_max:params.issued_on_max,
+          full_address:i.full_address,
+          ward:i.ward,
+          district:i.district,
+          city:i.city,
+          country:i.country
+        });
+        return (
+          <React.Fragment>
+            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?${queryParamDetail}`}>
+              {value}
+            </Link>
+          </React.Fragment>
+        )
       },
       visible: true,
       
@@ -110,24 +109,23 @@ const CustomerDuplicate: React.FC = () => {
       title: "Số điện thoại",
       dataIndex: "customer_phone_number",
       render: (value: string, i: CustomerDuplicateModel) => {
-        if (params.issued_on_min !== "" || params.issued_on_max !== "") {
-          return (
-            <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?store_ids=${i.store_id}&issued_on_min=${params.issued_on_min}&issued_on_max=${params.issued_on_max}`}>
-                {value}
-              </Link>
-            </React.Fragment>
-          )
-        }
-        else {
-          return (
-            <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?store_ids=${i.store_id}`}>
-                {value}
-              </Link>
-            </React.Fragment>
-          )
-        }
+        let queryParamDetail=generateQuery({
+          store_ids:i.store_id,
+          issued_on_min:params.issued_on_min,
+          issued_on_max:params.issued_on_max,
+          full_address:i.full_address,
+          ward:i.ward,
+          district:i.district,
+          city:i.city,
+          country:i.country
+        });
+        return (
+          <React.Fragment>
+            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?${queryParamDetail}`}>
+              {value}
+            </Link>
+          </React.Fragment>
+        )
       },
       visible: true,
       width: 200,
@@ -206,52 +204,51 @@ const CustomerDuplicate: React.FC = () => {
     let newPrams = { ...params, ...value, page: 1 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
+    
     const items = [...columns];
     items[0] = {
       ...items[0],
       render: (value: string, i: CustomerDuplicateModel) => {
-        if (newPrams.issued_on_min !== "" || newPrams.issued_on_max !== "") {
-          return (
-            <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?issued_on_min=${newPrams.issued_on_min}&issued_on_max=${newPrams.issued_on_max}`}>
-                {value}
-              </Link>
-            </React.Fragment>
-          )
-        }
-        else {
-          return (
-            <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}`}>
-                {value}
-              </Link>
-            </React.Fragment>
-          )
-        }
+        let queryParamDetail=generateQuery({
+          store_ids:i.store_id,
+          issued_on_min:newPrams.issued_on_min,
+          issued_on_max:newPrams.issued_on_max,
+          full_address:i.full_address,
+          ward:i.ward,
+          district:i.district,
+          city:i.city,
+          country:i.country
+        });
+        return (
+          <React.Fragment>
+            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?${queryParamDetail}`}>
+              {value}
+            </Link>
+          </React.Fragment>
+        )
       },
     };
 
     items[1] = {
       ...items[1],
       render: (value: string, i: CustomerDuplicateModel) => {
-        if (newPrams.issued_on_min !== "" || newPrams.issued_on_max !== "") {
-          return (
-            <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?issued_on_min=${newPrams.issued_on_min}&issued_on_max=${newPrams.issued_on_max}`}>
-                {value}
-              </Link>
-            </React.Fragment>
-          )
-        }
-        else {
-          return (
-            <React.Fragment>
-              <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}`}>
-                {value}
-              </Link>
-            </React.Fragment>
-          )
-        }
+        let queryParamDetail=generateQuery({
+          store_ids:i.store_id,
+          issued_on_min:newPrams.issued_on_min,
+          issued_on_max:newPrams.issued_on_max,
+          full_address:i.full_address,
+          ward:i.ward,
+          district:i.district,
+          city:i.city,
+          country:i.country
+        });
+        return (
+          <React.Fragment>
+            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?${queryParamDetail}`}>
+              {value}
+            </Link>
+          </React.Fragment>
+        )
       }
     };
 

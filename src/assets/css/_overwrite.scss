@@ -1178,3 +1178,25 @@
         background-color: rgba($primary-color, 0.15);
     }
 }
+
+.tag-filter .ant-tag-close-icon{
+    color: white !important;
+}
+.tag-filter .ant-tag{
+    border: 5px !important;
+    padding: 8px !important;
+    margin-right: 0;
+}
+
+.tag-filter .ant-tag-ext{
+    margin-top: 0 !important;
+    margin-right: 20 !important;
+}
+
+.tag-filter .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title{
+    padding: 0 !important;
+}
+
+.tag-filter ul{
+    padding-left: 0;
+}

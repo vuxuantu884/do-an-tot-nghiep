@@ -176,17 +176,14 @@ export default function Order() {
 	) => {
 		setItems(_items);
 		setOrderAmount(amount);
-		if(discount_rate || discount_value) {
-
-			setPromotion({
-				amount: discount_value,
-				rate: discount_rate,
-				promotion_id: null,
-				reason: "",
-				discount_code: undefined,
-				value: discount_value,
-			})
-		}
+		setPromotion({
+			amount: discount_value,
+			rate: discount_rate,
+			promotion_id: null,
+			reason: "",
+			discount_code: undefined,
+			value: discount_value,
+		})
 	};
 
 	const handlePaymentMethod = (value: number) => {

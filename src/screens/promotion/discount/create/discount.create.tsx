@@ -125,6 +125,7 @@ const CreateDiscountPage = () => {
     } else {
       body.prerequisite_birthday_duration = null;
     }
+    debugger;
 
     //==Ngày cưới khách hàng
     const startsWeddingDays = values[CustomerFilterField.starts_wedding_day]

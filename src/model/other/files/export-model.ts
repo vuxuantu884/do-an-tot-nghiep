@@ -40,4 +40,4 @@ export interface ImportResponse extends BaseObject {
   error: number;
   url: string;
   message: string[];
-}
+} 

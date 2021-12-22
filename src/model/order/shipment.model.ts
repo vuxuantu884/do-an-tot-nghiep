@@ -26,7 +26,7 @@ export interface Shipment {
   };
   shipping_fee_paid_to_three_pls: number;
   service: string;
-  cancel_reason: string;
+  reason_ids: string;
   cod: number;
 	reference_status: string;
 }
@@ -61,6 +61,10 @@ export interface ShipmentModel {
   discount_amount: string | null;
   total_line_amount_after_line_discount: string | null;
   finished_order_on: string | null;
+	reason?: {
+		id: number;
+		name: string;
+	}
 }
 
 export interface ShipmentSearchQuery {
@@ -71,7 +75,8 @@ export interface ShipmentSearchQuery {
   search_term: string | null;
   status: string | null;
   stock_location_ids: [];
-  shipper_ids: [];
+  shipper_ids?: [];
+  shipper_codes?: [];
   delivery_provider_ids: [];
   delivery_types: [];
   reference_status: [];
@@ -101,7 +106,7 @@ export interface ShipmentSearchQuery {
   note: string | null;
   customer_note: string | null;
   tags: [];
-  cancel_reason: [];
+  reason_ids: [];
 }
 
 export interface thirdPLModel {

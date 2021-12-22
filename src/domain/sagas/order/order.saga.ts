@@ -147,7 +147,7 @@ function* getListOrderCustomerSaga(action: YodyAction) {
 }
 
 function* getShipmentsSaga(action: YodyAction) {
-  let { query, setData } = action.payload;
+  let { query, setData, handleError } = action.payload;
   try {
     let response: BaseResponse<Array<ShipmentModel>> = yield call(getShipmentApi, query);
     switch (response.code) {
@@ -159,6 +159,7 @@ function* getShipmentsSaga(action: YodyAction) {
     }
   } catch (error) {
 		console.log('error', error);
+		handleError();
 		showError("Có lỗi khi lấy dữ liệu đơn giao hàng! Vui lòng thử lại sau!")
 	}
 }
@@ -255,6 +256,7 @@ function* InfoFeesSaga(action: YodyAction) {
 
 function* updateFulFillmentStatusSaga(action: YodyAction) {
   const { request, setData, setError } = action.payload;
+	yield put(showLoading())
   try {
     let response: BaseResponse<OrderResponse> = yield call(
       updateFulFillmentStatus,
@@ -272,7 +274,9 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
   } catch (error) {
     setError(true);
 		showError("Có lỗi khi cập nhật trạng thái fulfillment! Vui lòng thử lại sau!")
-  }
+  } finally {
+		yield put(hideLoading())
+	}
 }
 
 function* rePushFulFillmentSaga(action: YodyAction) {

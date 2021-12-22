@@ -11,6 +11,7 @@ import {
 } from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
 import React, { Fragment, useState } from "react";
+import { formatCurrency } from "utils/AppUtils";
 import { POUtils } from "utils/POUtils";
 import ProcumentCommonModal from "./procument.common.modal";
 
@@ -151,14 +152,14 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                       >
                         SL Đặt hàng
                         <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
-                          ({POUtils.totalQuantity(items)})
+                          ({formatCurrency(POUtils.totalQuantity(items),".")})
                         </div>
                       </div>
                     ),
                     width: 120,
                     dataIndex: POProcumentLineItemField.ordered_quantity,
                     render: (value, item, index) => (
-                      <div style={{ textAlign: "right" }}>{value}</div>
+                      <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
                     ),
                   },
                   {
@@ -179,7 +180,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     render: (value, item, index) =>{ 
                       return (
                       <div style={{ textAlign: "right" }}>
-                        {value ? value : 0}
+                        {value ? formatCurrency(value,".") : 0}
                       </div>
                     )},
                   },
@@ -200,7 +201,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     dataIndex: POProcumentLineItemField.planned_quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>
-                        {value ? value : 0}
+                        {value ? formatCurrency(value,".") : 0}
                       </div>
                     ),
                   },
@@ -227,10 +228,11 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         min={0}
                         // max={item.ordered_quantity}
                         default={0}
-                        maxLength={6}
+                        maxLength={8}
                         onChange={(quantity: number | null) => {
                           onQuantityChange(quantity, index);
                         }}
+                        format={(a: string) => formatCurrency(a)}
                       />
                     ),
                   },
@@ -278,21 +280,21 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={1}>
                           <div style={{ fontWeight: 700 }}>
-                            {ordered_quantity}
+                            {formatCurrency(ordered_quantity,".")}
                           </div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={2}>
                           <div style={{ fontWeight: 700 }}>
-                            {accepted_quantity}
+                            {formatCurrency(accepted_quantity,".")}
                           </div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={3}>
                           <div style={{ fontWeight: 700 }}>
-                            {planned_quantity}
+                            {formatCurrency(planned_quantity,".")}
                           </div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={4}>
-                          <div style={{ fontWeight: 700 }}>{quantity}</div>
+                          <div style={{ fontWeight: 700 }}>{formatCurrency(quantity,".")}</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={5}>
                           <div style={{ fontWeight: 700 }}></div>
