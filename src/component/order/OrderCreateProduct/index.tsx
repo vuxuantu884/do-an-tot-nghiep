@@ -1605,7 +1605,6 @@ function OrderCreateProduct(props: PropType) {
       }
     }
   };
-
   const calculateChangeMoney = (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
