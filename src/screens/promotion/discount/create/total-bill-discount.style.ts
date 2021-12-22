@@ -20,6 +20,8 @@ export const TotalBillDiscountStyle = styled.div`
   }
   .remove-btn {
     /* border: none; */
+    display: flex;
+    align-items: center;
   }
   .add-btn {
     display: flex;

@@ -23,7 +23,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import { formatDiscountValue } from "utils/PromotionUtils";
 import { TotalBillDiscountStyle } from "../create/total-bill-discount.style";
-import { FieldSelectOptions, OperatorSelectOptions } from "../constants";
+import { DiscountUnitType, FieldSelectOptions, OperatorSelectOptions } from "../constants";
 import { DiscountUpdateContext } from "./discount-update-provider";
 const rule = "rule";
 const conditions = "conditions";
@@ -34,16 +34,12 @@ enum ColumnIndex {
   value = "value",
 }
 
-enum DiscountValueType {
-  FIXED_AMOUNT = "FIXED_AMOUNT",
-  PERCENTAGE = "PERCENTAGE",
-  FIXED_PRICE = "FIXED_PRICE",
-}
+
 
 const blankRow = {
   [ColumnIndex.field]: "product_name",
   [ColumnIndex.operator]: "EQUALS",
-  [ColumnIndex.value]: null,
+  [ColumnIndex.value]: undefined,
 };
 interface Props {
   form: FormInstance;
@@ -83,9 +79,7 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
           [conditions]: temps
         }
       });
-      //set state list display
-      // setDataSource(temps);
-      //set state value component
+
       const tempValueComponentList = _.cloneDeep(ValueComponentList);
       tempValueComponentList.splice(index, 1);
       setValueComponentList(tempValueComponentList);
@@ -134,32 +128,34 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
     discountList[index].value = null;
   }
 
-  // init data
+  // init data in create case
   useEffect(() => {
     const condition = form.getFieldValue(rule)?.conditions;
     if (!Array.isArray(condition) || condition.length === 0) {
       form.setFieldsValue({
-        [conditions]: [blankRow],
         [rule]: {
+          [conditions]: [blankRow],
           group_operator: "AND",
-          value_type: DiscountValueType.FIXED_AMOUNT.toString(),
+          value_type: DiscountUnitType.FIXED_AMOUNT.value,
         },
       });
-
-      // setDataSource(form.getFieldValue(rule).conditions);
+      setValueComponentList([defaultValueComponent]);
     }
+
   }, [form]);
 
   useEffect(() => {
-    const temp: any[] = [];
-    // setDataSource(discountData?.rule?.conditions || []);
-    discountData?.rule?.conditions.forEach((element: DiscountConditionRule) => {
-      temp.push(_.find(FieldSelectOptions, ["value", element.field])?.valueComponent);
-    });
-    setValueComponentList(temp);
 
-    
-  }, [discountData?.rule?.conditions]);
+
+    if (discountData?.rule && discountData.rule.conditions?.length > 0) {
+      const temp: any[] = [];
+      discountData?.rule?.conditions.forEach((element: DiscountConditionRule) => {
+        temp.push(_.find(FieldSelectOptions, ["value", element.field])?.valueComponent);
+      });
+      setValueComponentList(temp);
+    }
+
+  }, [discountData?.rule]);
 
   return (
     <TotalBillDiscountStyle>
@@ -238,6 +234,7 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
                               <Button
                                 className="remove-btn"
                                 danger
+                                disabled={index === 0 && fields.length === 1}
                                 onClick={() => handleDelete(index)}
                               >
                                 <AiOutlineClose />
@@ -268,13 +265,13 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
             >
               <Radio.Group
                 onChange={(e) => {
-                  setIsDiscountByPercentage(e.target.value === DiscountValueType.PERCENTAGE.toString());
+                  setIsDiscountByPercentage(e.target.value === DiscountUnitType.PERCENTAGE.value);
                   const ruleData = form.getFieldValue(rule);
                   ruleData.value = null;
                 }}
               >
-                <Radio value={DiscountValueType.FIXED_AMOUNT}>Chiết khấu đ</Radio>
-                <Radio value={DiscountValueType.PERCENTAGE}>Chiết khấu %</Radio>
+                <Radio value={DiscountUnitType.FIXED_AMOUNT.value}>Chiết khấu đ</Radio>
+                <Radio value={DiscountUnitType.PERCENTAGE.value}>Chiết khấu %</Radio>
               </Radio.Group>
             </Form.Item>
             <Form.Item
