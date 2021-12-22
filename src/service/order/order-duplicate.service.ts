@@ -21,9 +21,7 @@ export const putOrderMergeService = (
   origin_id: number,
   ids: number[]
 ): Promise<BaseResponse<OrderModel>> => {
-  return BaseAxios.put(
-    `${ApiConfig.ORDER}/order-duplicate/combine?origin_id=${origin_id}&ids=${ids}`
-  );
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders-duplicate/combination`,{origin_id:origin_id,ids:ids});
 };
 
 export const putOrderCancelService = (ids: number[]): Promise<BaseResponse<any>> => {

@@ -231,3 +231,11 @@ export interface DuplicateOrderSearchQuery {
   search_term:string|null;
   store_id:number|null
 }
+
+export interface DuplicateOrderDetailQuery extends OrderSearchQuery{
+  full_address:string,
+  ward:string,
+  district:string,
+  city:string,
+  country:string
+}
