@@ -82,6 +82,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
     [formAdvanceFilter, onFilter]
   );
   const onFilterClick = useCallback(() => {
+    props.onClearFilter && props.onClearFilter();
     setVisible(false);
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
@@ -93,6 +94,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
     formAdvanceFilter.setFieldsValue(fields);
     setVisible(false);
     formAdvanceFilter.submit();
+    
   }, [formAdvanceFilter]);
   useEffect(() => {
     formBaseFilter.setFieldsValue({...advanceFilters});
@@ -127,50 +129,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
             ...baseValues,
             ...advanceValues, 
             condition: baseValues.condition, 
-          };
-          let transaction_date = data[InventoryQueryField.transaction_date],
-            total_stock = data[InventoryQueryField.total_stock],
-            on_hand = data[InventoryQueryField.on_hand],
-            committed = data[InventoryQueryField.committed],
-            available = data[InventoryQueryField.available],
-            on_hold = data[InventoryQueryField.on_hold],
-            defect = data[InventoryQueryField.defect],
-            incoming = data[InventoryQueryField.incoming],
-            transferring = data[InventoryQueryField.transferring],
-            on_way = data[InventoryQueryField.on_way],
-            shipping = data[InventoryQueryField.shipping],
-            mac = data[InventoryQueryField.mac],
-            import_price = data[InventoryQueryField.import_price],
-            retail_price = data[InventoryQueryField.retail_price];
-
-          const [from_transaction_date, to_transaction_date] = transaction_date
-              ? transaction_date
-              : [undefined, undefined],
-            [from_total_stock, to_total_stock] = total_stock
-              ? total_stock
-              : [undefined, undefined],
-            [from_on_hand, to_on_hand] = on_hand ? on_hand : [undefined, undefined],
-            [from_committed, to_committed] = committed
-              ? committed
-              : [undefined, undefined],
-            [from_available, to_available] = available
-              ? available
-              : [undefined, undefined],
-            [from_on_hold, to_on_hold] = on_hold ? on_hold : [undefined, undefined],
-            [from_defect, to_defect] = defect ? defect : [undefined, undefined],
-            [from_incoming, to_incoming] = incoming ? incoming : [undefined, undefined],
-            [from_transferring, to_transferring] = transferring
-              ? transferring
-              : [undefined, undefined],
-            [from_on_way, to_on_way] = on_way ? on_way : [undefined, undefined],
-            [from_shipping, to_shipping] = shipping ? shipping : [undefined, undefined],
-            [from_mac, to_mac] = mac ? mac : [undefined, undefined],
-            [from_import_price, to_import_price] = import_price
-              ? import_price
-              : [undefined, undefined],
-            [from_retail_price, to_retail_price] = retail_price
-              ? retail_price
-              : [undefined, undefined];
+          };  
           for (let key in data) {
             if (data[key] instanceof Array) {
               if (data[key].length === 0) data[key] = undefined;
@@ -178,34 +137,6 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
           }
           data = {
             ...data,
-            from_transaction_date,
-            to_transaction_date,
-            from_total_stock,
-            to_total_stock,
-            from_on_hand,
-            to_on_hand,
-            from_committed,
-            to_committed,
-            from_available,
-            to_available,
-            from_on_hold,
-            to_on_hold,
-            from_defect,
-            to_defect,
-            from_incoming,
-            to_incoming,
-            from_transferring,
-            to_transferring,
-            from_on_way,
-            to_on_way,
-            from_shipping,
-            to_shipping,
-            from_mac,
-            to_mac,
-            from_import_price,
-            to_import_price,
-            from_retail_price,
-            to_retail_price, 
           };
           formBaseFilter.setFieldsValue({...data});
           formAdvanceFilter?.setFieldsValue({
@@ -283,19 +214,8 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
               {Object.keys(AvdInventoryFilter).map((field) => {
                 let component: any = null;
                 switch (field) {
-                  case AvdInventoryFilter.transaction_date:
-                    component = <CustomRangepicker />;
-                    break;
-                  case AvdInventoryFilter.total_stock:
-                  case AvdInventoryFilter.on_hand:
-                  case AvdInventoryFilter.committed:
-                  case AvdInventoryFilter.available:
-                  case AvdInventoryFilter.on_hold:
-                  case AvdInventoryFilter.defect:
-                  case AvdInventoryFilter.incoming:
-                  case AvdInventoryFilter.transferring:
-                  case AvdInventoryFilter.on_way:
-                  case AvdInventoryFilter.shipping:
+                  case AvdInventoryFilter.from_price:
+                  case AvdInventoryFilter.to_price:
                     component = <NumberInputRange />;
                     break;
                 }
@@ -329,26 +249,7 @@ const FilterList = ({filters, resetField}: any) => {
         if (!value) return null;
         if (!InventoryMappingField[filterKey]) return null;
         switch (filterKey) {
-          case AvdInventoryFilter.transaction_date:
-            let [from, to] = value;
-            let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
-              formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
-            let fixedDate = checkFixedDate(from, to);
-            if (fixedDate)
-              renderTxt = `${InventoryMappingField[filterKey]} : ${fixedDate}`;
-            else
-              renderTxt = `${InventoryMappingField[filterKey]} : ${formatedFrom} - ${formatedTo}`;
-            break;
-          case AvdInventoryFilter.total_stock:
-          case AvdInventoryFilter.on_hand:
-          case AvdInventoryFilter.committed:
-          case AvdInventoryFilter.available:
-          case AvdInventoryFilter.on_hold:
-          case AvdInventoryFilter.defect:
-          case AvdInventoryFilter.incoming:
-          case AvdInventoryFilter.transferring:
-          case AvdInventoryFilter.on_way:
-          case AvdInventoryFilter.shipping:
+          case AvdInventoryFilter.variant_prices:
             let [from1, to1] = value;
             let fromS = "";
             let toS = "";

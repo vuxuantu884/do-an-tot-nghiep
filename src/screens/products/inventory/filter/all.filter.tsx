@@ -160,12 +160,71 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           let value = filters[filterKey];
           
           if (!value) return null;
-          if (!AllInventoryMappingField[filterKey]) return null; 
-          renderTxt = `${AllInventoryMappingField[filterKey]} : ${value[0]} ~ ${value[1]}`;
-
-          if (filterKey === AvdAllFilter.category) {
-            const category = listCategory.find(e=>e.id === value)?.name;
-            renderTxt = `${AllInventoryMappingField[filterKey]} : ${category}`;
+          if (!AllInventoryMappingField[filterKey] || filterKey === AvdAllFilter.to_price) return null; 
+          
+          switch (filterKey) {
+            case AvdAllFilter.category:
+            case AvdAllFilter.category_code:
+              let categoryTag = "";
+              value.forEach((item: string) => {
+                const category = listCategory?.find(e => e.code === item);
+                
+                categoryTag = category ? categoryTag + category.name + "; " : collectionTag;
+              });
+              renderTxt = `${AllInventoryMappingField[filterKey]} : ${categoryTag}`;
+              break
+              case AvdAllFilter.made_in_id:
+                let madeinTag = "";
+                value.forEach((item: number) => {
+                  const madein = listCountry?.find(e => e.id === item);
+                  
+                  madeinTag = madein ? madeinTag + madein.name + "; " : collectionTag;
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${madeinTag}`;
+                break
+              case AvdAllFilter.collection_code:
+                let collectionTag = "";
+                value.forEach((item: string) => {
+                  const colection = lstCollection?.find(e => e.code === item);
+                  
+                  collectionTag = colection ? collectionTag + colection.name + "; " : collectionTag;
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${collectionTag}`;
+                break
+              case AvdAllFilter.designer_code:
+                let designerTag = "";
+                value.forEach((item: string) => {
+                  const designer = designers.items?.find(e => e.code === item);
+                  
+                  designerTag = designer ? designerTag + designer.full_name + "; " : designerTag
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${designerTag}`;
+                break
+              case AvdAllFilter.merchandiser_code:
+                let merchandiserTag = "";
+                value.forEach((item: string) => {
+                  const win = wins.items?.find(e => e.code === item);
+                  
+                  merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag
+                });
+              renderTxt = `${AllInventoryMappingField[filterKey]} : ${merchandiserTag}`;
+              break
+            case AvdAllFilter.store_ids:
+                let storeTag = "";
+                value.forEach((item: number) => {
+                  const store = listStore?.find(e => e.id === item);
+                  
+                  storeTag = store ? storeTag + store.name + "; " : storeTag
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
+              break
+            case AvdAllFilter.from_price:
+              if (advanceFilters.from_price && advanceFilters.to_price) {
+                renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : ${advanceFilters.from_price} ~ ${advanceFilters.to_price}`;
+              }
+              break
+            default:
+              break;
           }
            
           return (
@@ -263,7 +322,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, [formAdvanceFilter]); 
 
   const resetField = useCallback(
-    (field: string) => {
+    (field: string) => { 
       formBaseFilter.setFieldsValue({
         ...formBaseFilter.getFieldsValue(true),
         [field]: undefined,
@@ -629,6 +688,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       <Col span={24}>
                       <Item label="Giá bán">
                         <Input.Group compact>
+                          <Item hidden={true} name="variant_prices">
+                          </Item>
                           <Item name="from_price" style={{ width: '45%', textAlign: 'center' }}>
                             <InputNumber
                               className="price_min"
