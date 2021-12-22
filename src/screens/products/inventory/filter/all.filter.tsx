@@ -346,10 +346,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               onSelectFilterConfig(props.index, props.id);  
               }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
                     color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />} 
-                    closeIcon={<CloseOutlined color="white" />} closable={tagAcitve === props.index ? true:false} onClose={(e)=>{
+                    closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
                       e.preventDefault();
-                      setTagActive(null);
-                      onCloseFilterConfig();
+                      setConfigId(props.id); 
+                      setIsShowConfirmDelete(true);
                     }}>
               {props.name}  
             </Tag> 
