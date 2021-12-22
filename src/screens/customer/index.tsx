@@ -128,6 +128,7 @@ const Customer = () => {
   );
   
   const [params, setParams] = useState<CustomerSearchQuery>(initQuery);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Array<any>>([]);
 
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
@@ -276,6 +277,16 @@ const Customer = () => {
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  const onSelectRow = useCallback((selectedRow) => {
+    let selectedRowIds :Array<any> = [];
+    selectedRow?.forEach((item: any) => {
+      if (item) {
+        selectedRowIds.push(item.id);
+      }
+    });
+    setSelectedCustomerIds(selectedRowIds);
+  }, []);
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -408,6 +419,7 @@ const Customer = () => {
                 isLoading={isLoading}
                 params={params}
                 initQuery={initQuery}
+                selectedCustomerIds={selectedCustomerIds}
                 groups={groups}
                 types={types}
                 setShowSettingColumn={() => setShowSettingColumn(true)}
@@ -430,6 +442,7 @@ const Customer = () => {
                   onChange: onPageChange,
                   onShowSizeChange: onPageChange,
                 }}
+                onSelectedChange={(selectedRows) => onSelectRow(selectedRows)}
                 dataSource={data.items}
                 columns={columnFinal}
                 rowKey={(item: any) => item.id}

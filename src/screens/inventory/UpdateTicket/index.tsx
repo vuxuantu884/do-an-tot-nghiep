@@ -400,7 +400,6 @@ const UpdateTicket: FC = () => {
       setIsLoadingTable(false);
       const newDataTable = dataTable.map((itemOld: VariantResponse) => {
         let newAvailable, newOnHand;
-        debugger
         result?.forEach((itemNew: InventoryResponse) => {
           if (itemNew.variant_id === itemOld.variant_id) {
             newAvailable = itemNew.available;

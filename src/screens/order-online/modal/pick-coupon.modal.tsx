@@ -14,7 +14,7 @@ type PropType = {
 
 function PickCouponModal(props: PropType){
   const { visible, onCancelCouponModal, onOkCouponModal, couponInputText } = props;
-	console.log('couponInputText', couponInputText)
+	// console.log('couponInputText', couponInputText)
   const [_coupon, setCoupon] = useState<string>(couponInputText || "");
 
   const formRef = createRef<FormInstance>();

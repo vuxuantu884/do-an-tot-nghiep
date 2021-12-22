@@ -843,7 +843,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           <div
                             style={{ color: "#2A2A86", fontWeight: "normal" }}
                           >
-                            ({POUtils.totalQuantity(items)})
+                            ({formatCurrency(POUtils.totalQuantity(items),".")})
                           </div>
                         </div>
                       ),
@@ -1095,14 +1095,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           <div
                             style={{ color: "#2A2A86", fontWeight: "normal" }}
                           >
-                            ({POUtils.totalQuantity(items)})
+                            ({formatCurrency(POUtils.totalQuantity(items),".")})
                           </div>
                         </div>
                       ),
                       width: 100,
                       dataIndex: "quantity",
                       render: (value, item, index) => (
-                        <div style={{ textAlign: "right" }}>{value}</div>
+                        <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
                       ),
                     },
                     {

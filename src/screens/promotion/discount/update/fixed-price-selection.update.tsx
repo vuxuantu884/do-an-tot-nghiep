@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Col, Divider, Form, FormInstance, message, Modal, Row, Space } from "antd";
+import { Button, Col, Divider, Form, FormInstance, message, Modal, Row, Space } from "antd";
 import Dragger from "antd/es/upload/Dragger";
 import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import _ from "lodash";
@@ -59,7 +59,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
-  const { isAllProduct, setIsAllProduct, discountMethod } = discountUpdateContext;
+  const { discountMethod } = discountUpdateContext;
 
   // import file
   const handleImportEntitlements = () => {
@@ -81,7 +81,6 @@ const FixedPriceSelectionUpdate = (props: Props) => {
     // phân bổ các variant trong file import vào các discount có sẵn hoặc thêm mới discount
     shareDiscountImportedProduct(formEntitlements, newVariantList, form);
 
-    // form.setFieldsValue({ entitlements: importedResult });
     setUploadStatus(undefined);
     setShowImportModal(false);
   };
@@ -94,7 +93,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
         {(fields: FormListFieldData[], { add, remove }: FormListOperation, { errors }: {
           errors: React.ReactNode[];
         }) => {
-          let initValue = newEntitlements;
+          let initValue = {...newEntitlements};
           const addBlankEntitlement = () => {
             if (discountMethod === DiscountMethod.FIXED_PRICE) {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.FIXED_PRICE.value
@@ -103,14 +102,13 @@ const FixedPriceSelectionUpdate = (props: Props) => {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.PERCENTAGE.value
             }
             initValue.selectedProducts = [];
+            initValue.entitled_variant_ids = [];
+            initValue.entitled_product_ids = [];
+
             add(initValue, 0);
           };
 
           const removeEntitlementItem = (index: number) => {
-            // const temp = _.cloneDeep(entitlementsVariantMap);
-            // temp.splice(index, 1);
-            // setSelectedVariant(temp);
-
             remove(index);
           };
 
@@ -118,14 +116,33 @@ const FixedPriceSelectionUpdate = (props: Props) => {
             <>
               <Row>
                 <Col span={8}>
-                  <Checkbox
+                  {/* <Checkbox
                     checked={isAllProduct}
                     onChange={(value) => {
                       setIsAllProduct(value.target.checked);
+                      // delete all expect first item
+                      if (value.target.checked) {
+                        if (form.getFieldValue("entitlements").length > 0) {
+                          const firstEntitlement = form.getFieldValue("entitlements")[0];
+                          firstEntitlement.entitled_product_ids = [];
+                          firstEntitlement.entitled_variant_ids = [];
+                          firstEntitlement.selectedProducts = [];
+                          form.setFieldsValue({
+                            entitlements: [
+                              firstEntitlement
+                            ],
+                          });
+                        } else {
+                          const valueType = discountMethod === DiscountMethod.FIXED_PRICE ? DiscountUnitType.FIXED_PRICE.value : DiscountUnitType.PERCENTAGE.value;
+                          const initValue = newEntitlements;
+                          initValue.selectedProducts = [];
+                          initValue.prerequisite_quantity_ranges[0].value_type = valueType;
+                        }
+                      }
                     }}
                   >
                     Tất cả sản phẩm
-                  </Checkbox>
+                  </Checkbox> */}
                 </Col>
                 <Col span={16}>
                   <Row justify="end">
@@ -140,7 +157,6 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                       </Form.Item>
                       <Form.Item>
                         <Button
-                          disabled={isAllProduct}
                           onClick={addBlankEntitlement}
                           icon={<PlusOutlined />}
                         >

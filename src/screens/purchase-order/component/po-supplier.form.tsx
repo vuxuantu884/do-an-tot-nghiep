@@ -602,6 +602,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         let supplier_id = getFieldValue("supplier_id");
                         let supplier_address: PurchaseAddress =
                           getFieldValue("supplier_address");
+                          debugger
                         return supplier_id ? (
                           <div>
                             <div className="title-address">

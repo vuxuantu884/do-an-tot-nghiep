@@ -16,6 +16,7 @@ import { Fragment, useCallback, useState } from "react";
 import importIcon from "assets/icon/import.svg";
 import ModalImport from "component/modal/ModalImport";
 import { AppConfig } from "config/app.config";
+import { formatCurrency } from "utils/AppUtils";
 
 type ProducmentInventoryModalProps = {
   visible: boolean;
@@ -163,14 +164,14 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                      >
                        SL Đặt hàng
                        <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
-                         ({POUtils.totalOrderQuantityProcument(line_items)})
+                         ({formatCurrency(POUtils.totalOrderQuantityProcument(line_items),".")})
                        </div>
                      </div>
                    ),
                    width: 130,
                    dataIndex: POProcumentLineItemField.ordered_quantity,
                    render: (value, item, index) => (
-                     <div style={{ textAlign: "right" }}>{value}</div>
+                     <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
                    ),
                  },
                  {
@@ -216,10 +217,11 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                        min={0}
                        // max={item.quantity}
                        default={0}
-                       maxLength={6}
+                       maxLength={8}
                        onChange={(quantity: number | null) => {
                          onQuantityChange(quantity, index);
                        }}
+                       format={(a: string) => formatCurrency(a)}
                      />
                    )},
                  },
@@ -241,15 +243,15 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                        </Table.Summary.Cell>
                        <Table.Summary.Cell align="right" index={1}>
                          <div style={{ fontWeight: 700 }}>
-                           {ordered_quantity}
+                           {formatCurrency(ordered_quantity,".")}
                          </div>
                        </Table.Summary.Cell>
                        <Table.Summary.Cell align="right" index={2}>
-                         <div style={{ fontWeight: 700 }}>{quantity}</div>
+                         <div style={{ fontWeight: 700 }}>{formatCurrency(quantity,".")}</div>
                        </Table.Summary.Cell>
                        <Table.Summary.Cell align="right" index={3}>
                          <div style={{ fontWeight: 700, marginRight: 15 }}>
-                           {real_quantity}
+                           {formatCurrency(real_quantity,".")}
                          </div>
                        </Table.Summary.Cell>
                      </Table.Summary.Row>

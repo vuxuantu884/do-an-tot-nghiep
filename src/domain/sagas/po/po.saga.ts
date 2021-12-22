@@ -1,4 +1,4 @@
-import { cancelPurchaseOrderApi, returnPurchaseOrder } from "./../../../service/purchase-order/purchase-order.service";
+import { cancelPurchaseOrderApi, createPurchaseOrderConfigService, getPurchaseOrderConfigService, returnPurchaseOrder, updatePurchaseOrderConfigService } from "./../../../service/purchase-order/purchase-order.service";
 import {
   searchPurchaseOrderApi,
   updatePurchaseOrder,
@@ -8,7 +8,7 @@ import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { POType } from "domain/types/purchase-order.type";
+import { POConfig, POType } from "domain/types/purchase-order.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   PurchaseOrder,
@@ -24,6 +24,7 @@ import {
 import { showError } from "utils/ToastUtils";
 import { exportPOApi } from "./../../../service/purchase-order/purchase-order.service";
 import { ImportResponse } from "model/other/files/export-model";
+import { FilterConfig } from "model/other";
 
 function* poCreateSaga(action: YodyAction) {
   const { request, createCallback } = action.payload;
@@ -271,6 +272,83 @@ function* exportPOSaga(action: YodyAction) {
   }
 }
 
+function* getConfigPoSaga(action: YodyAction) {
+  const {code, onResult } = action.payload;
+  try {
+    let response: BaseResponse<Array<FilterConfig>> = yield call(
+      getPurchaseOrderConfigService,
+      code
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* createConfigPoSaga(action: YodyAction) {
+  const { request, onResult } = action.payload;
+  try {
+    let response: BaseResponse<FilterConfig> = yield call(
+      createPurchaseOrderConfigService,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* updateConfigPoSaga(action: YodyAction) {
+  const {id, request, onResult } = action.payload;
+  try {
+    let response: BaseResponse<FilterConfig> = yield call(
+      updatePurchaseOrderConfigService,
+      id,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* poSaga() {
   yield takeLatest(POType.CREATE_PO_REQUEST, poCreateSaga);
   yield takeLatest(POType.DETAIL_PO_REQUEST, poDetailSaga);
@@ -291,4 +369,7 @@ export function* poSaga() {
     POType.EXPORT_PO,
     exportPOSaga
   );
+  yield takeLatest(POConfig.GET_PO_CONFIG, getConfigPoSaga);
+  yield takeLatest(POConfig.CREATE_PO_CONFIG, createConfigPoSaga);
+  yield takeLatest(POConfig.UPDATE_PO_CONFIG, updateConfigPoSaga);
 }

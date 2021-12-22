@@ -24,7 +24,6 @@ import { Link } from "react-router-dom";
 import { handleDenyParentProduct, onSelectVariantAndProduct, parseSelectProductToTableData, parseSelectVariantToTableData } from "utils/PromotionUtils";
 import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
-import NumberInput from "../../../../component/custom/number-input.custom";
 import UrlConfig from "../../../../config/url.config";
 import { searchVariantsRequestAction } from "../../../../domain/actions/product/products.action";
 import { PageResponse } from "../../../../model/base/base-metadata.response";
@@ -55,10 +54,9 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
-  const { isAllProduct, selectedVariant: entitlementsVariantMap, discountMethod } = discountUpdateContext;
-  const [discountType, setDiscountType] = useState("FIXED_PRICE");
+  const { discountMethod } = discountUpdateContext;
+  const [discountType, setDiscountType] = useState(DiscountUnitType.FIXED_PRICE.value);
 
-  const selectedVariant = useMemo(() => entitlementsVariantMap[name] || [], [entitlementsVariantMap, name]);
   const selectedProductParentRef = useRef<ProductResponse | null>(null)
   const variantsOfSelectedProductRef = useRef<Array<VariantResponse>>([])
   const [isVisibleConfirmReplaceProductModal, setIsVisibleConfirmReplaceProductModal] = useState<boolean>(false);
@@ -82,7 +80,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
         searchVariantsRequestAction(
           {
             status: "active",
-            limit: 100,
+            limit: 200,
             page: 1,
             info: value.trim(),
           },
@@ -124,7 +122,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
 
   // todo : refactor
   const onPickManyProduct = (items: Array<VariantResponse>) => {
-    console.log(items, selectedVariant);
+
     if (items.length) {
       let selectedVariantId: number[] = [];
       const newProducts = items.map(item => {
@@ -144,6 +142,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
       }
 
       form.setFieldsValue({ entitlements: _.cloneDeep(entilementFormValue) });
+      setVisibleManyProduct(false);
     }
 
   }
@@ -161,11 +160,11 @@ const FixedPriceGroupUpdate = (props: Props) => {
 
     if (item.isParentProduct) {
       // delete product id
-      entilementFormValue[name].entitled_product_ids.filter((e: number) => e !== item.product_id);
+      entilementFormValue[name].entitled_product_ids = entilementFormValue[name].entitled_product_ids.filter((e: number) => e !== item.product_id);
 
     } else {
       // delete variant id
-      entilementFormValue[name].entitled_variant_ids.filter((e: number) => e !== item.variant_id);
+      entilementFormValue[name].entitled_variant_ids = entilementFormValue[name].entitled_variant_ids.filter((e: number) => e !== item.variant_id);
     }
 
     // change reference for re-render form
@@ -297,7 +296,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               }),
             ]}
           >
-            <NumberInput min={0} />
+            <InputNumber min={1} max={999999} style={{ width: '100%' }} />
           </Form.Item>
         </Col>
 
@@ -354,140 +353,140 @@ const FixedPriceGroupUpdate = (props: Props) => {
           </Input.Group>
         </Col>
       </Row>
-      {!isAllProduct && (
-        <div>
-          <Form.Item>
-            <Input.Group className="display-flex">
 
-              <CustomAutoComplete
-                key={`${key}-product_search`}
-                id="#product_search"
-                dropdownClassName="product"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
-                onSearch={_.debounce(onSearchVariant, 300)}
-                dropdownMatchSelectWidth={456}
-                style={{ width: "100%" }}
-                onSelect={(value) => onSelectVariantAndProduct(value, selectedProductParentRef, variantsOfSelectedProductRef, setIsVisibleConfirmReplaceProductModal, form, name, dispatch)}
-                options={renderResult}
-                ref={productSearchRef}
-                textEmpty={"Không tìm thấy sản phẩm"}
-              />
-              <Button
-                icon={<img src={DuplicatePlus} style={{ marginRight: 8 }} alt="" />}
-                onClick={() => setVisibleManyProduct(true)}
-                style={{ width: 132, marginLeft: 10 }}
-              >
-                Chọn nhiều
-              </Button>
-            </Input.Group>
-          </Form.Item>
-          <Form.List name={[name, "selectedProducts"]}>
-            {(fields, { add, remove }) => {
+      <div>
+        <Form.Item>
+          <Input.Group className="display-flex">
 
-              const entilementFormValue: EntilementFormModel[] = form.getFieldValue("entitlements");
-              if (entilementFormValue[name] && entilementFormValue[name].selectedProducts) {
-                const dataSourceForm: Array<ProductEntitlements> = form.getFieldValue("entitlements")[name].selectedProducts
+            <CustomAutoComplete
+              key={`${key}-product_search`}
+              id="#product_search"
+              dropdownClassName="product"
+              placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
+              onSearch={_.debounce(onSearchVariant, 300)}
+              dropdownMatchSelectWidth={456}
+              style={{ width: "100%" }}
+              onSelect={(value) => onSelectVariantAndProduct(value, selectedProductParentRef, variantsOfSelectedProductRef, setIsVisibleConfirmReplaceProductModal, form, name, dispatch)}
+              options={renderResult}
+              ref={productSearchRef}
+              textEmpty={"Không tìm thấy sản phẩm"}
+            />
+            <Button
+              icon={<img src={DuplicatePlus} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => setVisibleManyProduct(true)}
+              style={{ width: 132, marginLeft: 10 }}
+            >
+              Chọn nhiều
+            </Button>
+          </Input.Group>
+        </Form.Item>
+        <Form.List name={[name, "selectedProducts"]}>
+          {(fields, { add, remove }) => {
 
-                return (
-                  <Table
-                    className="product-table"
-                    rowKey={(record) => record.sku}
-                    rowClassName="product-table-row"
-                    columns={[
-                      {
-                        title: "Sản phẩm",
-                        className: "ant-col-info",
-                        dataIndex: "variant_title",
-                        align: "left",
-                        render: (title: string, item, index: number) => {
-                          return (
+            const entilementFormValue: EntilementFormModel[] = form.getFieldValue("entitlements");
+            if (entilementFormValue[name] && entilementFormValue[name].selectedProducts) {
+              const dataSourceForm: Array<ProductEntitlements> = form.getFieldValue("entitlements")[name].selectedProducts
+
+              return (
+                <Table
+                  className="product-table"
+                  rowKey={(record) => record.sku}
+                  rowClassName="product-table-row"
+                  columns={[
+                    {
+                      title: "Sản phẩm",
+                      className: "ant-col-info",
+                      dataIndex: "variant_title",
+                      align: "left",
+                      render: (title: string, item, index: number) => {
+                        return (
+                          <div>
                             <div>
-                              <div>
-                                <div className="product-item-sku">
-                                  <Link
-                                    target="_blank"
-                                    to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                                  >
-                                    {item.sku}
-                                  </Link>
-                                </div>
-                                <div className="product-item-name">
-                                  <span className="product-item-name-detail">{title}</span>
-                                </div>
+                              <div className="product-item-sku">
+                                <Link
+                                  target="_blank"
+                                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                                >
+                                  {item.sku}
+                                </Link>
+                              </div>
+                              <div className="product-item-name">
+                                <span className="product-item-name-detail">{title}</span>
                               </div>
                             </div>
-                          );
-                        },
+                          </div>
+                        );
                       },
-                      {
-                        title: "Tồn đầu kỳ",
-                        className: "ant-col-info",
-                        align: "center",
-                        width: "15%",
-                        dataIndex: "open_quantity",
-                        render: (value) => value
-                      },
-                      {
-                        title: "Giá vốn",
-                        className: "ant-col-info",
-                        align: "center",
-                        width: "15%",
-                        dataIndex: "cost",
-                        render: (value, item) => {
-                          if (typeof value === "number") {
-                            // price at create time
-                            return formatCurrency(value);
-                          }
-                          else {
-                            return "-";
-                          }
+                    },
+                    {
+                      title: "Tồn đầu kỳ",
+                      className: "ant-col-info",
+                      align: "center",
+                      width: "15%",
+                      dataIndex: "open_quantity",
+                      render: (value) => value
+                    },
+                    {
+                      title: "Giá vốn",
+                      className: "ant-col-info",
+                      align: "center",
+                      width: "15%",
+                      dataIndex: "cost",
+                      render: (value, item) => {
+                        if (typeof value === "number") {
+                          // price at create time
+                          return formatCurrency(value);
                         }
-                      },
-                      {
-                        className: "ant-col-info",
-                        align: "right",
-                        width: "8%",
-                        render: (value: string, item, index: number) => (
-                          <Button
-                            onClick={() => onDeleteItem(index, item)}
-                            className="product-item-delete"
-                            icon={<AiOutlineClose />}
-                          />
-                        ),
-                      },
-                    ]}
-                    dataSource={dataSourceForm}
-                    tableLayout="fixed"
-                    pagination={false}
-                  />)
-              }
-            }}
-          </Form.List>
-          {form.getFieldValue("entitlements")?.length > 1 && (
-            <Row gutter={16} style={{ paddingTop: "16px" }}>
-              <Col span={24}>
-                <Button icon={<DeleteOutlined />} danger onClick={() => remove(name)}>
-                  Xoá nhóm chiết khấu
-                </Button>
-              </Col>
-            </Row>
-          )}
+                        else {
+                          return "-";
+                        }
+                      }
+                    },
+                    {
+                      className: "ant-col-info",
+                      align: "right",
+                      width: "8%",
+                      render: (value: string, item, index: number) => (
+                        <Button
+                          onClick={() => onDeleteItem(index, item)}
+                          className="product-item-delete"
+                          icon={<AiOutlineClose />}
+                        />
+                      ),
+                    },
+                  ]}
+                  dataSource={dataSourceForm}
+                  tableLayout="fixed"
+                  pagination={false}
+                />)
+            }
+          }}
+        </Form.List>
+        {form.getFieldValue("entitlements")?.length > 1 && (
+          <Row gutter={16} style={{ paddingTop: "16px" }}>
+            <Col span={24}>
+              <Button icon={<DeleteOutlined />} danger onClick={() => remove(name)}>
+                Xoá nhóm chiết khấu
+              </Button>
+            </Col>
+          </Row>
+        )}
 
-          <PickManyProductModal
-            onSave={onPickManyProduct}
-            selected={dataSearchVariant}
-            onCancel={() => setVisibleManyProduct(false)}
-            visible={visibleManyProduct}
-            emptyText={"Không tìm thấy sản phẩm"}
-          />
+        <PickManyProductModal
+          onSave={onPickManyProduct}
+          selected={dataSearchVariant}
+          onCancel={() => setVisibleManyProduct(false)}
+          visible={visibleManyProduct}
+          emptyText={"Không tìm thấy sản phẩm"}
+        />
 
-          <ModalConfirm visible={isVisibleConfirmReplaceProductModal} title="Xoá sản phẩm con trong danh sách"
-            subTitle="Đã có sản phẩm con trong danh sách, thêm sản phẩm cha sẽ tự động xoá sản phẩm con"
-            onOk={() => { handleAcceptParentProduct() }}
-            onCancel={() => { handleDenyParentProduct(setIsVisibleConfirmReplaceProductModal, selectedProductParentRef) }}
-          />
-        </div>
-      )}
+        <ModalConfirm visible={isVisibleConfirmReplaceProductModal} title="Xoá sản phẩm con trong danh sách"
+          subTitle="Đã có sản phẩm con trong danh sách, thêm sản phẩm cha sẽ tự động xoá sản phẩm con"
+          onOk={() => { handleAcceptParentProduct() }}
+          onCancel={() => { handleDenyParentProduct(setIsVisibleConfirmReplaceProductModal, selectedProductParentRef) }}
+        />
+      </div>
+
     </div>
   );
 };

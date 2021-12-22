@@ -9,7 +9,8 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
 import { ImportProcument } from "model/purchase-order/purchase-procument";
-import { ImportResponse } from "model/other/files/export-model";
+import {ImportResponse } from "model/other/files/export-model";
+import { FilterConfig, FilterConfigRequest } from "model/other";
 
 export const createPurchaseOrder = (
   data: PurchaseOrder
@@ -87,5 +88,32 @@ export const exportPOApi = (
   return BaseAxios.post(
     `${ApiConfig.PURCHASE_ORDER}/excel/job/export`,
     data
+  );
+};
+
+export const createPurchaseOrderConfigService = (
+  request: FilterConfigRequest
+): Promise<BaseResponse<FilterConfig>> => {
+  return BaseAxios.post(
+    `${ApiConfig.PURCHASE_ORDER}/config`,
+      request
+  );
+};
+
+export const updatePurchaseOrderConfigService = (
+  id: number,
+  request: FilterConfigRequest
+): Promise<BaseResponse<FilterConfig>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/config/${id}`,
+      request
+  );
+};
+
+export const getPurchaseOrderConfigService = (
+  code: string
+): Promise<BaseResponse<Array<FilterConfig>>> => {
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/config/${code}`,
   );
 };

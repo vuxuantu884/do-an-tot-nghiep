@@ -6,7 +6,7 @@ import CustomSelect from "component/custom/select.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import { StoreResponse } from "model/core/store.model";
-import { InventoryQuery, InventorySaveRequest } from "model/inventory";
+import { InventoryQuery } from "model/inventory";
 import {
   AllInventoryMappingField,
   AvdAllFilter,
@@ -17,7 +17,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import BaseFilter from "component/filter/base.filter"; 
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { convertCategory } from "utils/AppUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { FormatTextMonney } from "utils/FormatMonney";
 import { CollectionResponse } from "model/product/collection.model";
@@ -30,8 +30,14 @@ import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/app.config"; 
 import CustomModal from "component/modal/CustomModal";
-import FormSaveFilter from "./components";
 import { modalActionType } from "model/modal/modal.model";
+import FormSaveFilter from "./components/FormSaveFilter";
+import { FilterConfig, FilterConfigRequest } from "model/other";
+import { createConfigInventoryAction, getConfigInventoryAction, updateConfigInventoryAction } from "domain/actions/inventory/inventory.action";
+import BaseResponse from "base/base.response";
+import { FILTER_CONFIG_TYPE } from "utils/Constants";
+import { showSuccess } from "utils/ToastUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -78,6 +84,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     onChangeKeySearch
   } = props;
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const {account} = userReducer;
+  const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>([]);
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
   const [visible, setVisible] = useState(false);
@@ -180,9 +190,50 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     setShowModalSaveFilter(true);
   }, []);
 
-  const onSaveFilter = useCallback((detail: InventorySaveRequest) => {
+  const getConfigInventory = useCallback(()=>{
+    if (account && account.code) {
+      dispatch(
+        getConfigInventoryAction( 
+           account.code,
+          (res)=>{
+           if (res) {
+            setLstConfigFilter(res.data);
+           }
+          }
+        )
+      );
+    }
+  },[account, dispatch])
+
+  const onResult = useCallback((res: BaseResponse<FilterConfig>) =>{
+    if (res) {
+      showSuccess(`Lưu bộ lọc thành công`);
+      setShowModalSaveFilter(false);
+      getConfigInventory();
+    }
+  },[getConfigInventory]);
+
+  const onSaveFilter = useCallback((request: FilterConfigRequest) => {
+    if (request) {
+      let json_content = JSON.stringify(
+        formAdvanceFilter.getFieldsValue(),
+        function(k, v) { return v === undefined ? null : v; }
+      );;
+      request.type = FILTER_CONFIG_TYPE.FILTER_INVENTORY;
+      request.json_content = json_content; 
+      
+      if (request.id && request.id !== null) {
+        const config = lstConfigFilter.find(e=>e.id.toString() === request.id.toString());
+        if (lstConfigFilter && config) {
+          request.name = config.name;
+        }
+        dispatch(updateConfigInventoryAction(request,onResult));
+      }else{
+        dispatch(createConfigInventoryAction(request ,onResult));
+      }
+    }
     
-  }, []);
+  }, [dispatch,formAdvanceFilter, onResult, lstConfigFilter]);
 
   const onBaseFinish = useCallback(
     (values: InventoryQuery) => {
@@ -239,15 +290,16 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 		} else {
 			return 800
 		}
-	} 
+	}  
 
   useEffect(() => {
     setAdvanceFilters({ ...params });
     dispatch(getCategoryRequestAction({}, setDataCategory));
     dispatch(getCollectionRequestAction({}, setDataCollection));
     dispatch(CountryGetAllAction(setListCountry));
-    getAccounts('', 1, true, true);
-  }, [params, dispatch,getAccounts, setDataCategory, setDataCollection]);
+    getAccounts('', 1, true, true); 
+    getConfigInventory();
+  }, [params, dispatch,getAccounts,getConfigInventory, setDataCategory, setDataCollection]);
 
   useEffect(() => {
     formBaseFilter.setFieldsValue({...advanceFilters});
@@ -318,7 +370,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           visible={visible}
           width={customWidth()}
           className="order-filter-drawer"
-          allowSave={false}
+          allowSave={true}
           onSaveFilter={onShowSaveFilter}
         >
           <Form
