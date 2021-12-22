@@ -1,5 +1,5 @@
-import { FilterOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, InputNumber, Row, Tag} from "antd";
+import { CloseOutlined, EllipsisOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
+import { Button, Col, Dropdown, Form, Input, InputNumber, Menu, Row, Tag} from "antd";
 import search from "assets/img/search.svg";
 import { FilterWrapper } from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
@@ -33,11 +33,14 @@ import CustomModal from "component/modal/CustomModal";
 import { modalActionType } from "model/modal/modal.model";
 import FormSaveFilter from "./components/FormSaveFilter";
 import { FilterConfig, FilterConfigRequest } from "model/other";
-import { createConfigInventoryAction, getConfigInventoryAction, updateConfigInventoryAction } from "domain/actions/inventory/inventory.action";
+import { createConfigInventoryAction, deleteConfigInventoryAction, getConfigInventoryAction, updateConfigInventoryAction } from "domain/actions/inventory/inventory.action";
 import BaseResponse from "base/base.response";
 import { FILTER_CONFIG_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { primaryColor } from "utils/global-styles/variables";
+import deleteIcon from "assets/icon/deleteIcon.svg";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -84,7 +87,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     onChangeKeySearch
   } = props;
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
-  
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {account} = userReducer;
   const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>([]);
@@ -96,6 +98,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
   const [lstCollection, setLstCollection] = useState<Array<CollectionResponse>>([]);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
+  const [tagAcitve, setTagActive] = useState<number|null>();
+  const [configId, setConfigId] = useState<number>();
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
@@ -117,6 +121,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+  const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -255,17 +260,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formAdvanceFilter.submit();
-  }, [formAdvanceFilter]);
-
-  const onResetFilter = useCallback(() => {
-    let fields = formAdvanceFilter.getFieldsValue(true);
-    for (let key in fields) {
-      fields[key] = null;
-    }
-    formAdvanceFilter.setFieldsValue(fields);
-    setVisible(false);
-    formAdvanceFilter.submit();
-  }, [formAdvanceFilter]);
+  }, [formAdvanceFilter]); 
 
   const resetField = useCallback(
     (field: string) => {
@@ -290,7 +285,100 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 		} else {
 			return 800
 		}
-	}  
+	}
+
+  const onSelectFilterConfig = useCallback((index: number, id: number)=>{
+      setTagActive(index);
+      const filterConfig = lstConfigFilter.find(e=>e.id === id);
+      if (filterConfig) {
+        let json_content = JSON.parse(filterConfig.json_content);
+
+        Object.keys(json_content).forEach(function(key, index) {
+          if (json_content[key] == null) json_content[key] = undefined;
+        }, json_content);
+        formAdvanceFilter.setFieldsValue(json_content);
+      } 
+  },[lstConfigFilter, formAdvanceFilter]);
+
+  const onCloseFilterConfig = useCallback(()=>{
+    formAdvanceFilter.resetFields();
+    setTagActive(null);
+  },[formAdvanceFilter]);
+
+  const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>)=>{
+    if (res) {
+      showSuccess(`Xóa bộ lọc thành công`);
+      setShowModalSaveFilter(false);
+      getConfigInventory();
+    }
+  },[getConfigInventory])
+
+  const onMenuDeleteConfigFilter =useCallback(()=>{
+    if (configId) {
+      dispatch(deleteConfigInventoryAction(configId,onResultDeleteConfig));
+    }
+  },[dispatch ,configId, onResultDeleteConfig]);
+
+  const menu = (
+    <Menu>
+      <Menu.Item key="1">
+      <Button
+          icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
+          type="text"
+          className=""
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "red",
+          }}
+          onClick={()=>{setIsShowConfirmDelete(true)}}
+        >
+          Xóa
+        </Button>
+      </Menu.Item>
+    </Menu>
+  ); 
+
+  const FilterConfigCom = (props: any)=>{
+    return (
+      <span style={{marginRight: 20, display: "inline-flex"}}>
+          <Tag onClick={(e)=>{
+              onSelectFilterConfig(props.index, props.id);  
+              }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
+                    color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />} 
+                    closeIcon={<CloseOutlined color="white" />} closable={tagAcitve === props.index ? true:false} onClose={(e)=>{
+                      e.preventDefault();
+                      setTagActive(null);
+                      onCloseFilterConfig();
+                    }}>
+              {props.name}  
+            </Tag> 
+            {false && 
+                  <Dropdown 
+                    overlay={menu}
+                    trigger={["click"]}
+                    placement="bottomRight"
+                  >
+                    <EllipsisOutlined className="ant-tag" onClick={(e)=>{
+                      e.preventDefault();
+                      setConfigId(props.id);
+                    }} />
+                  </Dropdown>
+               } 
+      </span>
+    )
+  }
+
+  const onResetFilter = useCallback(() => {
+    let fields = formAdvanceFilter.getFieldsValue(true);
+    for (let key in fields) {
+      fields[key] = null;
+    }
+    formAdvanceFilter.setFieldsValue(fields);
+    setVisible(false);
+    formAdvanceFilter.submit();
+    onCloseFilterConfig();
+  }, [formAdvanceFilter, onCloseFilterConfig]);
 
   useEffect(() => {
     setAdvanceFilters({ ...params });
@@ -382,9 +470,15 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           >
               {/* filters tag */}
               <Row>
-                <Col span={24}>
-
-                </Col>
+                <Item>
+                  <Col span={24} className="tag-filter">
+                    {
+                      lstConfigFilter?.map((e, index)=>{
+                        return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                      })
+                    }
+                  </Col>
+                </Item>
               </Row>
               <Row gutter={25}>
                 <Col span={16}>
@@ -576,6 +670,13 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           componentForm={FormSaveFilter}
           formItem={null}
           modalTypeText="bộ lọc"
+        />
+        <ModalDeleteConfirm
+          visible={isShowConfirmDelete}
+          onOk={onMenuDeleteConfigFilter}
+          onCancel={() => setIsShowConfirmDelete(false)}
+          title="Xác nhận"
+          subTitle={"Bạn có chắc muốn xóa bộ lọc này?"}
         />
       </div>
   );

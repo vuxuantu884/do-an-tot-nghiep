@@ -56,7 +56,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
       setWinAccount(data);
 
       dispatch(
-        searchAccountPublicAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
+        searchAccountPublicAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultRD)
       );
     },
     [dispatch, onResultRD]
