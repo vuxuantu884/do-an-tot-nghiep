@@ -173,7 +173,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
           <Divider style={{ padding: 0, margin: 0 }} />
 
           <div className="send-order-box">
-            <Row style={{ marginTop: 15 }}>
+            {/* <Row style={{ marginTop: 15 }}>
               <Checkbox
                 className="checkbox-style"
                 onChange={ShowBillingAddress}
@@ -181,7 +181,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               >
                 Gửi hoá đơn
               </Checkbox>
-            </Row>
+            </Row> */}
 
             <Row gutter={24} hidden={isVisibleBilling}>
               <Col
