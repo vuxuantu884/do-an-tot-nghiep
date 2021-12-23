@@ -5,10 +5,12 @@ import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
 import SelectMerchandisers from "component/filter/component/select-merchandisers";
-import SelectStoreField from "component/filter/component/select-store-field";
+// import SelectStoreField from "component/filter/component/select-store-field";
 import SelectSupplierField from "component/filter/component/select-supplier-field";
 import UrlConfig from "config/url.config";
+import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
+import { StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { ProcurementQuery } from "model/purchase-order/purchase-procument";
 import moment from "moment";
@@ -16,6 +18,7 @@ import querystring from "querystring";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
 import { FilterProcurementStyle, ProcurementStatusStyle } from "./styles";
@@ -62,6 +65,8 @@ function TabListFilter() {
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  const [allStore, setAllStore] = useState<Array<StoreResponse>>();
+
 
   const [formBase] = useForm();
   const [formAdvanced] = useForm();
@@ -176,6 +181,12 @@ function TabListFilter() {
         setAllSupplier(stores);
       })
     );
+
+    dispatch(
+      getListStoresSimpleAction((stores) => {
+        setAllStore(stores);
+      })
+    );
   }, [dispatch]);
   return (
     <Form.Provider>
@@ -236,7 +247,7 @@ function TabListFilter() {
                   break;
 
                 case ProcurementFilterItem.stores:
-                  component = <SelectStoreField isMulti />;
+                  component = <TreeStore name={field} form={formAdvanced} listStore={allStore}/>;
                   break;
                 case ProcurementFilterItem.suppliers:
                   component = <SelectSupplierField isMulti />;
