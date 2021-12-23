@@ -1327,14 +1327,9 @@ export default function Order(props: PropType) {
                                   : `Hoàn tiền cho khách:`}
                               </span>
                               <b style={{color: "red"}}>
-                                {OrderDetail?.fulfillments &&
-                                OrderDetail?.fulfillments.length > 0 &&
-                                OrderDetail?.fulfillments[0].status !== "returned" &&
-                                OrderDetail?.fulfillments[0].shipment?.cod
-                                  ? 0
-                                  : formatCurrency(
-                                      Math.abs(totalAmountCustomerNeedToPay)
-                                    )}
+                                {formatCurrency(
+																	Math.abs(totalAmountCustomerNeedToPay)
+																)}
                               </b>
                             </Col>
                           </Row>
