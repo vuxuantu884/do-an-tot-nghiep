@@ -200,6 +200,14 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         Sao chép đơn hàng
                       </Menu.Item>}
                     </AuthWrapper>
+                    {stepsStatusValue === FulFillmentStatus.SHIPPED && (
+                      <Menu.Item
+                          key="print"
+                          onClick={() => orderActionsClick && orderActionsClick("print")}
+                        >
+                          In lại hoá đơn
+                      </Menu.Item>
+                    )}
                   </Menu>
                 }
                 trigger={["click"]}
