@@ -138,7 +138,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
           <Form.Item label="Thông tin liên hệ" name="contact">
             <Input placeholder="Tên/SDT người liên hệ" />
           </Form.Item>
-          <Form.Item name="pics" label="Tên / Mã người phục trách">
+          <Form.Item name="pics" label="Tên / Mã người phụ trách">
             <SelectPaging
               allowClear
               mode="multiple"
