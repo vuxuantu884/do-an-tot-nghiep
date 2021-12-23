@@ -125,10 +125,8 @@ export default function Order(props: PropType) {
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
-  const [discountValue, setDiscountValue] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
-  const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
@@ -194,9 +192,15 @@ export default function Order(props: PropType) {
   ) => {
 
     setItems(_items);
-    setDiscountRate(discount_rate);
-    setDiscountValue(discount_value);
     setOrderAmount(amount);
+		setPromotion({
+			amount: discount_value,
+			rate: discount_rate,
+			promotion_id: null,
+			reason: "",
+			discount_code: undefined,
+			value: discount_value,
+		})
   };
 
   const [isLoadForm, setIsLoadForm] = useState(false);
@@ -369,8 +373,8 @@ export default function Order(props: PropType) {
       total_tax: null,
       total_discount: null,
       total_quantity: null,
-      discount_rate: discountRate,
-      discount_value: discountValue,
+      discount_rate: promotion?.rate || null,
+			discount_value: promotion?.value || null,
       discount_amount: null,
       total_line_amount_after_line_discount: null,
       shipment: shipmentRequest,
@@ -459,7 +463,7 @@ export default function Order(props: PropType) {
             orderAmount +
             (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
             getAmountPaymentRequest(payments) -
-            discountValue,
+            (promotion?.value || 0)
         };
 
       case ShipmentMethodOption.PICK_AT_STORE:
@@ -661,7 +665,7 @@ export default function Order(props: PropType) {
         orderAmount +
         (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
         getAmountPaymentRequest(payments) -
-        discountValue;
+        (promotion?.value || 0);
     }
     values.tags = tags;
     values.items = items.concat(itemGifts);
@@ -787,13 +791,13 @@ export default function Order(props: PropType) {
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
-   const totalAmountOrder = useMemo(() => {
-    return (
-      orderAmount +
-      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-      discountValue
-    );
-  }, [discountValue, orderAmount, shippingFeeInformedToCustomer]);
+	 const totalAmountOrder = useMemo(() => {
+		return (
+			orderAmount +
+			(shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+			(promotion?.value || 0)
+		);
+	}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 
     /**
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
@@ -1002,25 +1006,9 @@ export default function Order(props: PropType) {
             setTag(response.tags);
           }
           if (response?.discounts && response?.discounts[0]) {
-            if (response.discounts[0].value) {
-              setDiscountValue(response.discounts[0].value);
-            }
-            if (response.discounts[0].rate) {
-              setDiscountRate(response.discounts[0].rate);
-            }
-          }
+						setPromotion(response?.discounts[0])
+					}
           setIsLoadForm(true);
-          if(response?.discounts && response.discounts[0]?.discount_code) {
-            setCoupon(response.discounts[0].discount_code)
-          }
-					if(response?.discounts) {
-            setPromotion({
-							promotion_id: response.discounts[0]?.promotion_id,
-							value: response.discounts[0]?.value,
-							amount: response.discounts[0]?.amount,
-							rate: response.discounts[0]?.rate,
-						})
-          }
         }
       })
     );
@@ -1066,7 +1054,7 @@ export default function Order(props: PropType) {
       let point = !Pointfocus ? 0 : Pointfocus.point === undefined ? 0 : Pointfocus.point;
 
       let totalAmountPayable =
-        orderAmount + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - discountValue; //tổng tiền phải trả
+        orderAmount + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - (promotion?.value || 0); //tổng tiền phải trả
       let limitAmountPointFocus = !rank
         ? 0
         : !rank.limit_order_percent
@@ -1079,7 +1067,7 @@ export default function Order(props: PropType) {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
-      if (rank?.block_order_have_discount === true && (discount > 0 || discountValue)) {
+      if (rank?.block_order_have_discount === true && (discount > 0 || promotion)) {
         showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
         return false;
       }
@@ -1095,14 +1083,7 @@ export default function Order(props: PropType) {
       // }
       return true;
     },
-    [
-      loyaltyPoint,
-      loyaltyUsageRules,
-      payments,
-      discountValue,
-      orderAmount,
-      shippingFeeInformedToCustomer,
-    ]
+    [payments, loyaltyUsageRules, orderAmount, shippingFeeInformedToCustomer, promotion, loyaltyPoint]
   );
 
   const checkInventory = () => {

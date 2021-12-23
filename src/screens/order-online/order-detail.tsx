@@ -1021,7 +1021,9 @@ const OrderDetail = (props: PropType) => {
                 countChangeSubStatus={countChangeSubStatus}
                 reload={reload}
               />
-              <SidebarOrderHistory customerId={customerDetail?.id} />
+							{customerDetail?.id && (
+								<SidebarOrderHistory customerId={customerDetail?.id} />
+							)}
             </Col>
           </Row>
           <OrderDetailBottomBar
