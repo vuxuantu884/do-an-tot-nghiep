@@ -1450,6 +1450,7 @@ function OrderCreateProduct(props: PropType) {
 			let newV = parseInt(v);
 			let _items = [...items];
 			let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
+			console.log('indexSearch', indexSearch)
 			let index = _items.findIndex((i) => i.variant_id === newV);
 			let r: VariantResponse = resultSearchVariant.items[indexSearch];
 			const item: OrderLineItemRequest = createItem(r);
@@ -1472,23 +1473,23 @@ function OrderCreateProduct(props: PropType) {
 					);
 				} else {
 					let variantItems = _items.filter((item) => item.variant_id === newV);
-					let lastIndex = variantItems.length - 1;
-					variantItems[lastIndex].quantity += 1;
-					variantItems[lastIndex].line_amount_after_line_discount +=
-						variantItems[lastIndex].price -
-						variantItems[lastIndex].discount_items[0].amount *
-						variantItems[lastIndex].quantity;
+					let firstIndex = 0;
+					variantItems[firstIndex].quantity += 1;
+					variantItems[firstIndex].line_amount_after_line_discount +=
+						variantItems[firstIndex].price -
+						variantItems[firstIndex].discount_items[0]?.amount *
+						variantItems[firstIndex].quantity;
 					setAmount(
 						amount +
-						variantItems[lastIndex].price -
-						variantItems[lastIndex].discount_items[0].amount
+						variantItems[firstIndex].price -
+						variantItems[firstIndex].discount_items[0]?.amount
 					);
 
 					calculateChangeMoney(
 						_items,
 						amount +
-						variantItems[lastIndex].price -
-						variantItems[lastIndex].discount_items[0].amount,
+						variantItems[firstIndex].price -
+						variantItems[firstIndex].discount_items[0]?.amount,
 						discountRate,
 						discountValue
 					);
