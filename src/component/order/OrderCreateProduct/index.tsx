@@ -474,9 +474,7 @@ function OrderCreateProduct(props: PropType) {
 			}
 			let _items = [...items];
 			let _amount = totalAmount(_items);
-			// setItems(_items);
 			setAmount(_amount);
-			calculateChangeMoney(_items, _amount, 0, 0);
 		},
 		[items]
 	);
@@ -1124,7 +1122,7 @@ function OrderCreateProduct(props: PropType) {
 		for (let i = 0; i < responseLineItemLength; i++) {
 			let line = checkingDiscountResponse.data.line_items[i];
 			const suggested_discounts = line.suggested_discounts;
-			if (suggested_discounts.length === 0) {
+			if (suggested_discounts.length ===null) {
 				result = result.concat(items[i]);
 			} else {
 				let discountMulti = getDiscountMulti(suggested_discounts, items[i]);
@@ -1145,6 +1143,17 @@ function OrderCreateProduct(props: PropType) {
 		}
 		let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
 		console.log('totalLineAmountAfterDiscount', totalLineAmountAfterDiscount)
+		if(checkingDiscountResponse.data.suggested_discounts === null || checkingDiscountResponse.data.suggested_discounts.length === 0) {
+      setPromotion &&
+				setPromotion({
+					promotion_id: null,
+					reason: null,
+					value: 0,
+					amount: 0,
+					rate: 0,
+				});
+      return;
+    }
 		let discountOrder = checkingDiscountResponse.data.suggested_discounts[0];
 		if (discountOrder) {
 			if (!discountOrder?.value) {
@@ -1183,6 +1192,8 @@ function OrderCreateProduct(props: PropType) {
 			}
 		}
 	};
+
+	console.log('promotion', promotion)
 
 	const handleApplyDiscount = async (
 		items: OrderLineItemRequest[] | undefined,
