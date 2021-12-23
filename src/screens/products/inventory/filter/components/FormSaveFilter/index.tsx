@@ -3,18 +3,14 @@ import {CustomModalFormModel} from "model/modal/modal.model";
 import {useCallback, useEffect, useState, } from "react";
 import * as CONSTANTS from "utils/Constants"; 
 import "./index.scss";
-import { useDispatch, useSelector } from "react-redux";
 import { FilterConfig } from "model/other";
-import BaseResponse from "base/base.response";
 import CustomSelect from "component/custom/select.custom";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { getConfigInventoryAction } from "domain/actions/inventory/inventory.action";
 
 type FormValuesType = { 
   id: number|null,
   name: string | null; 
   save_filter_type: string;
-  version: number | null
+  version: number | null;
 };
 
 const FILTER_TYPE_CONSTANT ={
@@ -23,10 +19,7 @@ const FILTER_TYPE_CONSTANT ={
 }
 
 const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
-  const {modalAction, formItem, form, visible} = props; 
-  const dispatch = useDispatch();
-  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const {account} = userReducer;
+  const {modalAction, formItem, form, visible, lstConfigFilter} = props; 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
@@ -43,37 +36,21 @@ const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormMo
       setFilterType(e.target.value);
     },[]);
 
-    const onResult = useCallback(
-      (res: BaseResponse<Array<FilterConfig>>) => {
-        if (!res) {
-          return false;
-        }
-        
-        setLstFilterConfig(res.data);
+    const getData = useCallback(
+      () => {
+        setLstFilterConfig(lstConfigFilter);
       },
-      []
-    );
-
-   const getConfigPo = useCallback(() => {
-     if (account && account.code) {
-      dispatch(
-        getConfigInventoryAction( 
-           account.code,
-          onResult
-        )
-      );
-    }
-     
-   }, [dispatch, onResult, account]);
+      [lstConfigFilter]
+    ); 
 
   useEffect(() => {
     if (visible) {
       form.resetFields();
-      getConfigPo();
+      getData();
     }
-  }, [form, formItem, getConfigPo, visible]);
+  }, [form,getData, formItem, visible]);
  
-  return (
+  return ( 
       <Form
         form={form}
         name="control-hooks"
@@ -138,7 +115,7 @@ const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormMo
               </Form.Item> 
            </Col>
         </Row> 
-      </Form>
+      </Form>  
   );
 };
 

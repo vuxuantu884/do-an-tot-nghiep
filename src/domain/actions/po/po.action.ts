@@ -136,3 +136,13 @@ export const updateConfigPoAction = (
     onResult
   });
 };
+
+export const deleteConfigPoAction = (
+  id: number,
+  onResult: (result: BaseResponse<FilterConfig>) => void
+) => {
+  return BaseAction(POConfig.DELETE_PO_CONFIG, {
+    id,
+    onResult
+  });
+};

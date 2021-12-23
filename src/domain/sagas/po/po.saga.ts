@@ -1,4 +1,4 @@
-import { cancelPurchaseOrderApi, createPurchaseOrderConfigService, getPurchaseOrderConfigService, returnPurchaseOrder, updatePurchaseOrderConfigService } from "./../../../service/purchase-order/purchase-order.service";
+import { cancelPurchaseOrderApi, createPurchaseOrderConfigService, deletePurchaseOrderConfigService, getPurchaseOrderConfigService, returnPurchaseOrder, updatePurchaseOrderConfigService } from "./../../../service/purchase-order/purchase-order.service";
 import {
   searchPurchaseOrderApi,
   updatePurchaseOrder,
@@ -323,12 +323,37 @@ function* createConfigPoSaga(action: YodyAction) {
 }
 
 function* updateConfigPoSaga(action: YodyAction) {
-  const {id, request, onResult } = action.payload;
+  const {request, onResult } = action.payload;
   try {
     let response: BaseResponse<FilterConfig> = yield call(
       updatePurchaseOrderConfigService,
-      id,
       request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* deleteConfigPoSaga(action: YodyAction) {
+  const { id, onResult } = action.payload;
+  try {
+    let response: BaseResponse<FilterConfig> = yield call(
+      deletePurchaseOrderConfigService,
+      id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -372,4 +397,5 @@ export function* poSaga() {
   yield takeLatest(POConfig.GET_PO_CONFIG, getConfigPoSaga);
   yield takeLatest(POConfig.CREATE_PO_CONFIG, createConfigPoSaga);
   yield takeLatest(POConfig.UPDATE_PO_CONFIG, updateConfigPoSaga);
+  yield takeLatest(POConfig.DELETE_PO_CONFIG, deleteConfigPoSaga);
 }

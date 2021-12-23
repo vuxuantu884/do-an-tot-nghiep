@@ -19,6 +19,7 @@ export interface FilterConfigRequest extends BaseObject{
   json_content: string,
   type: string,
   name: string,
+  save_filter_type: string
 }
 
 export interface FilterConfig extends FilterConfigRequest{

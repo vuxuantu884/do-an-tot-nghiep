@@ -90,7 +90,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {account} = userReducer;
-  const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>([]);
+  const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>();
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
   const [visible, setVisible] = useState(false);
@@ -289,7 +289,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       request.json_content = json_content; 
       
       if (request.id && request.id !== null) {
-        const config = lstConfigFilter.find(e=>e.id.toString() === request.id.toString());
+        const config = lstConfigFilter?.find(e=>e.id.toString() === request.id.toString());
         if (lstConfigFilter && config) {
           request.name = config.name;
         }
@@ -350,7 +350,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
   const onSelectFilterConfig = useCallback((index: number, id: number)=>{
       setTagActive(index);
-      const filterConfig = lstConfigFilter.find(e=>e.id === id);
+      const filterConfig = lstConfigFilter?.find(e=>e.id === id);
       if (filterConfig) {
         let json_content = JSON.parse(filterConfig.json_content);
 
@@ -516,17 +516,20 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
             form={formAdvanceFilter} 
           >
               {/* filters tag */}
-              <Row>
-                <Item>
-                  <Col span={24} className="tag-filter">
-                    {
-                      lstConfigFilter?.map((e, index)=>{
-                        return <FilterConfigCom id={e.id} index={index} name={e.name} />
-                      })
-                    }
-                  </Col>
-                </Item>
-              </Row>
+              {
+                (lstConfigFilter && lstConfigFilter.length > 0) && 
+                <Row>
+                  <Item>
+                    <Col span={24} className="tag-filter">
+                      {
+                        lstConfigFilter?.map((e, index)=>{
+                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                        })
+                      }
+                    </Col>
+                  </Item>
+               </Row>
+              }
               <Row gutter={25}>
                 <Col span={16}>
                   <Item name={AvdInventoryFilter.info} className="search">
@@ -716,6 +719,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           onDelete={()=>{}}
           onCancel={() => setShowModalSaveFilter(false)}
           modalAction={modalAction}
+          lstConfigFilter={lstConfigFilter}
           componentForm={FormSaveFilter}
           formItem={null}
           modalTypeText="bộ lọc"

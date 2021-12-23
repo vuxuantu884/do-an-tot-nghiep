@@ -101,11 +101,10 @@ export const createPurchaseOrderConfigService = (
 };
 
 export const updatePurchaseOrderConfigService = (
-  id: number,
   request: FilterConfigRequest
 ): Promise<BaseResponse<FilterConfig>> => {
-  return BaseAxios.put(
-    `${ApiConfig.PURCHASE_ORDER}/config/${id}`,
+  return BaseAxios.post(
+    `${ApiConfig.PURCHASE_ORDER}/config`,
       request
   );
 };
@@ -115,5 +114,13 @@ export const getPurchaseOrderConfigService = (
 ): Promise<BaseResponse<Array<FilterConfig>>> => {
   return BaseAxios.get(
     `${ApiConfig.PURCHASE_ORDER}/config/${code}`,
+  );
+};
+
+export const deletePurchaseOrderConfigService = (
+  id: number
+): Promise<BaseResponse<Array<FilterConfig>>> => {
+  return BaseAxios.delete(
+    `${ApiConfig.PURCHASE_ORDER}/config/${id}`,
   );
 };
