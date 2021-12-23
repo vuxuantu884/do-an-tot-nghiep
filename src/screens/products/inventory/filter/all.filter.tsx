@@ -166,16 +166,16 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           
           switch (filterKey) {
             case AvdAllFilter.category:
-            case AvdAllFilter.category_code:
+            case AvdAllFilter.category_ids:
               let categoryTag = "";
-              value.forEach((item: string) => {
-                const category = listCategory?.find(e => e.code === item);
-                
-                categoryTag = category ? categoryTag + category.name + "; " : collectionTag;
+              value.forEach((item: number) => {
+                const category = listCategory?.find(e => e.id === item);
+
+                categoryTag = category ? categoryTag + category.name + "; " : categoryTag;
               });
               renderTxt = `${AllInventoryMappingField[filterKey]} : ${categoryTag}`;
               break
-              case AvdAllFilter.made_in_id:
+              case AvdAllFilter.made_in_ids:
                 let madeinTag = "";
                 value.forEach((item: number) => {
                   const madein = listCountry?.find(e => e.id === item);
@@ -184,7 +184,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${madeinTag}`;
                 break
-              case AvdAllFilter.collection_code:
+              case AvdAllFilter.collection_codes:
                 let collectionTag = "";
                 value.forEach((item: string) => {
                   const colection = lstCollection?.find(e => e.code === item);
@@ -193,7 +193,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${collectionTag}`;
                 break
-              case AvdAllFilter.designer_code:
+              case AvdAllFilter.designer_codes:
                 let designerTag = "";
                 value.forEach((item: string) => {
                   const designer = designers.items?.find(e => e.code === item);
@@ -202,7 +202,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${designerTag}`;
                 break
-              case AvdAllFilter.merchandiser_code:
+              case AvdAllFilter.merchandiser_codes:
                 let merchandiserTag = "";
                 value.forEach((item: string) => {
                   const win = wins.items?.find(e => e.code === item);
@@ -564,7 +564,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               </Row>
               <Row gutter={25}>
                 <Col span={8}>
-                  <Item name={AvdInventoryFilter.made_in_id} label="Xuất xứ">
+                  <Item name={AvdInventoryFilter.made_in_ids} label="Xuất xứ">
                     <CustomSelect
                         showSearch
                         optionFilterProp="children"
@@ -585,7 +585,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   </Item>
                 </Col>
                 <Col span={8}>
-                  <Item name={AvdInventoryFilter.designer_code} label="Nhà thiết kế">
+                  <Item name={AvdInventoryFilter.designer_codes} label="Nhà thiết kế">
                     <SelectPaging
                       metadata={designers.metadata}
                       placeholder="Chọn nhà thiết kế"
@@ -608,7 +608,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   </Item>  
                 </Col> 
                 <Col span={8}>
-                  <Item name={AvdInventoryFilter.merchandiser_code} label="Merchandiser">
+                  <Item name={AvdInventoryFilter.merchandiser_codes} label="Merchandiser">
                     <SelectPaging
                           metadata={wins.metadata}
                           placeholder="Chọn Merchandiser"
@@ -633,7 +633,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               </Row>
               <Row gutter={25}>
               <Col span={8}>
-                  <Item name={AvdInventoryFilter.collection_code} label="Nhóm hàng">
+                  <Item name={AvdInventoryFilter.collection_codes} label="Nhóm hàng">
                       <CustomSelect
                           showSearch
                           optionFilterProp="children"
@@ -654,7 +654,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   </Item>
                 </Col>
                 <Col span={8}>
-                  <Item name={AvdInventoryFilter.category_code} label="Danh mục">
+                  <Item name={AvdInventoryFilter.category_ids} label="Danh mục">
                     <CustomSelect
                           showSearch
                           optionFilterProp="children"
@@ -667,7 +667,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                           maxTagCount="responsive" 
                         >
                           {listCategory?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.code}>
+                            <CustomSelect.Option key={item.id} value={item.id}>
                               {item.name}
                             </CustomSelect.Option>
                         ))}

@@ -49,7 +49,7 @@ function DiscountCreateV2(): ReactElement {
         } catch (error: any) {
             setIsSubmitting(false)
             setIsSubmittingAndActive(false)
-            showError("Lỗi dư liệu đầu vào");
+            showError(error.message);
         }
     }
 

@@ -40,6 +40,7 @@ import {
 	checkPaymentAll,
 	checkPaymentStatusToShow,
 	formatCurrency,
+	generateQuery,
 	getAmountPayment,
 	SumCOD
 } from "utils/AppUtils";
@@ -348,11 +349,22 @@ const OrderDetail = (props: PropType) => {
           );
           newTab?.focus();
           break;
+        case "print":
+          let params = {
+            action: "print",
+            ids: [OrderDetail?.id],
+            "print-type": "order",
+            "print-dialog": true,
+          };
+          const queryParam = generateQuery(params);
+          const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          window.open(printPreviewOrderUrl);
+          break;  
         default:
           break;
       }
     },
-    [history, id]
+    [OrderDetail?.id, history, id]
   );
 
   /**

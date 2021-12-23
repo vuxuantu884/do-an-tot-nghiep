@@ -18,7 +18,6 @@ import {
   UpdatePaymentRequest,
   VTPFeeRequest,
 } from "model/request/order.request";
-import {GoodsReceiptsRequest} from "model/request/pack.request";
 import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
@@ -44,11 +43,6 @@ import {
 } from "model/response/order/order.response";
 import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
 import {SourceEcommerceResponse, SourceResponse} from "model/response/order/source.response";
-import {
-  GoodsReceiptsResponse,
-  GoodsReceiptsTypeResponse,
-  OrderConcernGoodsReceiptsResponse,
-} from "model/response/pack/pack.response";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {generateQuery} from "utils/AppUtils";
 

@@ -143,7 +143,7 @@ const PackSupportScreen: React.FC = () => {
             </Card>
           </Col>
         </Row>
-        {activeTab === "1" && (
+        {activeTab !== "2" && (
           <div>
             <Row gutter={24}>
               <Col xs={24}>

@@ -193,7 +193,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           value.sort((a, b) =>
             moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date))
           );
-          display = ConvertUtcToLocalDate(value[value.length - 1].expect_receipt_date);
+          display = ConvertUtcToLocalDate(value[value.length - 1].expect_receipt_date,DATE_FORMAT.DDMMYYY);
         }
         return <div>{display}</div>;
       },

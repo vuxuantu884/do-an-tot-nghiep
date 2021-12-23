@@ -86,7 +86,7 @@ export  const ACTIONS_PROMO: Array<MenuAction> = [
 export  const ACTIONS_DISCOUNT: Array<MenuAction> = [
     { id: 1, name: "Kích hoạt" },
     { id: 2, name: "Tạm ngừng" },
-    { id: 3, name: "Xuất Excel", disabled: true },
+    // { id: 3, name: "Xuất Excel", disabled: true },
 ];
 
 export const ACTIONS_PROMO_CODE: Array<MenuAction> = [

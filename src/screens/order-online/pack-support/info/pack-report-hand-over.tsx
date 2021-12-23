@@ -1,30 +1,30 @@
-import {Button, Dropdown, Menu} from "antd";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { Button, Dropdown, Menu } from "antd";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import {PageResponse} from "model/base/base-metadata.response";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import { PageResponse } from "model/base/base-metadata.response";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
 import IconPack from "assets/icon/Pack.svg";
-import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
-import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
-import {useDispatch} from "react-redux";
+import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
+import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
+import { useDispatch } from "react-redux";
 import {
   deleteGoodsReceipts,
   getGoodsReceiptsSerch,
 } from "domain/actions/goods-receipts/goods-receipts.action";
-import {GoodsReceiptsSearhModel} from "model/pack/pack.model";
-import {FulFillmentStatus} from "utils/Constants";
-import {getQueryParams} from "utils/useQuery";
-import {useHistory} from "react-router";
-import {generateQuery} from "utils/AppUtils";
+import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
+import { FulFillmentStatus } from "utils/Constants";
+import { getQueryParams } from "utils/useQuery";
+import { useHistory } from "react-router";
+import { generateQuery } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import PackFilter from "component/filter/pack.filter";
-import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
-import {MenuAction} from "component/table/ActionButton";
-import {Link} from "react-router-dom";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
+import { MenuAction } from "component/table/ActionButton";
+import { Link } from "react-router-dom";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
 
@@ -43,9 +43,9 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   to_date: "",
 };
 
-const typePrint={
-  simple:"simple",
-  detail:"detail"
+const typePrint = {
+  simple: "simple",
+  detail: "detail"
 }
 
 type PackReportHandOverProps = {
@@ -55,7 +55,7 @@ type PackReportHandOverProps = {
 const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   props: PackReportHandOverProps
 ) => {
-  const {query} = props;
+  const { query } = props;
   const history = useHistory();
   const dispatch = useDispatch();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
@@ -102,18 +102,18 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
     items: [],
   });
-  
-  const handlePrintPack =useCallback((type:string)=>{
+
+  const handlePrintPack = useCallback((type: string) => {
     let params = {
       action: "print",
       ids: selectedRowKeys,
       "print-type": "print-pack",
-      "pack-type":"detail"
+      "pack-type": type
     };
     const queryParam = generateQuery(params);
     const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
     window.open(printPreviewUrl);
-  },[selectedRowKeys]);
+  }, [selectedRowKeys]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -132,8 +132,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                   if (_item) {
                     dispatch(
                       getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
-                        let dataResult: Array<GoodsReceiptsSearhModel> =setDataTable(data);
-                
+                        let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+
                         /////
                         setData({
                           metadata: {
@@ -146,6 +146,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                         setTableLoading(false);
                       })
                     );
+                    setSelectedRowKeys([]);
                     showSuccess(`Đã xóa biên bản bàn giao`);
                   } else {
                     showError(`Xóa biên bản bàn giao thất bại`);
@@ -158,12 +159,12 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           break;
       }
     },
-    [dispatch, selectedRowKeys,params]
+    [dispatch, selectedRowKeys, params, handlePrintPack]
   );
 
-  const handlePrint = () => {};
+  const handlePrint = () => { };
 
-  const handleExportHVC = () => {};
+  const handleExportHVC = () => { };
 
   const handleAddPack = (item: any) => {
     history.push(
@@ -183,7 +184,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
             <Menu.Item key="1">
               <Button
-                icon={<img style={{marginRight: 12}} alt="" src={IconPrint} />}
+                icon={<img style={{ marginRight: 12 }} alt="" src={IconPrint} />}
                 type="text"
                 className=""
                 style={{
@@ -199,7 +200,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
             <Menu.Item key="2">
               <Button
-                icon={<img style={{marginRight: 12}} alt="" src={IconVector} />}
+                icon={<img style={{ marginRight: 12 }} alt="" src={IconVector} />}
                 type="text"
                 className=""
                 style={{
@@ -215,7 +216,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
             <Menu.Item key="3">
               <Button
-                icon={<img style={{marginRight: 12}} alt="" src={IconPack} />}
+                icon={<img style={{ marginRight: 12 }} alt="" src={IconPack} />}
                 type="text"
                 className=""
                 style={{
@@ -389,7 +390,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({...params});
+      setPrams({ ...params });
       history.replace(`${UrlConfig.PACK_SUPPORT}?${queryParam}`);
     },
     [history, params]
@@ -397,7 +398,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = {...params, ...values, page: 1};
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       //setIsFilter(true)
@@ -413,8 +414,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   }, [history]);
 
   const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row.id_handover_record);
-    setSelectedRowKeys(selectedRowKeys);
+    if (selectedRow[0]) {
+      const selectedRowKeys = selectedRow.map((row: any) => row.id_handover_record);
+      setSelectedRowKeys(selectedRowKeys);
+    }
   }, []);
 
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
@@ -477,7 +480,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       };
 
       dataResult.push(_result);
-      
+
     });
     return dataResult;
   };
@@ -485,7 +488,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   useEffect(() => {
     dispatch(
       getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
-        let dataResult: Array<GoodsReceiptsSearhModel> =setDataTable(data);
+        let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
         /////
         setData({
           metadata: {
@@ -502,7 +505,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   return (
     <>
-      <div style={{padding: "0px 24px 0 24px"}}>
+      <div style={{ padding: "0px 24px 0 24px" }}>
         <PackFilter
           params={params}
           isLoading={false}
@@ -513,14 +516,14 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           onClearFilter={onClearFilter}
         />
       </div>
-      <div style={{padding: "0px 24px 0 24px"}}>
+      <div style={{ padding: "0px 24px 0 24px" }}>
         {data.items && (
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{x: 3630, y: 600}}
-            sticky={{offsetScroll: 10, offsetHeader: 55}}
+            scroll={{ x: 3630, y: 600 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
@@ -538,14 +541,14 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
             columns={columnFinal}
             rowKey={(item: GoodsReceiptsSearhModel) => item.id_handover_record}
             className="order-list"
-            //key={Math.random()}
-            // onRow={(record: GoodsReceiptsSearhModel) => {
-            //   return {
-            //     onClick: () => {
-            //       console.log("record",record);
-            //     }, // click row
-            //   };
-            // }}
+          //key={Math.random()}
+          // onRow={(record: GoodsReceiptsSearhModel) => {
+          //   return {
+          //     onClick: () => {
+          //       console.log("record",record);
+          //     }, // click row
+          //   };
+          // }}
           />
         )}
       </div>

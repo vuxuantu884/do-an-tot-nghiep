@@ -393,7 +393,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                       return (
                         <div>
                           Ngày dự kiến{" "}
-                          <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
+                          <strong>{ConvertUtcToLocalDate(expect_receipt_date, DATE_FORMAT.DDMMYYY)}</strong>
                         </div>
                       );
                     }}

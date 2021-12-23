@@ -30,6 +30,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   // const [isVisibleAddress, setVisibleAddress] = useState(false);
   //const [isVisibleBilling, setVisibleBilling] = useState(true);
+
   // const CancleConfirmAddress = useCallback(() => {
   //   setVisibleAddress(false);
   // }, []);
