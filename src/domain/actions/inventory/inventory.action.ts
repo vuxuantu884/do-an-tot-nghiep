@@ -63,7 +63,7 @@ const inventoryGetDetailVariantIdsExt = (
   });
 };
 
-export const getConfigInventoryAction = (
+const getConfigInventoryAction = (
   code: string,
   onResult: (result: BaseResponse<Array<FilterConfig>>) => void
 ) => {
@@ -72,7 +72,7 @@ export const getConfigInventoryAction = (
     onResult
   });
 };
-export const createConfigInventoryAction = (
+const createConfigInventoryAction = (
   request: FilterConfigRequest,
   onResult: (result: BaseResponse<FilterConfig>) => void
 ) => {
@@ -81,12 +81,22 @@ export const createConfigInventoryAction = (
     onResult
   });
 };
-export const updateConfigInventoryAction = (
+const updateConfigInventoryAction = (
   request: FilterConfigRequest,
   onResult: (result: BaseResponse<FilterConfig>) => void
 ) => {
   return BaseAction(InventoryConfigType.UPDATE_INVENTORY_CONFIG, {
     request,
+    onResult
+  });
+};
+
+const deleteConfigInventoryAction = (
+  id: number,
+  onResult: (result: BaseResponse<FilterConfig>) => void
+) => {
+  return BaseAction(InventoryConfigType.DELETE_INVENTORY_CONFIG, {
+    id,
     onResult
   });
 };
@@ -97,5 +107,9 @@ export {
   inventoryGetHistoryAction,
   inventoryGetDetailVariantIdsSaga,
   inventoryGetDetailVariantIdsExt,
-  inventoryByVariantAction
+  inventoryByVariantAction,
+  getConfigInventoryAction,
+  createConfigInventoryAction,
+  updateConfigInventoryAction,
+  deleteConfigInventoryAction
 };

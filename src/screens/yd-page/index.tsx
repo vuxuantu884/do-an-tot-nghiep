@@ -1,4 +1,4 @@
-import React, {useEffect, useCallback, useState} from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import YDPageOrders from "./yd-page-order-create/YDPageOrders";
 import YDPageCustomer from "./yd-page-customer/YDPageCustomer";
 import { Tabs } from "antd";
@@ -23,11 +23,11 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import {getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
+import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { showError } from "utils/ToastUtils";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {BillingAddress, ShippingAddress} from "model/request/order.request";
-import {LoyaltyCardSearch} from "../../domain/actions/loyalty/card/loyalty-card.action";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { BillingAddress, ShippingAddress } from "model/request/order.request";
+import { LoyaltyCardSearch } from "../../domain/actions/loyalty/card/loyalty-card.action";
 
 const { TabPane } = Tabs;
 
@@ -44,7 +44,7 @@ function YDPageCRM() {
   const [activeTabKey, setActiveTabKey] = React.useState<string>("1");
   const [customer, setCustomer] = React.useState<CustomerResponse | null>(null);
   const [isClearOrderTab, setIsClearOrderTab] = React.useState<boolean>(false);
-  const [userId] = React.useState<string | null>(queryString?.get("userId"));
+  const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
   const [YDPageCustomerInfo, setYDPageCustomerInfo] = React.useState<YDPageCustomerResponse | null>();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
@@ -62,7 +62,8 @@ function YDPageCRM() {
     page: 1,
     customer_ids: null,
   });
-  const [pageId] = React.useState<string | null>(queryString?.get("pageId"));
+  const [fbPageId] = React.useState<string | null>(queryString?.get("fbPageId"));
+  const [userId] = React.useState<string | null>(queryString?.get("userId"));
   const [metaData, setMetaData] = React.useState<any>({});
   const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
@@ -73,14 +74,14 @@ function YDPageCRM() {
   const updateLoyaltyCard = useCallback((result) => {
     if (result && result.items && result.items.length) {
       const loyaltyCardData = result.items.find((item: any) => item.customer_id === customer?.id);
-      setLoyaltyCard( loyaltyCardData);
+      setLoyaltyCard(loyaltyCardData);
     }
   }, [customer, setLoyaltyCard]);
 
   React.useEffect(() => {
     if (customer?.id) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      dispatch(LoyaltyCardSearch({ customer_id: customer.id, statuses: ["ASSIGNED"]}, updateLoyaltyCard));
+      dispatch(LoyaltyCardSearch({ customer_id: customer.id, statuses: ["ASSIGNED"] }, updateLoyaltyCard));
     } else {
       setLoyaltyPoint(null);
       setLoyaltyCard(null);
@@ -90,16 +91,16 @@ function YDPageCRM() {
   }, [dispatch, customer, updateLoyaltyCard, setLoyaltyCard]);
 
   useEffect(() => {
-    if (userId) {
-      dispatch(getYDPageCustomerInfo(userId, setYDPageCustomerInfo));
+    if (fbCustomerId) {
+      dispatch(getYDPageCustomerInfo(fbCustomerId, setYDPageCustomerInfo));
     }
     const getFpageCustomerInfoInterval = setInterval(() => {
-      if (userId) {
-        dispatch(getYDPageCustomerInfo(userId, setYDPageCustomerInfo));
+      if (fbCustomerId) {
+        dispatch(getYDPageCustomerInfo(fbCustomerId, setYDPageCustomerInfo));
       }
     }, 5000);
     return () => clearInterval(getFpageCustomerInfoInterval);
-  }, [userId, dispatch, setYDPageCustomerInfo]);
+  }, [fbCustomerId, dispatch, setYDPageCustomerInfo]);
   useEffect(() => {
     if (YDPageCustomerInfo) {
       const { default_phone, phones } = YDPageCustomerInfo;
@@ -111,34 +112,34 @@ function YDPageCRM() {
   }, [YDPageCustomerInfo, setCustomerPhone, setCustomerPhones]);
   const addFpPhone = useCallback(
     (phone: string, callback: () => void) => {
-      if (userId) {
-        dispatch(addFpagePhone(userId, phone, (customerInfo: YDPageCustomerResponse) => {
+      if (fbCustomerId) {
+        dispatch(addFpagePhone(fbCustomerId, phone, (customerInfo: YDPageCustomerResponse) => {
           setYDPageCustomerInfo(customerInfo);
           callback();
         }));
       }
     },
-    [userId, dispatch]
+    [fbCustomerId, dispatch]
   );
   const deleteFpPhone = useCallback(
     (phone: string) => {
       if (phone === customerPhone) {
         showError("Không được xóa số điện thoại mặc định");
       } else {
-        if (userId) {
-          dispatch(deleteFpagePhone(userId, phone, setYDPageCustomerInfo));
+        if (fbCustomerId) {
+          dispatch(deleteFpagePhone(fbCustomerId, phone, setYDPageCustomerInfo));
         }
       }
     },
-    [userId, dispatch, customerPhone]
+    [fbCustomerId, dispatch, customerPhone]
   );
   const setFpDefaultPhone = useCallback(
     (phone: string) => {
-      if (userId) {
-        dispatch(setFpageDefaultPhone(userId, phone, setYDPageCustomerInfo));
+      if (fbCustomerId) {
+        dispatch(setFpageDefaultPhone(fbCustomerId, phone, setYDPageCustomerInfo));
       }
     },
-    [userId, dispatch]
+    [fbCustomerId, dispatch]
   );
   React.useEffect(() => {
     if (customer?.id) {
@@ -161,11 +162,11 @@ function YDPageCRM() {
       setCustomer(value);
       setVisibleCustomer(true)
       setDistrictId(value.district_id)
-      if(value.shipping_addresses?.length > 0){
+      if (value.shipping_addresses?.length > 0) {
         const address = value.shipping_addresses.find((item: any) => item.default)
         setShippingAddress(address)
       }
-      if(value.billing_addresses){
+      if (value.billing_addresses) {
         const billing = value.billing_addresses.find((item: any) => item.default)
         setBillingAddress(billing)
       }
@@ -244,10 +245,11 @@ function YDPageCRM() {
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>} forceRender={!isClearOrderTab}>
           <YDPageOrders
-              loyaltyRate={loyaltyRate}
-            fbId={userId}
-            pageId={pageId}
+            loyaltyRate={loyaltyRate}
+            fbCustomerId={fbCustomerId}
+            fbPageId={fbPageId}
             customer={customer}
+            userId={userId}
             setCustomer={setCustomer}
             setActiveTabKey={setActiveTabKey}
             setIsClearOrderTab={setIsClearOrderTab}
@@ -257,14 +259,14 @@ function YDPageCRM() {
             loyaltyPoint={loyaltyPoint}
             loyaltyUsageRules={loyaltyUsageRules}
             handleCustomerById={handleCustomerById}
-              setShippingAddress={setShippingAddress}
-              setBillingAddress={setBillingAddress}
-              shippingAddress={shippingAddress}
-              billingAddress={billingAddress}
-              setVisibleCustomer={setVisibleCustomer}
-              isVisibleCustomer={isVisibleCustomer}
-              districtId={districtId}
-              setDistrictId={setDistrictId}
+            setShippingAddress={setShippingAddress}
+            setBillingAddress={setBillingAddress}
+            shippingAddress={shippingAddress}
+            billingAddress={billingAddress}
+            setVisibleCustomer={setVisibleCustomer}
+            isVisibleCustomer={isVisibleCustomer}
+            districtId={districtId}
+            setDistrictId={setDistrictId}
           />
         </TabPane>
       </Tabs>

@@ -7,7 +7,7 @@ import { InventoryConfigType, InventoryType } from "domain/types/inventory.type"
 import { PageResponse } from "model/base/base-metadata.response";
 import { AllInventoryResponse, HistoryInventoryResponse } from "model/inventory";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { createInventoryConfigService, getInventoryByVariantsApi, getInventoryConfigService, inventoryGetApi, inventoryGetDetailApi, inventoryGetDetailVariantIdsApi, inventoryGetDetailVariantIdsExtApi, inventoryGetHistoryApi, updateInventoryConfigService } from "service/inventory";
+import { createInventoryConfigService, deleteInventoryConfigService, getInventoryByVariantsApi, getInventoryConfigService, inventoryGetApi, inventoryGetDetailApi, inventoryGetDetailVariantIdsApi, inventoryGetDetailVariantIdsExtApi, inventoryGetHistoryApi, updateInventoryConfigService } from "service/inventory";
 import { showError } from "utils/ToastUtils";
 import { FilterConfig } from 'model/other';
 
@@ -244,6 +244,32 @@ function* updateConfigInventorySaga(action: YodyAction) {
   }
 }
 
+function* deleteConfigInventorySaga(action: YodyAction) {
+  const { id, onResult } = action.payload;
+  try {
+    let response: BaseResponse<FilterConfig> = yield call(
+      deleteInventoryConfigService,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* inventorySaga() {
   yield takeLatest(InventoryType.GET, inventoryGetSaga);
   yield takeLatest(InventoryType.GET_DETAIL, inventoryGetDetailSaga);
@@ -255,4 +281,5 @@ export function* inventorySaga() {
   yield takeLatest(InventoryConfigType.GET_INVENTORY_CONFIG, getConfigInventorySaga);
   yield takeLatest(InventoryConfigType.CREATE_INVENTORY_CONFIG, createConfigInventorySaga);
   yield takeLatest(InventoryConfigType.UPDATE_INVENTORY_CONFIG, updateConfigInventorySaga);
+  yield takeLatest(InventoryConfigType.DELETE_INVENTORY_CONFIG, deleteConfigInventorySaga);
 }
