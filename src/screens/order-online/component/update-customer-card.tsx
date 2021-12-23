@@ -10,7 +10,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
-import { useState } from "react";
+//import { useState } from "react";
 import { Link } from "react-router-dom";
 //#endregion
 
@@ -29,8 +29,8 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   // const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   // const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
-	console.log(setVisibleBilling)
+  //const [isVisibleBilling, setVisibleBilling] = useState(true);
+
   // const CancleConfirmAddress = useCallback(() => {
   //   setVisibleAddress(false);
   // }, []);
@@ -184,7 +184,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               </Checkbox>
             </Row> */}
 
-            <Row gutter={24} hidden={isVisibleBilling}>
+            <Row gutter={24} 
+             //hidden={isVisibleBilling}
+            >
               <Col
                 xs={24}
                 style={{

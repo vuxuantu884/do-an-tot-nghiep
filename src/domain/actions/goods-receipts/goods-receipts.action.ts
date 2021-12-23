@@ -36,3 +36,7 @@ export const getOrderConcernGoodsReceipts=(param:string, setData:(data:OrderConc
 export const getOrderGoodsReceipts=( setData:(data:OrderResponse[])=>void)=>{
     return BaseAction(GoodsReceiptsType.GET_ORDER_GOODS_RECEIPTS_ADD,{setData})
 }
+
+export const getPrintGoodsReceipts=(ids:number[],type:string, setData:(data:any)=>void)=>{
+    return BaseAction(GoodsReceiptsType.GET_PRINT_GOODS_RECEIPTS,{ids,type,setData});
+}

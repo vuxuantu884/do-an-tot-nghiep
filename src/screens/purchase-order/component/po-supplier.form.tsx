@@ -18,7 +18,7 @@ import {
   PhoneOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import React, { useCallback, useMemo, useState, Fragment, useEffect } from "react";
+import React, { useCallback, useMemo, useState, Fragment } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";

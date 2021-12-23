@@ -1,19 +1,17 @@
 import {
   Button,
   Col,
-  DatePicker,
   Form,
   FormInstance,
   Input,
   Row,
-  Collapse,
   Tag,
   Space,
-  Dropdown,
   Menu,
-  Select,
+  Dropdown,
 } from "antd";
 
+import {MenuAction} from "component/table/ActionButton";
 import {
   createRef,
   useCallback,
@@ -24,23 +22,21 @@ import {
 } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import {
-  SettingOutlined,
-  FilterOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
+import {SettingOutlined, FilterOutlined, DownOutlined} from "@ant-design/icons";
 import "./order.filter.scss";
-import moment from "moment";
-import {MenuAction} from "component/table/ActionButton";
+import CustomSelect from "component/custom/select.custom";
+import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import {OrderPackContext} from "contexts/order-pack/order-pack-context";
 import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import useAuthorization from "hook/useAuthorization";
 
-const {Option} = Select;
-const {Panel} = Collapse;
-type PackFilterProps = {
+type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
+  actions: Array<MenuAction>;
+  isLoading?: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: GoodsReceiptsSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
@@ -49,161 +45,224 @@ type PackFilterProps = {
 
 const {Item} = Form;
 
-const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
-  const {params, onClearFilter, onShowColumnSetting, onFilter} = props;
-  const [visible, setVisible] = useState(false);
+const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
+  const {
+    params,
+    actions,
+    //isLoading,
+    onMenuClick,
+    onClearFilter,
+    onFilter,
+    onShowColumnSetting,
+  } = props;
 
-  const formRef = createRef<FormInstance>();
-  const formSearchRef = createRef<FormInstance>();
-
-  //Context
   const orderPackContextData = useContext(OrderPackContext);
-  //const listStores = orderPackContextData.listStores;
+  const listStores = orderPackContextData.listStores;
   const listChannels = orderPackContextData.listChannels;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
   const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
 
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "In phiếu giao hàng",
-    },
-    {
-      id: 2,
-      name: "In phiếu xuất kho",
-    },
-  ];
+  const [visible, setVisible] = useState(false);
+  const [rerender, setRerender] = useState(false);
+
+  const [allowCreateGoodsReceipt] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+    not: false,
+  });
+
+  const formRef = createRef<FormInstance>();
+  const formSearchRef = createRef<FormInstance>();
 
   const onFilterClick = useCallback(() => {
-    setVisible(false);
     formRef.current?.submit();
   }, [formRef]);
   const openFilter = useCallback(() => {
     setVisible(true);
+    setRerender(true);
   }, []);
   const onCancelFilter = useCallback(() => {
     setVisible(false);
-    console.log("okokok")
+    // setRerender(false);
   }, []);
 
-  const onChangeRangeDate = useCallback((dates, dateString, type) => {
-    console.log(dates, dateString, type);
-    switch (type) {
-      case "issued":
-        setIssuedClick("");
-        setFormDate(dateString[0]);
-        setToDate(dateString[1]);
-        break;
-      default:
-        break;
-    }
-  }, []);
+  const onActionClick = useCallback(
+    (index: number) => {
+      onMenuClick && onMenuClick(index);
+    },
+    [onMenuClick]
+  );
 
-  const onCloseTag = useCallback((e, tag) => {
-    e.preventDefault();
-    //console.log('key', tag.key)
-    //console.log('params', params);
-    // switch(tag.key) {
-    //   case 'store':
-    //     onFilter && onFilter({...params, store_ids: []});
-    //     break;
-  }, []);
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      e.preventDefault();
+      setRerender(false);
+      // console.log("key", tag.key);
+      // console.log("params", params);
+      switch (tag.key) {
+        case "store":
+          onFilter && onFilter({...params, store_id: undefined});
+          break;
+
+        case "delivery_service_id":
+          onFilter && onFilter({...params, delivery_service_id: undefined});
+          break;
+        case "ecommerce_id":
+          onFilter && onFilter({...params, ecommerce_id: undefined});
+          break;
+        case "good_receipt_type_id":
+          onFilter && onFilter({...params, good_receipt_type_id: undefined});
+          break;
+        case "created":
+          setCreatedClick("");
+          onFilter && onFilter({...params, from_date: null, to_date: null});
+          break;
+
+        default:
+          break;
+      }
+      // const tags = filters.filter((tag: any) => tag.key !== key);
+      // filters = tags
+    },
+    [onFilter, params]
+  );
+  const [createdClick, setCreatedClick] = useState("");
 
   const initialValues = useMemo(() => {
     return {
       ...params,
+      // ecommerce_ids: Array.isArray(params.ecommerce_id) ? params.ecommerce_id : [params.ecommerce_id],
+      // delivery_service_ids: Array.isArray(params.delivery_service_id) ? params.delivery_service_id : [params.delivery_service_id],
+      // good_receipt_type_ids: Array.isArray(params.good_receipt_type_id) ? params.good_receipt_type_id : [params.good_receipt_type_id],
+      // store_ids: Array.isArray(params.store_id) ? params.store_id : [params.store_id],
     };
   }, [params]);
-  const [issuedClick, setIssuedClick] = useState("");
-  const [formDate, setFormDate] = useState(
-    initialValues.from_date ? moment(initialValues.from_date, "DD-MM-YYYY") : null
-  );
-  const [toDate, setToDate] = useState(
-    initialValues.to_date ? moment(initialValues.to_date, "DD-MM-YYYY") : null
-  );
 
-  const clickOptionDate = useCallback(
-    (type, value) => {
-      let minValue = null;
-      let maxValue = null;
-
-      switch (value) {
-        case "today":
-          minValue = moment().startOf("day").format("DD-MM-YYYY");
-          maxValue = moment().endOf("day").format("DD-MM-YYYY");
-          break;
-        case "yesterday":
-          minValue = moment().startOf("day").subtract(1, "days").format("DD-MM-YYYY");
-          maxValue = moment().endOf("day").subtract(1, "days").format("DD-MM-YYYY");
-          break;
-        case "thisweek":
-          minValue = moment().startOf("week").format("DD-MM-YYYY");
-          maxValue = moment().endOf("week").format("DD-MM-YYYY");
-          break;
-        case "lastweek":
-          minValue = moment().startOf("week").subtract(1, "weeks").format("DD-MM-YYYY");
-          maxValue = moment().endOf("week").subtract(1, "weeks").format("DD-MM-YYYY");
-          break;
-        case "thismonth":
-          minValue = moment().startOf("month").format("DD-MM-YYYY");
-          maxValue = moment().endOf("month").format("DD-MM-YYYY");
-          break;
-        case "lastmonth":
-          minValue = moment().startOf("month").subtract(1, "months").format("DD-MM-YYYY");
-          maxValue = moment().endOf("month").subtract(1, "months").format("DD-MM-YYYY");
-          break;
-        default:
-          break;
-      }
-
-      // console.log("minValue",minValue);
-      // console.log("maxValue",maxValue);
-
-      switch (type) {
-        case "issued":
-          if (issuedClick === value) {
-            setIssuedClick("");
-            setFormDate(null);
-            setToDate(null);
-          } else {
-            setIssuedClick(value);
-            setFormDate(moment(minValue, "DD-MM-YYYY"));
-            setToDate(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
-        default:
-          break;
-      }
-    },
-    [issuedClick]
-  );
-
-  console.log("formDate", formDate);
-  console.log("toDate", toDate);
+  console.log("params", params);
+  console.log("initialValues", initialValues);
 
   const onFinish = useCallback(
     (values) => {
-      values = {
-        ...values,
-        to_date: toDate,
-        from_date: formDate,
-      };
-      console.log("valuesFilter", values);
-      onFilter && onFilter(values);
+      let error = false;
+      formRef?.current?.getFieldsError(["from_date", "to_date"]).forEach((field) => {
+        if (field.errors.length) {
+          error = true;
+        }
+      });
+      if (!error) {
+        setVisible(false);
+        // const valuesForm = {
+        //   ...params,
+        //   store_id: values.store_id,
+        //   delivery_service_id: values.delivery_service_id,
+        //   ecommerce_id: values.ecommerce_id,
+        //   good_receipt_type_id: values.good_receipt_type_id,
+        //   good_receipt_id: values.good_receipt_id,
+        //   order_id: values.order_id,
+        //   from_date: values.from_date,
+        //   to_date: values.to_date,
+        // };
+        // console.log("valuesForm",params)
+        // console.log("valuesForm",valuesForm)
+        // console.log("valuesForm",valuesForm)
+        onFilter && onFilter(values);
+        setRerender(false);
+      }
     },
-    [onFilter, formDate, toDate]
+    [formRef, onFilter]
   );
 
   let filters = useMemo(() => {
-    let list: any = [];
-    return list;
-  }, []);
+    let list = [];
 
-  useLayoutEffect(() => {
-    if (visible) {
-      formRef.current?.resetFields();
+    if (initialValues.store_id) {
+      let textStores = listStores.find(
+        (x) => x.id === Number(initialValues.store_id)
+      )?.name;
+      list.push({
+        key: "store",
+        name: "Cửa hàng",
+        value: textStores,
+      });
     }
-  }, [formRef, visible]);
+
+    if (initialValues.delivery_service_id) {
+      let textDeliveryService = listThirdPartyLogistics.find(
+        (x) => x.id === Number(initialValues.delivery_service_id)
+      )?.name;
+      list.push({
+        key: "delivery_service_id",
+        name: "Hãng vận chuyển",
+        value: textDeliveryService,
+      });
+    }
+
+    if (initialValues.ecommerce_id) {
+      let text = listChannels.find(
+        (x) => x.id === Number(initialValues.ecommerce_id)
+      )?.name;
+      list.push({
+        key: "ecommerce_id",
+        name: "Biên bản sàn",
+        value: text,
+      });
+    }
+
+    if (initialValues.good_receipt_type_id) {
+      let text = listGoodsReceiptsType.find(
+        (x) => x.id === Number(initialValues.good_receipt_type_id)
+      )?.name;
+      list.push({
+        key: "good_receipt_type_id",
+        name: "Loại biên bản",
+        value: text,
+      });
+    }
+
+    if (initialValues.from_date || initialValues.to_date) {
+      let textOrderCreatedDate =
+        (initialValues.from_date ? initialValues.from_date : "??") +
+        " ~ " +
+        (initialValues.to_date ? initialValues.to_date : "??");
+      list.push({
+        key: "created",
+        name: "Thời gian",
+        value: textOrderCreatedDate,
+      });
+    }
+
+    return list;
+  }, [
+    initialValues.store_id,
+    initialValues.delivery_service_id,
+    initialValues.ecommerce_id,
+    initialValues.good_receipt_type_id,
+    initialValues.from_date,
+    initialValues.to_date,
+    listStores,
+    listChannels,
+    listGoodsReceiptsType,
+    listThirdPartyLogistics,
+  ]);
+
+  const widthScreen = () => {
+    if (window.innerWidth >= 1600) {
+      return 400;
+    } else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
+      return 350;
+    } else {
+      return 400;
+    }
+  };
+  const clearFilter = () => {
+    onClearFilter && onClearFilter();
+    setCreatedClick("");
+
+    setVisible(false);
+    setRerender(false);
+  };
+  useLayoutEffect(() => {
+    window.addEventListener("resize", () => setVisible(false));
+  }, []);
 
   return (
     <div>
@@ -219,10 +278,11 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
                       {actions &&
                         actions.map((item) => (
                           <Menu.Item
+                            disabled={item.disabled}
                             key={item.id}
-                            onClick={() =>
-                              props.onMenuClick && props.onMenuClick(item.id)
-                            }
+                            onClick={() => onActionClick && onActionClick(item.id)}
+                            icon={item.icon}
+                            style={{color: item.color}}
                           >
                             {item.name}
                           </Menu.Item>
@@ -240,6 +300,7 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
               <Space size={12} style={{marginLeft: "10px"}}>
                 <ButtonCreate
                   path={`${UrlConfig.PACK_SUPPORT}/report-hand-over-create`}
+                  disabled={!allowCreateGoodsReceipt}
                 />
               </Space>
             </div>
@@ -296,175 +357,137 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
         </div>
 
         <BaseFilter
-          onClearFilter={onClearFilter}
+          onClearFilter={() => clearFilter()}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
-          className="order-filter-drawer-pack"
-          width={500}
+          className="order-filter-drawer"
+          width={widthScreen()}
         >
-          <Form
-            onFinish={onFinish}
-            ref={formRef}
-            initialValues={params}
-            layout="vertical"
-          >
-            <Row gutter={12} style={{marginTop: "10px"}}>
-              <Col span={24}>
-                <Collapse>
-                  <Panel header="Hãng vận chuyển" key="1" className="header-filter">
-                    <Item name="delivery_service_id">
-                      <Select
-                        //mode="multiple"
-                        showSearch
-                        placeholder="Chọn hãng vận chuyển"
-                        notFoundContent="Không tìm thấy kết quả"
-                        style={{width: "100%"}}
-                        //getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {listThirdPartyLogistics.map((item, index) => (
-                          <Select.Option key={index.toString()} value={item.id}>
-                            {item.name}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-
-            <Row gutter={12} style={{marginTop: "10px"}}>
-              <Col span={24}>
-                <Collapse>
-                  <Panel header="Loại" key="1" className="header-filter">
-                    {/* <Item name="order_status"> */}
-                    <Item name="good_receipt_type_id">
-                      <Select
-                        //mode="multiple"
-                        showSearch
-                        placeholder="Chọn Loại"
-                        notFoundContent="Không tìm thấy kết quả"
-                        style={{width: "100%"}}
-                        //getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {listGoodsReceiptsType.map((item, index) => (
-                          <Option key={index.toString()} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-
-            <Row gutter={12} style={{marginTop: "10px"}}>
-              <Col span={24}>
-                <Collapse>
-                  <Panel header="Biên bản sàn" key="1" className="header-filter">
-                    <Item name="ecommerce_id">
-                      <Select
-                        //mode="multiple"
-                        showSearch
-                        placeholder="Chọn biên bản sàn"
-                        notFoundContent="Không tìm thấy kết quả"
-                        style={{width: "100%"}}
-                        //getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {listChannels.map((item, index) => (
-                          <Option key={index.toString()} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-
-            <Row gutter={12} style={{marginTop: "10px"}}>
-              <Col span={24}>
-                <Collapse
-                  defaultActiveKey={
-                    initialValues.from_date && initialValues.to_date ? ["1"] : []
-                  }
-                >
-                  <Panel header="THỜI GIAN" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button
-                        onClick={() => clickOptionDate("issued", "yesterday")}
-                        className={issuedClick === "yesterday" ? "active" : "deactive"}
-                      >
-                        Hôm qua
-                      </Button>
-                      <Button
-                        onClick={() => clickOptionDate("issued", "today")}
-                        className={issuedClick === "today" ? "active" : "deactive"}
-                      >
-                        Hôm nay
-                      </Button>
-                      <Button
-                        onClick={() => clickOptionDate("issued", "thisweek")}
-                        className={issuedClick === "thisweek" ? "active" : "deactive"}
-                      >
-                        Tuần này
-                      </Button>
-                    </div>
-                    <div className="date-option">
-                      <Button
-                        onClick={() => clickOptionDate("issued", "lastweek")}
-                        className={issuedClick === "lastweek" ? "active" : "deactive"}
-                      >
-                        Tuần trước
-                      </Button>
-                      <Button
-                        onClick={() => clickOptionDate("issued", "thismonth")}
-                        className={issuedClick === "thismonth" ? "active" : "deactive"}
-                      >
-                        Tháng này
-                      </Button>
-                      <Button
-                        onClick={() => clickOptionDate("issued", "lastmonth")}
-                        className={issuedClick === "lastmonth" ? "active" : "deactive"}
-                      >
-                        Tháng trước
-                      </Button>
-                    </div>
-                    <p>
-                      <SettingOutlined style={{marginRight: "10px"}} />
-                      Tuỳ chọn khoảng thời gian:
-                    </p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
+          {rerender && (
+            <Form
+              onFinish={onFinish}
+              ref={formRef}
+              initialValues={initialValues}
+              layout="vertical"
+            >
+              <Row gutter={20}>
+                <Col span={24}>
+                  <p>Kho cửa hàng</p>
+                  <Item name="store_id">
+                    <CustomSelect
+                      //mode="multiple"
+                      allowClear
+                      showArrow
+                      placeholder="Cửa hàng"
+                      optionFilterProp="children"
+                      style={{
+                        width: "100%",
+                      }}
+                      notFoundContent="Không tìm thấy kết quả"
+                      maxTagCount="responsive"
+                    >
+                      {listStores?.map((item) => (
+                        <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                          {item.name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                  <p>Hãng vận chuyển</p>
+                  <Item name="delivery_service_id">
+                    <CustomSelect
+                      //mode="multiple"
+                      showSearch
+                      placeholder="Chọn hãng vận chuyển"
+                      notFoundContent="Không tìm thấy kết quả"
                       style={{width: "100%"}}
-                      value={[
-                        formDate ? moment(formDate, "DD-MM-YYYY") : null,
-                        toDate ? moment(toDate, "DD-MM-YYYY") : null,
-                      ]}
-                      onChange={(date, dateString) =>
-                        onChangeRangeDate(date, dateString, "issued")
-                      }
-                    />
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-          </Form>
+                      optionFilterProp="children"
+                      maxTagCount="responsive"
+                      showArrow
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      allowClear
+                    >
+                      {listThirdPartyLogistics.map((reason) => (
+                        <CustomSelect.Option
+                          key={reason.id.toString()}
+                          value={reason.id.toString()}
+                        >
+                          {reason.name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                  <p>Loại biên bản</p>
+                  <Item name="good_receipt_type_id">
+                    <CustomSelect
+                      //mode="multiple"
+                      showSearch
+                      placeholder="Chọn loại biên bản"
+                      notFoundContent="Không tìm thấy kết quả"
+                      style={{width: "100%"}}
+                      optionFilterProp="children"
+                      maxTagCount="responsive"
+                      showArrow
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      allowClear
+                    >
+                      {listGoodsReceiptsType.map((reason) => (
+                        <CustomSelect.Option
+                          key={reason.id.toString()}
+                          value={reason.id.toString()}
+                        >
+                          {reason.name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                  <p>Biên bản sàn</p>
+                  <Item name="ecommerce_id">
+                    <CustomSelect
+                      //mode="multiple"
+                      showSearch
+                      placeholder="Chọn biên bản sàn"
+                      notFoundContent="Không tìm thấy kết quả"
+                      style={{width: "100%"}}
+                      optionFilterProp="children"
+                      maxTagCount="responsive"
+                      showArrow
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      allowClear
+                    >
+                      {listChannels.map((reason) => (
+                        <CustomSelect.Option
+                          key={reason.id.toString()}
+                          value={reason.id.toString()}
+                        >
+                          {reason.name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Col>
+                <Col span={24}>
+                  <p>Ngày tạo đơn</p>
+                  <CustomRangeDatePicker
+                    fieldNameFrom="from_date"
+                    fieldNameTo="to_date"
+                    activeButton={createdClick}
+                    setActiveButton={setCreatedClick}
+                    format="DD-MM-YYYY"
+                    formRef={formRef}
+                  />
+                </Col>
+              </Row>
+            </Form>
+          )}
         </BaseFilter>
       </div>
       <div className="order-filter-tags">
         {filters &&
-          filters.map((filter: any, index: number) => {
+          filters.map((filter: any, index) => {
             return (
-              <Tag
-                key={index}
-                className="tag"
-                closable
-                onClose={(e) => onCloseTag(e, filter)}
-              >
+              <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
                 {filter.name}: {filter.value}
               </Tag>
             );
