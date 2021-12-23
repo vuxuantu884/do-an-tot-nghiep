@@ -1,16 +1,19 @@
 import {FilterOutlined} from "@ant-design/icons";
-import {Button, Col, DatePicker, Form, FormInstance, Input, Row, Select} from "antd";
+import {Button, Col, DatePicker, Form, Input, Row, Select} from "antd";
 import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
-import StoreSearchSelect from "component/custom/select-search/store-select";
 import {MenuAction} from "component/table/ActionButton";
 import {AccountSearchQuery} from "model/account/account.model";
 import {DepartmentResponse} from "model/account/department.model";
 import {PositionResponse} from "model/account/position.model";
 import {BaseBootstrapResponse} from "model/content/bootstrap.model";
 import {StoreResponse} from "model/core/store.model";
-import {createRef, useCallback, useLayoutEffect, useState} from "react";
+import {useEffect, useCallback, useLayoutEffect, useState} from "react";
+import { useDispatch } from "react-redux";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import BaseFilter from "./base.filter";
+import { getListStoresSimpleAction } from "domain/actions/core/store.action";
+// import StoreSearchSelect from "component/custom/select-search/store-select";
 
 type AccountFilterProps = {
   params: AccountSearchQuery;
@@ -34,8 +37,10 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
     onFilter,
   } = props;
   const [visible, setVisible] = useState(false);
+  const [listStore, setListStore] = useState<Array<StoreResponse>>();
+  const dispatch = useDispatch();
 
-  const formRef = createRef<FormInstance>();
+  const [formRef] = Form.useForm();
   const onFinish = useCallback(
     (values: AccountSearchQuery) => {
       onFilter && onFilter(values);
@@ -44,7 +49,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
   );
   const onFilterClick = useCallback(() => {
     setVisible(false);
-    formRef.current?.submit();
+    formRef?.submit();
   }, [formRef]);
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -55,18 +60,29 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
 
   useLayoutEffect(() => {
     if (visible) {
-      formRef.current?.resetFields();
+      formRef?.resetFields();
     }
   }, [formRef, visible]);
 
+  useEffect(() => {
+    dispatch(
+      getListStoresSimpleAction((stores) => {
+        setListStore(stores);
+      })
+    );
+  }, [dispatch]);
+
   return (
     <div>
-      <Form onFinish={onFinish} initialValues={params} layout="inline">
+      <Form form={formRef} onFinish={onFinish} initialValues={params} layout="inline">
         <FilterWrapper>
           <Form.Item name="info" className="search" style={{minWidth: 200}}>
             <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã nhân viên" />
           </Form.Item>
-          <StoreSearchSelect name="store_ids" label="" style={{width: 250}}/>
+          {/* <StoreSearchSelect name="store_ids" label="" style={{width: 250}}/> */}
+          <Form.Item name="store_ids" style={{minWidth: 220}}>
+            <TreeStore name="store_ids" listStore={listStore} form={formRef} />
+          </Form.Item>
           <Form.Item name="department_ids">
             <Select
               showSearch
@@ -116,7 +132,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
         visible={visible}
         width={396}
       >
-        <Form onFinish={onFinish} ref={formRef} initialValues={params} layout="vertical">
+        <Form onFinish={onFinish} form={formRef} initialValues={params} layout="vertical">
           <Row gutter={50}>
             <Col span={12}>
               <Form.Item name="from_date" label="Thời gian tạo từ">

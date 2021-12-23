@@ -40,6 +40,7 @@ import {
 	checkPaymentAll,
 	checkPaymentStatusToShow,
 	formatCurrency,
+	generateQuery,
 	getAmountPayment,
 	SumCOD
 } from "utils/AppUtils";
@@ -331,29 +332,40 @@ const OrderDetail = (props: PropType) => {
 		[OrderId, dispatch]
 	);
 
-	const orderActionsClick = useCallback(
-		(type) => {
-			switch (type) {
-				case "cancel":
-					setVisibleCancelModal(true);
-					break;
-				case "update":
-					history.push(`${UrlConfig.ORDER}/${id}/update`);
-					break;
-				case "clone":
-					// history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
-					const newTab = window.open(
-						`/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
-						"_blank"
-					);
-					newTab?.focus();
-					break;
-				default:
-					break;
-			}
-		},
-		[history, id]
-	);
+  const orderActionsClick = useCallback(
+    (type) => {
+      switch (type) {
+        case "cancel":
+          setVisibleCancelModal(true);
+          break;
+        case "update":
+          history.push(`${UrlConfig.ORDER}/${id}/update`);
+          break;
+        case "clone":
+          // history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
+          const newTab = window.open(
+            `/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
+            "_blank"
+          );
+          newTab?.focus();
+          break;
+        case "print":
+          let params = {
+            action: "print",
+            ids: [OrderDetail?.id],
+            "print-type": "order",
+            "print-dialog": true,
+          };
+          const queryParam = generateQuery(params);
+          const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          window.open(printPreviewOrderUrl);
+          break;
+        default:
+          break;
+      }
+    },
+    [OrderDetail?.id, history, id]
+  );
 
 	/**
 	 * xác nhận đơn

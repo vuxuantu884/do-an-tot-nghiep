@@ -11,7 +11,7 @@ import {
   Collapse,
   Divider,
   Form,
-  FormInstance,
+  // FormInstance,
   Input,
   Radio,
   Row,
@@ -49,9 +49,10 @@ import { CountryResponse } from "model/content/country.model";
 import { CityView, DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { convertDistrict } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -83,7 +84,7 @@ const initRoleQuery: RoleSearchQuery = {
 
 const AccountCreateScreen: React.FC = () => {
   const dispatch = useDispatch();
-  const formRef = createRef<FormInstance>();
+  const [formRef] = Form.useForm();
   const history = useHistory();
 
   const listAccountStatus = useSelector(
@@ -101,7 +102,6 @@ const AccountCreateScreen: React.FC = () => {
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
-  const [isSelectAllStore, setIsSelectAllStore] = useState(false);
   
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
@@ -121,7 +121,7 @@ const AccountCreateScreen: React.FC = () => {
   const onChangeStatus = useCallback(
     (checked: boolean) => {
       setStatus(checked ? "active" : "inactive");
-      formRef.current?.setFieldsValue({
+      formRef?.setFieldsValue({
         status: checked ? "active" : "inactive",
       });
     },
@@ -139,7 +139,7 @@ const AccountCreateScreen: React.FC = () => {
         });
       });
       if (cityId !== -1) {
-        formRef.current?.setFieldsValue({
+        formRef?.setFieldsValue({
           city_id: cityId,
         });
       }
@@ -178,9 +178,9 @@ const AccountCreateScreen: React.FC = () => {
     return "";
   }, [status, listAccountStatus]);
 
-  const selectAllStore = useMemo(() => {
-    return listStore?.map((item) => item.id);
-  }, [listStore]);
+  // const selectAllStore = useMemo(() => {
+  //   return listStore?.map((item) => item.id);
+  // }, [listStore]);
   //end memo
 
   const backAction = ()=>{  
@@ -230,7 +230,7 @@ const AccountCreateScreen: React.FC = () => {
       ]}
     >
       <Form
-        ref={formRef}
+        form={formRef}
         layout="vertical"
         onFinish={onFinish}
         initialValues={initRequest}
@@ -278,7 +278,7 @@ const AccountCreateScreen: React.FC = () => {
                   placeholder="VD: YD0000"
                   size="large"
                   onChange={(e) =>
-                    formRef.current?.setFieldsValue({
+                    formRef?.setFieldsValue({
                       user_name: e.target.value.toUpperCase(),
                     })
                   }
@@ -390,41 +390,7 @@ const AccountCreateScreen: React.FC = () => {
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item name="store_ids" label="Cửa hàng">
-                <Select
-                  placeholder="Chọn cửa hàng"
-                  allowClear
-                  showArrow
-                  maxTagCount={"responsive" as const}
-                  mode={isSelectAllStore ? "tags" : "multiple"}
-                  optionFilterProp="children"
-                  onChange={(value: any) => {
-                    if (
-                      (Array.isArray(value) && value.includes("all")) ||
-                      value === "all"
-                    ) {
-                      if (isSelectAllStore) {
-                        formRef.current?.setFieldsValue({ store_ids: [] });
-                        setIsSelectAllStore(false);
-                      } else {
-                        formRef.current?.setFieldsValue({
-                          store_ids: selectAllStore,
-                        });
-                        setIsSelectAllStore(true);
-                      }
-                    } else {
-                      setIsSelectAllStore(false);
-                    }
-                  }}
-                >
-                  <Option value={"all"}>
-                    {isSelectAllStore ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-                  </Option>
-                  {listStore?.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
+                <TreeStore name="store_ids" form={formRef} listStore={listStore} />
               </Form.Item>
             </Col>
           </Row>
