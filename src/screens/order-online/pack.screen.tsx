@@ -2,9 +2,9 @@ import React, {useLayoutEffect} from "react";
 import {Card, Row, Tabs, Col} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import PackInfo from "./pack-support/pack-info";
-import PackList from "./pack-support/pack-list";
-import ReportHandOver from "./pack-support/report-hand-over";
+import PackInfo from "./pack-support/info/pack-info";
+import PackList from "./pack-support/info/pack-list";
+import ReportHandOver from "./pack-support/info/report-hand-over";
 import {
   DeliveryServicesGetList,
   getChannels,
@@ -21,7 +21,7 @@ import {StoreResponse} from "model/core/store.model";
 import {StoreGetListAction} from "domain/actions/core/store.action";
 import {GoodsReceiptsTypeResponse} from "model/response/pack/pack.response";
 import {getGoodsReceiptsType} from "domain/actions/goods-receipts/goods-receipts.action";
-import PackReportHandOverCopy from "./pack-support/pack-report-hand-over-copy";
+import PackReportHandOver from "./pack-support/info/pack-report-hand-over";
 import {getQueryParams, useQuery} from "utils/useQuery";
 import "assets/css/_pack.scss";
 import { useHistory } from "react-router-dom";
@@ -137,7 +137,7 @@ const PackSupportScreen: React.FC = () => {
                   ></PackInfo>
                 </TabPane>
                 <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
-                  <PackReportHandOverCopy query={query} />
+                  <PackReportHandOver query={query} />
                 </TabPane>
               </Tabs>
             </Card>

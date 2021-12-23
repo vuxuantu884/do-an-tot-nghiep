@@ -1,5 +1,5 @@
 //#region Import
-import { Avatar, Card, Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import bithdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
@@ -10,7 +10,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
-import { useState } from "react";
+//import { useState } from "react";
 import { Link } from "react-router-dom";
 //#endregion
 
@@ -29,7 +29,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   // const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   // const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
+  //const [isVisibleBilling, setVisibleBilling] = useState(true);
   // const CancleConfirmAddress = useCallback(() => {
   //   setVisibleAddress(false);
   // }, []);
@@ -51,9 +51,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   //   // setVisibleBillingAddress(false);
   // };
 
-  const ShowBillingAddress = () => {
-    setVisibleBilling(!isVisibleBilling);
-  };
+  // const ShowBillingAddress = () => {
+  //   setVisibleBilling(!isVisibleBilling);
+  // };
 
   // const handleVisibleBillingAddressChange = (value: boolean) => {
   //   // setVisibleBillingAddress(value);
@@ -183,7 +183,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               </Checkbox>
             </Row> */}
 
-            <Row gutter={24} hidden={isVisibleBilling}>
+            <Row gutter={24} 
+             //hidden={isVisibleBilling}
+            >
               <Col
                 xs={24}
                 style={{

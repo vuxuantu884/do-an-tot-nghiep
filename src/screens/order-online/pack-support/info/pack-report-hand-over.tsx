@@ -20,7 +20,7 @@ import {getQueryParams} from "utils/useQuery";
 import {useHistory} from "react-router";
 import {generateQuery} from "utils/AppUtils";
 import UrlConfig from "config/url.config";
-import PackCopyFilter from "component/filter/pack-copy.filter";
+import PackFilter from "component/filter/pack.filter";
 import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
 import {MenuAction} from "component/table/ActionButton";
 import {Link} from "react-router-dom";
@@ -43,12 +43,16 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   to_date: "",
 };
 
+const typePrint={
+  simple:"simple",
+  detail:"detail"
+}
 
 type PackReportHandOverProps = {
   query: any;
 };
 
-const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
+const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   props: PackReportHandOverProps
 ) => {
   const {query} = props;
@@ -98,13 +102,27 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     },
     items: [],
   });
+  
+  const handlePrintPack =useCallback((type:string)=>{
+    let params = {
+      action: "print",
+      ids: selectedRowKeys,
+      "print-type": "print-pack",
+      "pack-type":"detail"
+    };
+    const queryParam = generateQuery(params);
+    const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+    window.open(printPreviewUrl);
+  },[selectedRowKeys]);
 
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
         case 1:
+          handlePrintPack(typePrint.detail);
           break;
         case 2:
+          handlePrintPack(typePrint.simple);
           break;
         case 3:
           selectedRowKeys.forEach(function (item) {
@@ -143,13 +161,11 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     [dispatch, selectedRowKeys,params]
   );
 
-  console.log("data", data);
   const handlePrint = () => {};
 
   const handleExportHVC = () => {};
 
   const handleAddPack = (item: any) => {
-    console.log("ok", item.id_handover_record);
     history.push(
       `${UrlConfig.PACK_SUPPORT}/report-hand-over-update/${item.id_handover_record}`
     );
@@ -382,7 +398,6 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   const onFilter = useCallback(
     (values) => {
       let newPrams = {...params, ...values, page: 1};
-      console.log("newPrams",newPrams)
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       //setIsFilter(true)
@@ -485,14 +500,10 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
     );
   }, [dispatch, params]);
 
-  console.log("GoodsReceipts", data);
-  // console.log("newQuery", query);
-  console.log("newPrams", params);
-
   return (
     <>
       <div style={{padding: "0px 24px 0 24px"}}>
-        <PackCopyFilter
+        <PackFilter
           params={params}
           isLoading={false}
           actions={actions}
@@ -555,4 +566,4 @@ const PackReportHandOverCopy: React.FC<PackReportHandOverProps> = (
   );
 };
 
-export default PackReportHandOverCopy;
+export default PackReportHandOver;

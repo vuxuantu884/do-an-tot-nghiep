@@ -19,7 +19,8 @@ import {
   getOrderConcernGoodsReceiptsService,
   getOrderGoodsReceiptsService,
   updateGoodsReceiptsService,
-} from "service/order/order.service";
+  getPrintGoodsReceiptsService,
+} from "service/order/order-pack.service";
 import {unauthorizedAction} from "./../../actions/auth/auth.action";
 import {showError} from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
@@ -232,6 +233,31 @@ function* getOrderGoodsReceiptsSaga(action: YodyAction){
   }
 }
 
+/**
+ * In 
+ */
+function* getPrintGoodsReceiptsSaga(action:YodyAction)
+{
+  const{ids,type,setData}=action.payload;
+  try{
+    let response:BaseResponse<any>=yield call(getPrintGoodsReceiptsService, ids, type);
+    switch(response.code){
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any)=>showError(e));
+        break;
+    }
+  }
+  catch{
+    showError("xảy ra lỗi in biên bản bàn giao, vui long thử lại sau");
+  }
+}
+
 export function* GoodsReceiptsSaga() {
   yield takeLatest(GoodsReceiptsType.GET_GOODS_RECEIPTS_TYPE, getGoodsReceiptsTypeSaga);
   yield takeLatest(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, createGoodsReceiptsSaga);
@@ -244,4 +270,5 @@ export function* GoodsReceiptsSaga() {
     getOrderConcernGoodsReceiptsSaga
   );
   yield takeLatest(GoodsReceiptsType.GET_ORDER_GOODS_RECEIPTS_ADD,getOrderGoodsReceiptsSaga)
+  yield takeLatest(GoodsReceiptsType.GET_PRINT_GOODS_RECEIPTS, getPrintGoodsReceiptsSaga)
 }
