@@ -22,10 +22,11 @@ const MergeOrderModel: React.FC<MergeOrderType> = (props: MergeOrderType) => {
     const checkOrderShipment = (order_id: number) => {
         let logistics=false
         let order = props.selectedOrder.find(x => x.id === order_id);
+        console.log(order)
         order?.fulfillments?.forEach(function (item) {
-            let shipment_delivery_service_provider_id = item.shipment?.delivery_service_provider_id;
-            let index = props.deliveryServices.findIndex(x => x.id === shipment_delivery_service_provider_id);
-            if (index === -1) logistics=true;
+            // let shipment_delivery_service_provider_id = item.shipment?.delivery_service_provider_id;
+            // let index = props.deliveryServices.findIndex(x => x.id === shipment_delivery_service_provider_id);
+            if (item.shipment===null) logistics=true;
         });
 
         setLogisticsWarning(logistics);
@@ -58,7 +59,7 @@ const MergeOrderModel: React.FC<MergeOrderType> = (props: MergeOrderType) => {
                         </Space>
                     </Radio.Group>
                 </Row>
-                <Alert style={logisticsWarning===false?{ display: "none" }:{display:""}} icon={<WarningOutlined />} message="Cảnh báo: Đơn hàng đã chọn lấy thông tin giao hàng chưa được chọn hãng vận chuyển" type="warning" showIcon />
+                <Alert style={logisticsWarning===false?{ display: "none" }:{display:""}} icon={<WarningOutlined />} message="Cảnh báo: Đơn hàng đã chọn lấy thông tin chưa có thông tin hình thức vận chuyển" type="warning" showIcon />
             </Modal>
         </React.Fragment>
     )
