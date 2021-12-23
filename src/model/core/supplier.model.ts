@@ -41,6 +41,7 @@ export interface SupplierContactResposne {
   supplier_id: number,
   name: string,
   phone: string,
+  tax_code: string,
   fax: string,
   email: string,
   website: string,
