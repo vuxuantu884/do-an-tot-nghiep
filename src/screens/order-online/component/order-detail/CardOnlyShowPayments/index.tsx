@@ -102,16 +102,12 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
                       : `Hoàn tiền cho khách:`}
                   </span>
                   <b style={{ color: "red" }}>
-                    {OrderDetail?.fulfillments &&
-                    OrderDetail?.fulfillments.length > 0 &&
-                    OrderDetail?.fulfillments[0].shipment?.cod
-                      ? 0
-                      : formatCurrency(
-                          Math.abs(
-                            customerNeedToPayValue -
-                              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-                          )
-                        )}
+                    {formatCurrency(
+											Math.abs(
+												customerNeedToPayValue -
+													(OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+											)
+										)}
                   </b>
                 </Col>
               </Row>
