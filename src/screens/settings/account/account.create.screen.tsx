@@ -102,16 +102,11 @@ const AccountCreateScreen: React.FC = () => {
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
-<<<<<<< HEAD
-  // const [isSelectAllStore, setIsSelectAllStore] = useState(false);
-=======
-  const [isSelectAllStore, setIsSelectAllStore] = useState(false);
   
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
 
   const allowCreateAcc = useAuthorization({
     acceptPermissions: [AccountPermissions.CREATE],
@@ -395,41 +390,6 @@ const AccountCreateScreen: React.FC = () => {
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item name="store_ids" label="Cửa hàng">
-                {/* <Select
-                  placeholder="Chọn cửa hàng"
-                  allowClear
-                  showArrow
-                  maxTagCount={"responsive" as const}
-                  mode={isSelectAllStore ? "tags" : "multiple"}
-                  optionFilterProp="children"
-                  onChange={(value: any) => {
-                    if (
-                      (Array.isArray(value) && value.includes("all")) ||
-                      value === "all"
-                    ) {
-                      if (isSelectAllStore) {
-                        formRef.current?.setFieldsValue({ store_ids: [] });
-                        setIsSelectAllStore(false);
-                      } else {
-                        formRef.current?.setFieldsValue({
-                          store_ids: selectAllStore,
-                        });
-                        setIsSelectAllStore(true);
-                      }
-                    } else {
-                      setIsSelectAllStore(false);
-                    }
-                  }}
-                >
-                  <Option value={"all"}>
-                    {isSelectAllStore ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-                  </Option>
-                  {listStore?.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select> */}
                 <TreeStore name="store_ids" form={formRef} listStore={listStore} />
               </Form.Item>
             </Col>

@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { FilterOutlined } from "@ant-design/icons";
-import { Button, Collapse, Form, Input, Space, Tag } from "antd";
-=======
 import { CloseOutlined, EllipsisOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Col, Dropdown, Form, Input, InputNumber, Menu, Row, Tag} from "antd";
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
+import { Button, Col, Dropdown, Form, Input, InputNumber, Menu, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import { FilterWrapper } from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
@@ -18,21 +13,13 @@ import {
   AvdInventoryFilter,
   InventoryQueryField
 } from "model/inventory/field";
-<<<<<<< HEAD
-import React, { useCallback, useEffect, useState } from "react";
 import BaseFilter from "component/filter/base.filter";
-import NumberInputRange from "component/filter/component/number-input-range";
-=======
 import React, { useCallback, useEffect, useState } from "react"; 
-import BaseFilter from "component/filter/base.filter"; 
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { convertCategory } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
-<<<<<<< HEAD
 import TreeStore from "./TreeStore";
-=======
 import { FormatTextMonney } from "utils/FormatMonney";
 import { CollectionResponse } from "model/product/collection.model";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
@@ -55,7 +42,6 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { primaryColor } from "utils/global-styles/variables";
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -68,15 +54,28 @@ export interface InventoryFilterProps {
   onChangeKeySearch: (value: string) => void;
 }
 
-<<<<<<< HEAD
 const { Item } = Form;
-const { Panel } = Collapse;
-=======
 
-const {Item} = Form;
+function tagRender(props: any) {
+  const { label, closable, onClose } = props;
+  const onPreventMouseDown = (event: any) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  return (
+    <Tag
+      className="primary-bg"
+      onMouseDown={onPreventMouseDown}
+      closable={closable}
+      onClose={onClose}
+    >
+      {label}
+    </Tag>
+  );
+}
+
 var isWin = false;
 var isDesigner = false;
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
 
 const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   props: InventoryFilterProps
@@ -106,9 +105,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
-<<<<<<< HEAD
   
-=======
   const setDataCollection = useCallback((data: PageResponse<CollectionResponse>) => {
     setLstCollection(data.items);
   }, []);
@@ -153,7 +150,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       )
     );
   }, [dispatch, setDataAccounts]);
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
 
   const FilterList = ({ filters, resetField }: any) => {
     let filtersKeys = Object.keys(filters);
@@ -166,14 +162,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           let value = filters[filterKey];
 
           if (!value) return null;
-<<<<<<< HEAD
-          if (!AllInventoryMappingField[filterKey]) return null;
-          renderTxt = `${AllInventoryMappingField[filterKey]} : ${value[0]} ~ ${value[1]}`;
-
-          if (filterKey === AvdAllFilter.category) {
-            const category = listCategory.find(e => e.id === value)?.name;
-            renderTxt = `${AllInventoryMappingField[filterKey]} : ${category}`;
-=======
           if (!AllInventoryMappingField[filterKey] || filterKey === AvdAllFilter.to_price) return null; 
           
           switch (filterKey) {
@@ -239,7 +227,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               break
             default:
               break;
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
           }
 
           return (
@@ -464,73 +451,13 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, [params, dispatch,getAccounts,getConfigInventory, setDataCategory, setDataCollection]);
 
   useEffect(() => {
-<<<<<<< HEAD
-    formBaseFilter.setFieldsValue({ ...advanceFilters });
-    formAdvanceFilter.setFieldsValue({ ...advanceFilters });
-    setTempAdvanceFilters(advanceFilters);
-=======
     formBaseFilter.setFieldsValue({...advanceFilters});
     formAdvanceFilter.setFieldsValue({...advanceFilters});
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
 
   return (
-<<<<<<< HEAD
-    <div className="inventory-filter">
-      <Form
-        onFinish={onBaseFinish}
-        initialValues={advanceFilters}
-        form={formBaseFilter}
-        name={"baseInventory"}
-        layout="inline"
-      >
-        <FilterWrapper>
-          <Item name="info" className="search">
-            <Input
-              prefix={<img src={search} alt="" />}
-              style={{ width: "100%" }}
-              placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
-              onChange={(e) => { onChangeKeySearch(e.target.value) }}
-            />
-          </Item>
-          <Item
-            name={InventoryQueryField.store_ids} className="store"
-            style={{ minWidth: '260px' }}
-          >
-            <TreeStore
-              form={formBaseFilter}
-              name={InventoryQueryField.store_ids}
-              placeholder="Chọn cửa hàng"
-              listStore={listStore}
-            />
-          </Item>
-          <Item>
-            <Button type="primary" htmlType="submit">
-              Lọc
-            </Button>
-          </Item>
-          <Item>
-            <Button icon={<FilterOutlined />} onClick={openFilter}>
-              Thêm bộ lọc
-            </Button>
-          </Item>
-          <Item>
-            <ButtonSetting onClick={openColumn} />
-          </Item>
-        </FilterWrapper>
-      </Form>
-      <FilterList filters={advanceFilters} resetField={resetField} />
-      <BaseFilter
-        onClearFilter={onResetFilter}
-        onFilter={onFilterClick}
-        onCancel={onCancelFilter}
-        visible={visible}
-        width={500}
-      >
-=======
       <div className="inventory-filter">
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
         <Form
           onFinish={onBaseFinish}
           initialValues={advanceFilters}
@@ -538,14 +465,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           name={"baseInventory"}
           layout="inline"
         >
-<<<<<<< HEAD
-          <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
-            {Object.keys(AvdAllFilter).map((field) => {
-              let component: any = null;
-              switch (field) {
-                case AvdAllFilter.category:
-                  component = (
-=======
           <FilterWrapper>
             <Item name="info" className="search">
               <Input
@@ -555,27 +474,13 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 onChange={(e)=>{onChangeKeySearch(e.target.value)}}
               />
             </Item>
-            <Item name={InventoryQueryField.store_ids} className="store">
-              <CustomSelect
-                showSearch
-                optionFilterProp="children"
-                showArrow
+            <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 250 }}>
+              <TreeStore
+                form={formBaseFilter}
+                name={InventoryQueryField.store_ids}
                 placeholder="Chọn cửa hàng"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                style={{
-                  width: 250,
-                }}
-                notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive" 
-              >
-                {listStore?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+                listStore={listStore}
+            />
             </Item>  
             <Item>
               <Button type="primary" htmlType="submit">
@@ -634,12 +539,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 </Col>
                 <Col span={8}>
                   <Item name={AvdInventoryFilter.store_ids} className="store">
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
                     <CustomSelect
                       showSearch
-<<<<<<< HEAD
-                      placeholder="Chọn danh mục"
-=======
                       optionFilterProp="children"
                       showArrow
                       placeholder="Chọn cửa hàng"
@@ -648,7 +549,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       tagRender={tagRender} 
                       notFoundContent="Không tìm thấy kết quả"
                       maxTagCount="responsive" 
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
                     >
                       {listStore?.map((item) => (
                         <CustomSelect.Option key={item.id} value={item.id}>
@@ -656,35 +556,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         </CustomSelect.Option>
                       ))}
                     </CustomSelect>
-<<<<<<< HEAD
-                  );
-                  break;
-                default:
-                  component = <NumberInputRange />;
-                  break;
-              }
-
-              return (
-                <Collapse key={field}>
-                  <Panel
-                    key="1"
-                    className={tempAdvanceFilters[field] ? "active" : ""}
-                    header={
-                      <span>{AllInventoryMappingField[field]?.toUpperCase()}</span>
-                    }
-                  >
-                    <Item name={field}>
-                      {component}
-                    </Item>
-                  </Panel>
-                </Collapse>
-              );
-            })}
-          </Space>
-        </Form>
-      </BaseFilter>
-    </div>
-=======
                   </Item>  
                 </Col> 
               </Row>
@@ -857,7 +728,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           subTitle={"Bạn có chắc muốn xóa bộ lọc này?"}
         />
       </div>
->>>>>>> 27e233e43b4581bc4bd2decfad294c3bdd779fec
   );
 };
 export default AllInventoryFilter;
