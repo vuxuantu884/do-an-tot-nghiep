@@ -8,6 +8,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
@@ -353,6 +354,9 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Ghi chú nội bộ",
       dataIndex: "note",
       visible: true,
+      render: (value)=>{
+        return <TextEllipsis value={value} />
+      }
     },
     {
       title: "Ghi chú nhà cung cấp",
