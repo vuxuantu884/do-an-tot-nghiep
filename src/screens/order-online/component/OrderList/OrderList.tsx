@@ -1,5 +1,5 @@
-import { PrinterOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Space } from "antd";
+import { ExclamationCircleOutlined, PrinterOutlined } from "@ant-design/icons";
+import { Button, Card, Modal, Row, Space } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -38,7 +38,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import queryString from "query-string";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
@@ -72,22 +72,11 @@ function OrderList(props: PropsType) {
   };
 
   const ACTION_ID = {
+    printOrder: 1,
     printShipment: 4,
     printStockExport: 5,
   };
 
-  const actions: Array<MenuAction> = [
-    {
-      id: ACTION_ID.printShipment,
-      name: "In phiếu giao hàng",
-      icon: <PrinterOutlined />,
-    },
-    {
-      id: ACTION_ID.printStockExport,
-      name: "In phiếu xuất kho",
-      icon: <PrinterOutlined />,
-    },
-  ];
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -167,6 +156,27 @@ function OrderList(props: PropsType) {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
   const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
+
+  const actions: Array<MenuAction> = useMemo(() => [
+    {
+      id: ACTION_ID.printShipment,
+      name: "In phiếu giao hàng",
+      icon: <PrinterOutlined />,
+      disabled: selectedRow.length ? false : true,
+    },
+    {
+      id: ACTION_ID.printStockExport,
+      name: "In phiếu xuất kho",
+      icon: <PrinterOutlined />,
+      disabled: selectedRow.length ? false : true,
+    },
+    {
+      id: ACTION_ID.printOrder,
+      name: "In hoá đơn",
+      icon: <PrinterOutlined />,
+      disabled: selectedRow.length ? false : true,
+    },
+  ], [ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, selectedRow]);
 
   const onSelectedChange = useCallback((selectedRow) => {
     setSelectedRow(selectedRow);
@@ -255,11 +265,38 @@ function OrderList(props: PropsType) {
           const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewUrlExport);
           break;
+        case ACTION_ID.printOrder:
+          const printBill = selectedRow.filter((order: any) => order.status === 'finished').map((order: any) => order.id);
+          console.log('123', printBill.length);
+          const queryParamOrder = generateQuery({
+            action: "print",
+            ids: printBill,
+            "print-type": "order",
+            "print-dialog": true,
+          });
+          Modal.confirm({
+            title: 'In hoá đơn',
+            icon: <ExclamationCircleOutlined />,
+            content: `Có ${printBill.length} đơn hàng kết thúc. Hệ thống sẽ chỉ in đơn kết thúc. Bạn có muốn tiếp tục?`,
+            okText: "Tiếp tục",
+            cancelText: "Huỷ",
+            onOk() {
+              if (printBill.length) {
+                const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParamOrder}`;
+                window.open(printPreviewOrderUrl);
+              }
+            },
+            onCancel() {
+              // console.log('Cancel');
+            },
+          });
+          break;
         default:
           break;
       }
     },
     [
+      ACTION_ID.printOrder,
       ACTION_ID.printShipment,
       ACTION_ID.printStockExport,
       dispatch,

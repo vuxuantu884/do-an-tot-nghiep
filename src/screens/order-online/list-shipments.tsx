@@ -53,24 +53,6 @@ const ACTION_ID = {
 	printShipment: 3,
 }
 
-const actions: Array<MenuAction> = [
-	{
-		id: ACTION_ID.delete,
-		name: "Xóa",
-		icon: <DeleteOutlined />
-	},
-	{
-		id: ACTION_ID.export,
-		name: "Export",
-		icon: <ExportOutlined />
-	},
-	{
-		id: ACTION_ID.printShipment,
-		name: "In phiếu giao hàng",
-		icon: <ExportOutlined />
-	},
-];
-
 const initQuery: ShipmentSearchQuery = {
 	page: 1,
 	limit: 30,
@@ -546,6 +528,27 @@ const ShipmentsScreen: React.FC = (props: any) => {
 	const [selectedRowCodes, setSelectedRowCodes] = useState([]);
 	const [selectedRow, setSelectedRow] = useState([]);
 
+	const actions: Array<MenuAction> = useMemo(() => [
+		{
+			id: ACTION_ID.delete,
+			name: "Xóa",
+			icon: <DeleteOutlined />,
+			disabled: selectedRow.length ? false : true,
+		},
+		{
+			id: ACTION_ID.export,
+			name: "Export",
+			icon: <ExportOutlined />,
+			disabled: selectedRow.length ? false : true,
+		},
+		{
+			id: ACTION_ID.printShipment,
+			name: "In phiếu giao hàng",
+			icon: <ExportOutlined />,
+			disabled: selectedRow.length ? false : true,
+		},
+	], [selectedRow]);
+	
 	const onSelectedChange = useCallback((selectedRow) => {
 		const selectedRowCodes = selectedRow.map((row: any) => row.code);
 		setSelectedRowCodes(selectedRowCodes);
