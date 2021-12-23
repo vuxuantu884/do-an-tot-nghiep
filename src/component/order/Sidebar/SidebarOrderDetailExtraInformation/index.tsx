@@ -42,7 +42,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
           style={{ flexDirection: "column" }}
         >
           <Col span={24} style={{ marginBottom: 6 }}>
-            <b>Tags:</b>
+            <b>Nhãn:</b>
           </Col>
           <Col span={24}>
             <span className="text-focus">
@@ -60,7 +60,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
                       {item}
                     </Tag>
                   ))
-                : "Không có tags"}
+                : "Không có nhãn"}
             </span>
           </Col>
         </Row>

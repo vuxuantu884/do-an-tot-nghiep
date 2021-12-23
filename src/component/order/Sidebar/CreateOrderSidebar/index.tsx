@@ -329,7 +329,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           />
         </Form.Item>
         <Form.Item
-          label="Tag"
+          label="Nhãn"
           tooltip={{
             title: "Thêm từ khóa để tiện lọc đơn hàng",
             icon: <InfoCircleOutlined />,
@@ -339,7 +339,9 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           <CustomInputTags onChangeTag={onChangeTag} tags={tags} />
         </Form.Item>
       </Card>
-      <SidebarOrderHistory customerId={customerId} />
+			{customerId && (
+				<SidebarOrderHistory customerId={customerId} />
+			)}
     </StyledComponent>
   );
 };

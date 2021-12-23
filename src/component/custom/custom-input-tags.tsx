@@ -55,7 +55,7 @@ function CustomInputTags(props: PropType) {
         maxLength={250}
         value={inputValue}
         type="text"
-        placeholder={tagsArr && tagsArr.length > 0 ? "" : "Thêm tags"}
+        placeholder={tagsArr && tagsArr.length > 0 ? "" : "Thêm nhãn"}
         onChange={(e) => handleChange(e)}
         onKeyDown={(e) => handleKeyDown(e)}
       />
