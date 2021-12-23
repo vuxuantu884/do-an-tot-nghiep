@@ -13,6 +13,7 @@ import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { POInventoryDraftTable } from "screens/purchase-order/component/po-inventory/POInventoryDraft/styles";
+import { formatCurrency } from "utils/AppUtils";
 import { ProcumentStatus } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 
@@ -191,6 +192,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
             onChange={(v) => {
               onChangeQuantity(v, item.sku, indexProcument);
             }}
+            format={(a: string) => formatCurrency(a,".")}
           />
         ),
       });
@@ -288,7 +290,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
                   {
                     props.lineItems.map((new_line_items, index) => (
                       <Table.Summary.Cell align="right" index={index + 2}>
-                        <div style={{ marginRight: 15 }}>{newTotal[new_line_items.sku]}</div>
+                        <div style={{ marginRight: 15 }}>{formatCurrency(newTotal[new_line_items.sku],".")}</div>
                       </Table.Summary.Cell>
                     ))
                   }

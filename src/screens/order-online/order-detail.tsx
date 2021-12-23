@@ -1,59 +1,57 @@
-import {Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag} from "antd";
+import { Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
-import OrderCreateShipment from "component/order/OrderCreateShipment";
 import ActionHistory from "component/order/Sidebar/ActionHistory";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import UrlConfig from "config/url.config";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import {StoreDetailAction} from "domain/actions/core/store.action";
-import {getCustomerDetailAction} from "domain/actions/customer/customer.action";
-import {getLoyaltyPoint, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
-import {actionSetIsReceivedOrderReturn} from "domain/actions/order/order-return.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
-  cancelOrderRequest,
-  confirmDraftOrderAction,
-  getListReasonRequest,
-  OrderDetailAction,
-  PaymentMethodGetList,
-  UpdatePaymentAction,
+	cancelOrderRequest,
+	confirmDraftOrderAction,
+	getListReasonRequest,
+	OrderDetailAction,
+	PaymentMethodGetList,
+	UpdatePaymentAction
 } from "domain/actions/order/order.action";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {thirdPLModel} from "model/order/shipment.model";
-import {OrderSettingsModel} from "model/other/order/order-model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderSettingsModel } from "model/other/order/order-model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  OrderPaymentRequest,
-  UpdateOrderPaymentRequest,
+	OrderPaymentRequest,
+	UpdateOrderPaymentRequest
 } from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
-import {OrderResponse, StoreCustomResponse} from "model/response/order/order.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory, useParams} from "react-router-dom";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
 import {
-  checkPaymentAll,
-  checkPaymentStatusToShow,
-  formatCurrency,
-  getAmountPayment,
-  SumCOD,
+	checkPaymentAll,
+	checkPaymentStatusToShow,
+	formatCurrency,
+	getAmountPayment,
+	SumCOD
 } from "utils/AppUtils";
 import {
-  FulFillmentStatus,
-  OrderStatus,
-  PaymentMethodCode,
-  PaymentMethodOption,
-  ShipmentMethodOption,
+	FulFillmentStatus,
+	OrderStatus,
+	PaymentMethodCode,
+	PaymentMethodOption,
+	ShipmentMethodOption
 } from "utils/Constants";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showSuccess} from "utils/ToastUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import UpdateCustomerCard from "./component/update-customer-card";
@@ -125,15 +123,6 @@ const OrderDetail = (props: PropType) => {
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   console.log("isDisablePostPayment", isDisablePostPayment);
 
-  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
-    delivery_service_provider_code: "",
-    delivery_service_provider_id: null,
-    insurance_fee: null,
-    delivery_service_provider_name: "",
-    delivery_transport_type: "",
-    service: "",
-    shipping_fee_paid_to_three_pls: null,
-  });
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
@@ -493,6 +482,7 @@ const OrderDetail = (props: PropType) => {
           : 0)
       );
     }
+		return 0;
   };
 
   const customerNeedToPayValue = customerNeedToPay();
@@ -526,30 +516,6 @@ const OrderDetail = (props: PropType) => {
     }
     setShipmentMethod(value);
   };
-
-  const renderShipment = () => {
-    if (true) {
-      return (
-        <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
-          <OrderCreateShipment
-            shipmentMethod={shipmentMethod}
-            orderPrice={OrderDetail?.total_line_amount_after_line_discount}
-            storeDetail={storeDetail}
-            customer={customerDetail}
-            items={OrderDetail?.items}
-            isCancelValidateDelivery={false}
-            totalAmountCustomerNeedToPay={10000}
-            setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
-            onSelectShipment={onSelectShipment}
-            thirdPL={thirdPL}
-            setThirdPL={setThirdPL}
-            form={form}
-          />
-        </Card>
-      );
-    }
-  };
-  console.log(renderShipment);
 
   useEffect(() => {
     window.addEventListener("scroll", scroll);
@@ -648,7 +614,7 @@ const OrderDetail = (props: PropType) => {
               {OrderDetail !== null &&
                 ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
                   (OrderDetail.fulfillments &&
-                    OrderDetail.fulfillments[0]?.shipment?.cod)) && (
+                    OrderDetail.fulfillments[0]?.shipment?.cod !== 0 && OrderDetail.fulfillments[0]?.shipment?.cod !== undefined)) && (
                   <Card
                     title={
                       <Space>

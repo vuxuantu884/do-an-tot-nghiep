@@ -1,17 +1,17 @@
-import {Button, Col, Form, Input, Row, Select} from "antd";
-import {MenuAction} from "component/table/ActionButton";
-import {SupplierQuery} from "model/core/supplier.model";
-import {BaseBootstrapResponse} from "model/content/bootstrap.model";
-import {useCallback, useEffect, useState} from "react";
+import { Button, Col, Form, Input, Row, Select } from "antd";
+import { MenuAction } from "component/table/ActionButton";
+import { SupplierQuery } from "model/core/supplier.model";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
+import { useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import {DistrictResponse} from "model/content/district.model";
+import { DistrictResponse } from "model/content/district.model";
 import "assets/css/custom-filter.scss";
 import SelectPaging from "component/custom/SelectPaging";
-import {PageResponse} from "model/base/base-metadata.response";
-import {AccountResponse} from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { AccountResponse } from "model/account/account.model";
 
 type SupplierFilterProps = {
   initValue: SupplierQuery;
@@ -27,8 +27,8 @@ type SupplierFilterProps = {
   onAccountPageChange: (key: string, page: number) => void;
 };
 
-const {Item} = Form;
-const {Option} = Select;
+const { Item } = Form;
+const { Option } = Select;
 
 const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProps) => {
   const {
@@ -90,7 +90,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} initialValues={params} layout="inline">
-          <Form.Item name="condition" style={{flex: 1}}>
+          <Form.Item name="condition" style={{ flex: 1 }}>
             <Input
               prefix={<img src={search} alt="" />}
               placeholder="Tên/Mã nhà cung cấp"
@@ -138,11 +138,11 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
           <Form.Item label="Thông tin liên hệ" name="contact">
             <Input placeholder="Tên/SDT người liên hệ" />
           </Form.Item>
-          <Form.Item name="pics" label="Tên / Mã người phục trách">
+          <Form.Item name="pics" label="Tên / Mã người phụ trách">
             <SelectPaging
               allowClear
               mode="multiple"
-              placeholder="Nhân viên phục trách"
+              placeholder="Nhân viên phụ trách"
               searchPlaceholder={"Tìm kiếm nhân viên phụ trách"}
               metadata={accounts.metadata}
               maxTagCount="responsive"

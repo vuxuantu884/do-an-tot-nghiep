@@ -7,6 +7,7 @@ import { useState } from "react";
 type EditNoteProps = {
   note: any;
 	title?: string;
+	color?: string;
   onOk: (newNote: string) => void;
 };
 const EditNote: React.FC<EditNoteProps> = (
@@ -52,7 +53,7 @@ const EditNote: React.FC<EditNoteProps> = (
 				onVisibleChange={handleVisibleChange}
 				
 			>
-				<EditOutlined style={{ marginRight: 5}} title="Sửa ghi chú"/>
+				<EditOutlined style={{ marginRight: 5, color: props.color}} title="Sửa ghi chú"/>
 			</Popover>
 			<span>
 				{title && (

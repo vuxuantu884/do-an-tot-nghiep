@@ -19,8 +19,15 @@ import { ProductUploadModel } from "model/product/product-upload.model";
 export const searchVariantsApi = (
   query: VariantSearchQuery
 ): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
-  const queryString = generateQuery(query);
+  const queryString = generateQuery(query);  
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants?${queryString}`);
+};
+
+export const searchVariantsInventoriesApi = (
+  query: VariantSearchQuery
+): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/inventories?${queryString}`);
 };
 
 export const getVariantApi = (

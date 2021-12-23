@@ -585,7 +585,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               checked={isVisibleShipping}
               //disabled={levelOrder > 3}
             >
-              Địa chỉ của KH cũng là địa chỉ giao hàng
+              Địa chỉ của khách hàng cũng là địa chỉ giao hàng
             </Checkbox>
           </Col>
           {isVisibleShipping === true && isVisibleBtnUpdate === true && (

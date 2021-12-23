@@ -232,6 +232,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   }, [dispatch, props.OrderDetail]);
   //#endregion
 
+	const sortedFulfillments = useMemo(() => {
+    return OrderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
+  }, [OrderDetail?.fulfillments])
+
   //#region Update Fulfillment Status
   // let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
@@ -270,6 +274,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setIsvibleShippedConfirm(false);
     onReload && onReload();
   };
+	
   const onCancelSuccess = (value: OrderResponse) => {
     setCancelShipment(false);
     setReload(true);
@@ -306,6 +311,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setIsvibleGoodsReturn(false);
     onReload && onReload();
   };
+
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number, dataCancelFFM: any = {}) => {
     let value: UpdateFulFillmentStatusRequest = {
@@ -535,7 +541,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     value.office_time = props.officeTime;
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-        value.delivery_service_provider_type = ShipmentMethod.SHIPPER;
+        value.delivery_service_provider_type = thirdPL.delivery_service_provider_code;
+        value.service = thirdPL.service;
       }
       if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
         value.delivery_service_provider_type = ShipmentMethod.PICK_AT_STORE;
@@ -747,10 +754,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   console.log(addressError)
   // end
 
-  // const onPrint = () => {
-  //   onOkShippingConfirm();
-  //   setReload(true);
-  // };
+  const onPrint = () => {
+    onOkShippingConfirm();
+    setReload(true);
+  };
 
   const renderPushingStatusWhenDeliverPartnerFailed = () => {
     if(!OrderDetail || !OrderDetail.fulfillments) {
@@ -867,7 +874,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       )
     }
   }
-  //////////////////
 
   return (
     <div>
@@ -1006,11 +1012,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           <FulfillmentStatusTag fulfillment={fulfillment} />
                           {!(fulfillment.status === FulFillmentStatus.CANCELLED ||
                             fulfillment.status === FulFillmentStatus.RETURNING ||
-                            fulfillment.status === FulFillmentStatus.RETURNED) &&
+                            fulfillment.status === FulFillmentStatus.RETURNED || 
+														(sortedFulfillments && sortedFulfillments[0]?.shipment?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE)) &&
                             <PrintShippingLabel
                               fulfillment={fulfillment}
                               orderSettings={orderSettings}
                               orderId={OrderDetail?.id}
+															onPrint={onPrint}
                             />}
                         </div>
 
@@ -1126,12 +1134,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                   // ></img>
                                 )}
 
-                                {fulfillment.shipment?.delivery_service_provider_type ===
-                                  ShipmentMethod.SHIPPER &&
+                                {(fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EMPLOYEE ||
+                                fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SHIPPER)  &&
                                   shipper &&
-                                  shipper.find(
-                                    (s) => fulfillment.shipment?.shipper_code === s.code
-                                  )?.full_name}
+                                  fulfillment.shipment?.info_shipper}
                               </b>
                             </Col>
                           </Row>
@@ -1156,7 +1162,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Col md={12}>
                           <Row gutter={30}>
                             <Col span={10}>
-                              <p className="text-field">Phí ship trả HVC:</p>
+                              <p className="text-field">
+                                {fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE
+                                ? 'Phí ship trả HVC:' : 'Phí ship trả đối tác:'}</p>
                             </Col>
                             <Col span={14}>
                               <b className="text-field">
@@ -1185,6 +1193,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                         ?.shipping_fee_informed_to_customer
                                     : 0
                                 )}
+                              </b>
+                            </Col>
+                          </Row>
+                        </Col>
+                        <Col md={12}>
+                          <Row gutter={30}>
+                            <Col span={10}>
+                              <p className="text-field">Loại đơn giao hàng:</p>
+                            </Col>
+                            <Col span={14}>
+                              <b className="text-field" style={{ color: fulfillment.shipment?.service === '4h_delivery' ? '#E24343' : ''}}>
+                                {fulfillment.shipment?.service === '4h_delivery'? 'Đơn giao 4H' : 'Đơn giao bình thường'}
                               </b>
                             </Col>
                           </Row>

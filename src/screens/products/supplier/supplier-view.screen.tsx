@@ -1,8 +1,8 @@
-import {Button, Card, Col, Row, Tabs} from "antd";
+import { Button, Card, Col, Row, Tabs } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
-import UrlConfig, {SupplierTabUrl} from "config/url.config";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
+import UrlConfig, { SupplierTabUrl } from "config/url.config";
 import {
   SupplierCreateAddressAction,
   SupplierCreateContactAction,
@@ -22,10 +22,10 @@ import {
   SupplierPaymentResposne,
   SupplierResponse,
 } from "model/core/supplier.model";
-import React, {useMemo} from "react";
-import {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useParams, useHistory} from "react-router-dom";
+import React, { useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useParams, useHistory } from "react-router-dom";
 import SupplierAddressTab from "./tab/SupplierAddressTab";
 import SupplierContactTab from "./tab/SupplierContactTab";
 import SupplierPaymentTab from "./tab/SupplierPaymentTab";
@@ -36,10 +36,10 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import {CountryResponse} from "model/content/country.model";
-import {DistrictResponse} from "model/content/district.model";
-import {showSuccess} from "utils/ToastUtils";
-import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
+import { showSuccess } from "utils/ToastUtils";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import SupplierPaymentModal from "./modal/SupplierPaymentModal";
 import SupplierContactModal from "./modal/SupplierContactModal";
 type SupplierParam = {
@@ -47,7 +47,7 @@ type SupplierParam = {
 };
 
 const ViewSupplierScreen: React.FC = () => {
-  const {id} = useParams<SupplierParam>();
+  const { id } = useParams<SupplierParam>();
   let idNumber = parseInt(id);
   const dispatch = useDispatch();
   const history = useHistory();
@@ -194,7 +194,7 @@ const ViewSupplierScreen: React.FC = () => {
               <Col span={8}>
                 <RowDetail title="Phân cấp" value={supplier.scorecard_name} />
                 <RowDetail
-                  title="Nhân viên phục trách"
+                  title="Nhân viên phụ trách"
                   value={`${supplier.pic_code} - ${supplier.pic}`}
                 />
                 <RowDetail title="Mã số thuế" value={supplier.tax_code} />
@@ -219,7 +219,7 @@ const ViewSupplierScreen: React.FC = () => {
           </Card>
           <Card className="card-tab">
             <Tabs
-              style={{overflow: "initial"}}
+              style={{ overflow: "initial" }}
               activeKey={activeTab}
               onChange={(active) => {
                 history.push(`${UrlConfig.SUPPLIERS}/${id}/${active}`);
@@ -256,10 +256,10 @@ const ViewSupplierScreen: React.FC = () => {
                       subTitle: "Bạn đồng ý xóa thông tin liên hệ nhà cung cấp?",
                       visible: true,
                       onCancel: () => {
-                        setModalConfirm({visible: false});
+                        setModalConfirm({ visible: false });
                       },
                       onOk: () => {
-                        setModalConfirm({visible: false});
+                        setModalConfirm({ visible: false });
                         setLoadingTableContact(true);
                         dispatch(
                           SupplierDeleteContactAction(idNumber, contactId, updateSupplier)
@@ -294,10 +294,10 @@ const ViewSupplierScreen: React.FC = () => {
                       subTitle: "Bạn đồng ý xóa địa chỉ nhà cung cấp?",
                       visible: true,
                       onCancel: () => {
-                        setModalConfirm({visible: false});
+                        setModalConfirm({ visible: false });
                       },
                       onOk: () => {
-                        setModalConfirm({visible: false});
+                        setModalConfirm({ visible: false });
                         setLoadingTablePayment(true);
                         dispatch(
                           SupplierDeleteAddressAction(idNumber, addressId, updateSupplier)
@@ -321,10 +321,10 @@ const ViewSupplierScreen: React.FC = () => {
                       subTitle: "Bạn đồng ý xóa thông tin ngân hàng?",
                       visible: true,
                       onCancel: () => {
-                        setModalConfirm({visible: false});
+                        setModalConfirm({ visible: false });
                       },
                       onOk: () => {
-                        setModalConfirm({visible: false});
+                        setModalConfirm({ visible: false });
                         setLoadingTablePayment(true);
                         dispatch(
                           SupplierDeletePaymentAction(idNumber, paymentId, updateSupplier)

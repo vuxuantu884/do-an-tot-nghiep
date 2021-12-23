@@ -182,3 +182,12 @@
         padding: 5px 10px;
     }
 }
+
+.rule-discount {
+    &__info{
+        margin-bottom: 12px;
+    }
+    &__condition{
+        color: #e24343;
+    }
+}

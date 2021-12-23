@@ -13,7 +13,7 @@ import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
-import {ShipperGetListAction} from "domain/actions/account/account.action";
+import {ExternalShipperGetListAction, ShipperGetListAction} from "domain/actions/account/account.action";
 import {DeliveryServicesGetList, getFeesAction} from "domain/actions/order/order.action";
 import {
   actionGetOrderConfig,
@@ -30,7 +30,7 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {getShippingAddressDefault, SumWeight} from "utils/AppUtils";
 import {ShipmentMethodOption, SHIPPING_REQUIREMENT} from "utils/Constants";
@@ -121,19 +121,18 @@ function OrderCreateShipment(props: PropType) {
     creating,
     handleCancelCreateShipment,
   } = props;
-  // console.log('props', props)
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
   const [listShippers, setListShippers] = useState<Array<AccountResponse> | null>(null);
+  const [listExternalShippers, setListExternalShippers] = useState<Array<AccountResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
   >([]);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
-// console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
@@ -284,7 +283,6 @@ function OrderCreateShipment(props: PropType) {
         coupon: "",
         cod: 0,
       };
-      // console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
@@ -295,6 +293,7 @@ function OrderCreateShipment(props: PropType) {
 
   useEffect(() => {
     dispatch(ShipperGetListAction(setListShippers));
+    dispatch(ExternalShipperGetListAction(setListExternalShippers));
   }, [dispatch]);
 
   useEffect(() => {
@@ -447,6 +446,9 @@ function OrderCreateShipment(props: PropType) {
               isCancelValidateDelivery={isCancelValidateDelivery}
               listShippers={listShippers}
               renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+              setThirdPL={setThirdPL}
+              listExternalShippers={listExternalShippers}
+              form={form}
             />
           )}
           {/*--- Nhận tại cửa hàng ----*/}

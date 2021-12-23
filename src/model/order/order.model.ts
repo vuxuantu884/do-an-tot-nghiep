@@ -158,7 +158,8 @@ export interface OrderSearchQuery {
   payment_method_ids: [];
   delivery_types: [];
   delivery_provider_ids: [];
-  shipper_ids: [];
+  shipper_ids?: [];
+  shipper_codes?: [];
   note: string | null;
   customer_note: string | null;
   tags: [];
@@ -208,7 +209,8 @@ export interface OrderSearchQueryModel {
   payment_method_ids: [];
   delivery_types: [];
   delivery_provider_ids: [];
-  shipper_ids: [];
+  shipper_ids?: [];
+  shipper_codes?: [];
   note: string | null;
   customer_note: string | null;
   tags: [];
@@ -228,4 +230,12 @@ export interface DuplicateOrderSearchQuery {
   issued_on_max:string|null;
   search_term:string|null;
   store_id:number|null
+}
+
+export interface DuplicateOrderDetailQuery extends OrderSearchQuery{
+  full_address:string,
+  ward:string,
+  district:string,
+  city:string,
+  country:string
 }

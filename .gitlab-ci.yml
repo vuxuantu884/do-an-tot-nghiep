@@ -14,7 +14,7 @@ stages:
 docker build dev:
   stage: docker_build
   tags:
-  - build-yody-tag
+  - npd-dev
   only:
     - develop
   variables:
@@ -28,7 +28,7 @@ docker build dev:
 docker build uat:
   stage: docker_build
   tags:
-  - build-yody-tag
+  - npd-dev
   only:
     - uat
   variables:
@@ -57,7 +57,7 @@ deploy to dev:
   stage: deploy
   cache: {}
   tags:
-    - nonprod-deploy
+    - npd-deploy
   only:
     - develop
   when: manual
@@ -76,7 +76,7 @@ deploy to uat:
   cache: {}
   when: manual
   tags:
-    - nonprod-deploy
+    - npd-deploy
   only:
     - uat
   variables:

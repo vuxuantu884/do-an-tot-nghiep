@@ -136,6 +136,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
             to_transaction_date,
             //quantity change
           };
+          
           formBaseFilter.setFieldsValue({...data});
           formAdvanceFilter?.setFieldsValue({
             ...data,

@@ -60,7 +60,7 @@ function CardProductBottom(props: PropType) {
     handleRemoveAllDiscount,
   } = props;
 
-  console.log('isDisableOrderDiscount', isDisableOrderDiscount)
+  // console.log('isDisableOrderDiscount', isDisableOrderDiscount)
 
 	let discountRate = promotion?.rate || 0;
 	let discountValue = promotion?.value || 0;
@@ -105,6 +105,7 @@ function CardProductBottom(props: PropType) {
 
               {items && discountRate !== 0 && (
                 <Tag
+									key={discountRate}
                   style={{
                     marginTop: 0,
                     color: "#E24343",
@@ -122,7 +123,7 @@ function CardProductBottom(props: PropType) {
               )}
             </Space>
             <div className="font-weight-500 ">
-              {discountValue ? formatCurrency(discountValue) : "-"}
+              {discountValue ? formatCurrency(Math.round(discountValue)) : "-"}
             </div>
           </Row>
 
@@ -229,7 +230,7 @@ function CardProductBottom(props: PropType) {
                 : `Cần trả lại khách:`}
             </strong>
             <strong className="text-success font-size-price">
-              {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
+              {formatCurrency(Math.round(Math.abs(totalAmountCustomerNeedToPay)))}
             </strong>
           </Row>
         </Col>

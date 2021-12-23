@@ -1,18 +1,17 @@
 import { CheckCircleOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Col, Divider, Form, FormInstance, message, Modal, Row, Space } from "antd";
+import { Button, Col, Divider, Form, FormInstance, message, Modal, Row, Space } from "antd";
 import Dragger from "antd/es/upload/Dragger";
 import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import _ from "lodash";
-import {
-  DiscountFormModel, VariantEntitlementsResponse
-} from "model/promotion/discount.create.model";
+import { DiscountMethod, EntilementFormModel, VariantEntitlementsFileImport } from "model/promotion/discount.create.model";
 import React, { useContext, useState } from "react";
 import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
-import { shareDiscount } from "utils/PromotionUtils";
+import { shareDiscountImportedProduct } from "utils/PromotionUtils";
 import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
+import { DiscountUnitType, newEntitlements } from "../constants";
 import "../discount.scss";
 import { DiscountUpdateContext } from "./discount-update-provider";
 import FixedPriceGroupUpdate from "./fixed-price-group.update";
@@ -48,8 +47,8 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   const token = getToken() || "";
   const { form, } = props;
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
-  const [entitlementsResponse, setEntitlementsResponse] = useState<
-    Array<VariantEntitlementsResponse>
+  const [entitlementsImported, setEntitlementsImported] = useState<
+    Array<VariantEntitlementsFileImport>
   >([]);
   const [entitlementErrorsResponse, setEntitlementErrorsResponse] = useState<Array<any>>(
     []
@@ -60,27 +59,28 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
-  const { isAllProduct, setIsAllProduct, selectedVariant: entitlementsVariantMap, setSelectedVariant } = discountUpdateContext;
+  const { discountMethod } = discountUpdateContext;
+
   // import file
   const handleImportEntitlements = () => {
     const newVariantList = Object.assign(
       [],
-      _.uniqBy(entitlementsResponse, "variant_id")
+      _.uniqBy(entitlementsImported, "variant_id")
     );
-    let formEntitlements: Array<DiscountFormModel> = form.getFieldValue("entitlements");
+    let formEntitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
     // remove init item in  entitlements
     if (
       formEntitlements.length === 1 &&
-      (formEntitlements[0].entitled_variant_ids.length === 0 ||
-        !formEntitlements[0].entitled_variant_ids)
+      (formEntitlements[0]?.entitled_variant_ids.length === 0 ||
+        formEntitlements[0]?.entitled_product_ids.length === 0
+      )
     ) {
       formEntitlements = [];
     }
 
     // phân bổ các variant trong file import vào các discount có sẵn hoặc thêm mới discount
-    const importedResult = shareDiscount(formEntitlements, newVariantList, form);
+    shareDiscountImportedProduct(formEntitlements, newVariantList, form);
 
-    form.setFieldsValue({ entitlements: importedResult });
     setUploadStatus(undefined);
     setShowImportModal(false);
   };
@@ -93,19 +93,22 @@ const FixedPriceSelectionUpdate = (props: Props) => {
         {(fields: FormListFieldData[], { add, remove }: FormListOperation, { errors }: {
           errors: React.ReactNode[];
         }) => {
+          let initValue = {...newEntitlements};
           const addBlankEntitlement = () => {
-            const temp = _.cloneDeep(entitlementsVariantMap);
+            if (discountMethod === DiscountMethod.FIXED_PRICE) {
+              initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.FIXED_PRICE.value
+            }
+            if (discountMethod === DiscountMethod.QUANTITY) {
+              initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.PERCENTAGE.value
+            }
+            initValue.selectedProducts = [];
+            initValue.entitled_variant_ids = [];
+            initValue.entitled_product_ids = [];
 
-            temp.unshift([]);
-            setSelectedVariant(temp);
-            add({}, 0);
+            add(initValue, 0);
           };
 
           const removeEntitlementItem = (index: number) => {
-            const temp = _.cloneDeep(entitlementsVariantMap);
-            temp.splice(index, 1);
-            setSelectedVariant(temp);
-
             remove(index);
           };
 
@@ -113,20 +116,33 @@ const FixedPriceSelectionUpdate = (props: Props) => {
             <>
               <Row>
                 <Col span={8}>
-                  <Checkbox
+                  {/* <Checkbox
                     checked={isAllProduct}
                     onChange={(value) => {
                       setIsAllProduct(value.target.checked);
-                      // reset variant id
-                      const formEntitlements = form.getFieldValue("entitlements");
-                      formEntitlements.forEach((item: any) => {
-                        item.entitled_variant_ids = [];
-                      });
-                      form.setFieldsValue({ entitlements: formEntitlements });
+                      // delete all expect first item
+                      if (value.target.checked) {
+                        if (form.getFieldValue("entitlements").length > 0) {
+                          const firstEntitlement = form.getFieldValue("entitlements")[0];
+                          firstEntitlement.entitled_product_ids = [];
+                          firstEntitlement.entitled_variant_ids = [];
+                          firstEntitlement.selectedProducts = [];
+                          form.setFieldsValue({
+                            entitlements: [
+                              firstEntitlement
+                            ],
+                          });
+                        } else {
+                          const valueType = discountMethod === DiscountMethod.FIXED_PRICE ? DiscountUnitType.FIXED_PRICE.value : DiscountUnitType.PERCENTAGE.value;
+                          const initValue = newEntitlements;
+                          initValue.selectedProducts = [];
+                          initValue.prerequisite_quantity_ranges[0].value_type = valueType;
+                        }
+                      }
                     }}
                   >
                     Tất cả sản phẩm
-                  </Checkbox>
+                  </Checkbox> */}
                 </Col>
                 <Col span={16}>
                   <Row justify="end">
@@ -141,7 +157,6 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                       </Form.Item>
                       <Form.Item>
                         <Button
-                          disabled={isAllProduct}
                           onClick={addBlankEntitlement}
                           icon={<PlusOutlined />}
                         >
@@ -154,8 +169,6 @@ const FixedPriceSelectionUpdate = (props: Props) => {
               </Row>
 
               {fields.map(({ key, name, fieldKey, ...restField }) => {
-
-                console.log(name)
                 return (
                   <FixedPriceGroupUpdate
                     key={key}
@@ -231,7 +244,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                   ) {
                     setUploadStatus("error");
                     setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
-                    setEntitlementsResponse([]);
+                    setEntitlementsImported([]);
                     return false;
                   }
                   setUploadStatus("uploading");
@@ -251,7 +264,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                     const response = info.file.response;
                     if (response.code === 20000000) {
                       if (response.data.data.length > 0) {
-                        setEntitlementsResponse(response.data.data);
+                        setEntitlementsImported(response.data.data);
                       }
                       if (response.data.errors.length > 0) {
                         const errors: Array<any> = _.uniqBy(
@@ -268,12 +281,12 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                     } else {
                       setUploadStatus("error");
                       setUploadError(response.errors);
-                      setEntitlementsResponse([]);
+                      setEntitlementsImported([]);
                     }
                   } else if (status === EnumUploadStatus.error) {
                     message.error(`${info.file.name} file upload failed.`);
                     setUploadStatus(status);
-                    setEntitlementsResponse([]);
+                    setEntitlementsImported([]);
                   }
                 }}
               >

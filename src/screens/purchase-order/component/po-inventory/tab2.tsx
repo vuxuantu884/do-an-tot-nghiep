@@ -12,6 +12,7 @@ import {
   HiOutlineChevronDoubleDown,
 } from "react-icons/hi";
 import imgDefIcon from "assets/img/img-def.svg";
+import { formatCurrency } from "utils/AppUtils";
 
 type TabInventoryProps = {};
 const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
@@ -140,7 +141,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 title: "SL Nhận hàng được duyệt",
                 dataIndex: "procurement_items",
                 render: (value, item, index: number) =>
-                  POUtils.totalQuantity(value),
+                  formatCurrency(POUtils.totalQuantity(value),"."),
               },
               {
                 align: "right",
@@ -149,7 +150,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 dataIndex: "procurement_items",
                 render: (value, item, index: number) => (
                   <div style={{ color: "#27AE60", fontWeight: 700 }}>
-                    {POUtils.totalRealQuantityProcument(value)}
+                    {formatCurrency(POUtils.totalRealQuantityProcument(value),".")}
                   </div>
                 ),
               },

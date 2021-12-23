@@ -37,9 +37,15 @@ export const PositionGetListAction = (
 };
 
 export const ShipperGetListAction = (
-  setData: (data: Array<AccountResponse>) => void
+  setData: (data: Array<any>) => void
 ) => {
   return BaseAction(AccountType.GET_LIST_SHIPPER_REQUEST, { setData }); 
+};
+
+export const ExternalShipperGetListAction = (
+  setData: (data: Array<AccountResponse>) => void
+) => {
+  return BaseAction(AccountType.GET_LIST_EXTERNAL_SHIPPER_REQUEST, { setData }); 
 };
 
 export const AccountGetByCodeAction = (

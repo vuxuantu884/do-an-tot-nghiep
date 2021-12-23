@@ -71,7 +71,8 @@ export const ShipmentMethodOption = {
 export const ShipmentMethod = {
   PICK_AT_STORE: "pick_at_store",
   EXTERNAL_SERVICE: "external_service",
-  SHIPPER: "Shipper",
+  EMPLOYEE: "employee",
+  EXTERNAL_SHIPPER: "external_shipper",
 };
 
 export const TRANSPORTS = {
@@ -181,14 +182,40 @@ export const PROMO_TYPE = {
   AUTOMATIC: "AUTOMATIC",
 };
 
-export const POS = {
-  source_code: "POS"
-};
-
 export const COD = {
   code: "cod"
 };
 
+export const ADMIN_ORDER = {
+	channel_id: 13,
+  channel_code: "admin"
+};
+
+export const POS = {
+	channel_id: 1,
+  channel_code: "POS"
+};
+
+export const SHOPEE = {
+	channel_id: 3,
+  channel_code: "Shopee"
+};
+
+export const FACEBOOK = {
+	channel_id: 2,
+  channel_code: "FB"
+};
+
 export const SHIPPING_REQUIREMENT = {
   default: "open_try"
+};
+
+export const FILTER_CONFIG_TYPE = {
+  FILTER_PO: "filter_po",
+  FILTER_INVENTORY:  "filter_inventory"
+};
+
+export const COLUMN_CONFIG_TYPE = {
+  COLUMN_INVENTORY: "column_inventory",
+  COLUMN_PO:  "column_po"
 };

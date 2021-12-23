@@ -95,6 +95,7 @@ import {
 	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
+	ShipmentMethod,
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
@@ -191,17 +192,12 @@ export default function Order(props: PropType) {
     discount_rate: number,
     discount_value: number
   ) => {
-    // console.log("itemmm", _items);
 
     setItems(_items);
     setDiscountRate(discount_rate);
     setDiscountValue(discount_value);
     setOrderAmount(amount);
   };
-
-  // const onStoreSelect = (storeId: number) => {
-  //   setStoreId(storeId);
-  // };
 
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -252,7 +248,6 @@ export default function Order(props: PropType) {
   let stepsStatusValue = stepsStatus();
 
   const setLevelOrder = useCallback(() => {
-    // console.log("OrderDetail 111", OrderDetail);
     switch (OrderDetail?.status) {
       case OrderStatus.DRAFT:
         return 1;
@@ -293,9 +288,8 @@ export default function Order(props: PropType) {
     }
   }, [OrderDetail]);
   let levelOrder = setLevelOrder();
-  // console.log("levelOrder", levelOrder);
 
-  let initialRequest: OrderRequest = {
+  let initialForm: OrderRequest = {
     action: "", //finalized
     store_id: null,
     company_id: DEFAULT_COMPANY.company_id,
@@ -335,11 +329,6 @@ export default function Order(props: PropType) {
     finalized: false,
 		automatic_discount: true,
   };
-  const [initialForm, setInitialForm] = useState<OrderRequest>({
-    ...initialRequest,
-  });
-
-	console.log('setInitialForm', setInitialForm)
 
   const onChangeTag = useCallback(
     (value: []) => {
@@ -461,10 +450,11 @@ export default function Order(props: PropType) {
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
-          delivery_service_provider_type: "Shipper",
+          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
           shipper_code: value.shipper_code,
           shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
+          service: thirdPL.service,
           cod:
             orderAmount +
             (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
@@ -761,8 +751,6 @@ export default function Order(props: PropType) {
     }
   }, []);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  // console.log(setIsDisablePostPayment);
-  // console.log("isDisablePostPayment", isDisablePostPayment);
 
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
@@ -826,7 +814,6 @@ export default function Order(props: PropType) {
   }, [dispatch]);
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
-  // console.log("loyaltyRate", loyaltyRate);
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
@@ -846,7 +833,6 @@ export default function Order(props: PropType) {
   }, [history, id]);
 
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-  // console.log("storeDetail", storeDetail);
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
     formRef.current?.setFieldsValue({shipping_fee_informed_to_customer: value});
@@ -1029,10 +1015,10 @@ export default function Order(props: PropType) {
           }
 					if(response?.discounts) {
             setPromotion({
-							promotion_id: response.discounts[0].promotion_id,
-							value: response.discounts[0].value,
-							amount: response.discounts[0].amount,
-							rate: response.discounts[0].rate,
+							promotion_id: response.discounts[0]?.promotion_id,
+							value: response.discounts[0]?.value,
+							amount: response.discounts[0]?.amount,
+							rate: response.discounts[0]?.rate,
 						})
           }
         }
@@ -1166,8 +1152,6 @@ export default function Order(props: PropType) {
     }
     return true;
   }, [OrderDetail?.fulfillments, OrderDetail?.items, OrderDetail?.linked_order_code]);
-
-  // console.log(inventoryResponse)
 
   useEffect(() => {
     dispatch(
@@ -1950,7 +1934,7 @@ export default function Order(props: PropType) {
                                           <Row gutter={30}>
                                             <Col span={10}>
                                               <p className="text-field">
-                                                Đối tác giao hàng: 1
+                                                Đối tác giao hàng:
                                               </p>
                                             </Col>
                                             <Col span={14}>
@@ -1984,6 +1968,14 @@ export default function Order(props: PropType) {
                                                       fulfillment.shipment
                                                         ?.shipper_code === s.code
                                                   )?.full_name}
+
+																								{fulfillment.shipment
+                                                  ?.delivery_service_provider_type ===
+                                                  ShipmentMethod.EXTERNAL_SHIPPER &&
+                                                  (
+																										<span>{fulfillment.shipment.shipper_code} - {fulfillment.shipment.shipper_name}</span>
+																									)
+																									}
                                               </b>
                                             </Col>
                                           </Row>
@@ -2167,11 +2159,7 @@ export default function Order(props: PropType) {
                                               <Collapse.Panel
                                                 header={
                                                   <Row>
-                                                    <Col
-                                                      style={{
-                                                        alignItems: "center",
-                                                      }}
-                                                    >
+                                                    <Col style={{display: "flex", width: "100%", alignItems: "center"}}>
                                                       <span
                                                         style={{
                                                           marginRight: "10px",

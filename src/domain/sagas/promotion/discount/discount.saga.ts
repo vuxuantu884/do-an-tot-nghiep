@@ -18,7 +18,7 @@ import {unauthorizedAction} from "../../../actions/auth/auth.action";
 import {showError} from "../../../../utils/ToastUtils";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {takeLatest} from "typed-redux-saga";
-import {DiscountType} from "../../../types/promotion.type";
+import {DiscountType, PriceRuleType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
 
 function* getDiscounts(action: YodyAction) {
@@ -184,13 +184,14 @@ function* bulkDisablePriceRulesAct(action: YodyAction) {
   console.log('bulkDisablePriceRulesAct - action : ', action);
   const { body, disableCallback } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<{count: number}> = yield call(
       bulkDisablePriceRules,
       body
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        disableCallback(true)
+        //Số lượng bản ghi đc disable thành công
+        disableCallback(response.data.count)
         break;
       case HttpStatus.UNAUTHORIZED:
         disableCallback(false);
@@ -254,9 +255,38 @@ function* updatePriceRuleByIdSaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {
+  } catch (error: any) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    error.response.data?.errors?.forEach((e: string) => showError(e));
+
+  }
+}
+
+
+function* createPriceRuleSaga(action: YodyAction) { 
+  const { body, onResult } = action.payload;
+  try {
+    const response: BaseResponse<DiscountResponse> = yield call(
+      createPriceRule,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error: any) {
+    onResult(null);
+    error.response.data?.errors?.forEach((e: string) => showError(e));
+
   }
 }
 
@@ -270,6 +300,7 @@ export function* discountSaga() {
     takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesAct),
     takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct),
     takeLatest(DiscountType.GET_VARIANTS, getVariantsAct),
-    takeLatest(DiscountType.UPDATE_PRICE_RULE_BY_ID, updatePriceRuleByIdSaga)
+    takeLatest(DiscountType.UPDATE_PRICE_RULE_BY_ID, updatePriceRuleByIdSaga),
+    takeLatest(PriceRuleType.CREATE_PRICE_RULE, createPriceRuleSaga)
   ])
 }
