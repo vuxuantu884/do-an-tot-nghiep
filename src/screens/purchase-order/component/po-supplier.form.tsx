@@ -18,7 +18,7 @@ import {
   PhoneOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import React, { useCallback, useMemo, useState, Fragment } from "react";
+import React, { useCallback, useMemo, useState, Fragment, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -109,7 +109,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
         name: indexContact !== -1 ? supplier.contacts[indexContact].name : '',
         email: indexContact !== -1 ? supplier.contacts[indexContact].email : '',
         phone: indexContact !== -1 ? supplier.contacts[indexContact].phone : '',
-        tax_code: indexContact !== -1 ? supplier.contacts[indexContact].phone : '',
+        tax_code: indexContact !== -1 ? supplier.contacts[indexContact].tax_code : '',
         country_id: indexAddress !== -1 ? supplier.addresses[indexAddress].country_id : undefined,
         country: indexAddress !== -1 ? supplier.addresses[indexAddress].country : '',
         city_id: indexAddress !== -1 ? supplier.addresses[indexAddress].city_id : undefined,
@@ -161,11 +161,12 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     (supplierItem: SupplierResponse) => {
       let indexAddress = supplierItem.addresses.findIndex(address => address.is_default);
       let indexContact = supplierItem.contacts.findIndex(contact => contact.is_default);
+      
       let supplierAddress: PurchaseAddress = {
         name: indexContact !== -1 ? supplierItem.contacts[indexContact].name : '',
         email: indexContact !== -1 ? supplierItem.contacts[indexContact].email : '',
         phone: indexContact !== -1 ? supplierItem.contacts[indexContact].phone : '',
-        tax_code: indexContact !== -1 ? supplierItem.contacts[indexContact].phone : '',
+        tax_code: indexContact !== -1 ? supplierItem.contacts[indexContact].tax_code : '',
         country_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country_id : undefined,
         country: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country : '',
         city_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].city_id : undefined,
@@ -335,7 +336,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         let supplier_id = getFieldValue("supplier_id");
                         let billing_address: PurchaseAddress =
                           getFieldValue("billing_address");
-
+                        
                         return supplier_id ? (
                           <div className="padding-top-20">
                             <div className="title-address">
@@ -602,7 +603,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         let supplier_id = getFieldValue("supplier_id");
                         let supplier_address: PurchaseAddress =
                           getFieldValue("supplier_address");
-                          debugger
+                          
                         return supplier_id ? (
                           <div>
                             <div className="title-address">
