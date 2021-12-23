@@ -19,13 +19,13 @@ const TreeStore = (props: Props) => {
     const groupBy = (list: Array<StoreResponse>, keyGetter: any) => {
       const map = new Map();
       list.forEach((item) => {
-           const key = keyGetter(item);
-           const collection = map.get(key);
-           if (!collection) {
-               map.set(key, [item]);
-           } else {
-               collection.push(item);
-           }
+        const key = keyGetter(item);
+        const collection = map.get(key);
+        if (!collection) {
+          map.set(key, [item]);
+        } else {
+          collection.push(item);
+        }
       });
       return map;
     }
@@ -69,32 +69,35 @@ const TreeStore = (props: Props) => {
     >
       {
         stores?.map((departmentItem: any) => {
+          console.log("data", stores);
+
           return (
-          <TreeSelect.TreeNode
-            key={departmentItem[0]}
-            value={`${_.find(listStore, ["department", departmentItem[0]])?.department_id || ''}`}
-            title={departmentItem[0]}
-          >
-            {
-              <React.Fragment>
-                {
-                  departmentItem[1].map((storeItem: any) => (
-                    <TreeSelect.TreeNode 
-                      key={storeItem.id} 
-                      value={storeItem.id} 
-                      title={storeItem.name}
-                    />
-                  ))
-                }
-              </React.Fragment>
-            }
-          </TreeSelect.TreeNode>
-        )})
+            <TreeSelect.TreeNode
+              key={departmentItem[0]}
+              value={`${_.find(listStore, ["department", departmentItem[0]])?.department_id || ''}`}
+              title={departmentItem[0]}
+            >
+              {
+                <React.Fragment>
+                  {
+                    departmentItem[1].map((storeItem: any) => (
+                      <TreeSelect.TreeNode
+                        key={storeItem.id}
+                        value={storeItem.id}
+                        title={storeItem.name}
+                      />
+                    ))
+                  }
+                </React.Fragment>
+              }
+            </TreeSelect.TreeNode>
+          )
+        })
       }
     </TreeSelect>
   );
 };
 TreeStore.defaultProps = {
-  placeholder : "Chọn cửa hàng"
+  placeholder: "Chọn cửa hàng"
 }
 export default TreeStore;
