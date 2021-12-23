@@ -106,6 +106,14 @@ const getInventoryConfigService = (
   );
 };
 
+const deleteInventoryConfigService = (
+  id: number
+): Promise<BaseResponse<Array<FilterConfig>>> => {
+  return BaseAxios.delete(
+    `${ApiConfig.INVENTORY}/config/${id}`,
+  );
+};
+
 export {
   inventoryGetApi,
   inventoryGetDetailApi,
@@ -116,5 +124,6 @@ export {
   getInventoryByVariantsApi,
   createInventoryConfigService,
   updateInventoryConfigService,
-  getInventoryConfigService
+  getInventoryConfigService,
+  deleteInventoryConfigService
 };

@@ -1,9 +1,9 @@
-import {Card, Col, Form, FormInstance, Input, Row} from "antd";
+import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import {Type} from "config/type.config";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import {StoreDetailCustomAction} from "domain/actions/core/store.action";
-import {getCustomerDetailAction} from "domain/actions/customer/customer.action";
+import { Type } from "config/type.config";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 
 import {
   configOrderSaga,
@@ -11,12 +11,12 @@ import {
   OrderDetailAction, orderYDPpageCreateAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {InventoryResponse} from "model/inventory";
-import {modalActionType} from "model/modal/modal.model";
-import {thirdPLModel} from "model/order/shipment.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
+import { modalActionType } from "model/modal/modal.model";
+import { thirdPLModel } from "model/order/shipment.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -27,25 +27,24 @@ import {
   ShipmentRequest,
   ShippingAddress,
 } from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   OrderConfig,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
-import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getAmountPaymentRequest,
   getTotalAmountAfterDiscount,
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
 import {
-	ADMIN_ORDER,
-  DEFAULT_COMPANY,
+  DEFAULT_COMPANY, FACEBOOK,
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
@@ -53,8 +52,8 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
-import {showError, showSuccess} from "utils/ToastUtils";
-import {useQuery} from "utils/useQuery";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { useQuery } from "utils/useQuery";
 
 import OrderDetailBottomBar from "./component/OrderCreateBottomBar";
 import CardCustomer from "./component/OrderCreateCustomer";
@@ -66,10 +65,10 @@ import OrderCreateShipment from "./component/OrderCreateShipment";
 import { YDpagePermission } from "config/permissions/fpage.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import {LoyaltyPoint} from "../../../model/response/loyalty/loyalty-points.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {OrderModel} from "../../../model/order/order.model";
+import { LoyaltyPoint } from "../../../model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { OrderModel } from "../../../model/order/order.model";
 
 let typeButton = "";
 
@@ -86,8 +85,9 @@ type OrdersCreatePermissionProps = {
   setIsClearOrderTab: (item: boolean) => void;
   handleCustomerById: (item: number | null) => void;
   setCustomerPhone: (item: string | null) => void;
-  fbId: string | null;
-  pageId: string | null;
+  fbCustomerId: string | null;
+  fbPageId: string | null;
+  userId: string | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyRate: LoyaltyRateResponse | undefined;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
@@ -113,17 +113,18 @@ export default function Order(props: OrdersCreatePermissionProps) {
     loyaltyPoint,
     loyaltyUsageRules,
     handleCustomerById,
-    fbId,
-    pageId,
+    fbCustomerId,
+    fbPageId,
+    userId,
     loyaltyRate,
     setShippingAddress,
     setBillingAddress,
-      shippingAddress,
-      billingAddress,
-      isVisibleCustomer,
-      setVisibleCustomer,
-      districtId,
-      setDistrictId
+    shippingAddress,
+    billingAddress,
+    isVisibleCustomer,
+    setVisibleCustomer,
+    districtId,
+    setDistrictId
   } = props;
   const dispatch = useDispatch();
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
@@ -193,12 +194,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const typeParam = queryParams.get("type") || null;
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
-    form.setFieldsValue({shipping_fee_informed_to_customer: value});
+    form.setFieldsValue({ shipping_fee_informed_to_customer: value });
     setShippingFeeInformedToCustomer(value);
   };
 
   const [coupon, setCoupon] = useState<string>("");
-  const [promotionId, setPromotionId] = useState<number|null>(null);
+  const [promotionId, setPromotionId] = useState<number | null>(null);
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -252,7 +253,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     marketer_code: null,
     coordinator_code: null,
     customer_id: null,
-    reference_code: `fb_${fbId}_${pageId}`,
+    reference_code: `fb_${fbCustomerId}_${fbPageId}_${userId}`,
     url: "",
     total_line_amount_after_line_discount: null,
     total: null,
@@ -393,8 +394,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
         if (shippingFeeInformedToCustomer !== null) {
           if (
             orderAmount +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments) >
+            shippingFeeInformedToCustomer -
+            getAmountPaymentRequest(payments) >
             0
           ) {
             newCod =
@@ -436,7 +437,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     if (coupon) {
       listDiscountRequest.push({
         discount_code: coupon,
-          rate: discountRate,
+        rate: discountRate,
         value: discountValue,
         amount: discountValue,
         promotion_id: null,
@@ -444,7 +445,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         source: "",
         order_id: null,
       });
-    } else if(promotionId) {
+    } else if (promotionId) {
       listDiscountRequest.push({
         discount_code: null,
         rate: discountRate,
@@ -455,7 +456,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         source: "",
         order_id: null,
       });
-    }  else if (discountRate === 0 && discountValue === 0) {
+    } else if (discountRate === 0 && discountValue === 0) {
       return null;
     } else {
       listDiscountRequest.push(objDiscount);
@@ -510,7 +511,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
   };
   const onFinish = (values: OrderRequest) => {
-    values.channel_id = ADMIN_ORDER.channel_id;
+    values.channel_id = FACEBOOK.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -657,7 +658,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
           OrderDetailAction(cloneIdParam, async (response) => {
-            const {customer_id} = response;
+            const { customer_id } = response;
 
             if (customer_id) {
               dispatch(
@@ -799,10 +800,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 response?.fulfillments[0]?.shipment?.delivery_service_provider_type
               ) {
                 switch (
-                  response.fulfillments[0].shipment?.delivery_service_provider_type
+                response.fulfillments[0].shipment?.delivery_service_provider_type
                 ) {
                   case ShipmentMethod.EMPLOYEE:
-								  case ShipmentMethod.EXTERNAL_SHIPPER:
+                  case ShipmentMethod.EXTERNAL_SHIPPER:
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
                     break;
                   case ShipmentMethod.EXTERNAL_SERVICE:
@@ -927,8 +928,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
       let limitOrderPercent = !rank
         ? 0
         : !rank.limit_order_percent
-        ? 100
-        : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
+          ? 100
+          : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
 
       let limitAmount = point * usageRate;
 
@@ -971,7 +972,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   );
 
   const checkInventory = () => {
-    let status:boolean = true;
+    let status: boolean = true;
 
     if (items) {
       items.forEach(function (value) {
@@ -981,7 +982,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
           //setCreating(false);
         }
       });
-      if(!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
+      if (!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
     }
 
     return status;
@@ -1060,7 +1061,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
               initialValues={initialForm}
               ref={formRef}
               form={form}
-              onFinishFailed={({errorFields}: any) => {
+              onFinishFailed={({ errorFields }: any) => {
                 const element: any = document.getElementById(errorFields[0].name.join(""));
                 scrollAndFocusToDomElement(element);
               }}
@@ -1081,7 +1082,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
               <Form.Item noStyle hidden name="tags">
                 <Input />
               </Form.Item>
-              <Row gutter={20} style={{marginBottom: "70px"}}>
+              <Row gutter={20} style={{ marginBottom: "70px" }}>
                 <Col span={24}>
                   <CardCustomer
                     customer={customer}
@@ -1103,7 +1104,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);
-                      form.setFieldsValue({store_id: value});
+                      form.setFieldsValue({ store_id: value });
                     }}
                     storeId={storeId}
                     shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
@@ -1138,7 +1139,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       listPaymentMethod={listPaymentMethod}
                     />
                   </Card>
-    
+
                   <Card>
                     <OrderCreateShipment
                       shipmentMethod={shipmentMethod}
@@ -1166,16 +1167,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 </Col>
               </Row>
               <OrderDetailBottomBar
-                  formRef={formRef}
-                  handleTypeButton={handleTypeButton}
-                  isVisibleGroupButtons={true}
-                  showSaveAndConfirmModal={showSaveAndConfirmModal}
-                  creating={creating}
-                  isSaveDraft={isSaveDraft}
+                formRef={formRef}
+                handleTypeButton={handleTypeButton}
+                isVisibleGroupButtons={true}
+                showSaveAndConfirmModal={showSaveAndConfirmModal}
+                creating={creating}
+                isSaveDraft={isSaveDraft}
               />
             </Form>
           ))
-        : <NoPermission />)}
+          : <NoPermission />)}
       </AuthWrapper>
 
       <SaveAndConfirmOrder
