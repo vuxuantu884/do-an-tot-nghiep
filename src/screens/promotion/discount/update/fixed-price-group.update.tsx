@@ -55,7 +55,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
   const { discountMethod } = discountUpdateContext;
-  const [discountType, setDiscountType] = useState(DiscountUnitType.FIXED_PRICE.value);
+  const [, setDiscountType] = useState(DiscountUnitType.FIXED_PRICE.value);
 
   const selectedProductParentRef = useRef<ProductResponse | null>(null)
   const variantsOfSelectedProductRef = useRef<Array<VariantResponse>>([])
@@ -158,13 +158,11 @@ const FixedPriceGroupUpdate = (props: Props) => {
     // delete variant from display
     entilementFormValue[name]?.selectedProducts?.splice(index, 1);
 
-    if (item.isParentProduct) {
-      // delete product id
-      entilementFormValue[name].entitled_product_ids = entilementFormValue[name].entitled_product_ids.filter((e: number) => e !== item.product_id);
-
-    } else {
+    entilementFormValue[name].entitled_product_ids = entilementFormValue[name].entitled_product_ids.filter((e: number) => e !== item.product_id);
+    if (item.product_id && item.variant_id) {
       // delete variant id
-      entilementFormValue[name].entitled_variant_ids = entilementFormValue[name].entitled_variant_ids.filter((e: number) => e !== item.variant_id);
+      entilementFormValue[name].entitled_variant_ids =
+        entilementFormValue[name].entitled_variant_ids.filter((id: number) => id !== item.variant_id);
     }
 
     // change reference for re-render form
@@ -320,19 +318,23 @@ const FixedPriceGroupUpdate = (props: Props) => {
                   },
                 })]}
               >
+
                 <InputNumber
                   style={{ width: '100%' }}
                   min={1}
-                  max={discountType === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
-                  step={discountType === DiscountUnitType.PERCENTAGE.value ? 0.01 : 1}
-                // formatter={(value) => formatDiscountValue(value, discountType === DiscountUnitType.PERCENTAGE.value)}
+                  max={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
+                    === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
+                  step={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
+                    === DiscountUnitType.PERCENTAGE.value ? 0.01 : 1}
+
+                // formatter={(value) =>   (value, discountType === DiscountUnitType.PERCENTAGE.value)}
                 />
               </Form.Item>
             </DiscountMethodStyled>
             <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} label=" "
             >
               <Select
-                defaultValue={DiscountUnitType.FIXED_PRICE.value}
+                // defaultValue={DiscountUnitType.FIXED_PRICE.value}
                 style={{ borderRadius: "0px" }}
                 onSelect={(e) => {
                   setDiscountType(e?.toString() || "");
@@ -465,7 +467,9 @@ const FixedPriceGroupUpdate = (props: Props) => {
         {form.getFieldValue("entitlements")?.length > 1 && (
           <Row gutter={16} style={{ paddingTop: "16px" }}>
             <Col span={24}>
-              <Button icon={<DeleteOutlined />} danger onClick={() => remove(name)}>
+              <Button icon={<DeleteOutlined />} danger onClick={() => {
+                remove(name)
+              }}>
                 Xoá nhóm chiết khấu
               </Button>
             </Col>
