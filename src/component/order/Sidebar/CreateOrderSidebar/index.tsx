@@ -72,6 +72,8 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   >([]);
   // const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
 
+	console.log(initValueCoordinatorCode, coordinatorAccountData, initCoordinatorAccountData)
+
   const renderSplitOrder = () => {
     const splitCharacter = "-";
     if (!orderDetail?.linked_order_code) {

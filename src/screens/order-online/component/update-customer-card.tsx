@@ -1,5 +1,5 @@
 //#region Import
-import { Avatar, Card, Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import bithdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
@@ -30,6 +30,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   // const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
+	console.log(setVisibleBilling)
   // const CancleConfirmAddress = useCallback(() => {
   //   setVisibleAddress(false);
   // }, []);
@@ -51,9 +52,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   //   // setVisibleBillingAddress(false);
   // };
 
-  const ShowBillingAddress = () => {
-    setVisibleBilling(!isVisibleBilling);
-  };
+  // const ShowBillingAddress = () => {
+  //   setVisibleBilling(!isVisibleBilling);
+  // };
 
   // const handleVisibleBillingAddressChange = (value: boolean) => {
   //   // setVisibleBillingAddress(value);
