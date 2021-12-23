@@ -236,7 +236,6 @@ const PromotionDetailScreen: React.FC = () => {
           product_id: 0,
           variant_id: 0,
           entitlement: dataDiscount?.entitlements[0],
-          isParentProduct: true,
           price_rule_id: 0,
         }])
       }

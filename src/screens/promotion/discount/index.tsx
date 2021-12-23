@@ -4,7 +4,7 @@ import { MenuAction } from "component/table/ActionButton";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import moment from "moment";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { RiDeleteBin2Fill } from "react-icons/all";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -27,7 +27,7 @@ import "./discount.scss";
 
 const DiscountPage = () => {
   const discountStatuses = STATUS_PROMO;
-  const [actions, setActions] = useState<Array<MenuAction>>(ACTIONS_DISCOUNT);
+  // const [actions, setActions] = useState<Array<MenuAction>>(ACTIONS_DISCOUNT);
   const initQuery: DiscountSearchQuery = {
     type: PROMO_TYPE.AUTOMATIC,
     request: "",
@@ -90,11 +90,32 @@ const DiscountPage = () => {
     dispatch(getListDiscount(params, fetchData));
   }, [dispatch, fetchData, params]);
 
-  useEffect(() => {
-    setActions([...ACTIONS_DISCOUNT]);
-    if (!allowCancelPromoCode)
-      setActions([...ACTIONS_DISCOUNT.filter((e) => e.id !== 1 && e.id !== 2)]);
-  }, [allowCancelPromoCode]);
+  // useEffect(() => {
+  //   setActions([...ACTIONS_DISCOUNT]);
+  //   if (!allowCancelPromoCode)
+  //     setActions([...ACTIONS_DISCOUNT.filter((e) => e.id !== 1 && e.id !== 2)]);
+  // }, [allowCancelPromoCode]);
+
+  const actionFilter: Array<MenuAction> = useMemo(() => {
+    if (selectedRowKey.length < 1) {
+      return ACTIONS_DISCOUNT.map((e) => {
+        e.disabled = true;
+        return e;
+      });
+    } else if (selectedRowKey.length > 0 && !allowCancelPromoCode) {
+      return ACTIONS_DISCOUNT.map((e) => {
+        e.disabled = false;
+        return e;
+      }).filter((e) => e.id !== 1 && e.id !== 2)
+    } else if (selectedRowKey.length > 0) {
+      return ACTIONS_DISCOUNT.map((e) => {
+        e.disabled = false;
+        return e;
+      })
+    }
+    return ACTIONS_DISCOUNT;
+
+  }, [allowCancelPromoCode, selectedRowKey]);
 
   const columns: Array<ICustomTableColumType<any>> = [
     {
@@ -105,7 +126,7 @@ const DiscountPage = () => {
       render: (value: any, item: any, index: number) => (
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${value.id}`}
-          style={{color: "#2A2A86", fontWeight: 500}}
+          style={{ color: "#2A2A86", fontWeight: 500 }}
         >
           {value.code}
         </Link>
@@ -146,11 +167,9 @@ const DiscountPage = () => {
       fixed: "left",
       align: "center",
       render: (value: any, item: any, index: number) => (
-        <div>{`${
-          item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)
-        } - ${
-          item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm) : "∞"
-        }`}</div>
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)
+          } - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm) : "∞"
+          }`}</div>
       ),
     },
     {
@@ -175,22 +194,22 @@ const DiscountPage = () => {
     {
       visible: true,
       fixed: "left",
-      dataIndex: "status",
+      dataIndex: "id",
       align: "center",
       width: "12%",
-      render: (value: any, item: any, index: number) => (
+      render: (id: any, item: any, index: number) => (
         <Dropdown.Button
           overlay={
             <Menu>
-              <Menu.Item disabled icon={<EditOutlined />}>
-                Chỉnh sửa
+              <Menu.Item icon={<EditOutlined />}>
+                <Link to={`discounts/${id}/update`}>Chỉnh sửa</Link>
               </Menu.Item>
               <Menu.Item
                 disabled
                 icon={<RiDeleteBin2Fill />}
                 onClick={async () => {
                   setTableLoading(true);
-                  const deleteResponse = await bulkDisablePriceRules({ids: [item.id]});
+                  const deleteResponse = await bulkDisablePriceRules({ ids: [item.id] });
                   if (deleteResponse.code === 20000000) {
                     setTimeout(() => {
                       showSuccess("Thao tác thành công");
@@ -210,25 +229,19 @@ const DiscountPage = () => {
     },
   ];
 
-  const onPageChange = useCallback(
-    (page, limit) => {
-      setParams({...params, page, limit});
-    },
-    [params],
-  );
+  const onPageChange = (page: number, limit?: number) => {
+    setParams({ ...params, page, limit });
+  };
 
-  const onFilter = useCallback(
-    (values) => {
-      let newParams = {...params, ...values, page: 1};
-      setParams({...newParams});
-    },
-    [params],
-  );
+  const onFilter = (values: DiscountSearchQuery | Object) => {
+    let newParams = { ...params, ...values, page: 1 };
+    setParams({ ...newParams });
+  }
 
   const onMenuClick = useCallback(
     async (index: number) => {
       setTableLoading(true);
-      const body = {ids: selectedRowKey};
+      const body = { ids: selectedRowKey };
       switch (index) {
         case 1:
           const bulkEnableResponse = await bulkEnablePriceRules(body);
@@ -303,7 +316,7 @@ const DiscountPage = () => {
               <DiscountFilter
                 onMenuClick={onMenuClick}
                 params={params}
-                actions={actions}
+                actions={actionFilter}
                 onFilter={onFilter}
               />
               <CustomTable
@@ -311,7 +324,7 @@ const DiscountPage = () => {
                 onChangeRowKey={(rowKey) => setSelectedRowKey(rowKey)}
                 isRowSelection
                 isLoading={tableLoading}
-                sticky={{offsetScroll: 5}}
+                sticky={{ offsetScroll: 5 }}
                 pagination={{
                   pageSize: discounts?.metadata.limit || 0,
                   total: discounts?.metadata.total || 0,

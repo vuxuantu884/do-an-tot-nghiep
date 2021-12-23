@@ -279,6 +279,24 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
               name={[rule, "value"]}
               rules={[
                 { required: true, message: "Giá trị chiết khấu không được để trống" },
+                (({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (typeof value === "number" && value < 1) {
+                      return Promise.reject("Giá trị chiết khấu phải lớn hơn 0");
+                    }
+
+                    if (
+                      getFieldValue([rule, "value_type"]) === DiscountUnitType.PERCENTAGE.value
+                    ) {
+                      if (value > 100) {
+                        return Promise.reject(
+                          "Giá trị phải nhỏ hơn hoặc bằng 100",
+                        );
+                      }
+                    }
+                    return Promise.resolve();
+                  }
+                }))
               ]}
             >
               <InputNumber
