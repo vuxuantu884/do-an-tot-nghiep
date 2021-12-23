@@ -163,9 +163,6 @@ const CreateSupplierScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-
-      console.log("dataaa", values);
-
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
@@ -433,7 +430,7 @@ const CreateSupplierScreen: React.FC = () => {
                                 },
                               ]}
                               label="Địa chỉ"
-                              name={[name,"address"]}
+                              name={[name, "address"]}
                             >
                               <Input placeholder="Nhập địa chỉ" maxLength={100} />
                             </Item>
@@ -535,7 +532,7 @@ const CreateSupplierScreen: React.FC = () => {
                         <Row>
                           <Col span={24}>
                             <Item
-                              name={[name, "phone"]} 
+                              name={[name, "phone"]}
                               label="Số điện thoại"
                               rules={[
                                 { required: true, message: "Vui lòng nhập số điện thoại" },
