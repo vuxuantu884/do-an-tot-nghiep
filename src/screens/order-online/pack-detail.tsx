@@ -6,7 +6,7 @@ import {
 import ContentContainer from "component/container/content.container";
 import { MenuAction } from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
-import { getByIdGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
+import { getByIdGoodsReceipts, getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
 import {
   FulfillmentsItemModel,
   GoodsReceiptsFileModel,
@@ -18,9 +18,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { useReactToPrint } from "react-to-print";
-import PackDetailInfo from "./pack-support/pack-detail-info";
-import PackListOrder from "./pack-support/pack-list-order";
-import PackQuantityProduct from "./pack-support/pack-quantity-product";
+import PackDetailInfo from "./pack-support/detail/pack-detail-info";
+import PackListOrder from "./pack-support/detail/pack-list-order";
+import PackQuantityProduct from "./pack-support/detail/pack-quantity-product";
 
 type PackParam = {
   id: string;
@@ -48,6 +48,17 @@ const actions: Array<MenuAction> = [
     icon: <ReconciliationOutlined />,
   },
 ];
+
+const typePrint={
+  simple:"simple",
+  detail:"detail"
+}
+
+interface GoodReceiptPrint{
+  good_receipt_id:number;
+  html_content:string;
+  size:string;
+}
 
 const PackDetail: React.FC = () => {
   const dispatch = useDispatch();
@@ -83,7 +94,7 @@ const PackDetail: React.FC = () => {
 
   const [htmlContent, setHtmlContent] = useState("");
   const [selectedOrderList,setSelectedOrderList]=useState<GoodsReceiptsOrderListModel[]>([]);
-
+  console.log(selectedOrderList)
   useEffect(() => {
     if (PackId) {
       dispatch(
@@ -180,26 +191,17 @@ const PackDetail: React.FC = () => {
   const handleDownLoad = () => { };
   const handleDeleteFile = () => { };
 
-  const handlePrintPackFull = useCallback(() => { 
-    console.log("selectedOrderList",selectedOrderList);
-    setHtmlContent("Biên bản bàn giao đẩy đủ");
-    setTimeout(() => {
-      if (handlePrint) {
-        handlePrint();
-      }
-    }, 500);
-  },[selectedOrderList,handlePrint]);
-
-  const handlePrintPackCompact =useCallback( () => { 
-    console.log("selectedOrderList",selectedOrderList);
-    setHtmlContent("Biên bản bàn giao rút gọn");
-    setTimeout(() => {
-      if (handlePrint) {
-        handlePrint();
-      }
-    }, 500);
-    
-  },[selectedOrderList,handlePrint]);
+  const handlePrintPack = useCallback((type:string) => { 
+    dispatch(getPrintGoodsReceipts([PackId],type,(data:GoodReceiptPrint[])=>{
+      setHtmlContent(data[0].html_content);
+      console.log("html_content",data[0].html_content);
+      setTimeout(() => {
+        if (handlePrint) {
+          handlePrint();
+        }
+      }, 500);
+    }))
+  },[dispatch,PackId,handlePrint]);
 
   const handleExportExcelOrderPack = useCallback(() => {
     console.log("ok")
@@ -213,10 +215,10 @@ const PackDetail: React.FC = () => {
     (index: number) => {
       switch (index) {
         case 1:
-          handlePrintPackFull();
+          handlePrintPack(typePrint.detail);
           break;
         case 2:
-          handlePrintPackCompact();
+          handlePrintPack(typePrint.simple);
           break;
         case 3:
           handleExportExcelOrderPack();
@@ -228,7 +230,7 @@ const PackDetail: React.FC = () => {
           break;
       }
     },
-    [history, PackId,handleExportExcelOrderPack,handlePrintPackFull,handlePrintPackCompact]
+    [history, PackId,handleExportExcelOrderPack,handlePrintPack]
   );
 
   return (

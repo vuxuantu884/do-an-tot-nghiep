@@ -8,6 +8,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { useReactToPrint } from "react-to-print";
 import { useQuery } from "utils/useQuery";
 import { StyledComponent } from "./styles";
+import 'assets/css/_printer.scss';
+import { getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
+
+interface GoodReceiptPrint{
+  good_receipt_id:number;
+  html_content:string;
+  size:string;
+}
+
+const printType={
+  print_pack:"print-pack"
+}
 
 type PropType = {};
 
@@ -21,59 +33,82 @@ function OrderPrint(props: PropType) {
   );
   const query = useQuery();
   // const queryIds = query.getAll("ids[]");
-  const queryIds = query.get("ids")?.split(",") || null;
+  const queryIds:any = query.get("ids")?.split(",") || null;
 
   const queryAction = query.get("action");
   const queryPrintDialog = query.get("print-dialog");
   const queryPrintType = query.get("print-type");
+  const queryPackType = query.get("pack-type");
   const listPrinterTypes = bootstrapReducer.data?.print_type;
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
 
   useEffect(() => {
-    const isValidatePrintType = () => {
-      let result = false;
-      let resultFilter = listPrinterTypes?.some((single) => {
-        return single.value === queryPrintType;
-      });
-      if (resultFilter) {
-        result = true;
+    
+    if(queryPrintType&&queryPrintType===printType.print_pack)
+    {
+      if(queryIds&&queryIds.length>0&&queryPackType&&handlePrint){
+        dispatch(getPrintGoodsReceipts(queryIds,queryPackType,(response:GoodReceiptPrint[])=>{
+          const textResponse = response.map((single:any) => {
+            return (
+              `<div class='singleOrderPrint'>${single.html_content}</div>`
+            );
+          });
+
+          let textResponseFormatted = textResponse.join(pageBreak);
+          //xóa thẻ p thừa
+          let result = textResponseFormatted.replaceAll("<p></p>", "");
+          setPrintContent(result);
+          handlePrint();
+        }))
       }
-      return result;
-    };
-    const isCanPrint =
-      queryIds &&
-      queryPrintType &&
-      queryPrintDialog &&
-      queryAction &&
-      queryAction === "print" &&
-      queryPrintDialog === "true" &&
-      isValidatePrintType();
-    if (queryIds && isCanPrint && handlePrint && queryPrintType) {
-      const queryIdsFormatted = queryIds.map((single) => +single);
-      dispatch(
-        actionFetchPrintFormByOrderIds(
-          queryIdsFormatted,
-          queryPrintType,
-          (response) => {
-            const textResponse = response.data.map((single) => {
-              return (
-                "<div class='singleOrderPrint'>" +
-                single.html_content +
-                "</div>"
-              );
-            });
-            let textResponseFormatted = textResponse.join(pageBreak);
-            //xóa thẻ p thừa
-            let result = textResponseFormatted.replaceAll("<p></p>", "");
-            setPrintContent(result);
-            handlePrint();
-          }
-        )
-      );
-    } else {
-      setPrintContent("Có lỗi! Vui lòng kiểm tra lại.");
+    }
+    else{
+      const isValidatePrintType = () => {
+        let result = false;
+        let resultFilter = listPrinterTypes?.some((single) => {
+          return single.value === queryPrintType;
+        });
+        if (resultFilter) {
+          result = true;
+        }
+        return result;
+      };
+      const isCanPrint =
+        queryIds &&
+        queryPrintType &&
+        queryPrintDialog &&
+        queryAction &&
+        queryAction === "print" &&
+        queryPrintDialog === "true" &&
+        isValidatePrintType();
+      if (queryIds && isCanPrint && handlePrint && queryPrintType) {
+        const queryIdsFormatted = queryIds.map((single:any) => +single);
+        dispatch(
+          actionFetchPrintFormByOrderIds(
+            queryIdsFormatted,
+            queryPrintType,
+            (response) => {
+              const textResponse = response.data.map((single) => {
+                return (
+                  "<div class='singleOrderPrint'>" +
+                  single.html_content +
+                  "</div>"
+                );
+              });
+  
+              let textResponseFormatted = textResponse.join(pageBreak);
+              //xóa thẻ p thừa
+              let result = textResponseFormatted.replaceAll("<p></p>", "");
+              setPrintContent(result);
+              handlePrint();
+            }
+          )
+        );
+      } else {
+        setPrintContent("Có lỗi! Vui lòng kiểm tra lại.");
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -85,12 +120,13 @@ function OrderPrint(props: PropType) {
     // queryIds,
     queryPrintDialog,
     queryPrintType,
+    queryPackType
   ]);
 
   return (
     <StyledComponent>
       <ContentContainer
-        title="Mẫu in đơn hàng"
+        title={`${queryPrintType===printType.print_pack?"Mẫu in biên bản bàn giao":"Mẫu in đơn hàng"}`}
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -101,7 +137,7 @@ function OrderPrint(props: PropType) {
             path: UrlConfig.ORDER,
           },
           {
-            name: "Mẫu in đơn hàng",
+            name: `${queryPrintType===printType.print_pack?"Mẫu in biên bản bàn giao":"Mẫu in đơn hàng"}`,
           },
         ]}
       >
