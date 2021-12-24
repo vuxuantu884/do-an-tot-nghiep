@@ -1155,3 +1155,11 @@ export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 		// console.log("totalAmount333", _amount);
 		return _amount;
 }
+// check if value is null or undefined
+export const isNullOrUndefined = (value: any) => {
+  if (value === null || value === undefined) {
+    return true;
+  } else {
+    return false;
+  }
+};
