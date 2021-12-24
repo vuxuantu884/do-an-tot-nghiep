@@ -493,7 +493,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   },[]);
 
   const getConfigPo = useCallback(()=>{
-    debugger
     if (account && account.code) {
       dispatch(
         getConfigPoAction( 
