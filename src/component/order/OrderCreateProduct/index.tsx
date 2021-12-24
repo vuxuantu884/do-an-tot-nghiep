@@ -475,8 +475,9 @@ function OrderCreateProduct(props: PropType) {
 			let _items = [...items];
 			let _amount = totalAmount(_items);
 			setAmount(_amount);
+			calculateChangeMoney(_items, _amount, discountRate, discountValue);
 		},
-		[items]
+		[items, discountRate, discountValue]
 	);
 
 	const handleDelayApplyDiscountWhenChangeInput = (

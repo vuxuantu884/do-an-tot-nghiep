@@ -1007,6 +1007,8 @@ export default function Order() {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
 
+	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+
 	return (
 		<React.Fragment>
 			<ContentContainer
