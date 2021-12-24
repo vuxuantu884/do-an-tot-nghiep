@@ -74,7 +74,6 @@ const DepartmentSearchScreen: React.FC = () => {
               rowKey={(data) => data.id}
               isLoading={loading}
               pagination={false}
-              isRowSelection
               scroll={{x: 1480}}
               sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
               columns={[
