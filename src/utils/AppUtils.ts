@@ -1127,3 +1127,12 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
 	return discountPerOrder;
 }
+
+// check if value is null or undefined
+export const isNullOrUndefined = (value: any) => {
+  if (value === null || value === undefined) {
+    return true;
+  } else {
+    return false;
+  }
+};

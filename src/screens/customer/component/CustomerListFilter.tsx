@@ -9,18 +9,20 @@ import {
   Form,
   Input,
   Select,
-  Tag
+  Tag,
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 
 import moment from "moment";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery, isNullOrUndefined, replaceFormatString } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { VietNamId } from "utils/Constants";
+import { showError } from "utils/ToastUtils";
 import BaseFilter from "component/filter/base.filter";
 import SelectDateFilter from "component/filter/SelectDateFilter";
+import CustomNumberInput from "component/custom/customNumberInput";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -106,6 +108,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     const cityIds = formCustomerFilter.getFieldValue("city_ids");
     const districtIds = formCustomerFilter.getFieldValue("district_ids");
     const wardIds = formCustomerFilter.getFieldValue("ward_ids");
+  
     return {
       ...params,
       city_ids: cityIds,
@@ -831,11 +834,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
-    if (initialValues.total_finished_order_from || initialValues.total_finished_order_to) {
+    if (!isNullOrUndefined(initialValues.total_finished_order_from) || !isNullOrUndefined(initialValues.total_finished_order_to)) {
       let totalOrderFiltered =
-        (initialValues.total_finished_order_from ? initialValues.total_finished_order_from : "") +
+        (isNullOrUndefined(initialValues.total_finished_order_from) ? "" : formatCurrency(initialValues.total_finished_order_from)) +
         " - " +
-        (initialValues.total_finished_order_to ? initialValues.total_finished_order_to : "");
+        (isNullOrUndefined(initialValues.total_finished_order_to) ? "" : formatCurrency(initialValues.total_finished_order_to));
       list.push({
         key: "total_order",
         name: "Tổng đơn hàng",
@@ -843,11 +846,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
-    if (initialValues.total_paid_amount_from || initialValues.total_paid_amount_to) {
+    if (!isNullOrUndefined(initialValues.total_paid_amount_from) || !isNullOrUndefined(initialValues.total_paid_amount_to)) {
       let accumulatedAmountFiltered =
-        (initialValues.total_paid_amount_from ? initialValues.total_paid_amount_from : "") +
+        (isNullOrUndefined(initialValues.total_paid_amount_from) ? "" : formatCurrency(initialValues.total_paid_amount_from)) +
         " - " +
-        (initialValues.total_paid_amount_to ? initialValues.total_paid_amount_to : "");
+        (isNullOrUndefined(initialValues.total_paid_amount_to) ? "" : formatCurrency(initialValues.total_paid_amount_to));
       list.push({
         key: "accumulated_amount",
         name: "Tiền tích lũy",
@@ -855,11 +858,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
-    if (initialValues.total_returned_order_from || initialValues.total_returned_order_to) {
+    if (!isNullOrUndefined(initialValues.total_returned_order_from) || !isNullOrUndefined(initialValues.total_returned_order_to)) {
       let totalRefundedOrderFiltered =
-        (initialValues.total_returned_order_from ? initialValues.total_returned_order_from : "") +
+        (isNullOrUndefined(initialValues.total_returned_order_from) ? "" : formatCurrency(initialValues.total_returned_order_from)) +
         " - " +
-        (initialValues.total_returned_order_to ? initialValues.total_returned_order_to : "");
+        (isNullOrUndefined(initialValues.total_returned_order_to) ? "" : formatCurrency(initialValues.total_returned_order_to));
       list.push({
         key: "total_refunded_order",
         name: "Số đơn trả hàng",
@@ -867,11 +870,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
-    if (initialValues.remain_amount_to_level_up_from || initialValues.remain_amount_to_level_up_to) {
+    if (!isNullOrUndefined(initialValues.remain_amount_to_level_up_from) || !isNullOrUndefined(initialValues.remain_amount_to_level_up_to)) {
       let remainAmountFiltered =
-        (initialValues.remain_amount_to_level_up_from ? initialValues.remain_amount_to_level_up_from : "") +
+        (isNullOrUndefined(initialValues.remain_amount_to_level_up_from) ? "" : formatCurrency(initialValues.remain_amount_to_level_up_from)) +
         " - " +
-        (initialValues.remain_amount_to_level_up_to ? initialValues.remain_amount_to_level_up_to : "");
+        (isNullOrUndefined(initialValues.remain_amount_to_level_up_to) ? "" : formatCurrency(initialValues.remain_amount_to_level_up_to));
       list.push({
         key: "remain_amount",
         name: "Số tiền còn thiếu để nâng hạng",
@@ -879,11 +882,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
-    if (initialValues.average_order_amount_from || initialValues.average_order_amount_to) {
+    if (!isNullOrUndefined(initialValues.average_order_amount_from) || !isNullOrUndefined(initialValues.average_order_amount_to)) {
       let averageOrderAmountFiltered =
-        (initialValues.average_order_amount_from ? initialValues.average_order_amount_from : "") +
+        (isNullOrUndefined(initialValues.average_order_amount_from) ?  "" : formatCurrency(initialValues.average_order_amount_from)) +
         " - " +
-        (initialValues.average_order_amount_to ? initialValues.average_order_amount_to : "");
+        (isNullOrUndefined(initialValues.average_order_amount_to) ? "" : formatCurrency(initialValues.average_order_amount_to));
       list.push({
         key: "average_order_amount",
         name: "Giá trị trung bình",
@@ -891,11 +894,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
-    if (initialValues.total_returned_amount_from || initialValues.total_returned_amount_to) {
+    if (!isNullOrUndefined(initialValues.total_returned_amount_from) || !isNullOrUndefined(initialValues.total_returned_amount_to)) {
       let totalRefundedAmountFiltered =
-        (initialValues.total_returned_amount_from ? initialValues.total_returned_amount_from : "") +
+        (isNullOrUndefined(initialValues.total_returned_amount_from) ? "" : formatCurrency(initialValues.total_returned_amount_from)) +
         " - " +
-        (initialValues.total_returned_amount_to ? initialValues.total_returned_amount_to : "");
+        (isNullOrUndefined(initialValues.total_returned_amount_to) ? "" : formatCurrency(initialValues.total_returned_amount_to));
       list.push({
         key: "total_refunded_amount",
         name: "Tổng giá trị đơn trả",
@@ -929,11 +932,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
-    if (initialValues.number_of_days_without_purchase_from || initialValues.number_of_days_without_purchase_to) {
+    if (!isNullOrUndefined(initialValues.number_of_days_without_purchase_from) || !isNullOrUndefined(initialValues.number_of_days_without_purchase_to)) {
       let daysWithoutPurchaseFiltered =
-        (initialValues.number_of_days_without_purchase_from ? initialValues.number_of_days_without_purchase_from : "") +
+        (isNullOrUndefined(initialValues.number_of_days_without_purchase_from) ? "" : formatCurrency(initialValues.number_of_days_without_purchase_from)) +
         " - " +
-        (initialValues.number_of_days_without_purchase_to ? initialValues.number_of_days_without_purchase_to : "");
+        (isNullOrUndefined(initialValues.number_of_days_without_purchase_to) ? "" : formatCurrency(initialValues.number_of_days_without_purchase_to));
       list.push({
         key: "days_without_purchase",
         name: "Số ngày chưa mua hàng",
@@ -965,11 +968,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
-    if (initialValues.point_from || initialValues.point_to) {
+    if (!isNullOrUndefined(initialValues.point_from) || !isNullOrUndefined(initialValues.point_to)) {
       let pointFiltered =
-        (initialValues.point_from ? initialValues.point_from : "") +
+        (isNullOrUndefined(initialValues.point_from) ? "" : formatCurrency(initialValues.point_from)) +
         " - " +
-        (initialValues.point_to ? initialValues.point_to : "");
+        (isNullOrUndefined(initialValues.point_to) ? "" : formatCurrency(initialValues.point_to));
       list.push({
         key: "point",
         name: "Điểm",
@@ -1168,9 +1171,21 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     setVisibleBaseFilter(false);
   }, []);
 
-  const onFilterClick = useCallback(() => {
-    setVisibleBaseFilter(false);
-    formCustomerFilter?.submit();
+  const onFilterClick = useCallback(async () => {
+    let isValidForm = true;
+
+    await formCustomerFilter.validateFields()
+    .then()
+    .catch((error: any) => {
+      isValidForm = false;
+    });
+
+    if (isValidForm) {
+      setVisibleBaseFilter(false);
+      formCustomerFilter?.submit();
+    } else {
+      showError("Trường dữ liệu nhập vào chưa đúng. Vui lòng kiểm tra lại!");
+    }
   }, [formCustomerFilter]);
 
   // clear advanced filter
@@ -1777,7 +1792,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Từ" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Từ"
+                          maxLength={8}
+                        />
                       </Form.Item>
 
                       <img src={rightArrow} alt="" />
@@ -1792,7 +1812,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Đến" />
+                        <CustomNumberInput 
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Đến"
+                          maxLength={8}
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -1810,7 +1835,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Từ" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Từ"
+                          maxLength={15}
+                        />
                       </Form.Item>
 
                       <img src={rightArrow} alt="" />
@@ -1825,7 +1855,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Đến" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Đến"
+                          maxLength={15}
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -1843,7 +1878,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Từ" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Từ"
+                          maxLength={8}
+                        />
                       </Form.Item>
 
                       <img src={rightArrow} alt="" />
@@ -1858,7 +1898,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Đến" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Đến"
+                          maxLength={8}
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -1878,7 +1923,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Từ" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Từ"
+                          maxLength={15}
+                        />
                       </Form.Item>
 
                       <img src={rightArrow} alt="" />
@@ -1893,7 +1943,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Đến" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Đến"
+                          maxLength={15}
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -1911,7 +1966,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Từ" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Từ"
+                          maxLength={15}
+                        />
                       </Form.Item>
 
                       <img src={rightArrow} alt="" />
@@ -1926,7 +1986,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Đến" />
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Đến"
+                          maxLength={15}
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -1944,7 +2009,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Từ" />
+                        <CustomNumberInput 
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Từ"
+                          maxLength={15}
+                        />
                       </Form.Item>
 
                       <img src={rightArrow} alt="" />
@@ -1959,7 +2029,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                           },
                         ]}
                       >
-                        <Input placeholder="Đến" />
+                        <CustomNumberInput 
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Đến"
+                          maxLength={15}
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -2024,7 +2099,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         },
                       ]}
                     >
-                      <Input placeholder="Từ" />
+                      <CustomNumberInput 
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Từ"
+                        maxLength={6}
+                      />
                     </Form.Item>
 
                     <img src={rightArrow} alt="" />
@@ -2039,7 +2119,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         },
                       ]}
                     >
-                      <Input placeholder="Đến" />
+                      <CustomNumberInput 
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Đến"
+                        maxLength={6}
+                      />
                     </Form.Item>
                   </div>
                 </div>
@@ -2081,7 +2166,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         },
                       ]}
                     >
-                      <Input placeholder="Từ" />
+                      <CustomNumberInput 
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Từ"
+                        maxLength={15}
+                      />
                     </Form.Item>
 
                     <img src={rightArrow} alt="" />
@@ -2096,7 +2186,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         },
                       ]}
                     >
-                      <Input placeholder="Đến" />
+                      <CustomNumberInput 
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Đến"
+                        maxLength={15}
+                      />
                     </Form.Item>
                   </div>
                 </div>
