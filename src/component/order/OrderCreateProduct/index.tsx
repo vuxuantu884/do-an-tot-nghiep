@@ -1744,9 +1744,7 @@ function OrderCreateProduct(props: PropType) {
 				lineItem.discount_value = 0;
 			}
 		});
-		await setItems(_items);
-		await handleChangeItems(_items);
-		// showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
+		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
 
 	const handleRemoveAllDiscount = async () => {
