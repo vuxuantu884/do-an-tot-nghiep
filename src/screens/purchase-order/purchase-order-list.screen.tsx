@@ -39,7 +39,7 @@ import ExportModal from "screens/purchase-order/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
 import { getPurchaseOrderConfigService } from "service/purchase-order/purchase-order.service";
 import { generateQuery } from "utils/AppUtils";
-import { FILTER_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -456,7 +456,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               if (res) {
                 setLstConfig(res.data);
                 if (res.data && res.data.length > 0) {
-                  const userConfigColumn = res.data.find(e=>e.type === FILTER_CONFIG_TYPE.COLUMN_PO);
+                  const userConfigColumn = res.data.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_PO);
                 
                  if (userConfigColumn){
                     let cf = JSON.parse(userConfigColumn.json_content) as Array<ICustomTableColumType<PurchaseOrder>>;
@@ -528,11 +528,11 @@ const PurchaseOrderListScreen: React.FC = () => {
   }, [deleteCallback, dispatch, selected]);
 
   const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<PurchaseOrder>>) => {
-      let config = lstConfig.find(e=>e.type === FILTER_CONFIG_TYPE.COLUMN_PO) as FilterConfigRequest;
+      let config = lstConfig.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_PO) as FilterConfigRequest;
       if (!config) config = {} as FilterConfigRequest;
       
       const json_content = JSON.stringify(data);
-      config.type = FILTER_CONFIG_TYPE.COLUMN_PO;
+      config.type = COLUMN_CONFIG_TYPE.COLUMN_PO;
       config.json_content = json_content;
       config.name= `${account?.code}_config_column_po`;
       if (config && config.id && config.id !== null) {

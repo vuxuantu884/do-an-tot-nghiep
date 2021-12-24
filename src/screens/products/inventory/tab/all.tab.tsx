@@ -3,8 +3,11 @@ import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
 import {AppConfig} from "config/app.config";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
-import {inventoryByVariantAction} from "domain/actions/inventory/inventory.action";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import {createConfigInventoryAction, inventoryByVariantAction, updateConfigInventoryAction} from "domain/actions/inventory/inventory.action";
+import { hideLoading } from "domain/actions/loading.action";
 import {searchVariantsInventoriesRequestAction} from "domain/actions/product/products.action";
 import { HeaderSummary } from "hook/filter/HeaderSummary";
 import _ from "lodash";
@@ -14,16 +17,25 @@ import {
   InventoryResponse,
   InventoryVariantListQuery,
 } from "model/inventory";
+import { FilterConfig, FilterConfigRequest } from "model/other";
 import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
+import { getInventoryConfigService } from "service/inventory";
 import {formatCurrency, generateQuery, Products} from "utils/AppUtils";
-import {OFFSET_HEADER_TABLE} from "utils/Constants";
+import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
+import { showError } from "utils/ToastUtils";
 import {getQueryParams} from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
 import {TabProps} from "./tab.props";
+
+type ConfigColumnInventory = {
+  Columns: Array<ICustomTableColumType<InventoryResponse>>,
+  ColumnDrill: Array<ICustomTableColumType<InventoryResponse>>
+}
 export interface SummaryInventory {
   Sum_Total: number | 0;
   Sum_On_hand: number | 0;
@@ -65,6 +77,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const [inventiryVariant, setInventiryVariant] = useState<
     Map<number, AllInventoryResponse[]>
   >(new Map());
+  
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const {account} = userReducer;
+  const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -87,112 +104,272 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     [history, params]
   );  
 
-  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>(
-    []
-  );
+  const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
+    return [
+       {
+         title: "Sản phẩm",
+         visible: true,
+         dataIndex: "sku",
+         align: "left",
+         fixed: "left",
+         width: 200,
+         render: (value, record, index) => {
+           return (
+             <div>
+                 <div>
+                 <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
+                     {record.sku}
+                   </Link>
+                 </div>
+                 <div>
+                   <TextEllipsis value={record.name} line={1} />
+                 </div>
+                 <div>
+                 {record.barcode}
+                 </div>
+             </div>
+             )
+         }
+       }, 
+       {
+         title: "Giá bán",
+         titleCustom: "Giá bán",
+         visible: true,
+         dataIndex: "variant_prices",
+         align: "center",
+         width: 150,
+         fixed: true,
+         render: (value) => {
+           let price = Products.findPrice(value, AppConfig.currency);
+           return formatCurrency(price ? price.retail_price : 0,'.');
+         },
+       },
+       {
+         title: "Danh mục",
+         titleCustom: "Danh mục",
+         visible: false,
+         dataIndex: "category",
+         align: "left",
+         fixed: true,
+         width: 100,
+         render: (value, row) => {
+           return <div>{row.product?.category}</div>
+         },
+       },
+       {
+         title: HeaderSummary(objSummaryTable?.Sum_Total,"Tổng tồn"), 
+         titleCustom: "Tổng tồn",
+         visible: true,
+         dataIndex: `total`,
+         align: "center",
+         width: 150,
+         render: (value,record) => {
+           return <div> {formatCurrency(record.on_hand+(record.on_way ?? 0)+record.transferring,".")}</div> ;
+         },
+       },
+       {
+         title: HeaderSummary(objSummaryTable?.Sum_On_hand,"Tồn trong kho"),
+         titleCustom: "Tổng trong kho",
+         visible: true,
+         dataIndex: `on_hand`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },
+       {
+         title: HeaderSummary(objSummaryTable?.Sum_Available,"Có thể bán"),
+         titleCustom: "Có thể bán",
+         visible: true,
+         dataIndex: `available`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },
+       {
+         title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao địch"),
+         titleCustom: "Đang giao địch",
+         visible: true,
+         dataIndex: `committed`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       }, 
+       {
+         title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Hàng tạm giữ"),
+         titleCustom: "Hàng tạm giữ",
+         visible: true,
+         dataIndex: `on_hold`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi"), 
+         titleCustom: "Hàng lỗi",
+         visible: true,
+         dataIndex: `defect`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập"),
+         titleCustom: "Chờ nhập",
+         visible: true,
+         dataIndex: `in_coming`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng đang chuyển đến"),
+         titleCustom: "Hàng đang chuyển đến",
+         visible: true,
+         dataIndex: `transferring`,
+         align: "center",
+         width: 200,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng đang chuyển đi"),
+         titleCustom: "Hàng đang chuyển đi",
+         visible: true,
+         dataIndex: `on_way`,
+         align: "center",
+         width: 200,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Hàng đang giao"),
+         titleCustom: "Hàng đang giao",
+         visible: true,
+         dataIndex: `shipping`,
+         align: "center",
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       }
+     ]
+   },[objSummaryTable]);
+ 
+   const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
+     return [
+       {
+         title: "Kho hàng",
+         dataIndex: "store_id",
+         fixed: true,
+         width: 262,
+         render (value) {
+           return storeRef.current.get(value);
+         },
+       },{
+         dataIndex: "variant_prices",
+         align: "center",
+         width: 150,
+         fixed: true,
+         render: (value) => {
+           return <></>;
+         },
+       },
+       {
+         title: "Tổng tồn",
+         dataIndex: `on_hand`,
+         align: "center",
+         width: 150,
+         render: (value,record) => {
+           return <div>{formatCurrency(record.on_hand+(record.on_way ?? 0)+record.transferring, ".")}</div> ;
+         },
+       },
+       {
+         title: "Tồn trong kho",
+         dataIndex: `on_hand`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },
+       {
+         title: "Có thể bán",
+         dataIndex: `available`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },
+       {
+         title: "Đang giao địch",
+         dataIndex: `committed`,
+         align: "center",
+         width: 150, render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       }, 
+       {
+         title: "Hàng tạm giữ",
+         dataIndex: `on_hold`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: "Hàng lỗi",
+         dataIndex: `defect`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: "Chờ nhập",
+         dataIndex: `in_coming`,
+         align: "center",
+         width: 150,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: "Hàng đang chuyển đến",
+         dataIndex: `transferring`,
+         align: "center",
+         width: 200,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: "Hàng đang chuyển đi",
+         dataIndex: `on_way`,
+         align: "center",
+         width: 200,
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       },{
+         title: "Hàng đang giao",
+         dataIndex: `shipping`,
+         align: "center",
+         render: (value) => {
+           return <div> {formatCurrency(value,".")}</div> ;
+         },
+       }
+     ]
+   },[]);
 
-  const [columnsDrill, setColumnsDrill] = useState<Array<ICustomTableColumType<InventoryResponse>>>([
-    {
-      title: "Kho hàng",
-      dataIndex: "store_id",
-      fixed: true,
-      width: 262,
-      render (value) {
-        return storeRef.current.get(value);
-      },
-    },{
-      dataIndex: "variant_prices",
-      align: "center",
-      width: 150,
-      fixed: true,
-      render: (value) => {
-        return <></>;
-      },
-    },
-    {
-      title: "Tổng tồn",
-      dataIndex: `on_hand`,
-      align: "center",
-      width: 150,
-      render: (value,record) => {
-        return <div>{formatCurrency(record.on_hand+(record.on_way ?? 0)+record.transferring, ".")}</div> ;
-      },
-    },
-    {
-      title: "Tồn trong kho",
-      dataIndex: `on_hand`,
-      align: "center",
-      width: 150,
-      render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    },
-    {
-      title: "Có thể bán",
-      dataIndex: `available`,
-      align: "center",
-      width: 150,
-      render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    },
-    {
-      title: "Đang giao địch",
-      dataIndex: `committed`,
-      align: "center",
-      width: 150, render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    }, 
-    {
-      title: "Hàng tạm giữ",
-      dataIndex: `on_hold`,
-      align: "center",
-      width: 150,
-      render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    },{
-      title: "Hàng lỗi",
-      dataIndex: `defect`,
-      align: "center",
-      width: 150,
-      render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    },{
-      title: "Chờ nhập",
-      dataIndex: `in_coming`,
-      align: "center",
-      width: 150,
-      render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    },{
-      title: "Hàng đang chuyển đến",
-      dataIndex: `transferring`,
-      align: "center",
-      width: 200,
-      render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    },{
-      title: "Hàng đang chuyển đi",
-      dataIndex: `on_way`,
-      align: "center",
-      width: 200,
-      render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    },{
-      title: "Hàng đang giao",
-      dataIndex: `shipping`,
-      align: "center",
-      render: (value) => {
-        return <div> {formatCurrency(value,".")}</div> ;
-      },
-    }
-  ]);
+  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([]);
+  const [columnsDrill, setColumnsDrill] = useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumnsDrill);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
 
   const openColumn = useCallback(() => {
@@ -290,166 +467,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       debouncedSearch(keyword)
     },
     [debouncedSearch]
-  )  
+  ) 
 
   useEffect(() => {
-    setColumns([
-      {
-        title: "Sản phẩm",
-        visible: true,
-        dataIndex: "sku",
-        align: "left",
-        fixed: "left",
-        width: 200,
-        render: (value, record, index) => {
-          return (
-            <div>
-                <div>
-                <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
-                    {record.sku}
-                  </Link>
-                </div>
-                <div>
-                  <TextEllipsis value={record.name} line={1} />
-                </div>
-                <div>
-                {record.barcode}
-                </div>
-            </div>
-            )
-        }
-      }, 
-      {
-        title: "Giá bán",
-        titleCustom: "Giá bán",
-        visible: true,
-        dataIndex: "variant_prices",
-        align: "center",
-        width: 150,
-        fixed: true,
-        render: (value) => {
-          let price = Products.findPrice(value, AppConfig.currency);
-          return formatCurrency(price ? price.retail_price : 0,'.');
-        },
-      },
-      {
-        title: "Danh mục",
-        titleCustom: "Danh mục",
-        visible: false,
-        dataIndex: "category",
-        align: "left",
-        fixed: true,
-        width: 100,
-        render: (value, row) => {
-          return <div>{row.product?.category}</div>
-        },
-      },
-      {
-        title: HeaderSummary(objSummaryTable?.Sum_Total,"Tổng tồn"), 
-        titleCustom: "Tổng tồn",
-        visible: true,
-        dataIndex: `total`,
-        align: "center",
-        width: 150,
-        render: (value,record) => {
-          return <div> {formatCurrency(record.on_hand+(record.on_way ?? 0)+record.transferring,".")}</div> ;
-        },
-      },
-      {
-        title: HeaderSummary(objSummaryTable?.Sum_On_hand,"Tồn trong kho"),
-        titleCustom: "Tổng tồn",
-        visible: true,
-        dataIndex: `on_hand`,
-        align: "center",
-        width: 150,
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      },
-      {
-        title: HeaderSummary(objSummaryTable?.Sum_Available,"Có thể bán"),
-        titleCustom: "Có thể bán",
-        visible: true,
-        dataIndex: `available`,
-        align: "center",
-        width: 150,
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      },
-      {
-        title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao địch"),
-        titleCustom: "Đang giao địch",
-        visible: true,
-        dataIndex: `committed`,
-        align: "center",
-        width: 150,
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      }, 
-      {
-        title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Hàng tạm giữ"),
-        titleCustom: "Hàng tạm giữ",
-        visible: true,
-        dataIndex: `on_hold`,
-        align: "center",
-        width: 150,
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      },{
-        title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi"), 
-        titleCustom: "Hàng lỗi",
-        visible: true,
-        dataIndex: `defect`,
-        align: "center",
-        width: 150,
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      },{
-        title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập"),
-        titleCustom: "Chờ nhập",
-        visible: true,
-        dataIndex: `in_coming`,
-        align: "center",
-        width: 150,
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      },{
-        title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng đang chuyển đến"),
-        titleCustom: "Hàng đang chuyển đến",
-        visible: true,
-        dataIndex: `transferring`,
-        align: "center",
-        width: 200,
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      },{
-        title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng đang chuyển đi"),
-        titleCustom: "Hàng đang chuyển đi",
-        visible: true,
-        dataIndex: `on_way`,
-        align: "center",
-        width: 200,
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      },{
-        title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Hàng đang giao"),
-        titleCustom: "Hàng đang giao",
-        visible: true,
-        dataIndex: `shipping`,
-        align: "center",
-        render: (value) => {
-          return <div> {formatCurrency(value,".")}</div> ;
-        },
-      }
-    ]);
-
+    setColumns(defaultColumns);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params, selected, objSummaryTable, HeaderSummary]); 
 
@@ -469,6 +490,83 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       });
     }
   }, [stores]);
+
+  const getConfigColumnInventory = useCallback(()=>{
+    if (account && account.code) {
+      getInventoryConfigService(account.code)
+        .then((res) => {
+          switch (res.code) {
+            case HttpStatus.SUCCESS:
+              if (res) {
+                setLstConfig(res.data);
+                if (res.data && res.data.length > 0) {
+                  const userConfigColumn = res.data.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY);
+                
+                   if (userConfigColumn){
+                       let cf = JSON.parse(userConfigColumn.json_content) as ConfigColumnInventory;
+                       cf.Columns.forEach(e => {
+                         const column = defaultColumns.find(p=>p.dataIndex === e.dataIndex);
+                         if (column) {
+                          e.render = column.render;
+                          e.title = column.title;
+                          e.titleCustom = column.titleCustom;
+                         }
+                       });
+                       cf.ColumnDrill.forEach(e => {
+                         const columnDrill = defaultColumnsDrill.find(p=>p.dataIndex === e.dataIndex);
+                         if (columnDrill) {
+                          e.render = columnDrill.render;
+                          e.title = columnDrill.title;
+                          e.titleCustom = columnDrill.titleCustom;
+                         }
+                       });
+                       setColumns(cf.Columns);
+                       setColumnsDrill(cf.ColumnDrill);
+                   }
+                }
+               }
+              break;
+            case HttpStatus.UNAUTHORIZED:
+              dispatch(unauthorizedAction());
+              break;
+            default:
+              res.errors.forEach((e: any) => showError(e));
+              break;
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          dispatch(hideLoading());
+        }); 
+    }
+  },[account, dispatch, defaultColumns, defaultColumnsDrill]);
+  
+  const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<InventoryResponse>>, dataDrill: Array<ICustomTableColumType<InventoryResponse>>) => {
+    let config = lstConfig.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY) as FilterConfigRequest;
+    if (!config) config = {} as FilterConfigRequest;
+
+    const configRequest = {
+      Columns: data,
+      ColumnDrill: dataDrill
+    } as ConfigColumnInventory;
+    
+    const json_content = JSON.stringify(configRequest);
+    config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
+    config.json_content = json_content;
+    config.name= `${account?.code}_config_column_inventory`;
+    if (config && config.id && config.id !== null) {
+      dispatch(updateConfigInventoryAction(config));
+    }else{
+      dispatch(createConfigInventoryAction(config));
+    }
+  
+}, [dispatch,account?.code, lstConfig]);
+
+  useEffect(()=>{
+    getConfigColumnInventory();
+  },[getConfigColumnInventory]);
   
   return (
     <div>
@@ -581,6 +679,8 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
             } 
           });
           setColumnsDrill(columnsInRow);
+          
+          onSaveConfigColumn(data, columnsInRow);
         }}
         data={columns}
       />
