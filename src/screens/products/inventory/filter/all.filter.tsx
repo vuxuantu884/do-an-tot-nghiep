@@ -369,7 +369,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>)=>{
     if (res) {
       showSuccess(`Xóa bộ lọc thành công`);
-      setShowModalSaveFilter(false);
+      setIsShowConfirmDelete(false);
       getConfigInventory();
     }
   },[getConfigInventory])

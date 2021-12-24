@@ -120,7 +120,7 @@ export const getConfigPoAction = (
 };
 export const createConfigPoAction = (
   request: FilterConfigRequest,
-  onResult: (result: BaseResponse<FilterConfig>) => void
+  onResult?: (result: BaseResponse<FilterConfig>) => void
 ) => {
   return BaseAction(POConfig.CREATE_PO_CONFIG, {
     request,
@@ -129,7 +129,7 @@ export const createConfigPoAction = (
 };
 export const updateConfigPoAction = (
   request: FilterConfigRequest,
-  onResult: (result: BaseResponse<FilterConfig>) => void
+  onResult?: (result: BaseResponse<FilterConfig>) => void
 ) => {
   return BaseAction(POConfig.UPDATE_PO_CONFIG, {
     request,
