@@ -1192,7 +1192,7 @@ function OrderCreateProduct(props: PropType) {
 							value: discountAmount,
 							amount: discountAmount,
 							rate: discountRate,
-						});
+						}); 
 						handleChangeItems(items, discountRate, discountAmount);
 				}
 			}
@@ -1742,8 +1742,11 @@ function OrderCreateProduct(props: PropType) {
 				});
 				lineItem.discount_rate = 0;
 				lineItem.discount_value = 0;
+				lineItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(lineItem);
 			}
 		});
+		let amount = totalAmount(items);
+		setAmount(amount);
 		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
 
