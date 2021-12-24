@@ -96,8 +96,7 @@ import {
 	getTotalQuantity,
 	handleDelayActionWhenInsertTextInSearchInput,
 	haveAccess,
-	replaceFormatString,
-	totalAmount
+	replaceFormatString
 } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
@@ -249,6 +248,7 @@ function OrderCreateProduct(props: PropType) {
 	const [isShowProductSearch, setIsShowProductSearch] = useState(true);
 	const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
 	const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
+	const [isCalculateDiscount, setIsCalculateDiscount] = useState(false);
 	const [resultSearchStore, setResultSearchStore] = useState("");
 	const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
@@ -773,8 +773,6 @@ function OrderCreateProduct(props: PropType) {
 		},
 	};
 
-	console.log('items', items)
-
 	const DiscountColumn = {
 		title: () => (
 			<div className="text-center">
@@ -785,8 +783,6 @@ function OrderCreateProduct(props: PropType) {
 		width: "20%",
 		className: "yody-table-discount text-right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
-			// console.log("promotion", promotion);
-			console.log('lgggggggggg', item)
 			return (
 				<div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup">
 					<DiscountGroup
@@ -1035,7 +1031,6 @@ function OrderCreateProduct(props: PropType) {
 			itemResult.discount_amount = getLineItemDiscountAmount(itemResult);
 			itemResult.line_amount_after_line_discount =
 				getLineAmountAfterLineDiscount(itemResult);
-			console.log('itemResult', itemResult)
 			result.push(itemResult);
 		} else {
 			result.push(_item);
@@ -1047,8 +1042,6 @@ function OrderCreateProduct(props: PropType) {
 		suggested_discounts: SuggestDiscountResponseModel[],
 		item: OrderLineItemRequest
 	): OrderLineItemRequest[] => {
-		console.log("suggested_discounts", suggested_discounts);
-		console.log("item", item);
 		let result: OrderLineItemRequest[] = [];
 		if (suggested_discounts.length === 0) {
 			removeDiscountItem(item);
@@ -1158,13 +1151,12 @@ function OrderCreateProduct(props: PropType) {
 		return null;
 	};
 
-	console.log('promotion', promotion)
-
 	const handleApplyDiscount = async (
 		items: OrderLineItemRequest[] | undefined,
 		_isAutomaticDiscount: boolean = isAutomaticDiscount
 	) => {
 		console.log("items", items);
+		setIsCalculateDiscount(true);
 		isShouldUpdateDiscountRef.current = true;
 		if (!items || items.length === 0 || !_isAutomaticDiscount) {
 			return;
@@ -1212,7 +1204,9 @@ function OrderCreateProduct(props: PropType) {
 			console.log("result", result);
 			calculateChangeMoney(result, promotionResult)
 			showSuccess("Cập nhật chiết khấu tự động thành công!");
+			setIsCalculateDiscount(false);
 		} else {
+			setIsCalculateDiscount(false);
 			showError("Có lỗi khi áp dụng chiết khấu!");
 		}
 	};
@@ -1851,7 +1845,7 @@ function OrderCreateProduct(props: PropType) {
 						</Form.Item>
 						<Form.Item name="automatic_discount" valuePropName="checked">
 							<Checkbox
-								disabled={levelOrder > 3}
+								disabled={levelOrder > 3 || isCalculateDiscount}
 								value={isAutomaticDiscount}
 								onChange={(e) => {
 									if (e.target.checked) {

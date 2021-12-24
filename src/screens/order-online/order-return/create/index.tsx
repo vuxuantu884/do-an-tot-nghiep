@@ -339,16 +339,16 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   const onChangeInfoProduct = (
-    _items: Array<OrderLineItemRequest>,
-    _promotion?: OrderDiscountRequest | null,
-  ) => {
-    setListExchangeProducts(_items);
+		_items: Array<OrderLineItemRequest>,
+		_promotion?: OrderDiscountRequest | null,
+	) => {
+		setListExchangeProducts(_items);
 		let amount = totalAmount(_items);
 		setOrderAmount(amount);
-    if(_promotion !== undefined) {
+		if(_promotion !== undefined) {
 			setPromotion(_promotion);
 		}
-  };
+	};
 
   const handleSubmitFormReturn = () => {
     let formValue = form.getFieldsValue();
