@@ -660,7 +660,7 @@ export const getLineItemDiscountAmount = (lineItem: OrderLineItemRequest) => {
 };
 
 export const getLineItemDiscountRate = (lineItem: OrderLineItemRequest) => {
-  return lineItem.discount_value / lineItem.price;
+  return lineItem.discount_value * 100 / lineItem.price ;
 };
 
 export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
