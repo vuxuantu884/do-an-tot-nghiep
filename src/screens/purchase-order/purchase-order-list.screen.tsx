@@ -15,26 +15,31 @@ import { HttpStatus } from "config/http-status.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { PODeleteAction, PoSearchAction } from "domain/actions/po/po.action";
+import { hideLoading } from "domain/actions/loading.action";
+import { createConfigPoAction, PODeleteAction, PoSearchAction, updateConfigPoAction } from "domain/actions/po/po.action";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
+import { FilterConfig, FilterConfigRequest } from "model/other";
 import {
   PurchaseOrder,
   PurchaseOrderQuery
 } from "model/purchase-order/purchase-order.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NumberFormat from "react-number-format";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/purchase-order/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
+import { getPurchaseOrderConfigService } from "service/purchase-order/purchase-order.service";
 import { generateQuery } from "utils/AppUtils";
-import { PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
+import { FILTER_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -70,6 +75,9 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [showExportModal, setShowExportModal] = useState(false);
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const {account} = userReducer;
+  const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
 
   let initQuery: PurchaseOrderQuery = {};
 
@@ -85,7 +93,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       total: 0,
     },
     items: [],
-  });
+  }); 
 
   const onExport = useCallback(() => {
     let queryParams = generateQuery(params);
@@ -136,7 +144,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         // onDelete();
         break;
     }
-  }, []);
+  }, []); 
 
   const [canDeletePO] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.delete],
@@ -150,234 +158,239 @@ const PurchaseOrderListScreen: React.FC = () => {
     });
   }, [canDeletePO]);
 
-  const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = [
-    {
-      title: "ID đơn hàng",
-      dataIndex: "code",
-      render: (value: string, i: PurchaseOrder) => {
-        return (
-          <> 
-            <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{fontWeight: 500}}>
-              {value}
-            </Link>
-            <br />
-            <span style={{fontSize: "12px"}}>
-              Ngày tạo: {ConvertUtcToLocalDate(i.created_date, "DD/MM/yy hh:mm")}
-            </span>
-          </>
-        );
-      },
-      visible: true,
-      fixed: "left",
-    },
-    {
-      title: "Nhà cung cấp",
-      dataIndex: "supplier",
-      visible: true,
-    },
-    {
-      title: "Ngày duyệt đơn",
-      width: 150,
-      dataIndex: "activated_date",
-      render: (value: string) => {
-        return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
-      },
-      visible: true,
-    },
-    {
-      title: "Ngày nhận hàng dự kiến",
-      dataIndex: "procurements",
-      render: (value: Array<PurchaseProcument>) => {
-        let display = "";
-        if (value && value.length > 0) {
-          value.sort((a, b) =>
-            moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date))
+  const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = useMemo(() => {
+    return [
+      {
+        title: "ID đơn hàng",
+        dataIndex: "code",
+        render: (value: string, i: PurchaseOrder) => {
+          return (
+            <> 
+              <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{fontWeight: 500}}>
+                {value}
+              </Link>
+              <br />
+              <span style={{fontSize: "12px"}}>
+                Ngày tạo: {ConvertUtcToLocalDate(i.created_date, "DD/MM/yy hh:mm")}
+              </span>
+            </>
           );
-          display = ConvertUtcToLocalDate(value[value.length - 1].expect_receipt_date,DATE_FORMAT.DDMMYYY);
-        }
-        return <div>{display}</div>;
+        },
+        visible: true,
+        fixed: "left",
       },
-      visible: true,
-      width: 200,
-    },
-    {
-      title: "Trạng thái đơn",
-      width: 150,
-      dataIndex: "status_name",
-      render: (value: string, record) => {
-        let type = TagStatusType.nomarl;
-        switch (record.status) {
-          case POStatus.FINALIZED:
-          case POStatus.STORED:
-            type = TagStatusType.primary;
-            break;
-          case POStatus.CANCELLED:
-            type = TagStatusType.danger;
-            break;
-          case POStatus.FINISHED:
-          case POStatus.COMPLETED:
-            type = TagStatusType.success;
-            break;
-          case POStatus.DRAFT:
-            type = TagStatusType.nomarl;
-            break;
-        }
-
-        return <TagStatus type={type}>{value}</TagStatus>;
+      {
+        title: "Nhà cung cấp",
+        dataIndex: "supplier",
+        visible: true,
       },
-      visible: true,
-    },
-    {
-      title: "Nhập kho",
-      dataIndex: "receive_status",
-      align: "center",
-      render: (value: string) => {
-        let processIcon = null;
-
-        switch (value) {
-          case ProcumentStatus.NOT_RECEIVED:
-          case null:
-            processIcon = "icon-blank";
-            break;
-          case ProcumentStatus.PARTIAL_RECEIVED:
-            processIcon = "icon-partial";
-            break;
-          case ProcumentStatus.RECEIVED:
-          case ProcumentStatus.FINISHED:
-            processIcon = "icon-full";
-            break;
-        }
-        if (processIcon)
+      {
+        title: "Ngày duyệt đơn",
+        width: 150,
+        dataIndex: "activated_date",
+        render: (value: string) => {
+          return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
+        },
+        visible: true,
+      },
+      {
+        title: "Ngày nhận hàng dự kiến",
+        dataIndex: "procurements",
+        render: (value: Array<PurchaseProcument>) => {
+          let display = "";
+          if (value && value.length > 0) {
+            value.sort((a, b) =>
+              moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date))
+            );
+            display = ConvertUtcToLocalDate(value[value.length - 1].expect_receipt_date,DATE_FORMAT.DDMMYYY);
+          }
+          return <div>{display}</div>;
+        },
+        visible: true,
+        width: 200,
+      },
+      {
+        title: "Trạng thái đơn",
+        width: 150,
+        dataIndex: "status_name",
+        render: (value: string, record) => {
+          let type = TagStatusType.nomarl;
+          switch (record.status) {
+            case POStatus.FINALIZED:
+            case POStatus.STORED:
+              type = TagStatusType.primary;
+              break;
+            case POStatus.CANCELLED:
+              type = TagStatusType.danger;
+              break;
+            case POStatus.FINISHED:
+            case POStatus.COMPLETED:
+              type = TagStatusType.success;
+              break;
+            case POStatus.DRAFT:
+              type = TagStatusType.nomarl;
+              break;
+          }
+  
+          return <TagStatus type={type}>{value}</TagStatus>;
+        },
+        visible: true,
+      },
+      {
+        title: "Nhập kho",
+        dataIndex: "receive_status",
+        align: "center",
+        render: (value: string) => {
+          let processIcon = null;
+  
+          switch (value) {
+            case ProcumentStatus.NOT_RECEIVED:
+            case null:
+              processIcon = "icon-blank";
+              break;
+            case ProcumentStatus.PARTIAL_RECEIVED:
+              processIcon = "icon-partial";
+              break;
+            case ProcumentStatus.RECEIVED:
+            case ProcumentStatus.FINISHED:
+              processIcon = "icon-full";
+              break;
+          }
+          if (processIcon)
+            return (
+              <div className="text-center">
+                <div className={processIcon} />
+              </div>
+            );
           return (
             <div className="text-center">
-              <div className={processIcon} />
+              <div className="icon-blank" />
             </div>
           );
-        return (
-          <div className="text-center">
-            <div className="icon-blank" />
-          </div>
-        );
+        },
+        visible: true,
+        width: 120,
       },
-      visible: true,
-      width: 120,
-    },
-    {
-      title: "Thanh toán",
-      align: "center",
-      dataIndex: "financial_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case PoPaymentStatus.UNPAID:
-          case null:
-            processIcon = "icon-blank";
-            break;
-          case PoPaymentStatus.PARTIAL_PAID:
-            processIcon = "icon-partial";
-            break;
-          case PoPaymentStatus.PAID:
-          case PoPaymentStatus.FINISHED:
-            processIcon = "icon-full";
-            break;
-        }
-        if (processIcon)
+      {
+        title: "Thanh toán",
+        align: "center",
+        dataIndex: "financial_status",
+        render: (value: string) => {
+          let processIcon = null;
+          switch (value) {
+            case PoPaymentStatus.UNPAID:
+            case null:
+              processIcon = "icon-blank";
+              break;
+            case PoPaymentStatus.PARTIAL_PAID:
+              processIcon = "icon-partial";
+              break;
+            case PoPaymentStatus.PAID:
+            case PoPaymentStatus.FINISHED:
+              processIcon = "icon-full";
+              break;
+          }
+          if (processIcon)
+            return (
+              <div className="text-center">
+                <div className={processIcon} />
+              </div>
+            );
           return (
             <div className="text-center">
-              <div className={processIcon} />
+              <div className="icon-blank" />
             </div>
           );
-        return (
-          <div className="text-center">
-            <div className="icon-blank" />
-          </div>
-        );
+        },
+        visible: true,
+        width: 120,
       },
-      visible: true,
-      width: 120,
-    },
-    {
-      title: "Tổng SL sp",
-      render: (row: PurchaseOrder) => {
-        let total = 0;
-        row?.line_items.forEach((item) => {
-          total += item?.quantity ? item.quantity : 0;
-        });
-        return <div>{total}</div>;
+      {
+        title: "Tổng SL sp",
+        dataIndex: "total_quantity",
+        render: (row: PurchaseOrder) => {
+          let total = 0;
+          row?.line_items.forEach((item) => {
+            total += item?.quantity ? item.quantity : 0;
+          });
+          return <div>{total}</div>;
+        },
+        visible: true,
       },
-      visible: true,
-    },
-    {
-      title: "Tổng tiền",
-      dataIndex: "total",
-      render: (value: number) => (
-        <NumberFormat
-          value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
-      ),
-      visible: true,
-    },
-    {
-      title: "Merchandiser",
-      render: (row) => {
-        if (!row.merchandiser_code || !row.merchandiser) return "";
-        return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
+      {
+        title: "Tổng tiền",
+        dataIndex: "total",
+        render: (value: number) => (
+          <NumberFormat
+            value={value}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        ),
+        visible: true,
       },
-      visible: true,
-    },
-    {
-      title: "QC",
-      render: (row) => {
-        if (!row.qc_code || !row.qc) return "";
-        return <div>{`${row.qc_code} - ${row.qc}`}</div>;
+      {
+        title: "Merchandiser",
+        dataIndex: 'Merchandiser',
+        render: (row) => {
+          if (!row.merchandiser_code || !row.merchandiser) return "";
+          return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
+        },
+        visible: true,
       },
-      visible: true,
-    },
-    {
-      title: "Ngày hoàn tất đơn",
-      dataIndex: "completed_date",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      visible: true,
-      width: 200,
-    },
-    {
-      title: "Ngày hủy đơn",
-      dataIndex: "cancelled_date",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      visible: true,
-      width: 200,
-    },
-    {
-      title: "Ghi chú nội bộ",
-      dataIndex: "note",
-      visible: true,
-      render: (value)=>{
-        return <TextEllipsis value={value} />
-      }
-    },
-    {
-      title: "Ghi chú nhà cung cấp",
-      dataIndex: "supplier_note",
-      visible: true,
-      width: 200,
-    },
-    {
-      title: "Tag",
-      dataIndex: "tags",
-      render: (value: string) => {
-        return <div className="txt-muted">{value}</div>;
+      {
+        title: "QC",
+        dataIndex: 'QC',
+        render: (row) => {
+          if (!row.qc_code || !row.qc) return "";
+          return <div>{`${row.qc_code} - ${row.qc}`}</div>;
+        },
+        visible: true,
       },
-      visible: true,
-    },
-    {
-      title: "Mã tham chiếu",
-      dataIndex: "reference",
-      visible: true,
-    },
-  ];
+      {
+        title: "Ngày hoàn tất đơn",
+        dataIndex: "completed_date",
+        render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+        visible: true,
+        width: 200,
+      },
+      {
+        title: "Ngày hủy đơn",
+        dataIndex: "cancelled_date",
+        render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+        visible: true,
+        width: 200,
+      },
+      {
+        title: "Ghi chú nội bộ",
+        dataIndex: "note",
+        visible: true,
+        render: (value)=>{
+          return <TextEllipsis value={value} />
+        }
+      },
+      {
+        title: "Ghi chú nhà cung cấp",
+        dataIndex: "supplier_note",
+        visible: true,
+        width: 200,
+      },
+      {
+        title: "Tag",
+        dataIndex: "tags",
+        render: (value: string) => {
+          return <div className="txt-muted">{value}</div>;
+        },
+        visible: true,
+      },
+      {
+        title: "Mã tham chiếu",
+        dataIndex: "reference",
+        visible: true,
+      },
+    ];
+  }, []); 
 
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<PurchaseOrder>>>(defaultColumns);
@@ -434,6 +447,49 @@ const PurchaseOrderListScreen: React.FC = () => {
     [dispatch, onResultRd]
   );
 
+  const getConfigColumnPo = useCallback(()=>{
+    if (account && account.code) {
+      getPurchaseOrderConfigService(account.code)
+        .then((res) => {
+          switch (res.code) {
+            case HttpStatus.SUCCESS:
+              if (res) {
+                setLstConfig(res.data);
+                if (res.data && res.data.length > 0) {
+                  const userConfigColumn = res.data.find(e=>e.type === FILTER_CONFIG_TYPE.COLUMN_PO);
+                
+                 if (userConfigColumn){
+                    let cf = JSON.parse(userConfigColumn.json_content) as Array<ICustomTableColumType<PurchaseOrder>>;
+                    cf.forEach(e => {
+                      e.render = defaultColumns.find(p=>p.dataIndex === e.dataIndex)?.render;
+                    });
+                    
+                    setColumn(cf);
+                 }
+                }
+               }
+              break;
+            case HttpStatus.UNAUTHORIZED:
+              dispatch(unauthorizedAction());
+              break;
+            default:
+              res.errors.forEach((e: any) => showError(e));
+              break;
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          dispatch(hideLoading());
+        }); 
+    }
+  },[account, dispatch, defaultColumns]);
+
+  useEffect(()=>{
+    getConfigColumnPo();
+  },[getConfigColumnPo]);
+
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(AccountSearchAction(supplierQuery, onResultSupplier));
@@ -470,6 +526,22 @@ const PurchaseOrderListScreen: React.FC = () => {
       return;
     }
   }, [deleteCallback, dispatch, selected]);
+
+  const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<PurchaseOrder>>) => {
+      let config = lstConfig.find(e=>e.type === FILTER_CONFIG_TYPE.COLUMN_PO) as FilterConfigRequest;
+      if (!config) config = {} as FilterConfigRequest;
+      
+      const json_content = JSON.stringify(data);
+      config.type = FILTER_CONFIG_TYPE.COLUMN_PO;
+      config.json_content = json_content;
+      config.name= `${account?.code}_config_column_po`;
+      if (config && config.id && config.id !== null) {
+        dispatch(updateConfigPoAction(config));
+      }else{
+        dispatch(createConfigPoAction(config));
+      }
+    
+  }, [dispatch,account?.code, lstConfig]);
 
   return (
     <PurchaseOrderListContainer>
@@ -563,6 +635,8 @@ const PurchaseOrderListScreen: React.FC = () => {
           onCancel={() => setShowSettingColumn(false)}
           onOk={(data) => {
             setShowSettingColumn(false);
+            //save config column
+            onSaveConfigColumn(data);
             setColumn(data);
           }}
           data={columns}
