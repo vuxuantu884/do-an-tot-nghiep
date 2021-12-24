@@ -184,24 +184,15 @@ export default function Order(props: PropType) {
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
-  const onChangeInfoProduct = (
-    _items: Array<OrderLineItemRequest>,
-    amount: number,
-    discount_rate: number,
-    discount_value: number
-  ) => {
-
-    setItems(_items);
-    setOrderAmount(amount);
-		setPromotion({
-			amount: discount_value,
-			rate: discount_rate,
-			promotion_id: null,
-			reason: "",
-			discount_code: undefined,
-			value: discount_value,
-		})
-  };
+	const onChangeInfoProduct = (
+		_items: Array<OrderLineItemRequest>,
+		_promotion?: OrderDiscountRequest | null,
+	) => {
+		setItems(_items);
+		if(_promotion !== undefined) {
+			setPromotion(_promotion);
+		}
+	};
 
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -1244,6 +1235,7 @@ export default function Order(props: PropType) {
                     orderConfig={configOrder}
                   /> */}
                   <OrderCreateProduct
+                    orderAmount={orderAmount}
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);

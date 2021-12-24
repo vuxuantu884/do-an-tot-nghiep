@@ -52,7 +52,8 @@ import {
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
 	getTotalAmountAfterDiscount,
-	scrollAndFocusToDomElement
+	scrollAndFocusToDomElement,
+	totalAmount
 } from "utils/AppUtils";
 import {
 	ADMIN_ORDER,
@@ -339,14 +340,14 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
-    amount: number,
-    discount_rate: number,
-    discount_value: number
+    _promotion?: OrderDiscountRequest | null,
   ) => {
     setListExchangeProducts(_items);
-    setDiscountRate(discount_rate);
-    setDiscountValue(discount_value);
-    setOrderAmount(amount);
+		let amount = totalAmount(_items);
+		setOrderAmount(amount);
+    if(_promotion !== undefined) {
+			setPromotion(_promotion);
+		}
   };
 
   const handleSubmitFormReturn = () => {
@@ -985,6 +986,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 />
                 {isExchange && isStepExchange && (
                   <OrderCreateProduct
+                    orderAmount={orderAmount}
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);
