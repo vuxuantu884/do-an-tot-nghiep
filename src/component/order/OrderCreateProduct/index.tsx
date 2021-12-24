@@ -479,6 +479,8 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
+	console.log('itemsCreateProduct', items)
+
 	const onChangeQuantity = (value: number | null, index: number) => {
 		if (items) {
 			let _items = [...items];
