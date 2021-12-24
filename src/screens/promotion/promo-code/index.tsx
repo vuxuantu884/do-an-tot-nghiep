@@ -12,10 +12,10 @@ import UrlConfig from "config/url.config";
 import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
   bulkDeletePriceRules,
-  bulkDisablePriceRules,
-  bulkEnablePriceRules,
+  bulkDisablePriceRulesAction,
+  bulkEnablePriceRulesAction,
   deletePriceRulesById,
-  getListDiscount,
+  getListDiscountAction,
 } from "domain/actions/promotion/discount/discount.action";
 import useAuthorization from "hook/useAuthorization";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -85,7 +85,7 @@ const PromotionCode = () => {
 
   useEffect(() => {
     setTableLoading(true);
-    dispatch(getListDiscount(params, fetchData));
+    dispatch(getListDiscountAction(params, fetchData));
   }, [dispatch, fetchData, params]);
 
   useEffect(() => {
@@ -240,7 +240,7 @@ const PromotionCode = () => {
       if (response) {
         setTimeout(() => {
           showSuccess("Thao tác thành công");
-          dispatch(getListDiscount(params, fetchData));
+          dispatch(getListDiscountAction(params, fetchData));
         }, 1500);
       }
     },
@@ -253,11 +253,11 @@ const PromotionCode = () => {
       switch (index) {
         case 1:
           setTableLoading(true);
-          dispatch(bulkEnablePriceRules(body, handleCallback));
+          dispatch(bulkEnablePriceRulesAction(body, handleCallback));
           break;
         case 2:
           setTableLoading(true);
-          dispatch(bulkDisablePriceRules(body, handleCallback));
+          dispatch(bulkDisablePriceRulesAction(body, handleCallback));
           break;
         case 3:
           break;

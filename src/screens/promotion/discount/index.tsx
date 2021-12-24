@@ -1,25 +1,24 @@
 import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Dropdown, Menu, Row } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import { MenuAction } from "component/table/ActionButton";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { RiDeleteBin2Fill } from "react-icons/all";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import NoPermission from "screens/no-permission.screen";
-import { PROMO_TYPE } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
 import ContentContainer from "../../../component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "../../../component/table/CustomTable";
 import UrlConfig from "../../../config/url.config";
-import { getListDiscount } from "../../../domain/actions/promotion/discount/discount.action";
+import { bulkDisablePriceRulesAction, bulkEnablePriceRulesAction, getListDiscountAction } from "../../../domain/actions/promotion/discount/discount.action";
 import { PageResponse } from "../../../model/base/base-metadata.response";
 import { DiscountSearchQuery } from "../../../model/query/discount.query";
 import { DiscountResponse } from "../../../model/response/promotion/discount/list-discount.response";
-import { bulkDisablePriceRules, bulkEnablePriceRules } from "../../../service/promotion/discount/discount.service";
 import { DATE_FORMAT } from "../../../utils/DateUtils";
-import { showError, showSuccess } from "../../../utils/ToastUtils";
+import { showSuccess } from "../../../utils/ToastUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { ACTIONS_DISCOUNT, STATUS_PROMO } from "../constant";
 import DiscountFilter from "./components/DiscountFilter";
@@ -27,7 +26,6 @@ import "./discount.scss";
 
 const DiscountPage = () => {
   const discountStatuses = STATUS_PROMO;
-  // const [actions, setActions] = useState<Array<MenuAction>>(ACTIONS_DISCOUNT);
   const initQuery: DiscountSearchQuery = {
     type: PROMO_TYPE.AUTOMATIC,
     request: "",
@@ -43,7 +41,7 @@ const DiscountPage = () => {
   const query = useQuery();
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [discounts, setDiscounts] = useState<PageResponse<DiscountResponse> | null>({
+  const [discounts, setDiscounts] = useState<PageResponse<DiscountResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -59,42 +57,19 @@ const DiscountPage = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   //phân quyền
-  const [allowReadPromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.READ],
-  });
-  const [allowCreatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CREATE],
-  });
   const [allowCancelPromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CANCEL],
   });
 
-  const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
-    setTimeout(() => {
-      setDiscounts(data);
-      setTableLoading(false);
-    }, 1500);
-  }, []);
-
-  useEffect(() => {
-    dispatch(getListDiscount(params, fetchData));
-    // dispatch(StoreGetListAction(setStore));
-    // dispatch(getListSourceRequest(setListSource));
-    // dispatch(actionFetchListCustomerGroup({},
-    //   (data: CustomerGroupResponseModel) => setCustomerGroups(data.items),
-    // ));
-  }, [dispatch, fetchData, params]);
-
   useEffect(() => {
     setTableLoading(true);
-    dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params]);
+    dispatch(getListDiscountAction(params, (result) => {
+      setTableLoading(false);
+      if (result)
+        setDiscounts(result)
+    }));
+  }, [dispatch, params]);
 
-  // useEffect(() => {
-  //   setActions([...ACTIONS_DISCOUNT]);
-  //   if (!allowCancelPromoCode)
-  //     setActions([...ACTIONS_DISCOUNT.filter((e) => e.id !== 1 && e.id !== 2)]);
-  // }, [allowCancelPromoCode]);
 
   const actionFilter: Array<MenuAction> = useMemo(() => {
     if (selectedRowKey.length < 1) {
@@ -121,8 +96,6 @@ const DiscountPage = () => {
     {
       title: "Mã",
       visible: true,
-      fixed: "left",
-      width: "9%",
       render: (value: any, item: any, index: number) => (
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${value.id}`}
@@ -135,7 +108,6 @@ const DiscountPage = () => {
     {
       title: "Tên chương trình",
       visible: true,
-      fixed: "left",
       dataIndex: "title",
     },
     {
@@ -143,6 +115,7 @@ const DiscountPage = () => {
       visible: true,
       dataIndex: "priority",
       align: "center",
+
       render: (value: any) => (
         <Row justify="center">
           <Col>
@@ -164,7 +137,6 @@ const DiscountPage = () => {
     {
       title: "Thời gian",
       visible: true,
-      fixed: "left",
       align: "center",
       render: (value: any, item: any, index: number) => (
         <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)
@@ -176,16 +148,13 @@ const DiscountPage = () => {
       title: "Người tạo",
       visible: true,
       dataIndex: "created_name",
-      fixed: "left",
       align: "center",
     },
     {
       title: "Trạng thái",
       visible: true,
-      fixed: "left",
       dataIndex: "state",
-      align: "center",
-      width: "12%",
+      align: "center", 
       render: (value: any, item: any, index: number) => {
         const status: any | null = discountStatuses.find((e) => e.code === value);
         return <div style={status?.style}>{status?.value}</div>;
@@ -193,10 +162,8 @@ const DiscountPage = () => {
     },
     {
       visible: true,
-      fixed: "left",
       dataIndex: "id",
-      align: "center",
-      width: "12%",
+      align: "center", 
       render: (id: any, item: any, index: number) => (
         <Dropdown.Button
           overlay={
@@ -205,19 +172,17 @@ const DiscountPage = () => {
                 <Link to={`discounts/${id}/update`}>Chỉnh sửa</Link>
               </Menu.Item>
               <Menu.Item
-                disabled
                 icon={<RiDeleteBin2Fill />}
-                onClick={async () => {
+                onClick={() => {
                   setTableLoading(true);
-                  const deleteResponse = await bulkDisablePriceRules({ ids: [item.id] });
-                  if (deleteResponse.code === 20000000) {
-                    setTimeout(() => {
-                      showSuccess("Thao tác thành công");
-                      dispatch(getListDiscount(params, fetchData));
-                    }, 2000);
-                  } else {
-                    showError(`${deleteResponse.code} - ${deleteResponse.message}`);
+                  dispatch(bulkDisablePriceRulesAction({ ids: [id] }, (numberOfActived: number) => {
+                    if (typeof numberOfActived === "number") {
+                      showSuccess(`Đã tạm ngưng thành công ${numberOfActived} chương trình`);
+                      dispatch(getListDiscountAction(params, setDiscounts));
+                    }
                   }
+                  ))
+                  setTableLoading(false);
                 }}
               >
                 Tạm ngừng
@@ -238,112 +203,105 @@ const DiscountPage = () => {
     setParams({ ...newParams });
   }
 
-  const onMenuClick = useCallback(
-    async (index: number) => {
+  const onMenuClick =
+    (index: number) => {
       setTableLoading(true);
       const body = { ids: selectedRowKey };
       switch (index) {
         case 1:
-          const bulkEnableResponse = await bulkEnablePriceRules(body);
-          if (bulkEnableResponse.code === 20000000) {
-            setTimeout(() => {
-              showSuccess("Thao tác thành công");
-              dispatch(getListDiscount(params, fetchData));
-            }, 2000);
-          } else {
-            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`);
+          dispatch(bulkEnablePriceRulesAction(body, (numberOfActived: number) => {
+            if (typeof numberOfActived === "number") {
+              showSuccess(`Đã kích hoạt thành công ${numberOfActived}/${selectedRowKey.length} chương trình`);
+              dispatch(getListDiscountAction(params, setDiscounts));
+            }
           }
+          ))
+          setTableLoading(false);
           break;
         case 2:
-          const bulkDisableResponse = await bulkDisablePriceRules(body);
-          if (bulkDisableResponse.code === 20000000) {
-            setTimeout(() => {
-              showSuccess("Thao tác thành công");
-              dispatch(getListDiscount(params, fetchData));
-            }, 2000);
-          } else {
-            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`);
+          dispatch(bulkDisablePriceRulesAction(body, (numberOfActived: number) => {
+            if (typeof numberOfActived === "number") {
+              showSuccess(`Đã tạm ngưng thành công ${numberOfActived}/${selectedRowKey.length} chương trình`);
+              dispatch(getListDiscountAction(params, setDiscounts));
+            }
           }
+          ))
+          setTableLoading(false);
           break;
         case 3:
           break;
       }
-    },
-    [dispatch, fetchData, params, selectedRowKey],
-  );
+    };
 
   return (
-    <>
-      {allowReadPromoCode ? (
-        <ContentContainer
-          title="Chiết khấu"
-          breadcrumb={[
-            {
-              name: "Tổng quan",
-              path: UrlConfig.HOME,
-            },
-            {
-              name: "Khuyến mại",
-              path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
-            },
-            {
-              name: "Chiết khấu",
-              path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
-            },
-          ]}
-          extra={
-            allowCreatePromoCode ? (
-              <Link to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`}>
-                <Button
-                  className="ant-btn-outline ant-btn-primary"
-                  size="large"
-                  icon={<PlusOutlined />}
-                >
-                  Tạo mới khuyến mại
-                </Button>
-              </Link>
-            ) : null
-          }
-        >
-          <Card
-            title={
-              <div className="d-flex">
-                <span className="tab-label">Danh sách chiết khấu</span>
-              </div>
-            }
-          >
-            <div>
-              <DiscountFilter
-                onMenuClick={onMenuClick}
-                params={params}
-                actions={actionFilter}
-                onFilter={onFilter}
-              />
-              <CustomTable
-                selectedRowKey={selectedRowKey}
-                onChangeRowKey={(rowKey) => setSelectedRowKey(rowKey)}
-                isRowSelection
-                isLoading={tableLoading}
-                sticky={{ offsetScroll: 5 }}
-                pagination={{
-                  pageSize: discounts?.metadata.limit || 0,
-                  total: discounts?.metadata.total || 0,
-                  current: discounts?.metadata.page,
-                  showSizeChanger: true,
-                  onChange: onPageChange,
-                  onShowSizeChange: onPageChange,
-                }}
-                dataSource={discounts?.items}
-                columns={columns}
-                rowKey={(item: any) => item.id}
-              />
-            </div>
-          </Card>
-        </ContentContainer>
-      ) : (
-        <NoPermission />
-      )}
-    </>
+
+
+    <ContentContainer
+      title="Chiết khấu"
+      breadcrumb={[
+        {
+          name: "Tổng quan",
+          path: UrlConfig.HOME,
+        },
+        {
+          name: "Khuyến mại",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
+        },
+        {
+          name: "Chiết khấu",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
+        },
+      ]}
+      extra={
+        <AuthWrapper acceptPermissions={[PromoPermistion.CREATE]}>
+          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`}>
+            <Button
+              className="ant-btn-outline ant-btn-primary"
+              size="large"
+              icon={<PlusOutlined />}
+            >
+              Tạo mới khuyến mại
+            </Button>
+          </Link></AuthWrapper>
+
+      }
+    >
+      <Card
+        title={
+          <div className="d-flex">
+            <span className="tab-label">Danh sách chiết khấu</span>
+          </div>
+        }
+      >
+        <DiscountFilter
+          onMenuClick={onMenuClick}
+          params={params}
+          actions={actionFilter}
+          onFilter={onFilter}
+        />
+        <CustomTable
+          selectedRowKey={selectedRowKey}
+          onChangeRowKey={(rowKey) => setSelectedRowKey(rowKey)}
+          isRowSelection
+          isLoading={tableLoading}
+          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+          pagination={{
+            pageSize: discounts?.metadata.limit || 0,
+            total: discounts?.metadata.total || 0,
+            current: discounts?.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          dataSource={discounts?.items}
+          columns={columns}
+          rowKey={(item: any) => item.id}
+        />
+
+      </Card>
+    </ContentContainer>
+
+
   );
 };
 
