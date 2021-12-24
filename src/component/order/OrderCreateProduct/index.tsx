@@ -475,11 +475,11 @@ function OrderCreateProduct(props: PropType) {
 			let _items = [...items];
 			let _amount = totalAmount(_items);
 			setAmount(_amount);
-			if(!_discountRate) {
-				_discountRate = discountRate
-			}
 			if(!_discountValue) {
 				_discountValue = discountValue
+			}
+			if(!_discountRate) {
+				_discountRate = _discountValue/_amount * 100;
 			}
 			calculateChangeMoney(_items, _amount, _discountRate, _discountValue);
 		},
@@ -1147,8 +1147,6 @@ function OrderCreateProduct(props: PropType) {
 		if (!items) {
 			return;
 		}
-		let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
-		console.log('totalLineAmountAfterDiscount', totalLineAmountAfterDiscount)
 		if(checkingDiscountResponse.data.suggested_discounts === null || checkingDiscountResponse.data.suggested_discounts.length === 0) {
       setPromotion &&
 				setPromotion({
@@ -1165,7 +1163,8 @@ function OrderCreateProduct(props: PropType) {
 			if (!discountOrder?.value) {
 				return;
 			}
-			handleRemoveAllDiscount();
+			let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
+			console.log('totalLineAmountAfterDiscount', totalLineAmountAfterDiscount)
 			let discountAmount = 0;
 			switch (discountOrder.value_type) {
 				case DISCOUNT_VALUE_TYPE.fixedAmount:
@@ -1193,7 +1192,8 @@ function OrderCreateProduct(props: PropType) {
 							value: discountAmount,
 							amount: discountAmount,
 							rate: discountRate,
-						});
+						}); 
+						handleChangeItems(items, discountRate, discountAmount);
 				}
 			}
 		}
@@ -1742,8 +1742,11 @@ function OrderCreateProduct(props: PropType) {
 				});
 				lineItem.discount_rate = 0;
 				lineItem.discount_value = 0;
+				lineItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(lineItem);
 			}
 		});
+		let amount = totalAmount(items);
+		setAmount(amount);
 		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
 
@@ -1770,6 +1773,7 @@ function OrderCreateProduct(props: PropType) {
 			});
 			lineItem.discount_rate = 0;
 			lineItem.discount_value = 0;
+			lineItem.line_amount_after_line_discount = lineItem.price;
 		});
 		// showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
 	};
