@@ -6,7 +6,7 @@ import {DiscountResponse} from "../../../../model/response/promotion/discount/li
 import { ProductEntitlements } from 'model/promotion/discount.create.model';
 import { PriceRuleFormRequest } from 'model/request/promotion/price-rule.request';
 
-export const getListDiscount = (query: BaseQuery, setData: (data: PageResponse<DiscountResponse>) => void) => {
+export const getListDiscountAction = (query: BaseQuery, setData: (data: PageResponse<DiscountResponse>) => void) => {
   return BaseAction(DiscountType.GET_LIST_DISCOUNTS, { query, setData });
 }
 
@@ -30,11 +30,11 @@ export const addPriceRules = (body: any, createCallback: (result: DiscountRespon
   return BaseAction(DiscountType.ADD_PRICE_RULE, {body, createCallback});
 }
 
-export const bulkEnablePriceRules = (body: any, enableCallback: (result: DiscountResponse|false) => void) => {
+export const bulkEnablePriceRulesAction = (body: any, enableCallback: (numberOfActived: number) => void) => {
   return BaseAction(DiscountType.ENABLE_PRICE_RULE, {body, enableCallback});
 }
 
-export const bulkDisablePriceRules = (body: any, disableCallback: (numberOfDeleted: number) => void) => {
+export const bulkDisablePriceRulesAction = (body: any, disableCallback: (numberOfDisabled: number) => void) => {
   return BaseAction(DiscountType.DISABLE_PRICE_RULE, {body, disableCallback});
 }
 
