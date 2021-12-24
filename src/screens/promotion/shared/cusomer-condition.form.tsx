@@ -130,7 +130,7 @@ export default function CustomerFilter(props: Props): ReactElement {
     <Card
       title={
         <span>
-          Đối tượng khách hàng áp dụng <span className="required-field">*</span>
+          Đối tượng khách hàng áp dụng 
         </span>
       }
     >
