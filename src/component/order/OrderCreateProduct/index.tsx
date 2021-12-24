@@ -468,15 +468,22 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const handleChangeItems = useCallback(
-		(items) => {
+		(items, _discountRate?:number, _discountValue?:number) => {
 			if (!items) {
 				return;
 			}
 			let _items = [...items];
 			let _amount = totalAmount(_items);
 			setAmount(_amount);
+			if(!_discountRate) {
+				_discountRate = discountRate
+			}
+			if(!_discountValue) {
+				_discountValue = discountValue
+			}
+			calculateChangeMoney(_items, _amount, _discountRate, _discountValue);
 		},
-		[items]
+		[items, discountRate, discountValue]
 	);
 
 	const handleDelayApplyDiscountWhenChangeInput = (
@@ -1010,10 +1017,9 @@ function OrderCreateProduct(props: PropType) {
 			handleApplyDiscount(_items);
 		} else if (couponInputText && _items.length > 0) {
 			handleApplyCouponWhenInsertCoupon(couponInputText, _items);
-		} else {
-			setItems(_items);
-			calculateChangeMoney(_items, _amount, discountRate, discountValue);
 		}
+		setItems(_items);
+		calculateChangeMoney(_items, _amount, discountRate, discountValue);
 	};
 
 	// const handleSplitLineItem = (items: OrderLineItemRequest[], lineItem: OrderLineItemRequest, quantity: 1, position:number) => {
@@ -1244,8 +1250,6 @@ function OrderCreateProduct(props: PropType) {
 		) {
 			let result = getApplyDiscountLineItem(checkingDiscountResponse, items);
 			handleApplyDiscountOrder(checkingDiscountResponse, result);
-			setItems(result);
-			handleChangeItems(result);
 			console.log("result", result);
 			showSuccess("Cập nhật chiết khấu tự động thành công!");
 		} else {
@@ -1662,10 +1666,10 @@ function OrderCreateProduct(props: PropType) {
 		_discountValue?: number
 	) => {
 		if (!_discountRate) {
-			_discountRate = 0;
+			_discountRate = discountRate;
 		}
 		if (!_discountValue) {
-			_discountValue = 0;
+			_discountValue = discountValue;
 		}
 		props.changeInfo(_items, _amount, _discountRate, _discountValue);
 	};
