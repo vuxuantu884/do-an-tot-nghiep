@@ -358,7 +358,7 @@ function OrdersTable(props: PropsType) {
 															<span>
 																{" "}
 																-{" "}
-																{formatCurrency(item.discount_items[0].rate)}%
+																{formatCurrency(Math.round(item.discount_items[0].rate*100) /100)}%
 															</span>
 														</div>
 													</Tooltip>

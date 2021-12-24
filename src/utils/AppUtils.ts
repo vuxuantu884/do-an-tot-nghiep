@@ -1128,6 +1128,33 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	return discountPerOrder;
 }
 
+export const totalAmount = (items: Array<OrderLineItemRequest>) => {
+		if (!items) {
+			return 0;
+		}
+		let _items = [...items];
+		let _amount = 0;
+
+		_items.forEach((i) => {
+			let total_discount_items = 0;
+			i.discount_items.forEach((d) => {
+				total_discount_items = total_discount_items + d.value;
+			});
+			let amountItem = (i.price - total_discount_items) * i.quantity;
+			i.line_amount_after_line_discount = amountItem;
+			i.amount = i.price * i.quantity;
+			_amount += amountItem;
+			if (i.amount !== null) {
+				let totalDiscount = 0;
+				i.discount_items.forEach((a) => {
+					totalDiscount = totalDiscount + a.amount;
+				});
+				i.discount_amount = totalDiscount;
+			}
+		});
+		// console.log("totalAmount333", _amount);
+		return _amount;
+}
 // check if value is null or undefined
 export const isNullOrUndefined = (value: any) => {
   if (value === null || value === undefined) {

@@ -55,7 +55,8 @@ import {
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
-	scrollAndFocusToDomElement
+	scrollAndFocusToDomElement,
+	totalAmount
 } from "utils/AppUtils";
 import {
 	ADMIN_ORDER,
@@ -170,20 +171,14 @@ export default function Order() {
 
 	const onChangeInfoProduct = (
 		_items: Array<OrderLineItemRequest>,
-		amount: number,
-		discount_rate: number,
-		discount_value: number
+		_promotion?: OrderDiscountRequest | null,
 	) => {
 		setItems(_items);
+		let amount = totalAmount(_items);
 		setOrderAmount(amount);
-		setPromotion({
-			amount: discount_value,
-			rate: discount_rate,
-			promotion_id: null,
-			reason: "",
-			discount_code: undefined,
-			value: discount_value,
-		})
+		if(_promotion !== undefined) {
+			setPromotion(_promotion);
+		}
 	};
 
 	const handlePaymentMethod = (value: number) => {
@@ -1007,8 +1002,6 @@ export default function Order() {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
 
-	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
-
 	return (
 		<React.Fragment>
 			<ContentContainer
@@ -1075,6 +1068,7 @@ export default function Order() {
 											setOrderSourceId={setOrderSourceId}
 										/>
 										<OrderCreateProduct
+											orderAmount={orderAmount}
 											changeInfo={onChangeInfoProduct}
 											setStoreId={(value) => {
 												setStoreId(value);

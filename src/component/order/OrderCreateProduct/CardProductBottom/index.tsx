@@ -15,7 +15,7 @@ type PropType = {
   totalAmountCustomerNeedToPay: number;
   shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
-  amount: number;
+  amount?: number;
   isDisableOrderDiscount?: boolean;
   isCouponValid?: boolean;
   couponInputText?: string;
@@ -26,9 +26,7 @@ type PropType = {
   setCouponInputText?: (value: string) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
-    _amount: number,
-    _discountRate: number,
-    _discountValue: number
+    _promotion?: OrderDiscountRequest | null | undefined
   ) => void;
   returnOrderInformation?: {
     totalAmountReturn: number;
@@ -45,7 +43,6 @@ function CardProductBottom(props: PropType) {
     promotion,
     couponInputText,
     // changeMoney,
-    amount,
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
@@ -115,7 +112,16 @@ function CardProductBottom(props: PropType) {
                   closable = {!isDisableOrderDiscount}
                   onClose={() => {
                     setCoupon && setCoupon("");
-                    calculateChangeMoney(items, amount, 0, 0);
+                    calculateChangeMoney(items, {
+											amount: 0,
+											discount_code: null,
+											order_id: null,
+											promotion_id: null,
+											rate: 0,
+											reason: null,
+											source: null,
+											value: 0
+										});
                   }}
                 >
                   {discountRate ? Math.round(discountRate*100)/100 : 0}%{" "}
