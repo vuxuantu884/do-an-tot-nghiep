@@ -17,9 +17,7 @@ import {
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-	configOrderSaga,
-	DeliveryServicesGetList,
-	orderCreateAction,
+	configOrderSaga, orderCreateAction,
 	OrderDetailAction,
 	PaymentMethodGetList
 } from "domain/actions/order/order.action";
@@ -42,7 +40,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-	DeliveryServiceResponse, OrderConfig,
+	OrderConfig,
 	OrderResponse,
 	StoreCustomResponse
 } from "model/response/order/order.response";
@@ -95,8 +93,6 @@ export default function Order() {
 	const [paymentMethod, setPaymentMethod] = useState<number>(
 		PaymentMethodOption.POSTPAYMENT
 	);
-	const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-	console.log('deliveryServices', deliveryServices)
 
 	const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
 	const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -113,7 +109,6 @@ export default function Order() {
 		service: "",
 		shipping_fee_paid_to_three_pls: null,
 	});
-	console.log("items333", items);
 	const [creating, setCreating] = useState(false);
 	const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
 		number | null
@@ -584,14 +579,6 @@ export default function Order() {
 		}
 	}, [dispatch, storeId]);
 
-	useEffect(() => {
-		dispatch(
-			DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-				setDeliveryServices(response);
-			})
-		);
-	}, [dispatch]);
-
 	//windows offset
 	useEffect(() => {
 		window.addEventListener("scroll", scroll);
@@ -740,7 +727,6 @@ export default function Order() {
 							if (response.payments && response.payments?.length > 0) {
 								setPaymentMethod(PaymentMethodOption.PREPAYMENT);
 								new_payments = response.payments;
-								console.log("new_payments", new_payments);
 								setPayments(new_payments);
 							}
 
@@ -992,8 +978,6 @@ export default function Order() {
 			(promotion?.value || 0)
 		);
 	}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
-
-	console.log('orderAmount', orderAmount)
 
 	/**
 	 * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
