@@ -249,14 +249,26 @@ const ScreenReturnCreate = (props: PropType) => {
   const totalAmountExchangePlusShippingFee =
     totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0);
 
+/**
+ * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
+ */
+const totalAmountOrder = useMemo(() => {
+  return (
+    orderAmount +
+    (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+    (promotion?.value || 0)
+  );
+}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
+console.log('totalAmountOrder', totalAmountOrder)
+
   /**
    * if return > exchange: positive
    * else negative
    */
   let totalAmountCustomerNeedToPay = useMemo(() => {
-    let result = totalAmountExchangePlusShippingFee - totalAmountReturnProducts;
+    let result = totalAmountOrder - totalAmountReturnProducts;
     return result;
-  }, [totalAmountExchangePlusShippingFee, totalAmountReturnProducts]);
+  }, [totalAmountOrder, totalAmountReturnProducts]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     console.log("1");
@@ -987,6 +999,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 {isExchange && isStepExchange && (
                   <OrderCreateProduct
                     orderAmount={orderAmount}
+                    totalAmountOrder={totalAmountOrder}
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);
