@@ -2,6 +2,7 @@
 
 .ant-steps-dot .ant-steps-item-content,
 .ant-steps-dot.ant-steps-small .ant-steps-item-content {
+  margin-top: 2px;
   width: 84px;
 }
 .ant-steps-label-vertical .ant-steps-item {
@@ -38,7 +39,8 @@
           margin-left: 35px !important;
         }
         &-description {
-          color: $placeholder-color !important;
+          color: #222 !important;
+          margin-top: -3px;
         }
         &-wait {
           .ant-steps-item-tail {
