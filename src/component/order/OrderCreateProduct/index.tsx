@@ -322,10 +322,7 @@ function OrderCreateProduct(props: PropType) {
 
 								if (splitLine || index === -1) {
 									_items.push(item);
-									calculateChangeMoney(
-										_items,
-										promotion
-									);
+									calculateChangeMoney(_items);
 								} else {
 									let variantItems = _items.filter((item) => item.variant_id === data.id);
 									let lastIndex = variantItems.length - 1;
@@ -333,10 +330,7 @@ function OrderCreateProduct(props: PropType) {
 									variantItems[lastIndex].line_amount_after_line_discount +=
 										variantItems[lastIndex].price -
 										variantItems[lastIndex].discount_items[0].amount;
-									calculateChangeMoney(
-										_items,
-										promotion
-									);
+									calculateChangeMoney(_items);
 								}
 
 								setItems(_items.reverse());
