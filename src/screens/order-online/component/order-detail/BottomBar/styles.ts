@@ -5,7 +5,7 @@ export const StyledComponent = styled.div`
     position: fixed;
     text-align: right;
     left: ${240 + 20}px;
-    padding: 5px 10px;
+    padding: 5px 15px;
     bottom: 0%;
     background-color: #fff;
     margin-left: -20px;
