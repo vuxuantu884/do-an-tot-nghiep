@@ -239,6 +239,7 @@ const DiscountUpdate = () => {
                 layout="vertical"
                 scrollToFirstError
                 initialValues={discountData}
+                //  onFieldsChange={(changedFields, allFields) => {console.log(changedFields, allFields)}}
             >
                 <Row gutter={24}>
 

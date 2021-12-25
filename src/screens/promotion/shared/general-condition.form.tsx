@@ -19,6 +19,7 @@ import { ChannelResponse } from "model/response/product/channel.response";
 import moment from "moment";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
 import { dayOfWeekOptions } from "../discount/constants/index";
@@ -169,21 +170,15 @@ function GeneralConditionForm({
       <Card title="Cửa hàng áp dụng">
         <Row gutter={12}>
           <Col span={24}>
-            <Form.Item
-              name="prerequisite_store_ids"
-              rules={[{ required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" }]}
-            >
-              <Select
+            <Form.Item name="prerequisite_store_ids" rules={[{ required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" }]}>
+              <TreeStore
+                form={form}
+                name="prerequisite_store_ids"
+                placeholder="Chọn cửa hàng"
+                listStore={listStore}
+                style={{ width: "100%" }}
                 disabled={allStore}
-                placeholder="Chọn chi nhánh"
-                mode="multiple"
-                className="ant-select-selector-min-height"
-                optionFilterProp="children"
-              >
-                {listStore?.map((store: any) => (
-                  <Option value={store.id} key={store.name}>{store.name}</Option>
-                ))}
-              </Select>
+              />
             </Form.Item>
             <Form.Item>
               <Switch
