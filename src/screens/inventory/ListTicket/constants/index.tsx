@@ -14,7 +14,7 @@ export const STATUS_INVENTORY_TRANSFER = {
   },
   RECEIVED : {
     status: "received",
-    name: "Đã nhập"
+    name: "Đã nhận"
   },
   CANCELED : {
     status: "canceled",
@@ -37,7 +37,7 @@ export const STATUS_INVENTORY_TRANSFER_ARRAY = [
   },
   {
     value: "received",
-    name: "Đã nhập"
+    name: "Đã nhận"
   },
   {
     value: "canceled",
