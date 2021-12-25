@@ -1243,6 +1243,7 @@ export default function Order(props: PropType) {
                   /> */}
                   <OrderCreateProduct
                     orderAmount={orderAmount}
+                    totalAmountOrder={totalAmountOrder}
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);
