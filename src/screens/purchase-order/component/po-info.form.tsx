@@ -6,18 +6,97 @@ import SelectPaging from "component/custom/SelectPaging";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { POField } from "model/purchase-order/po-field";
-import { Fragment } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { POStatus } from "utils/Constants";
+import { useDispatch } from "react-redux";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { AppConfig } from "config/app.config";
 
 type POInfoFormProps = {
-  winAccount: PageResponse<AccountResponse>;
-  rdAccount: PageResponse<AccountResponse>
   isEdit: boolean;
   isEditDetail?: boolean;
 };
+var isWin = false;
+var isDesigner = false;
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
-  const { winAccount, rdAccount, isEdit, isEditDetail } = props;
+  const { isEdit, isEditDetail } = props;
+
+  const dispatch = useDispatch();
+  const [winAccount, setWinAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  }); 
+
+  const [rdAccount, setRdAccount] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: {
+      limit: 20, 
+      page: 1,
+      total: 0
+    }
+  });
+
+  const onResultRD = useCallback((data: PageResponse<AccountResponse>) => {
+    if (!data) {
+      return;
+    }
+    setRdAccount(data);
+  }, []);
+
+  const onResultWin = useCallback(
+    (data: PageResponse<AccountResponse>) => {
+      if (!data) {
+        return;
+      }
+      setWinAccount(data);
+
+      dispatch(
+        searchAccountPublicAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultRD)
+      );
+    },
+    [dispatch, onResultRD]
+  );
+
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return false;
+      }
+      if (isWin) {
+        setWinAccount(data);
+      }
+      if (isDesigner) {
+        setRdAccount(data);
+      }
+    },
+    []
+  );
+
+  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
+    isDesigner = designer;
+    isWin = win;
+    dispatch(
+      searchAccountPublicAction(
+        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
+  useEffect(() => {
+    dispatch(
+      searchAccountPublicAction(
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        onResultWin
+      )
+    ); 
+  }, [dispatch, onResultWin]);
+
   if (isEdit && !isEditDetail) {
     return (
       <div>
@@ -376,6 +455,8 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                       allowClear
                       optionFilterProp="children"
                       placeholder="Chọn Merchandiser"
+                      onPageChange={(key, page) => getAccounts(key, page, false, true)}
+                      onSearch={(key) => getAccounts(key, 1, false, true)}
                     >
                       {winAccount.items.map((item) => (
                         <SelectPaging.Option key={item.code} value={item.code}>
@@ -392,6 +473,8 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                         allowClear
                         optionFilterProp="children"
                         placeholder="Chọn QC"
+                        onPageChange={(key, page) => getAccounts(key, page, true, false)}
+                        onSearch={(key) => getAccounts(key, 1, true, false)}
                       >
                         {rdAccount.items.map((item) => (
                             <Select.Option key={item.code} value={item.code}>
@@ -402,14 +485,16 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   </Form.Item>
                   <Form.Item name={POField.designer_code} label="Thiết kế">
                     <SelectPaging
-                      metadata={winAccount.metadata}
+                      metadata={rdAccount.metadata}
                       showArrow
                       searchPlaceholder="Tìm kiếm nhà thiết kế"
                       allowClear
                       optionFilterProp="children"
                       placeholder="Chọn nhà thiết kế"
+                      onPageChange={(key, page) => getAccounts(key, page, false, true)}
+                      onSearch={(key) => getAccounts(key, 1, true, false)}
                     >
-                      {winAccount.items.map((item) => (
+                      {rdAccount.items.map((item) => (
                           <Select.Option key={item.code} value={item.code}>
                             {[item.code, item.full_name].join(" - ")}
                           </Select.Option>

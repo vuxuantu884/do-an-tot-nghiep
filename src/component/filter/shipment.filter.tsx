@@ -227,8 +227,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'account_codes':
           onFilter && onFilter({...params, account_codes: []});
           break;
-        case 'cancel_reason':
-          onFilter && onFilter({...params, cancel_reason: []});
+        case 'reason_ids':
+          onFilter && onFilter({...params, reason_ids: []});
           break;
         case 'note':
           onFilter && onFilter({...params, note: ""});
@@ -269,7 +269,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
-      cancel_reason: Array.isArray(params.cancel_reason) ? params.cancel_reason : [params.cancel_reason],
+      reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
   }}, [params])
   
   const [print, setPrint] = useState<any[]>(initialValues.print_status);
@@ -594,11 +594,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 			})
 		}
 
-    if (initialValues.cancel_reason.length) {
-			let mappedPaymentMethods = reasons?.filter((single) => initialValues.cancel_reason?.some((item) => item === single.id.toString()))
+    if (initialValues.reason_ids.length) {
+			let mappedPaymentMethods = reasons?.filter((single) => initialValues.reason_ids?.some((item) => item === single.id.toString()))
 			let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
 			list.push({
-				key: 'cancel_reason',
+				key: 'reason_ids',
         name: 'Lý do huỷ giao',
 				value: text,
 			})
@@ -637,7 +637,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons]
   );
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -979,7 +979,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col  span={12} xxl={8}>
                 <p>Lý do huỷ giao</p>
-                <Item name="cancel_reason">
+                <Item name="reason_ids">
                   <Select
                     mode="multiple" showSearch placeholder="Chọn lý do huỷ giao"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}

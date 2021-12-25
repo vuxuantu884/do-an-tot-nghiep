@@ -237,9 +237,31 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     [dispatch, autoCompleteElement, customer]
   );
 
+	const handlePressKeyBoards = (event: KeyboardEvent) => {
+		let findCustomerInput = document.getElementById("search_customer");
+		if (["F4"].indexOf(event.key) !== -1) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
+		//if (event.target instanceof HTMLBodyElement) {
+		switch (event.key) {
+			case "F4":
+				findCustomerInput?.focus()
+				break;
+			default:
+				break;
+		}
+		return;
+	};
+
   useEffect(() => {
     window.addEventListener("keydown", event);
-  }, [event]);
+		window.addEventListener("keydown", handlePressKeyBoards);
+		return () => {
+			window.removeEventListener("keypress", event);
+			window.removeEventListener("keydown", handlePressKeyBoards);
+		};
+  }, [event, handlePressKeyBoards]);
 
   //#end region
 

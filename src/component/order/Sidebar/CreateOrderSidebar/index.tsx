@@ -72,6 +72,8 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   >([]);
   // const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
 
+	console.log(initValueCoordinatorCode, coordinatorAccountData, initCoordinatorAccountData)
+
   const renderSplitOrder = () => {
     const splitCharacter = "-";
     if (!orderDetail?.linked_order_code) {
@@ -247,7 +249,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             initDataToSelect={initMarketingAccountData}
           />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           label="Nhân viên điều phối"
           name="coordinator_code"
         >
@@ -258,7 +260,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
             setDataToSelect={setCoordinatorAccountData}
             initDataToSelect={initCoordinatorAccountData}
           />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item
           label="Tham chiếu"
           name="reference_code"
@@ -311,7 +313,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           <Input.TextArea
             placeholder="Điền ghi chú"
             maxLength={500}
-            style={{minHeight: "130px"}}
+            style={{minHeight: "80px"}}
           />
         </Form.Item>
         <Form.Item
@@ -325,11 +327,11 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           <Input.TextArea
             placeholder="Điền ghi chú"
             maxLength={500}
-            style={{minHeight: "130px"}}
+            style={{minHeight: "80px"}}
           />
         </Form.Item>
         <Form.Item
-          label="Tag"
+          label="Nhãn"
           tooltip={{
             title: "Thêm từ khóa để tiện lọc đơn hàng",
             icon: <InfoCircleOutlined />,
@@ -339,7 +341,9 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           <CustomInputTags onChangeTag={onChangeTag} tags={tags} />
         </Form.Item>
       </Card>
-      <SidebarOrderHistory customerId={customerId} />
+			{customerId && (
+				<SidebarOrderHistory customerId={customerId} />
+			)}
     </StyledComponent>
   );
 };

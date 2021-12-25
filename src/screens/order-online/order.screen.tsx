@@ -17,9 +17,7 @@ import {
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-	configOrderSaga,
-	DeliveryServicesGetList,
-	orderCreateAction,
+	configOrderSaga, orderCreateAction,
 	OrderDetailAction,
 	PaymentMethodGetList
 } from "domain/actions/order/order.action";
@@ -42,7 +40,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-	DeliveryServiceResponse, OrderConfig,
+	OrderConfig,
 	OrderResponse,
 	StoreCustomResponse
 } from "model/response/order/order.response";
@@ -55,7 +53,8 @@ import {
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
-	scrollAndFocusToDomElement
+	scrollAndFocusToDomElement,
+	totalAmount
 } from "utils/AppUtils";
 import {
 	ADMIN_ORDER,
@@ -94,8 +93,6 @@ export default function Order() {
 	const [paymentMethod, setPaymentMethod] = useState<number>(
 		PaymentMethodOption.POSTPAYMENT
 	);
-	const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-	console.log('deliveryServices', deliveryServices)
 
 	const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
 	const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -112,7 +109,6 @@ export default function Order() {
 		service: "",
 		shipping_fee_paid_to_three_pls: null,
 	});
-	console.log("items333", items);
 	const [creating, setCreating] = useState(false);
 	const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
 		number | null
@@ -170,22 +166,13 @@ export default function Order() {
 
 	const onChangeInfoProduct = (
 		_items: Array<OrderLineItemRequest>,
-		amount: number,
-		discount_rate: number,
-		discount_value: number
+		_promotion?: OrderDiscountRequest | null,
 	) => {
 		setItems(_items);
+		let amount = totalAmount(_items);
 		setOrderAmount(amount);
-		if(discount_rate || discount_value) {
-
-			setPromotion({
-				amount: discount_value,
-				rate: discount_rate,
-				promotion_id: null,
-				reason: "",
-				discount_code: undefined,
-				value: discount_value,
-			})
+		if(_promotion !== undefined) {
+			setPromotion(_promotion);
 		}
 	};
 
@@ -592,14 +579,6 @@ export default function Order() {
 		}
 	}, [dispatch, storeId]);
 
-	useEffect(() => {
-		dispatch(
-			DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-				setDeliveryServices(response);
-			})
-		);
-	}, [dispatch]);
-
 	//windows offset
 	useEffect(() => {
 		window.addEventListener("scroll", scroll);
@@ -748,7 +727,6 @@ export default function Order() {
 							if (response.payments && response.payments?.length > 0) {
 								setPaymentMethod(PaymentMethodOption.PREPAYMENT);
 								new_payments = response.payments;
-								console.log("new_payments", new_payments);
 								setPayments(new_payments);
 							}
 
@@ -1000,15 +978,15 @@ export default function Order() {
 			(promotion?.value || 0)
 		);
 	}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
-
-	console.log('orderAmount', orderAmount)
-
+	console.log('totalAmountOrder', totalAmountOrder)
 	/**
 	 * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
 	 */
 	const totalAmountCustomerNeedToPay = useMemo(() => {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
+
+	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
 	return (
 		<React.Fragment>
@@ -1076,6 +1054,8 @@ export default function Order() {
 											setOrderSourceId={setOrderSourceId}
 										/>
 										<OrderCreateProduct
+											orderAmount={orderAmount}
+											totalAmountOrder={totalAmountOrder}
 											changeInfo={onChangeInfoProduct}
 											setStoreId={(value) => {
 												setStoreId(value);

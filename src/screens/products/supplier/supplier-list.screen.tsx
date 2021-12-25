@@ -247,10 +247,10 @@ const ListSupplierScreen: React.FC = () => {
   }, [dispatch, params, searchSupplierCallback, selected]);
 
   const onDelete = useCallback(() => { 
-    if (selected.length === 1) {
-      let id = selected[0].id;
-      dispatch(SupplierDeleteAction(id, deleteCallback));
-      return;
+    if (selected && selected.length > 0) {
+      selected.forEach(e => {
+        dispatch(SupplierDeleteAction(e.id, deleteCallback));
+      });
     }
   }, [deleteCallback, dispatch, selected]);
   const onFilter = useCallback(

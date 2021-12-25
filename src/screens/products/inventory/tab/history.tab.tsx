@@ -229,7 +229,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         setPrams({...params, condition: condition ?? ""});
       }
       if ((store_ids && store_ids !== null)) {
-        setPrams({...params,condition: condition ?? "", store_ids:  parseInt(store_ids ?? "")});
+        setPrams({...params,condition: condition ?? "", store_ids:  store_ids.split(',').map(Number)});
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

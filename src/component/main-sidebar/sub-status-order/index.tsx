@@ -17,10 +17,11 @@ type PropType = {
   orderId?: number;
   fulfillments?: FulFillmentResponse[] | null;
   handleUpdateSubStatus: () => void;
+	setReload: (value: boolean) => void;
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId, fulfillments, subStatusCode, handleUpdateSubStatus } = props;
+  const { status, orderId, fulfillments, subStatusCode, handleUpdateSubStatus, setReload } = props;
   const dispatch = useDispatch();
   const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
     []
@@ -31,7 +32,10 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     
     if (orderId) {
       setValueSubStatusCode(sub_status_code);
-      dispatch(setSubStatusAction(orderId, sub_status_code, handleUpdateSubStatus));
+      dispatch(setSubStatusAction(orderId, sub_status_code, ()=>{
+				handleUpdateSubStatus();
+				setReload(true)
+			}));
     }
   };
 

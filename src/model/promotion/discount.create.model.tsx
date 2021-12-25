@@ -55,11 +55,12 @@ export interface VariantEntitlementsFileImport {
   limit: number;
   min_quantity: number;
   price: number;
+  product_code? : string;
+  product_id: number;
   quantity: number;
   sku: string;
   variant_id: number;
   variant_title: string;
-  product_id: number;
 }
 
 export interface DiscountFormModel {
@@ -99,7 +100,19 @@ export interface DiscountRule {
 /**
  * refactor
  */
+
+export enum WeekDays {
+  SUN = "SUN",
+  MON = "MON",
+  TUE = "TUE",
+  WED = "WED",
+  THU = "THU",
+  FRI = "FRI",
+  SAT = "SAT",
+}
+
 export interface ProductEntitlements {
+  //là variant phải có cả variant_id & product_id
   limit?: number;
   cost: number;
   sku: string;
@@ -108,8 +121,7 @@ export interface ProductEntitlements {
   variant_title: string | React.ReactNode;
   entitlement?: EntilementFormModel;
   open_quantity: number;
-  price_rule_id?: number;
-  isParentProduct?: boolean;
+  price_rule_id?: number; 
 }
 export interface EntilementFormModel {
   entitled_category_ids?: Array<number>;
@@ -127,3 +139,8 @@ export interface EntitleRange {
   value_type?: string;
   value?: number;
 }
+
+export type IgnoreVariant = {
+  ignoreVariantId: number;
+  ignoreVariantSku: string;
+};

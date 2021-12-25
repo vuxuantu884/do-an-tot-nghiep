@@ -63,10 +63,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
 
   // import file
   const handleImportEntitlements = () => {
-    const newVariantList = Object.assign(
-      [],
-      _.uniqBy(entitlementsImported, "variant_id")
-    );
+
     let formEntitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
     // remove init item in  entitlements
     if (
@@ -79,7 +76,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
     }
 
     // phân bổ các variant trong file import vào các discount có sẵn hoặc thêm mới discount
-    shareDiscountImportedProduct(formEntitlements, newVariantList, form);
+    shareDiscountImportedProduct(formEntitlements, entitlementsImported, form);
 
     setUploadStatus(undefined);
     setShowImportModal(false);
@@ -93,7 +90,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
         {(fields: FormListFieldData[], { add, remove }: FormListOperation, { errors }: {
           errors: React.ReactNode[];
         }) => {
-          let initValue = newEntitlements;
+          let initValue = { ...newEntitlements };
           const addBlankEntitlement = () => {
             if (discountMethod === DiscountMethod.FIXED_PRICE) {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.FIXED_PRICE.value
@@ -102,6 +99,9 @@ const FixedPriceSelectionUpdate = (props: Props) => {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.PERCENTAGE.value
             }
             initValue.selectedProducts = [];
+            initValue.entitled_variant_ids = [];
+            initValue.entitled_product_ids = [];
+
             add(initValue, 0);
           };
 
@@ -113,33 +113,6 @@ const FixedPriceSelectionUpdate = (props: Props) => {
             <>
               <Row>
                 <Col span={8}>
-                  {/* <Checkbox
-                    checked={isAllProduct}
-                    onChange={(value) => {
-                      setIsAllProduct(value.target.checked);
-                      // delete all expect first item
-                      if (value.target.checked) {
-                        if (form.getFieldValue("entitlements").length > 0) {
-                          const firstEntitlement = form.getFieldValue("entitlements")[0];
-                          firstEntitlement.entitled_product_ids = [];
-                          firstEntitlement.entitled_variant_ids = [];
-                          firstEntitlement.selectedProducts = [];
-                          form.setFieldsValue({
-                            entitlements: [
-                              firstEntitlement
-                            ],
-                          });
-                        } else {
-                          const valueType = discountMethod === DiscountMethod.FIXED_PRICE ? DiscountUnitType.FIXED_PRICE.value : DiscountUnitType.PERCENTAGE.value;
-                          const initValue = newEntitlements;
-                          initValue.selectedProducts = [];
-                          initValue.prerequisite_quantity_ranges[0].value_type = valueType;
-                        }
-                      }
-                    }}
-                  >
-                    Tất cả sản phẩm
-                  </Checkbox> */}
                 </Col>
                 <Col span={16}>
                   <Row justify="end">

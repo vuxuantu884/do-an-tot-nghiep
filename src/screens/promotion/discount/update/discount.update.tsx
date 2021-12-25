@@ -38,7 +38,7 @@ const DiscountUpdate = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const discountUpdateContext = useContext(DiscountUpdateContext);
-    const { setDiscountMethod, setDiscountData, discountData, setSelectedVariant } = discountUpdateContext;
+    const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
 
     const parseDataToForm = useCallback(
         (result: DiscountResponse) => {
@@ -105,8 +105,6 @@ const DiscountUpdate = () => {
         },
         [form, setDiscountMethod, setDiscountData]
     );
-
-
 
 
     /**
@@ -176,7 +174,6 @@ const DiscountUpdate = () => {
                 const product = dataProducts.find((item: ProductResponse) => item.id === id)
                 if (product) {
                     listProduct.push({
-                        isParentProduct: true,
                         variant_title: product.name,
                         variant_id: undefined,
                         product_id: product.id,
@@ -210,7 +207,7 @@ const DiscountUpdate = () => {
             form.setFieldsValue({ entitlements: entilelementValue });
         }
 
-    }, [discountData, form, setSelectedVariant, mergeVariantsData]);
+    }, [discountData, form, mergeVariantsData]);
 
     useEffect(() => {
         dispatch(getVariants(idNumber, setDataVariants));

@@ -89,6 +89,7 @@ import {
 	getTotalAmountAfterDiscount,
 	SumCOD,
 	SumWeightResponse,
+	totalAmount,
 	TrackingCode
 } from "utils/AppUtils";
 import {
@@ -125,10 +126,8 @@ export default function Order(props: PropType) {
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
-  const [discountValue, setDiscountValue] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
-  const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
@@ -186,23 +185,17 @@ export default function Order(props: PropType) {
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
-  const onChangeInfoProduct = (
-    _items: Array<OrderLineItemRequest>,
-    amount: number,
-    discount_rate: number,
-    discount_value: number
-  ) => {
-    // console.log("itemmm", _items);
-
-    setItems(_items);
-    setDiscountRate(discount_rate);
-    setDiscountValue(discount_value);
-    setOrderAmount(amount);
-  };
-
-  // const onStoreSelect = (storeId: number) => {
-  //   setStoreId(storeId);
-  // };
+	const onChangeInfoProduct = (
+		_items: Array<OrderLineItemRequest>,
+		_promotion?: OrderDiscountRequest | null,
+	) => {
+		setItems(_items);
+		let amount = totalAmount(_items);
+		setOrderAmount(amount);
+		if(_promotion !== undefined) {
+			setPromotion(_promotion);
+		}
+	};
 
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -253,7 +246,6 @@ export default function Order(props: PropType) {
   let stepsStatusValue = stepsStatus();
 
   const setLevelOrder = useCallback(() => {
-    // console.log("OrderDetail 111", OrderDetail);
     switch (OrderDetail?.status) {
       case OrderStatus.DRAFT:
         return 1;
@@ -294,9 +286,8 @@ export default function Order(props: PropType) {
     }
   }, [OrderDetail]);
   let levelOrder = setLevelOrder();
-  // console.log("levelOrder", levelOrder);
 
-  let initialRequest: OrderRequest = {
+  let initialForm: OrderRequest = {
     action: "", //finalized
     store_id: null,
     company_id: DEFAULT_COMPANY.company_id,
@@ -336,11 +327,6 @@ export default function Order(props: PropType) {
     finalized: false,
 		automatic_discount: true,
   };
-  const [initialForm, setInitialForm] = useState<OrderRequest>({
-    ...initialRequest,
-  });
-
-	console.log('setInitialForm', setInitialForm)
 
   const onChangeTag = useCallback(
     (value: []) => {
@@ -381,8 +367,8 @@ export default function Order(props: PropType) {
       total_tax: null,
       total_discount: null,
       total_quantity: null,
-      discount_rate: discountRate,
-      discount_value: discountValue,
+      discount_rate: promotion?.rate || null,
+			discount_value: promotion?.value || null,
       discount_amount: null,
       total_line_amount_after_line_discount: null,
       shipment: shipmentRequest,
@@ -462,15 +448,16 @@ export default function Order(props: PropType) {
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
-          delivery_service_provider_type: "Shipper",
+          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
           shipper_code: value.shipper_code,
           shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
+          service: thirdPL.service,
           cod:
             orderAmount +
             (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
             getAmountPaymentRequest(payments) -
-            discountValue,
+            (promotion?.value || 0)
         };
 
       case ShipmentMethodOption.PICK_AT_STORE:
@@ -672,7 +659,7 @@ export default function Order(props: PropType) {
         orderAmount +
         (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
         getAmountPaymentRequest(payments) -
-        discountValue;
+        (promotion?.value || 0);
     }
     values.tags = tags;
     values.items = items.concat(itemGifts);
@@ -727,8 +714,8 @@ export default function Order(props: PropType) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
             if (checkInventory()) {
-              let bolCheckPointfocus = checkPointfocus(values);
-              if (bolCheckPointfocus) {
+              let bolCheckpointFocus = checkPointFocus(values);
+              if (bolCheckpointFocus) {
                 if (!isFinalized) {
                   setUpdating(true);
                 } else {
@@ -762,8 +749,6 @@ export default function Order(props: PropType) {
     }
   }, []);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  // console.log(setIsDisablePostPayment);
-  // console.log("isDisablePostPayment", isDisablePostPayment);
 
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
@@ -800,13 +785,13 @@ export default function Order(props: PropType) {
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
-   const totalAmountOrder = useMemo(() => {
-    return (
-      orderAmount +
-      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-      discountValue
-    );
-  }, [discountValue, orderAmount, shippingFeeInformedToCustomer]);
+	 const totalAmountOrder = useMemo(() => {
+		return (
+			orderAmount +
+			(shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+			(promotion?.value || 0)
+		);
+	}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 
     /**
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
@@ -827,7 +812,6 @@ export default function Order(props: PropType) {
   }, [dispatch]);
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
-  // console.log("loyaltyRate", loyaltyRate);
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
     delivery_service_provider_id: null,
@@ -847,7 +831,6 @@ export default function Order(props: PropType) {
   }, [history, id]);
 
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-  // console.log("storeDetail", storeDetail);
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
     formRef.current?.setFieldsValue({shipping_fee_informed_to_customer: value});
@@ -1017,25 +1000,9 @@ export default function Order(props: PropType) {
             setTag(response.tags);
           }
           if (response?.discounts && response?.discounts[0]) {
-            if (response.discounts[0].value) {
-              setDiscountValue(response.discounts[0].value);
-            }
-            if (response.discounts[0].rate) {
-              setDiscountRate(response.discounts[0].rate);
-            }
-          }
+						setPromotion(response?.discounts[0])
+					}
           setIsLoadForm(true);
-          if(response?.discounts && response.discounts[0]?.discount_code) {
-            setCoupon(response.discounts[0].discount_code)
-          }
-					if(response?.discounts) {
-            setPromotion({
-							promotion_id: response.discounts[0]?.promotion_id,
-							value: response.discounts[0]?.value,
-							amount: response.discounts[0]?.amount,
-							rate: response.discounts[0]?.rate,
-						})
-          }
         }
       })
     );
@@ -1058,11 +1025,11 @@ export default function Order(props: PropType) {
     }
   }, [dispatch, customer]);
 
-  const checkPointfocus = useCallback(
+  const checkPointFocus = useCallback(
     (value: any) => {
-      let Pointfocus = payments.find((p) => p.code === "point");
+      let pointFocus = payments.find((p) => p.code === "point");
 
-      if (!Pointfocus) return true;
+      if (!pointFocus) return true;
 
       let discount = 0;
       value.items.forEach((p: any) => (discount = discount + p.discount_amount));
@@ -1078,10 +1045,10 @@ export default function Order(props: PropType) {
       //   : loyaltyPoint.point === null
       //   ? 0
       //   : loyaltyPoint.point;
-      let point = !Pointfocus ? 0 : Pointfocus.point === undefined ? 0 : Pointfocus.point;
+      let point = !pointFocus ? 0 : pointFocus.point === undefined ? 0 : pointFocus.point;
 
       let totalAmountPayable =
-        orderAmount + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - discountValue; //tổng tiền phải trả
+        orderAmount + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - (promotion?.value || 0); //tổng tiền phải trả
       let limitAmountPointFocus = !rank
         ? 0
         : !rank.limit_order_percent
@@ -1094,7 +1061,7 @@ export default function Order(props: PropType) {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
-      if (rank?.block_order_have_discount === true && (discount > 0 || discountValue)) {
+      if (rank?.block_order_have_discount === true && (discount > 0 || promotion)) {
         showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
         return false;
       }
@@ -1110,14 +1077,7 @@ export default function Order(props: PropType) {
       // }
       return true;
     },
-    [
-      loyaltyPoint,
-      loyaltyUsageRules,
-      payments,
-      discountValue,
-      orderAmount,
-      shippingFeeInformedToCustomer,
-    ]
+    [payments, loyaltyUsageRules, orderAmount, shippingFeeInformedToCustomer, promotion, loyaltyPoint]
   );
 
   const checkInventory = () => {
@@ -1165,10 +1125,12 @@ export default function Order(props: PropType) {
     if (OrderDetail?.items.length === 1 && OrderDetail.items[0].quantity === 1) {
       return false;
     }
+		// đơn nháp không cho tách
+		if (OrderDetail?.status === OrderStatus.DRAFT) {
+      return false;
+    }
     return true;
-  }, [OrderDetail?.fulfillments, OrderDetail?.items, OrderDetail?.linked_order_code]);
-
-  // console.log(inventoryResponse)
+  }, [OrderDetail?.fulfillments, OrderDetail?.items, OrderDetail?.linked_order_code, OrderDetail?.status]);
 
   useEffect(() => {
     dispatch(
@@ -1280,6 +1242,8 @@ export default function Order(props: PropType) {
                     orderConfig={configOrder}
                   /> */}
                   <OrderCreateProduct
+                    orderAmount={orderAmount}
+                    totalAmountOrder={totalAmountOrder}
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);
@@ -1363,14 +1327,9 @@ export default function Order(props: PropType) {
                                   : `Hoàn tiền cho khách:`}
                               </span>
                               <b style={{color: "red"}}>
-                                {OrderDetail?.fulfillments &&
-                                OrderDetail?.fulfillments.length > 0 &&
-                                OrderDetail?.fulfillments[0].status !== "returned" &&
-                                OrderDetail?.fulfillments[0].shipment?.cod
-                                  ? 0
-                                  : formatCurrency(
-                                      Math.abs(totalAmountCustomerNeedToPay)
-                                    )}
+                                {formatCurrency(
+																	Math.abs(totalAmountCustomerNeedToPay)
+																)}
                               </b>
                             </Col>
                           </Row>

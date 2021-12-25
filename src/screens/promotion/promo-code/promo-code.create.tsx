@@ -1,28 +1,29 @@
-import {Button, Col, Form, Row} from "antd";
+import { Button, Col, Form, Row } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {getListChannelRequest} from "domain/actions/order/order.action";
-import {addPriceRules} from "domain/actions/promotion/discount/discount.action";
-import useAuthorization from "hook/useAuthorization";
-import {StoreResponse} from "model/core/store.model";
-import {SourceResponse} from "model/response/order/source.response";
-import {ChannelResponse} from "model/response/product/channel.response";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
+import { StoreResponse } from "model/core/store.model";
+import { SourceResponse } from "model/response/order/source.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import { CustomerSelectionOption } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useHistory} from "react-router-dom";
-import {PROMO_TYPE} from "utils/Constants";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { PROMO_TYPE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
-import {StoreGetListAction} from "../../../domain/actions/core/store.action";
-import {getListSourceRequest} from "../../../domain/actions/product/source.action";
-import {showSuccess} from "../../../utils/ToastUtils";
-import {CustomerFilterField} from "../shared/cusomer-condition.form";
+import { StoreGetListAction } from "../../../domain/actions/core/store.action";
+import { getListSourceRequest } from "../../../domain/actions/product/source.action";
+import { showError, showSuccess } from "../../../utils/ToastUtils";
+import { CustomerFilterField } from "../shared/cusomer-condition.form";
 import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
+import IssuingProvider, { ReleaseContext } from "./issuing-provider";
 
 
 const CreatePromotionCodePage = () => {
@@ -34,9 +35,7 @@ const CreatePromotionCodePage = () => {
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [, setFormValues] = useState({}); // force re-render form value
   //phân quyền
-  const [allowCreatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CREATE],
-  });
+  const { isAllProduct } = useContext(ReleaseContext);
 
   const initialValues = {
     title: "",
@@ -46,8 +45,8 @@ const CreatePromotionCodePage = () => {
     value_type: "PERCENTAGE",
     value: null,
     usage_limit: "1",
-    usage_unlimit_per_customer :  true,
-    starts_date : moment(),
+    usage_unlimit_per_customer: true,
+    starts_date: moment(),
 
   };
 
@@ -63,7 +62,7 @@ const CreatePromotionCodePage = () => {
     body.title = values.title;
     body.description = values.description;
     body.discount_codes = values.discount_code?.length
-      ? [{code: "PC" + values.discount_code}]
+      ? [{ code: "PC" + values.discount_code }]
       : null;
     body.usage_limit = values.usage_limit ? values.usage_limit : null;
     body.usage_limit_per_customer = values.usage_limit_per_customer
@@ -84,9 +83,9 @@ const CreatePromotionCodePage = () => {
     body.entitled_method = "QUANTITY";
     body.prerequisite_subtotal_range = values.prerequisite_subtotal_range_min
       ? {
-          greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
-          less_than_or_equal_to: null,
-        }
+        greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
+        less_than_or_equal_to: null,
+      }
       : null;
     if (values.entitlements && values.entitlements.length > 0) {
       body.entitlements = values.entitlements.map((entitlement: any) => {
@@ -132,49 +131,49 @@ const CreatePromotionCodePage = () => {
     body.prerequisite_genders = values.prerequisite_genders;
 
     //Ngày sinh khách hàng
-    const startsBirthday = values[CustomerFilterField.starts_birthday] ?  moment(values[CustomerFilterField.starts_birthday]): null;
-    const endsBirthday = values[CustomerFilterField.ends_birthday] ?  moment(values[CustomerFilterField.ends_birthday]) : null;
-     if (startsBirthday || endsBirthday) {
-       body.prerequisite_birthday_duration = {
-         starts_mmdd_key: startsBirthday
-           ? Number(
-               (startsBirthday.month() + 1).toString().padStart(2, "0") +
-                 startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-             )
-           : null,
-         ends_mmdd_key: endsBirthday
-           ? Number(
-               (endsBirthday.month() + 1).toString().padStart(2, "0") +
-                 endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-             )
-           : null,
-       };
-     } else {
-       body.prerequisite_birthday_duration = null;
-     }
- 
-     //==Ngày cưới khách hàng
-     const startsWeddingDays = values[CustomerFilterField.starts_wedding_day] ?  moment(values[CustomerFilterField.starts_wedding_day]): null;
-    const endsWeddingDays = values[CustomerFilterField.ends_wedding_day] ?  moment(values[CustomerFilterField.ends_wedding_day]) : null;
+    const startsBirthday = values[CustomerFilterField.starts_birthday] ? moment(values[CustomerFilterField.starts_birthday]) : null;
+    const endsBirthday = values[CustomerFilterField.ends_birthday] ? moment(values[CustomerFilterField.ends_birthday]) : null;
+    if (startsBirthday || endsBirthday) {
+      body.prerequisite_birthday_duration = {
+        starts_mmdd_key: startsBirthday
+          ? Number(
+            (startsBirthday.month() + 1).toString().padStart(2, "0") +
+            startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+          )
+          : null,
+        ends_mmdd_key: endsBirthday
+          ? Number(
+            (endsBirthday.month() + 1).toString().padStart(2, "0") +
+            endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+          )
+          : null,
+      };
+    } else {
+      body.prerequisite_birthday_duration = null;
+    }
 
-     if (startsWeddingDays || endsWeddingDays) {
-       body.prerequisite_wedding_duration = {
-         starts_mmdd_key: startsWeddingDays
-           ? Number(
-               (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
-               startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-             )
-           : null,
-         ends_mmdd_key: endsWeddingDays
-           ? Number(
-               (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
-               endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-             )
-           : null,
-       };
-     } else {
-       body.prerequisite_wedding_duration = null;
-     }
+    //==Ngày cưới khách hàng
+    const startsWeddingDays = values[CustomerFilterField.starts_wedding_day] ? moment(values[CustomerFilterField.starts_wedding_day]) : null;
+    const endsWeddingDays = values[CustomerFilterField.ends_wedding_day] ? moment(values[CustomerFilterField.ends_wedding_day]) : null;
+
+    if (startsWeddingDays || endsWeddingDays) {
+      body.prerequisite_wedding_duration = {
+        starts_mmdd_key: startsWeddingDays
+          ? Number(
+            (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
+            startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+          )
+          : null,
+        ends_mmdd_key: endsWeddingDays
+          ? Number(
+            (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
+            endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+          )
+          : null,
+      };
+    } else {
+      body.prerequisite_wedding_duration = null;
+    }
 
     //Nhóm khách hàng
     body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids;
@@ -183,7 +182,7 @@ const CreatePromotionCodePage = () => {
     body.prerequisite_customer_loyalty_level_ids = values.prerequisite_customer_loyalty_level_ids;
 
     //Nhân viên phụ trách
-     body.prerequisite_assignee_codes = values.prerequisite_assignee_codes;
+    body.prerequisite_assignee_codes = values.prerequisite_assignee_codes;
     return body;
   };
 
@@ -200,26 +199,32 @@ const CreatePromotionCodePage = () => {
     [dispatch, history]
   );
 
+
+
+  let isActive = true;
   const onFinish = (values: any) => {
     // Action: Lưu và kích hoạt
+    if (!isAllProduct && (values.entitlements.length === 0 || values.entitlements[0].entitled_variant_ids.length === 0)) {
+      showError("Vui lòng chọn sản phẩm để áp dụng");
+      return;
+    }
+
     const body = transformData(values);
-    body.activated = true;
+    body.activated = isActive;
     dispatch(showLoading());
     dispatch(addPriceRules(body, createCallback));
   };
-
+  const handleSaveAndActivate = (values: any) => {
+    // Action: Lưu và kích hoạt
+    isActive = true;
+    promoCodeForm.submit();
+  }
   const save = async () => {
     // Action: Lưu
-    const values = await promoCodeForm.validateFields();
-    const body = transformData(values);
-    body.activated = false;
-    dispatch(showLoading());
-    dispatch(addPriceRules(transformData(values), createCallback));
-  };
+    isActive = false;
+    promoCodeForm.submit();
 
-  const reload = React.useCallback(() => {
-    promoCodeForm.resetFields();
-  }, [promoCodeForm]);
+  };
 
   return (
     <ContentContainer
@@ -262,33 +267,22 @@ const CreatePromotionCodePage = () => {
         <BottomBarContainer
           back="Quay lại danh sách đợt phát hành"
           rightComponent={
-            <div>
+            <AuthWrapper acceptPermissions={[PromoPermistion.CREATE]}>
               <Button
-                onClick={() => reload()}
-                style={{marginLeft: ".75rem", marginRight: ".75rem"}}
+                onClick={() => save()}
+                style={{
+                  marginLeft: ".75rem",
+                  marginRight: ".75rem",
+                  borderColor: "#2a2a86",
+                }}
                 type="ghost"
               >
-                Hủy
+                Lưu
               </Button>
-              {allowCreatePromoCode && (
-                <>
-                  <Button
-                    onClick={() => save()}
-                    style={{
-                      marginLeft: ".75rem",
-                      marginRight: ".75rem",
-                      borderColor: "#2a2a86",
-                    }}
-                    type="ghost"
-                  >
-                    Lưu
-                  </Button>
-                  <Button type="primary" htmlType="submit">
-                    Lưu và kích hoạt
-                  </Button>
-                </>
-              )}
-            </div>
+              <Button type="primary" onClick={handleSaveAndActivate}>
+                Lưu và kích hoạt
+              </Button>
+            </AuthWrapper>
           }
         />
       </Form>
@@ -296,4 +290,13 @@ const CreatePromotionCodePage = () => {
   );
 };
 
-export default CreatePromotionCodePage;
+
+const CreatePromoWithProvider = () => {
+  return (
+    <IssuingProvider>
+      <CreatePromotionCodePage />
+    </IssuingProvider>
+  );
+}
+
+export default CreatePromoWithProvider;

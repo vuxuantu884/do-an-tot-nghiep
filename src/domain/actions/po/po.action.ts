@@ -1,5 +1,5 @@
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
-import { POType } from "domain/types/purchase-order.type";
+import { POConfig, POType } from "domain/types/purchase-order.type";
 import BaseAction from "base/base.action";
 import {
   PurchaseOrder,
@@ -9,6 +9,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import BaseResponse from "base/base.response";
 import { ImportProcument } from "model/purchase-order/purchase-procument";
 import { ImportResponse } from "model/other/files/export-model";
+import { FilterConfig, FilterConfigRequest } from "model/other";
 
 export const POGetPrintContentAction = (
   id: number,
@@ -104,6 +105,44 @@ export const exportPOAction = (
 ) => {
   return BaseAction(POType.EXPORT_PO, {
     params,
+    onResult
+  });
+};
+
+export const getConfigPoAction = (
+  code: string,
+  onResult: (result: BaseResponse<Array<FilterConfig>>) => void
+) => {
+  return BaseAction(POConfig.GET_PO_CONFIG, {
+    code,
+    onResult
+  });
+};
+export const createConfigPoAction = (
+  request: FilterConfigRequest,
+  onResult?: (result: BaseResponse<FilterConfig>) => void
+) => {
+  return BaseAction(POConfig.CREATE_PO_CONFIG, {
+    request,
+    onResult
+  });
+};
+export const updateConfigPoAction = (
+  request: FilterConfigRequest,
+  onResult?: (result: BaseResponse<FilterConfig>) => void
+) => {
+  return BaseAction(POConfig.UPDATE_PO_CONFIG, {
+    request,
+    onResult
+  });
+};
+
+export const deleteConfigPoAction = (
+  id: number,
+  onResult: (result: BaseResponse<FilterConfig>) => void
+) => {
+  return BaseAction(POConfig.DELETE_PO_CONFIG, {
+    id,
     onResult
   });
 };

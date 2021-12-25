@@ -6,8 +6,8 @@ import CustomerDuplicate from "screens/order-online/duplicate.screen";
 import OrderDuplicate from "screens/order-online/order-duplicate";
 import OrderUpdate from "screens/order-online/order-update";
 import PackDetail from "screens/order-online/pack-detail";
-import PackSupportScreen from "screens/order-online/pack-support.screen";
-import AddReportHandOver from "screens/order-online/pack-support/add-report-hand-over";
+import PackSupportScreen from "screens/order-online/pack.screen";
+import AddReportHandOver from "screens/order-online/pack-add";
 import PackUpdate from "screens/order-online/pack-update";
 import SplitOrdersScreen from "screens/order-online/split-orders.screen";
 
@@ -158,7 +158,7 @@ const bill: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PACK_SUPPORT}/report-hand-over-create`,
         exact: true,
-        title: "Thêm mới",
+        title: "Thêm mới biên bản bàn giao",
         icon: "icon-dot",
         component: AddReportHandOver,
         key: "submenu57",
@@ -169,7 +169,7 @@ const bill: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PACK_SUPPORT}/:id`,
         exact: true,
-        title: "Chi tiet",
+        title: "Chi tiết biên bản bàn giao",
         icon: "icon-dot",
         component: PackDetail,
         key: "submenu58",
@@ -180,7 +180,7 @@ const bill: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PACK_SUPPORT}/report-hand-over-update/:id`,
         exact: true,
-        title: "Cập nhật",
+        title: "Cập nhật biên bản bàn giao",
         icon: "icon-dot",
         component: PackUpdate,
         key: "submenu59",

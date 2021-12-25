@@ -54,10 +54,9 @@ const FixedPriceGroupUpdate = (props: Props) => {
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
-  const { selectedVariant: entitlementsVariantMap, discountMethod } = discountUpdateContext;
-  const [discountType, setDiscountType] = useState("FIXED_PRICE");
+  const { discountMethod } = discountUpdateContext;
+  const [, setDiscountType] = useState(DiscountUnitType.FIXED_PRICE.value);
 
-  const selectedVariant = useMemo(() => entitlementsVariantMap[name] || [], [entitlementsVariantMap, name]);
   const selectedProductParentRef = useRef<ProductResponse | null>(null)
   const variantsOfSelectedProductRef = useRef<Array<VariantResponse>>([])
   const [isVisibleConfirmReplaceProductModal, setIsVisibleConfirmReplaceProductModal] = useState<boolean>(false);
@@ -81,7 +80,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
         searchVariantsRequestAction(
           {
             status: "active",
-            limit: 100,
+            limit: 200,
             page: 1,
             info: value.trim(),
           },
@@ -123,7 +122,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
 
   // todo : refactor
   const onPickManyProduct = (items: Array<VariantResponse>) => {
-    console.log(items, selectedVariant);
+
     if (items.length) {
       let selectedVariantId: number[] = [];
       const newProducts = items.map(item => {
@@ -143,6 +142,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
       }
 
       form.setFieldsValue({ entitlements: _.cloneDeep(entilementFormValue) });
+      setVisibleManyProduct(false);
     }
 
   }
@@ -158,13 +158,11 @@ const FixedPriceGroupUpdate = (props: Props) => {
     // delete variant from display
     entilementFormValue[name]?.selectedProducts?.splice(index, 1);
 
-    if (item.isParentProduct) {
-      // delete product id
-      entilementFormValue[name].entitled_product_ids = entilementFormValue[name].entitled_product_ids.filter((e: number) => e !== item.product_id);
-
-    } else {
+    entilementFormValue[name].entitled_product_ids = entilementFormValue[name].entitled_product_ids.filter((e: number) => e !== item.product_id);
+    if (item.product_id && item.variant_id) {
       // delete variant id
-      entilementFormValue[name].entitled_variant_ids = entilementFormValue[name].entitled_variant_ids.filter((e: number) => e !== item.variant_id);
+      entilementFormValue[name].entitled_variant_ids =
+        entilementFormValue[name].entitled_variant_ids.filter((id: number) => id !== item.variant_id);
     }
 
     // change reference for re-render form
@@ -296,7 +294,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
               }),
             ]}
           >
-            <InputNumber min={0} style={{ width: '100%' }} />
+            <InputNumber min={1} max={999999} style={{ width: '100%' }} />
           </Form.Item>
         </Col>
 
@@ -320,19 +318,23 @@ const FixedPriceGroupUpdate = (props: Props) => {
                   },
                 })]}
               >
+
                 <InputNumber
                   style={{ width: '100%' }}
                   min={1}
-                  max={discountType === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
-                  step={discountType === DiscountUnitType.PERCENTAGE.value ? 0.01 : 1}
-                // formatter={(value) => formatDiscountValue(value, discountType === DiscountUnitType.PERCENTAGE.value)}
+                  max={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
+                    === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
+                  step={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
+                    === DiscountUnitType.PERCENTAGE.value ? 0.01 : 1}
+
+                // formatter={(value) =>   (value, discountType === DiscountUnitType.PERCENTAGE.value)}
                 />
               </Form.Item>
             </DiscountMethodStyled>
             <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} label=" "
             >
               <Select
-                defaultValue={DiscountUnitType.FIXED_PRICE.value}
+                // defaultValue={DiscountUnitType.FIXED_PRICE.value}
                 style={{ borderRadius: "0px" }}
                 onSelect={(e) => {
                   setDiscountType(e?.toString() || "");
@@ -465,7 +467,9 @@ const FixedPriceGroupUpdate = (props: Props) => {
         {form.getFieldValue("entitlements")?.length > 1 && (
           <Row gutter={16} style={{ paddingTop: "16px" }}>
             <Col span={24}>
-              <Button icon={<DeleteOutlined />} danger onClick={() => remove(name)}>
+              <Button icon={<DeleteOutlined />} danger onClick={() => {
+                remove(name)
+              }}>
                 Xoá nhóm chiết khấu
               </Button>
             </Col>

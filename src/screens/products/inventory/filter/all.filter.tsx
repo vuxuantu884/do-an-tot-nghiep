@@ -1,24 +1,25 @@
-import { FilterOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, InputNumber, Row, Tag} from "antd";
+import { CloseOutlined, EllipsisOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
+import { Button, Col, Dropdown, Form, Input, InputNumber, Menu, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import { FilterWrapper } from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import { StoreResponse } from "model/core/store.model";
-import { InventoryQuery, InventorySaveRequest } from "model/inventory";
+import { InventoryQuery } from "model/inventory";
 import {
   AllInventoryMappingField,
   AvdAllFilter,
   AvdInventoryFilter,
   InventoryQueryField
 } from "model/inventory/field";
+import BaseFilter from "component/filter/base.filter";
 import React, { useCallback, useEffect, useState } from "react"; 
-import BaseFilter from "component/filter/base.filter"; 
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { convertCategory } from "utils/AppUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
+import TreeStore from "./TreeStore";
 import { FormatTextMonney } from "utils/FormatMonney";
 import { CollectionResponse } from "model/product/collection.model";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
@@ -30,8 +31,17 @@ import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/app.config"; 
 import CustomModal from "component/modal/CustomModal";
-import FormSaveFilter from "./components";
 import { modalActionType } from "model/modal/modal.model";
+import FormSaveFilter from "./components/FormSaveFilter";
+import { FilterConfig, FilterConfigRequest } from "model/other";
+import { createConfigInventoryAction, deleteConfigInventoryAction, getConfigInventoryAction, updateConfigInventoryAction } from "domain/actions/inventory/inventory.action";
+import BaseResponse from "base/base.response";
+import { FILTER_CONFIG_TYPE } from "utils/Constants";
+import { showSuccess } from "utils/ToastUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { primaryColor } from "utils/global-styles/variables";
+import deleteIcon from "assets/icon/deleteIcon.svg";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -43,7 +53,9 @@ export interface InventoryFilterProps {
   openColumn: () => void;
   onChangeKeySearch: (value: string) => void;
 }
- 
+
+const { Item } = Form;
+
 function tagRender(props: any) {
   const { label, closable, onClose } = props;
   const onPreventMouseDown = (event: any) => {
@@ -62,8 +74,6 @@ function tagRender(props: any) {
   );
 }
 
-
-const {Item} = Form;
 var isWin = false;
 var isDesigner = false;
 
@@ -71,13 +81,16 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   props: InventoryFilterProps
 ) => {
   const {
-    params, 
-    listStore, 
+    params,
+    listStore,
     onFilter,
     openColumn,
     onChangeKeySearch
   } = props;
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const {account} = userReducer;
+  const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>();
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
   const [visible, setVisible] = useState(false);
@@ -86,10 +99,13 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
   const [lstCollection, setLstCollection] = useState<Array<CollectionResponse>>([]);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
+  const [tagAcitve, setTagActive] = useState<number|null>();
+  const [configId, setConfigId] = useState<number>();
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
+  
   const setDataCollection = useCallback((data: PageResponse<CollectionResponse>) => {
     setLstCollection(data.items);
   }, []);
@@ -107,6 +123,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+  const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -134,32 +151,91 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     );
   }, [dispatch, setDataAccounts]);
 
-  const FilterList = ({filters, resetField}: any) => {
+  const FilterList = ({ filters, resetField }: any) => {
     let filtersKeys = Object.keys(filters);
     let renderTxt: any = null;
-    
+
     return (
       <div>
         {filtersKeys.map((filterKey) => {
-          
-          let value = filters[filterKey];
-          
-          if (!value) return null;
-          if (!AllInventoryMappingField[filterKey]) return null; 
-          renderTxt = `${AllInventoryMappingField[filterKey]} : ${value[0]} ~ ${value[1]}`;
 
-          if (filterKey === AvdAllFilter.category) {
-            const category = listCategory.find(e=>e.id === value)?.name;
-            renderTxt = `${AllInventoryMappingField[filterKey]} : ${category}`;
+          let value = filters[filterKey];
+
+          if (!value) return null;
+          if (!AllInventoryMappingField[filterKey] || filterKey === AvdAllFilter.to_price) return null; 
+          
+          switch (filterKey) {
+            case AvdAllFilter.category:
+            case AvdAllFilter.category_ids:
+              let categoryTag = "";
+              value.forEach((item: number) => {
+                const category = listCategory?.find(e => e.id === item);
+
+                categoryTag = category ? categoryTag + category.name + "; " : categoryTag;
+              });
+              renderTxt = `${AllInventoryMappingField[filterKey]} : ${categoryTag}`;
+              break
+              case AvdAllFilter.made_in_ids:
+                let madeinTag = "";
+                value.forEach((item: number) => {
+                  const madein = listCountry?.find(e => e.id === item);
+                  
+                  madeinTag = madein ? madeinTag + madein.name + "; " : collectionTag;
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${madeinTag}`;
+                break
+              case AvdAllFilter.collection_codes:
+                let collectionTag = "";
+                value.forEach((item: string) => {
+                  const colection = lstCollection?.find(e => e.code === item);
+                  
+                  collectionTag = colection ? collectionTag + colection.name + "; " : collectionTag;
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${collectionTag}`;
+                break
+              case AvdAllFilter.designer_codes:
+                let designerTag = "";
+                value.forEach((item: string) => {
+                  const designer = designers.items?.find(e => e.code === item);
+                  
+                  designerTag = designer ? designerTag + designer.full_name + "; " : designerTag
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${designerTag}`;
+                break
+              case AvdAllFilter.merchandiser_codes:
+                let merchandiserTag = "";
+                value.forEach((item: string) => {
+                  const win = wins.items?.find(e => e.code === item);
+                  
+                  merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag
+                });
+              renderTxt = `${AllInventoryMappingField[filterKey]} : ${merchandiserTag}`;
+              break
+            case AvdAllFilter.store_ids:
+                let storeTag = "";
+                value.forEach((item: number) => {
+                  const store = listStore?.find(e => e.id === item);
+                  
+                  storeTag = store ? storeTag + store.name + "; " : storeTag
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
+              break
+            case AvdAllFilter.from_price:
+              if (advanceFilters.from_price && advanceFilters.to_price) {
+                renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : ${advanceFilters.from_price} ~ ${advanceFilters.to_price}`;
+              }
+              break
+            default:
+              break;
           }
-           
+
           return (
             <Tag
               onClose={() => resetField(filterKey)}
               key={filterKey}
               className="fade"
               closable
-              style={{marginBottom: 20}}
+              style={{ marginBottom: 20 }}
             >{`${renderTxt}`}</Tag>
           );
         })}
@@ -180,9 +256,50 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     setShowModalSaveFilter(true);
   }, []);
 
-  const onSaveFilter = useCallback((detail: InventorySaveRequest) => {
+  const getConfigInventory = useCallback(()=>{
+    if (account && account.code) {
+      dispatch(
+        getConfigInventoryAction( 
+           account.code,
+          (res)=>{
+           if (res) {
+            setLstConfigFilter(res.data);
+           }
+          }
+        )
+      );
+    }
+  },[account, dispatch])
+
+  const onResult = useCallback((res: BaseResponse<FilterConfig>) =>{
+    if (res) {
+      showSuccess(`Lưu bộ lọc thành công`);
+      setShowModalSaveFilter(false);
+      getConfigInventory();
+    }
+  },[getConfigInventory]);
+
+  const onSaveFilter = useCallback((request: FilterConfigRequest) => {
+    if (request) {
+      let json_content = JSON.stringify(
+        formAdvanceFilter.getFieldsValue(),
+        function(k, v) { return v === undefined ? null : v; }
+      );;
+      request.type = FILTER_CONFIG_TYPE.FILTER_INVENTORY;
+      request.json_content = json_content; 
+      
+      if (request.id && request.id !== null) {
+        const config = lstConfigFilter?.find(e=>e.id.toString() === request.id.toString());
+        if (lstConfigFilter && config) {
+          request.name = config.name;
+        }
+        dispatch(updateConfigInventoryAction(request,onResult));
+      }else{
+        dispatch(createConfigInventoryAction(request ,onResult));
+      }
+    }
     
-  }, []);
+  }, [dispatch,formAdvanceFilter, onResult, lstConfigFilter]);
 
   const onBaseFinish = useCallback(
     (values: InventoryQuery) => {
@@ -190,7 +307,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       onFilter && onFilter(data);
     },
     [formBaseFilter, onFilter]
-  ); 
+  );
 
   const onAdvanceFinish = useCallback(
     (values: InventoryQuery) => {
@@ -204,20 +321,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formAdvanceFilter.submit();
-  }, [formAdvanceFilter]);
-
-  const onResetFilter = useCallback(() => {
-    let fields = formAdvanceFilter.getFieldsValue(true);
-    for (let key in fields) {
-      fields[key] = null;
-    }
-    formAdvanceFilter.setFieldsValue(fields);
-    setVisible(false);
-    formAdvanceFilter.submit();
-  }, [formAdvanceFilter]);
+  }, [formAdvanceFilter]); 
 
   const resetField = useCallback(
-    (field: string) => {
+    (field: string) => { 
       formBaseFilter.setFieldsValue({
         ...formBaseFilter.getFieldsValue(true),
         [field]: undefined,
@@ -239,15 +346,109 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 		} else {
 			return 800
 		}
-	} 
+	}
+
+  const onSelectFilterConfig = useCallback((index: number, id: number)=>{
+      setTagActive(index);
+      const filterConfig = lstConfigFilter?.find(e=>e.id === id);
+      if (filterConfig) {
+        let json_content = JSON.parse(filterConfig.json_content);
+
+        Object.keys(json_content).forEach(function(key, index) {
+          if (json_content[key] == null) json_content[key] = undefined;
+        }, json_content);
+        formAdvanceFilter.setFieldsValue(json_content);
+      } 
+  },[lstConfigFilter, formAdvanceFilter]);
+
+  const onCloseFilterConfig = useCallback(()=>{
+    formAdvanceFilter.resetFields();
+    setTagActive(null);
+  },[formAdvanceFilter]);
+
+  const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>)=>{
+    if (res) {
+      showSuccess(`Xóa bộ lọc thành công`);
+      setIsShowConfirmDelete(false);
+      getConfigInventory();
+    }
+  },[getConfigInventory])
+
+  const onMenuDeleteConfigFilter =useCallback(()=>{
+    if (configId) {
+      dispatch(deleteConfigInventoryAction(configId,onResultDeleteConfig));
+    }
+  },[dispatch ,configId, onResultDeleteConfig]);
+
+  const menu = (
+    <Menu>
+      <Menu.Item key="1">
+      <Button
+          icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
+          type="text"
+          className=""
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "red",
+          }}
+          onClick={()=>{setIsShowConfirmDelete(true)}}
+        >
+          Xóa
+        </Button>
+      </Menu.Item>
+    </Menu>
+  ); 
+
+  const FilterConfigCom = (props: any)=>{
+    return (
+      <span style={{marginRight: 20, display: "inline-flex"}}>
+          <Tag onClick={(e)=>{
+              onSelectFilterConfig(props.index, props.id);  
+              }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
+                    color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />} 
+                    closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
+                      e.preventDefault();
+                      setConfigId(props.id); 
+                      setIsShowConfirmDelete(true);
+                    }}>
+              {props.name}  
+            </Tag> 
+            {false && 
+                  <Dropdown 
+                    overlay={menu}
+                    trigger={["click"]}
+                    placement="bottomRight"
+                  >
+                    <EllipsisOutlined className="ant-tag" onClick={(e)=>{
+                      e.preventDefault();
+                      setConfigId(props.id);
+                    }} />
+                  </Dropdown>
+               } 
+      </span>
+    )
+  }
+
+  const onResetFilter = useCallback(() => {
+    let fields = formAdvanceFilter.getFieldsValue(true);
+    for (let key in fields) {
+      fields[key] = null;
+    }
+    formAdvanceFilter.setFieldsValue(fields);
+    setVisible(false);
+    formAdvanceFilter.submit();
+    onCloseFilterConfig();
+  }, [formAdvanceFilter, onCloseFilterConfig]);
 
   useEffect(() => {
     setAdvanceFilters({ ...params });
     dispatch(getCategoryRequestAction({}, setDataCategory));
     dispatch(getCollectionRequestAction({}, setDataCollection));
     dispatch(CountryGetAllAction(setListCountry));
-    getAccounts('', 1, true, true);
-  }, [params, dispatch,getAccounts, setDataCategory, setDataCollection]);
+    getAccounts('', 1, true, true); 
+    getConfigInventory();
+  }, [params, dispatch,getAccounts,getConfigInventory, setDataCategory, setDataCollection]);
 
   useEffect(() => {
     formBaseFilter.setFieldsValue({...advanceFilters});
@@ -273,27 +474,13 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 onChange={(e)=>{onChangeKeySearch(e.target.value)}}
               />
             </Item>
-            <Item name={InventoryQueryField.store_ids} className="store">
-              <CustomSelect
-                showSearch
-                optionFilterProp="children"
-                showArrow
+            <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 250 }}>
+              <TreeStore
+                form={formBaseFilter}
+                name={InventoryQueryField.store_ids}
                 placeholder="Chọn cửa hàng"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                style={{
-                  width: 250,
-                }}
-                notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive" 
-              >
-                {listStore?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+                listStore={listStore}
+            />
             </Item>  
             <Item>
               <Button type="primary" htmlType="submit">
@@ -329,11 +516,20 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
             form={formAdvanceFilter} 
           >
               {/* filters tag */}
-              <Row>
-                <Col span={24}>
-
-                </Col>
-              </Row>
+              {
+                (lstConfigFilter && lstConfigFilter.length > 0) && 
+                <Row>
+                  <Item>
+                    <Col span={24} className="tag-filter">
+                      {
+                        lstConfigFilter?.map((e, index)=>{
+                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                        })
+                      }
+                    </Col>
+                  </Item>
+               </Row>
+              }
               <Row gutter={25}>
                 <Col span={16}>
                   <Item name={AvdInventoryFilter.info} className="search">
@@ -368,7 +564,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               </Row>
               <Row gutter={25}>
                 <Col span={8}>
-                  <Item name={AvdInventoryFilter.made_in_id} label="Xuất xứ">
+                  <Item name={AvdInventoryFilter.made_in_ids} label="Xuất xứ">
                     <CustomSelect
                         showSearch
                         optionFilterProp="children"
@@ -389,7 +585,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   </Item>
                 </Col>
                 <Col span={8}>
-                  <Item name={AvdInventoryFilter.designer_code} label="Nhà thiết kế">
+                  <Item name={AvdInventoryFilter.designer_codes} label="Nhà thiết kế">
                     <SelectPaging
                       metadata={designers.metadata}
                       placeholder="Chọn nhà thiết kế"
@@ -412,7 +608,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   </Item>  
                 </Col> 
                 <Col span={8}>
-                  <Item name={AvdInventoryFilter.merchandiser_code} label="Merchandiser">
+                  <Item name={AvdInventoryFilter.merchandiser_codes} label="Merchandiser">
                     <SelectPaging
                           metadata={wins.metadata}
                           placeholder="Chọn Merchandiser"
@@ -437,7 +633,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               </Row>
               <Row gutter={25}>
               <Col span={8}>
-                  <Item name={AvdInventoryFilter.collection_code} label="Nhóm hàng">
+                  <Item name={AvdInventoryFilter.collection_codes} label="Nhóm hàng">
                       <CustomSelect
                           showSearch
                           optionFilterProp="children"
@@ -458,7 +654,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   </Item>
                 </Col>
                 <Col span={8}>
-                  <Item name={AvdInventoryFilter.category_code} label="Danh mục">
+                  <Item name={AvdInventoryFilter.category_ids} label="Danh mục">
                     <CustomSelect
                           showSearch
                           optionFilterProp="children"
@@ -471,7 +667,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                           maxTagCount="responsive" 
                         >
                           {listCategory?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={item.code}>
+                            <CustomSelect.Option key={item.id} value={item.id}>
                               {item.name}
                             </CustomSelect.Option>
                         ))}
@@ -483,6 +679,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       <Col span={24}>
                       <Item label="Giá bán">
                         <Input.Group compact>
+                          <Item hidden={true} name="variant_prices">
+                          </Item>
                           <Item name="from_price" style={{ width: '45%', textAlign: 'center' }}>
                             <InputNumber
                               className="price_min"
@@ -521,9 +719,17 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           onDelete={()=>{}}
           onCancel={() => setShowModalSaveFilter(false)}
           modalAction={modalAction}
+          lstConfigFilter={lstConfigFilter}
           componentForm={FormSaveFilter}
           formItem={null}
           modalTypeText="bộ lọc"
+        />
+        <ModalDeleteConfirm
+          visible={isShowConfirmDelete}
+          onOk={onMenuDeleteConfigFilter}
+          onCancel={() => setIsShowConfirmDelete(false)}
+          title="Xác nhận"
+          subTitle={"Bạn có chắc muốn xóa bộ lọc này?"}
         />
       </div>
   );

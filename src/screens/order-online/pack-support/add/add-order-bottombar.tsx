@@ -2,7 +2,7 @@ import {ArrowLeftOutlined} from "@ant-design/icons";
 import {Button, Col, Row} from "antd";
 import UrlConfig from "config/url.config";
 import {Link} from "react-router-dom";
-import {StyledComponent} from "./styles";
+import {StyledComponent} from "../styles";
 
 const AddOrderBottombar: React.FC<any> = (props: any) => {
   return (

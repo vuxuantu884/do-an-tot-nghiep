@@ -18,7 +18,6 @@ import {
   UpdatePaymentRequest,
   VTPFeeRequest,
 } from "model/request/order.request";
-import {GoodsReceiptsRequest} from "model/request/pack.request";
 import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
@@ -44,11 +43,6 @@ import {
 } from "model/response/order/order.response";
 import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
 import {SourceEcommerceResponse, SourceResponse} from "model/response/order/source.response";
-import {
-  GoodsReceiptsResponse,
-  GoodsReceiptsTypeResponse,
-  OrderConcernGoodsReceiptsResponse,
-} from "model/response/pack/pack.response";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {generateQuery} from "utils/AppUtils";
 
@@ -388,71 +382,6 @@ export const createShippingOrderService = (
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
 };
 
-/**
- * lấy danh sách loại biên bản
- */
-export const getGoodsReceiptsTypeService = (): Promise<BaseResponse<GoodsReceiptsTypeResponse>> => {
-  const link = `${ApiConfig.ORDER}/goods-receipt-manager/types`;
-  return BaseAxios.get(link);
-};
-
-/**
- * tạo biên bản bàn giao
- */
-export const createGoodsReceiptsService = (
-  params: GoodsReceiptsRequest,
-): Promise<BaseResponse<GoodsReceiptsResponse>> => {
-  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts`;
-  return BaseAxios.post(link, params);
-};
-
-/**
- * cập nhật biên bản bàn giao
- */
-export const updateGoodsReceiptsService = (
-  goodsReceiptsId: number,
-  params: GoodsReceiptsRequest,
-): Promise<BaseResponse<GoodsReceiptsResponse>> => {
-  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
-  return BaseAxios.put(link, params);
-};
-
-/**
- * lấy thông tin biên bản bàn giao
- */
-export const getByIdGoodsReceiptsService = (goodsReceiptsId: number) => {
-  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
-  return BaseAxios.get(link);
-};
-
-/**
- * xóa biên bản bàn giao
- */
-export const deleteGoodsReceiptsService = (
-  goodsReceiptsId: number,
-): Promise<BaseResponse<GoodsReceiptsResponse>> => {
-  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
-  return BaseAxios.delete(link);
-};
-
-/**
- * tìm kiếm bản bàn giao
- */
-export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<any>> => {
-  const queryString = generateQuery(query);
-  console.log("queryString", queryString);
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?${queryString}`,
-  );
-};
-/**
- *  Danh sách đơn hàng đủ điều kiện thêm vào biên bản
- */
-export const getOrderGoodsReceiptsService=():Promise<BaseResponse<OrderResponse>>=>{
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/goods-receipt-manager/orders?status=packed&last_created_hour=8`,
-  );
-}
 
 /**
  * tách đơn
@@ -467,17 +396,6 @@ export const splitOrderService = (
  */
 export const getSourcesEcommerceService = (): Promise<BaseResponse<Array<SourceEcommerceResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/ecommerce`);
-};
-
-/**
- * Tìm kiếm đơn hàng thỏa mãn biên bản bàn giao
- */
-export const getOrderConcernGoodsReceiptsService = (
-  orderCodes: string,
-): Promise<BaseResponse<OrderConcernGoodsReceiptsResponse[]>> => {
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/goods-receipt-manager/orders?order_codes=${orderCodes}`,
-  );
 };
 
 export const getChannelsService = (

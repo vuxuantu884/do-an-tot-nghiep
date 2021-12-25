@@ -132,7 +132,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                   width: 150,
                   dataIndex: "quantity",
                   render: (value, item, index) => (
-                    <div style={{ textAlign: "right" }}>{value}</div>
+                    <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
                   ),
                 },
                 {
@@ -194,17 +194,17 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={1}>
                         <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(total)}
+                          {formatCurrency(total,".")}
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={2}>
                         <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(receipt)}
+                          {formatCurrency(receipt,".")}
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={3}>
                         <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(total - receipt)}
+                          {formatCurrency(total - receipt,".")}
                         </div>
                       </Table.Summary.Cell>
                     </Table.Summary.Row>

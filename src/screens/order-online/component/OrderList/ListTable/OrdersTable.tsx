@@ -358,7 +358,7 @@ function OrdersTable(props: PropsType) {
 															<span>
 																{" "}
 																-{" "}
-																{formatCurrency(item.discount_items[0].rate)}%
+																{formatCurrency(Math.round(item.discount_items[0].rate*100) /100)}%
 															</span>
 														</div>
 													</Tooltip>
@@ -641,7 +641,7 @@ function OrdersTable(props: PropsType) {
 									<div>
 										<strong>Xử lý đơn: </strong>
 									</div>
-									{record.sub_status}
+									{record.sub_status ? record.sub_status : "-"}
 								</div>
 								<div className="single">
 									<div>

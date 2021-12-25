@@ -1,5 +1,5 @@
 //#region Import
-import { Avatar, Card, Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import bithdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
@@ -10,7 +10,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
-import { useState } from "react";
+//import { useState } from "react";
 import { Link } from "react-router-dom";
 //#endregion
 
@@ -29,7 +29,8 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   // const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   // const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
+  //const [isVisibleBilling, setVisibleBilling] = useState(true);
+
   // const CancleConfirmAddress = useCallback(() => {
   //   setVisibleAddress(false);
   // }, []);
@@ -51,9 +52,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   //   // setVisibleBillingAddress(false);
   // };
 
-  const ShowBillingAddress = () => {
-    setVisibleBilling(!isVisibleBilling);
-  };
+  // const ShowBillingAddress = () => {
+  //   setVisibleBilling(!isVisibleBilling);
+  // };
 
   // const handleVisibleBillingAddressChange = (value: boolean) => {
   //   // setVisibleBillingAddress(value);
@@ -170,10 +171,10 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               </div>
             </Col>
           </Row>
-          <Divider style={{ padding: 0, margin: 0 }} />
+          
 
-          <div className="send-order-box">
-            <Row style={{ marginTop: 15 }}>
+          <div className="send-order-box" hidden={true}>
+            {/* <Row style={{ marginTop: 15 }}>
               <Checkbox
                 className="checkbox-style"
                 onChange={ShowBillingAddress}
@@ -181,9 +182,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               >
                 Gửi hoá đơn
               </Checkbox>
-            </Row>
-
-            <Row gutter={24} hidden={isVisibleBilling}>
+            </Row> */}
+            <Divider style={{ padding: 0, margin: 0 }} />
+            <Row gutter={24}>
               <Col
                 xs={24}
                 style={{
@@ -201,14 +202,14 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                       marginRight: "10px",
                     }}
                   />
-                  Địa chỉ giao hàng:
+                  Địa chỉ nhận hóa đơn:
                   <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                    {props.OrderDetail?.shipping_address?.name} -{" "}
-                    {props.OrderDetail?.shipping_address?.phone} -{" "}
-                    {props.OrderDetail?.shipping_address?.full_address} -{" "}
-                    {props.OrderDetail?.shipping_address?.ward} -{" "}
-                    {props.OrderDetail?.shipping_address?.district} -{" "}
-                    {props.OrderDetail?.shipping_address?.city}
+                    {props.OrderDetail?.billing_address?.name} -{" "}
+                    {props.OrderDetail?.billing_address?.phone} -{" "}
+                    {props.OrderDetail?.billing_address?.full_address} -{" "}
+                    {props.OrderDetail?.billing_address?.ward} -{" "}
+                    {props.OrderDetail?.billing_address?.district} -{" "}
+                    {props.OrderDetail?.billing_address?.city}
                   </span>
                 </div>
               </Col>
@@ -216,17 +217,6 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
           </div>
         </div>
       </div>
-
-      {/* <AddAddressModal
-        visible={isVisibleAddress}
-        onCancel={CancleConfirmAddress}
-        onOk={OkConfirmAddress}
-      />
-      <EditCustomerModal
-        visible={isVisibleCustomer}
-        onCancel={CancleConfirmCustomer}
-        onOk={OkConfirmCustomer}
-      /> */}
     </Card>
   );
 };

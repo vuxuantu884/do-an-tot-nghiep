@@ -6,7 +6,7 @@ import {FulfillmentsItemModel, GoodsReceiptsOrderListModel} from "model/pack/pac
 import React, {createRef, useCallback, useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import search from "assets/img/search.svg";
-import {StyledComponent} from "../index.screen.styles";
+import {StyledComponent} from "../../index.screen.styles";
 const {Item} = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];

@@ -2,7 +2,6 @@ import {FilterOutlined} from "@ant-design/icons";
 import {Button, Collapse, Form, FormInstance, Input, Space, Tag} from "antd";
 import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
-import CustomSelect from "component/custom/select.custom";
 import BaseFilter from "component/filter/base.filter";
 import CustomRangepicker, {
   StyledButton,
@@ -20,6 +19,7 @@ import moment from "moment";
 import {useCallback, useEffect, useState} from "react";
 import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
 import {QuantityButtonStyle} from "./history-filter.style";
+import TreeStore from "./TreeStore";
 
 interface HistoryInventoryFilterProps {
   params: InventoryQuery;
@@ -30,24 +30,6 @@ interface HistoryInventoryFilterProps {
   onClearFilter?: () => void;
   openColumn: () => void;
   onChangeKeySearch: (value: string) => void;
-}
-
-function tagRender(props: any) {
-  const {label, closable, onClose} = props;
-  const onPreventMouseDown = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-  return (
-    <Tag
-      className="primary-bg"
-      onMouseDown={onPreventMouseDown}
-      closable={closable}
-      onClose={onClose}
-    >
-      {label}
-    </Tag>
-  );
 }
 
 const {Item} = Form;
@@ -154,6 +136,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
             to_transaction_date,
             //quantity change
           };
+          
           formBaseFilter.setFieldsValue({...data});
           formAdvanceFilter?.setFieldsValue({
             ...data,
@@ -176,28 +159,17 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                 onChange={(e)=>{props.onChangeKeySearch(e.target.value)}}
               />
             </Item>
-            <Item name={HistoryInventoryQueryField.store_ids} className="store">
-              <CustomSelect
-                showSearch
-                optionFilterProp="children"
-                showArrow
+            <Item 
+              name={HistoryInventoryQueryField.store_ids} 
+              className="store"
+              style={{ minWidth: '220px'}}
+            >
+              <TreeStore 
+                form={formBaseFilter} 
+                name={HistoryInventoryQueryField.store_ids}
                 placeholder="Chọn cửa hàng"
-                allowClear
-                tagRender={tagRender}
-                style={{
-                  minWidth: "200px",
-                  width: "100%",
-                }}
-                mode="multiple"
-                notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive"
-              >
-                {listStore?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+                listStore={listStore}
+              />
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">

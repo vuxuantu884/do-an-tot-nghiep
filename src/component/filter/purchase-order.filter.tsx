@@ -1,22 +1,33 @@
-import { FilterOutlined } from "@ant-design/icons";
-import { Button, Collapse, Form, Input, Space, Tag } from "antd";
+import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
+import { Button, Col, Collapse, Form, Input, Row, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
+import BaseResponse from "base/base.response";
 import HashTag from "component/custom/hashtag";
 import CustomSelect from "component/custom/select.custom";
 import CustomRangepicker from "component/filter/component/range-picker.custom";
+import CustomModal from "component/modal/CustomModal";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
+import { createConfigPoAction, deleteConfigPoAction, getConfigPoAction, updateConfigPoAction } from "domain/actions/po/po.action";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
+import { modalActionType } from "model/modal/modal.model";
+import { FilterConfig, FilterConfigRequest } from "model/other";
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
-import { PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import FormSaveFilter from "screens/products/inventory/filter/components/FormSaveFilter";
+import { FILTER_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
+import { primaryColor } from "utils/global-styles/variables";
+import { showSuccess } from "utils/ToastUtils";
 import BaseFilter from "./base.filter";
 import CustomSelectMany from "./component/select-many.custom";
-import CustomSelectOne from "./component/select-one.custom";
+import CustomSelectOne from "./component/select-one.custom"; 
 
 
 const { Panel } = Collapse;
@@ -370,6 +381,16 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     actions,
   } = props;
   const [visible, setVisible] = useState(false);
+  
+  const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>([]);
+  const [tagAcitve, setTagActive] = useState<number|null>();
+  const [configId, setConfigId] = useState<number>();
+  const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
+  const dispatch = useDispatch();
+  const [showModalSaveFilter, setShowModalSaveFilter] = useState(false);
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const {account} = userReducer;
+  const [modalAction, setModalAction] = useState<modalActionType>("create");
 
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
@@ -433,25 +454,118 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
 
+  const onSelectFilterConfig = useCallback((index: number, id: number)=>{
+    setTagActive(index);
+    const filterConfig = lstConfigFilter.find(e=>e.id === id);
+    if (filterConfig) {
+      let json_content = JSON.parse(filterConfig.json_content);
+
+      Object.keys(json_content).forEach(function(key, index) {
+        if (json_content[key] == null) json_content[key] = undefined;
+      }, json_content);
+      formAdvanceFilter.setFieldsValue(json_content);
+    } 
+},[lstConfigFilter, formAdvanceFilter]);
+
+  const FilterConfigCom = (props: any)=>{
+    return (
+      <span style={{marginRight: 20, display: "inline-flex"}}>
+          <Tag onClick={(e)=>{
+              onSelectFilterConfig(props.index, props.id);  
+              }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
+                    color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />} 
+                    closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
+                      e.preventDefault();
+                      setConfigId(props.id); 
+                      setIsShowConfirmDelete(true);
+                    }}>
+              {props.name}  
+            </Tag> 
+      </span>
+    )
+  }
+
+  const onResultGetConfig = useCallback((res: BaseResponse<Array<FilterConfig>>)=>{
+    if (res && res.data && res.data.length > 0) {
+     const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_PO);
+     setLstConfigFilter(configFilters);
+    }
+  },[]);
+
+  const getConfigPo = useCallback(()=>{
+    if (account && account.code) {
+      dispatch(
+        getConfigPoAction( 
+           account.code,
+           onResultGetConfig
+        )
+      );
+    }
+  },[account, dispatch, onResultGetConfig])
+
+  const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>)=>{
+    if (res) {
+      showSuccess(`Xóa bộ lọc thành công`);
+      setIsShowConfirmDelete(false);
+      getConfigPo();
+    }
+  },[getConfigPo])
+
+  const onMenuDeleteConfigFilter =useCallback(()=>{
+    if (configId) {
+      dispatch(deleteConfigPoAction(configId, onResultDeleteConfig));
+    }
+  },[dispatch ,configId, onResultDeleteConfig]);
+
+  const onShowSaveFilter = useCallback(() => {
+    setModalAction("create");
+    setShowModalSaveFilter(true);
+  }, []);  
+
+  const onResult = useCallback((res: BaseResponse<FilterConfig>) =>{
+    if (res) {
+      showSuccess(`Lưu bộ lọc thành công`);
+      setShowModalSaveFilter(false);
+      getConfigPo();
+    }
+  },[getConfigPo]);
+
+  const onSaveFilter = useCallback((request: FilterConfigRequest) => {
+    if (request) { 
+      let json_content = JSON.stringify(
+        formAdvanceFilter.getFieldsValue(),
+        function(k, v) { return v === undefined ? null : v; }
+      );;
+      request.type = FILTER_CONFIG_TYPE.FILTER_PO;
+      request.json_content = json_content; 
+      
+      if (request.id && request.id !== null) {
+        const config = lstConfigFilter.find(e=>e.id.toString() === request.id.toString());
+        if (lstConfigFilter && config) {
+          request.name = config.name;
+        }
+        dispatch(updateConfigPoAction(request,onResult));
+      }else{
+        dispatch(createConfigPoAction(request ,onResult));
+      }
+    }
+    
+  }, [dispatch,formAdvanceFilter, onResult, lstConfigFilter]);
 
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });
     formAdvanceFilter.setFieldsValue({ ...advanceFilters });
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
+
   useEffect(() => {
     setAdvanceFilters({ ...params });
-  }, [params]);
-  useLayoutEffect(() => {
-    // if (visible) {
-    //   formBaseFilter.resetFields();
-    //   formAdvanceFilter.resetFields();
-    // }
-    // return () => {
-    //   formBaseFilter.resetFields();
-    //   formAdvanceFilter.resetFields();
-    // };
-  }, [formAdvanceFilter, formBaseFilter, visible]);
+  }, [params]);  
+
+  useEffect(() => {
+    getConfigPo()
+  }, [getConfigPo]); 
+
   return (
     <div className="purchase-order-form">
       <Form.Provider
@@ -580,6 +694,8 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           onCancel={onCancelFilter}
           visible={visible}
           width={500}
+          allowSave
+          onSaveFilter={onShowSaveFilter}
         >
           <Form
             form={formAdvanceFilter}
@@ -601,15 +717,50 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               });
             }}
           >
+            {
+              (lstConfigFilter && lstConfigFilter.length > 0) &&
+              <Row>
+                  <Item>
+                    <Col span={24} className="tag-filter">
+                      {
+                        lstConfigFilter?.map((e, index)=>{
+                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                        })
+                      }
+                    </Col>
+                  </Item>
+                </Row>
+            } 
             <AdvanceFormItems
               listSupplierAccount={listSupplierAccount}
               listStore={listStore}
               listRdAccount={listRdAccount}
               tempAdvanceFilters={tempAdvanceFilters}
             />
+             <CustomModal
+              createText="Lưu lại"
+              updateText="Lưu lại"
+              visible={showModalSaveFilter}
+              onCreate={(formValues)=>{onSaveFilter(formValues)}}
+              onEdit={()=>{}}
+              onDelete={()=>{}}
+              onCancel={() => setShowModalSaveFilter(false)}
+              modalAction={modalAction}
+              componentForm={FormSaveFilter}
+              formItem={null}
+              modalTypeText="bộ lọc"
+              lstConfigFilter={lstConfigFilter}
+            />
           </Form>
         </BaseFilter>
       </Form.Provider>
+      <ModalDeleteConfirm
+          visible={isShowConfirmDelete}
+          onOk={onMenuDeleteConfigFilter}
+          onCancel={() => setIsShowConfirmDelete(false)}
+          title="Xác nhận"
+          subTitle={"Bạn có chắc muốn xóa bộ lọc này?"}
+      />           
     </div>
   );
 };

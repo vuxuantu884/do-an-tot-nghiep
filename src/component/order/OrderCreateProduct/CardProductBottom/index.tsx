@@ -8,14 +8,14 @@ import { StyledComponent } from "./styles";
 type PropType = {
   levelOrder?: number;
   orderAmount: number;
-  totalAmountExchangePlusShippingFee?: number;
   items: OrderLineItemRequest[] | undefined;
   promotion: OrderDiscountRequest | null;
   discountValue?: number;
   totalAmountCustomerNeedToPay: number;
   shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
-  amount: number;
+  amount?: number;
+  totalAmountOrder: number;
   isDisableOrderDiscount?: boolean;
   isCouponValid?: boolean;
   couponInputText?: string;
@@ -26,9 +26,7 @@ type PropType = {
   setCouponInputText?: (value: string) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
-    _amount: number,
-    _discountRate: number,
-    _discountValue: number
+    _promotion?: OrderDiscountRequest | null | undefined
   ) => void;
   returnOrderInformation?: {
     totalAmountReturn: number;
@@ -40,12 +38,11 @@ function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
     orderAmount,
-    totalAmountExchangePlusShippingFee,
+    totalAmountOrder,
     items,
     promotion,
     couponInputText,
     // changeMoney,
-    amount,
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
@@ -60,10 +57,12 @@ function CardProductBottom(props: PropType) {
     handleRemoveAllDiscount,
   } = props;
 
-  console.log('isDisableOrderDiscount', isDisableOrderDiscount)
+  // console.log('isDisableOrderDiscount', isDisableOrderDiscount)
 
-	let discountRate = promotion?.rate || 0;
-	let discountValue = promotion?.value || 0;
+  let discountRate = promotion?.rate || 0;
+  let discountValue = promotion?.value || 0;
+
+  console.log('totalAmountOrder', totalAmountOrder)
 
   // console.log('coupon33', coupon)
   // console.log('discountRate', discountRate);
@@ -78,9 +77,9 @@ function CardProductBottom(props: PropType) {
           </div> */}
         </Col>
         <Col xs={24} lg={10}>
-          <Row className="paymentRow" style={{justifyContent: "space-between"}}>
+          <Row className="paymentRow" style={{ justifyContent: "space-between" }}>
             <div>Tổng tiền:</div>
-            <div className="font-weight-500" style={{fontWeight: 500}}>
+            <div className="font-weight-500" style={{ fontWeight: 500 }}>
               {formatCurrency(orderAmount)}
             </div>
           </Row>
@@ -105,24 +104,34 @@ function CardProductBottom(props: PropType) {
 
               {items && discountRate !== 0 && (
                 <Tag
+                  key={discountRate}
                   style={{
                     marginTop: 0,
                     color: "#E24343",
                     backgroundColor: "#F5F5F5",
                   }}
                   className="orders-tag orders-tag-danger"
-                  closable = {!isDisableOrderDiscount}
+                  closable={!isDisableOrderDiscount}
                   onClose={() => {
                     setCoupon && setCoupon("");
-                    calculateChangeMoney(items, amount, 0, 0);
+                    calculateChangeMoney(items, {
+                      amount: 0,
+                      discount_code: null,
+                      order_id: null,
+                      promotion_id: null,
+                      rate: 0,
+                      reason: null,
+                      source: null,
+                      value: 0
+                    });
                   }}
                 >
-                  {discountRate ? Math.round(discountRate*100)/100 : 0}%{" "}
+                  {discountRate ? Math.round(discountRate * 100) / 100 : 0}%{" "}
                 </Tag>
               )}
             </Space>
             <div className="font-weight-500 ">
-              {discountValue ? formatCurrency(discountValue) : "-"}
+              {discountValue ? formatCurrency(Math.round(discountValue)) : "-"}
             </div>
           </Row>
 
@@ -154,13 +163,13 @@ function CardProductBottom(props: PropType) {
                   className="orders-tag orders-tag-danger"
                   closable
                   onClose={() => {
-										setPromotion && setPromotion({
-											amount: 0,
-											discount_code: null,
-											promotion_id: null,
-											rate: 0,
-											reason: ""
-										})
+                    setPromotion && setPromotion({
+                      amount: 0,
+                      discount_code: null,
+                      promotion_id: null,
+                      rate: 0,
+                      reason: ""
+                    })
                     handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
                     setCouponInputText && setCouponInputText("");
@@ -175,7 +184,7 @@ function CardProductBottom(props: PropType) {
                             marginRight: 5,
                           }}
                         />
-                        <span style={{color: "#27AE60"}}>{handleDisplayCoupon(couponInputText)}</span>
+                        <span style={{ color: "#27AE60" }}>{handleDisplayCoupon(couponInputText)}</span>
                       </React.Fragment>
                     ) : (
                       <React.Fragment>
@@ -185,7 +194,7 @@ function CardProductBottom(props: PropType) {
                             marginRight: 5,
                           }}
                         />
-                        <span style={{color: "#E24343"}}>{handleDisplayCoupon(couponInputText)}</span>
+                        <span style={{ color: "#E24343" }}>{handleDisplayCoupon(couponInputText)}</span>
                       </React.Fragment>
                     )
                   ) : undefined}
@@ -209,7 +218,7 @@ function CardProductBottom(props: PropType) {
               <Divider className="margin-top-5 margin-bottom-5" />
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng mua:</strong>
-                <strong>{totalAmountExchangePlusShippingFee && formatCurrency(totalAmountExchangePlusShippingFee)}</strong>
+                <strong>{totalAmountOrder && formatCurrency(totalAmountOrder)}</strong>
               </Row>
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng trả:</strong>
@@ -217,7 +226,7 @@ function CardProductBottom(props: PropType) {
                   {returnOrderInformation.totalAmountReturn
                     ? formatCurrency(returnOrderInformation.totalAmountReturn)
                     : "-"}
-                </strong>
+                </strong> 
               </Row>
             </React.Fragment>
           )}
@@ -229,7 +238,9 @@ function CardProductBottom(props: PropType) {
                 : `Cần trả lại khách:`}
             </strong>
             <strong className="text-success font-size-price">
-              {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
+              {totalAmountCustomerNeedToPay >= 0
+                ? !returnOrderInformation ? formatCurrency(Math.round(Math.abs(totalAmountOrder))) : formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))
+                : formatCurrency(Math.round(Math.abs(totalAmountCustomerNeedToPay)))}
             </strong>
           </Row>
         </Col>

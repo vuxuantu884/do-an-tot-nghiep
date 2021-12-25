@@ -36,19 +36,6 @@ import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 
-const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "Xóa",
-    icon:<DeleteOutlined />
-  },
-  {
-    id: 2,
-    name: "Export",
-    icon:<ExportOutlined />
-  },
-];
-
 const initQuery: ReturnSearchQuery = {
   page: 1,
   limit: 30,
@@ -291,6 +278,21 @@ const ListOrderScreen: React.FC = () => {
     const selectedRowCodes = selectedRow.map((row: any) => row.code);
     setSelectedRowCodes(selectedRowCodes);
   }, []);
+
+  const actions: Array<MenuAction> = useMemo(() => [
+    {
+      id: 1,
+      name: "Xóa",
+      icon:<DeleteOutlined />,
+      disabled: selectedRowCodes.length ? false : true,
+    },
+    {
+      id: 2,
+      name: "Export",
+      icon:<ExportOutlined />,
+      disabled: selectedRowCodes.length ? false : true,
+    },
+  ], [selectedRowCodes]);
 
   const onExport = useCallback((optionExport, typeExport) => {
     let newParams:any = {...params};

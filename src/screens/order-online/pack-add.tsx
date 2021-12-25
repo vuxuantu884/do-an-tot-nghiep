@@ -16,8 +16,8 @@ import {useCallback, useEffect, useLayoutEffect, useMemo, useState} from "react"
 import {useDispatch, useSelector} from "react-redux";
 import {haveAccess} from "utils/AppUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import AddOrderBottombar from "./add-order-bottombar";
-import AddOrderInReport from "./add-order-in-report";
+import AddOrderBottombar from "./pack-support/add/add-order-bottombar";
+import AddOrderInReport from "./pack-support/add/add-order-in-report";
 import "assets/css/_pack.scss";
 import { useHistory } from "react-router";
 

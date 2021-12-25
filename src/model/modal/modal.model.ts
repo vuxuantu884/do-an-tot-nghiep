@@ -1,4 +1,6 @@
 import { FormInstance } from "antd";
+import BaseResponse from "base/base.response";
+import { FilterConfig } from "model/other";
 
 export type modalActionType = "create" | "edit" | "delete" | "onlyedit";
 
@@ -8,6 +10,7 @@ export interface CustomModalFormModel {
   formItem: any;
   form: FormInstance<any>;
   moreFormArguments?: any;
+  lstConfigFilter? : Array<FilterConfig>
 }
 
 export interface CustomModalType {
@@ -27,5 +30,6 @@ export interface CustomModalType {
   formItem: any;
   moreFormArguments?: any; 
   createText?: string;
-  updateText?: string
+  updateText?: string;
+  lstConfigFilter?: Array<FilterConfig>
 }

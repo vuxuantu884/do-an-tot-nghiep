@@ -12,6 +12,8 @@ import {
   EntilementFormModel,
   ProductEntitlements,
   VariantEntitlementsFileImport,
+  DiscountMethod,
+  IgnoreVariant,
 } from "model/promotion/discount.create.model";
 import moment from "moment";
 import {Dispatch} from "redux";
@@ -33,65 +35,248 @@ export const handleDenyParentProduct = (
   setIsVisibleConfirmModal(false);
 };
 
+/**
+ *
+ * @param currentEntilementList
+ * @param currentDiscountGroupMap
+ * @param isVariant
+ * @param importItem
+ * @param currentProductIdList
+ * @param currentVariantIdList
+ * @returns
+ */
+export const insertProduct = (
+  currentEntilementList: Array<EntilementFormModel>,
+  currentDiscountGroupMap: Map<string, EntilementFormModel>,
+  isVariant: boolean,
+  importItem: VariantEntitlementsFileImport,
+  currentProductIdList: Array<number>,
+  currentVariantIdList: Array<number>,
+  ignoreVariantList: Array<IgnoreVariant>
+) => {
+  if (isVariant && currentProductIdList.includes(importItem.product_id)) {
+    ignoreVariantList?.push({
+      ignoreVariantId: importItem.variant_id,
+      ignoreVariantSku: importItem.sku,
+    });
+    return;
+  }
+
+  //Tìm variant sắp thêm xem đã có trong form chưa, có thì xoá đi
+  if (isVariant && currentVariantIdList.includes(importItem.variant_id)) {
+    currentEntilementList.forEach((element: EntilementFormModel, index: number) => {
+      currentEntilementList[index].selectedProducts = element.selectedProducts?.filter(
+        (product: ProductEntitlements) => product.variant_id !== importItem.variant_id
+      );
+
+      currentEntilementList[index].entitled_variant_ids =
+        element.entitled_variant_ids?.filter(
+          (variantId: number) => variantId !== importItem.variant_id
+        );
+    });
+  } else if (!isVariant && currentProductIdList.includes(importItem.product_id)) {
+    //Tìm sản phẩm cha sắp thêm xem đã có trong form chưa, có thì xoá đi
+    currentEntilementList.forEach((element: EntilementFormModel, index: number) => {
+      currentEntilementList[index].selectedProducts = element.selectedProducts?.filter(
+        (product: ProductEntitlements) => product.product_id !== importItem.product_id
+      );
+
+      currentEntilementList[index].entitled_product_ids =
+        element.entitled_product_ids?.filter(
+          (productId: number) => productId !== importItem.product_id
+        );
+    });
+  }
+
+  //Kiểm tra giá trị nhóm chiết khấu của sản phẩm import đã trùng với nhóm chiết khấu nào chưa
+  // nếu tồn tại discountGroup  => true
+  const discountGroup = currentDiscountGroupMap.get(
+    JSON.stringify({
+      value: importItem.discount_value,
+      value_type: importItem.discount_type,
+      greater_than_or_equal_to: importItem.min_quantity,
+    })
+  );
+
+  const itemParseFromFileToDisplay = {
+    ...importItem,
+    cost: importItem.price,
+    open_quantity: importItem.quantity,
+    variant_title: importItem.variant_title,
+    product_id: importItem.product_id,
+    sku: isVariant ? importItem.sku : importItem.product_code || "",
+  };
+
+  const prerequisite_quantity = {
+    value: importItem.discount_value,
+    allocation_limit: importItem.limit,
+    greater_than_or_equal_to: importItem.min_quantity,
+    value_type: importItem.discount_type,
+  };
+
+  if (!discountGroup) {
+    // nếu nhóm khuyến mãi không tồn tại trong danh sách => tạo mới
+    const discount: EntilementFormModel = {
+      selectedProducts: [itemParseFromFileToDisplay],
+      entitled_variant_ids: importItem.variant_id ? [importItem.variant_id] : [],
+      entitled_product_ids: importItem.product_id ? [importItem.product_id] : [],
+      prerequisite_quantity_ranges: [{...prerequisite_quantity}],
+    };
+
+    currentEntilementList.unshift(discount);
+    currentDiscountGroupMap.set(
+      JSON.stringify({
+        value: importItem.discount_value,
+        value_type: importItem.discount_type,
+        greater_than_or_equal_to: importItem.min_quantity,
+      }),
+      discount
+    );
+  } else {
+    // nếu nhóm khuyến mãi đã tồn tại  & sản phẩm chưa tồn tại trong nhóm KM => thêm sản phẩm vào nhóm khuyến mãi
+    if (isVariant) {
+      discountGroup.entitled_variant_ids.unshift(importItem.variant_id);
+      discountGroup.entitled_product_ids.unshift(importItem.product_id);
+    } else {
+      discountGroup.entitled_product_ids.unshift(importItem.product_id);
+    }
+
+    discountGroup.selectedProducts?.unshift(itemParseFromFileToDisplay);
+    // thay đổi reference data form để re-render
+    discountGroup.selectedProducts = _.cloneDeep(discountGroup.selectedProducts);
+  }
+
+  // add product id và variant_id vào form
+  if (isVariant) {
+    currentVariantIdList.push(importItem.variant_id);
+    console.log(importItem.variant_id);
+  } else {
+    currentProductIdList.push(importItem.product_id);
+  }
+};
+
+/**
+ * # IMPORT SẢN PHẨM TỪ FILE VÀO FORM
+ *
+ * ## Chia 2 phần xử lý data
+ * ### 1. Xử lý sp cha trước => call @function insertProduct (để không bỏ qua trường hợp sp cha và variant của cha cùng tồn tại trong file import)
+ *
+ * ### 2. Xử lý variant  => call @function insertProduct
+ *
+ *
+ * @function insertProduct : xử lý data
+ * ### Kiểm tra variant có thuộc sản phẩm cha nào đã tồn tại trong form không(ưu tiên sp cha)
+ * => nếu đã có đếm số lượng và lưu lại sku của variant bị bỏ qua
+ * => nếu chưa thì xét các điều kiện tiếp theo
+ *
+ *
+ * ### Tìm sản phẩm sắp thêm xem đã có trong form chưa, có thì xoá đi
+ * ### Kiểm tra giá trị nhóm chiết khấu của sản phẩm import đã trùng với nhóm chiết khấu nào chưa
+ *
+ * => nếu chưa thì thêm mới nhóm chiết khấu và thêm sản phẩm vào nhóm chiết khấu đó
+ * => nếu đã có nhóm chiết khấu thì thêm sản phẩm vào nhóm chiết khấu đó
+ *
+ *
+ * ## Thông báo : Số lượng bản ghi con không thêm được vào danh sách do đã tồn tại mã cha
+ *
+ * ## Set danh sách được import vào form
+ *
+ * @param currentEntilementList
+ * @param newProductList
+ * @param form
+ */
+
 export const shareDiscountImportedProduct = (
-  oldEntilementList: Array<EntilementFormModel>,
-  newVariantList: Array<VariantEntitlementsFileImport>,
+  currentEntilementList: Array<EntilementFormModel>,
+  newProductList: Array<VariantEntitlementsFileImport>,
   form: FormInstance
 ) => {
-  const discountMap = new Map<number, EntilementFormModel>();
-  const ignoreVariantMap = new Map<string, ProductEntitlements>();
+  const currentDiscountGroupMap = new Map<string, EntilementFormModel>();
+  // const ignoreProductMap = new Map<string, ProductEntitlements>();
+  let currentProductIdList: Array<number> = [];
+  let currentVariantIdList: Array<number> = [];
 
-  oldEntilementList.forEach((item) => {
-    if (item.prerequisite_quantity_ranges[0].value) {
-      discountMap.set(item.prerequisite_quantity_ranges[0].value, item);
+  currentEntilementList.forEach((item) => {
+    const {value, value_type, greater_than_or_equal_to} =
+      item.prerequisite_quantity_ranges[0];
+
+    if (
+      typeof value === "number" &&
+      typeof greater_than_or_equal_to === "number" &&
+      typeof value_type === "string"
+    ) {
+      currentDiscountGroupMap.set(
+        JSON.stringify({value, value_type, greater_than_or_equal_to}),
+        item
+      ); // map những nhóm chiết => key: giá trị chiết khấu, dơn vị, số lượng tối thiểu
     }
 
-    item?.selectedProducts?.forEach((child) => {
-      ignoreVariantMap.set(child.sku, child);
-    });
-  });
+    // lấy ra danh id sách sản phẩm cha đã tồn tại
+    if (
+      Array.isArray(item.entitled_product_ids) &&
+      item.entitled_product_ids.length > 0
+    ) {
+      currentProductIdList = currentProductIdList.concat(item.entitled_product_ids);
+    }
 
-  newVariantList.forEach((item) => {
-    let discount = discountMap.get(item.discount_value);
-    console.log("parent", typeof discount?.selectedProducts);
-    const itemParseFromFileToDisplay = {
-      ...item,
-      cost: item.price,
-      open_quantity: item.quantity,
-      variant_title: item.variant_title,
-      product_id: item.product_id,
-    };
-    if (!discount) {
-      const discount: EntilementFormModel = {
-        selectedProducts: [itemParseFromFileToDisplay],
-        entitled_variant_ids: [item.variant_id],
-        entitled_product_ids: item.product_id ? [item.product_id] : [],
-        prerequisite_quantity_ranges: [
-          {
-            value: item.discount_value,
-            allocation_limit: item.limit,
-            greater_than_or_equal_to: item.min_quantity,
-            value_type:
-              form.getFieldValue("entitled_method") === "FIXED_PRICE"
-                ? "FIXED_AMOUNT"
-                : item.discount_type,
-          },
-        ],
-      };
-
-      oldEntilementList.push(discount);
-      discountMap.set(item.discount_value, discount);
-    } else if (discount && !ignoreVariantMap.get(item.sku)) {
-      discount.selectedProducts?.push(itemParseFromFileToDisplay);
-      discount.entitled_variant_ids.push(item.variant_id);
-
-      ignoreVariantMap.set(item.sku, itemParseFromFileToDisplay);
+    // lấy ra danh id sách variant đã tồn tại
+    if (
+      Array.isArray(item.entitled_variant_ids) &&
+      item.entitled_variant_ids.length > 0
+    ) {
+      currentVariantIdList = currentVariantIdList.concat(item.entitled_variant_ids);
     }
   });
 
-  form.setFieldsValue({entitlements: oldEntilementList});
+  const ignoreVariantList: Array<IgnoreVariant> = [];
 
-  // return oldEntilementList.map((item) => item.);
+  // load lần 1 để import hết các sp cha
+  newProductList.forEach((importItem) => {
+    // trường variant mới thuộc sản phẩm cha khác thì bỏ qua (ưu tiên sp cha)
+    // điều kiện phân biệt variant:  sẽ có cả variant_id và product_id
+    const isVariant = Boolean(importItem.variant_id && importItem.product_id);
+    if (!isVariant) {
+      insertProduct(
+        currentEntilementList,
+        currentDiscountGroupMap,
+        isVariant,
+        importItem,
+        currentProductIdList,
+        currentVariantIdList,
+        ignoreVariantList
+      );
+    }
+  });
+
+  // load các variant còn lại
+  newProductList.forEach((importItem) => {
+    // trường variant mới thuộc sản phẩm cha khác thì bỏ qua (ưu tiên sp cha)
+    // điều kiện phân biệt variant:  sẽ có cả variant_id và product_id
+    const isVariant = Boolean(importItem.variant_id && importItem.product_id);
+    if (isVariant) {
+      insertProduct(
+        currentEntilementList,
+        currentDiscountGroupMap,
+        isVariant,
+        importItem,
+        currentProductIdList,
+        currentVariantIdList,
+        ignoreVariantList
+      );
+    }
+  });
+  const cleanEntilementList = currentEntilementList.filter(
+    (element: EntilementFormModel) =>
+      element.selectedProducts && element.selectedProducts?.length > 0
+  );
+
+  if (ignoreVariantList.length > 0) {
+    showError(
+      `Có ${ignoreVariantList.length} sản phẩm đã tồn mã cha trong danh sách khuyến mãi`
+    );
+  }
+
+  form.setFieldsValue({entitlements: cleanEntilementList});
 };
 
 // need to remove
@@ -499,14 +684,34 @@ export const addProductFromSelectToForm = (
   console.log(form.getFieldValue("entitlements"));
 };
 
+export const getEntilementValue = (
+  entitlements: EntilementFormModel[],
+  entitlementMethod: string
+) => {
+  if (entitlementMethod === DiscountMethod.ORDER_THRESHOLD.toString()) {
+    return [];
+  } else {
+    if (!entitlements || !Array.isArray(entitlements)) {
+      return null;
+    }
+
+    // check không được để trống sản phẩm trong nhóm chiết khấu
+    const checkEmpty = entitlements.some(
+      (e) => e.entitled_product_ids.length === 0 && e.entitled_variant_ids.length === 0
+    );
+    if (checkEmpty) {
+      throw new Error("Không được để trống sản phẩm trong nhóm chiết khấu");
+    }
+    return entitlements?.map((item: EntilementFormModel) => {
+      delete item.selectedProducts;
+      return item;
+    });
+  }
+};
+
 export const transformData = (values: any) => {
   let body: any = values;
-  body.entitlements = values?.entitlements
-    ? values?.entitlements?.map((item: EntilementFormModel) => {
-        delete item.selectedProducts;
-        return item;
-      })
-    : null;
+  body.entitlements = getEntilementValue(values.entitlements, values.entitled_method);
 
   body.type = PROMO_TYPE.AUTOMATIC;
   body.starts_date = values.starts_date.format();

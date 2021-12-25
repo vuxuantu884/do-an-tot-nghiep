@@ -32,7 +32,7 @@ import {
   subtractLoyaltyPoint,
 } from "domain/actions/loyalty/loyalty.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -62,7 +62,7 @@ const pageColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "STT",
     visible: true,
-    fixed: "left",
+    align: "center",
     render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
     width: "150px",
   },
@@ -82,13 +82,13 @@ const pageColumns: Array<ICustomTableColumType<any>> = [
     title: "Mã khách hàng",
     visible: true,
     dataIndex: "code",
-    fixed: "left",
+    align: "center",
   },
   {
     title: "Số điểm hiện tại",
     visible: true,
     dataIndex: "current_point",
-    fixed: "left",
+    align: "center",
   },
 ];
 
@@ -149,14 +149,20 @@ const CreatePointAdjustment = () => {
 
   const onSelect = (value: any, option: any) => {
     const customer = option.customer;
-    setSelectedCustomers([customer]);
     if (customer) {
-      dispatch(
-        getLoyaltyPoint(customer.id, (data: LoyaltyPoint) => {
-          customer.current_point = data ? data.point : 0;
-          setSelectedCustomers([customer]);
-        })
-      );
+      const newSelectedCustomers = [...selectedCustomers];
+      const isExistCustomer = newSelectedCustomers.find(item => item.id === customer.id);
+      if (isExistCustomer) {
+        showWarning("Khách hàng đã được chọn!");
+      } else {
+        dispatch(
+          getLoyaltyPoint(customer.id, (data: LoyaltyPoint) => {
+            customer.current_point = data ? data.point : 0;
+            newSelectedCustomers.unshift(customer);
+            setSelectedCustomers(newSelectedCustomers);
+          })
+        );
+      }
     }
   };
 
@@ -287,7 +293,7 @@ const CreatePointAdjustment = () => {
                             options={transformCustomers}
                             onSelect={onSelect}
                             onChange={onChange}
-                            placeholder="Tìm kiếm số điện thoại "
+                            placeholder="Tìm kiếm theo mã khách hàng, tên, SĐT khách hàng"
                             value={keyword}
                           />
                         </Item>
@@ -396,6 +402,7 @@ const CreatePointAdjustment = () => {
                   <Row>
                     <Col span={24}>
                       <CustomTable
+                        bordered
                         dataSource={selectedCustomers}
                         columns={pageColumns}
                         style={{ width: "100%" }}

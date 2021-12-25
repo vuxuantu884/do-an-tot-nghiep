@@ -2,43 +2,18 @@ const InventoryQueryField = {
   condition: 'condition', 
   store_ids: 'store_ids',
   is_remain: 'is_remain',
-  created_date: 'created_date',
-  transaction_date: 'transaction_date',
-  total_stock: 'total_stock',
-  on_hand: 'on_hand',
-  committed: 'committed',
-  available: 'available',
-  on_hold: 'on_hold',
-  defect: 'defect',
-  incoming: 'incoming',
-  transferring: 'transferring',
-  on_way: 'on_way',
-  shipping: 'shipping',
-  import_price: 'import_price',
-  mac: 'mac',
-  retail_price: 'retail_price',
+  created_date: 'created_date', 
   status: 'status'
 }
 
 const AvdInventoryFilter = {
-  transaction_date: 'transaction_date',
-  total_stock: 'total_stock',
-  on_hand: 'on_hand',
-  committed: 'committed',
-  available: 'available',
-  on_hold: 'on_hold',
-  defect: 'defect',
-  incoming: 'incoming',
-  transferring: 'transferring',
-  on_way: 'on_way',
-  shipping: 'shipping',
   info: 'info',
   store_ids: 'store_ids', 
-  made_in_id: 'made_in_id',
-  designer_code: 'designer_code',
-  merchandiser_code: 'merchandiser_code',
-  collection_code: 'collection_code',
-  category_code: 'category_code',
+  made_in_ids: 'made_in_ids',
+  designer_codes: 'designer_codes',
+  merchandiser_codes: 'merchandiser_codes',
+  collection_codes: 'collection_codes',
+  category_ids: 'category_ids',
   variant_prices: 'variant_prices',
   from_price: 'from_price',
   to_price: 'to_price'
@@ -50,20 +25,15 @@ const BasicInventoryFilter = {
 }
 
 const InventoryMappingField = {
-  [AvdInventoryFilter.transaction_date]: 'Cập nhật cuối',
-  [AvdInventoryFilter.total_stock]: 'Tổng tồn',
-  [AvdInventoryFilter.on_hand]: 'Tồn trong kho',
-  [AvdInventoryFilter.committed]: 'Đang giao dịch',
-  [AvdInventoryFilter.available]: 'Có thể bán',
-  [AvdInventoryFilter.on_hold]: 'Hàng tạm giữ',
-  [AvdInventoryFilter.defect]: 'Hàng lỗi',
-  [AvdInventoryFilter.incoming]: 'Chờ nhập',
-  [AvdInventoryFilter.transferring]: 'Đang chuyển đến',
-  [AvdInventoryFilter.on_way]: 'Đang chuyển đi ',
-  [AvdInventoryFilter.shipping]: 'Hàng đang giao',
-  // [AvdInventoryFilter.mac]: 'Giá vốn',
-  // [AvdInventoryFilter.import_price]: 'Giá nhập',
-  // [AvdInventoryFilter.retail_price]: 'Giá bán',
+  [AvdInventoryFilter.store_ids]: 'Cửa hàng',
+  [AvdInventoryFilter.made_in_ids]: 'Xuất xứ',
+  [AvdInventoryFilter.designer_codes]: 'Thiết kế',
+  [AvdInventoryFilter.merchandiser_codes]: 'Merchandiser',
+  [AvdInventoryFilter.collection_codes]: 'Nhóm hàng',
+  [AvdInventoryFilter.category_ids]: 'Danh mục',
+  [AvdInventoryFilter.variant_prices]: 'Giá bán',
+  [AvdInventoryFilter.from_price]: 'Từ',
+  [AvdInventoryFilter.to_price]: 'Đến',
 }
 
 const HistoryInventoryQueryField = {
@@ -78,37 +48,35 @@ const HistoryInventoryQueryField = {
 }
 
 const AvdHistoryInventoryFilter = {
-  //created_date: 'created_date',
   transaction_date: 'transaction_date',
   quantity_change: 'quantity_change', 
 }
 
 const AvdAllFilter = {
   category: 'category',
-  total: 'total',
-  on_hand: 'on_hand',
-  available: 'available',
-  committed: 'committed',
-  on_hold: 'on_hold',
-  defect: 'defect',
-  in_coming: 'in_coming',
-  transferring: 'transferring',
-  on_way: 'on_way',
-  shipping: 'shipping',
+  info: 'info',
+  store_ids: 'store_ids', 
+  made_in_ids: 'made_in_ids',
+  designer_codes: 'designer_codes',
+  merchandiser_codes: 'merchandiser_codes',
+  collection_codes: 'collection_codes',
+  category_ids: 'category_ids',
+  variant_prices: 'variant_prices',
+  from_price: 'from_price',
+  to_price: 'to_price'
 }
 
 const AllInventoryMappingField = {
   [AvdAllFilter.category]: 'Danh mục',
-  [AvdAllFilter.total]: 'Tổng tồn',
-  [AvdAllFilter.on_hand]: 'Tồn trong kho',
-  [AvdAllFilter.available]: 'Có thể bán',
-  [AvdAllFilter.committed]: 'Đang giao địch',
-  [AvdAllFilter.on_hold]: 'Hàng tạm giữ',
-  [AvdAllFilter.defect]: 'Hàng lỗi',
-  [AvdAllFilter.in_coming]: 'Chờ nhập',
-  [AvdAllFilter.transferring]: 'Hàng đang chuyển đến',
-  [AvdAllFilter.on_way]: 'Hàng đang chuyển đi',
-  [AvdAllFilter.shipping]: 'Hàng đang giao',
+  [AvdAllFilter.store_ids]: 'Cửa hàng',
+  [AvdAllFilter.made_in_ids]: 'Xuất xứ',
+  [AvdAllFilter.designer_codes]: 'Thiết kế',
+  [AvdAllFilter.merchandiser_codes]: 'Merchandiser',
+  [AvdAllFilter.collection_codes]: 'Nhóm hàng',
+  [AvdAllFilter.category_ids]: 'Danh mục',
+  [AvdAllFilter.variant_prices]: 'Giá bán',
+  [AvdAllFilter.from_price]: 'Từ',
+  [AvdAllFilter.to_price]: 'Đến',
 }
 
 const HistoryInventoryMappingField = {

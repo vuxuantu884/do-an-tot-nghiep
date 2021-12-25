@@ -9,7 +9,7 @@ import {
 } from "model/purchase-order/purchase-procument";
 
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import {
@@ -393,7 +393,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                       return (
                         <div>
                           Ngày dự kiến{" "}
-                          <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
+                          <strong>{ConvertUtcToLocalDate(expect_receipt_date, DATE_FORMAT.DDMMYYY)}</strong>
                         </div>
                       );
                     }}
@@ -443,6 +443,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                     <CustomDatepicker
                       disableDate={(date) => date < moment().startOf("days")}
                       style={{width: "100%"}}
+                      format={DATE_FORMAT.DDMMYYY}
                     />
                   </Form.Item>
                 </Col>
