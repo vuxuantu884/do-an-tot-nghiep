@@ -540,7 +540,7 @@ const GeneralCreate = (props: any) => {
                     defaultChecked={true}
                     onChange={(value) => {
                       form.setFieldsValue({
-                        prerequisite_store_ids: undefined,
+                        prerequisite_store_ids: [],
                       });
                       form.validateFields(["prerequisite_store_ids"]);
                       setAllStore(value);
@@ -616,7 +616,7 @@ const GeneralCreate = (props: any) => {
                     onChange={(value) => {
                       form.validateFields(["prerequisite_order_source_ids"]);
                       form.setFieldsValue({
-                        prerequisite_order_source_ids: undefined,
+                        prerequisite_order_source_ids: [],
                       });
                       setAllSource(value);
                     }}

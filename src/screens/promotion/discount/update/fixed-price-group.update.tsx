@@ -118,9 +118,23 @@ const FixedPriceGroupUpdate = (props: Props) => {
     return [...productOptions, ...variantOptions];
   }, [dataSearchVariant]);
 
+  const formatDiscountCurrencyByFormValue = (value: number | undefined, form: FormInstance) => {
+    const isPercent = form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"]) === DiscountUnitType.PERCENTAGE.value
+    if (isPercent) {
+      const floatIndex = value?.toString().indexOf(".") || -1;
+      if (floatIndex > 0) {
+        return `${value}`.slice(0, floatIndex + 3);
+      }
+      return `${value}`;
+    } else {
+      return formatCurrency(`${value}`.replaceAll(".", ""));
+    }
+  };
 
-
-  // todo : refactor
+  /**
+   * 
+   * @param items 
+   */
   const onPickManyProduct = (items: Array<VariantResponse>) => {
 
     if (items.length) {
@@ -326,8 +340,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
                     === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
                   step={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
                     === DiscountUnitType.PERCENTAGE.value ? 0.01 : 1}
-
-                // formatter={(value) =>   (value, discountType === DiscountUnitType.PERCENTAGE.value)}
+                  formatter={(value) => formatDiscountCurrencyByFormValue(value, form)}
                 />
               </Form.Item>
             </DiscountMethodStyled>
