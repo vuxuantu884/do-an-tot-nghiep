@@ -117,6 +117,7 @@ type PropType = {
 	promotion: OrderDiscountRequest | null;
 	orderSourceId?: number | null;
 	orderAmount: number;
+	totalAmountOrder: number;
 	updateOrder?: boolean;
 	isSplitOrder?: boolean;
 	orderDetail?: OrderResponse | null;
@@ -213,6 +214,7 @@ function OrderCreateProduct(props: PropType) {
 		loyaltyPoint,
 		promotion,
 		orderAmount,
+		totalAmountOrder,
 		setStoreId,
 		setItems,
 		fetchData,
@@ -2117,6 +2119,7 @@ function OrderCreateProduct(props: PropType) {
 				{items && items.length > 0 && (
 					<CardProductBottom
 						amount={orderAmount}
+						totalAmountOrder={totalAmountOrder}
 						calculateChangeMoney={calculateChangeMoney}
 						changeMoney={changeMoney}
 						setCoupon={setCoupon}
@@ -2134,9 +2137,6 @@ function OrderCreateProduct(props: PropType) {
 						couponInputText={couponInputText}
 						setCouponInputText={setCouponInputText}
 						handleRemoveAllDiscount={handleRemoveAllDiscount}
-						totalAmountExchangePlusShippingFee={
-							returnOrderInformation?.totalAmountExchangePlusShippingFee
-						}
 					/>
 				)}
 				{setPromotion && (
