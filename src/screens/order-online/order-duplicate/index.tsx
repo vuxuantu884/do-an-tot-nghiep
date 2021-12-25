@@ -685,6 +685,7 @@ const OrderDuplicate: React.FC = () => {
   const [mergeOrderVisible, setMergeOrderVisible] = useState(false);
   const [cancelOrderComfirm, setCancelOrderComfirm] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderModel[]>([]);
+  const [rowKey, setRowKey] = useState<Array<any>>([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   let data1: any = {
     metadata: {
@@ -736,7 +737,6 @@ const OrderDuplicate: React.FC = () => {
   };
 
   const onSelectedChange = useCallback((selectedRow) => {
-    console.log("selectedRowCodes", selectedRow);
     if (selectedRow[0]) {
       //const selectedRowCodes = selectedRow.map((row: any) => row.code);
       //setSelectedRowCodes(selectedRowCodes);
@@ -973,8 +973,8 @@ const OrderDuplicate: React.FC = () => {
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
     dispatch(putOrderDuplicateMerge(value, selectedOrderIds, (data: OrderModel) => {
       if (data) {
-        setSelectedRowCodes([]);
         setSelectedOrder([]);
+        setRowKey([]);
         handleSearchResult();
         showSuccess("Gộp đơn thành công");
       }
@@ -994,13 +994,22 @@ const OrderDuplicate: React.FC = () => {
     if (selectedOrder.length <= 0) return;
 
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
+
+    setTableLoading(true);
+    setCancelOrderComfirm(false)
+
     dispatch(putOrderDuplicateCancel(selectedOrderIds, (data: any) => {
       if (data === true) {
+        setSelectedOrder([]);
+        setRowKey([]);
         handleSearchResult();
-        setCancelOrderComfirm(false);
+        selectedOrder.forEach((e) => {
+          showSuccess(`Đã hủy đơn hàng: ${e.code}`);
+        });
       }
-      console.log(data)
-
+      else {
+        setTableLoading(false);
+      }
     }));
 
   }, [dispatch, selectedOrder, handleSearchResult]);
@@ -1045,6 +1054,13 @@ const OrderDuplicate: React.FC = () => {
   useEffect(() => {
     dispatch(ShipperGetListAction(setListShippers));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      const selectedRowCodes: any = selectedOrder.map((row: any) => row.code);
+      setSelectedRowCodes(selectedRowCodes);
+    }
+  }, [selectedOrder])
 
   ///useEffect
 
@@ -1139,6 +1155,8 @@ const OrderDuplicate: React.FC = () => {
               onShowSizeChange: onPageChange,
             }}
             onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+            onChangeRowKey={(rowKey) => setRowKey(rowKey)}
+            selectedRowKey={rowKey}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             dataSource={data.items}
             columns={columnFinal}
