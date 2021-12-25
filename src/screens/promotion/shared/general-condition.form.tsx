@@ -116,16 +116,6 @@ function GeneralConditionForm({
             </Form.Item>
           </Col>
 
-          {/* <Divider />
-          <Space direction="horizontal">
-            <Checkbox
-              defaultChecked={false}
-              // onChange={(value) => setShowTimeAdvance(value.target.checked)}
-              style={{paddingBottom: "20px"}}
-            >
-              Hiển thị nâng cao
-            </Checkbox>
-          </Space> */}
         </Row>
         {showTimeAdvance ? (
           <Row gutter={12}>
@@ -186,7 +176,7 @@ function GeneralConditionForm({
                 onChange={(value) => {
                   setAllStore(value);
                   form.setFieldsValue({
-                    prerequisite_store_ids: undefined,
+                    prerequisite_store_ids: [],
                   });
                   form.validateFields(["prerequisite_store_ids"]);
                 }}
@@ -221,7 +211,7 @@ function GeneralConditionForm({
                 checked={allChannel}
                 onChange={(value) => {
                   form.setFieldsValue({
-                    prerequisite_sales_channel_names: undefined,
+                    prerequisite_sales_channel_names: [],
                   });
                   form.validateFields(["prerequisite_sales_channel_names"]);
                   setAllChannel(value);
@@ -258,7 +248,7 @@ function GeneralConditionForm({
                 onChange={(value) => {
                   form.validateFields(["prerequisite_order_source_ids"]);
                   form.setFieldsValue({
-                    prerequisite_order_source_ids: undefined,
+                    prerequisite_order_source_ids: [],
                   });
                   setAllSource(value);
                 }}

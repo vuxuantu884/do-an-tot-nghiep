@@ -103,6 +103,7 @@ function PromoCodeUpdateForm({
     }
     if (selectedItem) {
       const entitlements = form.getFieldValue("entitlements");
+      
       entitlements.unshift({
         entitled_variant_ids: [selectedItem.id],
         prerequisite_quantity_ranges: [
@@ -151,6 +152,8 @@ function PromoCodeUpdateForm({
         prerequisite_subtotal_ranges: null,
       }];
       form.setFieldsValue({ entitlements: entitlements });
+    }else{
+      form.setFieldsValue({ entitlements: [] });
     }
   }, [form, isAllProduct]);
   return (
