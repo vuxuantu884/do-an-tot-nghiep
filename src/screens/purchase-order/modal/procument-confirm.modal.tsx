@@ -15,7 +15,7 @@ import ProcumentCommonModal from "./procument.common.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { formatCurrency } from "utils/AppUtils";
 
-type ProcumentConfirmProps = {
+export type ProcumentConfirmProps = {
   visible: boolean;
   isEdit: boolean;
   now: Moment;
@@ -73,7 +73,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         isEdit={isEdit}
         item={item}
         items={items}
-        onCancle={onCancel}
+        onCancel={onCancel}
         now={now}
         stores={stores}
         defaultStore={defaultStore}

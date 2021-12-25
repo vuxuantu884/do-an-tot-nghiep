@@ -28,7 +28,7 @@ import { PoUpdateAction } from "domain/actions/po/po.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
-type POInventoryFormProps = {
+export type POInventoryFormProps = {
   stores: Array<StoreResponse>;
   status: string;
   now: Moment;
@@ -137,7 +137,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   );
 
   const onDeleteProcumentCallback = useCallback((result) => {
-    if(result !== null) {
+    if (result !== null) {
       setLoadingCreate(false);
       showSuccess("Xóa phiếu nháp thành công");
       setVisible(false);
@@ -207,7 +207,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
 
   const onUpdateCall = useCallback((result) => {
     setLoadingEditDraft(false);
-    if(result !== null) {
+    if (result !== null) {
       setVisibleEditProcurement(false);
       onAddProcumentSuccess && onAddProcumentSuccess(false);
     }
@@ -232,8 +232,12 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   );
 
   useEffect(() => {
+    console.log("poData", poData);
+    console.log("stores", stores);
+
+
     if (visible === false) setDraft(null);
-  }, [visible]);
+  }, [visible, poData, stores]);
   return (
     <Card
       className="po-form margin-top-20"
@@ -267,12 +271,12 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               className += " po-tag-success";
               dotClassName += " success";
             }
-            if(status === ProcumentStatus.DRAFT) {
+            if (status === ProcumentStatus.DRAFT) {
               return <Space>
-              <div className="d-flex">
-                <span className="title-card">NHẬP KHO</span>
-              </div>{" "}
-            </Space>
+                <div className="d-flex">
+                  <span className="title-card">NHẬP KHO</span>
+                </div>{" "}
+              </Space>
             }
 
             return (
@@ -283,7 +287,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 <div className="d-flex">
                   <span className="title-card">NHẬP KHO</span>
                 </div>{" "}
-                {isShowStatusTag  && (
+                {isShowStatusTag && (
                   <Tag className={className}>{statusName}</Tag>
                 )}
               </Space>
@@ -297,7 +301,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           shouldUpdate={(prev, current) =>
             prev[POField.line_items] !== current[POField.line_items] ||
             prev[POField.expect_store_id] !==
-              current[POField.expect_store_id] ||
+            current[POField.expect_store_id] ||
             prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
@@ -312,13 +316,13 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               POField.procurements
             );
             let receive_status: string = getFieldValue(POField.receive_status);
-            if(!status) {
+            if (!status) {
               return null;
             }
             if (
               (status === ProcumentStatus.DRAFT)
             ) {
-              if(!props.isEdit) {
+              if (!props.isEdit) {
                 return null;
               }
               return (
@@ -341,7 +345,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 </Button>
               );
             }
-        
+
             return (
               status !== POStatus.CANCELLED &&
               receive_status !== ProcumentStatus.FINISHED &&
@@ -390,7 +394,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             confirmDraft={(value: PurchaseProcument, isEdit: boolean) => {
               setEditProcument(isEdit);
               let line_items = formMain.getFieldValue(POField.line_items);
-                setPOItem(line_items);
+              setPOItem(line_items);
               if (isEdit) {
                 setVisible(true);
                 setDraft(value);
@@ -421,6 +425,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           />
         )}
       </div>
+
       <ProcumentModal
         onCancle={() => {
           setVisible(false);
@@ -439,6 +444,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
         onDelete={onDeleteProcument}
       />
+
       <ProcumentConfirmModal
         isEdit={isEditProcument}
         items={poItems}
@@ -457,6 +463,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           setVisibleDraft(false);
         }}
       />
+
       <ProcumentInventoryModal
         isEdit={isEditProcument}
         items={poItems}
@@ -482,8 +489,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onOk={(value: Array<PurchaseProcurementViewDraft>) => {
           setLoadingEditDraft(true);
           let data = formMain.getFieldsValue(true);
-          let dataClone = {...data,procurements: value}
-          if(idNumber) {
+          let dataClone = { ...data, procurements: value }
+          if (idNumber) {
             dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
           }
         }}
