@@ -32,12 +32,12 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
         <Row style={footerStyle} justify="end">
           <Space size="middle">
             <Button style={{ color: '#E24343'}} icon={<DeleteOutlined />} onClick={onClearFilter}>
-              {deleteButtonTitle || "Xoá bộ lọc"}
+              {deleteButtonTitle || "Reset bộ lọc"}
             </Button>
             {
               allowSave && 
               <Button icon={<StarOutlined />} onClick={onSaveFilter}>
-                {deleteButtonTitle || "Lưu bộ lọc"}
+                Lưu bộ lọc
               </Button>
             }
             <Button onClick={onFilter} type="primary">

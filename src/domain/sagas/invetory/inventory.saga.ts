@@ -201,19 +201,19 @@ function* createConfigInventorySaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onResult(response.data);
+        onResult && onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        onResult(false);
+        onResult &&  onResult(false);
         yield put(unauthorizedAction());
         break;
       default:
-        onResult(false);
+        onResult && onResult(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    onResult(false);
+    onResult && onResult(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -227,14 +227,14 @@ function* updateConfigInventorySaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onResult(response.data);
+        onResult && onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        onResult(false);
+        onResult && onResult(false);
         yield put(unauthorizedAction());
         break;
       default:
-        onResult(false);
+        onResult && onResult(false);
         response.errors.forEach((e) => showError(e));
         break;
     }

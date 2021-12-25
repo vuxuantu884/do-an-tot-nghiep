@@ -114,25 +114,9 @@ const ChooseDiscount = (props: Props) => {
         </Col>
       </Row>
       <Row gutter={30}>
-        {/* Tối đa */}
-        <Col span={11}>
-          <Form.Item label="Tối đa:">
-            <NumberInput
-              style={{
-                textAlign: "right",
-                width: "15%",
-                color: "#222222",
-              }}
-              maxLength={999}
-              minLength={0}
-              min={0}
-              max={100}
-              disabled={typeUnit !== "PERCENT"}
-            />
-          </Form.Item>
-        </Col>
+  
         {/* Mỗi khách được sử dụng tối đa */}
-        <Col span={8}>
+        <Col span={19}>
           <Form.Item
             name="usage_limit_per_customer"
             label="Mỗi khách được sử dụng tối đa:"

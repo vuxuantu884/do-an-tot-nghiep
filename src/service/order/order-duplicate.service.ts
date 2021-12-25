@@ -25,7 +25,7 @@ export const putOrderMergeService = (
 };
 
 export const putOrderCancelService = (ids: number[]): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/orders-duplicate/cancel`,{ids:ids});
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders-duplicate/cancellation`,{ids:ids});
 };
 
 export const getDetailOrderDuplicateService = (

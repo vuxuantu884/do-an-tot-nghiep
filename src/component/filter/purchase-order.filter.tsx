@@ -485,20 +485,23 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     )
   }
 
+  const onResultGetConfig = useCallback((res: BaseResponse<Array<FilterConfig>>)=>{
+    if (res && res.data && res.data.length > 0) {
+     const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_PO);
+     setLstConfigFilter(configFilters);
+    }
+  },[]);
+
   const getConfigPo = useCallback(()=>{
     if (account && account.code) {
       dispatch(
         getConfigPoAction( 
            account.code,
-          (res)=>{
-           if (res) {
-            setLstConfigFilter(res.data);
-           }
-          }
+           onResultGetConfig
         )
       );
     }
-  },[account, dispatch])
+  },[account, dispatch, onResultGetConfig])
 
   const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>)=>{
     if (res) {
@@ -554,13 +557,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     formAdvanceFilter.setFieldsValue({ ...advanceFilters });
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
+
   useEffect(() => {
     setAdvanceFilters({ ...params });
-  }, [params]); 
+  }, [params]);  
 
-  useEffect(()=>{
-    getConfigPo();
-  },[getConfigPo])
+  useEffect(() => {
+    getConfigPo()
+  }, [getConfigPo]); 
 
   return (
     <div className="purchase-order-form">
