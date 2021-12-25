@@ -56,7 +56,7 @@ export const globalCssCustomButton = css`
       color: white;
       background-color: ${primaryColor};
       border-color: ${primaryColor};
-      display: flex;
+      display: inline-flex;
       align-items: center;
       &:hover,
       &:focus {
