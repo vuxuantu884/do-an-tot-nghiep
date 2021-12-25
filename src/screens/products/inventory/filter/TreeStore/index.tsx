@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Tag, TreeSelect } from "antd";
+import { Tag, TreeSelect, TreeSelectProps } from "antd";
 import _ from "lodash";
 import { FormInstance } from 'antd';
 import { StoreResponse } from "model/core/store.model";
-
-interface Props {
+ 
+interface Props extends TreeSelectProps<string> {
   form: FormInstance;
   name: string;
   placeholder?: string;
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const TreeStore = (props: Props) => {
-  const { form, name, placeholder, listStore } = props;
+  const { form, name, placeholder, listStore, ...restProps } = props;
   const [stores, setStores] = useState<Array<StoreResponse>>();
 
   useEffect(() => {
@@ -65,7 +65,8 @@ const TreeStore = (props: Props) => {
       treeNodeFilterProp='title'
       tagRender={tagRender}
       maxTagCount="responsive"
-      onChange={(value) => form.setFieldsValue({ [name]: value })}
+      onChange={(value) => {form.setFieldsValue({ [name]: value })}}
+      {...restProps}
     >
       {
         stores?.map((departmentItem: any) => {

@@ -1,26 +1,27 @@
-import {CloseOutlined} from "@ant-design/icons";
-import {Card, Checkbox, Col, Form, Input, InputNumber, Row, Select, Table} from "antd";
-import {FormInstance} from "antd/es/form/Form";
+import { CloseOutlined } from "@ant-design/icons";
+import { Card, Checkbox, Col, Form, Input, InputNumber, Row, Select, Table } from "antd";
+import { FormInstance } from "antd/es/form/Form";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import CustomInput from "component/custom/custom-input";
 import NumberInput from "component/custom/number-input.custom";
 import UrlConfig from "config/url.config";
-import {searchVariantsRequestAction} from "domain/actions/product/products.action";
-import {PageResponse} from "model/base/base-metadata.response";
-import {VariantResponse} from "model/product/product.model";
+import { searchVariantsRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { VariantResponse } from "model/product/product.model";
 import React, {
   createRef,
   ReactElement,
   useCallback,
-  useLayoutEffect,
-  useMemo,
-  useState,
+  useContext,
+  useEffect, useMemo,
+  useState
 } from "react";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import ProductItem from "screens/purchase-order/component/product-item";
-import {nonAccentVietnamese} from "utils/PromotionUtils";
-import {showError} from "utils/ToastUtils";
+import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { showError } from "utils/ToastUtils";
+import { IssuingContext } from "../issuing-provider";
 import "../promo-code.scss";
 import ChooseDiscount from "./choose-discount.create";
 const {Option} = Select;
@@ -45,9 +46,11 @@ function PromoCodeUpdateForm({
 
   const [product, setProduct] = useState<string>("PRODUCT");
   const [type, setType] = useState("SALE_CODE");
-  const [isProduct, setIsProduct] = useState<boolean>(false);
+  // const [isProduct, setIsProduct] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [data, setData] = useState<Array<VariantResponse>>([]);
+  const { isAllProduct, setIsAllProduct } = useContext(IssuingContext);
+
 
   const onDeleteItem = (index: number) => {
     //delete item in form data
@@ -129,13 +132,27 @@ function PromoCodeUpdateForm({
     return options;
   }, [data]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setSelectedProduct(selectedProductFromProps);
-    if (Array.isArray(selectedProductFromProps)) {
-      setIsProduct(selectedProductFromProps.length === 0);
-    }
   }, [selectedProductFromProps]);
 
+  useEffect(() => {
+    if (isAllProduct) {
+      let entitlements = [{
+        entitled_variant_ids: null,
+        entitled_category_ids: null,
+        prerequisite_quantity_ranges: [{
+          greater_than_or_equal_to: null,
+          less_than_or_equal_to: null,
+          allocation_limit: null,
+          value_type: "",
+          value: 0,
+        }],
+        prerequisite_subtotal_ranges: null,
+      }];
+      form.setFieldsValue({ entitlements: entitlements });
+    }
+  }, [form, isAllProduct]);
   return (
     <div>
       <Card
@@ -264,7 +281,7 @@ function PromoCodeUpdateForm({
                     onSelect={onSelectProduct}
                     options={renderResult}
                     ref={productSearchRef}
-                    disabled={isProduct}
+                    disabled={isAllProduct}
                     textEmpty={"Không có kết quả"}
                   />
                 </Input.Group>
@@ -272,13 +289,13 @@ function PromoCodeUpdateForm({
               <Col span={6}>
                 <Form.Item>
                   <Checkbox
-                    checked={isProduct}
+                    checked={isAllProduct}
                     onChange={(value) => {
-                      setIsProduct(value.target.checked);
+                      setIsAllProduct(value.target.checked);
                       setSelectedProduct([]);
                     }}
                   >
-                    Tất cả sản phẩm{" "}
+                    Tất cả sản phẩm 
                   </Checkbox>
                 </Form.Item>
               </Col>
