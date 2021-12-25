@@ -16,7 +16,7 @@ import {
 import BaseFilter from "component/filter/base.filter";
 import React, { useCallback, useEffect, useState } from "react"; 
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import { convertCategory } from "utils/AppUtils";
+import { convertCategory, formatCurrency } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import TreeStore from "./TreeStore";
@@ -221,8 +221,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
               break
             case AvdAllFilter.from_price:
+              renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : Từ ${formatCurrency(advanceFilters.from_price)}`;
               if (advanceFilters.from_price && advanceFilters.to_price) {
-                renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : ${advanceFilters.from_price} ~ ${advanceFilters.to_price}`;
+                renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : ${formatCurrency(advanceFilters.from_price)} ~ ${formatCurrency(advanceFilters.to_price)}`;
               }
               break
             default:
@@ -325,13 +326,22 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
   const resetField = useCallback(
     (field: string) => { 
-      formBaseFilter.setFieldsValue({
+      let newFieldsValue = {
         ...formBaseFilter.getFieldsValue(true),
-        [field]: undefined,
+        [field]: undefined, 
+      };
+      if (field === AvdAllFilter.from_price) {
+        newFieldsValue = {
+          ...formBaseFilter.getFieldsValue(true),
+          [field]: undefined, 
+          [AvdAllFilter.to_price]: undefined, 
+        };
+      }
+      formBaseFilter.setFieldsValue({
+        ...newFieldsValue
       });
       formAdvanceFilter.setFieldsValue({
-        ...formAdvanceFilter.getFieldsValue(true),
-        [field]: undefined,
+        ...newFieldsValue
       });
       formBaseFilter.submit();
     },
@@ -596,8 +606,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       mode="multiple"
                       maxTagCount="responsive" 
                       searchPlaceholder="Tìm kiếm nhân viên"
-                      onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                      onSearch={(key) => getAccounts(key, 1, false, true)}
+                      onPageChange={(key, page) => getAccounts(key, page, true, false)}
+                      onSearch={(key) => getAccounts(key, 1, true, false)}
                     >
                       {designers.items.map((item) => (
                         <SelectPaging.Option key={item.code} value={item.code}>
