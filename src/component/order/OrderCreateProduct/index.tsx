@@ -1412,6 +1412,8 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
+	console.log('promotion', promotion)
+
 	const onSearchVariantSelect = useCallback(
 		async (v, o) => {
 			if (!items) {
@@ -1428,10 +1430,7 @@ function OrderCreateProduct(props: PropType) {
 			if (r.id === newV && checkInventory(item) === true) {
 				if (splitLine || index === -1) {
 					_items.unshift(item);
-					calculateChangeMoney(
-						_items,
-						promotion
-					);
+					calculateChangeMoney(_items);
 				} else {
 					let variantItems = _items.filter((item) => item.variant_id === newV);
 					let firstIndex = 0;
@@ -1440,10 +1439,7 @@ function OrderCreateProduct(props: PropType) {
 						variantItems[firstIndex].price -
 						variantItems[firstIndex].discount_items[0]?.amount *
 						variantItems[firstIndex].quantity;
-					calculateChangeMoney(
-						_items,
-						promotion
-					);
+					calculateChangeMoney(_items);
 				}
 			}
 			if (isAutomaticDiscount && _items.length > 0) {
