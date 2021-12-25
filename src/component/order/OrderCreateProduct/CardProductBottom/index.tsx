@@ -63,6 +63,7 @@ function CardProductBottom(props: PropType) {
   let discountValue = promotion?.value || 0;
 
   console.log('totalAmountOrder', totalAmountOrder)
+  console.log('isCouponValid', isCouponValid)
 
   // console.log('coupon33', coupon)
   // console.log('discountRate', discountRate);

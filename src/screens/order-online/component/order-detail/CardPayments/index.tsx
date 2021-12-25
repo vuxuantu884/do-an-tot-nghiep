@@ -377,7 +377,7 @@ function CardPayments(props: CardPaymentsProps) {
                             className="row-large-title"
                             style={{ padding: "8px 0", marginLeft: 2 }}
                           >
-                            <b>Khách cần trả: 4</b>
+                            <b>Khách cần trả:</b>
                           </Col>
                           <Col
                             className="lbl-money"
