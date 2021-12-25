@@ -226,7 +226,7 @@ function CardProductBottom(props: PropType) {
                   {returnOrderInformation.totalAmountReturn
                     ? formatCurrency(returnOrderInformation.totalAmountReturn)
                     : "-"}
-                </strong>
+                </strong> 
               </Row>
             </React.Fragment>
           )}
