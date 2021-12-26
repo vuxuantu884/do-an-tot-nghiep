@@ -1,5 +1,5 @@
-import { CloseOutlined, EllipsisOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Col, Dropdown, Form, Input, InputNumber, Menu, Row, Tag } from "antd";
+import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
+import { Button, Col, Form, Input, InputNumber, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import { FilterWrapper } from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
@@ -40,7 +40,6 @@ import { FILTER_CONFIG_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { primaryColor } from "utils/global-styles/variables";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 export interface InventoryFilterProps {
@@ -390,26 +389,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     }
   },[dispatch ,configId, onResultDeleteConfig]);
 
-  const menu = (
-    <Menu>
-      <Menu.Item key="1">
-      <Button
-          icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
-          type="text"
-          className=""
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "red",
-          }}
-          onClick={()=>{setIsShowConfirmDelete(true)}}
-        >
-          Xóa
-        </Button>
-      </Menu.Item>
-    </Menu>
-  ); 
-
   const FilterConfigCom = (props: any)=>{
     return (
       <span style={{marginRight: 20, display: "inline-flex"}}>
@@ -424,18 +403,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                     }}>
               {props.name}  
             </Tag> 
-            {false && 
-                  <Dropdown 
-                    overlay={menu}
-                    trigger={["click"]}
-                    placement="bottomRight"
-                  >
-                    <EllipsisOutlined className="ant-tag" onClick={(e)=>{
-                      e.preventDefault();
-                      setConfigId(props.id);
-                    }} />
-                  </Dropdown>
-               } 
       </span>
     )
   }
