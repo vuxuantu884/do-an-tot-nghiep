@@ -13,7 +13,6 @@ import {StyledComponent} from "./style";
 import CustomFilter from "../../../../component/table/custom.filter";
 import {checkFixedDate, DATE_FORMAT} from "../../../../utils/DateUtils";
 import {SearchVariantField, SearchVariantMapping} from "../../../../model/promotion/promotion-mapping";
-import { FilterOutlined } from "@ant-design/icons"
 
 type DiscountFilterProps = {
   params: DiscountSearchQuery;
@@ -96,9 +95,9 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     onFilter && onFilter(values);
   }, [onFilter])
 
-  const openFilter = useCallback(() => {
-    // setVisible(true);
-  }, [])
+  // const openFilter = useCallback(() => {
+  //   // setVisible(true);
+  // }, [])
 
   const onActionClick = useCallback((index) => {
     onMenuClick && onMenuClick(index);
@@ -145,9 +144,9 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 Lọc
               </Button>
             </Item>
-            <Item>
+            {/* <Item>
               <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
-            </Item>
+            </Item> */}
           </Form>
         </CustomFilter>
         <FilterList

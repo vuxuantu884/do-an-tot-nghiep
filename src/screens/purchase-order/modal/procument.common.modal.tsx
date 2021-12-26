@@ -524,14 +524,20 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                       );
                       checked = procurement_items.length === allProcurementItems.length;
                       return (
-                        <Checkbox
-                          checked={checked}
-                          onChange={(e) => {
-                            fillAll(e.target.checked);
-                          }}
-                        >
-                          Chọn tất cả sản phẩm
-                        </Checkbox>
+                        <div>
+                          <Checkbox
+                            checked={checked}
+                            onChange={(e) => {
+                              fillAll(e.target.checked);
+                            }}
+                          >
+                            Chọn tất cả sản phẩm
+                          </Checkbox>
+                          <div>
+                            Ngày dự kiến{" "}
+                            <strong>{ConvertUtcToLocalDate(POProcumentField.expect_receipt_date, DATE_FORMAT.DDMMYYY)}</strong>
+                          </div>
+                        </div>
                       );
                     }}
                   </Form.Item>

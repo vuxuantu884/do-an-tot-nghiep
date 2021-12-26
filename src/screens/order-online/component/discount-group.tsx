@@ -1,7 +1,8 @@
-import { Input, InputNumber, Select, Typography } from "antd";
+import { Input, Select, Typography } from "antd";
+import NumberInput from "component/custom/number-input.custom";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
-import { formatCurrency, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue } from "utils/AppUtils";
+import { formatCurrency, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue, replaceFormatString } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 
 type DiscountGroupProps = {
@@ -85,28 +86,27 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
           <Select.Option value={MoneyType.PERCENT}>%</Select.Option>
           <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
         </Select>
-        <InputNumber
-          className="hide-number-handle "
-          formatter={(value) => formatCurrency(value ? value : "0")}
-          style={{
-            width: "100%",
-            textAlign: "right",
-            minHeight: "38px",
-            color: "#222222",
-            fontWeight: 500,
-          }}
-          value={
-            selected === MoneyType.PERCENT
-              ? props.discountRate
-              : formatCurrency(Math.round(props.discountValue))
-          }
-          max={selected === MoneyType.PERCENT ? 100 : props.price}
-          onChange={ChangeValueDiscount}
-          onFocus={(e) => {
+				<NumberInput
+					className="hide-number-handle "
+					onChange={ChangeValueDiscount}
+					format={(a: string) =>
+						formatCurrency(a)
+					}
+					replace={(a: string) =>
+						replaceFormatString(a)
+					}
+					placeholder="VD: 100,000"
+					disabled={disabled}
+					onFocus={(e) => {
             e.target.setSelectionRange(0, e.target.value.length);
           }}
-          disabled={disabled}
-        />
+					max={selected === MoneyType.PERCENT ? 100 : props.price}
+					value={
+            selected === MoneyType.PERCENT
+              ? props.discountRate
+              : Math.round(props.discountValue)
+          }
+				/>
       </Input.Group>
       {showResult && (
         <div className="d-flex justify-content-end yody-table-discount-converted">

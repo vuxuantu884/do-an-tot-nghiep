@@ -107,8 +107,6 @@ const DiscountUpdate = () => {
     );
 
 
-
-
     /**
      * Update discount
      */
@@ -176,7 +174,6 @@ const DiscountUpdate = () => {
                 const product = dataProducts.find((item: ProductResponse) => item.id === id)
                 if (product) {
                     listProduct.push({
-                        isParentProduct: true,
                         variant_title: product.name,
                         variant_id: undefined,
                         product_id: product.id,
@@ -242,6 +239,7 @@ const DiscountUpdate = () => {
                 layout="vertical"
                 scrollToFirstError
                 initialValues={discountData}
+                //  onFieldsChange={(changedFields, allFields) => {console.log(changedFields, allFields)}}
             >
                 <Row gutter={24}>
 

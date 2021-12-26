@@ -1,16 +1,17 @@
-import {BugOutlined} from "@ant-design/icons";
-import {Button, Col, Input, InputNumber, Row} from "antd";
+import { BugOutlined } from "@ant-design/icons";
+import { Button, Col, Input, Row } from "antd";
+import NumberInput from "component/custom/number-input.custom";
 import Cash from "component/icon/Cash";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 import YdCoin from "component/icon/YdCoin";
-import {OrderPaymentRequest} from "model/request/order.request";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import {useMemo} from "react";
-import {formatCurrency, formatSuffixPoint, replaceFormat} from "utils/AppUtils";
-import {PaymentMethodCode} from "utils/Constants";
-import {StyledComponent} from "./styles";
+import { OrderPaymentRequest } from "model/request/order.request";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { useMemo } from "react";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { PaymentMethodCode } from "utils/Constants";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   payments: OrderPaymentRequest[];
@@ -73,7 +74,10 @@ function OrderPayments(props: PropType): JSX.Element {
     return totalAmountOrder - totalAmountPayment;
   }, [totalAmountOrder, totalAmountPayment]);
 
-  const handleInputPoint = (index: number, point: number) => {
+  const handleInputPoint = (index: number, point: number|null) => {
+		if(!point) {
+			point = 0
+		}
     payments[index].point = point;
     payments[index].amount = point * usageRate;
     payments[index].paid_amount = point * usageRate;
@@ -109,7 +113,10 @@ function OrderPayments(props: PropType): JSX.Element {
     }
     setPayments([...payments]);
   };
-  const handleInputMoney = (index: number, amount: number) => {
+  const handleInputMoney = (index: number, amount: number|null) => {
+		if(!amount) {
+			amount = 0
+		}
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
       payments[index].amount = amount * usageRate;
@@ -229,7 +236,7 @@ function OrderPayments(props: PropType): JSX.Element {
                         {" "}
                         (1 điểm = {formatCurrency(usageRate)}₫)
                       </span>
-                      <InputNumber
+                      <NumberInput
                         value={method.point}
                         style={{
                           width: 110,
@@ -238,8 +245,6 @@ function OrderPayments(props: PropType): JSX.Element {
                         }}
                         className="hide-number-handle"
                         onFocus={(e) => e.target.select()}
-                        formatter={(value) => formatSuffixPoint(value ? value : "0")}
-                        parser={(value) => replaceFormat(value ? value : "0")}
                         min={0}
                         max={totalAmountOrder / usageRate}
                         onChange={(value) => {
@@ -270,23 +275,29 @@ function OrderPayments(props: PropType): JSX.Element {
               </Col>
               {method.code !== PaymentMethodCode.POINT ? (
                 <Col className="lbl-money" lg={6} xxl={6} style={{marginLeft: 10}}>
-                  <InputNumber
-                    size="middle"
+									<NumberInput
                     min={0}
                     max={totalAmountOrder}
                     value={method.amount}
                     disabled={method.code === PaymentMethodCode.POINT || levelOrder > 2}
                     className="yody-payment-input hide-number-handle"
-                    formatter={(value) => formatCurrency(value ? value : "0")}
-                    placeholder="Nhập tiền mặt"
+                    placeholder="Nhập tiền mặt 3"
                     style={{
                       textAlign: "right",
                       width: "100%",
                       borderRadius: 5,
                     }}
-                    onChange={(value) => handleInputMoney(index, value)}
+										format={(a: string) =>
+											formatCurrency(a)
+										}
+										replace={(a: string) =>
+											replaceFormatString(a)
+										}
+                    onChange={(value) => {
+											handleInputMoney(index, value)
+										}}
                     onFocus={(e) => e.target.select()}
-                  />
+									/>
                 </Col>
               ) : (
                 <Col

@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 // import { useDispatch } from "react-redux";
-import ReportHandOverModal from "../modal/report-hand-over.modal";
+import ReportHandOverModal from "../../modal/report-hand-over.modal";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import {
   createGoodsReceipts,

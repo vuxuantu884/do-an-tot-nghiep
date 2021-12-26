@@ -359,7 +359,7 @@ const OrderDetail = (props: PropType) => {
           const queryParam = generateQuery(params);
           const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewOrderUrl);
-          break;
+          break;  
         default:
           break;
       }
@@ -679,19 +679,13 @@ const OrderDetail = (props: PropType) => {
                               ? `Còn phải trả:`
                               : `Hoàn tiền cho khách:`}
                           </span>
-                          <b style={{color: "red"}}>
-                            {OrderDetail?.fulfillments &&
-                            OrderDetail?.fulfillments.length > 0 &&
-                            OrderDetail?.fulfillments[0].shipment?.cod
-                              ? 0
-                              : formatCurrency(
-                                  Math.abs(
-                                    customerNeedToPayValue -
-                                      (OrderDetail?.total_paid
-                                        ? OrderDetail?.total_paid
-                                        : 0)
-                                  )
-                                )}
+													<b style={{color: "red"}}>
+														{formatCurrency(
+															Math.abs(
+																customerNeedToPayValue -
+																	(OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+															)
+														)}
                           </b>
                         </Col>
                       </Row>
@@ -1026,6 +1020,7 @@ const OrderDetail = (props: PropType) => {
                 orderId={OrderId}
                 fulfillments={OrderDetail?.fulfillments}
                 handleUpdateSubStatus={handleUpdateSubStatus}
+                setReload={setReload}
               />
               <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
               <ActionHistory

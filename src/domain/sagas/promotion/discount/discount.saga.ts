@@ -153,35 +153,33 @@ function* addPriceRule(action: YodyAction) {
   }
 }
 
-function* bulkEnablePriceRulesAct(action: YodyAction) {
-  console.log('bulkEnablePriceRulesAct - action : ', action);
+function* bulkEnablePriceRulesSaga(action: YodyAction) {
   const { body, enableCallback } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<{count: number}> = yield call(
       bulkEnablePriceRules,
       body
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        enableCallback(true)
+        enableCallback(response.data.count)
         break;
       case HttpStatus.UNAUTHORIZED:
-        enableCallback(false);
+        enableCallback(null);
         yield put(unauthorizedAction());
         break;
       default:
-        enableCallback(false);
+        enableCallback(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    enableCallback(false);
+    enableCallback(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
-function* bulkDisablePriceRulesAct(action: YodyAction) {
-  console.log('bulkDisablePriceRulesAct - action : ', action);
+function* bulkDisablePriceRulesSaga(action: YodyAction) {
   const { body, disableCallback } = action.payload;
   try {
     const response: BaseResponse<{count: number}> = yield call(
@@ -296,8 +294,8 @@ export function* discountSaga() {
     takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail),
     takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct),
     takeLatest(DiscountType.ADD_PRICE_RULE, addPriceRule),
-    takeLatest(DiscountType.ENABLE_PRICE_RULE, bulkEnablePriceRulesAct),
-    takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesAct),
+    takeLatest(DiscountType.ENABLE_PRICE_RULE, bulkEnablePriceRulesSaga),
+    takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesSaga),
     takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct),
     takeLatest(DiscountType.GET_VARIANTS, getVariantsAct),
     takeLatest(DiscountType.UPDATE_PRICE_RULE_BY_ID, updatePriceRuleByIdSaga),

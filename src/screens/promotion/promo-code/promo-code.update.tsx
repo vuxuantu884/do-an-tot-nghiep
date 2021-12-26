@@ -6,26 +6,26 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getVariants,
   promoGetDetail,
-  updatePriceRuleByIdAction,
+  updatePriceRuleByIdAction
 } from "domain/actions/promotion/discount/discount.action";
 import { ProductEntitlements } from "model/promotion/discount.create.model";
 import {
-  CustomerSelectionOption,
-  DiscountResponse,
+  DiscountResponse
 } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { getDateFormDuration } from "utils/PromotionUtils";
+import { parseDurationToMoment } from "utils/PromotionUtils";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
-import { showSuccess } from "../../../utils/ToastUtils";
+import { showError, showSuccess } from "../../../utils/ToastUtils";
 import { CustomerFilterField } from "../shared/cusomer-condition.form";
 import GeneralConditionForm from "../shared/general-condition.form";
 import PromoCodeUpdateForm from "./components/promo-code-update-form";
+import IssuingProvider, { IssuingContext } from "./issuing-provider";
 import "./promo-code.scss";
 
 const PromoCodeUpdate = () => {
@@ -49,28 +49,14 @@ const PromoCodeUpdate = () => {
   const [dataVariants, setDataVariants] = useState<ProductEntitlements[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [typeUnit, setTypeUnit] = useState<string>("PERCENTAGE");
-  const transformData = (values: any) => {
-    let body: any = {};
-    body.title = values.title;
-    body.description = values.description;
+  
+  const { isAllProduct, setIsAllProduct } = useContext(IssuingContext);
 
-    body.usage_limit = values.usage_limit ? values.usage_limit : null;
-    body.usage_limit_per_customer = values.usage_limit_per_customer
-      ? values.usage_limit_per_customer
-      : null;
-    body.prerequisite_store_ids = values.prerequisite_store_ids?.length
-      ? values.prerequisite_store_ids
-      : null;
-    body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names
-      ?.length
-      ? values.prerequisite_sales_channel_names
-      : null;
-    body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length
-      ? values.prerequisite_order_source_ids
-      : null;
+  const transformData = (values: any) => {
+    let body: any = values;
+
     body.starts_date = values.starts_date?.format();
     body.ends_date = values.ends_date?.format() || null;
-    body.entitled_method = values.entitled_method;
 
     body.prerequisite_subtotal_range = values?.prerequisite_subtotal_range
       ?.greater_than_or_equal_to
@@ -114,14 +100,9 @@ const PromoCodeUpdate = () => {
       ];
     }
     // ==Đối tượng khách hàng==
-    // Áp dụng tất cả
-    body.customer_selection = values.customer_selection
-      ? CustomerSelectionOption.ALL
-      : CustomerSelectionOption.PREREQUISITE;
 
-    //Giới tính khách hàng
-    body.prerequisite_genders = values.prerequisite_genders;
-
+    // Giới tính
+    body.prerequisite_genders = values.prerequisite_genders ?? [];
     //Ngày sinh khách hàng
     const startsBirthday = values[CustomerFilterField.starts_birthday]
       ? moment(values[CustomerFilterField.starts_birthday])
@@ -161,10 +142,7 @@ const PromoCodeUpdate = () => {
         starts_mmdd_key: startsWeddingDays
           ? Number(
             (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
-            startsWeddingDays
-              .format(DATE_FORMAT.DDMM)
-              .substring(0, 2)
-              .padStart(2, "0")
+            startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
           )
           : null,
         ends_mmdd_key: endsWeddingDays
@@ -177,15 +155,14 @@ const PromoCodeUpdate = () => {
     } else {
       body.prerequisite_wedding_duration = null;
     }
-    //Nhóm khách hàng
-    body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids;
 
-    //Hạng khách hàng
+    //Khách hàng thuộc nhóm
+    body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids ?? [];
+    //Khách hàng thuộc cấp độ
     body.prerequisite_customer_loyalty_level_ids =
-      values.prerequisite_customer_loyalty_level_ids;
-
+      values.prerequisite_customer_loyalty_level_ids ?? [];
     //Nhân viên phụ trách
-    body.prerequisite_assignee_codes = values.prerequisite_assignee_codes;
+    body.prerequisite_assignee_codes = values.prerequisite_assignee_codes ?? [];
     return body;
   };
 
@@ -199,8 +176,12 @@ const PromoCodeUpdate = () => {
     } else dispatch(hideLoading());
   };
 
-  const onFinish = (values: any) => {
-    // Action: Lưu và kích hoạt
+  const onFinish = (values: any) => { 
+    if (!isAllProduct && (values.entitlements.length === 0 || values.entitlements[0].entitled_variant_ids.length === 0)) {
+      showError("Vui lòng chọn sản phẩm để áp dụng");
+      return;
+    }
+
     const body = transformData(values);
     body.id = idNumber;
     dispatch(showLoading());
@@ -245,10 +226,12 @@ const PromoCodeUpdate = () => {
         prerequisite_customer_group_ids: result.prerequisite_customer_group_ids,
         prerequisite_customer_loyalty_level_ids: result.prerequisite_customer_loyalty_level_ids,
         prerequisite_assignee_codes: result.prerequisite_assignee_codes,
-        starts_birthday: result.prerequisite_birthday_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_birthday_duration?.starts_mmdd_key)) : undefined,
-        ends_birthday: result.prerequisite_birthday_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_birthday_duration?.ends_mmdd_key)) : undefined,
-        starts_wedding_day: result.prerequisite_wedding_duration?.starts_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.starts_mmdd_key)) : undefined,
-        ends_wedding_day: result.prerequisite_wedding_duration?.ends_mmdd_key ? moment(getDateFormDuration(result.prerequisite_wedding_duration?.ends_mmdd_key)) : undefined,
+
+        starts_birthday: parseDurationToMoment(result.prerequisite_birthday_duration?.starts_mmdd_key),
+        ends_birthday: parseDurationToMoment(result.prerequisite_birthday_duration?.ends_mmdd_key),
+
+        starts_wedding_day: parseDurationToMoment(result.prerequisite_wedding_duration?.starts_mmdd_key),
+        ends_wedding_day: parseDurationToMoment(result.prerequisite_wedding_duration?.ends_mmdd_key)
       };
       //đơn vị khuyến mãi
       setTypeUnit(result.entitlements.length > 0
@@ -264,7 +247,7 @@ const PromoCodeUpdate = () => {
       setIsAllSource(result.prerequisite_order_source_ids?.length === 0);
 
       setIsAllCustomer(result.customer_selection.toLocaleUpperCase() === "ALL");
-
+      
       form.setFieldsValue(formValue);
     },
     [form]
@@ -315,14 +298,15 @@ const PromoCodeUpdate = () => {
   // Action: Lấy thông tin sản phẩm khuyến mãi
   useEffect(() => {
     if (dataVariants && dataDiscount && dataDiscount.entitlements.length > 0) {
-      if (dataDiscount.prerequisite_subtotal_range?.greater_than_or_equal_to) {
+      // if (dataDiscount.prerequisite_subtotal_range?.greater_than_or_equal_to) {
         const flattenData: Array<any> = spreadVariantData(dataDiscount);
         const listEntitlements: Array<any> = mergeVariants(flattenData);
 
         setSelectedProduct(listEntitlements);
-      }
+        setIsAllProduct && setIsAllProduct(listEntitlements.length === 0) 
+      // }
     }
-  }, [dataVariants, dataDiscount, mergeVariants]);
+  }, [dataVariants, dataDiscount, mergeVariants, setIsAllProduct]);
 
   // Action: Lấy thông tin khuyến mãi
   useEffect(() => {
@@ -377,6 +361,7 @@ const PromoCodeUpdate = () => {
         </Row>
         <BottomBarContainer
           back="Quay lại danh sách đợt phát hành"
+          backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)}
           rightComponent={
             <div>
               <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
@@ -392,4 +377,12 @@ const PromoCodeUpdate = () => {
   );
 };
 
-export default PromoCodeUpdate;
+const UpdatePromoWithProvider = () => {
+  return (
+    <IssuingProvider>
+      <PromoCodeUpdate />
+    </IssuingProvider>
+  );
+}
+
+export default UpdatePromoWithProvider; 

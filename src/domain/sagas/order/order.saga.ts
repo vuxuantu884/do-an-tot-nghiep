@@ -78,9 +78,12 @@ function* getDetailOrderSaga(action:YodyAction){
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
-        default:
-          response.errors.forEach(e=>showError(e));
-          break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
+			default:
+				response.errors.forEach(e=>showError(e));
+				break;
     }
   }
   catch{
@@ -119,6 +122,9 @@ function* getListOrderFpageSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         break;
     }
@@ -138,6 +144,9 @@ function* getListOrderCustomerSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         break;
     }
@@ -154,6 +163,9 @@ function* getShipmentsSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         break;
     }
@@ -172,6 +184,9 @@ function* getReturnsSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         break;
     }
@@ -188,6 +203,9 @@ function* orderCreateSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         onError()
         response.errors.forEach((e) => showError(e));
@@ -205,6 +223,9 @@ function* orderUpdateSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         onError();
         response.errors.forEach((e) => showError(e));
@@ -224,6 +245,9 @@ function* orderFpageCreateSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         setDisable(false);
         response.errors.forEach((e) => showError(e));
@@ -245,6 +269,9 @@ function* InfoFeesSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
@@ -266,6 +293,9 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         response.errors.forEach((e) => showError(e));
         setError(true);
@@ -290,6 +320,9 @@ function* rePushFulFillmentSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         // response.errors.forEach((e) => showError(e));
         showError("Đẩy đơn sang HVC thất bại. Vui lòng thử lại!")
@@ -315,6 +348,9 @@ function* updatePaymentSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         setError(true);
         response.errors.forEach((e) => showError(e));
@@ -337,6 +373,9 @@ function* updateShipmentSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         setError(true);
         response.errors.forEach((e) => showError(e));
@@ -361,6 +400,9 @@ function* PaymentMethodGetListSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         break;
     }
@@ -380,6 +422,9 @@ function* getDataSource(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         break;
     }
@@ -851,6 +896,9 @@ function* getFulfillmentsPackedSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
       default:
         break;
     }
@@ -969,8 +1017,12 @@ function* getSourcesEcommerceSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
-      default:
-        break;
+			case HttpStatus.UNAUTHORIZED:
+				yield put(unauthorizedAction());
+				break;
+			default:
+				response.errors.forEach((e) => showError(e));
+				break;
     }
   } catch (error) { }
 }

@@ -16,7 +16,7 @@ import { HttpStatus } from "../../../config/http-status.config";
 import { unauthorizedAction } from "../../../domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "../../../domain/actions/loading.action";
 import {
-  bulkEnablePriceRules,
+  bulkEnablePriceRulesAction,
   getVariants,
   promoGetDetail
 } from "../../../domain/actions/promotion/discount/discount.action";
@@ -146,7 +146,7 @@ const PromotionDetailScreen: React.FC = () => {
 
   const onActivate = () => {
     dispatch(showLoading());
-    dispatch(bulkEnablePriceRules({ ids: [idNumber] }, onActivateSuccess));
+    dispatch(bulkEnablePriceRulesAction({ ids: [idNumber] }, onActivateSuccess));
   };
 
   const onDeactivate = async () => {
@@ -199,7 +199,6 @@ const PromotionDetailScreen: React.FC = () => {
   useEffect(() => {
     dispatch(promoGetDetail(idNumber, onResult));
     dispatch(getVariants(idNumber, handleResponse));
-
   }, [dispatch, handleResponse, idNumber, onResult]);
 
   /**
@@ -208,40 +207,41 @@ const PromotionDetailScreen: React.FC = () => {
    */
   useEffect(() => {
     let isVariantNotLoadYet = false;
+    const variantLength = dataVariants?.length ?? 0;
+    const variantIdLength = dataDiscount?.entitlements[0]?.entitled_variant_ids.length ?? 0;
+    const productIdLength = dataDiscount?.entitlements[0]?.entitled_product_ids.length ?? 0;
 
-    if (dataVariants && dataVariants.length === 0 && dataDiscount?.entitlements[0]) {
-      if ((dataDiscount?.entitlements[0].entitled_product_ids.length > 0
-        || dataDiscount?.entitlements[0].entitled_variant_ids.length > 0)) {
-        isVariantNotLoadYet = true;
-        if (isFirstLoadVariantList.current) {
-          showInfo("Đang tải dữ liệu sản phẩm...");
-          isFirstLoadVariantList.current = false;
-        }
-        setTimeout(() => {
-          dispatch(getVariants(idNumber, handleResponse));
-        }, 3000);
+    if (dataDiscount?.entitlements[0] && variantLength < variantIdLength + productIdLength) {
+      isVariantNotLoadYet = true;
+      if (isFirstLoadVariantList.current) {
+        showInfo("Đang tải dữ liệu sản phẩm...");
+        isFirstLoadVariantList.current = false;
       }
-
-      if (
-        dataDiscount?.entitlements[0].entitled_product_ids.length === 0
-        && dataDiscount?.entitlements[0].entitled_variant_ids.length === 0) {
-
-        const ranges = dataDiscount?.entitlements[0]?.prerequisite_quantity_ranges[0]
-        setDataVariants([{
-          variant_title: <span style={{ color: "#2A2A86", fontWeight: 500 }}>Tất cả sản phẩm</span>,
-          sku: "",
-          limit: ranges?.allocation_limit,
-          cost: -1,
-          open_quantity: 0,
-          product_id: 0,
-          variant_id: 0,
-          entitlement: dataDiscount?.entitlements[0],
-          isParentProduct: true,
-          price_rule_id: 0,
-        }])
-      }
-
+      setTimeout(() => {
+        dispatch(getVariants(idNumber, handleResponse));
+      }, 3000);
     }
+
+
+    if (
+      dataDiscount?.entitlements[0]?.entitled_product_ids.length === 0
+      && dataDiscount?.entitlements[0]?.entitled_variant_ids.length === 0) {
+
+      const ranges = dataDiscount?.entitlements[0]?.prerequisite_quantity_ranges[0]
+      setDataVariants([{
+        variant_title: <span style={{ color: "#2A2A86", fontWeight: 500 }}>Tất cả sản phẩm</span>,
+        sku: "",
+        limit: ranges?.allocation_limit,
+        cost: -1,
+        open_quantity: 0,
+        product_id: 0,
+        variant_id: 0,
+        entitlement: dataDiscount?.entitlements[0],
+        price_rule_id: 0,
+      }])
+    }
+
+    // }
     setQuantityColumn(dataDiscount?.entitled_method !== "FIXED_PRICE" ? columnFixedPrice : columnDiscountQuantity);
     setIsLoadingVariantList(isVariantNotLoadYet);
   }, [dataVariants, dataDiscount, dispatch, handleResponse, idNumber]);

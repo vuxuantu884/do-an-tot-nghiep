@@ -89,6 +89,7 @@ import {
 	getTotalAmountAfterDiscount,
 	SumCOD,
 	SumWeightResponse,
+	totalAmount,
 	TrackingCode
 } from "utils/AppUtils";
 import {
@@ -184,24 +185,17 @@ export default function Order(props: PropType) {
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
-  const onChangeInfoProduct = (
-    _items: Array<OrderLineItemRequest>,
-    amount: number,
-    discount_rate: number,
-    discount_value: number
-  ) => {
-
-    setItems(_items);
-    setOrderAmount(amount);
-		setPromotion({
-			amount: discount_value,
-			rate: discount_rate,
-			promotion_id: null,
-			reason: "",
-			discount_code: undefined,
-			value: discount_value,
-		})
-  };
+	const onChangeInfoProduct = (
+		_items: Array<OrderLineItemRequest>,
+		_promotion?: OrderDiscountRequest | null,
+	) => {
+		setItems(_items);
+		let amount = totalAmount(_items);
+		setOrderAmount(amount);
+		if(_promotion !== undefined) {
+			setPromotion(_promotion);
+		}
+	};
 
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -720,8 +714,8 @@ export default function Order(props: PropType) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
             if (checkInventory()) {
-              let bolCheckPointfocus = checkPointfocus(values);
-              if (bolCheckPointfocus) {
+              let bolCheckpointFocus = checkPointFocus(values);
+              if (bolCheckpointFocus) {
                 if (!isFinalized) {
                   setUpdating(true);
                 } else {
@@ -1031,11 +1025,11 @@ export default function Order(props: PropType) {
     }
   }, [dispatch, customer]);
 
-  const checkPointfocus = useCallback(
+  const checkPointFocus = useCallback(
     (value: any) => {
-      let Pointfocus = payments.find((p) => p.code === "point");
+      let pointFocus = payments.find((p) => p.code === "point");
 
-      if (!Pointfocus) return true;
+      if (!pointFocus) return true;
 
       let discount = 0;
       value.items.forEach((p: any) => (discount = discount + p.discount_amount));
@@ -1051,7 +1045,7 @@ export default function Order(props: PropType) {
       //   : loyaltyPoint.point === null
       //   ? 0
       //   : loyaltyPoint.point;
-      let point = !Pointfocus ? 0 : Pointfocus.point === undefined ? 0 : Pointfocus.point;
+      let point = !pointFocus ? 0 : pointFocus.point === undefined ? 0 : pointFocus.point;
 
       let totalAmountPayable =
         orderAmount + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - (promotion?.value || 0); //tổng tiền phải trả
@@ -1131,8 +1125,12 @@ export default function Order(props: PropType) {
     if (OrderDetail?.items.length === 1 && OrderDetail.items[0].quantity === 1) {
       return false;
     }
+		// đơn nháp không cho tách
+		if (OrderDetail?.status === OrderStatus.DRAFT) {
+      return false;
+    }
     return true;
-  }, [OrderDetail?.fulfillments, OrderDetail?.items, OrderDetail?.linked_order_code]);
+  }, [OrderDetail?.fulfillments, OrderDetail?.items, OrderDetail?.linked_order_code, OrderDetail?.status]);
 
   useEffect(() => {
     dispatch(
@@ -1244,6 +1242,8 @@ export default function Order(props: PropType) {
                     orderConfig={configOrder}
                   /> */}
                   <OrderCreateProduct
+                    orderAmount={orderAmount}
+                    totalAmountOrder={totalAmountOrder}
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);
@@ -1327,14 +1327,9 @@ export default function Order(props: PropType) {
                                   : `Hoàn tiền cho khách:`}
                               </span>
                               <b style={{color: "red"}}>
-                                {OrderDetail?.fulfillments &&
-                                OrderDetail?.fulfillments.length > 0 &&
-                                OrderDetail?.fulfillments[0].status !== "returned" &&
-                                OrderDetail?.fulfillments[0].shipment?.cod
-                                  ? 0
-                                  : formatCurrency(
-                                      Math.abs(totalAmountCustomerNeedToPay)
-                                    )}
+                                {formatCurrency(
+																	Math.abs(totalAmountCustomerNeedToPay)
+																)}
                               </b>
                             </Col>
                           </Row>

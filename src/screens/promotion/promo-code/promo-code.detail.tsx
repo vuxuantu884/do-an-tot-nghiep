@@ -13,8 +13,8 @@ import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
-  bulkDisablePriceRules,
-  bulkEnablePriceRules,
+  bulkDisablePriceRulesAction,
+  bulkEnablePriceRulesAction,
   getVariants,
   promoGetDetail,
 } from "domain/actions/promotion/discount/discount.action";
@@ -188,12 +188,12 @@ const PromotionDetailScreen: React.FC = () => {
 
   const onActivate = () => {
     dispatch(showLoading());
-    dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+    dispatch(bulkEnablePriceRulesAction({ids: [idNumber]}, onActivateSuccess));
   };
 
   const onDeactivate = () => {
     dispatch(showLoading());
-    dispatch(bulkDisablePriceRules({ids: [idNumber]}, onActivateSuccess));
+    dispatch(bulkDisablePriceRulesAction({ids: [idNumber]}, onActivateSuccess));
   };
 
   // section handle call api GET DETAIL
@@ -456,7 +456,7 @@ const PromotionDetailScreen: React.FC = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
-          name: "Chiết khấu",
+          name: "Đợt phát hành",
         },
       ]}
     >

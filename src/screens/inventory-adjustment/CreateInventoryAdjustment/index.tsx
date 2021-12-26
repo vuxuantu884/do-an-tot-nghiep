@@ -1,4 +1,4 @@
-import {createRef, FC, useCallback, useEffect, useMemo, useState} from "react";
+import React, {createRef, FC, useCallback, useEffect, useMemo, useState} from "react";
 import "./index.scss";
 import UrlConfig, {BASE_NAME_ROUTER, InventoryTabUrl} from "config/url.config";
 import ContentContainer from "component/container/content.container";
@@ -138,6 +138,7 @@ const CreateInventoryAdjustment: FC = () => {
 
 
   const onFinish = (data: InventoryAdjustmentDetailItem) => {
+    debugger
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );
@@ -146,7 +147,7 @@ const CreateInventoryAdjustment: FC = () => {
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
     const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
 
-    if (dataLineItems.length === 0) {
+    if (dataLineItems && dataLineItems.length === 0) {
       showError("Vui lòng chọn sản phẩm");
       return;
     }
@@ -623,6 +624,17 @@ const CreateInventoryAdjustment: FC = () => {
     [dataTable, keySearch, form, searchVariant, onEnterFilterVariant]
   );
 
+  const onSearchVariant =useCallback(()=>{
+    _.debounce(()=>{
+      setIsLoadingTable(true);
+      onEnterFilterVariant(null);
+    }, 300)
+  },[onEnterFilterVariant]);
+
+  const onChangeKeySearch = useCallback(()=>{
+    onSearchVariant();
+  },[onSearchVariant]);
+
   useEffect(() => {
     if (dataTable?.length === 0) {
       setHasError(true);
@@ -870,20 +882,13 @@ const CreateInventoryAdjustment: FC = () => {
                         value={keySearch}
                         onChange={(e) => {
                           setKeySearch(e.target.value);
-                        }}
-                        onKeyPress={(event) => {
-                          if (event.key === "Enter") {
-                            event.preventDefault();
-                            onEnterFilterVariant(null);
-                          }
-                        }}
+                          onChangeKeySearch();
+                        }} 
                         style={{marginLeft: 8}}
                         placeholder="Tìm kiếm sản phẩm trong phiếu"
                         addonAfter={
                           <SearchOutlined
-                            onClick={() => {
-                              onEnterFilterVariant(null);
-                            }}
+                            onClick={onChangeKeySearch}
                             style={{color: "#2A2A86"}}
                           />
                         }
