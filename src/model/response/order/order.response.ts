@@ -70,6 +70,7 @@ export interface OrderResponse extends BaseObject {
   sub_status_id?: number | null;
   sub_status_code?: string;
   reason_name?: string;
+  sub_reason_name?: string;
   return_date?: string;
   receive_date?: string;
   order_code?: string;
