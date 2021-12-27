@@ -71,5 +71,9 @@ export const getLoyaltyAdjustPointService = (customerId: number): Promise<BaseRe
 
 export const getPointAdjustmentListService = (query: any): Promise<BaseResponse<any>> => {
   const params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-points/transactions?${params}`);
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/adjustments/admin?${params}`);
+};
+
+export const getPointAdjustmentDetailService = (adjustmentId: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/adjustments/${adjustmentId}`);
 };

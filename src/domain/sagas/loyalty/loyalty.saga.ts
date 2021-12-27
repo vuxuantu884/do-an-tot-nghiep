@@ -37,7 +37,8 @@ import {
   searchLoyaltyProgramList,
   subtractLoyaltyPointService,
   updateLoyaltyProgram,
-  getPointAdjustmentListService
+  getPointAdjustmentListService,
+  getPointAdjustmentDetailService
 } from "service/loyalty/loyalty.service";
 
 function* uploadLoyaltyCardSaga(action: YodyAction) {
@@ -578,6 +579,31 @@ function* getPointAdjustmentListSaga(action: YodyAction) {
   }
 }
 
+function* getPointAdjustmentDetailSaga(action: YodyAction) {
+  const { adjustmentId, callback } = action.payload;
+  try {
+    const response: BaseResponse<LoyaltyPoint> = yield call(
+      getPointAdjustmentDetailService,
+      adjustmentId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    callback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 
 export function* loyaltySaga() {
   yield takeLatest(LoyaltyCardReleaseType.UPLOAD, uploadLoyaltyCardSaga);
@@ -603,4 +629,5 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyPointsType.SUBTRACT_LOYALTY_POINT, subtractLoyaltyPoint);
   yield takeLatest(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, getLoyaltyAdjustPointSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST, getPointAdjustmentListSaga);
+  yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_DETAIL, getPointAdjustmentDetailSaga);
 }
