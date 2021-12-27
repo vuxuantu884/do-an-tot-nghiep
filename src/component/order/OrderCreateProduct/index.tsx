@@ -687,7 +687,7 @@ function OrderCreateProduct(props: PropType) {
 			<div className="text-center">
 				<div style={{ textAlign: "center" }}>Số lượng</div>
 				{items && getTotalQuantity(items) > 0 && (
-					<span style={{ color: "#2A2A86" }}>({getTotalQuantity(items)})</span>
+					<span style={{ color: "#2A2A86" }}>({formatCurrency(getTotalQuantity(items))})</span>
 				)}
 			</div>
 		),
@@ -699,6 +699,8 @@ function OrderCreateProduct(props: PropType) {
 			return (
 				<div className="yody-pos-qtt">
 					<NumberInput
+						format={(a: string) => formatCurrency(a)}
+						replace={(a: string) => replaceFormatString(a)}
 						style={{ textAlign: "right", fontWeight: 500, color: "#222222" }}
 						value={l.quantity}
 						onChange={(value) => {
@@ -1608,25 +1610,29 @@ function OrderCreateProduct(props: PropType) {
 		_promotion?: OrderDiscountRequest | null,
 	) => {
 		if (_promotion === undefined) {
-			let _value = 0;
-			let _rate = 0;
-			let totalOrderAmount = totalAmount(_items);
-			if (discountType === MoneyType.MONEY) {
-				_value = promotion?.value || 0;
-				_rate = (_value / totalOrderAmount) * 100;
-			} else if (discountType === MoneyType.PERCENT) {
-				_rate = promotion?.rate || 0;
-				_value = (_rate * totalOrderAmount) / 100;
-			}
-			_promotion = {
-				amount: _value,
-				discount_code: null,
-				order_id: null,
-				promotion_id: null,
-				rate: _rate,
-				reason: null,
-				source: null,
-				value: _value,
+			if(promotion) {
+				let _value = 0;
+				let _rate = 0;
+				let totalOrderAmount = totalAmount(_items);
+				if (discountType === MoneyType.MONEY) {
+					_value = promotion?.value || 0;
+					_rate = (_value / totalOrderAmount) * 100;
+				} else if (discountType === MoneyType.PERCENT) {
+					_rate = promotion?.rate || 0;
+					_value = (_rate * totalOrderAmount) / 100;
+				}
+				_promotion = {
+					amount: _value,
+					discount_code: null,
+					order_id: null,
+					promotion_id: null,
+					rate: _rate,
+					reason: null,
+					source: null,
+					value: _value,
+				}
+			} else {
+				_promotion = null
 			}
 		}
 		props.changeInfo(_items, _promotion);
@@ -1693,16 +1699,7 @@ function OrderCreateProduct(props: PropType) {
 		_items.forEach((lineItem) => {
 			if (lineItem.discount_items[0]?.promotion_id || couponInputText) {
 				lineItem.discount_amount = 0;
-				lineItem.discount_items = lineItem.discount_items.map((discount) => {
-					return {
-						amount: 0,
-						rate: 0,
-						discount_code: "",
-						promotion_id: undefined,
-						reason: "",
-						value: 0,
-					};
-				});
+				lineItem.discount_items = []
 				lineItem.discount_rate = 0;
 				lineItem.discount_value = 0;
 				lineItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(lineItem);
@@ -1723,16 +1720,7 @@ function OrderCreateProduct(props: PropType) {
 		let _items = [...items];
 		_items.forEach((lineItem) => {
 			lineItem.discount_amount = 0;
-			lineItem.discount_items = lineItem.discount_items.map((discount) => {
-				return {
-					amount: 0,
-					rate: 0,
-					discount_code: "",
-					promotion_id: undefined,
-					reason: "",
-					value: 0,
-				};
-			});
+			lineItem.discount_items = [];
 			lineItem.discount_rate = 0;
 			lineItem.discount_value = 0;
 			lineItem.line_amount_after_line_discount = lineItem.price;
