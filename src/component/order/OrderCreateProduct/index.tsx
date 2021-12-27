@@ -1084,6 +1084,7 @@ function OrderCreateProduct(props: PropType) {
 			let line = checkingDiscountResponse.data.line_items[i];
 			const suggested_discounts = line.suggested_discounts;
 			if (suggested_discounts.length === null || suggested_discounts.length === 0) {
+				removeDiscountItem(items[i]);
 				result = result.concat(items[i]);
 			} else {
 				let discountMulti = getDiscountMulti(suggested_discounts, items[i]);
