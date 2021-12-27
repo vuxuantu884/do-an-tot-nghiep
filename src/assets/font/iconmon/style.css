@@ -1,0 +1,163 @@
+@font-face {
+  font-family: 'laundry-icon';
+  src:  url('fonts/laundry-icon.eot?hc6d3g');
+  src:  url('fonts/laundry-icon.eot?hc6d3g#iefix') format('embedded-opentype'),
+    url('fonts/laundry-icon.ttf?hc6d3g') format('truetype'),
+    url('fonts/laundry-icon.woff?hc6d3g') format('woff'),
+    url('fonts/laundry-icon.svg?hc6d3g#laundry-icon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="ydl-"], [class*=" ydl-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'laundry-icon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ydl-fine-wash:before {
+  content: "\e900";
+}
+.ydl-mildfine-wash:before {
+  content: "\e901";
+}
+.ydl-very-mildfine-wash:before {
+  content: "\e902";
+}
+.ydl-coloured-wash:before {
+  content: "\e903";
+}
+.ydl-mild-wash:before {
+  content: "\e904";
+}
+.ydl-very-mild-wash:before {
+  content: "\e905";
+}
+.ydl-coloured-wash1:before {
+  content: "\e906";
+}
+.ydl-coloured-wash-1:before {
+  content: "\e907";
+}
+.ydl-boil-wash:before {
+  content: "\e908";
+}
+.ydl-boil-wash1:before {
+  content: "\e909";
+}
+.ydl-any-bleach-allowed:before {
+  content: "\e90a";
+}
+.ydl-do-not-bleach:before {
+  content: "\e90b";
+}
+.ydl-donot-dry-clean:before {
+  content: "\e90c";
+}
+.ydl-donot-iron:before {
+  content: "\e90d";
+}
+.ydl-donot-tumble-dry:before {
+  content: "\e90e";
+}
+.ydl-do-not-wash:before {
+  content: "\e90f";
+}
+.ydl-donot-wet-clean:before {
+  content: "\e910";
+}
+.ydl-drip-flat-drying:before {
+  content: "\e911";
+}
+.ydl-drip-flat-drying-inthe-shade:before {
+  content: "\e912";
+}
+.ydl-drip-line-drying:before {
+  content: "\e913";
+}
+.ydl-drip-line-drying-inthe-shade:before {
+  content: "\e914";
+}
+.ydl-flat-drying:before {
+  content: "\e915";
+}
+.ydl-flat-drying-inthe-shade:before {
+  content: "\e916";
+}
+.ydl-hand-wash .path1:before {
+  content: "\e917";
+  color: rgb(0, 0, 0);
+}
+.ydl-hand-wash .path2:before {
+  content: "\e918";
+  margin-left: -0.9599609375em;
+  color: rgb(0, 0, 0);
+}
+.ydl-hand-wash .path3:before {
+  content: "\e919";
+  margin-left: -0.9599609375em;
+  color: rgb(255, 255, 255);
+}
+.ydl-hand-wash .path4:before {
+  content: "\e91a";
+  margin-left: -0.9599609375em;
+  color: rgb(0, 0, 0);
+}
+.ydl-hot-iron:before {
+  content: "\e91b";
+}
+.ydl-iron-atlow-temperature:before {
+  content: "\e91c";
+}
+.ydl-iron-at-moderate-temperature:before {
+  content: "\e91d";
+}
+.ydl-line-drying-in-the-shade:before {
+  content: "\e91e";
+}
+.ydl-line-dying:before {
+  content: "\e91f";
+}
+.ydl-mild-drying-pro-cesses:before {
+  content: "\e920";
+}
+.ydl-mildp-wet-cleaning:before {
+  content: "\e921";
+}
+.ydl-normal-drying-process:before {
+  content: "\e922";
+}
+.ydl-only-oxygen-bleach-allowed:before {
+  content: "\e923";
+}
+.ydl-p-dry-cleaning-in-hydrocarbons:before {
+  content: "\e924";
+}
+.ydl-p--dry-cleaning-in-hydrocarbons:before {
+  content: "\e925";
+}
+.ydl-p-dry-cleaning-in-perchloroethylene:before {
+  content: "\e926";
+}
+.ydl-p--dry-cleaning-in-perchloroethylene:before {
+  content: "\e927";
+}
+.ydl-p-wet-cleaning:before {
+  content: "\e928";
+}
+.ydl-tumble-drying:before {
+  content: "\e929";
+}
+.ydl-veryp-wet-cleaning:before {
+  content: "\e92a";
+}
