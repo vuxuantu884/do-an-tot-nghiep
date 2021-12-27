@@ -27,7 +27,7 @@ import { EcommerceConfigPermission } from "config/permissions/ecommerce.permissi
 import useAuthorization from "hook/useAuthorization";
 import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
-import ECOMMERCE_ICON from "screens/ecommerce/common/ecommerce-icon";
+import ECOMMERCE_ICON from "screens/ecommerce/common/commonAction";
 import { StyledConfig } from "screens/ecommerce/config/config-shop/StyledConfigShop";
 
 const { Option } = Select;
