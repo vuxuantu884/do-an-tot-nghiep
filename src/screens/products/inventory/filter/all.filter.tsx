@@ -1,5 +1,5 @@
-import { CloseOutlined, EllipsisOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Col, Dropdown, Form, Input, InputNumber, Menu, Row, Tag } from "antd";
+import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
+import { Button, Col, Form, Input, InputNumber, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import { FilterWrapper } from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
@@ -16,7 +16,7 @@ import {
 import BaseFilter from "component/filter/base.filter";
 import React, { useCallback, useEffect, useState } from "react"; 
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import { convertCategory } from "utils/AppUtils";
+import { convertCategory, formatCurrency } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import TreeStore from "./TreeStore";
@@ -40,7 +40,6 @@ import { FILTER_CONFIG_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { primaryColor } from "utils/global-styles/variables";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 export interface InventoryFilterProps {
@@ -221,8 +220,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
               break
             case AvdAllFilter.from_price:
+              renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : Từ ${formatCurrency(advanceFilters.from_price)}`;
               if (advanceFilters.from_price && advanceFilters.to_price) {
-                renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : ${advanceFilters.from_price} ~ ${advanceFilters.to_price}`;
+                renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : ${formatCurrency(advanceFilters.from_price)} ~ ${formatCurrency(advanceFilters.to_price)}`;
               }
               break
             default:
@@ -325,13 +325,22 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
   const resetField = useCallback(
     (field: string) => { 
-      formBaseFilter.setFieldsValue({
+      let newFieldsValue = {
         ...formBaseFilter.getFieldsValue(true),
-        [field]: undefined,
+        [field]: undefined, 
+      };
+      if (field === AvdAllFilter.from_price) {
+        newFieldsValue = {
+          ...formBaseFilter.getFieldsValue(true),
+          [field]: undefined, 
+          [AvdAllFilter.to_price]: undefined, 
+        };
+      }
+      formBaseFilter.setFieldsValue({
+        ...newFieldsValue
       });
       formAdvanceFilter.setFieldsValue({
-        ...formAdvanceFilter.getFieldsValue(true),
-        [field]: undefined,
+        ...newFieldsValue
       });
       formBaseFilter.submit();
     },
@@ -380,26 +389,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     }
   },[dispatch ,configId, onResultDeleteConfig]);
 
-  const menu = (
-    <Menu>
-      <Menu.Item key="1">
-      <Button
-          icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
-          type="text"
-          className=""
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "red",
-          }}
-          onClick={()=>{setIsShowConfirmDelete(true)}}
-        >
-          Xóa
-        </Button>
-      </Menu.Item>
-    </Menu>
-  ); 
-
   const FilterConfigCom = (props: any)=>{
     return (
       <span style={{marginRight: 20, display: "inline-flex"}}>
@@ -414,18 +403,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                     }}>
               {props.name}  
             </Tag> 
-            {false && 
-                  <Dropdown 
-                    overlay={menu}
-                    trigger={["click"]}
-                    placement="bottomRight"
-                  >
-                    <EllipsisOutlined className="ant-tag" onClick={(e)=>{
-                      e.preventDefault();
-                      setConfigId(props.id);
-                    }} />
-                  </Dropdown>
-               } 
       </span>
     )
   }
@@ -596,8 +573,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       mode="multiple"
                       maxTagCount="responsive" 
                       searchPlaceholder="Tìm kiếm nhân viên"
-                      onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                      onSearch={(key) => getAccounts(key, 1, false, true)}
+                      onPageChange={(key, page) => getAccounts(key, page, true, false)}
+                      onSearch={(key) => getAccounts(key, 1, true, false)}
                     >
                       {designers.items.map((item) => (
                         <SelectPaging.Option key={item.code} value={item.code}>

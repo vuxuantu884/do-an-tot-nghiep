@@ -17,6 +17,7 @@ import {
   InventoryResponse,
   InventoryVariantListQuery,
 } from "model/inventory";
+import { InventoryColumnField } from "model/inventory/field";
 import { FilterConfig, FilterConfigRequest } from "model/other";
 import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -80,7 +81,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {account} = userReducer;
-  const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
+  const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]); 
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -103,6 +104,16 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     },
     [history, params]
   );  
+
+  const onSortASC = useCallback((sortColumn: string)=>{
+      const newPrams = {...params, sort_type: "asc",sort_column: sortColumn};
+      onFilter(newPrams);
+  },[onFilter, params]);  
+  
+  const onSortDESC = useCallback((sortColumn: string)=>{
+    const newPrams = {...params, sort_type: "desc",sort_column: sortColumn};
+    onFilter(newPrams);
+  },[params, onFilter]);
 
   const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
     return [
@@ -132,7 +143,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          }
        }, 
        {
-         title: "Giá bán",
+        title: HeaderSummary(undefined,"Giá bán",
+                    InventoryColumnField.retail_price, 
+                    (sortColumn:string)=>{onSortASC(sortColumn)},
+                    (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Giá bán",
          visible: true,
          dataIndex: "variant_prices",
@@ -157,7 +171,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },
        {
-         title: HeaderSummary(objSummaryTable?.Sum_Total,"Tổng tồn"), 
+         title: HeaderSummary(objSummaryTable?.Sum_Total,"Tổng tồn",
+                              InventoryColumnField.total, 
+                              (sortColumn:string)=>{onSortASC(sortColumn)},
+                              (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Tổng tồn",
          visible: true,
          dataIndex: `total`,
@@ -168,7 +185,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },
        {
-         title: HeaderSummary(objSummaryTable?.Sum_On_hand,"Tồn trong kho"),
+        title: HeaderSummary(objSummaryTable?.Sum_On_hand,"Tồn trong kho",
+                            InventoryColumnField.on_hand, 
+                            (sortColumn:string)=>{onSortASC(sortColumn)},
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Tổng trong kho",
          visible: true,
          dataIndex: `on_hand`,
@@ -179,7 +199,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },
        {
-         title: HeaderSummary(objSummaryTable?.Sum_Available,"Có thể bán"),
+        title: HeaderSummary(objSummaryTable?.Sum_Available,"Có thể bán",
+                      InventoryColumnField.available, 
+                      (sortColumn:string)=>{onSortASC(sortColumn)},
+                      (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Có thể bán",
          visible: true,
          dataIndex: `available`,
@@ -190,18 +213,24 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },
        {
-         title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao địch"),
+        title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao địch",
+                            InventoryColumnField.committed, 
+                            (sortColumn:string)=>{onSortASC(sortColumn)},
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Đang giao địch",
          visible: true,
          dataIndex: `committed`,
          align: "center",
-         width: 150,
+         width: 160,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        }, 
        {
-         title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Hàng tạm giữ"),
+        title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Hàng tạm giữ",
+                          InventoryColumnField.on_hold, 
+                          (sortColumn:string)=>{onSortASC(sortColumn)},
+                          (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Hàng tạm giữ",
          visible: true,
          dataIndex: `on_hold`,
@@ -211,7 +240,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-         title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi"), 
+        title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi",
+                          InventoryColumnField.defect, 
+                          (sortColumn:string)=>{onSortASC(sortColumn)},
+                          (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Hàng lỗi",
          visible: true,
          dataIndex: `defect`,
@@ -221,7 +253,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-         title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập"),
+        title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập",
+                            InventoryColumnField.in_coming, 
+                            (sortColumn:string)=>{onSortASC(sortColumn)},
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Chờ nhập",
          visible: true,
          dataIndex: `in_coming`,
@@ -231,17 +266,23 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-         title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng đang chuyển đến"),
+        title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng đang chuyển đến",
+                            InventoryColumnField.transferring, 
+                            (sortColumn:string)=>{onSortASC(sortColumn)},
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Hàng đang chuyển đến",
          visible: true,
          dataIndex: `transferring`,
          align: "center",
-         width: 200,
+         width: 210,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-         title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng đang chuyển đi"),
+        title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng đang chuyển đi",
+                            InventoryColumnField.on_way, 
+                            (sortColumn:string)=>{onSortASC(sortColumn)},
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Hàng đang chuyển đi",
          visible: true,
          dataIndex: `on_way`,
@@ -251,7 +292,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-         title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Hàng đang giao"),
+        title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Hàng đang giao",
+                            InventoryColumnField.shipping, 
+                            (sortColumn:string)=>{onSortASC(sortColumn)},
+                            (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Hàng đang giao",
          visible: true,
          dataIndex: `shipping`,
@@ -261,7 +305,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        }
      ]
-   },[objSummaryTable]);
+   },[objSummaryTable, onSortDESC, onSortASC]);
  
    const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
      return [
@@ -370,7 +414,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([]);
   const [columnsDrill, setColumnsDrill] = useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumnsDrill);
-  const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
 
   const openColumn = useCallback(() => {
     setShowSettingColumn(true);
@@ -389,11 +432,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       Sum_On_way: 0,
       Sum_Shipping: 0, 
     };
-    setSelected(
-      selectedRow.filter(function (el) {
-        return el !== undefined;
-      })
-    );
+    
       if (selectedRow && selectedRow.length > 0) {
         selectedRow.forEach((e)=>{ 
           objSum.Sum_On_hand += e.on_hand;
@@ -467,12 +506,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       debouncedSearch(keyword)
     },
     [debouncedSearch]
-  ) 
-
-  useEffect(() => {
-    setColumns(defaultColumns);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, selected, objSummaryTable, HeaderSummary]); 
+  )  
 
   useEffect(() => {
     setLoading(true);

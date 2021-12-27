@@ -1,6 +1,5 @@
 import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from "antd";
 import { FormInstance } from "antd/es/form/Form";
-import NumberInput from "component/custom/number-input.custom";
 import React, { useLayoutEffect, useState } from "react";
 import { formatDiscountValue } from "utils/PromotionUtils";
 import "../promo-code.scss";
@@ -31,9 +30,9 @@ const ChooseDiscount = (props: Props) => {
     <Col span={24}>
       <Row gutter={30}>
         {/* Giá trị khuyến mại */}
-        <Col span={11}>
+        <Col span={12}>
           <Form.Item required label="Giá trị khuyến mại:">
-            <Input.Group compact>
+            <Input.Group compact >
               <Form.Item
                 rules={[
                   {
@@ -78,7 +77,7 @@ const ChooseDiscount = (props: Props) => {
           </Form.Item>
         </Col>
         {/* Mỗi mã được sử dụng */}
-        <Col span={8}>
+        <Col span={7}>
           <Form.Item
             label="Mỗi mã được sử dụng:"
             name="usage_limit"
@@ -89,11 +88,12 @@ const ChooseDiscount = (props: Props) => {
               },
             ]}
           >
-            <NumberInput
+            <InputNumber
               maxLength={11}
               minLength={0}
               min={0}
               disabled={isUnlimitUsageState}
+              style={{width: "100%"}}
             />
           </Form.Item>
         </Col>
@@ -121,11 +121,12 @@ const ChooseDiscount = (props: Props) => {
             name="usage_limit_per_customer"
             label="Mỗi khách được sử dụng tối đa:"
           >
-            <NumberInput
+            <InputNumber
               maxLength={11}
               minLength={0}
               min={0}
               disabled={isUnlimitUsagePerCustomerState}
+              style={{width: "100%"}}
             />
           </Form.Item>
         </Col>

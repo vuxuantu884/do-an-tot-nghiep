@@ -1,10 +1,9 @@
+import { CloseOutlined } from "@ant-design/icons";
 import {
   Card,
   Checkbox,
   Col,
-  DatePicker,
-  Divider,
-  Form,
+  DatePicker, Form,
   Input,
   InputNumber,
   Row,
@@ -12,29 +11,29 @@ import {
   Space,
   Switch,
   Table,
-  TimePicker,
+  TimePicker
 } from "antd";
-import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import ChooseDiscount from "./choose-discount.create";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import CustomInput from "component/custom/custom-input";
 import NumberInput from "component/custom/number-input.custom";
-import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import ProductItem from "screens/purchase-order/component/product-item";
 import UrlConfig from "config/url.config";
-import "../promo-code.scss";
-import { useDispatch } from "react-redux";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
-import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { Link } from "react-router-dom";
-import { CloseOutlined } from "@ant-design/icons";
+import { VariantResponse } from "model/product/product.model";
 import moment from "moment";
+import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
+import { CustomerContitionFormlStyle } from "screens/promotion/shared/condition.style";
+import ProductItem from "screens/purchase-order/component/product-item";
+import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError } from "utils/ToastUtils";
 import { DATE_FORMAT } from "../../../../utils/DateUtils";
-import CustomerFilter from "../../shared/cusomer-condition.form"
-import { CustomerContitionFormlStyle } from "screens/promotion/shared/condition.style";
-import { nonAccentVietnamese } from "utils/PromotionUtils";
-import { ReleaseContext } from "../issuing-provider";
+import CustomerFilter from "../../shared/cusomer-condition.form";
+import { IssuingContext } from "../issuing-provider";
+import "../promo-code.scss";
+import ChooseDiscount from "./choose-discount.create";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
@@ -53,14 +52,13 @@ const GeneralCreate = (props: any) => {
   const [allStore, setAllStore] = useState(true);
   const [allChannel, setAllChannel] = useState(true);
   const [allSource, setAllSource] = useState(true);
-  const [disabledEndDate, setDisabledEndDate] = useState(false);
   const [type, setType] = useState("SALE_CODE");
   const [product, setProduct] = useState<string>("PRODUCT");
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [prerequisiteSubtotal, setPrerequisiteSubtotal] = useState<any>();
-  const { isAllProduct, setIsAllProduct } = useContext(ReleaseContext);
+  const { isAllProduct, setIsAllProduct } = useContext(IssuingContext);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -449,7 +447,6 @@ const GeneralCreate = (props: any) => {
               <Col span={12}>
                 <Form.Item name="ends_date">
                   <DatePicker
-                    disabled={disabledEndDate}
                     style={{ width: "100%" }}
                     placeholder="Đến ngày"
                     showTime={{ format: "HH:mm" }}
@@ -463,27 +460,8 @@ const GeneralCreate = (props: any) => {
                   />
                 </Form.Item>
               </Col>
-              <Space direction="horizontal">
-                <Switch
-                  onChange={(value) => {
-                    if (value) {
-                      form.resetFields(["ends_date"]);
-                    }
-                    setDisabledEndDate(value);
-                  }}
-                />
-                {"Không cần ngày kết thúc"}
-              </Space>
-              <Divider />
-              <Space direction="horizontal">
-                {/* <Checkbox
-                defaultChecked={false}
-                // onChange={(value) => setShowTimeAdvance(value.target.checked)}
-                style={{paddingBottom: "20px"}}
-              >
-                Hiển thị nâng cao
-              </Checkbox> */}
-              </Space>
+
+
             </Row>
             {showTimeAdvance ? (
               <Row gutter={12} style={{ padding: "0px 16px" }}>
@@ -547,36 +525,22 @@ const GeneralCreate = (props: any) => {
           <Card title="Cửa hàng áp dụng">
             <Row gutter={12} >
               <Col span={24}>
-                {
-                  <Form.Item
+                <Form.Item name="prerequisite_store_ids" rules={[{ required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" }]}>
+                  <TreeStore
+                    form={form}
                     name="prerequisite_store_ids"
-                    rules={[
-                      { required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" },
-                    ]}
-                  >
-                    <Select
-                      disabled={allStore}
-                      placeholder="Chọn chi nhánh"
-                      mode="multiple"
-                      className="ant-select-selector-min-height"
-                      filterOption={(input, option) =>
-                        option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                      }
-                    >
-                      {listStore?.map((store: any, index: number) => (
-                        <Option key={index} value={store.id}>
-                          {store.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                }
+                    placeholder="Chọn cửa hàng"
+                    listStore={listStore}
+                    style={{ width: "100%" }}
+                    disabled={allStore}
+                  />
+                </Form.Item>
                 <Space direction="horizontal">
                   <Switch
                     defaultChecked={true}
                     onChange={(value) => {
                       form.setFieldsValue({
-                        prerequisite_store_ids: undefined,
+                        prerequisite_store_ids: [],
                       });
                       form.validateFields(["prerequisite_store_ids"]);
                       setAllStore(value);
@@ -652,7 +616,7 @@ const GeneralCreate = (props: any) => {
                     onChange={(value) => {
                       form.validateFields(["prerequisite_order_source_ids"]);
                       form.setFieldsValue({
-                        prerequisite_order_source_ids: undefined,
+                        prerequisite_order_source_ids: [],
                       });
                       setAllSource(value);
                     }}

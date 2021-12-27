@@ -1273,6 +1273,7 @@ function OrderCreateProduct(props: PropType) {
 								setCoupon && setCoupon("");
 								setItems(_items);
 								calculateChangeMoney(_items);
+								setPromotion && setPromotion(null)
 							} else {
 								setCoupon && setCoupon(coupon);
 								setCouponInputText(coupon);
@@ -1383,10 +1384,18 @@ function OrderCreateProduct(props: PropType) {
 														getLineAmountAfterLineDiscount(singleItem);
 												}
 											} else {
+												console.log('zzzzzzzzzzz')
 												removeDiscountItem(singleItem);
 											}
 										});
 										calculateChangeMoney(_items);
+										setPromotion && setPromotion({
+											amount: 0,
+											discount_code: applyDiscountResponse.code,
+											promotion_id: null,
+											rate: 0,
+											value: 0,
+										})
 										break;
 								}
 								showSuccess("Thêm coupon thành công!");
