@@ -352,7 +352,7 @@ function OrderCreateShipment(props: PropType) {
                 format={dateFormat}
                 style={{width: "100%"}}
                 className="r-5 w-100 ip-search"
-                placeholder="Chọn ngày giao"
+                placeholder="dd/mm/yyyy"
                 disabledDate={(current: any) => moment().add(-1, "days") >= current}
               />
             </Form.Item>
