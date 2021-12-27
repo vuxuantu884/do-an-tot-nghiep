@@ -419,12 +419,12 @@ const CustomerDetail = () => {
       switch (menuId) {
         case 1:
           history.replace(
-            `${UrlConfig.CUSTOMER}/point-adjustments/create?customer_ids=${customer?.id}&type=add`
+            `${UrlConfig.CUSTOMER}/point-adjustments/create?type=ADD&customer_ids=${customer?.id}`
           );
           break;
         case 2:
           history.replace(
-            `${UrlConfig.CUSTOMER}/point-adjustments/create?customer_ids=${customer?.id}&type=subtract`
+            `${UrlConfig.CUSTOMER}/point-adjustments/create?type=SUBTRACT&customer_ids=${customer?.id}`
           );
           break;
         // case 3:
