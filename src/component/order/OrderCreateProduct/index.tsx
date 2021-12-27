@@ -245,8 +245,6 @@ function OrderCreateProduct(props: PropType) {
 	const [isVisiblePickCoupon, setIsVisiblePickCoupon] = useState(false);
 	const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
 	const [changeMoney, setChangeMoney] = useState<number>(0);
-	// console.log("items333333333333", items);
-	// console.log("coupon", coupon);
 	const [isShowProductSearch, setIsShowProductSearch] = useState(true);
 	const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
 	const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
@@ -254,8 +252,6 @@ function OrderCreateProduct(props: PropType) {
 	const [resultSearchStore, setResultSearchStore] = useState("");
 	const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
-	// console.log("discountRate", discountRate);
-	// console.log("discountValue", discountValue);
 	//tách đơn
 	const [splitOrderNumber, setSplitOrderNumber] = useState(0);
 	const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
@@ -322,7 +318,6 @@ function OrderCreateProduct(props: PropType) {
 								const item: OrderLineItemRequest = createItem(data);
 								let index = _items.findIndex((i) => i.variant_id === data.id);
 								item.position = items.length + 1;
-
 								if (splitLine || index === -1) {
 									_items.push(item);
 									calculateChangeMoney(_items);
@@ -414,6 +409,7 @@ function OrderCreateProduct(props: PropType) {
 			// console.log("totalAmount333", _amount);
 			return _amount;
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[items]
 	);
 
@@ -1050,7 +1046,6 @@ function OrderCreateProduct(props: PropType) {
 			return [item];
 		}
 		const suggest = suggested_discounts[0];
-		console.log("suggest", suggest);
 		if (suggest.allocation_count === 0 || !suggest.allocation_count) {
 			removeDiscountItem(item);
 			result = [item]; // trong pos chưa test
@@ -1062,16 +1057,16 @@ function OrderCreateProduct(props: PropType) {
 				quantity: suggest.allocation_count,
 			};
 			let result1 = calculateDiscount(itemResult, suggest);
-			console.log("result1", result1);
-			console.log("suggested_discounts", suggested_discounts);
+			// console.log("result1", result1);
+			// console.log("suggested_discounts", suggested_discounts);
 			let suggestLeft = suggested_discounts;
 			suggestLeft.splice(0, 1);
-			console.log("suggestLeft", suggestLeft);
+			// console.log("suggestLeft", suggestLeft);
 			let newItem = {
 				...item,
 				quantity: item.quantity - suggest.allocation_count,
 			};
-			console.log("newItem", newItem);
+			// console.log("newItem", newItem);
 			let result2 = getDiscountMulti(suggestLeft, newItem);
 			result = [...result, ...result1, ...result2];
 		}
@@ -1084,7 +1079,7 @@ function OrderCreateProduct(props: PropType) {
 	) => {
 		let result: OrderLineItemRequest[] = [];
 		let responseLineItemLength = checkingDiscountResponse.data.line_items.length;
-		console.log("responseLineItemLength", responseLineItemLength);
+		// console.log("responseLineItemLength", responseLineItemLength);
 		for (let i = 0; i < responseLineItemLength; i++) {
 			let line = checkingDiscountResponse.data.line_items[i];
 			const suggested_discounts = line.suggested_discounts;
@@ -1092,8 +1087,8 @@ function OrderCreateProduct(props: PropType) {
 				result = result.concat(items[i]);
 			} else {
 				let discountMulti = getDiscountMulti(suggested_discounts, items[i]);
-				console.log("i", i);
-				console.log("discountMulti", discountMulti);
+				// console.log("i", i);
+				// console.log("discountMulti", discountMulti);
 				result = result.concat(discountMulti);
 			}
 		}
@@ -1115,9 +1110,9 @@ function OrderCreateProduct(props: PropType) {
 			if (!discountOrder?.value) {
 				return null;
 			}
-			console.log('items555', items)
+			// console.log('items555', items)
 			let totalLineAmountAfterDiscount = getTotalAmountAfterDiscount(items);
-			console.log('totalLineAmountAfterDiscount', totalLineAmountAfterDiscount)
+			// console.log('totalLineAmountAfterDiscount', totalLineAmountAfterDiscount)
 			let discountAmount = 0;
 			switch (discountOrder.value_type) {
 				case DISCOUNT_VALUE_TYPE.fixedAmount:
@@ -1157,7 +1152,6 @@ function OrderCreateProduct(props: PropType) {
 		items: OrderLineItemRequest[] | undefined,
 		_isAutomaticDiscount: boolean = isAutomaticDiscount
 	) => {
-		console.log("items", items);
 		setIsCalculateDiscount(true);
 		isShouldUpdateDiscountRef.current = true;
 		if (!items || items.length === 0 || !_isAutomaticDiscount) {
@@ -1203,7 +1197,7 @@ function OrderCreateProduct(props: PropType) {
 		) {
 			let result = getApplyDiscountLineItem(checkingDiscountResponse, items);
 			let promotionResult = handleApplyDiscountOrder(checkingDiscountResponse, result);
-			console.log("result", result);
+			// console.log("result", result);
 			calculateChangeMoney(result, promotionResult)
 			showSuccess("Cập nhật chiết khấu tự động thành công!");
 			setIsCalculateDiscount(false);
@@ -1388,7 +1382,6 @@ function OrderCreateProduct(props: PropType) {
 														getLineAmountAfterLineDiscount(singleItem);
 												}
 											} else {
-												console.log('zzzzzzzzzzz')
 												removeDiscountItem(singleItem);
 											}
 										});
@@ -1421,8 +1414,6 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
-	console.log('promotion', promotion)
-
 	const onSearchVariantSelect = useCallback(
 		async (v, o) => {
 			if (!items) {
@@ -1431,7 +1422,6 @@ function OrderCreateProduct(props: PropType) {
 			let newV = parseInt(v);
 			let _items = [...items];
 			let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
-			console.log('indexSearch', indexSearch)
 			let index = _items.findIndex((i) => i.variant_id === newV);
 			let r: VariantResponse = resultSearchVariant.items[indexSearch];
 			const item: OrderLineItemRequest = createItem(r);
@@ -1461,7 +1451,7 @@ function OrderCreateProduct(props: PropType) {
 			setKeySearchVariant("");
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[resultSearchVariant, items, splitLine, isAutomaticDiscount]
+		[items, resultSearchVariant.items, promotion, isAutomaticDiscount, couponInputText, autoCompleteRef, splitLine, handleApplyDiscount, handleApplyCouponWhenInsertCoupon]
 	);
 
 	/**
@@ -1824,7 +1814,6 @@ function OrderCreateProduct(props: PropType) {
 	 * gọi lại api couponInputText khi thay đổi số lượng item
 	 */
 	useEffect(() => {
-		console.log("isShouldUpdateCouponRef.current", isShouldUpdateCouponRef.current);
 		if (
 			!isAutomaticDiscount &&
 			isShouldUpdateCouponRef.current &&
