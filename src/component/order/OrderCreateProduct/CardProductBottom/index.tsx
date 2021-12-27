@@ -21,7 +21,7 @@ type PropType = {
   couponInputText?: string;
   showDiscountModal: () => void;
   showCouponModal: () => void;
-  setPromotion?: (value: OrderDiscountRequest) => void;
+  setPromotion?: (value: OrderDiscountRequest|null) => void;
   setCoupon?: (value: string) => void;
   setCouponInputText?: (value: string) => void;
   calculateChangeMoney: (
@@ -115,16 +115,7 @@ function CardProductBottom(props: PropType) {
                   closable={!isDisableOrderDiscount}
                   onClose={() => {
                     setCoupon && setCoupon("");
-                    calculateChangeMoney(items, {
-                      amount: 0,
-                      discount_code: null,
-                      order_id: null,
-                      promotion_id: null,
-                      rate: 0,
-                      reason: null,
-                      source: null,
-                      value: 0
-                    });
+                    calculateChangeMoney(items, null);
                   }}
                 >
                   {discountRate ? Math.round(discountRate * 100) / 100 : 0}%{" "}
@@ -164,13 +155,7 @@ function CardProductBottom(props: PropType) {
                   className="orders-tag orders-tag-danger"
                   closable
                   onClose={() => {
-                    setPromotion && setPromotion({
-                      amount: 0,
-                      discount_code: null,
-                      promotion_id: null,
-                      rate: 0,
-                      reason: ""
-                    })
+                    setPromotion && setPromotion(null)
                     handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
                     setCouponInputText && setCouponInputText("");

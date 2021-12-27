@@ -175,7 +175,7 @@ function SidebarOrderDetailInformation(props: PropType) {
             <Col span={10}>Lý do huỷ:</Col>
             <Col span={14}>
               <span style={{fontWeight: 500, color: "rgb(226, 67, 67)"}} className="text-focus">
-                {OrderDetail?.reason_name}
+                {OrderDetail?.sub_reason_name ? OrderDetail?.sub_reason_name : OrderDetail?.reason_name}
               </span>
             </Col>
           </Row>
