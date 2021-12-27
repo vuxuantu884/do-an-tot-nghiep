@@ -23,5 +23,5 @@ export const EcommerceProductPermission = {
 export const EcommerceOrderPermission = {
   orders_download: `${Ecommerces}_orders_download`,
   orders_mapping_view: `${Ecommerces}_orders_read`,
-  orders_view: "orders_view",
+  orders_read: "orders_read",
 }

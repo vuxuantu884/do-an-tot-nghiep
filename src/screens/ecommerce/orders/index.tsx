@@ -125,7 +125,7 @@ const initQuery: EcommerceOrderSearchQuery = {
 };
 
 
-const ordersViewPermission = [EcommerceOrderPermission.orders_view];
+const ordersViewPermission = [EcommerceOrderPermission.orders_read];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
 
