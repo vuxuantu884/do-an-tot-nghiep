@@ -737,11 +737,7 @@ const OrderDuplicate: React.FC = () => {
   };
 
   const onSelectedChange = useCallback((selectedRow) => {
-    if (selectedRow[0]) {
-      //const selectedRowCodes = selectedRow.map((row: any) => row.code);
-      //setSelectedRowCodes(selectedRowCodes);
-      setSelectedOrder(selectedRow);
-    }
+    setSelectedOrder(selectedRow);
   }, []);
 
   const onPageChange = useCallback(
@@ -1154,7 +1150,7 @@ const OrderDuplicate: React.FC = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+            onSelectedChange={(selectedRows) => setSelectedOrder(selectedRows)}
             onChangeRowKey={(rowKey) => setRowKey(rowKey)}
             selectedRowKey={rowKey}
             onShowColumnSetting={() => setShowSettingColumn(true)}

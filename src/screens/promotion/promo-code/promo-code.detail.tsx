@@ -456,7 +456,7 @@ const PromotionDetailScreen: React.FC = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
-          name: "Chiết khấu",
+          name: "Đợt phát hành",
         },
       ]}
     >
