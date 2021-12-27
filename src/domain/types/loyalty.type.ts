@@ -43,6 +43,7 @@ const LoyaltyPointsType = {
 
 const LoyaltyPointsAdjustmentType = {
   GET_LOYALTY_ADJUST_POINT_LIST: 'GET_LOYALTY_ADJUST_POINT_LIST',
+  GET_LOYALTY_ADJUST_POINT_DETAIL: 'GET_LOYALTY_ADJUST_POINT_DETAIL',
 }
   
 export { LoyaltyCardReleaseType, LoyaltyRankType, LoyaltyCardType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType, LoyaltyPointsType, LoyaltyPointsAdjustmentType };
