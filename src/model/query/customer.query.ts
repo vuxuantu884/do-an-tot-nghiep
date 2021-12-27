@@ -1,13 +1,14 @@
 import { BaseQuery } from "../base/base.query";
 
 export interface CustomerSearchQuery extends BaseQuery {
+  ids?: Array<any> | [];
   is_simple?:number|null;
-  request: string | null;
-  gender: string | null;
+  request?: string | null;
+  gender?: string | null;
   customer_group_ids?: Array<any> | [];
   customer_level_ids?: Array<any> | [];
-  responsible_staff_codes: string | null;
-  customer_type_ids: Array<any> | [];
+  responsible_staff_codes?: string | null;
+  customer_type_ids?: Array<any> | [];
   assign_store_ids?: Array<any> | [];
   store_ids?: Array<any> | [];
   channel_ids?: Array<any> | [];
@@ -46,12 +47,12 @@ export interface CustomerSearchQuery extends BaseQuery {
   last_order_time_to?: String | null;
 
   phone?: string | null;
-  from_birthday: String | null;
-  to_birthday: String | null;
-  company: string | null;
-  from_wedding_date: String | null;
-  to_wedding_date: String | null;
-  customer_level_id: number | undefined;
+  from_birthday?: String | null;
+  to_birthday?: String | null;
+  company?: string | null;
+  from_wedding_date?: String | null;
+  to_wedding_date?: String | null;
+  customer_level_id?: number | undefined;
 }
 
 export interface FpageCustomerSearchQuery extends BaseQuery {
