@@ -1,5 +1,6 @@
 import {
   DeleteOutlined,
+  EditOutlined,
   InfoCircleOutlined,
   MinusOutlined,
   PlusOutlined,
@@ -1004,6 +1005,19 @@ const ProductCreateScreen: React.FC = () => {
                           </Select>
                         </Item>
                       </Input.Group>
+                    </Item>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col span={24}>
+                    <Item name="care_labels" label={`Thông tin bảo quản `}> 
+                      {
+                        (form.getFieldValue("care_labels") && form.getFieldValue("care_labels").length > 0) ?
+                         <>
+                          <Button className="button-plus" icon={<EditOutlined />} />
+                         </> :
+                         <Button className="button-plus" icon={<PlusOutlined />} />
+                      }
                     </Item>
                   </Col>
                 </Row>
