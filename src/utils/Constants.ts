@@ -212,7 +212,7 @@ export const SHIPPING_REQUIREMENT = {
 
 export const FILTER_CONFIG_TYPE = {
   FILTER_PO: "filter_po",
-  FILTER_INVENTORY:  "filter_inventory"
+  FILTER_INVENTORY:  "filter_inventory",
 };
 
 export const COLUMN_CONFIG_TYPE = {

@@ -978,13 +978,15 @@ export default function Order() {
 			(promotion?.value || 0)
 		);
 	}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
-
+	console.log('totalAmountOrder', totalAmountOrder)
 	/**
 	 * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
 	 */
 	const totalAmountCustomerNeedToPay = useMemo(() => {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
+
+	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
 	return (
 		<React.Fragment>
@@ -1053,6 +1055,7 @@ export default function Order() {
 										/>
 										<OrderCreateProduct
 											orderAmount={orderAmount}
+											totalAmountOrder={totalAmountOrder}
 											changeInfo={onChangeInfoProduct}
 											setStoreId={(value) => {
 												setStoreId(value);

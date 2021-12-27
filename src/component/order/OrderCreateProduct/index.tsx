@@ -117,6 +117,7 @@ type PropType = {
 	promotion: OrderDiscountRequest | null;
 	orderSourceId?: number | null;
 	orderAmount: number;
+	totalAmountOrder: number;
 	updateOrder?: boolean;
 	isSplitOrder?: boolean;
 	orderDetail?: OrderResponse | null;
@@ -213,6 +214,7 @@ function OrderCreateProduct(props: PropType) {
 		loyaltyPoint,
 		promotion,
 		orderAmount,
+		totalAmountOrder,
 		setStoreId,
 		setItems,
 		fetchData,
@@ -323,9 +325,7 @@ function OrderCreateProduct(props: PropType) {
 
 								if (splitLine || index === -1) {
 									_items.push(item);
-									calculateChangeMoney(
-										_items
-									);
+									calculateChangeMoney(_items);
 								} else {
 									let variantItems = _items.filter((item) => item.variant_id === data.id);
 									let lastIndex = variantItems.length - 1;
@@ -333,9 +333,7 @@ function OrderCreateProduct(props: PropType) {
 									variantItems[lastIndex].line_amount_after_line_discount +=
 										variantItems[lastIndex].price -
 										variantItems[lastIndex].discount_items[0].amount;
-									calculateChangeMoney(
-										_items
-									);
+									calculateChangeMoney(_items);
 								}
 
 								setItems(_items.reverse());
@@ -1279,6 +1277,7 @@ function OrderCreateProduct(props: PropType) {
 								setCoupon && setCoupon("");
 								setItems(_items);
 								calculateChangeMoney(_items);
+								setPromotion && setPromotion(null)
 							} else {
 								setCoupon && setCoupon(coupon);
 								setCouponInputText(coupon);
@@ -1389,10 +1388,18 @@ function OrderCreateProduct(props: PropType) {
 														getLineAmountAfterLineDiscount(singleItem);
 												}
 											} else {
+												console.log('zzzzzzzzzzz')
 												removeDiscountItem(singleItem);
 											}
 										});
 										calculateChangeMoney(_items);
+										setPromotion && setPromotion({
+											amount: 0,
+											discount_code: applyDiscountResponse.code,
+											promotion_id: null,
+											rate: 0,
+											value: 0,
+										})
 										break;
 								}
 								showSuccess("Thêm coupon thành công!");
@@ -1414,6 +1421,8 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
+	console.log('promotion', promotion)
+
 	const onSearchVariantSelect = useCallback(
 		async (v, o) => {
 			if (!items) {
@@ -1430,9 +1439,7 @@ function OrderCreateProduct(props: PropType) {
 			if (r.id === newV && checkInventory(item) === true) {
 				if (splitLine || index === -1) {
 					_items.unshift(item);
-					calculateChangeMoney(
-						_items
-					);
+					calculateChangeMoney(_items);
 				} else {
 					let variantItems = _items.filter((item) => item.variant_id === newV);
 					let firstIndex = 0;
@@ -1441,9 +1448,7 @@ function OrderCreateProduct(props: PropType) {
 						variantItems[firstIndex].price -
 						variantItems[firstIndex].discount_items[0]?.amount *
 						variantItems[firstIndex].quantity;
-					calculateChangeMoney(
-						_items
-					);
+					calculateChangeMoney(_items);
 				}
 			}
 			if (isAutomaticDiscount && _items.length > 0) {
@@ -2141,6 +2146,7 @@ function OrderCreateProduct(props: PropType) {
 				{items && items.length > 0 && (
 					<CardProductBottom
 						amount={orderAmount}
+						totalAmountOrder={totalAmountOrder}
 						calculateChangeMoney={calculateChangeMoney}
 						changeMoney={changeMoney}
 						setCoupon={setCoupon}
@@ -2158,9 +2164,6 @@ function OrderCreateProduct(props: PropType) {
 						couponInputText={couponInputText}
 						setCouponInputText={setCouponInputText}
 						handleRemoveAllDiscount={handleRemoveAllDiscount}
-						totalAmountExchangePlusShippingFee={
-							returnOrderInformation?.totalAmountExchangePlusShippingFee
-						}
 					/>
 				)}
 				{setPromotion && (

@@ -1,35 +1,36 @@
-import {FilterOutlined, PlusOutlined} from "@ant-design/icons";
-import {Button, Card, Form, Input, Select} from "antd";
+import { FilterOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Input, Select } from "antd";
 import search from "assets/img/search.svg";
 import ContentContainer from "component/container/content.container";
+import ButtonCreate from "component/header/ButtonCreate";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import TagStatus, {TagStatusType} from "component/tag/tag-status";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import TagStatus, { TagStatusType } from "component/tag/tag-status";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   bulkDeletePriceRules,
   bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction,
   deletePriceRulesById,
-  getListDiscountAction,
+  getListDiscountAction
 } from "domain/actions/promotion/discount/discount.action";
 import useAuthorization from "hook/useAuthorization";
-import {PageResponse} from "model/base/base-metadata.response";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
+import { PageResponse } from "model/base/base-metadata.response";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import {OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE} from "utils/Constants";
-import {DATE_FORMAT} from "utils/DateUtils";
-import {showSuccess} from "utils/ToastUtils";
-import {getQueryParams, useQuery} from "../../../utils/useQuery";
-import {ACTIONS_PROMO} from "../constant";
+import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
+import { getQueryParams, useQuery } from "../../../utils/useQuery";
+import { ACTIONS_PROMO } from "../constant";
 import actionColumn from "./actions/action.column";
 import "./promo-code.scss";
 
@@ -96,15 +97,15 @@ const PromotionCode = () => {
 
   const onPageChange = useCallback(
     (page, limit) => {
-      setParams({...params, page, limit});
+      setParams({ ...params, page, limit });
     },
     [params]
   );
 
   const onFilter = useCallback(
     (values) => {
-      let newParams = {...params, ...values, page: 1};
-      setParams({...newParams});
+      let newParams = { ...params, ...values, page: 1 };
+      setParams({ ...newParams });
     },
     [params]
   );
@@ -146,7 +147,7 @@ const PromotionCode = () => {
       render: (value: any, item: any, index: number) => (
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${item.id}`}
-          style={{color: "#2A2A86", fontWeight: 500}}
+          style={{ color: "#2A2A86", fontWeight: 500 }}
         >
           {value.code}
         </Link>
@@ -183,9 +184,8 @@ const PromotionCode = () => {
       width: "20%",
       render: (value: any, item: any, index: number) => (
         <div>
-          {`${
-            item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)
-          }`}{" "}
+          {`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)
+            }`}{" "}
           -{" "}
           {item.ends_date ? (
             moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm)
@@ -249,7 +249,7 @@ const PromotionCode = () => {
 
   const onMenuClick = useCallback(
     async (index: number) => {
-      const body = {ids: selectedRowKey};
+      const body = { ids: selectedRowKey };
       switch (index) {
         case 1:
           setTableLoading(true);
@@ -270,8 +270,8 @@ const PromotionCode = () => {
     [dispatch, handleCallback, selectedRowKey]
   );
 
-  const {Item} = Form;
-  const {Option} = Select;
+  const { Item } = Form;
+  const { Option } = Select;
 
   const openFilter = useCallback(() => {
     // setVisible(true);
@@ -297,17 +297,11 @@ const PromotionCode = () => {
             },
           ]}
           extra={
-            allowCreatePromoCode ? (
-              <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`}>
-                <Button
-                  className="ant-btn-outline ant-btn-primary"
-                  size="large"
-                  icon={<PlusOutlined />}
-                >
-                  Thêm mới đợt phát hành
-                </Button>
-              </Link>
-            ) : null
+            allowCreatePromoCode && (
+              <ButtonCreate path={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`}>
+                Thêm mới đợt phát hành
+              </ButtonCreate >
+            )
           }
         >
           <Card>
@@ -324,7 +318,7 @@ const PromotionCode = () => {
                       prefix={<img src={search} alt="" />}
                       placeholder="Tìm kiếm theo mã, tên chương trình"
                       onBlur={(e) => {
-                        form.setFieldsValue({query: e.target.value?.trim()});
+                        form.setFieldsValue({ query: e.target.value?.trim() });
                       }}
                     />
                   </Item>
@@ -332,7 +326,7 @@ const PromotionCode = () => {
                     <Select
                       showArrow
                       showSearch
-                      style={{minWidth: "200px"}}
+                      style={{ minWidth: "200px" }}
                       optionFilterProp="children"
                       placeholder="Chọn trạng thái"
                       allowClear={true}
@@ -364,7 +358,7 @@ const PromotionCode = () => {
                 }}
                 isRowSelection
                 isLoading={tableLoading}
-                sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
+                sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                 pagination={{
                   pageSize: dataSource?.metadata.limit || 0,
                   total: dataSource?.metadata.total || 0,
@@ -390,7 +384,7 @@ const PromotionCode = () => {
             subTitle="Bạn có chắc xoá mã đợt giảm giá?"
             visible={isShowDeleteModal}
           />
-        </ContentContainer>
+        </ContentContainer >
       ) : (
         <NoPermission />
       )}

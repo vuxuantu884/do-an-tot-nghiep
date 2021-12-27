@@ -74,7 +74,7 @@ const getConfigInventoryAction = (
 };
 const createConfigInventoryAction = (
   request: FilterConfigRequest,
-  onResult: (result: BaseResponse<FilterConfig>) => void
+  onResult?: (result: BaseResponse<FilterConfig>) => void
 ) => {
   return BaseAction(InventoryConfigType.CREATE_INVENTORY_CONFIG, {
     request,
@@ -83,7 +83,7 @@ const createConfigInventoryAction = (
 };
 const updateConfigInventoryAction = (
   request: FilterConfigRequest,
-  onResult: (result: BaseResponse<FilterConfig>) => void
+  onResult?: (result: BaseResponse<FilterConfig>) => void
 ) => {
   return BaseAction(InventoryConfigType.UPDATE_INVENTORY_CONFIG, {
     request,
