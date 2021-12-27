@@ -82,6 +82,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {account} = userReducer;
   const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]); 
+  const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -143,10 +144,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          }
        }, 
        {
-        title: HeaderSummary(undefined,"Giá bán",
-                    InventoryColumnField.retail_price, 
-                    (sortColumn:string)=>{onSortASC(sortColumn)},
-                    (sortColumn:string)=>{onSortDESC(sortColumn)}), 
+        title: "Giá bán", 
          titleCustom: "Giá bán",
          visible: true,
          dataIndex: "variant_prices",
@@ -328,7 +326,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        },
        {
          title: "Tổng tồn",
-         dataIndex: `on_hand`,
+         dataIndex: `total`,
          align: "center",
          width: 150,
          render: (value,record) => {
@@ -412,7 +410,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
      ]
    },[]);
 
-  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([]);
+  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumns);
   const [columnsDrill, setColumnsDrill] = useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumnsDrill);
 
   const openColumn = useCallback(() => {
@@ -432,6 +430,12 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       Sum_On_way: 0,
       Sum_Shipping: 0, 
     };
+
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
     
       if (selectedRow && selectedRow.length > 0) {
         selectedRow.forEach((e)=>{ 
@@ -601,6 +605,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   useEffect(()=>{
     getConfigColumnInventory();
   },[getConfigColumnInventory]);
+
+  useEffect(() => {
+    setColumns(defaultColumns);
+  }, [params,defaultColumns, selected, objSummaryTable]);
+
   
   return (
     <div>
