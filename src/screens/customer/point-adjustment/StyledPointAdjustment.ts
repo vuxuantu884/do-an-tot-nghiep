@@ -48,3 +48,9 @@ export const StyledPointAdjustment = styled.div`
   }
 
 `;
+
+export const StyledPointAdjustmentDetail = styled.div`
+  .page-header {
+    height: auto;
+  }
+`;

@@ -58,10 +58,13 @@ const getLoyaltyAdjustPointAction = (customerId: number, setData: (data: any) =>
   return BaseAction(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, { customerId, setData, onError });
 }
 
-export const getPointAdjustmentListAction = (query: any, callback: (data: BaseResponse<any>) => void) => {
+const getPointAdjustmentListAction = (query: any, callback: (data: BaseResponse<any>) => void) => {
   return BaseAction(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST, { query, callback });
 }
 
+const getPointAdjustmentDetailAction = (adjustmentId: any, callback: (data: any) => void) => {
+  return BaseAction(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_DETAIL, { adjustmentId, callback });
+}
 
 export {
   createLoyaltyAccumulationProgram,
@@ -75,5 +78,7 @@ export {
   getLoyaltyPoint,
   addLoyaltyPoint,
   subtractLoyaltyPoint,
-  getLoyaltyAdjustPointAction
+  getLoyaltyAdjustPointAction,
+  getPointAdjustmentListAction,
+  getPointAdjustmentDetailAction,
 };

@@ -10,6 +10,7 @@ const rank = React.lazy(() => import ("screens/customer/ranking/index"))
 const createRank = React.lazy(() => import ("screens/customer/ranking/component/create/index"))
 const PointAdjustment = React.lazy(() => import ("screens/customer/point-adjustment/PointAdjustment"))
 const CreatePointAdjustment = React.lazy(() => import ("screens/customer/point-adjustment/CreatePointAdjustment"))
+const PointAdjustmentDetail = React.lazy(() => import ("screens/customer/point-adjustment/PointAdjustmentDetail"))
 
 const customers: Array<RouteMenu> = [
   {
@@ -108,6 +109,17 @@ const customers: Array<RouteMenu> = [
         icon: 'icon-dot',
         component: CreatePointAdjustment,
         key: "create_point_adjustment",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.CUSTOMER}/point-adjustments/:id`,
+        exact: true,
+        title: `Chi tiết phiếu điều chỉnh`,
+        icon: 'icon-dot',
+        component: PointAdjustmentDetail,
+        key: "point_adjustment_detail",
         isShow: true,
         header: null,
         subMenu: [],
