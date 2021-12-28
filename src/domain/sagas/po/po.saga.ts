@@ -8,7 +8,7 @@ import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { POConfig, POType } from "domain/types/purchase-order.type";
+import { POConfig, POLogHistory, POType } from "domain/types/purchase-order.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   PurchaseOrder,
@@ -25,6 +25,7 @@ import { showError } from "utils/ToastUtils";
 import { exportPOApi } from "./../../../service/purchase-order/purchase-order.service";
 import { ImportResponse } from "model/other/files/export-model";
 import { FilterConfig } from "model/other";
+import { getLogDetailProcurements } from "service/purchase-order/purchase-procument.service";
 
 function* poCreateSaga(action: YodyAction) {
   const { request, createCallback } = action.payload;
@@ -374,6 +375,30 @@ function* deleteConfigPoSaga(action: YodyAction) {
   }
 }
 
+function* getLogPOHistory(action: YodyAction) {
+  const { id, setData } = action.payload;
+  try {
+    let response: BaseResponse<PurchaseOrder> = yield call(
+      getLogDetailProcurements,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log(error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* poSaga() {
   yield takeLatest(POType.CREATE_PO_REQUEST, poCreateSaga);
   yield takeLatest(POType.DETAIL_PO_REQUEST, poDetailSaga);
@@ -398,4 +423,5 @@ export function* poSaga() {
   yield takeLatest(POConfig.CREATE_PO_CONFIG, createConfigPoSaga);
   yield takeLatest(POConfig.UPDATE_PO_CONFIG, updateConfigPoSaga);
   yield takeLatest(POConfig.DELETE_PO_CONFIG, deleteConfigPoSaga);
+  yield takeLatest(POLogHistory.GET_LOG_PO, getLogPOHistory);
 }

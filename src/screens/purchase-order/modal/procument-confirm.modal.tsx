@@ -14,6 +14,7 @@ import { Moment } from "moment";
 import ProcumentCommonModal from "./procument.common.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { formatCurrency } from "utils/AppUtils";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 export type ProcumentConfirmProps = {
   visible: boolean;
@@ -27,6 +28,7 @@ export type ProcumentConfirmProps = {
   onOk: (value: PurchaseProcument) => void;
   onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
+  poData: PurchaseOrder | any;
 };
 
 const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
@@ -35,6 +37,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
   const {
     visible,
     now,
+    poData ,
     stores,
     onCancel,
     item,
@@ -80,6 +83,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         visible={visible}
         cancelText="Hủy"
         onOk={onOk}
+        poData={poData}
         onDelete={onDelete}
         loading={loading}
         isConfirmModal={isEdit}

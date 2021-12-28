@@ -111,7 +111,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     [isEditProcument, onAddProcumentSuccess]
   );
 
-
   const onAddProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber) {
@@ -232,10 +231,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   );
 
   useEffect(() => {
-    console.log("poData", poData);
-    console.log("stores", stores);
-
-
     if (visible === false) setDraft(null);
   }, [visible, poData, stores]);
   return (
@@ -449,6 +444,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         isEdit={isEditProcument}
         items={poItems}
         stores={stores}
+        poData={poData}
         now={now}
         visible={visibleDraft}
         item={procumentDraft}

@@ -67,3 +67,9 @@ export const getJobImport = (
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/excel/job/${code}`);
 };
+
+export const getLogDetailProcurements = (
+  poId: number
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/procurements/log/${poId}`);
+}

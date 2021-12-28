@@ -4,6 +4,7 @@ import NumberInput from "component/custom/number-input.custom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
   POProcumentLineItemField,
   PurchaseProcument,
@@ -27,6 +28,7 @@ type ProcumentModalProps = {
   onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
   isEdit: boolean;
+  poData?: PurchaseOrder;
 };
 
 const ProcumentModal: React.FC<ProcumentModalProps> = (
@@ -36,6 +38,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
     visible,
     now,
     stores,
+    poData,
     onCancle,
     items,
     item,
@@ -75,6 +78,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
           onCancel={onCancle}
           now={now}
           stores={stores}
+          poData={poData}
           defaultStore={defaultStore}
           visible={visible}
           cancelText="Hủy"

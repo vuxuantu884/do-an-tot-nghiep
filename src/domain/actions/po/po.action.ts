@@ -1,5 +1,5 @@
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
-import { POConfig, POType } from "domain/types/purchase-order.type";
+import { POConfig, POLogHistory, POType } from "domain/types/purchase-order.type";
 import BaseAction from "base/base.action";
 import {
   PurchaseOrder,
@@ -144,5 +144,15 @@ export const deleteConfigPoAction = (
   return BaseAction(POConfig.DELETE_PO_CONFIG, {
     id,
     onResult
+  });
+};
+
+export const getLogPOHistory = (
+  id: number,
+  setData: (result: BaseResponse<PurchaseOrder>) => void
+) => {
+  return BaseAction(POLogHistory.GET_LOG_PO, {
+    id,
+    setData
   });
 };
