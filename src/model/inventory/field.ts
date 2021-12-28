@@ -79,6 +79,20 @@ const AllInventoryMappingField = {
   [AvdAllFilter.to_price]: 'Đến',
 }
 
+const InventoryColumnField = {
+  retail_price: 'retail_price',
+  on_hand: 'on_hand',
+  available: 'available',
+  committed: 'committed', 
+  on_hold: 'on_hold',
+  defect: 'defect',
+  in_coming: 'in_coming',
+  transferring: 'transferring',
+  on_way: 'on_way',
+  shipping: 'shipping',
+  total_stock: 'total_stock'
+}
+
 const HistoryInventoryMappingField = {
   [AvdHistoryInventoryFilter.transaction_date]: 'Thời gian',
   [AvdHistoryInventoryFilter.quantity_change]: 'Số lượng thay đổi',
@@ -92,4 +106,5 @@ export {InventoryQueryField,
    AvdHistoryInventoryFilter, 
    HistoryInventoryMappingField,
    AvdAllFilter,
-   AllInventoryMappingField};
+   AllInventoryMappingField,
+   InventoryColumnField};

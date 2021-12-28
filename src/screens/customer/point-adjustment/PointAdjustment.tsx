@@ -36,6 +36,7 @@ const TYPE_ADJUSTMENT = [
     value: "SUBTRACT"
   }
 ]
+
 const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 
@@ -66,14 +67,17 @@ const PointAdjustment = () => {
     {
       title: "Mã phiếu",
       dataIndex: "id",
-      width: "10%"
+      width: "10%",
+      render: (value: string, item: any) => (
+        <Link to={`${UrlConfig.CUSTOMER}/point-adjustments/${item.id}`}>{value}</Link>
+      ),
     },
     {
       title: "Số KH",
       width: "6%",
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
-          1
+          {value.customers?.length}
         </div>
       ),
     },
@@ -91,7 +95,7 @@ const PointAdjustment = () => {
     },
     {
       title: "Giá trị",
-      dataIndex: "change_point",
+      dataIndex: "point_change",
       width: "10%",
       align: "center",
       render: (value: any, item: any) => (

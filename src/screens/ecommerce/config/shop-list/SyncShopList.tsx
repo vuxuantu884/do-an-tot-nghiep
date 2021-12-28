@@ -5,7 +5,7 @@ import CustomTable from "component/table/CustomTable";
 import actionColumn from "screens/ecommerce/config/actions/action.column";
 import { useHistory } from "react-router-dom";
 import successIcon from "assets/icon/success_2.svg";
-import ECOMMERCE_ICON from "screens/ecommerce/common/ecommerce-icon";
+import ECOMMERCE_ICON from "screens/ecommerce/common/commonAction";
 import { StyledHeader, StyledComponent } from "screens/ecommerce/config/shop-list/StyledSyncShopList";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";

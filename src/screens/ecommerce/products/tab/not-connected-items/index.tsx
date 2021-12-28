@@ -47,10 +47,6 @@ import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import filterIcon from "assets/icon/filter.svg";
 import saveIcon from "assets/icon/save.svg";
 import closeIcon from "assets/icon/X_close.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
 import imgdefault from "assets/icon/img-default.svg";
 
 import {
@@ -60,6 +56,7 @@ import {
 } from "screens/ecommerce/products/tab/not-connected-items/styles";
 import { StyledProductFilter } from "screens/ecommerce/products/styles";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -684,6 +681,7 @@ const NotConnectedItems: React.FC = () => {
           id: item.id,
           name: item.name,
           isSelected: false,
+          ecommerce: item.ecommerce,
         });
       });
     }
@@ -712,34 +710,6 @@ const NotConnectedItems: React.FC = () => {
     setShopIdSelected([]);
   };
   //end handle select ecommerce
-
-  const ECOMMERCE_LIST = [
-    {
-      title: "Sàn Shopee",
-      icon: shopeeIcon,
-      id: "shopee",
-      ecommerce_id: 1,
-    },
-    {
-      title: "Sàn Tiki",
-      icon: tikiIcon,
-      id: "tiki",
-      ecommerce_id: 2,
-    },
-    {
-      title: "Sàn Lazada",
-      icon: lazadaIcon,
-      id: "lazada",
-      ecommerce_id: 3,
-    },
-    {
-      title: "Sàn Sendo",
-      icon: sendoIcon,
-      id: "sendo",
-      isActive: false,
-      ecommerce_id: 4,
-    },
-  ];
 
   // handle filter
   const onFilterClick = React.useCallback(() => {
@@ -890,7 +860,7 @@ const NotConnectedItems: React.FC = () => {
                 <span className="check-box-name">
                   <span>
                     <img
-                      src={shopeeIcon}
+                      src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
@@ -955,8 +925,8 @@ const NotConnectedItems: React.FC = () => {
                   onSelect={(value) => handleSelectEcommerce(value)}
                   onClear={removeEcommerce}
                 >
-                  {ECOMMERCE_LIST &&
-                    ECOMMERCE_LIST.map((item: any) => (
+                  {
+                    ECOMMERCE_LIST?.map((item: any) => (
                       <Option key={item.ecommerce_id} value={item.ecommerce_id}>
                         <div>
                           <img
@@ -967,7 +937,8 @@ const NotConnectedItems: React.FC = () => {
                           <span>{item.title}</span>
                         </div>
                       </Option>
-                    ))}
+                    ))
+                  }
                 </Select>
               </Form.Item>
 
@@ -1042,8 +1013,8 @@ const NotConnectedItems: React.FC = () => {
                   onSelect={(value) => handleSelectEcommerce(value)}
                   onClear={removeEcommerce}
                 >
-                  {ECOMMERCE_LIST &&
-                    ECOMMERCE_LIST.map((item: any) => (
+                  {
+                    ECOMMERCE_LIST?.map((item: any) => (
                       <Option key={item.ecommerce_id} value={item.ecommerce_id}>
                         <div>
                           <img
@@ -1054,7 +1025,8 @@ const NotConnectedItems: React.FC = () => {
                           <span>{item.title}</span>
                         </div>
                       </Option>
-                    ))}
+                    ))
+                  }
                 </Select>
               </Form.Item>
 

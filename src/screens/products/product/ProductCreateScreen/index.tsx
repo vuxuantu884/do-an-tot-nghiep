@@ -1,8 +1,9 @@
 import {
   DeleteOutlined,
+  EditOutlined,
   InfoCircleOutlined,
   MinusOutlined,
-  PlusOutlined
+  PlusOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -723,7 +724,7 @@ const ProductCreateScreen: React.FC = () => {
                         placeholder="Chọn danh mục"
                         suffix={
                           <Button
-                            style={{ width: 37, height: 37, padding: 0 }}
+                            className="button-plus"
                             icon={<PlusOutlined />}
                             onClick={() => window.open(`${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`)}
                           />
@@ -840,7 +841,7 @@ const ProductCreateScreen: React.FC = () => {
                         onChange={onMaterialChange}
                         suffix={
                           <Button
-                            style={{ width: 37, height: 37, padding: 0 }}
+                            className="button-plus"
                             icon={<PlusOutlined />}
                             onClick={() => window.open(`${BASE_NAME_ROUTER}${UrlConfig.MATERIALS}/create`)}
                           />
@@ -1004,6 +1005,19 @@ const ProductCreateScreen: React.FC = () => {
                           </Select>
                         </Item>
                       </Input.Group>
+                    </Item>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col span={24}>
+                    <Item name="care_labels" label={`Thông tin bảo quản `}> 
+                      {
+                        (form.getFieldValue("care_labels") && form.getFieldValue("care_labels").length > 0) ?
+                         <>
+                          <Button className="button-plus" icon={<EditOutlined />} />
+                         </> :
+                         <Button className="button-plus" icon={<PlusOutlined />} />
+                      }
                     </Item>
                   </Col>
                 </Row>

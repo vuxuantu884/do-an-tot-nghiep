@@ -334,7 +334,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         title: "Merchandiser",
         dataIndex: 'Merchandiser',
         render: (row) => {
-          if (!row.merchandiser_code || !row.merchandiser) return "";
+          if (!row || !row.merchandiser_code || !row.merchandiser) return "";
           return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
         },
         visible: true,
@@ -343,7 +343,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         title: "QC",
         dataIndex: 'QC',
         render: (row) => {
-          if (!row.qc_code || !row.qc) return "";
+          if (!row || !row.qc_code || !row.qc) return "";
           return <div>{`${row.qc_code} - ${row.qc}`}</div>;
         },
         visible: true,
