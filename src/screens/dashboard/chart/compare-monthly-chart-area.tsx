@@ -11,17 +11,27 @@ import {
   YAxis
 } from "recharts";
 import { formatCurrency } from "utils/AppUtils";
-import { currencyAbbreviation } from "utils/DashboardUtils";
 import { ChartColor } from "../index.style";
+import { CustomizedXAxisTickMonthly, CustomizedYAxisTickMonthly, CustomTooltip } from "../shared";
 
+enum DataKey {
+  currentMonth = "currentMonth",
+  averageOfPrevious3Month = "averageOfPrevious3Month",
+  label = "label"
+}
+
+const labelName = {
+  [DataKey.currentMonth]: "Tháng này",
+  [DataKey.averageOfPrevious3Month]: "Trung bình 3 tháng trước"
+}
 
 const getSampleData = () => {
   const data = [];
   for (let i = 1; i <= 31; i++) {
     data.push({
-      name: i,
-      uv: i > 15 ? null : 10000000 * Math.random(),
-      pv: 10000000 * Math.random()
+      label: i,
+      currentMonth: i > 15 ? null : 10000000 * Math.random(),
+      averageOfPrevious3Month: 10000000 * Math.random()
     });
   }
   return data;
@@ -30,8 +40,7 @@ const getSampleData = () => {
 interface CompareMonthly {
   currentMonth: number;
   averageOfPrevious3Month: number;
-  dayOfMonth: number;
-
+  label: string;
 }
 
 interface Props {
@@ -48,50 +57,6 @@ CompareMonthlyChartArea.defaultProps = {
 function CompareMonthlyChartArea(props: Props) {
   const { data, incomeOfToday } = props;
 
-  const CustomizedXAxisTick = (props: any) => {
-    const { x, y, payload } = props;
-    const { value } = payload;
-    console.log(typeof value);
-    return (
-      <g transform={`translate(${x},${y})`}>
-        <text
-          y={value % 2 !== 0 ? 10 : 30}
-          textAnchor="start"
-          fontFamily={"sans-serif"}
-          fill={ChartColor.black}
-          fontSize="14px"
-        >
-          {value.toString().padStart(2, "0")}
-        </text>
-      </g>
-    );
-  };
-
-  const CustomizedYAxisTick = (props: any) => {
-    const { x, y, payload } = props;
-    const { value } = payload;
-    return (
-      <g transform={`translate(${x},${y + 5})`}>
-        <text textAnchor="start" fontFamily={"sans-serif"} fill={ChartColor.black} fontSize="14px">
-          {value > 0 ? currencyAbbreviation(value) : ""}
-        </text>
-      </g>
-    );
-  };
-  const CustomTooltip = (data: any) => {
-    const { active, payload, } = data;
-    if (active && payload && payload.length) {
-      return (
-        <div className="monthly-chart__tooltip">
-          {payload.map((item: any) => (
-            <span className="label">{`${item.dataKey} : ${parseFloat(item.value).toFixed(2)}`}<br /></span>
-          ))}
-        </div>
-      );
-    }
-
-    return null;
-  };
   return (
     <div>
       <Row className="monthly-chart__info">
@@ -121,43 +86,43 @@ function CompareMonthlyChartArea(props: Props) {
           margin={{ top: 10, right: 0, left: 0, bottom: 10 }}
         >
           <defs>
-            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
               <stop stopColor={ChartColor.cinnabar} stopOpacity={0.2} />
             </linearGradient>
-            <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="color3Month" x1="0" y1="0" x2="0" y2="1">
               <stop stopColor={ChartColor.primary} stopOpacity={0.2} />
             </linearGradient>
           </defs>
           <XAxis
-            dataKey="name"
+            dataKey={DataKey.label}
             tickLine={false}
             padding={{ left: 4, right: 0 }}
-            tick={<CustomizedXAxisTick />}
+            tick={<CustomizedXAxisTickMonthly />}
           />
           <YAxis
             orientation="right"
             axisLine={false}
             tickFormatter={(label) => label}
             tickLine={false}
-            tick={<CustomizedYAxisTick />}
+            tick={<CustomizedYAxisTickMonthly />}
           />
           <CartesianGrid vertical={false} />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip labelName={labelName} />} />
 
           <Area
             type="monotone"
-            dataKey="uv"
+            dataKey={DataKey.currentMonth}
             stroke={ChartColor.cinnabar}
             fillOpacity={1}
-            fill="url(#colorUv)"
+            fill="url(#colorCurrent)"
             dot={{ stroke: ChartColor.cinnabar, fill: ChartColor.cinnabar, strokeWidth: 1, r: 3 }}
           />
           <Area
             type="monotone"
-            dataKey="pv"
+            dataKey={DataKey.averageOfPrevious3Month}
             stroke={ChartColor.primary}
             fillOpacity={1}
-            fill="url(#colorPv)"
+            fill="url(#color3Month)"
             dot={{ stroke: ChartColor.primary, fill: ChartColor.primary, strokeWidth: 1, r: 3 }}
           />
         </AreaChart>
