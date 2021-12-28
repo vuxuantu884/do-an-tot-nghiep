@@ -67,6 +67,11 @@ function OrdersTable(props: PropsType) {
 			tooltip: "Đã chuyển khoản",
 		},
 		{
+			payment_method_code: PaymentMethodCode.QR_CODE,
+			icon: IconPaymentBank,
+			tooltip: "Mã QR",
+		},
+		{
 			payment_method_code: PaymentMethodCode.CARD,
 			icon: IconPaymentCard,
 			tooltip: "Đã quẹt thẻ",

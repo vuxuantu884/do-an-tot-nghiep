@@ -56,7 +56,7 @@ function CardShowReturnProducts(props: PropType) {
         >
           <p>Chiết khấu/sản phẩm: </p>
           <p style={{ marginLeft: 20 }}>
-            {formatCurrency(Math.round(discountPerProduct))}
+            {formatCurrency(discountPerProduct)}
           </p>
         </div>
         <div
@@ -64,7 +64,7 @@ function CardShowReturnProducts(props: PropType) {
           style={{ display: "flex", justifyContent: "space-between" }}
         >
           <p>Chiết khấu/đơn hàng: </p>
-          <p style={{ marginLeft: 20 }}>{formatCurrency(Math.round(discountPerOrder))}</p>
+          <p style={{ marginLeft: 20 }}>{formatCurrency(discountPerOrder)}</p>
         </div>
       </div>
     );
@@ -126,7 +126,7 @@ function CardShowReturnProducts(props: PropType) {
       key: "price",
       render: (value: number, record: ReturnProductModel, index: number) => {
         let discountPerProduct = getProductDiscountPerProduct(record);
-        let discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
+        let discountPerOrder = getProductDiscountPerOrder(OrderDetail?.order_return_origin, record);
         return (
           <Popover
             content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}
@@ -153,7 +153,7 @@ function CardShowReturnProducts(props: PropType) {
         index: number
       ) => {
         let discountPerProduct = getProductDiscountPerProduct(record);
-				let discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
+				let discountPerOrder = getProductDiscountPerOrder(OrderDetail?.order_return_origin, record);
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(

@@ -125,14 +125,14 @@ function CardReturnProducts(props: PropType) {
           style={{display: "flex", justifyContent: "space-between"}}
         >
           <p>Chiết khấu/sản phẩm: </p>
-          <p style={{marginLeft: 20}}>{formatCurrency(Math.round(discountPerProduct))}</p>
+          <p style={{marginLeft: 20}}>{formatCurrency(discountPerProduct)}</p>
         </div>
         <div
           className="single"
           style={{display: "flex", justifyContent: "space-between"}}
         >
           <p style={{marginBottom: 0}}>Chiết khấu/đơn hàng: </p>
-          <p style={{marginLeft: 20, marginBottom: 0}}>{formatCurrency(Math.round(discountPerOrder))}</p>
+          <p style={{marginLeft: 20, marginBottom: 0}}>{formatCurrency(discountPerOrder)}</p>
         </div>
       </div>
     );
@@ -225,7 +225,7 @@ function CardReturnProducts(props: PropType) {
             content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}
             title={renderPopOverPriceTitle(record.price)}
           >
-            {formatCurrency(Math.round(pricePerOrder))}
+            {formatCurrency(pricePerOrder)}
           </Popover>
         );
       },
@@ -357,8 +357,7 @@ function CardReturnProducts(props: PropType) {
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>
-                {/* làm tròn đến trăm đồng */}
-                {formatCurrency(Math.round(totalAmountReturnProducts))}
+                {formatCurrency(totalAmountReturnProducts)}
               </strong>
             </Row>
             <Row className="payment-row" justify="space-between">

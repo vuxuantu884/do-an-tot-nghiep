@@ -615,7 +615,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div className="yody-pos-varian-name">
-          {formatCurrency(Math.round(l.line_amount_after_line_discount))}
+          {formatCurrency(l.line_amount_after_line_discount)}
         </div>
       );
     },
