@@ -122,9 +122,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                       <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
                       <strong>
                         {formatCurrency(
-                          (totalAmountCustomerNeedToPay-totalAmountPayment) > 0
-                            ? (totalAmountCustomerNeedToPay-totalAmountPayment)
-                            : 0
+                          Math.round((totalAmountCustomerNeedToPay-totalAmountPayment) > 0
+													? (totalAmountCustomerNeedToPay-totalAmountPayment)
+													: 0)
                         )}
                       </strong>
                     </div>

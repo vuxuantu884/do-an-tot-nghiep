@@ -2096,7 +2096,7 @@ function OrderCreateProduct(props: PropType) {
 										textAlign: "right",
 									}}
 								>
-									{formatCurrency(Math.round(getTotalAmount(items)))}
+									{formatCurrency(getTotalAmount(items))}
 								</div>
 
 								<div
@@ -2106,7 +2106,7 @@ function OrderCreateProduct(props: PropType) {
 										textAlign: "right",
 									}}
 								>
-									{formatCurrency(Math.round(getTotalDiscount(items)))}
+									{formatCurrency(getTotalDiscount(items))}
 								</div>
 
 								<div
@@ -2118,7 +2118,7 @@ function OrderCreateProduct(props: PropType) {
 										fontWeight: 700,
 									}}
 								>
-									{formatCurrency(Math.round(getTotalAmountAfterDiscount(items)))}
+									{formatCurrency(getTotalAmountAfterDiscount(items))}
 								</div>
 							</div>
 						) : (
