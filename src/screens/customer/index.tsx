@@ -381,6 +381,7 @@ const Customer = () => {
   const [exportProgress, setExportProgress] = useState<number>(0);
 
   const onCancelProgressModal = () => {
+    setExportCodeList([]);
     setIsVisibleProgressModal(false);
   }
 
