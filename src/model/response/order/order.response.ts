@@ -27,6 +27,7 @@ export interface OrderResponse extends BaseObject {
   coordinator_code: string | null;
   coordinator: string | null;
   channel_id: number | null;
+  channel_code:string|null;
   channel: string | null;
   customer_id: number | null;
   customer: string | null;
