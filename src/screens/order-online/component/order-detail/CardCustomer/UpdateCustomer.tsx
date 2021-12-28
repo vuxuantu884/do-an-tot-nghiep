@@ -22,23 +22,23 @@ import {
   Row,
   Select,
 } from "antd";
-import {WardGetByDistrictAction} from "domain/actions/content/content.action";
+import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   getCustomerDetailAction,
   UpdateShippingAddress,
   CreateShippingAddress,
 } from "domain/actions/customer/customer.action";
-import {WardResponse} from "model/content/ward.model";
-import {CustomerShippingAddress} from "model/request/customer.request";
+import { WardResponse } from "model/content/ward.model";
+import { CustomerShippingAddress } from "model/request/customer.request";
 import {
   CustomerResponse,
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, {createRef, useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
+import React, { createRef, useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 
 type UpdateCustomerProps = {
   areas: any;
@@ -129,51 +129,51 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const initialFormValueCustomer =
     customerItem !== null
       ? {
-          full_name: customerItem.full_name,
-          district_id: customerItem.district_id,
-          phone: customerItem.phone,
-          ward_id: customerItem.ward_id,
-          card_number: customerItem.card_number,
-          full_address: customerItem.full_address,
-          gender: customerItem.gender,
-          birthday: customerItem.birthday ? moment(customerItem.birthday) : null,
-          customer_group_id: customerItem.customer_group_id,
-        }
+        full_name: customerItem.full_name,
+        district_id: customerItem.district_id,
+        phone: customerItem.phone,
+        ward_id: customerItem.ward_id,
+        card_number: customerItem.card_number,
+        full_address: customerItem.full_address,
+        gender: customerItem.gender,
+        birthday: customerItem.birthday ? moment(customerItem.birthday) : null,
+        customer_group_id: customerItem.customer_group_id,
+      }
       : {
-          full_name: "",
-          district_id: null,
-          phone: "",
-          ward_id: null,
-          card_number: null,
-          full_address: null,
-          gender: null,
-          birthday: null,
-          customer_group_id: null,
-        };
+        full_name: "",
+        district_id: null,
+        phone: "",
+        ward_id: null,
+        card_number: null,
+        full_address: null,
+        gender: null,
+        birthday: null,
+        customer_group_id: null,
+      };
 
   //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
   const initialFormValueshippingAddress =
     shippingAddress && shippingAddress !== null
       ? {
-          card_number: customerItem.card_number,
-          name: shippingAddress?.name,
-          district_id: shippingAddress?.district_id,
-          country_id: shippingAddress?.country_id,
-          city_id: shippingAddress?.city_id,
-          phone: shippingAddress?.phone,
-          ward_id: shippingAddress?.ward_id,
-          full_address: shippingAddress?.full_address,
-        }
+        card_number: customerItem.card_number,
+        name: shippingAddress?.name,
+        district_id: shippingAddress?.district_id,
+        country_id: shippingAddress?.country_id,
+        city_id: shippingAddress?.city_id,
+        phone: shippingAddress?.phone,
+        ward_id: shippingAddress?.ward_id,
+        full_address: shippingAddress?.full_address,
+      }
       : {
-          card_number: customerItem.card_number,
-          name: "",
-          district_id: null,
-          country_id: null,
-          city_id: null,
-          phone: null,
-          ward_id: null,
-          full_address: null,
-        };
+        card_number: customerItem.card_number,
+        name: "",
+        district_id: null,
+        country_id: null,
+        city_id: null,
+        phone: null,
+        ward_id: null,
+        full_address: null,
+      };
 
   useEffect(() => {
     if (shippingAddress) {
@@ -191,20 +191,20 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     (value: any) => {
       //let shippingAddress = customerItem.shipping_addresses.find((p:any) => p.is_default === true);
       let area = areas.find((area: any) => area.id === value.district_id);
-      
+
       if (shippingAddress) {
 
         let param = {
           ...shippingAddress,
-          name: value.name,
+          name: value.name.trim(),
           district_id: value.district_id,
           city_id: area ? area.city_id : null,
-          phone: value.phone,
+          phone: value.phone.trim(),
           ward_id: value.ward_id,
           full_address: value.full_address,
           is_default: true,
         };
-        
+
         dispatch(
           UpdateShippingAddress(
             shippingAddress?.id,
@@ -270,7 +270,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   return (
     <>
-      <Row style={{margin: "10px 0px"}}>
+      <Row style={{ margin: "10px 0px" }}>
         <div className="page-filter-left">ĐỊA CHỈ GIAO HÀNG</div>
       </Row>
       <Form
@@ -295,11 +295,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 },
               ]}
               name="name"
-              //label="Tên khách hàng"
+            //label="Tên khách hàng"
             >
               <Input
                 placeholder="Nhập Tên khách hàng"
-                prefix={<UserOutlined style={{color: "#71767B"}} />}
+                prefix={<UserOutlined style={{ color: "#71767B" }} />}
                 //suffix={<img src={arrowDownIcon} alt="down" />}
                 disabled={disableInput}
               />
@@ -323,11 +323,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 allowClear
                 placeholder={
                   <React.Fragment>
-                    <EnvironmentOutlined style={{color: "#71767B"}} />
+                    <EnvironmentOutlined style={{ color: "#71767B" }} />
                     <span> Chọn khu vực</span>
                   </React.Fragment>
                 }
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 onChange={(value: number) => {
                   let values = formRefAddress.current?.getFieldsValue();
                   values.ward_id = null;
@@ -364,11 +364,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 },
               ]}
               name="phone"
-              //label="Số điện thoại"
+            //label="Số điện thoại"
             >
               <Input
                 placeholder="Nhập số điện thoại"
-                prefix={<PhoneOutlined style={{color: "#71767B"}} />}
+                prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                 disabled={disableInput}
               />
             </Form.Item>
@@ -390,10 +390,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 showSearch
                 allowClear
                 optionFilterProp="children"
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 placeholder={
                   <React.Fragment>
-                    <EnvironmentOutlined style={{color: "#71767B"}} />
+                    <EnvironmentOutlined style={{ color: "#71767B" }} />
                     <span> Chọn phường/xã</span>
                   </React.Fragment>
                 }
@@ -414,11 +414,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           <Col xs={24} lg={12}>
             <Form.Item
               name="card_number"
-              style={customerItem !== null ? {marginBottom: "0px"} : {}}
+              style={customerItem !== null ? { marginBottom: "0px" } : {}}
             >
               <Input
                 placeholder="Nhập mã thẻ"
-                prefix={<BarcodeOutlined style={{color: "#71767B"}} />}
+                prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
                 disabled={disableInput}
               />
             </Form.Item>
@@ -427,11 +427,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           <Col xs={24} lg={12}>
             <Form.Item
               name="full_address"
-              style={customerItem !== null ? {marginBottom: "0px"} : {}}
+              style={customerItem !== null ? { marginBottom: "0px" } : {}}
             >
               <Input
                 placeholder="Địa chỉ"
-                prefix={<EnvironmentOutlined style={{color: "#71767B"}} />}
+                prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                 disabled={disableInput}
               />
             </Form.Item>
@@ -442,12 +442,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         <div>
           <div>
             {isVisibleCollapseCustomer === false && (
-              <Row style={{margin: "0 0", color: "#5656A1"}}>
-                <div className="page-filter-left" style={{width: "15%"}}>
+              <Row style={{ margin: "0 0", color: "#5656A1" }}>
+                <div className="page-filter-left" style={{ width: "15%" }}>
                   <Button
                     type="link"
                     icon={<DownOutlined />}
-                    style={{padding: "0px"}}
+                    style={{ padding: "0px" }}
                     onClick={() => {
                       setVisibleCollapseCustomer(true);
                     }}
@@ -465,16 +465,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 >
                   <div className="ant-divider ant-divider-horizontal"></div>
                 </div>
-                <div className="page-filter-right" style={{width: "30%"}}>
+                <div className="page-filter-right" style={{ width: "30%" }}>
                   <Popover
                     placement="left"
-                    overlayStyle={{zIndex: 17}}
+                    overlayStyle={{ zIndex: 17 }}
                     title={
                       <Row
                         justify="space-between"
                         align="middle"
                         className="change-shipping-address-title"
-                        style={{width: "100%"}}
+                        style={{ width: "100%" }}
                       >
                         <div
                           style={{
@@ -509,7 +509,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       type="link"
                       icon={<PlusOutlined />}
                       className="btn-style"
-                      style={{float: "right", padding: "0px"}}
+                      style={{ float: "right", padding: "0px" }}
                     >
                       Thay đổi địa chỉ giao hàng
                     </Button>
@@ -519,16 +519,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             )}
 
             {isVisibleCollapseCustomer === true && (
-              <Divider orientation="right" style={{color: "#5656A1", marginTop: 0}}>
+              <Divider orientation="right" style={{ color: "#5656A1", marginTop: 0 }}>
                 <Popover
                   placement="topLeft"
-                  overlayStyle={{zIndex: 17}}
+                  overlayStyle={{ zIndex: 17 }}
                   title={
                     <Row
                       justify="space-between"
                       align="middle"
                       className="change-shipping-address-title"
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                     >
                       <div
                         style={{
@@ -562,7 +562,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     type="link"
                     icon={<PlusOutlined />}
                     className="btn-style"
-                    style={{paddingRight: 0}}
+                    style={{ paddingRight: 0 }}
                   >
                     Thay đổi địa chỉ giao hàng
                   </Button>
@@ -572,7 +572,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           </div>
           {isVisibleCollapseCustomer === true && (
             <div>
-              <Row style={{margin: "10px 0px"}}>
+              <Row style={{ margin: "10px 0px" }}>
                 <div className="page-filter-left">THÔNG TIN KHÁCH HÀNG</div>
               </Row>
               <Form
@@ -595,12 +595,13 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         },
                       ]}
                       name="full_name"
-                      //label="Tên khách hàng"
+                    //label="Tên khách hàng"
                     >
                       <Input
+                        disabled
                         placeholder="Nhập Tên khách hàng"
-                        prefix={<UserOutlined style={{color: "#71767B"}} />}
-                        //suffix={<img src={arrowDownIcon} alt="down" />}
+                        prefix={<UserOutlined style={{ color: "#71767B" }} />}
+                      //suffix={<img src={arrowDownIcon} alt="down" />}
                       />
                     </Form.Item>
                   </Col>
@@ -617,16 +618,17 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       ]}
                     >
                       <Select
+                        disabled
                         className="select-with-search"
                         showSearch
                         allowClear
                         placeholder={
                           <React.Fragment>
-                            <EnvironmentOutlined style={{color: "#71767B"}} />
+                            <EnvironmentOutlined style={{ color: "#71767B" }} />
                             <span> Chọn khu vực</span>
                           </React.Fragment>
                         }
-                        style={{width: "100%"}}
+                        style={{ width: "100%" }}
                         onChange={(value) => {
                           handleChangeArea(value);
                           DefaultWard();
@@ -642,7 +644,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     </Form.Item>
                   </Col>
                   <Form.Item label="city" name="city_id" hidden>
-                    <Input />
+                    <Input disabled />
                   </Form.Item>
 
                   <Col xs={24} lg={12}>
@@ -658,11 +660,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         },
                       ]}
                       name="phone"
-                      //label="Số điện thoại"
+                    //label="Số điện thoại"
                     >
                       <Input
+                        disabled
                         placeholder="Nhập số điện thoại"
-                        prefix={<PhoneOutlined style={{color: "#71767B"}} />}
+                        prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
                   </Col>
@@ -679,14 +682,15 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       ]}
                     >
                       <Select
+                        disabled
                         className="select-with-search"
                         showSearch
                         allowClear
                         optionFilterProp="children"
-                        style={{width: "100%"}}
+                        style={{ width: "100%" }}
                         placeholder={
                           <React.Fragment>
-                            <EnvironmentOutlined style={{color: "#71767B"}} />
+                            <EnvironmentOutlined style={{ color: "#71767B" }} />
                             <span> Chọn phường/xã</span>
                           </React.Fragment>
                         }
@@ -703,11 +707,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   <Col xs={24} lg={12}>
                     <Form.Item
                       name="card_number"
-                      //style={customerItem !== null ? { marginBottom: "0px" } : {}}
+                    //style={customerItem !== null ? { marginBottom: "0px" } : {}}
                     >
                       <Input
+                        disabled
                         placeholder="Nhập mã thẻ"
-                        prefix={<BarcodeOutlined style={{color: "#71767B"}} />}
+                        prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
                   </Col>
@@ -715,26 +720,28 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   <Col xs={24} lg={12}>
                     <Form.Item
                       name="full_address"
-                      //style={customerItem !== null ? { marginBottom: "0px" } : {}}
+                    //style={customerItem !== null ? { marginBottom: "0px" } : {}}
                     >
                       <Input
+                        disabled
                         placeholder="Địa chỉ"
-                        prefix={<EnvironmentOutlined style={{color: "#71767B"}} />}
+                        prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                       />
                     </Form.Item>
                   </Col>
                   <Col xs={24} lg={12}>
                     <Form.Item
                       name="gender"
-                      //label="Giới tính"
+                    //label="Giới tính"
                     >
                       <Select
+                        disabled
                         showSearch
                         allowClear
                         optionFilterProp="children"
                         placeholder={
                           <React.Fragment>
-                            <ManOutlined style={{color: "#71767B"}} />
+                            <ManOutlined style={{ color: "#71767B" }} />
                             <span> Giới tính</span>
                           </React.Fragment>
                         }
@@ -770,11 +777,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       ]}
                     >
                       <DatePicker
-                        style={{width: "100%"}}
+                        disabled
+                        style={{ width: "100%" }}
                         placeholder="Chọn ngày sinh"
                         format={"DD/MM/YYYY"}
                         suffixIcon={
-                          <CalendarOutlined style={{color: "#71767B", float: "left"}} />
+                          <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                         }
                       />
                     </Form.Item>
@@ -783,15 +791,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   <Col xs={24} lg={12}>
                     <Form.Item
                       name="customer_group_id"
-                      // label="Nhóm"
+                    // label="Nhóm"
                     >
                       <Select
+                        disabled
                         showSearch
                         allowClear
                         optionFilterProp="children"
                         placeholder={
                           <React.Fragment>
-                            <TeamOutlined style={{color: "#71767B"}} />
+                            <TeamOutlined style={{ color: "#71767B" }} />
                             <span> Nhóm khách hàng</span>
                           </React.Fragment>
                         }
@@ -812,12 +821,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           )}
 
           {isVisibleCollapseCustomer === true && (
-            <Divider orientation="left" style={{padding: 0, margin: 0, color: "#5656A1"}}>
+            <Divider orientation="left" style={{ padding: 0, margin: 0, color: "#5656A1" }}>
               <div>
                 <Button
                   type="link"
                   icon={<UpOutlined />}
-                  style={{padding: "0px"}}
+                  style={{ padding: "0px" }}
                   onClick={() => {
                     setVisibleCollapseCustomer(false);
                   }}
@@ -828,12 +837,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             </Divider>
           )}
 
-          <Row style={{marginTop: 15}}>
-            <Col md={24} style={{float: "right", marginTop: "-10px"}}>
+          <Row style={{ marginTop: 15 }}>
+            <Col md={24} style={{ float: "right", marginTop: "-10px" }}>
               {isVisibleBtnUpdate === true && (
                 <Button
                   type="primary"
-                  style={{padding: "0 25px", fontWeight: 400, float: "right"}}
+                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={(e) => {
                     e.stopPropagation();
