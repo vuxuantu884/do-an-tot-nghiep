@@ -1251,11 +1251,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const actionList = [
     {
       name: "Tặng điểm",
-      type: "add"
+      type: "ADD"
     },
     {
       name: "Trừ điểm",
-      type: "subtract"
+      type: "SUBTRACT"
     }
   ];
 

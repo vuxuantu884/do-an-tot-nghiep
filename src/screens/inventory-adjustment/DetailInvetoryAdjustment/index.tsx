@@ -548,7 +548,7 @@ const DetailInvetoryAdjustment: FC = () => {
                     updateItemOnlineInventoryAction(data?.id, row, (result: LineItemAdjustment) => {
                       if (result) {
                         showSuccess("Nhập tồn thực tế thành công.");
-                        onEnterFilterVariant(null);
+                        onEnterFilterVariant();
                         const version = form.getFieldValue('version');
                         form.setFieldsValue({version: version + 1});
                       }
@@ -684,8 +684,9 @@ const onChangeNote = useCallback(
   }, [dispatch, data?.id, onResult]);
 
   const onEnterFilterVariant = useCallback(
-    (lst: Array<LineItemAdjustment> | null) => {
+    () => {
       setTableLoading(true);
+      debugger
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,
@@ -777,6 +778,16 @@ const onChangeNote = useCallback(
     },
     [dataLinesItem, dispatch, idNumber, keySearch, onResultDataTable]
   );
+
+  const onSearchVariant =useCallback(()=>{
+    _.debounce(()=>{
+      onEnterFilterVariant();
+    }, 300)
+  },[onEnterFilterVariant]);
+
+  const onChangeKeySearch = useCallback(()=>{
+    onSearchVariant();
+  },[onSearchVariant]);
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -1025,20 +1036,13 @@ const onChangeNote = useCallback(
                             value={keySearch}
                             onChange={(e) => {
                               setKeySearch(e.target.value);
-                            }}
-                            onKeyPress={(event) => {
-                              if (event.key === "Enter") {
-                                event.preventDefault();
-                                onEnterFilterVariant(null);
-                              }
-                            }}
+                              onChangeKeySearch();
+                            }} 
                             style={{marginLeft: 8}}
                             placeholder="Tìm kiếm sản phẩm trong phiếu"
                             addonAfter={
                               <SearchOutlined
-                                onClick={() => {
-                                  onEnterFilterVariant(null);
-                                }}
+                                onClick={onChangeKeySearch}
                                 style={{color: "#2A2A86"}}
                               />
                             }

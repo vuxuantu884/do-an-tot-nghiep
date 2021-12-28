@@ -123,7 +123,7 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
                 description={PendingDate}
               />
               <Steps.Step
-                title="Đã nhập"
+                title="Đã nhận"
                 description={ReceiveDate}
               />
             </>

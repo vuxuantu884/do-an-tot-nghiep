@@ -4,6 +4,7 @@ import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { BaseQuery } from "model/base/base.query";
 import { CreateLoyaltyAccumulationRequest } from "model/request/loyalty/create-loyalty-accumulation.request";
+import { CreateCustomerPointAdjustmentRequest } from "model/request/loyalty/loyalty.request";
 import { UpdateLoyaltyPoint } from "model/request/loyalty/update-loyalty-point.request";
 import { LoyaltyAccumulationProgramResponse } from "model/response/loyalty/loyalty-accumulation.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -71,5 +72,13 @@ export const getLoyaltyAdjustPointService = (customerId: number): Promise<BaseRe
 
 export const getPointAdjustmentListService = (query: any): Promise<BaseResponse<any>> => {
   const params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-points/transactions?${params}`);
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/adjustments/admin?${params}`);
+};
+
+export const getPointAdjustmentDetailService = (adjustmentId: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/adjustments/${adjustmentId}`);
+};
+
+export const createCustomerPointAdjustmentService = ( params: CreateCustomerPointAdjustmentRequest): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.LOYALTY}/adjustments`, params);
 };

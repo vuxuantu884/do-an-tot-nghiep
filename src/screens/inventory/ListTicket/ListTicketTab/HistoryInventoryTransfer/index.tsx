@@ -36,8 +36,8 @@ const ACTIONS_STATUS = {
     value: 'UPDATE',
     name: 'Sửa phiếu chuyển kho',
   },
-  CANCEL : {
-    value: 'CANCEL',
+  DELETE : {
+    value: 'DELETE',
     name: 'Huỷ phiếu chuyển kho',
   },
   CONFIRM_EXCEPTION : {
@@ -203,8 +203,8 @@ const HistoryInventoryTransferTab: React.FC = () => {
           case ACTIONS_STATUS.UPDATE.value:
             displayName = ACTIONS_STATUS.UPDATE.name;
             break;
-          case ACTIONS_STATUS.CANCEL.value:
-            displayName = ACTIONS_STATUS.CANCEL.name;
+          case ACTIONS_STATUS.DELETE.value:
+            displayName = ACTIONS_STATUS.DELETE.name;
             break;
           case ACTIONS_STATUS.CONFIRM_EXCEPTION.value:
             displayName = ACTIONS_STATUS.CONFIRM_EXCEPTION.name;

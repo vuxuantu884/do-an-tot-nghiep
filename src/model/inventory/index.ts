@@ -26,7 +26,7 @@ export interface InventoryResponse extends BaseObject {
   shipping: number;
   retail_price: number;
   import_price: number;
-  product: ProductResponse | null
+  product: ProductResponse | null,
 }
 
 export interface InventoryQuery extends BaseQuery {

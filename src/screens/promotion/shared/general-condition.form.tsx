@@ -19,6 +19,7 @@ import { ChannelResponse } from "model/response/product/channel.response";
 import moment from "moment";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
 import { dayOfWeekOptions } from "../discount/constants/index";
@@ -115,16 +116,6 @@ function GeneralConditionForm({
             </Form.Item>
           </Col>
 
-          {/* <Divider />
-          <Space direction="horizontal">
-            <Checkbox
-              defaultChecked={false}
-              // onChange={(value) => setShowTimeAdvance(value.target.checked)}
-              style={{paddingBottom: "20px"}}
-            >
-              Hiển thị nâng cao
-            </Checkbox>
-          </Space> */}
         </Row>
         {showTimeAdvance ? (
           <Row gutter={12}>
@@ -169,21 +160,15 @@ function GeneralConditionForm({
       <Card title="Cửa hàng áp dụng">
         <Row gutter={12}>
           <Col span={24}>
-            <Form.Item
-              name="prerequisite_store_ids"
-              rules={[{ required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" }]}
-            >
-              <Select
+            <Form.Item name="prerequisite_store_ids" rules={[{ required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" }]}>
+              <TreeStore
+                form={form}
+                name="prerequisite_store_ids"
+                placeholder="Chọn cửa hàng"
+                listStore={listStore}
+                style={{ width: "100%" }}
                 disabled={allStore}
-                placeholder="Chọn chi nhánh"
-                mode="multiple"
-                className="ant-select-selector-min-height"
-                optionFilterProp="children"
-              >
-                {listStore?.map((store: any) => (
-                  <Option value={store.id} key={store.name}>{store.name}</Option>
-                ))}
-              </Select>
+              />
             </Form.Item>
             <Form.Item>
               <Switch
@@ -191,7 +176,7 @@ function GeneralConditionForm({
                 onChange={(value) => {
                   setAllStore(value);
                   form.setFieldsValue({
-                    prerequisite_store_ids: undefined,
+                    prerequisite_store_ids: [],
                   });
                   form.validateFields(["prerequisite_store_ids"]);
                 }}
@@ -226,7 +211,7 @@ function GeneralConditionForm({
                 checked={allChannel}
                 onChange={(value) => {
                   form.setFieldsValue({
-                    prerequisite_sales_channel_names: undefined,
+                    prerequisite_sales_channel_names: [],
                   });
                   form.validateFields(["prerequisite_sales_channel_names"]);
                   setAllChannel(value);
@@ -263,7 +248,7 @@ function GeneralConditionForm({
                 onChange={(value) => {
                   form.validateFields(["prerequisite_order_source_ids"]);
                   form.setFieldsValue({
-                    prerequisite_order_source_ids: undefined,
+                    prerequisite_order_source_ids: [],
                   });
                   setAllSource(value);
                 }}

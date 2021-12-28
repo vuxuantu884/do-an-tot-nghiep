@@ -38,15 +38,12 @@ import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import filterIcon from "assets/icon/filter.svg";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
 
 import {
   StyledBaseFilter,
 } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
 import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
+import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 
 
@@ -448,34 +445,6 @@ const TotalItemsEcommerce: React.FC = () => {
   };
   //end handle select ecommerce
 
-  const ECOMMERCE_LIST = [
-    {
-      title: "Sàn Shopee",
-      icon: shopeeIcon,
-      id: "shopee",
-      ecommerce_id: 1,
-    },
-    {
-      title: "Sàn Tiki",
-      icon: tikiIcon,
-      id: "tiki",
-      ecommerce_id: 2,
-    },
-    {
-      title: "Sàn Lazada",
-      icon: lazadaIcon,
-      id: "lazada",
-      ecommerce_id: 3,
-    },
-    {
-      title: "Sàn Sendo",
-      icon: sendoIcon,
-      id: "sendo",
-      isActive: false,
-      ecommerce_id: 4,
-    },
-  ];
-
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
@@ -533,21 +502,6 @@ const TotalItemsEcommerce: React.FC = () => {
           return item !== shop.id;
         });
       setShopIdSelected(shopSelected);
-    }
-  };
-
-  const getEcommerceIcon = (shop: any) => {
-    switch (shop) {
-      case "shopee":
-        return shopeeIcon;
-      case "lazada":
-        return lazadaIcon;
-      case "tiki":
-        return tikiIcon;
-      case "sendo":
-        return sendoIcon;
-      default:
-        break;
     }
   };
 
@@ -683,8 +637,8 @@ const TotalItemsEcommerce: React.FC = () => {
                   onSelect={(value) => handleSelectEcommerce(value)}
                   onClear={removeEcommerce}
                 >
-                  {ECOMMERCE_LIST &&
-                    ECOMMERCE_LIST.map((item: any) => (
+                  {
+                    ECOMMERCE_LIST?.map((item: any) => (
                       <Option key={item.ecommerce_id} value={item.ecommerce_id}>
                         <div>
                           <img
@@ -695,7 +649,8 @@ const TotalItemsEcommerce: React.FC = () => {
                           <span>{item.title}</span>
                         </div>
                       </Option>
-                    ))}
+                    ))
+                  }
                 </Select>
               </Form.Item>
 
@@ -799,8 +754,8 @@ const TotalItemsEcommerce: React.FC = () => {
                 onSelect={(value) => handleSelectEcommerce(value)}
                 onClear={removeEcommerce}
               >
-                {ECOMMERCE_LIST &&
-                  ECOMMERCE_LIST.map((item: any) => (
+                {
+                  ECOMMERCE_LIST?.map((item: any) => (
                     <Option key={item.ecommerce_id} value={item.ecommerce_id}>
                       <div>
                         <img
@@ -811,7 +766,8 @@ const TotalItemsEcommerce: React.FC = () => {
                         <span>{item.title}</span>
                       </div>
                     </Option>
-                  ))}
+                  ))
+                }
               </Select>
             </Form.Item>
 

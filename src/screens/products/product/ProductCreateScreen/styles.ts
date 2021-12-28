@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { bluePlus } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
@@ -44,5 +45,11 @@ export const StyledComponent = styled.div`
         }
       }
     }
+  }
+  .button-plus{
+    width: 37px !important; 
+    height: 37px !important; 
+    padding: 0;
+    color: ${bluePlus}
   }
 `;

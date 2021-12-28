@@ -208,8 +208,8 @@ const PromotionDetailScreen: React.FC = () => {
   useEffect(() => {
     let isVariantNotLoadYet = false;
     const variantLength = dataVariants?.length ?? 0;
-    const variantIdLength = dataDiscount?.entitlements[0].entitled_variant_ids.length ?? 0;
-    const productIdLength = dataDiscount?.entitlements[0].entitled_product_ids.length ?? 0;
+    const variantIdLength = dataDiscount?.entitlements[0]?.entitled_variant_ids.length ?? 0;
+    const productIdLength = dataDiscount?.entitlements[0]?.entitled_product_ids.length ?? 0;
 
     if (dataDiscount?.entitlements[0] && variantLength < variantIdLength + productIdLength) {
       isVariantNotLoadYet = true;
@@ -224,8 +224,8 @@ const PromotionDetailScreen: React.FC = () => {
 
 
     if (
-      dataDiscount?.entitlements[0].entitled_product_ids.length === 0
-      && dataDiscount?.entitlements[0].entitled_variant_ids.length === 0) {
+      dataDiscount?.entitlements[0]?.entitled_product_ids.length === 0
+      && dataDiscount?.entitlements[0]?.entitled_variant_ids.length === 0) {
 
       const ranges = dataDiscount?.entitlements[0]?.prerequisite_quantity_ranges[0]
       setDataVariants([{

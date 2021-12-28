@@ -7,7 +7,7 @@ type IssuingAction = {
   setIsAllProduct: (discountData: boolean) => void;
 };
 
-export const ReleaseContext = createContext<IssuingAction>(
+export const IssuingContext = createContext<IssuingAction>(
   {} as IssuingAction
 );
 
@@ -15,7 +15,7 @@ function IssuingProvider(props: { children: ReactNode }) {
   const [isAllProduct, setIsAllProduct] = useState<boolean>(false);
 
   return (
-    <ReleaseContext.Provider
+    <IssuingContext.Provider
       {...props}
       value={{
         isAllProduct,
