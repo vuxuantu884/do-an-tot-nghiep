@@ -237,12 +237,6 @@ const Customer = () => {
       width: 150,
     },
     {
-      title: "Ngày hết hạn thẻ",
-      dataIndex: "",
-      visible: false,
-      width: 150,
-    },
-    {
       title: "Cửa hàng kích hoạt",
       dataIndex: "",
       visible: false,
