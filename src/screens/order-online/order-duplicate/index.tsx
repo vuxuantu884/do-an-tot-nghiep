@@ -736,9 +736,9 @@ const OrderDuplicate: React.FC = () => {
     return html;
   };
 
-  const onSelectedChange = useCallback((selectedRow) => {
-    setSelectedOrder(selectedRow);
-  }, []);
+  // const onSelectedChange = useCallback((selectedRow) => {
+  //   setSelectedOrder(selectedRow);
+  // }, []);
 
   const onPageChange = useCallback(
     (page, size) => {

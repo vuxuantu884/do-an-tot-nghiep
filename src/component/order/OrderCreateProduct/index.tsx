@@ -314,6 +314,7 @@ function OrderCreateProduct(props: PropType) {
 						// console.log(barcode);
 						dispatch(
 							SearchBarCode(barcode, (data: VariantResponse) => {
+
 								let _items = [...items].reverse();
 								const item: OrderLineItemRequest = createItem(data);
 								let index = _items.findIndex((i) => i.variant_id === data.id);
@@ -329,6 +330,12 @@ function OrderCreateProduct(props: PropType) {
 										variantItems[lastIndex].price -
 										variantItems[lastIndex].discount_items[0].amount;
 									calculateChangeMoney(_items);
+								}
+
+								if (isAutomaticDiscount && _items.length > 0) {
+									handleApplyDiscount(_items);
+								} else if (couponInputText && _items.length > 0) {
+									handleApplyCouponWhenInsertCoupon(couponInputText, _items);
 								}
 
 								setItems(_items.reverse());
@@ -2089,7 +2096,7 @@ function OrderCreateProduct(props: PropType) {
 										textAlign: "right",
 									}}
 								>
-									{formatCurrency(Math.round(getTotalAmount(items)))}
+									{formatCurrency(getTotalAmount(items))}
 								</div>
 
 								<div
@@ -2099,7 +2106,7 @@ function OrderCreateProduct(props: PropType) {
 										textAlign: "right",
 									}}
 								>
-									{formatCurrency(Math.round(getTotalDiscount(items)))}
+									{formatCurrency(getTotalDiscount(items))}
 								</div>
 
 								<div
@@ -2111,7 +2118,7 @@ function OrderCreateProduct(props: PropType) {
 										fontWeight: 700,
 									}}
 								>
-									{formatCurrency(Math.round(getTotalAmountAfterDiscount(items)))}
+									{formatCurrency(getTotalAmountAfterDiscount(items))}
 								</div>
 							</div>
 						) : (

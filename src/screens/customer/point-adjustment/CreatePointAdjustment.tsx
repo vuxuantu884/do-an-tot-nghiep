@@ -108,14 +108,7 @@ const CreatePointAdjustment = () => {
 
   const callBackGetCustomerList = useCallback((result: PageResponse<any> | false) => {
     if (!!result) {
-      let customerList = [...result.items];
-
-      // todo Thai: update after BE added point in customer list
-      customerList.forEach((customer) => {
-        customer.point = 1;
-      });
-
-      setSelectedCustomers(customerList);
+      setSelectedCustomers(result.items);
     }
   }, []);
 

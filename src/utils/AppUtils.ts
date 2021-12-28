@@ -265,6 +265,9 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
 
 export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {
   try {
+		if(typeof currency ==="number") {
+			currency = Math.round(currency);
+		}
     let format = currency.toString();
     return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
   } catch (e) {
