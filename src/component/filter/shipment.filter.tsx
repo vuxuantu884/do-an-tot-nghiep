@@ -192,9 +192,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           setCancelledClick('')
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
-        case 'received':
-          setReceivedClick('')
-          onFilter && onFilter({...params, received_on_min: null, received_on_max: null});
+        case 'shipped':
+          setShippedClick('')
+          onFilter && onFilter({...params, shipped_on_min: null, shipped_on_max: null});
           break;  
         // trạng thái đơn 
         // trạng thái đối soát
@@ -249,7 +249,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const [packedClick, setPackedClick] = useState('');
   const [exportedClick, setExportedClick] = useState('');
   const [shipClick, setShipClick] = useState('');
-  const [receivedClick, setReceivedClick] = useState('');
+  const [shippedClick, setShippedClick] = useState('');
   const [cancelledClick, setCancelledClick] = useState('');
 
   const listSources = useMemo(() => {
@@ -369,7 +369,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         'ship_on_min', 'ship_on_max',
         'exported_on_min', 'exported_on_max',
         'cancelled_on_min', 'cancelled_on_max',
-        'received_on_min', 'received_on_max'
+        'shipped_on_min', 'shipped_on_max'
       ]).forEach(field => {
         if (field.errors.length) {
           error = true
@@ -495,10 +495,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.received_on_min || initialValues.received_on_max) {
-      let textExpectReceiveDate = (initialValues.received_on_min ? initialValues.received_on_min : '??') + " ~ " + (initialValues.received_on_max ? initialValues.received_on_max : '??')
+    if (initialValues.shipped_on_min || initialValues.shipped_on_max) {
+      let textExpectReceiveDate = (initialValues.shipped_on_min ? initialValues.shipped_on_min : '??') + " ~ " + (initialValues.shipped_on_max ? initialValues.shipped_on_max : '??')
       list.push({
-        key: 'received',
+        key: 'shipped',
         name: 'Ngày hoàn tất đơn',
         value: textExpectReceiveDate
       })
@@ -637,7 +637,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.shipped_on_min, initialValues.shipped_on_max, initialValues.reference_status, initialValues.shipper_codes, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.pushing_status, initialValues.account_codes.length, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.reason_ids, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, shippers, deliveryService, printStatus, pushingStatus, accountFound, optionsVariant, serviceType, reasons]
   );
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -654,7 +654,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     setPackedClick('')
     setExportedClick('')
     setShipClick('')
-    setReceivedClick('')
+    setShippedClick('')
     setCancelledClick('')
   
     setVisible(false);
@@ -877,10 +877,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
                 <p>Ngày hoàn tất đơn</p>
                 <CustomRangeDatePicker
-                  fieldNameFrom="received_on_min"
-                  fieldNameTo="received_on_max"
-                  activeButton={receivedClick}
-                  setActiveButton={setReceivedClick}
+                  fieldNameFrom="shipped_on_min"
+                  fieldNameTo="shipped_on_max"
+                  activeButton={shippedClick}
+                  setActiveButton={setShippedClick}
                   format="DD-MM-YYYY"
                   formRef={formRef}
                 />
