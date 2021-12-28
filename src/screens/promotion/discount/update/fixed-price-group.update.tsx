@@ -30,7 +30,6 @@ import { PageResponse } from "../../../../model/base/base-metadata.response";
 import { ProductResponse, VariantResponse } from "../../../../model/product/product.model";
 import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
-import { DiscountMethodStyled } from "../components/style";
 import { DiscountUnitType } from "../constants";
 import { DiscountUpdateContext } from "./discount-update-provider";
 const Option = Select.Option;
@@ -284,12 +283,11 @@ const FixedPriceGroupUpdate = (props: Props) => {
         </Col>
 
         <Col span={9}>
-          <Input.Group compact style={{ display: "flex", alignItems: "stretch" }}>
-            <DiscountMethodStyled>
+
+          <Form.Item required label={discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu"}>
+            <Input.Group compact>
               <Form.Item
                 name={[name, "prerequisite_quantity_ranges", 0, "value"]}
-                label={discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu"}
-                style={{ flex: "1 1 auto" }}
                 rules={[{ required: true, message: "Cần nhập chiết khấu" }, () => ({
                   validator(_, value) {
                     let msg = discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu";
@@ -302,10 +300,11 @@ const FixedPriceGroupUpdate = (props: Props) => {
                     return Promise.resolve();
                   },
                 })]}
+                noStyle
               >
 
                 <InputNumber
-                  style={{ width: '100%' }}
+                  style={{ width: "calc(100% - 70px)" }}
                   min={1}
                   max={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
                     === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
@@ -314,29 +313,28 @@ const FixedPriceGroupUpdate = (props: Props) => {
                   formatter={(value) => formatDiscountCurrencyByFormValue(value, form)}
                 />
               </Form.Item>
-            </DiscountMethodStyled>
-            <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} label=" "
-            >
-              <Select
-                // defaultValue={DiscountUnitType.FIXED_PRICE.value}
-                style={{ borderRadius: "0px" }}
-                onSelect={(e) => {
-                  setDiscountType(e?.toString() || "");
-                  const value = form.getFieldValue("entitlements");
-                  value[name].prerequisite_quantity_ranges[0].value = undefined;
-                  form.setFieldsValue({
-                    entitlements: value,
-                  });
-                }}
+              <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} noStyle
               >
-                {discountUnitOptions.map(item => (
-                  <Option key={item.value} value={item.value}>
-                    {item.label}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Input.Group>
+                <Select
+                  style={{ borderRadius: "0px", width: "70px" }}
+                  onSelect={(e) => {
+                    setDiscountType(e?.toString() || "");
+                    const value = form.getFieldValue("entitlements");
+                    value[name].prerequisite_quantity_ranges[0].value = undefined;
+                    form.setFieldsValue({
+                      entitlements: value,
+                    });
+                  }}
+                >
+                  {discountUnitOptions.map(item => (
+                    <Option key={item.value} value={item.value}>
+                      {item.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Input.Group>
+          </Form.Item>
         </Col>
       </Row>
 
