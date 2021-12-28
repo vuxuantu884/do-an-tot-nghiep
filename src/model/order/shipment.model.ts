@@ -90,9 +90,9 @@ export interface ShipmentSearchQuery {
   ship_on_min: string | null;
   ship_on_max: string | null;
   ship_on_predefined: string | null;
-  received_on_min: string | null;
-  received_on_max: string | null;
-  received_predefined: string | null;
+  shipped_on_min: string | null;
+  shipped_on_max: string | null;
+  shipped_predefined: string | null;
   cancelled_on_min: string | null;
   cancelled_on_max: string | null;
   cancelled_on_predefined: string | null;
