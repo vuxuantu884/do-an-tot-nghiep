@@ -114,6 +114,7 @@ export default function Order() {
 		number | null
 	>(0);
 	const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+	console.log('payments', payments)
 	const [tags, setTags] = useState<string>("");
 	const formRef = createRef<FormInstance>();
 	const [form] = Form.useForm();
@@ -435,6 +436,37 @@ export default function Order() {
 		}
 	};
 
+	const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
+		if (totalAmountCustomerNeedToPay < 0) {
+			let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
+			let _payments = [...payments];
+			let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
+			if (paymentCashIndex > -1) {
+				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount - returnAmount;
+				_payments[paymentCashIndex].return_amount = returnAmount;
+			} else {
+				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+				newPaymentCash = {
+					code: PaymentMethodCode.CASH,
+					payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+					amount: 0,
+					paid_amount: -returnAmount,
+					return_amount: returnAmount,
+					status: "",
+					payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
+					reference: '',
+					source: '',
+					customer_id: 1,
+					note: '',
+					type: '',
+				};
+				_payments.push(newPaymentCash)
+			}
+			return _payments;
+		}
+		return payments;
+	};
+
 	const onFinish = (values: OrderRequest) => {
 		values.channel_id = ADMIN_ORDER.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
@@ -470,7 +502,7 @@ export default function Order() {
 			values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
 			values.fulfillments = lstFulFillment;
 			values.action = OrderStatus.FINALIZED;
-			values.payments = payments.filter((payment) => payment.amount > 0);
+			values.payments = payments.filter((payment) => payment.amount !== 0);
 			values.total = getTotalAmount(values.items);
 			if (
 				values?.fulfillments &&
@@ -501,6 +533,10 @@ export default function Order() {
 					scrollAndFocusToDomElement(element);
 					return;
 				}
+				let valuesCalculateReturnAmount = {
+					...values,
+					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !==0))
+				}
 				if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
 					if (typeButton === OrderStatus.DRAFT) {
 						setIsSaveDraft(true);
@@ -516,7 +552,7 @@ export default function Order() {
 					} else {
 						(async () => {
 							try {
-								await dispatch(orderCreateAction(values, createOrderCallback, () => {
+								await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
 									// on error
 									setCreating(false);
 									setIsSaveDraft(false);
@@ -547,7 +583,7 @@ export default function Order() {
 								(async () => {
 									console.log('values', values);
 									try {
-										await dispatch(orderCreateAction(values, createOrderCallback, () => {
+										await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
 											// on error
 											setCreating(false);
 											setIsSaveDraft(false);
