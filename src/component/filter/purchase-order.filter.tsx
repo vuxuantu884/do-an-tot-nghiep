@@ -724,7 +724,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                     <Col span={24} className="tag-filter">
                       {
                         lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                          return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
                         })
                       }
                     </Col>
