@@ -147,12 +147,22 @@ export const deleteConfigPoAction = (
   });
 };
 
-export const getLogPOHistory = (
+export const getLogDetailPOHistory = (
   id: number,
   setData: (result: BaseResponse<PurchaseOrder>) => void
 ) => {
-  return BaseAction(POLogHistory.GET_LOG_PO, {
+  return BaseAction(POLogHistory.GET_LOG_DETAIL_PO, {
     id,
+    setData
+  });
+};
+
+export const getLogPOHistory = (
+  code: string,
+  setData: (result: BaseResponse<PurchaseOrder>) => void
+) => {
+  return BaseAction(POLogHistory.GET_LOG_PO, {
+    code,
     setData
   });
 };

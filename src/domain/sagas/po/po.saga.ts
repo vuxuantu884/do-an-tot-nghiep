@@ -375,12 +375,36 @@ function* deleteConfigPoSaga(action: YodyAction) {
   }
 }
 
-function* getLogPOHistory(action: YodyAction) {
+function* getLogDetailPOHistory(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
     let response: BaseResponse<PurchaseOrder> = yield call(
       getLogDetailProcurements,
       id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log(error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getLogPOHistory(action: YodyAction) {
+  const { code, setData } = action.payload;
+  try {
+    let response: BaseResponse<PurchaseOrder> = yield call(
+      getLogDetailProcurements,
+      code
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -423,5 +447,6 @@ export function* poSaga() {
   yield takeLatest(POConfig.CREATE_PO_CONFIG, createConfigPoSaga);
   yield takeLatest(POConfig.UPDATE_PO_CONFIG, updateConfigPoSaga);
   yield takeLatest(POConfig.DELETE_PO_CONFIG, deleteConfigPoSaga);
+  yield takeLatest(POLogHistory.GET_LOG_DETAIL_PO, getLogDetailPOHistory);
   yield takeLatest(POLogHistory.GET_LOG_PO, getLogPOHistory);
 }

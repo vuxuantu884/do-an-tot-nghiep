@@ -37,5 +37,6 @@ export const POConfig = {
 };
 
 export const POLogHistory = {
-  GET_LOG_PO: "GET_LOG_PO"
+  GET_LOG_PO: "GET_LOG_PO",
+  GET_LOG_DETAIL_PO: "GET_LOG_DETAIL_PO",
 }

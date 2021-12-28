@@ -73,3 +73,9 @@ export const getLogDetailProcurements = (
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/procurements/log/${poId}`);
 }
+
+export const getLogProcurements = (
+  code: string
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/procurements/${code}/log`);
+}

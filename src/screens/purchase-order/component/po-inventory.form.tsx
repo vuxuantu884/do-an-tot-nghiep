@@ -428,6 +428,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         isEdit={isEditProcument}
         loading={loaddingCreate}
         stores={stores}
+        poData={poData}
         now={now}
         visible={visible}
         items={poItems}
