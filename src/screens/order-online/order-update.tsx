@@ -1384,13 +1384,12 @@ export default function Order(props: PropType) {
                                     {OrderDetail?.payments
                                       .filter((payment) => {
                                         // nếu là đơn trả thì tính cả cod
-                                        if (OrderDetail.order_return_origin) {
-                                          return true;
-                                        }
+                                        // if (OrderDetail.order_return_origin) {
+                                        //   return true;
+                                        // }
                                         return (
-                                          payment.payment_method !== "cod" &&
-                                          payment.amount
-                                        );
+																					payment.payment_method !== PaymentMethodCode.COD && payment.amount
+																				);
                                       })
                                       .map((payment: any, index: number) => (
                                         <Collapse.Panel

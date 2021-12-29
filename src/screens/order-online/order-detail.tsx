@@ -33,7 +33,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
@@ -703,15 +703,15 @@ const OrderDetail = (props: PropType) => {
                             OrderDetail.total === OrderDetail.total_paid ? (
                               ""
                             ) : (
-                              <>
+                              <React.Fragment>
                                 {OrderDetail?.payments
                                   .filter((payment) => {
                                     // nếu là đơn trả thì tính cả cod
-                                    if (OrderDetail.order_return_origin) {
-                                      return true;
-                                    }
+                                    // if (OrderDetail.order_return_origin) {
+                                    //   return true;
+                                    // }
                                     return (
-                                      payment.payment_method !== "cod" && payment.amount
+                                      payment.payment_method !== PaymentMethodCode.COD && payment.amount
                                     );
                                   })
                                   .map((payment: any, index: number) => (
@@ -757,7 +757,7 @@ const OrderDetail = (props: PropType) => {
                                       key={index}
                                     ></Panel>
                                   ))}
-                              </>
+                              </React.Fragment>
                             )}
                             {isShowPaymentPartialPayment && OrderDetail !== null && (
                               <Panel
