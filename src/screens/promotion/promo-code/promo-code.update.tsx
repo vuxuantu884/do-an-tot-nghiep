@@ -318,8 +318,7 @@ const PromoCodeUpdate = () => {
   return (
     <ContentContainer
       isLoading={loading}
-      isError={
-        dataDiscount?.entitled_method !== "QUANTITY" ||
+      isError={        
         dataDiscount?.state === "CANCELLED"
       }
       title="Sửa khuyến mãi"

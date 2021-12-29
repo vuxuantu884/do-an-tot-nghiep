@@ -138,7 +138,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [],
+        permissions: [PromoPermistion.UPDATE],
       },
     ],
   },
@@ -200,7 +200,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [],
+        permissions: [PromoPermistion.UPDATE],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id`,
