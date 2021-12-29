@@ -77,7 +77,7 @@ export interface ShippingAddress extends BaseObject {
   ward: string;
   zip_code: string;
   full_address: string;
-  
+  version:number;
 }
 
 export interface contact extends BaseObject {

@@ -134,8 +134,8 @@ const FilterList = ({ filters, resetField }: any) => {
           case filterFields.cancelled_date:
           case filterFields.expected_import_date:
             let [from, to] = value;
-            let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
-              formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
+            let formatedFrom = moment(from).utc().format(DATE_FORMAT.DDMMYYY),
+              formatedTo = moment(to).utc().format(DATE_FORMAT.DDMMYYY);
             let fixedDate = checkFixedDate(from, to);
             if (fixedDate)
               renderTxt = `${filterFieldsMapping[filterKey]} : ${fixedDate}`;
@@ -724,7 +724,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                     <Col span={24} className="tag-filter">
                       {
                         lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                          return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
                         })
                       }
                     </Col>

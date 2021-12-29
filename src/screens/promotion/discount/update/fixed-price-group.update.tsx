@@ -21,7 +21,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { RiInformationLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { handleDenyParentProduct, onSelectVariantAndProduct, parseSelectProductToTableData, parseSelectVariantToTableData } from "utils/PromotionUtils";
+import { handleDenyParentProduct, onSelectVariantAndProduct, parseSelectProductToTableData } from "utils/PromotionUtils";
 import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
 import UrlConfig from "../../../../config/url.config";
@@ -30,8 +30,6 @@ import { PageResponse } from "../../../../model/base/base-metadata.response";
 import { ProductResponse, VariantResponse } from "../../../../model/product/product.model";
 import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
-import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
-import { DiscountMethodStyled } from "../components/style";
 import { DiscountUnitType } from "../constants";
 import { DiscountUpdateContext } from "./discount-update-provider";
 const Option = Select.Option;
@@ -42,15 +40,15 @@ interface Props {
   name: number;
   key: number;
   fieldKey: number;
-
+  handleVisibleManyProduct: (indexOfEntilement: number) => void;
 }
 const FixedPriceGroupUpdate = (props: Props) => {
-  const { key, name, form, remove } = props;
+  const { key, name, form, remove, handleVisibleManyProduct } = props;
   const dispatch = useDispatch();
 
   const [dataSearchVariant, setDataSearchVariant] = useState<Array<VariantResponse>>([]);
 
-  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
@@ -131,35 +129,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
     }
   };
 
-  /**
-   * 
-   * @param items 
-   */
-  const onPickManyProduct = (items: Array<VariantResponse>) => {
 
-    if (items.length) {
-      let selectedVariantId: number[] = [];
-      const newProducts = items.map(item => {
-        selectedVariantId.push(item.id);
-        return parseSelectVariantToTableData(item);
-      })
-
-      const entilementFormValue: Array<EntilementFormModel> = form.getFieldValue("entitlements");
-      entilementFormValue[name].entitled_variant_ids = _.uniq([...entilementFormValue[name].entitled_variant_ids, ...selectedVariantId]);
-
-      const currentProduct = entilementFormValue[name].selectedProducts;
-
-      if (Array.isArray(currentProduct)) {
-        entilementFormValue[name].selectedProducts = _.uniqBy([...newProducts, ...currentProduct], "sku");
-      } else {
-        entilementFormValue[name].selectedProducts = newProducts;
-      }
-
-      form.setFieldsValue({ entitlements: _.cloneDeep(entilementFormValue) });
-      setVisibleManyProduct(false);
-    }
-
-  }
 
 
   /**
@@ -313,12 +283,11 @@ const FixedPriceGroupUpdate = (props: Props) => {
         </Col>
 
         <Col span={9}>
-          <Input.Group compact style={{ display: "flex", alignItems: "stretch" }}>
-            <DiscountMethodStyled>
+
+          <Form.Item required label={discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu"}>
+            <Input.Group compact>
               <Form.Item
                 name={[name, "prerequisite_quantity_ranges", 0, "value"]}
-                label={discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu"}
-                style={{ flex: "1 1 auto" }}
                 rules={[{ required: true, message: "Cần nhập chiết khấu" }, () => ({
                   validator(_, value) {
                     let msg = discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu";
@@ -331,10 +300,11 @@ const FixedPriceGroupUpdate = (props: Props) => {
                     return Promise.resolve();
                   },
                 })]}
+                noStyle
               >
 
                 <InputNumber
-                  style={{ width: '100%' }}
+                  style={{ width: "calc(100% - 70px)" }}
                   min={1}
                   max={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
                     === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
@@ -343,29 +313,28 @@ const FixedPriceGroupUpdate = (props: Props) => {
                   formatter={(value) => formatDiscountCurrencyByFormValue(value, form)}
                 />
               </Form.Item>
-            </DiscountMethodStyled>
-            <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} label=" "
-            >
-              <Select
-                // defaultValue={DiscountUnitType.FIXED_PRICE.value}
-                style={{ borderRadius: "0px" }}
-                onSelect={(e) => {
-                  setDiscountType(e?.toString() || "");
-                  const value = form.getFieldValue("entitlements");
-                  value[name].prerequisite_quantity_ranges[0].value = undefined;
-                  form.setFieldsValue({
-                    entitlements: value,
-                  });
-                }}
+              <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} noStyle
               >
-                {discountUnitOptions.map(item => (
-                  <Option key={item.value} value={item.value}>
-                    {item.label}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Input.Group>
+                <Select
+                  style={{ borderRadius: "0px", width: "70px" }}
+                  onSelect={(e) => {
+                    setDiscountType(e?.toString() || "");
+                    const value = form.getFieldValue("entitlements");
+                    value[name].prerequisite_quantity_ranges[0].value = undefined;
+                    form.setFieldsValue({
+                      entitlements: value,
+                    });
+                  }}
+                >
+                  {discountUnitOptions.map(item => (
+                    <Option key={item.value} value={item.value}>
+                      {item.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Input.Group>
+          </Form.Item>
         </Col>
       </Row>
 
@@ -388,7 +357,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
             />
             <Button
               icon={<img src={DuplicatePlus} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => setVisibleManyProduct(true)}
+              onClick={() => handleVisibleManyProduct(name)}
               style={{ width: 132, marginLeft: 10 }}
             >
               Chọn nhiều
@@ -488,14 +457,6 @@ const FixedPriceGroupUpdate = (props: Props) => {
             </Col>
           </Row>
         )}
-
-        <PickManyProductModal
-          onSave={onPickManyProduct}
-          selected={dataSearchVariant}
-          onCancel={() => setVisibleManyProduct(false)}
-          visible={visibleManyProduct}
-          emptyText={"Không tìm thấy sản phẩm"}
-        />
 
         <ModalConfirm visible={isVisibleConfirmReplaceProductModal} title="Xoá sản phẩm con trong danh sách"
           subTitle="Đã có sản phẩm con trong danh sách, thêm sản phẩm cha sẽ tự động xoá sản phẩm con"
