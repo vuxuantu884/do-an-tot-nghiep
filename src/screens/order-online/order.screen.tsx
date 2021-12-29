@@ -119,7 +119,10 @@ export default function Order() {
 	const formRef = createRef<FormInstance>();
 	const [form] = Form.useForm();
 	const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
-	const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+	const [visibleBillStep, setVisibleBillStep] = useState({
+		isShow: false,
+		isAlreadyShow: false,
+	})
 	const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 	const [officeTime, setOfficeTime] = useState<boolean>(false);
 
@@ -602,12 +605,13 @@ export default function Order() {
 		}
 	};
 	const scroll = useCallback(() => {
-		if (window.pageYOffset > 100) {
-			setIsShowBillStep(true);
-		} else {
-			setIsShowBillStep(false);
+		if (window.pageYOffset > 100 || visibleBillStep.isAlreadyShow) {
+			setVisibleBillStep({
+				isShow: true,
+				isAlreadyShow: true
+			})
 		}
-	}, []);
+	}, [visibleBillStep]);
 
 	useEffect(() => {
 		if (storeId != null) {
@@ -1157,7 +1161,7 @@ export default function Order() {
 										/>
 									</Col>
 								</Row>
-								{isShowBillStep && (
+								{visibleBillStep.isShow && (
 									<OrderDetailBottomBar
 										formRef={formRef}
 										handleTypeButton={handleTypeButton}
