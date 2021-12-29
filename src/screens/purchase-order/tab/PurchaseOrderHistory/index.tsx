@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import moment from "moment";
 import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
 import { getLogPOHistory, getLogDetailPOHistory } from 'domain/actions/po/po.action';
+import { StringMappingType } from 'typescript';
 
 type POHistoryProps = {
   poData?: PurchaseOrder;
@@ -26,11 +27,11 @@ type POLogHistory = {
 }
 
 const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) => {
-    const { poData } = props;
-    const [logData, setLogData] = useState<POLogHistory | any>();
-    const formatDate = "DD/MM/YYYY HH:mm";
-    const dispatch = useDispatch();
-    const [dataSource, setDataSource] = useState([]);
+  const { poData } = props;
+  const [logData, setLogData] = useState<POLogHistory | any>();
+  const formatDate = "DD/MM/YYYY HH:mm";
+  const dispatch = useDispatch();
+  const [dataSource, setDataSource] = useState([]);
 
   const defaultColumns = [
     {
@@ -41,7 +42,10 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
     {
       title: "Thời gian sửa",
       dataIndex: "updated_date",
-      key: "updated_date"
+      key: "updated_date",
+      render: (updated_date: string) => {
+        return moment(updated_date).format(formatDate).toString()
+      }
     },
     {
       title: "Thao tác",
@@ -53,6 +57,15 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       title: "Trạng thái phiếu nhập kho",
       dataIndex: "status",
       key: "status",
+      render: (status: StringMappingType, record: POLogHistory) => {
+        if (record) {
+          const { status_after, status_before } = record;
+
+          return status_after ? (status_before + ' - ' + status_after) : ''
+
+        }
+        return '';
+      }
     }
   ]
 
@@ -60,23 +73,23 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
     if (poData?.code !== undefined) {
       dispatch(getLogPOHistory(poData?.code, setLogData));
     }
-  }, []);
+  }, [dispatch, poData]);
 
-  useEffect(() => {
-    setDataSource({
-      ...logData, 
-      updated_date: moment(logData?.updated_date).format(formatDate).toString(), 
-      status: `${logData?.status_after? (logData?.status_before - logData?.status_after) : ''}`})
-  }, [logData])
+  // useEffect(() => {
+  //   setDataSource({
+  //     ...logData, 
+  //     updated_date: moment(logData?.updated_date).format(formatDate).toString(), 
+  //     status: `${logData?.status_after? (logData?.status_before - logData?.status_after) : ''}`})
+  // }, [logData])
 
   return (
     <div>
       <CustomTable
         bordered
         pagination={false}
-        dataSource={[dataSource]}
+        dataSource={logData?.data}
         columns={defaultColumns}
-        rowKey={(item: any) => item.code}
+        rowKey={(item: any) => item?.code}
       />
     </div>
   )

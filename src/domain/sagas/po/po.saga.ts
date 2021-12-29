@@ -25,7 +25,7 @@ import { showError } from "utils/ToastUtils";
 import { exportPOApi } from "./../../../service/purchase-order/purchase-order.service";
 import { ImportResponse } from "model/other/files/export-model";
 import { FilterConfig } from "model/other";
-import { getLogDetailProcurements } from "service/purchase-order/purchase-procument.service";
+import { getLogDetailProcurements, getLogProcurements } from "service/purchase-order/purchase-procument.service";
 
 function* poCreateSaga(action: YodyAction) {
   const { request, createCallback } = action.payload;
@@ -403,7 +403,7 @@ function* getLogPOHistory(action: YodyAction) {
   const { code, setData } = action.payload;
   try {
     let response: BaseResponse<PurchaseOrder> = yield call(
-      getLogDetailProcurements,
+      getLogProcurements,
       code
     );
     switch (response.code) {
