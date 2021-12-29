@@ -36,6 +36,8 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
+import { VietNamId } from "utils/Constants";
+import { RegUtil } from "utils/RegUtils";
 import {showSuccess } from "utils/ToastUtils";
 
 type UpdateCustomerProps = {
@@ -251,6 +253,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             _item.is_default = _item.default;
             return _item;
           }),
+          country_id:customerItem.country_id||VietNamId,
           full_name: value.full_name,
           city_id: area_customer.city_id,
           city: area_customer.city_name,
@@ -390,9 +393,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   message: "Vui lòng nhập Số điện thoại",
                 },
                 {
-                  whitespace: true,
-                  message: "Vui lòng nhập Số điện thoại",
-                },
+                  required: true,
+                  pattern: RegUtil.PHONE,
+                  message: "Số điện thoại sai định dạng"
+                }
               ]}
               name="shipping_addresses_phone"
             //label="Số điện thoại"
@@ -621,10 +625,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           required: true,
                           message: "Vui lòng nhập tên khách hàng",
                         },
-                        {
-                          whitespace: true,
-                          message: "Vui lòng nhập tên khách hàng",
-                        },
                       ]}
                       name="full_name"
                     //label="Tên khách hàng"
@@ -684,9 +684,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           message: "Vui lòng nhập Số điện thoại",
                         },
                         {
-                          whitespace: true,
-                          message: "Vui lòng nhập Số điện thoại",
-                        },
+                          required: true,
+                          pattern: RegUtil.PHONE,
+                          message: "Số điện thoại sai định dạng"
+                        }
                       ]}
                       name="phone"
                     //label="Số điện thoại"
