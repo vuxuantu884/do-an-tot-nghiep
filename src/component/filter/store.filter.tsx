@@ -51,7 +51,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     groups,
     initValue,
     type,
-    listDepartment,
+    // listDepartment,
     onClickOpen
   } = props;
   const [visible, setVisible] = useState(false);
@@ -105,22 +105,18 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               placeholder="Tên/ Mã cửa hàng/ Sđt/ Hotline"
             />
           </Form.Item> 
-          <Form.Item name="department_ids">
+          <Form.Item name="group_id">
             <CustomSelect
-              showSearch
-              allowClear
+              allowClear 
               showArrow 
-              placeholder="Chọn bộ phận"
-              style={{
-                minWidth: 200,
-                width: "100%",
-              }}
-              optionFilterProp="children"
+              style={{ width: 180 }} 
+              placeholder="Chọn trực thuộc"
             >
-              {listDepartment?.map((item) => (
-                <Select.Option key={item.id} value={item.id}>
+              <Option value="">Chọn trực thuộc</Option>
+              {groups?.map((item) => (
+                <Option key={item.id} value={item.id}>
                   {item.name}
-                </Select.Option>
+                </Option>
               ))}
             </CustomSelect>
           </Form.Item>
@@ -185,16 +181,6 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           </Item>
           <Item name="hotline" label="Số điện thoại">
             <Input placeholder="Nhập số điện thoại" />
-          </Item>
-          <Item name="group_id" label="Trực thuộc">
-            <Select placeholder="Chọn trực thuộc">
-              <Option value="">Chọn trực thuộc</Option>
-              {groups?.map((item) => (
-                <Option key={item.id} value={item.id}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
           </Item>
           <Row gutter={24}>
             <Col span={12}>
