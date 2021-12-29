@@ -29,6 +29,7 @@ export type ProcumentConfirmProps = {
   onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
   poData: PurchaseOrder | any;
+  procumentCode: string;
 };
 
 const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
@@ -39,6 +40,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     now,
     poData ,
     stores,
+    procumentCode,
     onCancel,
     item,
     defaultStore,
@@ -78,6 +80,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         items={items}
         onCancel={onCancel}
         now={now}
+        procumentCode={procumentCode}
         stores={stores}
         defaultStore={defaultStore}
         visible={visible}

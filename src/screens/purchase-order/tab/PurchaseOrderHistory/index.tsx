@@ -3,11 +3,13 @@ import CustomTable from 'component/table/CustomTable';
 import { useDispatch } from 'react-redux';
 import moment from "moment";
 import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
-import { getLogPOHistory, getLogDetailPOHistory } from 'domain/actions/po/po.action';
+import { getLogPOHistory } from 'domain/actions/po/po.action';
 import { StringMappingType } from 'typescript';
+import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 
 type POHistoryProps = {
   poData?: PurchaseOrder;
+  procumentCode?: string;
 }
 
 type POLogHistory = {
@@ -16,28 +18,36 @@ type POLogHistory = {
   data: string;
   device: string;
   id: number;
-  ip_address: string;
-  procurement_code: string;
-  root_id: 321
+  root_id: number;
   status_after: string;
   status_before: string;
   updated_by: string;
   updated_date: string;
   updated_name: string;
+  ip_address: string;
+  procurement_code: string;
 }
 
 const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) => {
-  const { poData } = props;
+  const { procumentCode } = props;
   const [logData, setLogData] = useState<POLogHistory | any>();
   const formatDate = "DD/MM/YYYY HH:mm";
   const dispatch = useDispatch();
-  const [dataSource, setDataSource] = useState([]);
 
   const defaultColumns = [
     {
       title: "Người sửa",
       dataIndex: "updated_name",
-      key: "updated_name"
+      key: "updated_name",
+      render: (status: StringMappingType, record: POLogHistory) => {
+        const { updated_name, updated_by } = record;
+        return (
+          <div>
+            <div style={{ color: "#2a2a86"}}>{updated_by}</div>
+            <div>{updated_name}</div>
+          </div>
+        )
+      }
     },
     {
       title: "Thời gian sửa",
@@ -59,10 +69,16 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       key: "status",
       render: (status: StringMappingType, record: POLogHistory) => {
         if (record) {
-          const { status_after, status_before } = record;
-
-          return status_after ? (status_before + ' - ' + status_after) : ''
-
+          const { status_after, status_before} = record;
+          return (
+            <div style={{display: "flex", alignItems: "center"}}>
+              <span>{status_before}&nbsp;&nbsp;</span>
+              {
+                status_after && status_before && <HiOutlineArrowNarrowRight />
+              }
+              <span>&nbsp;&nbsp;{status_after}</span>
+            </div>
+          );
         }
         return '';
       }
@@ -70,24 +86,17 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
   ]
 
   useEffect(() => {
-    if (poData?.code !== undefined) {
-      dispatch(getLogPOHistory(poData?.code, setLogData));
+    if (procumentCode !== undefined) {
+      dispatch(getLogPOHistory(procumentCode, setLogData));
     }
-  }, [dispatch, poData]);
-
-  // useEffect(() => {
-  //   setDataSource({
-  //     ...logData, 
-  //     updated_date: moment(logData?.updated_date).format(formatDate).toString(), 
-  //     status: `${logData?.status_after? (logData?.status_before - logData?.status_after) : ''}`})
-  // }, [logData])
+  }, [dispatch, procumentCode]);
 
   return (
     <div>
       <CustomTable
         bordered
         pagination={false}
-        dataSource={logData?.data}
+        dataSource={logData}
         columns={defaultColumns}
         rowKey={(item: any) => item?.code}
       />

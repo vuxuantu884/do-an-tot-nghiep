@@ -32,6 +32,7 @@ type ProducmentInventoryModalProps = {
   onOk: (value: PurchaseProcument) => void;
   onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
+  procumentCode: string;
 };
 
 const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
@@ -45,6 +46,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     defaultStore,
     onOk,
     onDelete,
+    procumentCode,
     loading,
     items,
     stores,
@@ -72,6 +74,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         items={items}
         item={item}
         onCancel={onCancel}
+        procumentCode={procumentCode}
         now={now}
         stores={stores}
         poData={poData}

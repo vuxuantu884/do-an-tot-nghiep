@@ -29,6 +29,7 @@ type ProcumentModalProps = {
   loading: boolean;
   isEdit: boolean;
   poData?: PurchaseOrder;
+  procumentCode: string
 };
 
 const ProcumentModal: React.FC<ProcumentModalProps> = (
@@ -43,6 +44,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
     items,
     item,
     defaultStore,
+    procumentCode,
     onOk,
     onDelete,
     loading,
@@ -79,6 +81,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
           now={now}
           stores={stores}
           poData={poData}
+          procumentCode={procumentCode}
           defaultStore={defaultStore}
           visible={visible}
           cancelText="Hủy"

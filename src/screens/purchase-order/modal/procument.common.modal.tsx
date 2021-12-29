@@ -32,7 +32,6 @@ import RenderTabBar from 'component/table/StickyTabBar';
 import PurchaseOrderHistory from "../tab/PurchaseOrderHistory";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
-
 export type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
   isEdit: boolean;
@@ -47,6 +46,7 @@ export type ProcumentModalProps = {
   loading: boolean;
   poData?: PurchaseOrder | undefined;
   title: ReactNode;
+  procumentCode: string;
   okText: string;
   cancelText: string;
   item?: PurchaseProcument | null;
@@ -74,6 +74,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     defaultStore,
     onOk,
     onDelete,
+    procumentCode,
     loading,
     item,
     type,
@@ -570,7 +571,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                 </Form>
               </TabPane>
               <TabPane tab="Lịch sử thao tác" key={PurchaseOrderTabUrl.HISTORY}>
-                <PurchaseOrderHistory poData={poData} />
+                <PurchaseOrderHistory poData={poData} procumentCode={procumentCode} />
               </TabPane>
             </Tabs>) : (
               <div>

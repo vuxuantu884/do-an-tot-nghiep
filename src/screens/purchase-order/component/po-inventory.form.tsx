@@ -12,7 +12,7 @@ import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { POStatus, ProcumentStatus } from "utils/Constants";
@@ -84,6 +84,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [visible, setVisible] = useState(false);
   const [visibleEditProcurement, setVisibleEditProcurement] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
+  // const [procumentCode, setProcumentCode] = useState('');
+  const procumentCodeRef = useRef('');
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
   const [loadingConfirm, setLoadingConfirm] = useState(false);
@@ -388,7 +390,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             onSuccess={() => {
               onAddProcumentSuccess && onAddProcumentSuccess(true);
             }}
-            confirmDraft={(value: PurchaseProcument, isEdit: boolean) => {
+            confirmDraft={(value: PurchaseProcument, isEdit: boolean, procumentCode?: string) => {
               setEditProcument(isEdit);
               let line_items = formMain.getFieldValue(POField.line_items);
               setPOItem(line_items);
@@ -399,6 +401,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setProcumentDraft(value);
                 setVisibleDraft(true);
               }
+              procumentCodeRef.current = procumentCode||'';
             }}
             confirmInventory={(value: PurchaseProcument, isEdit: boolean) => {
               setEditProcument(isEdit);
@@ -441,6 +444,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           setActiveTab(TAB[3].id);
         }}
         onDelete={onDeleteProcument}
+        procumentCode={procumentCodeRef.current}
       />
 
       <ProcumentConfirmModal
@@ -448,6 +452,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         items={poItems}
         stores={stores}
         poData={poData}
+        procumentCode={procumentCodeRef.current}
         now={now}
         visible={visibleDraft}
         item={procumentDraft}
@@ -477,6 +482,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onDelete={onDeleteProcument}
         loading={loadingRecive}
         defaultStore={storeExpect}
+        procumentCode={procumentCodeRef.current}
         onCancel={() => {
           setVisibleConfirm(false);
         }}
