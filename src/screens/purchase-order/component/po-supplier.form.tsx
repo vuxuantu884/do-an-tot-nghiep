@@ -161,7 +161,6 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     (supplierItem: SupplierResponse) => {
       let indexAddress = supplierItem.addresses.findIndex(address => address.is_default);
       let indexContact = supplierItem.contacts.findIndex(contact => contact.is_default);
-      debugger
       let supplierAddress: PurchaseAddress = {
         tax_code: supplierItem.tax_code,
         name: indexContact !== -1 ? supplierItem.contacts[indexContact].name : '',

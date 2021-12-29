@@ -280,7 +280,9 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     if (item) {
       if (type === "inventory") {
         item.procurement_items.forEach((item1) => {
-          item1.real_quantity = item1.quantity;
+          if (!item1.real_quantity || item1.real_quantity===0) {
+            item1.real_quantity = item1.quantity;
+          }
         });
       }
       form.setFieldsValue(JSON.parse(JSON.stringify(item)));
