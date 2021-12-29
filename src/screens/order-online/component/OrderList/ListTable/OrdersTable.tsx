@@ -459,7 +459,7 @@ function OrdersTable(props: PropsType) {
 							</React.Fragment>
 						)
 					}
-					if(record?.fulfillments && record.fulfillments[0].status === FulFillmentStatus.CANCELLED) {
+					if(record?.fulfillments && record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED) {
 						return (
 							<div className="single">
 								<img
@@ -473,7 +473,7 @@ function OrdersTable(props: PropsType) {
 					}
 					if (sortedFulfillments) {
 						if (sortedFulfillments[0]?.shipment) {
-							switch (sortedFulfillments[0].shipment.delivery_service_provider_type) {
+							switch (sortedFulfillments[0].shipment?.delivery_service_provider_type) {
 								case ShipmentMethod.EXTERNAL_SERVICE:
 									const thirdPLId =
 										sortedFulfillments[0].shipment.delivery_service_provider_id;
