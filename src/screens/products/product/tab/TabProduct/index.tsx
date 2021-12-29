@@ -88,7 +88,7 @@ const initQuery: VariantSearchQuery = {
 };
 
 const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
+  department_ids: [AppConfig.WIN_DEPARTMENT],
 };
 
 const initMainColorQuery: ColorSearchQuery = {

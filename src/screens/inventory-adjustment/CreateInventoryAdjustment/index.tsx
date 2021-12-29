@@ -1025,7 +1025,7 @@ const CreateInventoryAdjustment: FC = () => {
                   labelCol={{span: 24, offset: 0}}
                   rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                 >
-                  <TextArea placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
+                  <TextArea placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
                 </Form.Item>
 
                 <Form.Item
