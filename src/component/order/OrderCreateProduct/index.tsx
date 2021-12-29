@@ -508,7 +508,7 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
-		handleDelayApplyDiscountWhenChangeInput(lineItemDiscountInputTimeoutRef, _items, true);
+		handleDelayApplyDiscountWhenChangeInput(lineItemDiscountInputTimeoutRef, _items, false);
 		calculateChangeMoney(_items);
 	};
 
@@ -967,6 +967,16 @@ function OrderCreateProduct(props: PropType) {
 		item.line_amount_after_line_discount = item.quantity * item.price;
 	};
 
+	const removeAutomaticDiscountItem = (item: OrderLineItemRequest) => {
+		if(item.discount_items) {
+			for (let i = 0; i < item.discount_items.length; i++) {
+				if(item.discount_items[i].promotion_id) {
+					item.discount_items.splice(i, 1);
+				}
+			}
+		}
+	};
+
 	const onDeleteItem = (index: number) => {
 		if (!items) {
 			return;
@@ -1044,12 +1054,12 @@ function OrderCreateProduct(props: PropType) {
 	): OrderLineItemRequest[] => {
 		let result: OrderLineItemRequest[] = [];
 		if (suggested_discounts.length === 0) {
-			removeDiscountItem(item);
+			removeAutomaticDiscountItem(item);
 			return [item];
 		}
 		const suggest = suggested_discounts[0];
 		if (suggest.allocation_count === 0 || !suggest.allocation_count) {
-			removeDiscountItem(item);
+			removeAutomaticDiscountItem(item);
 			result = [item]; // trong pos chưa test
 		} else if (item.quantity <= suggest.allocation_count) {
 			result = calculateDiscount(item, suggest);
@@ -1085,15 +1095,10 @@ function OrderCreateProduct(props: PropType) {
 		for (let i = 0; i < responseLineItemLength; i++) {
 			let line = checkingDiscountResponse.data.line_items[i];
 			const suggested_discounts = line.suggested_discounts;
-			if (suggested_discounts.length === null || suggested_discounts.length === 0) {
-				removeDiscountItem(items[i]);
-				result = result.concat(items[i]);
-			} else {
-				let discountMulti = getDiscountMulti(suggested_discounts, items[i]);
-				// console.log("i", i);
-				// console.log("discountMulti", discountMulti);
-				result = result.concat(discountMulti);
-			}
+			let discountMulti = getDiscountMulti(suggested_discounts, items[i]);
+			// console.log("i", i);
+			// console.log("discountMulti", discountMulti);
+			result = result.concat(discountMulti);
 		}
 		return result;
 	};
