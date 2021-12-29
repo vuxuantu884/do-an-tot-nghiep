@@ -1,6 +1,7 @@
 import styled from "styled-components";
 export const ChartColor = {
   primary: "#2A2A86",
+  secondary:"#FCAF17",
   cinnabar: "#E24343",
   black: "black",
   white: "white",
@@ -41,8 +42,11 @@ export const DashboardContainer = styled.div`
       font-weight: 400;
       line-height: 1.5;
       padding: 8px;
-      text-align: center;
+      text-align: left;
       white-space: nowrap;
+      .tooltip-title {
+      text-align: center;
+      }
     }
   }
 `;

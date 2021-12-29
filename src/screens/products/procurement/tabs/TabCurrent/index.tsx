@@ -2,8 +2,8 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import CustomTable from "component/table/CustomTable";
 import {
+  ApprovalPoProcumentAction,
   PoProcumentDeleteAction,
-  PoProcumentUpdateAction,
   POSearchProcurement
 } from "domain/actions/po/po-procument.action";
 import { PoDetailAction } from "domain/actions/po/po.action";
@@ -103,7 +103,7 @@ const TabCurrent: React.FC = () => {
       if (purchaseProcument && poId) {
         setIsLoadingReceive(true);
         dispatch(
-          PoProcumentUpdateAction(
+          ApprovalPoProcumentAction(
             poId,
             purchaseProcument.id,
             purchaseProcument,

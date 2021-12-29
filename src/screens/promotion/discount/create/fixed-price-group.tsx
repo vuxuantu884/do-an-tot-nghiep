@@ -30,7 +30,6 @@ import { ProductResponse, VariantResponse } from "../../../../model/product/prod
 import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
-import { DiscountMethodStyled } from "../components/style";
 const Option = Select.Option;
 
 const FixedPriceGroup = (props: any) => {
@@ -300,7 +299,6 @@ const FixedPriceGroup = (props: any) => {
 
         <Col span={9}>
           <Input.Group compact style={{ display: "flex", alignItems: "stretch" }}>
-            <DiscountMethodStyled>
               <Form.Item
                 name={[name, "prerequisite_quantity_ranges.value"]}
                 label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
@@ -315,7 +313,6 @@ const FixedPriceGroup = (props: any) => {
                   formatter={(value) => formatDiscountValue(value, discountType === "PERCENTAGE")}
                 />
               </Form.Item>
-            </DiscountMethodStyled>
             <Form.Item name={[name, "prerequisite_quantity_ranges.value_type"]} label=" ">
               <Select
                 style={{ borderRadius: "0px" }}

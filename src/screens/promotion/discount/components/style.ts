@@ -34,9 +34,3 @@ export const StyledComponent = styled.div`
   }
   
 `;
-
-export const DiscountMethodStyled = styled.div`
-.ant-form-item-required{
-  white-space: nowrap;
-}
-`

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -7,6 +7,7 @@ import {
   Modal,
   Radio,
   Space,
+  Progress,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -45,7 +46,10 @@ import "screens/customer/customer.scss";
 // import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
 import { StyledCustomer, StyledCustomerExtraButton } from "screens/customer/customerStyled";
-import { showWarning } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { generateQuery } from "utils/AppUtils";
+import { exportFile, getFile } from "service/other/export.service";
+import { HttpStatus } from "config/http-status.config";
 
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
@@ -330,8 +334,10 @@ const Customer = () => {
   // handle export file
   const [isVisibleExportModal, setIsVisibleExportModal] = useState(false);
   const [exportAll, setExportAll] = useState(true);
+  const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
   
   const handleExportFile = () => {
+    setExportProgress(0);
     setIsVisibleExportModal(true);
   }
 
@@ -340,15 +346,83 @@ const Customer = () => {
   }
 
   const okExportModal = () => {
-    setIsVisibleExportModal(false);
     setExportAll(true);
-    showWarning("Sẽ tải dữ liệu xuống sau bạn nhé!");
+    setIsVisibleExportModal(false);
+    setIsVisibleProgressModal(true);
+    
+    let newParams = { ...params };
+    if (exportAll) {
+      newParams.limit = undefined;
+      newParams.page = undefined;
+    }
+    const exportParams = generateQuery(newParams);
+
+    exportFile({
+      conditions: exportParams,
+      type: "EXPORT_CUSTOMER",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setExportCodeList([...exportCodeList, response.data.code]);
+        }
+      })
+      .catch((error) => {
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
   }
 
   const cancelExportModal = () => {
     setIsVisibleExportModal(false);
     setExportAll(true);
   }
+
+  // process export modal
+  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+
+  const onCancelProgressModal = () => {
+    setExportCodeList([]);
+    setIsVisibleProgressModal(false);
+  }
+
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = exportCodeList.map((code) => {
+      return getFile(code);
+    });
+
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS && response.data && response.data.total > 0) {
+          if (!!response.data.url) {
+            const newExportCode = exportCodeList.filter((item) => {
+              return item !== response.data.code;
+            });
+            setExportCodeList(newExportCode);
+            setExportProgress(100);
+            setIsVisibleProgressModal(false);
+            showSuccess("Xuất file dữ liệu khách hàng thành công!")
+            window.open(response.data.url);
+          } else {
+            if (response.data.num_of_record >= response.data.total) {
+              setExportProgress(99);
+            } else {
+              const percent = Math.floor(response.data.num_of_record/response.data.total*100);
+              setExportProgress(percent);
+            }
+          }
+        }
+      });
+    });
+  }, [exportCodeList]);
+
+  useEffect(() => {
+    if (exportProgress === 100 || exportCodeList.length === 0) return;
+
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [checkExportFile, exportProgress, exportCodeList]);
   // end handle export file
   
   // Thêm nhập file sau
@@ -445,6 +519,7 @@ const Customer = () => {
             : <NoPermission />)}
         </AuthWrapper>
 
+        {/* Export customer data */}
         <Modal
           width="600px"
           visible={isVisibleExportModal}
@@ -460,6 +535,37 @@ const Customer = () => {
               <Radio value={true}>Tải tất cả các trang</Radio>
             </Space>
           </Radio.Group>
+        </Modal>
+
+        {/* Progress export customer data */}
+        <Modal
+          onCancel={onCancelProgressModal}
+          visible={isVisibleProgressModal}
+          title="Xuất file"
+          centered
+          width={600}
+          footer={[
+            <Button
+              key="cancel"
+              type="primary"
+              onClick={onCancelProgressModal}
+            >
+              Thoát
+            </Button>
+            
+          ]}
+        >
+          <div style={{ textAlign: "center" }}>
+            <div style={{ marginBottom: 15 }}>Đang tạo file, vui lòng đợi trong giây lát</div>
+            <Progress
+              type="circle"
+              strokeColor={{
+                '0%': '#108ee9',
+                '100%': '#87d068',
+              }}
+              percent={exportProgress}
+            />
+          </div>
         </Modal>
 
         <ModalSettingColumn

@@ -504,6 +504,53 @@ console.log('totalAmountOrder', totalAmountOrder)
     })
   };
 
+	const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
+		// khách cần trả
+		const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
+			let value = 0;
+			if (items !== null) {
+				if (items.length > 0) {
+					items.forEach((a) => (value = value + a.paid_amount));
+				}
+			}
+			return value;
+		};
+	
+		/**
+		 * tổng số tiền đã trả
+		 */
+		const totalAmountPayment = getAmountPayment(payments);
+		let totalAmountAfterPayments = totalAmountCustomerNeedToPay - totalAmountPayment;
+		if (totalAmountAfterPayments < 0) {
+			let returnAmount = Math.abs(totalAmountAfterPayments);
+			let _payments = [...payments];
+			let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
+			if (paymentCashIndex > -1) {
+				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount - returnAmount;
+				_payments[paymentCashIndex].return_amount = returnAmount;
+			} else {
+				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+				newPaymentCash = {
+					code: PaymentMethodCode.CASH,
+					payment_method_id: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+					amount: 0,
+					paid_amount: -returnAmount,
+					return_amount: returnAmount,
+					status: "",
+					payment_method: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
+					reference: '',
+					source: '',
+					customer_id: 1,
+					note: '',
+					type: '',
+				};
+				_payments.push(newPaymentCash)
+			}
+			return _payments;
+		}
+		return payments;
+	};
+
   const onReturnAndExchange = async () => {
     form
       .validateFields()
@@ -591,8 +638,10 @@ console.log('totalAmountOrder', totalAmountOrder)
           valuesResult.channel_id = ADMIN_ORDER.channel_id;
           values.company_id = DEFAULT_COMPANY.company_id;
           if (checkPointFocus(values)) {
-            const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
+						const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
+							console.log('valuesResult', valuesResult)
 							valuesResult.order_return_id = orderReturnId;
+							valuesResult.payments = valuesResult.payments ? reCalculatePaymentReturn(valuesResult.payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !==0)) : null;
               if (isErrorExchange) {
                 // showWarning("Đã tạo đơn đổi hàng không thành công!");
                 dispatch(

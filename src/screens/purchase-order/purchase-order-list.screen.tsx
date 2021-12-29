@@ -332,17 +332,17 @@ const PurchaseOrderListScreen: React.FC = () => {
       },
       {
         title: "Merchandiser",
-        dataIndex: 'Merchandiser',
-        render: (row) => {
+        dataIndex: 'merchandiser',
+        render: (value, row: PurchaseOrder) => {
           if (!row || !row.merchandiser_code || !row.merchandiser) return "";
           return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
         },
         visible: true,
-      },
+      }, 
       {
         title: "QC",
-        dataIndex: 'QC',
-        render: (row) => {
+        dataIndex: 'qc',
+        render: (value,row: PurchaseOrder) => {
           if (!row || !row.qc_code || !row.qc) return "";
           return <div>{`${row.qc_code} - ${row.qc}`}</div>;
         },
@@ -458,14 +458,13 @@ const PurchaseOrderListScreen: React.FC = () => {
                 if (res.data && res.data.length > 0) {
                   const userConfigColumn = res.data.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_PO);
                 
-                 if (userConfigColumn){
-                    let cf = JSON.parse(userConfigColumn.json_content) as Array<ICustomTableColumType<PurchaseOrder>>;
-                    cf.forEach(e => {
-                      e.render = defaultColumns.find(p=>p.dataIndex === e.dataIndex)?.render;
-                    });
-                    
-                    setColumn(cf);
-                 }
+                   if (userConfigColumn){
+                      let cf = JSON.parse(userConfigColumn.json_content) as Array<ICustomTableColumType<PurchaseOrder>>;
+                      cf.forEach(e => {
+                        e.render = defaultColumns.find(p=>p.dataIndex === e.dataIndex)?.render;
+                      });
+                      setColumn(cf);
+                   }
                 }
                }
               break;

@@ -4,10 +4,10 @@ import Dragger from "antd/es/upload/Dragger";
 import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import _ from "lodash";
 import { DiscountMethod, EntilementFormModel, VariantEntitlementsFileImport } from "model/promotion/discount.create.model";
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
-import { shareDiscountImportedProduct } from "utils/PromotionUtils";
+import { parseSelectVariantToTableData, shareDiscountImportedProduct } from "utils/PromotionUtils";
 import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
@@ -15,6 +15,8 @@ import { DiscountUnitType, newEntitlements } from "../constants";
 import "../discount.scss";
 import { DiscountUpdateContext } from "./discount-update-provider";
 import FixedPriceGroupUpdate from "./fixed-price-group.update";
+import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
+import { VariantResponse } from "model/product/product.model";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -57,6 +59,9 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+
+  const indexOfEntitlement = useRef<number>(0)
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
   const { discountMethod } = discountUpdateContext;
@@ -82,7 +87,40 @@ const FixedPriceSelectionUpdate = (props: Props) => {
     setShowImportModal(false);
   };
 
+  const handleVisibleManyProduct = (name: number) => {
+    setVisibleManyProduct((prev) => !prev)
+    indexOfEntitlement.current = name;
+  }
 
+  /**
+   * 
+   * @param items 
+   */
+  const onPickManyProduct = (items: Array<VariantResponse>, name: number) => {
+
+    if (items.length) {
+      let selectedVariantId: number[] = [];
+      const newProducts = items.map(item => {
+        selectedVariantId.push(item.id);
+        return parseSelectVariantToTableData(item);
+      })
+
+      const entilementFormValue: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+      entilementFormValue[name].entitled_variant_ids = _.uniq([...entilementFormValue[name].entitled_variant_ids, ...selectedVariantId]);
+
+      const currentProduct = entilementFormValue[name].selectedProducts;
+
+      if (Array.isArray(currentProduct)) {
+        entilementFormValue[name].selectedProducts = _.uniqBy([...newProducts, ...currentProduct], "sku");
+      } else {
+        entilementFormValue[name].selectedProducts = newProducts;
+      }
+
+      form.setFieldsValue({ entitlements: _.cloneDeep(entilementFormValue) });
+      setVisibleManyProduct(false);
+    }
+
+  }
 
   return (
     <Col span={24}>
@@ -146,6 +184,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                     remove={removeEntitlementItem}
                     fieldKey={fieldKey}
                     form={form}
+                    handleVisibleManyProduct={handleVisibleManyProduct}
                   />
                 );
               })}
@@ -352,6 +391,14 @@ const FixedPriceSelectionUpdate = (props: Props) => {
           </Row>
         </div>
       </Modal>
+      
+      <PickManyProductModal
+        onSave={(result: Array<VariantResponse>) => onPickManyProduct(result, indexOfEntitlement.current)}
+        selected={[]}
+        onCancel={() => setVisibleManyProduct(false)}
+        visible={visibleManyProduct}
+        emptyText={"Không tìm thấy sản phẩm"}
+      />
     </Col>
   );
 };

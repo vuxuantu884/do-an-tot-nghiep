@@ -60,7 +60,7 @@ function AccountSelect({
         });
 
         const query = _.cloneDeep(queryAccount);
-        query.info = key;
+        query.condition = key;
         query.codes = codes;
         dispatch(
           AccountSearchAction(
@@ -97,7 +97,7 @@ function AccountSelect({
     } else {
       handleChangeAccountSearch("");
     }
-  }, [handleChangeAccountSearch, queryAccount?.info, mode, defaultValue, form, name]);
+  }, [handleChangeAccountSearch, queryAccount?.condition, mode, defaultValue, form, name]);
 
   return (
     <Form.Item
@@ -135,6 +135,6 @@ function AccountSelect({
 }
 
 const AccountSearchSelect = React.memo(AccountSelect, (prev, next) => {
-  return prev.queryAccount?.info === next.queryAccount?.info;
+  return prev.queryAccount?.condition === next.queryAccount?.condition;
 });
 export default AccountSearchSelect;

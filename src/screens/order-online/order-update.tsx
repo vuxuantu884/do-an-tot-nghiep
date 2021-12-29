@@ -628,7 +628,37 @@ export default function Order(props: PropType) {
       setIsFinalized(true)
     }
   };
- 
+	
+	const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
+		if (totalAmountCustomerNeedToPay < 0) {
+			let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
+			let _payments = [...payments];
+			let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
+			if (paymentCashIndex > -1) {
+				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount - returnAmount;
+				_payments[paymentCashIndex].return_amount = returnAmount;
+			} else {
+				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+				newPaymentCash = {
+					code: PaymentMethodCode.CASH,
+					payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+					amount: 0,
+					paid_amount: -returnAmount,
+					return_amount: returnAmount,
+					status: "",
+					payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
+					reference: '',
+					source: '',
+					customer_id: 1,
+					note: '',
+					type: '',
+				};
+				_payments.push(newPaymentCash)
+			}
+			return _payments;
+		}
+		return payments;
+	};
 
   const onFinish = (values: OrderRequest) => {
     if (!OrderDetail) return;
@@ -684,6 +714,10 @@ export default function Order(props: PropType) {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
+				let valuesCalculateReturnAmount = {
+					...values,
+					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !==0))
+				}
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
@@ -696,7 +730,7 @@ export default function Order(props: PropType) {
             (async () => {
               try {
                 dispatch(
-                  orderUpdateAction(OrderDetail.id, values, isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback, () =>
+                  orderUpdateAction(OrderDetail.id, valuesCalculateReturnAmount, isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback, () =>
                   isFinalized ? setUpdatingConfirm(false) : setUpdating(false)
                   )
                 );
@@ -725,7 +759,7 @@ export default function Order(props: PropType) {
                 (async () => {
                   try {
                     dispatch(
-                      orderUpdateAction(OrderDetail.id, values, isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback, () =>
+                      orderUpdateAction(OrderDetail.id, valuesCalculateReturnAmount, isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback, () =>
                         isFinalized ? setUpdatingConfirm(false) : setUpdating(false)
                       )
                     );
