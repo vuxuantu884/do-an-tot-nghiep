@@ -219,7 +219,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             )
           );
         } else {
-          handleChangeCustomer(result);
+          handleChangeCustomer({...result, version: 1});
           setVisibleBtnUpdate(false);
         }
       }
@@ -254,6 +254,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           : null,
         status: "active",
         city_id: area ? area.city_id : null,
+        country_id:VietNamId,
         contacts: [
           {
             ...CustomerContactClass,
