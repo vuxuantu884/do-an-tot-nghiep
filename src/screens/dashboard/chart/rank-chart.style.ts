@@ -15,6 +15,7 @@ export const RankChartStyle = styled.div`
       display: flex;
       margin-top: 20px;
       justify-content: center;
+      max-width: 500px;
     }
 
     &__legend-item {
