@@ -235,9 +235,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
       _shippingAddress.push(paramShipping);
 
-      console.log("paramShipping", paramShipping)
-
-      ///remove dispatch set dia chi giao hang
       let customerRequest: CustomerRequest={...new CustomerModel()};
 
       if (isVisibleCollapseCustomer === true) {
@@ -283,7 +280,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         }
       }
 
-      console.log("customerRequest", customerRequest)
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
         if (datas) {
           handleChangeCustomer(datas);
@@ -296,6 +292,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const onOkPress = useCallback(() => {
     shippingAddressForm.submit();
+    setVisibleBtnUpdate(false);
   }, [shippingAddressForm]);
 
   useEffect(() => {
