@@ -11,8 +11,8 @@ type InventoryModalProps = {
   setStoreId: (item: number) => void;
   columnsItem?: Array<OrderLineItemRequest>;
   inventoryArray: Array<InventoryResponse> | null;
-  setResultSearchStore: any;
   dataSearchCanAccess: Array<StoreResponse> | null;
+  setStoreArrayResponse:(data:StoreResponse[] | null)=>void;
   handleCancel: () => void;
 };
 
@@ -35,16 +35,14 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     isModalVisible,
     columnsItem,
     inventoryArray,
-    setResultSearchStore,
     dataSearchCanAccess,
     storeId,
     setStoreId,
     setInventoryModalVisible,
     handleCancel,
+    setStoreArrayResponse
   } = props;
 
-  // const [changeStoreItem, sethangeStoreItem] = useState<number | null>(null);
-  // const inventoryData:any=[];
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
 
   const setAllAvailable = (variantId: number) => {
@@ -67,12 +65,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     setSelectedStoreId(e.target.value);
   };
 
-  const onSearchInventory = useCallback(
-    (value) => {
-      setResultSearchStore(value);
-    },
-    [setResultSearchStore]
-  );
+  const onSearchInventory = (value:string) => {
+    let _item: StoreResponse[]|any = dataSearchCanAccess?.filter(x=>x.name.toLowerCase().includes(value.toLowerCase().trim()));
+		console.log(_item);
+		setStoreArrayResponse(_item);
+  }
 
   const handleOk = useCallback(() => {
     if (selectedStoreId) {

@@ -4,23 +4,23 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { currencyAbbreviation } from 'utils/DashboardUtils';
 import { ChartColor } from '../index.style';
 import { CustomTooltip } from '../shared';
-import { RankChartStyle } from './dumy.style';
+import { RankChartStyle } from './rank-chart.style';
 
 const shops = ["Shop Stella", "Shop Flash", "Shop Tesla", "Shop Vision", "Shop Ocean"]
 
-enum DataKey {
+export enum DataKey {
     imcome = "imcome",
     averageBill = "averageBill",
     label = "label"
 }
 
-const labelName = {
+export const labelName = {
     [DataKey.imcome]: "Doanh thu",
     [DataKey.averageBill]: "Trung bình hoá đơn"
 }
 
 
-interface CompareData {
+export interface IncomeRank {
     label: string;
     imcome?: number;
     averageBill?: number;
@@ -29,12 +29,12 @@ interface CompareData {
 interface Props {
     title: string;
     subTitle: string;
-    data: Array<CompareData>;
+    data: Array<IncomeRank>;
     legendPrimary: string;
     legendSecondary: string;
 }
 const getSampleData = () => {
-    const data: CompareData[] = [];
+    const data: IncomeRank[] = [];
     shops.forEach((element, i) => {
         data.push({
             label: element,
@@ -64,6 +64,7 @@ function RankHorizontalChart(props: Props): ReactElement {
                 </div>
                 <ResponsiveContainer width="100%" height={300}>
                     <BarChart
+
                         data={data}
                         margin={{
                             top: 20,
@@ -85,7 +86,7 @@ function RankHorizontalChart(props: Props): ReactElement {
                             minTickGap={-200}
                             tickLine={false}
                             fontSize={12}
-                        />
+                        /> 
                         <YAxis
                             yAxisId="left"
                             orientation="left"

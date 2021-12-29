@@ -106,10 +106,10 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
       let indexAddress = supplier.addresses.findIndex(address => address.is_default);
       let indexContact = supplier.contacts.findIndex(contact => contact.is_default);
       let supplierAddress: PurchaseAddress = {
+        tax_code:  supplier.tax_code,
         name: indexContact !== -1 ? supplier.contacts[indexContact].name : '',
         email: indexContact !== -1 ? supplier.contacts[indexContact].email : '',
         phone: indexContact !== -1 ? supplier.contacts[indexContact].phone : '',
-        tax_code: indexContact !== -1 ? supplier.contacts[indexContact].tax_code : '',
         country_id: indexAddress !== -1 ? supplier.addresses[indexAddress].country_id : undefined,
         country: indexAddress !== -1 ? supplier.addresses[indexAddress].country : '',
         city_id: indexAddress !== -1 ? supplier.addresses[indexAddress].city_id : undefined,
@@ -161,12 +161,12 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     (supplierItem: SupplierResponse) => {
       let indexAddress = supplierItem.addresses.findIndex(address => address.is_default);
       let indexContact = supplierItem.contacts.findIndex(contact => contact.is_default);
-      
+      debugger
       let supplierAddress: PurchaseAddress = {
+        tax_code: supplierItem.tax_code,
         name: indexContact !== -1 ? supplierItem.contacts[indexContact].name : '',
         email: indexContact !== -1 ? supplierItem.contacts[indexContact].email : '',
         phone: indexContact !== -1 ? supplierItem.contacts[indexContact].phone : '',
-        tax_code: indexContact !== -1 ? supplierItem.contacts[indexContact].tax_code : '',
         country_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country_id : undefined,
         country: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country : '',
         city_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].city_id : undefined,

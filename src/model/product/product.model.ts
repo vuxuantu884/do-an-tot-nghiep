@@ -53,7 +53,7 @@ export interface ProductResponse extends BaseObject {
   tags:string|null,
   status:string,
   status_name:string,
-  preservation:string,
+  care_labels:string,
   unit:string,
   unit_name:string,
   product_type:string,
@@ -85,7 +85,7 @@ export interface ProductWrapperResponse extends BaseObject {
   tags:string|null,
   status:string,
   status_name:string,
-  preservation:string,
+  care_labels:string,
   unit:string,
   product_type:string,
   product_collections: Array<ProductCollectionsResponse>,
@@ -114,7 +114,7 @@ export interface ProductWrapperUpdateRequest{
   tags:string|null,
   status:string,
   status_name:string | null,
-  preservation:string | null,
+  care_labels:string | null,
   unit:string | null,
   product_type:string | null,
   product_collections: Array<ProductCollectionsResponse>,
@@ -206,6 +206,8 @@ export interface VariantSearchQuery extends BaseQuery {
   saleable?: boolean
   store_id?: number,
   store_ids?: number|null,
+  sort_column?: string,
+  sort_type?: string
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,
@@ -287,7 +289,7 @@ export interface ProductRequest {
   made_in_id: number|null,
   merchandiser_code: string|null,
   name: string,
-  preservation: string,
+  care_labels: string,
   specifications: string,
   product_type: string|null,
   status: string,
@@ -297,6 +299,7 @@ export interface ProductRequest {
   material_id:number|null,
   supplier_id:number|null,
   collections:Array<string>,
+  material: string|null
 }
 
 export interface VariantRequestView {
@@ -339,14 +342,14 @@ export interface ProductRequestView {
   designer_code: string|null,
   made_in_id: number|null,
   merchandiser_code: string|null,
-  preservation: string,
+  care_labels: string,
   specifications: string,
   status: string,
   variant_prices: Array<VariantPriceViewRequest>,
   saleable: boolean,
   material_id:number|null,
   supplier_id:number|null,
-
+  material: string|null
 }
 
 export interface ProductUpdateView {
@@ -362,7 +365,7 @@ export interface ProductUpdateView {
   designer_code: string|null,
   made_in_id: number|null,
   merchandiser_code: string|null,
-  preservation: string,
+  care_labels: string,
   specifications: string,
   material_id: number,
 }

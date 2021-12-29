@@ -17,6 +17,7 @@ import { DiscountUpdateContext } from "./discount-update-provider";
 import FixedPriceGroupUpdate from "./fixed-price-group.update";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import { VariantResponse } from "model/product/product.model";
+import { HttpStatus } from "config/http-status.config";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -60,7 +61,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-
+  const [isImportingFile, setIsImportingFile] = useState<boolean>(false);
   const indexOfEntitlement = useRef<number>(0)
 
   const discountUpdateContext = useContext(DiscountUpdateContext);
@@ -68,7 +69,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
 
   // import file
   const handleImportEntitlements = () => {
-
+    setIsImportingFile(true)
     let formEntitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
     // remove init item in  entitlements
     if (
@@ -85,6 +86,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
 
     setUploadStatus(undefined);
     setShowImportModal(false);
+    setIsImportingFile(false)
   };
 
   const handleVisibleManyProduct = (name: number) => {
@@ -214,7 +216,10 @@ const FixedPriceSelectionUpdate = (props: Props) => {
           >
             Huỷ
           </Button>,
-          <Button key="link" type="primary" onClick={() => handleImportEntitlements()} disabled={uploadStatus === "error"}>
+          <Button key="link" type="primary"
+            loading={isImportingFile}
+            onClick={() => handleImportEntitlements()} disabled={uploadStatus === "error"}
+          >
             Nhập file
           </Button>,
         ]}
@@ -235,7 +240,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
               <p>
                 - Tải file mẫu <a href={AppConfig.ENTITLEMENTS_TEMPLATE_URL}>tại đây</a>
               </p>
-              <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
+              <p>- File nhập có dụng lượng tối đa là 2MB và 1500 bản ghi</p>
               <p>
                 - Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5
                 phút. Trong lúc hệ thống xử lý không F5 hoặc tắt cửa sổ trình duyệt.
@@ -271,7 +276,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                   const { status } = info.file;
                   if (status === EnumUploadStatus.done) {
                     const response = info.file.response;
-                    if (response.code === 20000000) {
+                    if (response.code === HttpStatus.SUCCESS) {
                       if (response.data.data.length > 0) {
                         setEntitlementsImported(response.data.data);
                       }
@@ -351,12 +356,12 @@ const FixedPriceSelectionUpdate = (props: Props) => {
               uploadStatus === EnumUploadStatus.success ? (
               <Col span={24}>
                 <Row justify={"center"}>
-                  <CheckCircleOutlined style={{ fontSize: "78px", color: "#27AE60" }} />
+                  <CheckCircleOutlined className="error-import-file__circel-check" />
                 </Row>
                 <Row justify={"center"}>
-                  <h2 style={{ padding: "10px 30px" }}>
+                  <h2 className="error-import-file__info" >
                     Xử lý file nhập toàn tất:{" "}
-                    <strong style={{ color: "#2A2A86" }}>
+                    <strong className="error-import-file__number-success" >
                       {successCount} / {importTotal}
                     </strong>{" "}
                     sản phẩm thành công
@@ -366,19 +371,19 @@ const FixedPriceSelectionUpdate = (props: Props) => {
                 {entitlementErrorsResponse.length > 0 ? (
                   <div>
                     <Row justify={"start"}>
-                      <h3 style={{ color: "#E24343" }}>Danh sách lỗi: </h3>
+                      <h3 className="error-import-file__title">Danh sách lỗi: </h3>
                     </Row>
                     <Row justify={"start"}>
-                      <li style={{ padding: "10px 30px" }}>
+                      <div className="error-import-file__list">
                         {entitlementErrorsResponse?.map((error: any, index) => (
-                          <ul key={index}>
+                          <div key={index} className="error-import-file__item">
                             <span>
-                              - Dòng {error.index + 2}: {csvColumnMapping[error.column]}{" "}
+                              - Dòng {error.index + 2}: {csvColumnMapping[error.column]}
                               {csvColumnMapping[error.type.toLowerCase()]}
                             </span>
-                          </ul>
+                          </div>
                         ))}
-                      </li>
+                      </div>
                     </Row>
                   </div>
                 ) : (
@@ -391,7 +396,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
           </Row>
         </div>
       </Modal>
-      
+
       <PickManyProductModal
         onSave={(result: Array<VariantResponse>) => onPickManyProduct(result, indexOfEntitlement.current)}
         selected={[]}

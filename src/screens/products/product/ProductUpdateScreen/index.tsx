@@ -873,6 +873,7 @@ const ProductDetailScreen: React.FC = () => {
                       </Row>
                       <Row gutter={50}>
                         <Col span={24} md={12} sm={24}>
+                          <Item name="material" hidden={true}></Item>
                           <Item name="material_id" label="Chất liệu">
                             <CustomSelect
                               showSearch
@@ -1435,15 +1436,6 @@ const ProductDetailScreen: React.FC = () => {
                                           maxTagCount="responsive"
                                           showArrow
                                           placeholder="Chọn màu sắc"
-                                          suffix={
-                                            <Button
-                                              style={{
-                                                width: 37,
-                                                height: 37,
-                                              }}
-                                              icon={<PlusOutlined />}
-                                            />
-                                          }
                                         >
                                           {listColor?.map((item) => (
                                             <CustomSelect.Option
@@ -1463,15 +1455,6 @@ const ProductDetailScreen: React.FC = () => {
                                           maxTagCount="responsive"
                                           optionFilterProp="children"
                                           showSearch
-                                          suffix={
-                                            <Button
-                                              style={{
-                                                width: 37,
-                                                height: 37,
-                                              }}
-                                              icon={<PlusOutlined />}
-                                            />
-                                          }
                                         >
                                           {listSize?.map((item) => (
                                             <CustomSelect.Option

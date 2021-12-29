@@ -487,7 +487,7 @@ export const Products = {
       made_in_id: pr.made_in_id,
       merchandiser_code: pr.merchandiser_code,
       name: pr.name,
-      preservation: pr.preservation,
+      care_labels: pr.care_labels,
       specifications: pr.specifications,
       product_type: pr.product_type ? pr.product_type : "",
       status: status,
@@ -496,6 +496,7 @@ export const Products = {
       unit: pr.unit,
       supplier_id: pr.supplier_id,
       material_id: pr.material_id,
+      material: pr.material,
       collections: pr.collections,
     };
     return productRequest;
@@ -559,7 +560,7 @@ export const Products = {
         designer_code: variant.product.designer_code,
         made_in_id: variant.product.made_in_id,
         merchandiser_code: variant.product.merchandiser_code,
-        preservation: variant.product.preservation,
+        care_labels: variant.product.care_labels,
         specifications: variant.product.specifications,
         material_id: variant.product.material_id,
       },

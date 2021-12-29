@@ -20,7 +20,6 @@ import { convertCategory, formatCurrency } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import TreeStore from "./TreeStore";
-import { FormatTextMonney } from "utils/FormatMonney";
 import { CollectionResponse } from "model/product/collection.model";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -665,7 +664,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                             <InputNumber
                               className="price_min"
                               placeholder="Từ"
-                              formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
+                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                               min="0"
                               max="100000000"
                             />
@@ -677,7 +676,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                             <InputNumber
                               className="site-input-right price_max"
                               placeholder="Đến"
-                              formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
+                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                               min="0"
                               max="1000000000"
                             />

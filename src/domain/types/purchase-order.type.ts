@@ -37,3 +37,8 @@ export const POConfig = {
   GET_PO_CONFIG: "GET_PO_CONFIG", 
   DELETE_PO_CONFIG: "DELETE_PO_CONFIG", 
 };
+
+export const POLogHistory = {
+  GET_LOG_PO: "GET_LOG_PO",
+  GET_LOG_DETAIL_PO: "GET_LOG_DETAIL_PO",
+}
