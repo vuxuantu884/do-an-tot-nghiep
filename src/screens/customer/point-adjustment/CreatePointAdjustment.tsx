@@ -1,3 +1,7 @@
+import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
+import NumberFormat from "react-number-format";
 import {
   Button,
   Card,
@@ -8,44 +12,38 @@ import {
   Form,
   FormInstance,
   AutoComplete,
+  InputNumber,
 } from "antd";
-import ContentContainer from "component/container/content.container";
-import NumberInput from "component/custom/number-input.custom";
+
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
-import { Link } from "react-router-dom";
-import "./point-adjustment.scss";
+import { useQuery } from "utils/useQuery";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+
 import _ from "lodash";
 import {
   CustomerSearch,
-  getCustomerDetailAction,
+  getCustomerListAction,
 } from "domain/actions/customer/customer.action";
 import {
-  addLoyaltyPoint,
+  createCustomerPointAdjustmentAction,
   getLoyaltyPoint,
-  subtractLoyaltyPoint,
 } from "domain/actions/loyalty/loyalty.action";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { useQuery } from "utils/useQuery";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { PageResponse } from "model/base/base-metadata.response";
+import { CustomerSearchQuery } from "model/query/customer.query";
+
+import ContentContainer from "component/container/content.container";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { LoyaltyPermission } from "config/permissions/loyalty.permission";
 
-const initFormValues = {
-  type: "add",
-  reason: "Khác",
-  value: 1,
-  note: null,
-  search: "",
-};
+import "./point-adjustment.scss";
+
 const { Item } = Form;
 const POINT_ADD_REASON = [
   "Tặng điểm sinh nhật",
@@ -70,13 +68,11 @@ const pageColumns: Array<ICustomTableColumType<any>> = [
     title: "Số điện thoại",
     visible: true,
     dataIndex: "phone",
-    fixed: "left",
   },
   {
     title: "Tên khách hàng",
     visible: true,
     dataIndex: "full_name",
-    fixed: "left",
   },
   {
     title: "Mã khách hàng",
@@ -87,46 +83,60 @@ const pageColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "Số điểm hiện tại",
     visible: true,
-    dataIndex: "current_point",
+    dataIndex: "point",
     align: "center",
+    render: (value: any, item: any, index: number) => (
+      value ?
+      <NumberFormat
+        value={value}
+        displayType={"text"}
+        thousandSeparator={true}
+      /> : 0
+    ),
   },
 ];
 
 const CreatePointAdjustment = () => {
   const history = useHistory();
   const query = useQuery();
+  const paramCustomerIds = query.get("customer_ids");
+  
   const formRef = createRef<FormInstance>();
   const dispatch = useDispatch();
+
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [selectedCustomers, setSelectedCustomers] = useState<any[]>([]);
-  const [type, setType] = useState<string>(query.get("type") || "add");
+  const [type, setType] = useState<string>(query.get("type") || "ADD");
   const [keyword, setKeyword] = useState<string>("");
 
+  const initFormValues = {
+    type: type,
+    reason: "Khác",
+    value: 1,
+    note: null,
+    search: "",
+  };
+
+
+  const callBackGetCustomerList = useCallback((result: PageResponse<any> | false) => {
+    if (!!result) {
+      setSelectedCustomers(result.items);
+    }
+  }, []);
+
   useEffect(() => {
-    const paramCustomerIds = query.get("customer_ids");
     if (paramCustomerIds) {
       const customerIds = paramCustomerIds.split(",").map((id) => Number(id));
-      // fetch first id only
-      const customerId = customerIds[0];
-      if (customerId) {
-        dispatch(
-          getCustomerDetailAction(customerId, (data: CustomerResponse) => {
-            let customer = data as any;
-            formRef.current?.setFieldsValue({
-              search: `${customer.full_name} - ${customer.phone}`,
-              type,
-            });
-            dispatch(
-              getLoyaltyPoint(customer.id, (data: LoyaltyPoint) => {
-                customer.current_point = data ? data.point : 0;
-                setSelectedCustomers([customer]);
-              })
-            );
-          })
-        );
+      const params: CustomerSearchQuery = {
+        page: 1,
+        limit: customerIds.length,
+        ids: customerIds,
+        search_type: "SIMPLE"
       }
+      
+      dispatch(getCustomerListAction(params, callBackGetCustomerList));
     }
-  }, [dispatch, formRef, query, type]);
+  }, [callBackGetCustomerList, dispatch, paramCustomerIds]);
 
   const fetchCustomer = _.debounce((keyword: string) => {
     let query: any = { request: keyword };
@@ -148,7 +158,7 @@ const CreatePointAdjustment = () => {
   };
 
   const onSelect = (value: any, option: any) => {
-    const customer = option.customer;
+    const customer = option?.customer;
     if (customer) {
       const newSelectedCustomers = [...selectedCustomers];
       const isExistCustomer = newSelectedCustomers.find(item => item.id === customer.id);
@@ -157,7 +167,7 @@ const CreatePointAdjustment = () => {
       } else {
         dispatch(
           getLoyaltyPoint(customer.id, (data: LoyaltyPoint) => {
-            customer.current_point = data ? data.point : 0;
+            customer.point = data ? data.point : 0;
             newSelectedCustomers.unshift(customer);
             setSelectedCustomers(newSelectedCustomers);
           })
@@ -167,21 +177,15 @@ const CreatePointAdjustment = () => {
   };
 
   const onUpdateEnd = useCallback(
-    (data: LoyaltyPoint) => {
+    (data: any) => {
       formRef.current?.resetFields();
-      setType("add");
-      let _selectedCustomers = selectedCustomers;
-      _selectedCustomers = _selectedCustomers.map((customer) => {
-        if (customer.id === data.customer_id) {
-          customer.current_point = data.current_point;
-        }
-        return customer;
-      });
-      showSuccess("Thành công");
-      setSelectedCustomers(_selectedCustomers);
+      setType("ADD");
+      setSelectedCustomers([]);
       dispatch(hideLoading());
+      showSuccess("Tạo mới phiếu điều chỉnh thành công");
+      history.replace(`${UrlConfig.CUSTOMER}/point-adjustments/${data?.id}`)
     },
-    [selectedCustomers, formRef, dispatch]
+    [formRef, dispatch, history]
   );
 
   const handleError = useCallback(() => {
@@ -198,29 +202,22 @@ const CreatePointAdjustment = () => {
         showError("Giá trị điều chỉnh phải lớn hơn 0");
         return;
       }
-      const customer = selectedCustomers[0];
+
+      const customerIds: Array<any> = [];
+      selectedCustomers.forEach((customer) => {
+        customerIds.push(customer.id);
+      });
+
       const params = {
-        current_point: customer.current_point,
-        customer_id: customer.id,
-        note: values.note
-          ? values.note.trim()
-            ? values.note.trim()
-            : null
-          : null,
+        customer_ids: customerIds,
+        note: values.note,
         reason: values.reason,
-      } as any;
-      dispatch(showLoading());
-      if (values.type === "add") {
-        params.add_point = values.value;
-        dispatch(
-          addLoyaltyPoint(customer.id, params, onUpdateEnd, handleError)
-        );
-      } else {
-        params.subtract_point = values.value;
-        dispatch(
-          subtractLoyaltyPoint(customer.id, params, onUpdateEnd, handleError)
-        );
+        point_change: values.value,
+        type: values.type,
       }
+
+      dispatch(showLoading());
+      dispatch(createCustomerPointAdjustmentAction(params, onUpdateEnd, handleError));
     },
     [selectedCustomers, dispatch, onUpdateEnd, handleError]
   );
@@ -234,6 +231,15 @@ const CreatePointAdjustment = () => {
     },
     [formRef]
   );
+
+  
+  const goBack = () => {
+    if (paramCustomerIds?.length) {
+      history.replace(`${UrlConfig.CUSTOMER}`)
+    } else {
+      history.replace(`${UrlConfig.CUSTOMER}/point-adjustments`)
+    }
+  };
 
   return (
     <ContentContainer
@@ -256,11 +262,7 @@ const CreatePointAdjustment = () => {
       <AuthWrapper acceptPermissions={createPointAdjustmentPermission} passThrough>
           {(allowed: boolean) => (allowed ?
             <Card
-              title={
-                <div className="d-flex">
-                  <span>THÔNG TIN ĐIỀU CHỈNH</span>
-                </div>
-              }
+              title="THÔNG TIN ĐIỀU CHỈNH"
             >
               <div className="create-point-adjustments">
                 <Form
@@ -320,10 +322,10 @@ const CreatePointAdjustment = () => {
                             style={{ width: "100%" }}
                             onChange={onChangeType}
                           >
-                            <Select.Option key="add" value="add">
+                            <Select.Option key="ADD" value="ADD">
                               Tăng
                             </Select.Option>
-                            <Select.Option key="subtract" value="subtract">
+                            <Select.Option key="SUBTRACT" value="SUBTRACT">
                               Giảm
                             </Select.Option>
                           </Select>
@@ -349,13 +351,13 @@ const CreatePointAdjustment = () => {
                             placeholder="Chọn lý do điều chỉnh"
                             style={{ width: "100%" }}
                           >
-                            {type === "add" &&
+                            {type === "ADD" &&
                               POINT_ADD_REASON.map((reason, idx) => (
                                 <Select.Option key={idx} value={reason}>
                                   {reason}
                                 </Select.Option>
                               ))}
-                            {type === "subtract" &&
+                            {type === "SUBTRACT" &&
                               POINT_SUBTRACT_REASON.map((reason, idx) => (
                                 <Select.Option key={idx} value={reason}>
                                   {reason}
@@ -381,10 +383,12 @@ const CreatePointAdjustment = () => {
                             },
                           ]}
                         >
-                          <NumberInput
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                             placeholder="Nhập giá trị"
-                            style={{ textAlign: "left" }}
-                            max={999999999999999}
+                            min="0"
+                            max="1000000000"
                           />
                         </Item>
                       </div>
@@ -413,7 +417,7 @@ const CreatePointAdjustment = () => {
                   </Row>
                   <Row className="footer-controller">
                     <Col span={6} className="back">
-                      <div className="back-wrapper" onClick={() => history.goBack()}>
+                      <div className="back-wrapper" onClick={goBack}>
                         <svg
                           width="14"
                           height="14"
@@ -430,11 +434,9 @@ const CreatePointAdjustment = () => {
                       </div>
                     </Col>
                     <Col span={18} className="action-group">
-                      <Link to={`${UrlConfig.CUSTOMER}`}>
-                        <Button type="default" className="cancel-btn">
-                          Hủy
-                        </Button>
-                      </Link>
+                      <Button type="default" className="cancel-btn" onClick={goBack}>
+                        Hủy
+                      </Button>
                       <Button
                         type="primary"
                         className="save-btn"

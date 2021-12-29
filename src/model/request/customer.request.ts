@@ -8,10 +8,10 @@ interface BaseObject {
 }
 
 interface BaseRequest {
-  page?: number,
-  limit?: number,
-  sort_column?: string, 
-  sort_type?: string,
+  page?: number;
+  limit?: number;
+  sort_column?: string;
+  sort_type?: string;
 }
 
 export interface CustomerBillingAddress extends BaseObject {
@@ -32,7 +32,8 @@ export interface CustomerBillingAddress extends BaseObject {
   full_address: string;
   customer_id: number;
   tax_code: string;
-  default: boolean
+  default: boolean;
+  isDefault:boolean;
 }
 
 export class CustomerBillingAddressClass implements CustomerBillingAddress {
@@ -60,6 +61,7 @@ export class CustomerBillingAddressClass implements CustomerBillingAddress {
   request_id = "";
   operator_kc_id = "";
   tax_code = "";
+  isDefault=false;
 }
 
 export class CustomerShippingAddressClass implements CustomerShippingAddress {
@@ -105,7 +107,7 @@ export interface CustomerShippingAddress extends BaseObject {
   zip_code: string;
   full_address: string;
   customer_id: number;
-  default: boolean
+  default: boolean;
 }
 
 export interface CustomerContact extends BaseObject {
@@ -159,29 +161,29 @@ export class CustomerNoteClass implements CustomerNote {
 }
 
 export interface CustomerRequest extends BaseObject {
-  code: string | null;
-  full_name: string;
-  phone: string;
-  email: string;
+  full_name: string | null;
   card_number: string | null;
-  customer_group_id: number | null;
-  customer_group: string | null;
-  customer_type_id: number | null;
-  customer_type: string | null;
-  customer_level_id: number | null;
-  customer_level: string | null;
-  company_id: number | null;
-  company: string | null;
-  description: string | null;
-  wedding_date: string | null;
-  birthday: string | null;
+  phone: string | null;
+  email: string | null;
   gender: string | null;
-  website: string;
-  status: string;
-  tags: string;
-  responsible_staff_code: string | null;
-  responsible_staff: string | null;
+  birthday: string | null;
+  website: string | null;
+  wedding_date: string | null;
+  company: string | null;
+  tax_code: string | null;
+  country_id: number | null;
+  district_id: number | null;
+  district:string|null;
+  ward_id: number | null;
+  ward:string|null;
   full_address: string | null;
+  customer_type_id: number | null;
+  customer_group_id: number | null;
+  responsible_staff_code: string | null;
+  description: string | null;
+  status: string | null;
+  version: number | null;
+  city_id: number | null;
   billing_addresses: Array<CustomerBillingAddress>;
   shipping_addresses: Array<CustomerShippingAddress>;
   contacts: Array<CustomerContact>;
@@ -197,33 +199,28 @@ export class CustomerModel implements CustomerRequest {
   request_id = "";
   code = "";
   full_name = "";
+  card_number = "";
   phone = "";
   email = "";
-  card_number= null;
-  customer_group_id = null;
-  customer_group = "";
-  customer_type_id = null;
-  customer_type = "";
-  customer_level_id = null;
-  customer_level = "";
-  company_id = null;
-  company = "";
-  description = "";
-  wedding_date = null;
-  birthday = null;
-  gender = null;
+  gender = "";
+  birthday = "";
   website = "";
-  status = "active";
-  tags = "";
-  responsible_staff_code = null;
-  responsible_staff = null;
+  wedding_date = "";
+  company = "";
+  tax_code = "";
+  country_id = null;
+  district_id = null;
+  district="";
+  ward_id = null;
+  ward="";
   full_address = "";
-  district_id= null;
-  ward_id= null;
-  country_id= 233;
-  country="VIET NAM";
-  city_id= null;
-  city="";
+  customer_type_id = null;
+  customer_group_id = null;
+  responsible_staff_code = "";
+  description = "";
+  status = "";
+  version = null;
+  city_id = null;
   billing_addresses: Array<CustomerBillingAddress> = [];
   shipping_addresses: Array<CustomerShippingAddress> = [];
   contacts: Array<CustomerContact> = [];
@@ -237,7 +234,7 @@ export interface CustomerUpdateRequest extends CustomerRequest {
 export interface CustomerCardListRequest extends BaseRequest {
   request: string;
   from_assigned_date: string;
-  to_assigned_date: string; 
+  to_assigned_date: string;
   statuses: Array<any>;
   release_ids: Array<any>;
 }

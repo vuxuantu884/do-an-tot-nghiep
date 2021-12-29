@@ -90,7 +90,7 @@ const InventoryColumnField = {
   transferring: 'transferring',
   on_way: 'on_way',
   shipping: 'shipping',
-  total: 'total',
+  total_stock: 'total_stock'
 }
 
 const HistoryInventoryMappingField = {

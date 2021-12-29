@@ -20,7 +20,7 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency, getTotalQuantity, handleDisplayCoupon } from "utils/AppUtils";
-import { dangerColor, successColor } from "utils/global-styles/variables";
+import { successColor } from "utils/global-styles/variables";
 //#endregion
 
 type ProductCardUpdateProps = {

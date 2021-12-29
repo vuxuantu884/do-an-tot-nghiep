@@ -26,6 +26,26 @@ export const updatePurchaseProcumentService = (
     data
   );
 };
+export const approvalPurchaseProcumentService = (
+  poId: number,
+  procumentId: number,
+  data: PurchaseProcument
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/${procumentId}/approve`,
+    data
+  );
+};
+export const confirmPoProcumentService = (
+  poId: number,
+  procumentId: number,
+  data: PurchaseProcument
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/${procumentId}/confirm`,
+    data
+  );
+};
 export const deletePurchaseProcumentService = (
   poId: number,
   procumentId: number

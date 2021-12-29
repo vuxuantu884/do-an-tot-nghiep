@@ -38,7 +38,8 @@ import {
   subtractLoyaltyPointService,
   updateLoyaltyProgram,
   getPointAdjustmentListService,
-  getPointAdjustmentDetailService
+  getPointAdjustmentDetailService,
+  createCustomerPointAdjustmentService
 } from "service/loyalty/loyalty.service";
 
 function* uploadLoyaltyCardSaga(action: YodyAction) {
@@ -473,9 +474,11 @@ function* getloyaltyPoint(action: YodyAction) {
         break;
       default:
         response.errors.forEach((e:any) => showError(e));
+        setData(false);
         break;
     }
   } catch (error) {
+    setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -604,6 +607,32 @@ function* getPointAdjustmentDetailSaga(action: YodyAction) {
   }
 }
 
+function* createCustomerPointAdjustmentSaga(action: YodyAction) {
+  const { params, successCallback, failCallback } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      createCustomerPointAdjustmentService,
+      params
+    );
+    
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        successCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any) => showError(e));
+        failCallback();
+        break;
+    }
+  } catch (error) {
+    failCallback();
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 
 export function* loyaltySaga() {
   yield takeLatest(LoyaltyCardReleaseType.UPLOAD, uploadLoyaltyCardSaga);
@@ -630,4 +659,5 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, getLoyaltyAdjustPointSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST, getPointAdjustmentListSaga);
   yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_DETAIL, getPointAdjustmentDetailSaga);
+  yield takeLatest(LoyaltyPointsAdjustmentType.CREATE_CUSTOMER_POINT_ADJUSTMENT, createCustomerPointAdjustmentSaga);
 }

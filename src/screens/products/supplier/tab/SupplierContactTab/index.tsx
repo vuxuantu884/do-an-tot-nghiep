@@ -28,6 +28,10 @@ const SupplierContactTab: React.FC<SupplierContactTabProps> = (props: SupplierCo
           dataIndex: "name",
         },
         {
+          title: "Chức vụ",
+          dataIndex: "position",
+        },
+        {
           title: "Số điện thoại",
           dataIndex: "phone",
         },

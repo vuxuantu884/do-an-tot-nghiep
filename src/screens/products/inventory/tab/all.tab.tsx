@@ -170,16 +170,16 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        },
        {
          title: HeaderSummary(objSummaryTable?.Sum_Total,"Tổng tồn",
-                              InventoryColumnField.total, 
+                              InventoryColumnField.total_stock, 
                               (sortColumn:string)=>{onSortASC(sortColumn)},
                               (sortColumn:string)=>{onSortDESC(sortColumn)}), 
          titleCustom: "Tổng tồn",
          visible: true,
-         dataIndex: `total`,
+         dataIndex: `total_stock`,
          align: "center",
          width: 150,
          render: (value,record) => {
-           return <div> {formatCurrency(record.on_hand+(record.on_way ?? 0)+record.transferring,".")}</div> ;
+           return <div> {formatCurrency(record.total_stock)}</div> ;
          },
        },
        {
@@ -326,11 +326,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        },
        {
          title: "Tổng tồn",
-         dataIndex: `total`,
+         dataIndex: `total_stock`,
          align: "center",
          width: 150,
          render: (value,record) => {
-           return <div>{formatCurrency(record.on_hand+(record.on_way ?? 0)+record.transferring, ".")}</div> ;
+           return <div>{formatCurrency(record.total_stock)}</div> ;
          },
        },
        {
@@ -448,8 +448,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
           objSum.Sum_Transferring += e.transferring;
           objSum.Sum_On_way += e.on_way ?? 0;
           objSum.Sum_Shipping += e.shipping ?? 0;
-          const total = e.on_hand+ (e.on_way ?? 0) + e.transferring;
-          objSum.Sum_Total += total;
+          objSum.Sum_Total += e.total_stock ?? 0;
         });
 
         setObjSummaryTable({...objSum});

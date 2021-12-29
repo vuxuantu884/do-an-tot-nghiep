@@ -314,6 +314,7 @@ function OrderCreateProduct(props: PropType) {
 						// console.log(barcode);
 						dispatch(
 							SearchBarCode(barcode, (data: VariantResponse) => {
+
 								let _items = [...items].reverse();
 								const item: OrderLineItemRequest = createItem(data);
 								let index = _items.findIndex((i) => i.variant_id === data.id);
@@ -329,6 +330,12 @@ function OrderCreateProduct(props: PropType) {
 										variantItems[lastIndex].price -
 										variantItems[lastIndex].discount_items[0].amount;
 									calculateChangeMoney(_items);
+								}
+
+								if (isAutomaticDiscount && _items.length > 0) {
+									handleApplyDiscount(_items);
+								} else if (couponInputText && _items.length > 0) {
+									handleApplyCouponWhenInsertCoupon(couponInputText, _items);
 								}
 
 								setItems(_items.reverse());
@@ -687,7 +694,7 @@ function OrderCreateProduct(props: PropType) {
 			<div className="text-center">
 				<div style={{ textAlign: "center" }}>Số lượng</div>
 				{items && getTotalQuantity(items) > 0 && (
-					<span style={{ color: "#2A2A86" }}>({getTotalQuantity(items)})</span>
+					<span style={{ color: "#2A2A86" }}>({formatCurrency(getTotalQuantity(items))})</span>
 				)}
 			</div>
 		),
@@ -699,6 +706,8 @@ function OrderCreateProduct(props: PropType) {
 			return (
 				<div className="yody-pos-qtt">
 					<NumberInput
+						format={(a: string) => formatCurrency(a)}
+						replace={(a: string) => replaceFormatString(a)}
 						style={{ textAlign: "right", fontWeight: 500, color: "#222222" }}
 						value={l.quantity}
 						onChange={(value) => {
@@ -1608,25 +1617,29 @@ function OrderCreateProduct(props: PropType) {
 		_promotion?: OrderDiscountRequest | null,
 	) => {
 		if (_promotion === undefined) {
-			let _value = 0;
-			let _rate = 0;
-			let totalOrderAmount = totalAmount(_items);
-			if (discountType === MoneyType.MONEY) {
-				_value = promotion?.value || 0;
-				_rate = (_value / totalOrderAmount) * 100;
-			} else if (discountType === MoneyType.PERCENT) {
-				_rate = promotion?.rate || 0;
-				_value = (_rate * totalOrderAmount) / 100;
-			}
-			_promotion = {
-				amount: _value,
-				discount_code: null,
-				order_id: null,
-				promotion_id: null,
-				rate: _rate,
-				reason: null,
-				source: null,
-				value: _value,
+			if(promotion) {
+				let _value = 0;
+				let _rate = 0;
+				let totalOrderAmount = totalAmount(_items);
+				if (discountType === MoneyType.MONEY) {
+					_value = promotion?.value || 0;
+					_rate = (_value / totalOrderAmount) * 100;
+				} else if (discountType === MoneyType.PERCENT) {
+					_rate = promotion?.rate || 0;
+					_value = (_rate * totalOrderAmount) / 100;
+				}
+				_promotion = {
+					amount: _value,
+					discount_code: null,
+					order_id: null,
+					promotion_id: null,
+					rate: _rate,
+					reason: null,
+					source: null,
+					value: _value,
+				}
+			} else {
+				_promotion = null
 			}
 		}
 		props.changeInfo(_items, _promotion);
@@ -1641,6 +1654,15 @@ function OrderCreateProduct(props: PropType) {
 					userReducer.account ? userReducer.account.account_stores : []
 				)
 			);
+			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+			if(storeId && userReducer.account) {
+				if(userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
+					let initStore = listStores.find((single) => single.id === storeId)
+					if(initStore) {
+						newData.push(initStore);
+					}
+				}
+			}
 		}
 		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
 		if (newData && newData[0]?.id) {
@@ -1649,8 +1671,7 @@ function OrderCreateProduct(props: PropType) {
 			}
 		}
 		return newData;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [listStores, userReducer.account]);
+	}, [listStores, setStoreId, storeId, userReducer.account]);
 
 	const onUpdateData = useCallback(
 		(items: Array<OrderLineItemRequest>) => {
@@ -1693,16 +1714,7 @@ function OrderCreateProduct(props: PropType) {
 		_items.forEach((lineItem) => {
 			if (lineItem.discount_items[0]?.promotion_id || couponInputText) {
 				lineItem.discount_amount = 0;
-				lineItem.discount_items = lineItem.discount_items.map((discount) => {
-					return {
-						amount: 0,
-						rate: 0,
-						discount_code: "",
-						promotion_id: undefined,
-						reason: "",
-						value: 0,
-					};
-				});
+				lineItem.discount_items = []
 				lineItem.discount_rate = 0;
 				lineItem.discount_value = 0;
 				lineItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(lineItem);
@@ -1723,16 +1735,7 @@ function OrderCreateProduct(props: PropType) {
 		let _items = [...items];
 		_items.forEach((lineItem) => {
 			lineItem.discount_amount = 0;
-			lineItem.discount_items = lineItem.discount_items.map((discount) => {
-				return {
-					amount: 0,
-					rate: 0,
-					discount_code: "",
-					promotion_id: undefined,
-					reason: "",
-					value: 0,
-				};
-			});
+			lineItem.discount_items = [];
 			lineItem.discount_rate = 0;
 			lineItem.discount_value = 0;
 			lineItem.line_amount_after_line_discount = lineItem.price;
@@ -2101,7 +2104,7 @@ function OrderCreateProduct(props: PropType) {
 										textAlign: "right",
 									}}
 								>
-									{formatCurrency(Math.round(getTotalAmount(items)))}
+									{formatCurrency(getTotalAmount(items))}
 								</div>
 
 								<div
@@ -2111,7 +2114,7 @@ function OrderCreateProduct(props: PropType) {
 										textAlign: "right",
 									}}
 								>
-									{formatCurrency(Math.round(getTotalDiscount(items)))}
+									{formatCurrency(getTotalDiscount(items))}
 								</div>
 
 								<div
@@ -2123,7 +2126,7 @@ function OrderCreateProduct(props: PropType) {
 										fontWeight: 700,
 									}}
 								>
-									{formatCurrency(Math.round(getTotalAmountAfterDiscount(items)))}
+									{formatCurrency(getTotalAmountAfterDiscount(items))}
 								</div>
 							</div>
 						) : (

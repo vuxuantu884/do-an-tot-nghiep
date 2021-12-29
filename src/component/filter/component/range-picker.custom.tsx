@@ -44,7 +44,7 @@ const getRange = (distance: number, unit: "day" | "month" | "week") => {
   if (searchUnit === "week") searchUnit = "isoWeek";
   let from = dateFrom.startOf(searchUnit),
     to = dateTo.endOf(searchUnit);
-  return [from.utc().format(), to.utc().format()];
+  return [from.startOf(unit).utc(true).format(), to.endOf(unit).utc(true).format()];
 };
 
 const CustomRangePicker: React.FC<CustomRangePickerProps> = (
@@ -60,12 +60,12 @@ const CustomRangePicker: React.FC<CustomRangePickerProps> = (
       _.isEqual(getRange(1, "month"), value) ||
       _.isEqual(getRange(0, "month"), value)
     ) {
-      return [moment(value?.[0]), moment(value?.[1])];
+      return [moment(value?.[0]).utc(), moment(value?.[1]).utc()];
     }
     if (value && value.length > 0) {
       const from = value[0],
         to = value[1];
-      return [moment(from), moment(to)];
+      return [moment(from), moment(to).utc(true)];
     }
     return undefined;
   }, [value]);
@@ -156,8 +156,8 @@ const CustomRangePicker: React.FC<CustomRangePickerProps> = (
             return;
           }
           if (dates && dates.length > 0) {
-            from = dates[0] ? dates[0].startOf("day").utc().format() : null;
-            to = dates[1] ? dates[1].endOf("day").utc().format() : null;
+            from = dates[0] ? dates[0].startOf("day").utc(true).format() : null;
+            to = dates[1] ? dates[1].endOf("day").utc(true).format() : null;
           }
           onChange && onChange([from, to]);
         }}

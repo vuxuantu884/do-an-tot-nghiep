@@ -173,7 +173,7 @@ const TabHistoryPrice: React.FC = () => {
           if (to_action_date) {
             values.to_action_date = getEndOfDay(to_action_date)
           }
-          values.condition = condition.trim();
+          values.condition = condition && condition.trim();
           let newParams = { ...params, ...values, page: 1 };
 
           setParams(newParams);

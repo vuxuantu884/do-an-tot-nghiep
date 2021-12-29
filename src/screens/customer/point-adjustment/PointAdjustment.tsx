@@ -77,7 +77,7 @@ const PointAdjustment = () => {
       width: "6%",
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
-          1
+          {value.customers?.length}
         </div>
       ),
     },

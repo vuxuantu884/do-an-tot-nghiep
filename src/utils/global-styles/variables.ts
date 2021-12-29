@@ -18,6 +18,7 @@ export const grayE5Color = "#E5E5E5";
 export const defaultBgTag= "#F4F4F7";
 export const focusBorderColor = primaryColor;
 export const sortActionColor ="#BFBFBF";
+export const bluePlus ="#3d3d3d";
 
 //
 export const borderRadius = "2px";

@@ -277,11 +277,10 @@ function OrderPayments(props: PropType): JSX.Element {
                 <Col className="lbl-money" lg={6} xxl={6} style={{marginLeft: 10}}>
 									<NumberInput
                     min={0}
-                    max={totalAmountOrder}
                     value={method.amount}
                     disabled={method.code === PaymentMethodCode.POINT || levelOrder > 2}
                     className="yody-payment-input hide-number-handle"
-                    placeholder="Nhập tiền mặt 3"
+                    placeholder="Nhập tiền mặt"
                     style={{
                       textAlign: "right",
                       width: "100%",

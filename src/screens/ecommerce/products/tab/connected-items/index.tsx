@@ -50,15 +50,12 @@ import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import filterIcon from "assets/icon/filter.svg";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
 
 import { StyledComponent } from "screens/ecommerce/products/tab/connected-items/styles";
 import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
 import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
@@ -498,6 +495,7 @@ const ConnectedItems: React.FC = () => {
           id: item.id,
           name: item.name,
           isSelected: false,
+          ecommerce: item.ecommerce,
         });
       });
     }
@@ -526,34 +524,6 @@ const ConnectedItems: React.FC = () => {
     setShopIdSelected([]);
   };
   //end handle select ecommerce
-
-  const ECOMMERCE_LIST = [
-    {
-      title: "Sàn Shopee",
-      icon: shopeeIcon,
-      id: "shopee",
-      ecommerce_id: 1,
-    },
-    {
-      title: "Sàn Tiki",
-      icon: tikiIcon,
-      id: "tiki",
-      ecommerce_id: 2,
-    },
-    {
-      title: "Sàn Lazada",
-      icon: lazadaIcon,
-      id: "lazada",
-      ecommerce_id: 3,
-    },
-    {
-      title: "Sàn Sendo",
-      icon: sendoIcon,
-      id: "sendo",
-      isActive: false,
-      ecommerce_id: 4,
-    },
-  ];
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -650,7 +620,7 @@ const ConnectedItems: React.FC = () => {
     return (
       <StyledProductFilter>
         <div className="render-shop-list">
-          {ecommerceShopList.map((item: any) => (
+          {ecommerceShopList?.map((item: any) => (
             <div key={item.id} className="shop-name">
               <Checkbox
                 onChange={(e) => onCheckedChange(item, e)}
@@ -659,7 +629,7 @@ const ConnectedItems: React.FC = () => {
                 <span className="check-box-name">
                   <span>
                     <img
-                      src={shopeeIcon}
+                      src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
@@ -792,8 +762,8 @@ const ConnectedItems: React.FC = () => {
                   onSelect={(value) => handleSelectEcommerce(value)}
                   onClear={removeEcommerce}
                 >
-                  {ECOMMERCE_LIST &&
-                    ECOMMERCE_LIST.map((item: any) => (
+                  {
+                    ECOMMERCE_LIST?.map((item: any) => (
                       <Option key={item.ecommerce_id} value={item.ecommerce_id}>
                         <div>
                           <img
@@ -804,7 +774,8 @@ const ConnectedItems: React.FC = () => {
                           <span>{item.title}</span>
                         </div>
                       </Option>
-                    ))}
+                    ))
+                  }
                 </Select>
               </Form.Item>
 
@@ -909,8 +880,8 @@ const ConnectedItems: React.FC = () => {
                 onSelect={(value) => handleSelectEcommerce(value)}
                 onClear={removeEcommerce}
               >
-                {ECOMMERCE_LIST &&
-                  ECOMMERCE_LIST.map((item: any) => (
+                {
+                  ECOMMERCE_LIST?.map((item: any) => (
                     <Option key={item.ecommerce_id} value={item.ecommerce_id}>
                       <div>
                         <img
@@ -921,7 +892,8 @@ const ConnectedItems: React.FC = () => {
                         <span>{item.title}</span>
                       </div>
                     </Option>
-                  ))}
+                  ))
+                }
               </Select>
             </Form.Item>
 

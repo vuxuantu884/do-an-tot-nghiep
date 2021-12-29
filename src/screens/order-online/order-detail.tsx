@@ -296,8 +296,8 @@ const OrderDetail = (props: PropType) => {
       } else {
         setIsShowConfirmOrderButton(false);
       }
-      if (_data.order_return_origin?.total_amount) {
-        setTotalAmountReturnProducts(_data.order_return_origin?.total_amount);
+      if (_data.order_return_origin?.total) {
+        setTotalAmountReturnProducts(_data.order_return_origin?.total);
       }
     }
   }, []);
@@ -589,7 +589,7 @@ const OrderDetail = (props: PropType) => {
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
                   pointUsing={OrderDetail.order_return_origin.point_refund}
                   totalAmountReturnToCustomer={
-                    OrderDetail?.order_return_origin.total_amount
+                    OrderDetail?.order_return_origin.total
                   }
                   OrderDetail={OrderDetail}
                 />

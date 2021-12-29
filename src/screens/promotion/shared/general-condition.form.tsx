@@ -200,6 +200,12 @@ function GeneralConditionForm({
                 placeholder="Chọn kênh bán hàng"
                 mode="multiple"
                 className="ant-select-selector-min-height"
+                showSearch
+                allowClear
+                filterOption={(input, option) =>
+                  option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                  0
+                }
               >
                 {listChannel?.map((channel: any) => (
                   <Option value={channel.name} key={channel.name}>{channel.name}</Option>
@@ -236,6 +242,12 @@ function GeneralConditionForm({
                 placeholder="Chọn nguồn đơn hàng"
                 mode="multiple"
                 className="ant-select-selector-min-height"
+                showSearch
+                allowClear
+                filterOption={(input, option) =>
+                  option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                  0
+                }
               >
                 {listSource?.map((source: any) => (
                   <Option value={source.id} key={source.name}>{source.name}</Option>

@@ -56,6 +56,10 @@ export interface PurchaseOrder extends BaseObject {
   payment_condition_id: number;
   payment_condition_name: string;
   payment_note: string;
+  merchandiser_code: string;
+  merchandiser: string;
+  qc: string;
+  qc_code:string;
 }
 
 export interface PurchaseOrderQuery extends BaseQuery {

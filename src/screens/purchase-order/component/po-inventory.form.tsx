@@ -4,6 +4,8 @@ import {
   PoProcumentCreateAction,
   PoProcumentUpdateAction,
   PoProcumentDeleteAction,
+  ConfirmPoProcumentAction,
+  ApprovalPoProcumentAction,
 } from "domain/actions/po/po-procument.action";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
@@ -179,7 +181,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         if (!poData) return;
         setLoadingConfirm(true);
         dispatch(
-          PoProcumentUpdateAction(
+          ApprovalPoProcumentAction(
             idNumber,
             value.id,
             value,
@@ -219,7 +221,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         if (!poData) return;
         setLoadingRecive(true);
         dispatch(
-          PoProcumentUpdateAction(
+          ConfirmPoProcumentAction(
             idNumber,
             value.id,
             value,

@@ -60,7 +60,6 @@ deploy to dev:
     - npd-deploy
   only:
     - develop
-  when: manual
   variables:
     PREFIX: dev
     HOST: dev.unicorn.yody.io

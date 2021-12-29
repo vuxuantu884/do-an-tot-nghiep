@@ -144,7 +144,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     isWin = win;
     dispatch(
       AccountSearchAction(
-        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
@@ -263,7 +263,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
            account.code,
           (res)=>{
            if (res) {
-            setLstConfigFilter(res.data);
+             if (res.data && res.data.length > 0) {
+              const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_INVENTORY);
+              setLstConfigFilter(configFilters);
+             }
            }
           }
         )
@@ -500,7 +503,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                     <Col span={24} className="tag-filter">
                       {
                         lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                          return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
                         })
                       }
                     </Col>

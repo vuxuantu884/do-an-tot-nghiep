@@ -180,6 +180,9 @@ export const StyledComponent = styled.div`
 				margin-right: 5px;
 				position: relative;
 				top: -2px;
+				&.iconShipping {
+					top: 0
+				}
 			}
 		}
 	}

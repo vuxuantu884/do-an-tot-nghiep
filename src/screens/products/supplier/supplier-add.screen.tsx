@@ -532,6 +532,19 @@ const CreateSupplierScreen: React.FC = () => {
                         <Row>
                           <Col span={24}>
                             <Item
+                              name={[name, "position"]}
+                              label="Chức vụ"
+                            >
+                              <Input
+                                placeholder="Nhập chức vụ"
+                                maxLength={255}
+                              />
+                            </Item>
+                          </Col>
+                        </Row>
+                        <Row>
+                          <Col span={24}>
+                            <Item
                               name={[name, "phone"]}
                               label="Số điện thoại"
                               rules={[
