@@ -67,11 +67,12 @@ const TreeStore = (props: Props) => {
       maxTagCount="responsive"
       onChange={(value) => {form.setFieldsValue({ [name]: value })}}
       {...restProps}
+      filterTreeNode={(search: any, item: any) => {
+        return item?.title.toLowerCase().includes(search.toLowerCase().trim());
+      }}
     >
       {
         stores?.map((departmentItem: any) => {
-          console.log("data", stores);
-
           return (
             <TreeSelect.TreeNode
               key={departmentItem[0]}
@@ -79,7 +80,7 @@ const TreeStore = (props: Props) => {
               title={departmentItem[0]}
             >
               {
-                <React.Fragment>
+                <React.Fragment>  
                   {
                     departmentItem[1].map((storeItem: any) => (
                       <TreeSelect.TreeNode
