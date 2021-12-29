@@ -67,7 +67,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
               <Button
                 type="text"
                 className="p-0 ant-btn-custom"
-                icon={<img src={threeDot} alt=""></img>}
+                icon={<img src={threeDot} alt="" style={{verticalAlign: 'super'}}/>}
               ></Button>
             </Dropdown>
           </div>

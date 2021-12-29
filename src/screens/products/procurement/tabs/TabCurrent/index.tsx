@@ -176,6 +176,7 @@ const TabCurrent: React.FC = () => {
         isEdit={false}
         items={purchaseOrderItem.line_items}
         stores={[] as Array<StoreResponse>}
+        procumentCode={''}
         now={moment(purchaseOrderItem.created_date)}
         visible={isVisibleReceiveModal && showLoadingBeforeShowModal === -1}
         item={selectedProcurement}

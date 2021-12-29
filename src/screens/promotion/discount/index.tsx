@@ -23,6 +23,7 @@ import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { ACTIONS_DISCOUNT, STATUS_PROMO } from "../constant";
 import DiscountFilter from "./components/DiscountFilter";
 import "./discount.scss";
+import threeDot from "assets/icon/three-dot.svg";
 
 const DiscountPage = () => {
   const discountStatuses = STATUS_PROMO;
@@ -168,10 +169,11 @@ const DiscountPage = () => {
         <Dropdown.Button
           overlay={
             <Menu>
-              <Menu.Item icon={<EditOutlined />}>
+              <Menu.Item icon={<EditOutlined />} key={1}>
                 <Link to={`discounts/${id}/update`}>Chỉnh sửa</Link>
               </Menu.Item>
               <Menu.Item
+                key={1}
                 icon={<RiDeleteBin2Fill />}
                 onClick={() => {
                   setTableLoading(true);
@@ -185,10 +187,11 @@ const DiscountPage = () => {
                   setTableLoading(false);
                 }}
               >
-                Tạm ngừng
+               Tạm ngừng
               </Menu.Item>
             </Menu>
           }
+          icon={<img src={threeDot} alt="" style={{verticalAlign: 'super'}}/>}
         />
       ),
     },

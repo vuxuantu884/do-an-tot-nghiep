@@ -7,6 +7,7 @@ export const ChartColor = {
   white: "white",
 };
 export const DashboardContainer = styled.div`
+ 
   .monthly-chart {
     &__info {
       margin-bottom: 45px;
