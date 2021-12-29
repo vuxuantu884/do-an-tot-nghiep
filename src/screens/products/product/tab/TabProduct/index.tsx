@@ -155,11 +155,11 @@ const TabProduct: React.FC = () => {
     history.replace(`${ProductTabUrl.VARIANTS}?${queryParam}`);
   }, [history]);
 
-  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => {
-    setTableLoading(false);
+  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => { 
     if (!!result) {
-      setData(result);
+      setData(result); 
     }
+    setTableLoading(false);
   }, []);
 
   const onResultUpdateSaleable = useCallback(

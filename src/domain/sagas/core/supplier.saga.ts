@@ -124,7 +124,6 @@ function* supplierCreateSaga(action: YodyAction) {
   const {request, setData} = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(supplierPostApi, request);
-debugger
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);

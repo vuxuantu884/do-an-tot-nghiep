@@ -47,7 +47,7 @@ const ACTIONS_INDEX = {
 const actionsDefault: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.EXPORT_EXCEL,
-    name: "Xuất thông in excel",
+    name: "Xuất thông tin excel",
   },
   {
     id: ACTIONS_INDEX.ACTIVE,
@@ -234,12 +234,22 @@ const TabProductWrapper: React.FC = () => {
     setListCategory(temp);
   }, []);
 
-  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => {
+  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => { 
+    dispatch(hideLoading());
     setTableLoading(false);
     if (!!result) {
       setData(result);
     }
-  }, []);
+  }, [dispatch]);
+
+  const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => { 
+    dispatch(hideLoading());
+    setTableLoading(false);
+    showSuccess("Xóa sản phẩm thành công");
+    if (!!result) {
+      setData(result);
+    }
+  }, [dispatch]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -267,11 +277,9 @@ const TabProductWrapper: React.FC = () => {
   );
 
   const onDeleteSuccess = useCallback(() => {
-    setSelected([]);
-    dispatch(hideLoading());
-    showSuccess("Xóa sản phẩm thành công");
-    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
-  }, [dispatch, setSearchResult, params]);
+    setSelected([]); 
+    dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
+  }, [dispatch, setSearchResultDelete, params]);
 
   const onUpdateSuccess = useCallback(
     (result: ProductWrapperUpdateRequest) => {

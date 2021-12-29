@@ -943,6 +943,9 @@ const UpdateTicket: FC = () => {
                         onSelect={onSelectProduct}
                         options={renderResult}
                         ref={productSearchRef}
+                        onClickAddNew={() => {
+                          window.open(`/admin${UrlConfig.PRODUCT}/create`, "_blank");
+                        }}
                       />
                       <Button
                         onClick={() => {
@@ -989,7 +992,7 @@ const UpdateTicket: FC = () => {
                   >
                     <TextArea
                       maxLength={250}
-                      placeholder=" "
+                      placeholder="Nhập ghi chú nội bộ"
                       autoSize={{ minRows: 4, maxRows: 6 }}
                     />
                   </Form.Item>

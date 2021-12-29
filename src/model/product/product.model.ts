@@ -206,6 +206,8 @@ export interface VariantSearchQuery extends BaseQuery {
   saleable?: boolean
   store_id?: number,
   store_ids?: number|null,
+  sort_column?: string,
+  sort_type?: string
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,
@@ -297,6 +299,7 @@ export interface ProductRequest {
   material_id:number|null,
   supplier_id:number|null,
   collections:Array<string>,
+  material: string|null
 }
 
 export interface VariantRequestView {
@@ -346,7 +349,7 @@ export interface ProductRequestView {
   saleable: boolean,
   material_id:number|null,
   supplier_id:number|null,
-
+  material: string|null
 }
 
 export interface ProductUpdateView {

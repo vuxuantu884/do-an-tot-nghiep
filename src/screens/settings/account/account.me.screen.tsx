@@ -27,7 +27,7 @@ import { showSuccess } from "utils/ToastUtils";
 type OrtherInfoType ={
   departments: string|null,
   jobs: string|null,
-  permissions: string|null,
+  permissions: any,
   stores: string|null,
 }
 
@@ -52,7 +52,7 @@ const AccountMeScreen: React.FC = () => {
         setObjOrther({
           departments: data.account_jobs?.map(({department})=>department).toString(),
           jobs: data.account_jobs?.map(({position})=>position).toString(),
-          permissions: data.permissions?.modules?.map(e=>e.name).toString(),
+          permissions: data.permissions,
           stores: data.account_stores?.map(({store})=>store).toString(),
         })
       }
@@ -132,7 +132,7 @@ const AccountMeScreen: React.FC = () => {
             <Card title={<TitleCustom color="#FCAF17" bgColor="#FFF7E8" size={40} icon={<TeamOutlined />} text="THÔNG TIN KHÁC"/>}>   
               <RowDetail title="Phòng ban" value={(objOrther?.departments && objOrther.departments?.length > 0) ? objOrther.jobs : "---"}/>
               <RowDetail title="Vị trí" value={(objOrther?.jobs && objOrther.jobs?.length > 0) ? objOrther?.jobs : "---"}/>
-              <RowDetail title="Nhóm quyền" value={objOrther?.permissions ?? "---"}/>
+              <RowDetail title="Nhóm quyền" value={objOrther?.permissions?.role_name ?? "---"}/>
               <RowDetail title="Cửa hàng" value={(objOrther?.stores && objOrther.stores?.length > 0) ? objOrther.stores : "---"}/>
             </Card>
           </Col>
