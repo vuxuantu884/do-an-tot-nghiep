@@ -13,8 +13,8 @@ import { Moment } from "moment";
 
 import ProcumentCommonModal from "./procument.common.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { formatCurrency } from "utils/AppUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
 export type ProcumentConfirmProps = {
   visible: boolean;
@@ -252,6 +252,10 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                       onChange={(quantity: number | null) => {
                         onQuantityChange(quantity, index);
                       }}
+                      format={(a: string) => formatCurrency(a)}
+                      replace={(a: string) =>
+                        replaceFormatString(a)
+                      }
                     />
                   ),
                 },

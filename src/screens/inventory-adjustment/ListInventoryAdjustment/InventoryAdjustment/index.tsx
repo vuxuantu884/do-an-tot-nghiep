@@ -377,8 +377,10 @@ const InventoryAdjustment: React.FC = () => {
       params.page = page;
       params.limit = size;
       setPrams({...params});
+      let queryParam = generateQuery(params);
+      history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
     },
-    [params]
+    [params, history]
   );
 
   const columnFinal = useMemo(

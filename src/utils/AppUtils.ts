@@ -496,6 +496,7 @@ export const Products = {
       unit: pr.unit,
       supplier_id: pr.supplier_id,
       material_id: pr.material_id,
+      material: pr.material,
       collections: pr.collections,
     };
     return productRequest;

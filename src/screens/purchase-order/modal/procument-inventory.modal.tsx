@@ -16,8 +16,8 @@ import { Fragment, useCallback, useState } from "react";
 import importIcon from "assets/icon/import.svg";
 import ModalImport from "component/modal/ModalImport";
 import { AppConfig } from "config/app.config";
-import { formatCurrency } from "utils/AppUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
 type ProducmentInventoryModalProps = {
   visible: boolean;
@@ -229,6 +229,9 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                          onQuantityChange(quantity, index);
                        }}
                        format={(a: string) => formatCurrency(a)}
+                       replace={(a: string) =>
+                        replaceFormatString(a)
+                      }
                      />
                    )},
                  },

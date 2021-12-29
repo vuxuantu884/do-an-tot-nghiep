@@ -115,6 +115,7 @@ const initialRequest: ProductRequestView = {
   ],
   material_id: null,
   supplier_id: null,
+  material: null
 };
 
 const ProductCreateScreen: React.FC = () => {
@@ -832,7 +833,8 @@ const ProductCreateScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <Row gutter={50}>
-                  <Col span={24} md={12} sm={24}>
+                  <Col span={24} md={12} sm={24}> 
+                    <Item name="material" hidden={true}></Item>
                     <Item name="material_id" label="Chất liệu">
                       <CustomSelect
                         showSearch

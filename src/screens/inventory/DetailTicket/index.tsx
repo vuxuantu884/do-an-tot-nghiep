@@ -717,7 +717,7 @@ const DetailTicket: FC = () => {
                         title="Địa chỉ"
                         value={ConvertFullAddress(data.store_transfer)}
                       />
-                    </Col>{" "}
+                    </Col>
                     <Col span={12}>
                       <RowDetail title="Kho nhận" value={data.to_store_name} />
                       <RowDetail

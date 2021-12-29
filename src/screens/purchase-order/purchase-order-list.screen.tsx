@@ -51,7 +51,7 @@ const supplierQuery: AccountSearchQuery = {
 };
 
 const rdQuery: AccountSearchQuery = {
-  department_ids: [AppConfig.RD_DEPARTMENT],
+  department_ids: [AppConfig.WIN_DEPARTMENT],
 };
 const actionsDefault: Array<MenuAction> = [
   {

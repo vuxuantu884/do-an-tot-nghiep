@@ -820,7 +820,7 @@ const CreateTicket: FC = () => {
                 >
                   <TextArea
                     maxLength={250}
-                    placeholder="Nhập ghi chú"
+                    placeholder="Nhập ghi chú nội bộ"
                     autoSize={{ minRows: 4, maxRows: 6 }}
                   />
                 </Form.Item>
