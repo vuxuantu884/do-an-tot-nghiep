@@ -24,13 +24,10 @@ import {
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
-  getCustomerDetailAction,
-  UpdateShippingAddress,
-  CreateShippingAddress,
   CustomerUpdateAction,
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
-import { CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
+import { CustomerModel, CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
 import {
   CustomerResponse,
   ShippingAddress,
@@ -39,7 +36,7 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
-import { showError, showSuccess } from "utils/ToastUtils";
+import {showSuccess } from "utils/ToastUtils";
 
 type UpdateCustomerProps = {
   areas: any;
@@ -78,7 +75,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const [shippingAddressForm] = Form.useForm();
   const [customerForm] = Form.useForm();
   const formRefAddress = createRef<FormInstance>();
-  const formRefCustomer = createRef<FormInstance>();
+  //const formRefCustomer = createRef<FormInstance>();
 
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
@@ -101,13 +98,13 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const disableInput = levelOrder >= 4 ? true : false;
 
   //element
-  const txtShippingAddressName = document.getElementById("shippingAddress_update_name");
-  const txtShippingAddressPhone = document.getElementById("shippingAddress_update_phone");
+  const txtShippingAddressName = document.getElementById("shippingAddress_update_shipping_addresses_name");
+  const txtShippingAddressPhone = document.getElementById("shippingAddress_update_shipping_addresses_phone");
   const txtShippingAddressCardNumber = document.getElementById(
-    "shippingAddress_update_card_number"
+    "shippingAddress_update_shipping_addresses_card_number"
   );
   const txtShippingAddressFullAddress = document.getElementById(
-    "shippingAddress_update_full_address"
+    "shippingAddress_update_shipping_addresses_full_address"
   );
 
   //event
@@ -127,30 +124,30 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     setVisibleBtnUpdate(true);
   });
 
-  const initialFormValueCustomer =
-    customerItem !== null
-      ? {
-        full_name: customerItem.full_name,
-        district_id: customerItem.district_id,
-        phone: customerItem.phone,
-        ward_id: customerItem.ward_id,
-        card_number: customerItem.card_number,
-        full_address: customerItem.full_address,
-        gender: customerItem.gender,
-        birthday: customerItem.birthday ? moment(customerItem.birthday) : null,
-        customer_group_id: customerItem.customer_group_id,
-      }
-      : {
-        full_name: "",
-        district_id: null,
-        phone: "",
-        ward_id: null,
-        card_number: null,
-        full_address: null,
-        gender: null,
-        birthday: null,
-        customer_group_id: null,
-      };
+  // const initialFormValueCustomer =
+  //   customerItem !== null
+  //     ? {
+  //       full_name: customerItem.full_name,
+  //       district_id: customerItem.district_id,
+  //       phone: customerItem.phone,
+  //       ward_id: customerItem.ward_id,
+  //       card_number: customerItem.card_number,
+  //       full_address: customerItem.full_address,
+  //       gender: customerItem.gender,
+  //       birthday: customerItem.birthday ? moment(customerItem.birthday) : null,
+  //       customer_group_id: customerItem.customer_group_id,
+  //     }
+  //     : {
+  //       full_name: "",
+  //       district_id: null,
+  //       phone: "",
+  //       ward_id: null,
+  //       card_number: null,
+  //       full_address: null,
+  //       gender: null,
+  //       birthday: null,
+  //       customer_group_id: null,
+  //     };
 
   //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
   const initialFormValueshippingAddress =
@@ -211,85 +208,52 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const handleSubmit = useCallback(
     (value: any) => {
-      //let shippingAddress = customerItem.shipping_addresses.find((p:any) => p.is_default === true);
-      let area = areas.find((area: any) => area.id === value.district_id);
+      if (!shippingAddress && !customerItem) return;
 
-      if (shippingAddress) {
+      let _shippingAddress:ShippingAddress[]=customerItem.shipping_addresses;
+      let index=_shippingAddress.findIndex((x)=>x.id===shippingAddress.id);
+      _shippingAddress.splice(index,1);
 
-        let param = {
-          ...shippingAddress,
-          name: value.shipping_addresses_name.trim(),
-          district_id: value.shipping_addresses_district_id,
-          city_id: area ? area.shipping_addresses_city_id : null,
-          phone: value.shipping_addresses_phone.trim(),
-          ward_id: value.shipping_addresses_ward_id,
-          full_address: value.shipping_addresses_full_address,
-          is_default: true,
-        };
+      let area_shipping = areas.find((area: any) => area.id === value.shipping_addresses_district_id);
+      let area_customer = areas.find((area: any) => area.id === value.district_id);
 
-        dispatch(
-          UpdateShippingAddress(
-            shippingAddress?.id,
-            customerItem.id,
-            param,
-            (data: any) => {
-              if (data) {
-                
-                // dispatch(
-                //   getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
-                //     handleChangeCustomer(datas);
-                //   })
-                // );
+      console.log(area_shipping, "area_shipping")
 
-                if (data !== null) ShippingAddressChange(data);
-                setVisibleBtnUpdate(false);
-                showSuccess("Cập nhật địa chỉ giao hàng thành công");
-              } else {
-                showError("Cập nhật địa chỉ giao hàng thất bại");
-              }
-            }
-          )
-        );
-      } else {
-        dispatch(
-          CreateShippingAddress(
-            customerItem.id,
-            {
-              name: value.name,
-              phone: value.phone,
-              country_id: 233,
-              district_id: value.district_id,
-              city_id: area ? area.city_id : null,
-              ward_id: value.ward_id,
-              full_address: value.full_address,
-              is_default: true,
-            },
-            (data: CustomerShippingAddress) => {
-              if (data) {
+      let paramShipping = {
+        ...shippingAddress,
+        name: value.shipping_addresses_name.trim(),
+        district_id: value.shipping_addresses_district_id,
+        city_id: area_shipping.city_id,
+        city: area_shipping.city_name,
+        phone: value.shipping_addresses_phone.trim(),
+        ward_id: value.shipping_addresses_ward_id,
+        full_address: value.shipping_addresses_full_address,
+        is_default: true,
+      };
 
-                // dispatch(
-                //   getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
-                //     handleChangeCustomer(datas);
-                //   })
-                // );
+      _shippingAddress.push(paramShipping);
 
-                if (data !== null) ShippingAddressChange(data);
-                showSuccess("Cập nhật địa chỉ giao hàng thành công");
-              } else {
-                showError("Cập nhật địa chỉ giao hàng thành công");
-              }
-            }
-          )
-        );
-      }
+      console.log("paramShipping", paramShipping)
 
-      if (customerItem) {
-        let customerRequest: CustomerRequest = {
+      ///remove dispatch set dia chi giao hang
+      let customerRequest: CustomerRequest={...new CustomerModel()};
+
+      if (isVisibleCollapseCustomer === true) {
+         customerRequest = {
           ...customerItem,
-          billing_addresses: null,
-          shipping_addresses: null,
-          contacts: null,
+          billing_addresses: customerItem.billing_addresses.map((item: any) => {
+            let _item = { ...item };
+            _item.is_default = _item.default;
+            return _item;
+          }),
+          shipping_addresses: _shippingAddress.map((item: any) => {
+            let _item = { ...item };
+            _item.is_default = _item.default;
+            return _item;
+          }),
           full_name: value.full_name,
+          city_id: area_customer.city_id,
+          city: area_customer.city_name,
           district_id: value.district_id,
           phone: value.phone,
           ward_id: value.ward_id,
@@ -297,18 +261,34 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           full_address: value.full_address,
           gender: value.gender,
           birthday: value.birthday,
-          customer_group_id: value.customer_group_id
+          customer_group_id: value.customer_group_id,
         }
-
-        dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
-          if (datas) {
-            handleChangeCustomer(datas);
-            showSuccess("Cập nhật thông tin khách thành công");
-          }
-        }));
       }
+      else{
+        customerRequest = {
+          ...customerItem,
+          billing_addresses: customerItem.billing_addresses.map((item: any) => {
+            let _item = { ...item };
+            _item.is_default = _item.default;
+            return _item;
+          }),
+          shipping_addresses: _shippingAddress.map((item: any) => {
+            let _item = { ...item };
+            _item.is_default = _item.default;
+            return _item;
+          })
+        }
+      }
+
+      console.log("customerRequest", customerRequest)
+      dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
+        if (datas) {
+          handleChangeCustomer(datas);
+          showSuccess("Cập nhật thông tin khách thành công");
+        }
+      }));
     },
-    [ShippingAddressChange, customerItem, dispatch, handleChangeCustomer, areas, shippingAddress]
+    [customerItem, dispatch, handleChangeCustomer, areas, shippingAddress,isVisibleCollapseCustomer]
   );
 
   const onOkPress = useCallback(() => {
@@ -532,7 +512,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                               color: "#4F687D",
                             }}
                           >
-                            Thay đổi địa chỉ
+                            Thay đổi địa chỉ mặc định
                           </div>
                           <Button
                             type="link"

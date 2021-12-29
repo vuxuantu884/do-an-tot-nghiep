@@ -33,6 +33,7 @@ export interface CustomerBillingAddress extends BaseObject {
   customer_id: number;
   tax_code: string;
   default: boolean;
+  isDefault:boolean;
 }
 
 export class CustomerBillingAddressClass implements CustomerBillingAddress {
@@ -60,6 +61,7 @@ export class CustomerBillingAddressClass implements CustomerBillingAddress {
   request_id = "";
   operator_kc_id = "";
   tax_code = "";
+  isDefault=false;
 }
 
 export class CustomerShippingAddressClass implements CustomerShippingAddress {
@@ -171,7 +173,9 @@ export interface CustomerRequest extends BaseObject {
   tax_code: string | null;
   country_id: number | null;
   district_id: number | null;
+  district:string|null;
   ward_id: number | null;
+  ward:string|null;
   full_address: string | null;
   customer_type_id: number | null;
   customer_group_id: number | null;
@@ -206,7 +210,9 @@ export class CustomerModel implements CustomerRequest {
   tax_code = "";
   country_id = null;
   district_id = null;
+  district="";
   ward_id = null;
+  ward="";
   full_address = "";
   customer_type_id = null;
   customer_group_id = null;
