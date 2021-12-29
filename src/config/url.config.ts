@@ -70,6 +70,12 @@ export const ProcurementTabUrl = {
   TODAY: UrlConfig.PROCUREMENT + "/today",
   ALL: UrlConfig.PROCUREMENT
 };
+
+export const PurchaseOrderTabUrl = {
+  INVENTORY: UrlConfig.PURCHASE_ORDERS +  "/inventories",
+  HISTORY: UrlConfig.PURCHASE_ORDERS +  "/procurement-histories",
+}
+
 export const BASE_NAME_ROUTER = "/admin";
 // export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;
 export default UrlConfig;

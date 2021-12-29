@@ -17,12 +17,14 @@ import importIcon from "assets/icon/import.svg";
 import ModalImport from "component/modal/ModalImport";
 import { AppConfig } from "config/app.config";
 import { formatCurrency } from "utils/AppUtils";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 type ProducmentInventoryModalProps = {
   visible: boolean;
   isEdit: boolean;
   now: Moment;
   stores: Array<StoreResponse>;
+  poData?: PurchaseOrder | undefined;
   onCancel: () => void;
   item: PurchaseProcument | null;
   items: Array<PurchaseOrderLineItem>;
@@ -30,6 +32,7 @@ type ProducmentInventoryModalProps = {
   onOk: (value: PurchaseProcument) => void;
   onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
+  procumentCode: string;
 };
 
 const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
@@ -43,9 +46,11 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     defaultStore,
     onOk,
     onDelete,
+    procumentCode,
     loading,
     items,
     stores,
+    poData,
     isEdit,
   } = props;
 
@@ -68,9 +73,11 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         isEdit={isEdit}
         items={items}
         item={item}
-        onCancle={onCancel}
+        onCancel={onCancel}
+        procumentCode={procumentCode}
         now={now}
         stores={stores}
+        poData={poData}
         defaultStore={defaultStore}
         visible={visible}
         cancelText="Hủy"
