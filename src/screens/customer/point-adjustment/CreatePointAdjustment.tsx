@@ -131,6 +131,7 @@ const CreatePointAdjustment = () => {
         page: 1,
         limit: customerIds.length,
         ids: customerIds,
+        search_type: "SIMPLE"
       }
       
       dispatch(getCustomerListAction(params, callBackGetCustomerList));
