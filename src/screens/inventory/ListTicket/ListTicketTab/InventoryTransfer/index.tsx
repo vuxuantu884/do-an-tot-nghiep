@@ -35,7 +35,6 @@ import {
   FormOutlined,
   PaperClipOutlined,
   PrinterOutlined,
-  StopOutlined,
 } from "@ant-design/icons";
 import {Link} from "react-router-dom";
 import UrlConfig from "config/url.config";
@@ -59,7 +58,6 @@ const {TextArea} = Input;
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
   WATCH_MANY_TICKET: 2,
-  DELETE_TICKET: 3,
   PRINT: 4,
   PRINT_TICKET: 5,
   EXPORT_EXCEL: 6,
@@ -124,10 +122,7 @@ const InventoryTransferTab: React.FC = () => {
     [handlePrint]
   );
 
-  //phân quyền
-  const [allowCancel] = useAuthorization({
-    acceptPermissions: [InventoryTransferPermission.cancel],
-  });
+  //phân quyền 
   const [allowPrint] = useAuthorization({
     acceptPermissions: [InventoryTransferPermission.print],
   });
@@ -147,13 +142,7 @@ const InventoryTransferTab: React.FC = () => {
       name: "Xem nhiều phiếu",
       icon: <BarsOutlined />,
       disabled: true,
-    },
-    {
-      id: ACTIONS_INDEX.DELETE_TICKET,
-      name: "Hủy phiếu",
-      icon: <StopOutlined />,
-      disabled: !allowCancel,
-    },
+    }, 
     {
       id: ACTIONS_INDEX.PRINT,
       name: "In vận đơn",
@@ -464,9 +453,6 @@ const InventoryTransferTab: React.FC = () => {
           history.push(
             `${UrlConfig.INVENTORY_TRANSFERS}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`
           );
-          break;
-        case ACTIONS_INDEX.DELETE_TICKET:
-          setIsDeleteTicket(true);
           break;
         default:
           break;

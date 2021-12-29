@@ -1111,7 +1111,7 @@ const onChangeNote = useCallback(
                       labelCol={{span: 24, offset: 0}}
                       rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                     >
-                      <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
+                      <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
                     </Form.Item> 
                   </Row>  
                   <Row

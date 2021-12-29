@@ -451,6 +451,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     }
     formAdvanceFilter.setFieldsValue(fields);
     setVisible(false);
+    setTagActive(null);
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
 
