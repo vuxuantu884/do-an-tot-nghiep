@@ -14,7 +14,7 @@ import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
-import { COD, FACEBOOK, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
+import { COD, FACEBOOK, FulFillmentStatus, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
 import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
@@ -459,6 +459,18 @@ function OrdersTable(props: PropsType) {
 							</React.Fragment>
 						)
 					}
+					if(record?.fulfillments && record.fulfillments[0].status === FulFillmentStatus.CANCELLED) {
+						return (
+							<div className="single">
+								<img
+									src={iconShippingFeePay3PL}
+									alt=""
+									className="iconShipping"
+								/>
+								Đã hủy vận chuyển
+							</div>
+						)
+					}
 					if (sortedFulfillments) {
 						if (sortedFulfillments[0]?.shipment) {
 							switch (sortedFulfillments[0].shipment.delivery_service_provider_type) {
@@ -502,6 +514,7 @@ function OrdersTable(props: PropsType) {
 															<img
 																src={iconShippingFeePay3PL}
 																alt=""
+																className="iconShipping"
 															/>
 															{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
 														</div>

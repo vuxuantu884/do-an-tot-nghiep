@@ -1654,6 +1654,15 @@ function OrderCreateProduct(props: PropType) {
 					userReducer.account ? userReducer.account.account_stores : []
 				)
 			);
+			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
+			if(storeId && userReducer.account) {
+				if(userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
+					let initStore = listStores.find((single) => single.id === storeId)
+					if(initStore) {
+						newData.push(initStore);
+					}
+				}
+			}
 		}
 		// set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
 		if (newData && newData[0]?.id) {
@@ -1662,8 +1671,7 @@ function OrderCreateProduct(props: PropType) {
 			}
 		}
 		return newData;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [listStores, userReducer.account]);
+	}, [listStores, setStoreId, storeId, userReducer.account]);
 
 	const onUpdateData = useCallback(
 		(items: Array<OrderLineItemRequest>) => {

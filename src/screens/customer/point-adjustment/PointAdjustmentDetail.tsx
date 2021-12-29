@@ -40,7 +40,15 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
     title: "Số KH",
     width: "6%",
     render: (value: any, item: any) => (
-      <div style={{ textAlign: "right" }}>{value.customers?.length}</div>
+      <div style={{ textAlign: "right" }}>
+        {value.customers?.length &&
+          <NumberFormat
+            value={value.customers?.length}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        }
+        </div>
     ),
   },
   {

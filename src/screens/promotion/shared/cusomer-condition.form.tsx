@@ -341,6 +341,10 @@ export default function CustomerFilter(props: Props): ReactElement {
                   showSearch
                   allowClear
                   mode="multiple"
+                  filterOption={(input, option) =>
+                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                    0
+                  }
                 >
                   {groups.map((group) => (
                     <Option key={group.id} value={group.id}>
