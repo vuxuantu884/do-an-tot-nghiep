@@ -108,7 +108,9 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Form.Item name="group_id">
             <CustomSelect
               allowClear 
+              showSearch
               showArrow 
+							optionFilterProp="children"
               style={{ width: 180 }} 
               placeholder="Chọn trực thuộc"
             >
