@@ -99,7 +99,7 @@ const initialRequest: ProductRequestView = {
   designer_code: null,
   made_in_id: null,
   merchandiser_code: null,
-  preservation: "",
+  care_labels: "",
   specifications: "",
   status: "active",
   saleable: true,
