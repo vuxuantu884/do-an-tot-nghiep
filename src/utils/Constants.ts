@@ -51,6 +51,11 @@ export const FulFillmentStatus = {
   RETURNED: "returned",
 };
 
+export const FulFillmentReturnStatus = {
+  RETURNING: "returning",
+  RETURNED: "returned",
+};
+
 export const MoneyType = {
   MONEY: "money",
   PERCENT: "percent",
