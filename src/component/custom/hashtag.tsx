@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import xCloseBtn from "assets/icon/X_close.svg";
+import { StyledHashTag } from "component/custom/StyledCustomComponent";
+import { Input, Tag, Tooltip } from "antd";
 
 type HashTagProps = {
   value?: string;
@@ -42,33 +43,55 @@ const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
     _tags.splice(index, 1);
     props.onChange && props.onChange(_tags.join(","));
   };
-  return (
-    <div
-      onFocus={() => setBorder(true)}
-      onBlur={() => setBorder(false)}
-      className="orders-screen-custom-tags"
-      style={
-        border
-          ? { border: "1px solid #2a2a86" }
-          : { border: "1px solid #d9d9d9" }
-      }
-    >
-      {listTag.map((tag, index) => (
-        <div key={index}>
-          <span>{tag}</span>
-          <img alt="" onClick={() => handleDelete(index)} src={xCloseBtn}></img>
-        </div>
-      ))}
 
-      <input
-        maxLength={250}
-        value={inputValue}
-        type="text"
-        placeholder={listTag.length > 0 ? "" : "Thêm tags"}
-        onChange={(e) => handleChange(e)}
-        onKeyDown={(e) => handleKeyDown(e)}
-      ></input>
-    </div>
+
+  return (
+    <StyledHashTag>
+      <div
+        className="custom-tags"
+        onFocus={() => setBorder(true)}
+        onBlur={() => setBorder(false)}
+        style={
+          border
+            ? { border: "1px solid #2a2a86" }
+            : { border: "1px solid #d9d9d9" }
+        }
+      >
+        <div className={listTag?.length ? "tags-list" : ""}>
+          {listTag.map((tag, index) => {
+            const isLongTag = tag.length > 20;
+            const tagElem = (
+              <Tag
+                key={tag}
+                closable
+                onClose={() => handleDelete(index)}
+              >
+                <span>
+                  {isLongTag ? `${tag.slice(0, 20)}...` : tag}
+                </span>
+              </Tag>
+            );
+
+            return isLongTag ? (
+              <Tooltip title={tag} key={tag}>
+                {tagElem}
+              </Tooltip>
+            ) : (
+              tagElem
+            );
+          })}
+        </div>
+        
+        <Input
+          maxLength={250}
+          value={inputValue}
+          type="text"
+          placeholder="Thêm tags"
+          onChange={(e) => handleChange(e)}
+          onKeyDown={(e) => handleKeyDown(e)}
+        />
+      </div>
+    </StyledHashTag>
   );
 };
 
