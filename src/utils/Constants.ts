@@ -11,6 +11,7 @@ export const PaymentMethodCode = {
   BANK_TRANSFER: "bank_transfer",
   QR_CODE: "qr_pay",
   POINT: "point",
+  COD: "cod",
 };
 
 export const OrderStatus = {

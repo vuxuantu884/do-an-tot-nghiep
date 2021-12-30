@@ -4,7 +4,7 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { AccountResponse } from "model/account/account.model";
 import React, {
 	MutableRefObject,
-	useCallback, useRef, useState
+	useCallback, useEffect, useRef, useState
 } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
@@ -79,6 +79,10 @@ function AccountCustomSearchSelect(props: PropType) {
 		},
 		[initDataToSelect, setDataToSelect],
 	)
+
+	useEffect(() => {
+		setDataToSelect(initDataToSelect)
+	}, [initDataToSelect, setDataToSelect])
 
   return (
 		<Select
