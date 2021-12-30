@@ -69,6 +69,7 @@ import { VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import CareModal from "../component/CareInformation/CareModal";
 import ImageProduct from "../component/image-product.component";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import UploadImageModal, {
@@ -218,6 +219,7 @@ const ProductCreateScreen: React.FC = () => {
   const [isVisibleUpload, setVisibleUpload] = useState<boolean>(false);
   const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
+  const [showCareModal, setShowCareModal] = useState(false);
   //end category
   //end state
 
@@ -430,10 +432,13 @@ const ProductCreateScreen: React.FC = () => {
         variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
       }
 
-      let request = Products.convertProductViewToRequest(values, variantsHasProductAvatar, status);
+      let request = Products.convertProductViewToRequest({
+        ...values,
+        care_labels: form.getFieldValue("care_labels"),
+      }, variantsHasProductAvatar, status);
       dispatch(productCreateAction(request, createCallback));
     },
-    [createCallback, dispatch, status, variants]
+    [createCallback, dispatch, form, status, variants]
   );
 
   const onCancel = useCallback(() => {
@@ -1012,15 +1017,17 @@ const ProductCreateScreen: React.FC = () => {
                 </Row>
                 <Row>
                   <Col span={24}>
-                    <Item name="care_labels" label={`Thông tin bảo quản `}> 
-                      {
-                        (form.getFieldValue("care_labels") && form.getFieldValue("care_labels").length > 0) ?
-                         <>
-                          <Button className="button-plus" icon={<EditOutlined />} />
-                         </> :
-                         <Button className="button-plus" icon={<PlusOutlined />} />
-                      }
-                    </Item>
+                    <span>
+                      <span className="care-title">Thông tin bảo quản: </span>
+                      {form.getFieldValue("care_labels") && form.getFieldValue("care_labels").split(";").map((label: string) => (
+                        <span className={`care-label ydl-${label}`}></span>
+                      ))}
+                      <Button
+                        className="button-plus"
+                        icon={form.getFieldValue("care_labels") && form.getFieldValue("care_labels").length > 0 ? <EditOutlined /> : <PlusOutlined />}
+                        onClick={() => setShowCareModal(true)}
+                      />
+                    </span>
                   </Col>
                 </Row>
                 <Row gutter={24}>
@@ -1471,6 +1478,19 @@ const ProductCreateScreen: React.FC = () => {
               // getFirstProductAvatarCreate(variants)
               setVisibleUpload(false);
             }}
+          />
+          <CareModal
+            onCancel={() => setShowCareModal(false)}
+            onOk={(data) => {
+              console.log('data data', data);
+              
+              form.setFieldsValue({
+                care_labels: data
+              });
+              setShowCareModal(false);
+            }}
+            visible={showCareModal}
+            careLabels={form.getFieldValue("care_labels")}
           />
         </ContentContainer>
       </StyledComponent>

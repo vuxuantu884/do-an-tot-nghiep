@@ -65,4 +65,21 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .care-title {
+    margin-bottom: 15px;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+  .care-label {
+    font-size: 20px;
+    margin: 0 4px;
+  }
+  .button-plus {
+    border: 1px solid #E5E5E5;
+    background: #FFFFFF;
+    color: #757575;
+    .anticon {
+      vertical-align: 0.125em;
+    }
+  }
 `;
