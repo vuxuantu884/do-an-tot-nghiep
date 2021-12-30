@@ -821,16 +821,13 @@ const CreateInventoryAdjustment: FC = () => {
                   </Col>
                 </Row>
                 {formStoreData && (
-                  <Row>
+                  <Row gutter={24}>
                     <Col span={3}></Col>
-                    <Col span={31}>
-                      <>
-                        <span>
-                          <b>{formStoreData.name}:</b>
-                        </span>{" "}
-                        {formStoreData.code} - {formStoreData.hotline} -{" "}
-                        {ConvertFullAddress(formStoreData)}
-                      </>
+                    <Col span={21}>
+                      <div style={{ wordBreak: "break-word"}}>
+                        <strong>{formStoreData.name}: </strong>
+                        <span>{formStoreData.code} - {formStoreData.hotline} - {ConvertFullAddress(formStoreData)}</span>
+                      </div>
                     </Col>
                   </Row>
                 )}
