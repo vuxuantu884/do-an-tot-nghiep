@@ -514,6 +514,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
      const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_PO);
      setLstConfigFilter(configFilters);
     }
+    else{
+      setLstConfigFilter([]);
+     }
   },[]); 
 
   const getConfigPo = useCallback(()=>{
