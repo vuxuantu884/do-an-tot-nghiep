@@ -554,6 +554,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
               poData={poData}
               isEdit={true}
               now={now}
+              loadDetail={loadDetail}
               formMain={formMain}
               status={status}
               stores={listStore}
