@@ -46,6 +46,8 @@ function YDPageCRM() {
   const [isClearOrderTab, setIsClearOrderTab] = React.useState<boolean>(false);
   const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
+  const [defaultSource] = React.useState<number | null>(Number(queryString?.get("defaultSource")));
+  const [defaultStore] = React.useState<number | null>(Number(queryString?.get("defaultStore")));
   const [YDPageCustomerInfo, setYDPageCustomerInfo] = React.useState<YDPageCustomerResponse | null>();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -248,6 +250,8 @@ function YDPageCRM() {
             loyaltyRate={loyaltyRate}
             fbCustomerId={fbCustomerId}
             fbPageId={fbPageId}
+            defaultSource={defaultSource}
+            defaultStore={defaultStore}
             customer={customer}
             userId={userId}
             setCustomer={setCustomer}
