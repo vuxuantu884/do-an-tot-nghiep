@@ -463,6 +463,7 @@ function* searchBarCodeSaga(action: YodyAction) {
   let {barcode,setData} = action.payload;
   try {
     let response: BaseResponse<VariantResponse> = yield call(getVariantByBarcode, barcode);
+    
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -472,7 +473,8 @@ function* searchBarCodeSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Không tìm thấy sản phẩm')
+    console.log(error);
+    showError('Không tìm thấy sản phẩm 11112')
   }
 }
 

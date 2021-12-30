@@ -313,7 +313,6 @@ function OrderCreateProduct(props: PropType) {
 						// console.log(barcode);
 						dispatch(
 							SearchBarCode(barcode, (data: VariantResponse) => {
-
 								let _items = [...items].reverse();
 								const item: OrderLineItemRequest = createItem(data);
 								let index = _items.findIndex((i) => i.variant_id === data.id);
@@ -322,12 +321,15 @@ function OrderCreateProduct(props: PropType) {
 									_items.push(item);
 									calculateChangeMoney(_items);
 								} else {
+									
 									let variantItems = _items.filter((item) => item.variant_id === data.id);
 									let lastIndex = variantItems.length - 1;
+									let amount=variantItems[lastIndex].discount_items[0]?.amount?variantItems[lastIndex].discount_items[0]?.amount:0;
 									variantItems[lastIndex].quantity += 1;
 									variantItems[lastIndex].line_amount_after_line_discount +=
 										variantItems[lastIndex].price -
-										variantItems[lastIndex].discount_items[0].amount;
+										amount;
+									console.log("amount",variantItems[lastIndex].discount_items[0]?.amount)
 									calculateChangeMoney(_items);
 								}
 
@@ -923,7 +925,7 @@ function OrderCreateProduct(props: PropType) {
 
 	const autoCompleteRef = createRef<RefSelectProps>();
 	const createItem = (variant: VariantResponse) => {
-		console.log("variant", variant);
+		//console.log("variant", variant);
 		let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
 		let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
 		let avatar = findAvatar(variant.variant_images);
