@@ -1,5 +1,4 @@
-import { Card, Col, Form, FormInstance, InputNumber, Row, Select, Space, Switch } from 'antd';
-import CustomInput from 'component/custom/custom-input';
+import { Card, Col, Form, FormInstance, Input, InputNumber, Row, Select, Space, Switch } from 'antd';
 import _ from 'lodash';
 import { DiscountFormModel, DiscountMethod } from 'model/promotion/discount.create.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
@@ -10,15 +9,12 @@ import TotalBillDiscountUpdate from './total-bill-discount-update';
 const { Option } = Select;
 interface Props {
     form: FormInstance;
-
     unlimitedUsageProps: boolean;
-
 }
 
-function DiscountUpdateForm({ form,
-
+function DiscountUpdateForm({
+    form,
     unlimitedUsageProps,
-
 }: Props): ReactElement {
     const discountUpdateContext = useContext(DiscountUpdateContext);
 
@@ -41,31 +37,20 @@ function DiscountUpdateForm({ form,
             >
                 <Row gutter={30}>
                     <Col span={12}>
-                        <CustomInput
-                            name="title"
-                            label={<b>Tên khuyến mại: </b>}
-                            form={form}
-                            message="Cần nhập tên khuyến mại"
-                            placeholder="Nhập tên khuyến mại"
-                            isRequired={true}
-                            maxLength={255}
-                        />
+                        <Form.Item name="title" label={"Tên khuyến mại"} rules={[{
+                            required: true,
+                            message: 'Cần nhập tên khuyến mại',
+                        }, {
+                            max: 255,
+                            message: 'Tên khuyến mại không được vượt quá 255 ký tự',
+                        }]}>
+                            <Input placeholder='Nhập tên khuyến mại' />
+                        </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <CustomInput
-                            name="discount_code"
-                            label={<b>Mã khuyến mại: </b>}
-                            form={form}
-                            placeholder="Nhập mã khuyến mại"
-                            maxLength={20}
-                            upperCase={true}
-                            disabled={true}
-                            restFormItem={{
-                                rules: [
-                                    { pattern: /^DI([0-9])+$/, message: "Mã khuyến mại sai định dạng" },
-                                ],
-                            }}
-                        />
+                        <Form.Item name="discount_code" label={"Mã khuyến mại"}>
+                            <Input disabled />
+                        </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Row gutter={30}>
@@ -126,14 +111,15 @@ function DiscountUpdateForm({ form,
                         </Row>
                     </Col>
                     <Col span={12}>
-                        <CustomInput
-                            type="textarea"
-                            name="description"
-                            label={<b>Mô tả: </b>}
-                            form={form}
-                            placeholder="Nhập mô tả cho khuyến mại"
-                            maxLength={500}
-                        />
+                        <Form.Item name="description" label='Mô tả' rules={[{
+                            max: 500,
+                            message: 'Mô tả không được vượt quá 500 ký tự',
+                        }]}>
+                            <Input.TextArea
+                                placeholder="Nhập mô tả cho khuyến mại"
+                                autoSize={{ minRows: 5 }}
+                            />
+                        </Form.Item>
                     </Col>
                 </Row>
             </Card>
