@@ -24,7 +24,7 @@ import {thirdPLModel} from "model/order/shipment.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import {OrderLineItemRequest} from "model/request/order.request";
 import {CustomerResponse} from "model/response/customer/customer.response";
-import {DeliveryServiceResponse, StoreCustomResponse} from "model/response/order/order.response";
+import {DeliveryServiceResponse, SelfDeliveryData, StoreCustomResponse} from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
@@ -64,6 +64,8 @@ type PropType = {
   handleCreateShipment?: () => void;
   creating?: boolean;
   handleCancelCreateShipment?: () => void;
+  initSelfDelivery? : SelfDeliveryData;
+  isEcommerceOrder?: boolean;
 };
 
 /**
@@ -120,6 +122,8 @@ function OrderCreateShipment(props: PropType) {
     handleCreateShipment,
     creating,
     handleCancelCreateShipment,
+    initSelfDelivery,
+    isEcommerceOrder,
   } = props;
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
@@ -449,6 +453,8 @@ function OrderCreateShipment(props: PropType) {
               setThirdPL={setThirdPL}
               listExternalShippers={listExternalShippers}
               form={form}
+              isEcommerceOrder={isEcommerceOrder}
+              initSelfDelivery={initSelfDelivery}
             />
           )}
           {/*--- Nhận tại cửa hàng ----*/}
