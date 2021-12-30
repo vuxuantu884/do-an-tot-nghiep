@@ -407,6 +407,16 @@ const tab= document.getElementById("tab");
                         <RowDetail title="Từ khóa" value={data.tags} />
                       </Col>
                     </Row>
+                    <Row>
+                      <Col span={24}>
+                        <span>
+                          <span className="care-title">Thông tin bảo quản: </span>
+                          {data.care_labels && data.care_labels.split(";").map((label: string) => (
+                            <span className={`care-label ydl-${label}`}></span>
+                          ))}
+                        </span>
+                      </Col>
+                    </Row>
                     <Row gutter={50}>
                       <Col span={24} md={5}>
                         <div className="title" style={{color: "#666666"}}>

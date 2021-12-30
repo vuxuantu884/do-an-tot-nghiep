@@ -98,4 +98,13 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .care-title {
+    margin-bottom: 15px;
+    color: #666666;
+  }
+  .care-label {
+    font-size: 20px;
+    margin: 0 4px;
+    vertical-align: -0.125em;
+  }
 `;
