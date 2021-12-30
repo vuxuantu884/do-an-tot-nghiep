@@ -17,7 +17,7 @@ import {
   searchProductWrapperApi,
   searchVariantsApi,
 } from "service/product/product.service";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { deleteVariantApi, getVariantByBarcode, updateVariantApi } from "service/product/variant.service";
@@ -106,7 +106,7 @@ function* productWrapperDeleteSaga(action: YodyAction) {
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onDeleteSuccess();
+        onDeleteSuccess(response);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -444,11 +444,13 @@ function* variantDeleteSaga(action: YodyAction) {
         variants[i].variant_id);
       switch (response.code) {
         case HttpStatus.SUCCESS:
+          showSuccess("Xóa thành công");
           break;
         case HttpStatus.UNAUTHORIZED:
           yield put(unauthorizedAction());
           break;
         default:
+          response.errors.forEach((e) => showError(e));
           break;
       }
     }
