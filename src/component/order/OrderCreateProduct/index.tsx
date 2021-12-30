@@ -1168,11 +1168,11 @@ function OrderCreateProduct(props: PropType) {
 		items: OrderLineItemRequest[] | undefined,
 		_isAutomaticDiscount: boolean = isAutomaticDiscount
 	) => {
-		setIsCalculateDiscount(true);
 		isShouldUpdateDiscountRef.current = true;
 		if (!items || items.length === 0 || !_isAutomaticDiscount) {
 			return;
 		}
+		setIsCalculateDiscount(true);
 		// handleRemoveAllAutomaticDiscount();
 		const lineItems: LineItemRequestModel[] = items.map((single) => {
 			return {
