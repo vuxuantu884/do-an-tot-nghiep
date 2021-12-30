@@ -276,9 +276,12 @@ const TabProductWrapper: React.FC = () => {
     [params, history]
   );
 
-  const onDeleteSuccess = useCallback(() => {
-    setSelected([]); 
-    dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
+  const onDeleteSuccess = useCallback((res: any) => {
+    if (res) {
+      setSelected([]); 
+      dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
+    }
+   
   }, [dispatch, setSearchResultDelete, params]);
 
   const onUpdateSuccess = useCallback(
