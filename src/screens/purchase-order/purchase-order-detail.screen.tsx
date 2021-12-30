@@ -251,7 +251,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {
-    console.log('poData?.status', poData?.status);
+    console.log('poData?.status', poData);
     if(poData?.status === POStatus.FINALIZED){
       setPaymentItem(undefined);
       setVisiblePaymentModal(true)
@@ -552,13 +552,12 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
               poData={poData}
-              isEdit={!isEditDetail}
+              isEdit={true}
               now={now}
               formMain={formMain}
               status={status}
               stores={listStore}
             />
-
             {poData && poData.status !== POStatus.DRAFT ? (
               <POPaymentForm
                 setSuggest={(isSuggest) => setSuggest(isSuggest)}

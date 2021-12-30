@@ -23,23 +23,22 @@ import {
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
-  CreateShippingAddress,
   CustomerCreateAction,
-  getCustomerDetailAction,
-  UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import {
   CustomerContactClass,
   CustomerModel,
   CustomerShippingAddress,
+  CustomerShippingAddressClass,
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
 import React, { createRef, useCallback, useLayoutEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 
 type CreateCustomerProps = {
   areas: any;
@@ -59,7 +58,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     groups,
     handleChangeArea,
     handleChangeCustomer,
-    ShippingAddressChange,
     keySearchCustomer,
     CustomerDeleteInfo
   } = props;
@@ -67,7 +65,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
-  const shippingFormRef = createRef<FormInstance>();
 
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
@@ -90,11 +87,9 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     const txtCustomerFullAddress = document.getElementById("customer_add_full_address");
     const txtCustomerBirthday = document.getElementById("customer_add_birthday");
     //
-    const txtShippingAddName = document.getElementById("shippingAddress_add_name");
-    const txtShippingAddPhone = document.getElementById("shippingAddress_add_phone");
-    const txtShippingFullAddress = document.getElementById(
-      "shippingAddress_add_full_address"
-    );
+    const txtShippingAddName = document.getElementById("customer_add_shipping_addresses_name");
+    const txtShippingAddPhone = document.getElementById("customer_add_shipping_addresses_phone");
+    const txtShippingFullAddress = document.getElementById("customer_add_shipping_addresses_full_address");
 
     //event
     txtCustomerFullName?.addEventListener("change", (e: any) => {
@@ -142,103 +137,34 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     (result: CustomerResponse) => {
       if (result !== null && result !== undefined) {
         showSuccess("Thêm mới khách hàng thành công");
-        if (isVisibleShipping === false) {
-          shippingFormRef.current?.validateFields();
 
-          let district_id = shippingFormRef.current?.getFieldValue("district_id");
-          let area = areas.find((area: any) => area.id === district_id);
-
-          let shippingAddress = {
-            id: 0,
-            is_default: false,
-            default: false,
-            country: "",
-            city: "",
-            district: "",
-            ward: "",
-            zip_code: "",
-            customer_id: 0,
-            created_by: null,
-            created_name: "",
-            updated_by: null,
-            updated_name: "",
-            request_id: "",
-            operator_kc_id: "",
-            name: shippingFormRef.current?.getFieldValue("name"),
-            phone: shippingFormRef.current?.getFieldValue("phone"),
-            country_id: 233,
-            district_id: shippingFormRef.current?.getFieldValue("district_id"),
-            ward_id: shippingFormRef.current?.getFieldValue("ward_id"),
-            city_id: area ? area.city_id : null,
-            full_address: shippingFormRef.current?.getFieldValue("full_address"),
-          };
-
-          dispatch(
-            CreateShippingAddress(
-              result.id,
-              shippingAddress,
-              (data: CustomerShippingAddress) => {
-                if (data) {
-                  dispatch(
-                    UpdateShippingAddress(
-                      data.id,
-                      result.id,
-                      { ...data, is_default: true },
-                      (data: any) => {
-                        if (data) {
-                          dispatch(
-                            getCustomerDetailAction(
-                              result.id,
-                              (data_i: CustomerResponse) => {
-                                handleChangeCustomer(data_i);
-
-                                let shippingAddressesItem =
-                                  data_i.shipping_addresses.find(
-                                    (x) => x.default === true
-                                  );
-                                ShippingAddressChange(shippingAddressesItem);
-                                setVisibleBtnUpdate(false);
-                                // showSuccess(
-                                //   "Cập nhật địa chỉ giao hàng thành công"
-                                // );
-                              }
-                            )
-                          );
-                          //if(data!==null) ShippingAddressChange(data);
-                        } else {
-                          showError("Cập nhật địa chỉ giao hàng thất bại");
-                        }
-                      }
-                    )
-                  );
-                } else {
-                  showError("Thêm địa chỉ thất bại");
-                }
-              }
-            )
-          );
-        } else {
-          handleChangeCustomer(result);
+        handleChangeCustomer({ ...result, version: 1 });
           setVisibleBtnUpdate(false);
-        }
       }
     },
-    [
-      dispatch,
-      handleChangeCustomer,
-      areas,
-      shippingFormRef,
-      isVisibleShipping,
-      ShippingAddressChange
-    ]
+    [handleChangeCustomer]
   );
 
   const handleSubmit = useCallback(
     (values: any) => {
       let area = areas.find((area: any) => area.id === values.district_id);
       values.full_name = values.full_name.trim();
+      let shipping_addresses:CustomerShippingAddress[]|null=isVisibleShipping===false?[
+        {
+          ...new CustomerShippingAddressClass(),
+          is_default: true,
+          default: true,
+          name: values.shipping_addresses_name,
+          phone: values.shipping_addresses_phone,
+          country_id: VietNamId,
+          district_id: values.shipping_addresses_district_id,
+          ward_id: values.shipping_addresses_ward_id,
+          city_id: area ? area.city_id : null,
+          full_address: values.shipping_addresses_full_address,
+        }
+      ]:null;
 
-      let piece = {
+      let piece: any = {
         full_name: values.full_name.trim(),
         district_id: values.district_id,
         phone: values.phone,
@@ -253,6 +179,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           : null,
         status: "active",
         city_id: area ? area.city_id : null,
+        country_id: VietNamId,
         contacts: [
           {
             ...CustomerContactClass,
@@ -262,16 +189,18 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             email: values.contact_email,
           },
         ],
+        shipping_addresses: shipping_addresses
       };
       dispatch(
         CustomerCreateAction({ ...new CustomerModel(), ...piece }, createCustomerCallback)
       );
     },
-    [dispatch, createCustomerCallback, areas]
+    [dispatch, createCustomerCallback, areas,isVisibleShipping]
   );
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
+    setVisibleBtnUpdate(false);
   }, [customerForm]);
 
   return (
@@ -284,13 +213,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         layout="vertical"
         initialValues={initialFormValueCustomer}
       >
-         <Row style={{ margin: "-17px 0px 10px 0px" }}>
-            <div className="page-filter-left">THÔNG TIN KHÁCH HÀNG</div>
-          </Row>
+        <Row style={{ margin: "-17px 0px 10px 0px" }}>
+          <div className="page-filter-left">THÔNG TIN KHÁCH HÀNG</div>
+        </Row>
         <Row gutter={24}>
-         
           <Col xs={24} lg={12}>
-
             <Form.Item
               rules={[
                 {
@@ -362,6 +289,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   required: true,
                   message: "Vui lòng nhập Số điện thoại",
                 },
+                {
+                  required: true,
+                  pattern: RegUtil.PHONE,
+                  message: "Số điện thoại sai định dạng"
+                }
               ]}
               name="phone"
             //label="Số điện thoại"
@@ -501,6 +433,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     placeholder="Chọn ngày sinh"
                     format={"DD/MM/YYYY"}
                     defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
+                    value={moment("01/01/1991", "DD/MM/YYYY")}
                     suffixIcon={
                       <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                     }
@@ -543,202 +476,209 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             </Row>
           </div>
         )}
-      </Form>
+        {/* </Form> */}
 
-      {isVisibleCollapseCustomer === true && (
-        <Divider orientation="left" style={{ padding: 0, margin: 0, color: "#5656A1" }}>
-          <div>
-            <Button
-              type="link"
-              icon={<UpOutlined />}
-              style={{ padding: "0px" }}
-              onClick={() => {
-                setVisibleCollapseCustomer(false);
-              }}
-            >
-              Thu gọn
-            </Button>
-          </div>
-        </Divider>
-      )}
-
-      <div className="send-order-box">
-        <Row gutter={12} style={{ marginTop: 15 }}>
-          <Col md={12}>
-            <Checkbox
-              className="checkbox-style"
-              onChange={() => {
-                setVisibleShipping(!isVisibleShipping);
-              }}
-              style={{ marginLeft: "3px" }}
-              checked={isVisibleShipping}
-            //disabled={levelOrder > 3}
-            >
-              Thông tin của khách hàng cũng là thông tin giao hàng
-            </Checkbox>
-          </Col>
-          {isVisibleShipping === true && (
-            <Col md={12} style={{ float: "right", marginTop: "-10px" }}>
-              {isVisibleBtnUpdate === true && (
-                <Button
-                  type="primary"
-                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  onClick={() => {
-                    onOkPress();
-                  }}
-                >
-                  Thêm mới
-                </Button>
-              )}
-
+        {isVisibleCollapseCustomer === true && (
+          <Divider orientation="left" style={{ padding: 0, margin: 0, color: "#5656A1" }}>
+            <div>
               <Button
-                style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                className="ant-btn-outline fixed-button cancle-button"
+                type="link"
+                icon={<UpOutlined />}
+                style={{ padding: "0px" }}
                 onClick={() => {
-                  CustomerDeleteInfo();
+                  setVisibleCollapseCustomer(false);
                 }}
               >
-                Hủy
+                Thu gọn
               </Button>
-            </Col>
-          )}
-        </Row>
-
-        {isVisibleShipping === false && (
-          <Form ref={shippingFormRef} layout="vertical" name="shippingAddress_add">
-              <Row style={{ margin: "10px 0px 10px 0px" }}>
-            <div className="page-filter-left">THÔNG TIN GIAO HÀNG</div>
-          </Row>
-            <Row gutter={24} style={{ marginTop: "14px" }}>
-              <Col xs={24} lg={12}>
-                <Form.Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập tên người nhận",
-                    },
-                    {
-                      whitespace: true,
-                      message: "Vui lòng nhập tên người nhận",
-                    },
-                  ]}
-                  name="name"
-                >
-                  <Input
-                    placeholder="Nhập Tên người nhận"
-                    prefix={<UserOutlined style={{ color: "#71767B" }} />}
-                  //suffix={<img src={arrowDownIcon} alt="down" />}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} lg={12}>
-                <Form.Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập Số điện thoại người nhận",
-                    },
-                  ]}
-                  name="phone"
-                //label="Số điện thoại"
-                >
-                  <Input
-                    placeholder="Nhập số điện thoại người nhận"
-                    prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} lg={12}>
-                <Form.Item
-                  name="district_id"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn khu vực",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="select-with-search"
-                    showSearch
-                    allowClear
-                    placeholder={
-                      <React.Fragment>
-                        <EnvironmentOutlined style={{ color: "#71767B" }} />
-                        <span> Chọn khu vực</span>
-                      </React.Fragment>
-                    }
-                    style={{ width: "100%" }}
-                    onChange={(value: number) => {
-                      let values = shippingFormRef.current?.getFieldsValue();
-                      values.ward_id = null;
-                      shippingFormRef.current?.setFieldsValue(values);
-                      handleShippingWards(value);
-                      setVisibleBtnUpdate(true);
-                    }}
-                    optionFilterProp="children"
-                  >
-                    {areas.map((area: any) => (
-                      <Select.Option key={area.id} value={area.id}>
-                        {area.city_name + ` - ${area.name}`}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col xs={24} lg={12}>
-                <Form.Item
-                  name="ward_id"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn phường xã",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="select-with-search"
-                    showSearch
-                    allowClear
-                    optionFilterProp="children"
-                    style={{ width: "100%" }}
-                    placeholder={
-                      <React.Fragment>
-                        <EnvironmentOutlined style={{ color: "#71767B" }} />
-                        <span> Chọn phường/xã</span>
-                      </React.Fragment>
-                    }
-                  >
-                    {shippingWards.map((ward: any) => (
-                      <Select.Option key={ward.id} value={ward.id}>
-                        {ward.name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col xs={24} lg={12}>
-                <Form.Item
-                  name="full_address"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập địa chỉ",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Địa chỉ"
-                    prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Form>
+            </div>
+          </Divider>
         )}
-      </div>
 
+        <div className="send-order-box">
+          <Row gutter={12} style={{ marginTop: 15 }}>
+            <Col md={12}>
+              <Checkbox
+                className="checkbox-style"
+                onChange={() => {
+                  setVisibleShipping(!isVisibleShipping);
+                }}
+                style={{ marginLeft: "3px" }}
+                checked={isVisibleShipping}
+              //disabled={levelOrder > 3}
+              >
+                Thông tin của khách hàng cũng là thông tin giao hàng
+              </Checkbox>
+            </Col>
+            {isVisibleShipping === true && (
+              <Col md={12} style={{ float: "right", marginTop: "-10px" }}>
+                {isVisibleBtnUpdate === true && (
+                  <Button
+                    type="primary"
+                    style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    onClick={() => {
+                      onOkPress();
+                    }}
+                  >
+                    Thêm mới
+                  </Button>
+                )}
+
+                <Button
+                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                  className="ant-btn-outline fixed-button cancle-button"
+                  onClick={() => {
+                    CustomerDeleteInfo();
+                  }}
+                >
+                  Hủy
+                </Button>
+              </Col>
+            )}
+          </Row>
+
+          {isVisibleShipping === false && (
+            // <Form ref={shippingFormRef} layout="vertical" name="shippingAddress_add">
+            <>
+              <Row style={{ margin: "10px 0px 10px 0px" }}>
+                <div className="page-filter-left">THÔNG TIN GIAO HÀNG</div>
+              </Row>
+              <Row gutter={24} style={{ marginTop: "14px" }}>
+                <Col xs={24} lg={12}>
+                  <Form.Item
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập tên người nhận",
+                      },
+                      {
+                        whitespace: true,
+                        message: "Vui lòng nhập tên người nhận",
+                      },
+                    ]}
+                    name="shipping_addresses_name"
+                  >
+                    <Input
+                      placeholder="Nhập Tên người nhận"
+                      prefix={<UserOutlined style={{ color: "#71767B" }} />}
+                    //suffix={<img src={arrowDownIcon} alt="down" />}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} lg={12}>
+                  <Form.Item
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập Số điện thoại người nhận",
+                      },
+                      {
+                        required: true,
+                        pattern: RegUtil.PHONE,
+                        message: "Số điện thoại sai định dạng"
+                      }
+                    ]}
+                    name="shipping_addresses_phone"
+                  //label="Số điện thoại"
+                  >
+                    <Input
+                      placeholder="Nhập số điện thoại người nhận"
+                      prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} lg={12}>
+                  <Form.Item
+                    name="shipping_addresses_district_id"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn khu vực",
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="select-with-search"
+                      showSearch
+                      allowClear
+                      placeholder={
+                        <React.Fragment>
+                          <EnvironmentOutlined style={{ color: "#71767B" }} />
+                          <span> Chọn khu vực</span>
+                        </React.Fragment>
+                      }
+                      style={{ width: "100%" }}
+                      onChange={(value: number) => {
+                        let values = customerForm.getFieldsValue();
+                        values.shipping_addresses_ward_id = null;
+                        customerForm.setFieldsValue(values);
+                        handleShippingWards(value);
+                        setVisibleBtnUpdate(true);
+                      }}
+                      optionFilterProp="children"
+                    >
+                      {areas.map((area: any) => (
+                        <Select.Option key={area.id} value={area.id}>
+                          {area.city_name + ` - ${area.name}`}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col xs={24} lg={12}>
+                  <Form.Item
+                    name="shipping_addresses_ward_id"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn phường xã",
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="select-with-search"
+                      showSearch
+                      allowClear
+                      optionFilterProp="children"
+                      style={{ width: "100%" }}
+                      placeholder={
+                        <React.Fragment>
+                          <EnvironmentOutlined style={{ color: "#71767B" }} />
+                          <span> Chọn phường/xã</span>
+                        </React.Fragment>
+                      }
+                    >
+                      {shippingWards.map((ward: any) => (
+                        <Select.Option key={ward.id} value={ward.id}>
+                          {ward.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col xs={24} lg={12}>
+                  <Form.Item
+                    name="shipping_addresses_full_address"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập địa chỉ",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Địa chỉ"
+                      prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </>
+            // </Form>
+          )}
+        </div>
+      </Form>
       {isVisibleShipping === false && (
         <Row style={{ marginTop: 15 }}>
           <Col md={24} style={{ float: "right", marginTop: "-10px" }}>

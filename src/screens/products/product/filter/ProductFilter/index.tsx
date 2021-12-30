@@ -70,11 +70,9 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
       console.log("onFinishAvd: ", values);
       setAdvanceFilters(values);
       if (values.created_date) {
-        console.log("11111");
         const [from_created_date, to_created_date] = values.created_date;
         values.from_created_date = values.created_date ? from_created_date : undefined;
         values.to_created_date = values.created_date ? to_created_date : undefined;
-        console.log("onFinishAvd - values: ", values);
       }
       onFilter && onFilter(values);
     },
@@ -164,8 +162,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.made_in:
                     component = (
-                      <Select optionFilterProp="children" showSearch>
-                        <Option value="">Xuất xứ</Option>
+                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn xuất sứ">
                         {listCountries?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.name}
@@ -176,8 +173,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.designer:
                     component = (
-                      <Select optionFilterProp="children" showSearch>
-                        <Option value="">Nhà thiết kế</Option>
+                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn thiết kế">
                         {listMerchandisers?.map((item) => (
                           <Option key={item.code} value={item.code}>
                             {item.code} - {item.full_name}
@@ -188,8 +184,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.merchandiser:
                     component = (
-                      <Select optionFilterProp="children" showSearch>
-                        <Option value="">Merchandiser</Option>
+                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn Merchandiser">
                         {listMerchandisers?.map((item) => (
                           <Option key={item.code} value={item.code}>
                             {item.code} - {item.full_name}
@@ -203,8 +198,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.size:
                     component = (
-                      <Select>
-                        <Option value="">Size</Option>
+                      <Select allowClear placeholder="Chọn kích thước">
                         {listSize?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.code}
@@ -215,8 +209,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.color:
                     component = (
-                      <Select>
-                        <Option value="">Màu sắc</Option>
+                      <Select allowClear placeholder="Chọn màu sắc">
                         {listColors?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.name}
@@ -227,8 +220,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.main_color:
                     component = (
-                      <Select>
-                        <Option value="">Màu chủ đạo</Option>
+                      <Select allowClear placeholder="Chọn màu chủ đạo">
                         {listMainColors?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.code}
@@ -239,8 +231,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.supplier:
                     component = (
-                      <Select>
-                        <Option value="">Nhà cung cấp</Option>
+                      <Select allowClear placeholder="Chọn nhà cung cấp">
                         {listSupplier?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.code}
@@ -259,8 +250,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.brand:
                     component = (
-                      <Select>
-                        <Select.Option value="">Thương hiệu</Select.Option>
+                      <Select allowClear placeholder="Chọn thương hiệu">
                         {listBrands?.map((item) => (
                           <Select.Option key={item.value} value={item.value}>
                             {item.name}

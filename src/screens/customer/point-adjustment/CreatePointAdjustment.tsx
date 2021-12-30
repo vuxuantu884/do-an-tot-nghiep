@@ -1,3 +1,7 @@
+import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
+import NumberFormat from "react-number-format";
 import {
   Button,
   Card,
@@ -8,18 +12,16 @@ import {
   Form,
   FormInstance,
   AutoComplete,
+  InputNumber,
 } from "antd";
-import ContentContainer from "component/container/content.container";
-import NumberInput from "component/custom/number-input.custom";
+
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
-import "./point-adjustment.scss";
+import { useQuery } from "utils/useQuery";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+
 import _ from "lodash";
 import {
   CustomerSearch,
@@ -29,16 +31,18 @@ import {
   createCustomerPointAdjustmentAction,
   getLoyaltyPoint,
 } from "domain/actions/loyalty/loyalty.action";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { useQuery } from "utils/useQuery";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import NoPermission from "screens/no-permission.screen";
-import { LoyaltyPermission } from "config/permissions/loyalty.permission";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
 
+import ContentContainer from "component/container/content.container";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { LoyaltyPermission } from "config/permissions/loyalty.permission";
+
+import "./point-adjustment.scss";
 
 const { Item } = Form;
 const POINT_ADD_REASON = [
@@ -81,6 +85,14 @@ const pageColumns: Array<ICustomTableColumType<any>> = [
     visible: true,
     dataIndex: "point",
     align: "center",
+    render: (value: any, item: any, index: number) => (
+      value ?
+      <NumberFormat
+        value={value}
+        displayType={"text"}
+        thousandSeparator={true}
+      /> : 0
+    ),
   },
 ];
 
@@ -108,14 +120,7 @@ const CreatePointAdjustment = () => {
 
   const callBackGetCustomerList = useCallback((result: PageResponse<any> | false) => {
     if (!!result) {
-      let customerList = [...result.items];
-
-      // todo Thai: update after BE added point in customer list
-      customerList.forEach((customer) => {
-        customer.point = 1;
-      });
-
-      setSelectedCustomers(customerList);
+      setSelectedCustomers(result.items);
     }
   }, []);
 
@@ -126,6 +131,7 @@ const CreatePointAdjustment = () => {
         page: 1,
         limit: customerIds.length,
         ids: customerIds,
+        search_type: "SIMPLE"
       }
       
       dispatch(getCustomerListAction(params, callBackGetCustomerList));
@@ -377,10 +383,12 @@ const CreatePointAdjustment = () => {
                             },
                           ]}
                         >
-                          <NumberInput
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                             placeholder="Nhập giá trị"
-                            style={{ textAlign: "left" }}
-                            max={999999999999}
+                            min="0"
+                            max="1000000000"
                           />
                         </Item>
                       </div>

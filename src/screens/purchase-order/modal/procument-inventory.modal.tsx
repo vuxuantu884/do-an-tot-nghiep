@@ -16,13 +16,15 @@ import { Fragment, useCallback, useState } from "react";
 import importIcon from "assets/icon/import.svg";
 import ModalImport from "component/modal/ModalImport";
 import { AppConfig } from "config/app.config";
-import { formatCurrency } from "utils/AppUtils";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
 type ProducmentInventoryModalProps = {
   visible: boolean;
   isEdit: boolean;
   now: Moment;
   stores: Array<StoreResponse>;
+  poData?: PurchaseOrder | undefined;
   onCancel: () => void;
   item: PurchaseProcument | null;
   items: Array<PurchaseOrderLineItem>;
@@ -30,6 +32,7 @@ type ProducmentInventoryModalProps = {
   onOk: (value: PurchaseProcument) => void;
   onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
+  procumentCode: string;
 };
 
 const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
@@ -43,9 +46,11 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     defaultStore,
     onOk,
     onDelete,
+    procumentCode,
     loading,
     items,
     stores,
+    poData,
     isEdit,
   } = props;
 
@@ -68,9 +73,11 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         isEdit={isEdit}
         items={items}
         item={item}
-        onCancle={onCancel}
+        onCancel={onCancel}
+        procumentCode={procumentCode}
         now={now}
         stores={stores}
+        poData={poData}
         defaultStore={defaultStore}
         visible={visible}
         cancelText="Hủy"
@@ -222,6 +229,9 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                          onQuantityChange(quantity, index);
                        }}
                        format={(a: string) => formatCurrency(a)}
+                       replace={(a: string) =>
+                        replaceFormatString(a)
+                      }
                      />
                    )},
                  },
@@ -266,8 +276,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                 onCancel= {ActionImport.Cancel}
                 title= "Nhập file hàng về"
                 subTitle= "hàng về"
-                okText= "Nhập file"
-                cancelText= "Hủy"
+                okText= "Xác nhận"
                 templateUrl={AppConfig.PROCUMENT_IMPORT_TEMPLATE_URL}
                 forder="stock-transfer"
                 customParams={{conditions: `${item?.purchase_order.id},${item?.id}`, 

@@ -379,7 +379,6 @@ export const columnDiscountQuantity = [
 export const columnDiscountByRule = [
   {
     title: "STT",
-
     width: "5%",
     render: (value: any, item: DiscountConditionRule, index: number) => index + 1,
   },
@@ -405,7 +404,13 @@ export const columnDiscountByRule = [
     title: "Giá trị",
     dataIndex: "value",
     visible: true,
-    width: "20%"
+    width: "20%",
+    render: (value: string, item: DiscountConditionRule) => {
+      if (item.field === "quantity" || item.field === "subtotal") {
+        return formatCurrency(value);
+      }
+      return value;
+    }
   },
 ];
 

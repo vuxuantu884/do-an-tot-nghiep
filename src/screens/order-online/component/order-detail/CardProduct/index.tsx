@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
@@ -160,7 +159,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
 
-  const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
   //tách đơn
@@ -228,6 +226,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       }
       return;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[items]);
 
   useEffect(() => {
@@ -247,6 +246,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       // setAmount(_amount);
       // calculateChangeMoney(_items, _amount, discountRate, discountValue);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coupon])
 
   const totalAmount = useCallback(
@@ -276,6 +276,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       });
       return _amount;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [items]
   );
 
@@ -293,6 +294,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       }
       props.setItemGift(_itemGifts);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   const showAddGiftModal = useCallback(
@@ -324,6 +326,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     handleCardItems(_items);
     setAmount(_amount);
     calculateChangeMoney(_items, _amount, discountRate, discountValue);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   const onChangeQuantity = (value: number | null, index: number) => {
@@ -734,7 +737,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       unit: variant.product.unit,
       weight: variant.weight,
       weight_unit: variant.weight_unit,
-      warranty: variant.product.preservation,
+      warranty: variant.product.care_labels,
       discount_items: [discountItem],
       discount_amount: 0,
       discount_rate: 0,
@@ -877,6 +880,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [resultSearchVariant, items, splitLine]
   );
 
@@ -916,6 +920,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         setSearchProducts(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [formRef]
   );
 
@@ -932,11 +937,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const ShowInventoryModal = useCallback(() => {
     if (items !== null && items?.length) setInventoryModalVisible(true);
     else showError("Vui lòng chọn sản phẩm vào đơn hàng");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, items]);
 
   useEffect(() => {
-    dispatch(StoreSearchListAction(resultSearchStore, setStoreArrayResponse));
-  }, [resultSearchStore]);
+    dispatch(StoreSearchListAction("", setStoreArrayResponse));
+  }, [dispatch]);
 
   // const dataSearchCanAccess = useMemo(() => {
   //   let newData: Array<StoreResponse> = [];
@@ -1006,6 +1012,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       selectStore(newData[0].id);
     }
     return newData;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listStores, userReducer.account]);
 
   const onUpdateData = useCallback(
@@ -1013,6 +1020,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       let data = [...items];
       setItemGift(data);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [items]
   );
 
@@ -1030,6 +1038,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _itemGifts.forEach((itemGift) => (itemGift.position = _items[indexItem].position));
     _items[indexItem].gifts = itemGifts;
     handleCardItems(_items);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, itemGifts, indexItem]);
 
   useLayoutEffect(() => {
@@ -1084,6 +1093,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     if (items && items.length > 0) {
       setIsShowProductSearch(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -1353,7 +1363,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           setStoreId={selectStore}
           columnsItem={items}
           inventoryArray={inventoryResponse}
-          setResultSearchStore={setResultSearchStore}
+          setStoreArrayResponse={setStoreArrayResponse}
           dataSearchCanAccess={storeArrayResponse}
           handleCancel={handleInventoryCancel}
           // setStoreForm={setStoreForm}

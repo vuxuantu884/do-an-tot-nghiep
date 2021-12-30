@@ -5,7 +5,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AppConfig } from "config/app.config";
 import { ProductPermission } from "config/permissions/product.permission";
-import UrlConfig from "config/url.config";
+import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { AccountGetListAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
@@ -40,7 +40,7 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, Products } from "utils/AppUtils";
+import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -88,7 +88,7 @@ const initQuery: VariantSearchQuery = {
 };
 
 const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
+  department_ids: [AppConfig.WIN_DEPARTMENT],
 };
 
 const initMainColorQuery: ColorSearchQuery = {
@@ -147,16 +147,19 @@ const TabProduct: React.FC = () => {
   );
   const onFilter = useCallback((values) => {
     let {info} = values;
-    values.info = info.trim();
+    
+    values.info = info && info.trim();
     let newPrams = {...values, page: 1};
     setPrams(newPrams);
-  }, []);
+    let queryParam = generateQuery(newPrams);
+    history.replace(`${ProductTabUrl.VARIANTS}?${queryParam}`);
+  }, [history]);
 
-  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => {
-    setTableLoading(false);
+  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => { 
     if (!!result) {
-      setData(result);
+      setData(result); 
     }
+    setTableLoading(false);
   }, []);
 
   const onResultUpdateSaleable = useCallback(

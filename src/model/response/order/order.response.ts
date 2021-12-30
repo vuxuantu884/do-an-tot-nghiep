@@ -27,6 +27,7 @@ export interface OrderResponse extends BaseObject {
   coordinator_code: string | null;
   coordinator: string | null;
   channel_id: number | null;
+  channel_code:string|null;
   channel: string | null;
   customer_id: number | null;
   customer: string | null;
@@ -159,6 +160,12 @@ export interface FulFillmentResponse {
   created_date: string | null;
   cancel_date: string | null;
   return_status: string | null;
+}
+
+export interface SelfDeliveryData {
+  shipper_code: string | null;
+  shipping_fee_paid_to_three_pls: number | null;
+  shipping_fee_informed_to_customer: number | null;
 }
 
 export interface OrderDiscountResponse {

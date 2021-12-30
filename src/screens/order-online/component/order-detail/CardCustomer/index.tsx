@@ -497,6 +497,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               }}
               onChange={(value) => {
                 setOrderSourceId && setOrderSourceId(value);
+                console.log(value)
               }}
             >
               {listSources.map((item, index) => (

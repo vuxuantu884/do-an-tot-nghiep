@@ -18,6 +18,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { SupplierCreateRequest } from "model/core/supplier.model";
+import { CollectionQuery, CollectionResponse } from "model/product/collection.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -25,6 +26,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
+import { getCollectionRequestAction } from "domain/actions/product/collection.action";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import CustomSelect from "component/custom/select.custom";
+
 
 const { Item } = Form;
 const { Option } = Select;
@@ -123,6 +128,20 @@ const CreateSupplierScreen: React.FC = () => {
     acceptPermissions: [SuppliersPermissions.CREATE],
     not: false,
   });
+  const [data, setData] = useState<PageResponse<CollectionResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+  const query = useQuery();
+  let getParams: CollectionQuery = getQueryParams(query);
+  if (!getParams.goods) {
+    getParams.goods = undefined;
+  }
+  const [params, setPrams] = useState<CollectionQuery>(getParams);
 
   const onChangeStatus = useCallback(
     (checked: boolean) => {
@@ -195,6 +214,17 @@ const CreateSupplierScreen: React.FC = () => {
     [dispatch]
   );
   //end memo
+
+  const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
+    if (results && results.items) {
+      setData(results);
+    }
+  }, []);
+
+  useEffect(() => {
+    dispatch(getCollectionRequestAction(params, onGetSuccess));
+  }, [dispatch, onGetSuccess, params]);
+
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
@@ -368,6 +398,25 @@ const CreateSupplierScreen: React.FC = () => {
                     <Input placeholder="Nhập mã số thuế" maxLength={13} />
                   </Item>
                 </Col>
+                <Col span={12}>
+                  <Item
+                    name="group_product"
+                    label="Nhóm hàng"
+                  >
+                    <CustomSelect
+                      showSearch
+                      showArrow 
+                      optionFilterProp="children"
+                      placeholder="Chọn nhóm hàng"
+                    >
+                      {data?.items.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Col>
               </Row>
             </Card>
             <Card title="Địa chỉ nhà cung cấp">
@@ -524,6 +573,19 @@ const CreateSupplierScreen: React.FC = () => {
                             <Item name={[name, "name"]} label="Tên người liên hệ">
                               <Input
                                 placeholder="Nhập tên người liên hệ"
+                                maxLength={255}
+                              />
+                            </Item>
+                          </Col>
+                        </Row>
+                        <Row>
+                          <Col span={24}>
+                            <Item
+                              name={[name, "position"]}
+                              label="Chức vụ"
+                            >
+                              <Input
+                                placeholder="Nhập chức vụ"
                                 maxLength={255}
                               />
                             </Item>

@@ -12,6 +12,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 //import { useState } from "react";
 import { Link } from "react-router-dom";
+import { POS } from "utils/Constants";
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -66,6 +67,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
       x.rank_id ===
       (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
   )?.rank_name;
+
+  console.log(props.OrderDetail?.channel_code);
+  //props.OrderDetail?.channel_code !== POS.channel_code
 
   return (
     <Card
@@ -139,42 +143,44 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
             </span>
           </Space>
         </Row>
-        <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
-        <div>
-          <Row gutter={24}>
-            <Col
-              xs={24}
-              style={{
-                paddingTop: "14px",
-              }}
-              className="font-weight-500 customer-info-left"
-            >
-              <div className="title-address">
-                <img
-                  src={addressIcon}
-                  alt=""
+        {props.OrderDetail?.channel_code?.toUpperCase() !== POS.channel_code.toUpperCase() && (
+          <>
+            <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
+            <div>
+              <Row gutter={24}>
+                <Col
+                  xs={24}
                   style={{
-                    width: "24px",
-                    height: "24px",
-                    marginRight: "10px",
+                    paddingTop: "14px",
                   }}
-                />
-                Địa chỉ giao hàng:
-                <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                  {props.OrderDetail?.shipping_address?.name} -{" "}
-                  {props.OrderDetail?.shipping_address?.phone} -{" "}
-                  {props.OrderDetail?.shipping_address?.full_address} -{" "}
-                  {props.OrderDetail?.shipping_address?.ward} -{" "}
-                  {props.OrderDetail?.shipping_address?.district} -{" "}
-                  {props.OrderDetail?.shipping_address?.city}
-                </span>
-              </div>
-            </Col>
-          </Row>
-          
+                  className="font-weight-500 customer-info-left"
+                >
+                  <div className="title-address">
+                    <img
+                      src={addressIcon}
+                      alt=""
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        marginRight: "10px",
+                      }}
+                    />
+                    Địa chỉ giao hàng:
+                    <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+                      {props.OrderDetail?.shipping_address?.name} -{" "}
+                      {props.OrderDetail?.shipping_address?.phone} -{" "}
+                      {props.OrderDetail?.shipping_address?.full_address} -{" "}
+                      {props.OrderDetail?.shipping_address?.ward} -{" "}
+                      {props.OrderDetail?.shipping_address?.district} -{" "}
+                      {props.OrderDetail?.shipping_address?.city}
+                    </span>
+                  </div>
+                </Col>
+              </Row>
 
-          <div className="send-order-box" hidden={true}>
-            {/* <Row style={{ marginTop: 15 }}>
+
+              <div className="send-order-box" hidden={true}>
+                {/* <Row style={{ marginTop: 15 }}>
               <Checkbox
                 className="checkbox-style"
                 onChange={ShowBillingAddress}
@@ -183,39 +189,42 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                 Gửi hoá đơn
               </Checkbox>
             </Row> */}
-            <Divider style={{ padding: 0, margin: 0 }} />
-            <Row gutter={24}>
-              <Col
-                xs={24}
-                style={{
-                  paddingTop: "14px",
-                }}
-                className="font-weight-500 customer-info-left"
-              >
-                <div className="title-address">
-                  <img
-                    src={addressIcon}
-                    alt=""
+                <Divider style={{ padding: 0, margin: 0 }} />
+                <Row gutter={24}>
+                  <Col
+                    xs={24}
                     style={{
-                      width: "24px",
-                      height: "24px",
-                      marginRight: "10px",
+                      paddingTop: "14px",
                     }}
-                  />
-                  Địa chỉ nhận hóa đơn:
-                  <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                    {props.OrderDetail?.billing_address?.name} -{" "}
-                    {props.OrderDetail?.billing_address?.phone} -{" "}
-                    {props.OrderDetail?.billing_address?.full_address} -{" "}
-                    {props.OrderDetail?.billing_address?.ward} -{" "}
-                    {props.OrderDetail?.billing_address?.district} -{" "}
-                    {props.OrderDetail?.billing_address?.city}
-                  </span>
-                </div>
-              </Col>
-            </Row>
-          </div>
-        </div>
+                    className="font-weight-500 customer-info-left"
+                  >
+                    <div className="title-address">
+                      <img
+                        src={addressIcon}
+                        alt=""
+                        style={{
+                          width: "24px",
+                          height: "24px",
+                          marginRight: "10px",
+                        }}
+                      />
+                      Địa chỉ nhận hóa đơn:
+                      <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+                        {props.OrderDetail?.billing_address?.name} -{" "}
+                        {props.OrderDetail?.billing_address?.phone} -{" "}
+                        {props.OrderDetail?.billing_address?.full_address} -{" "}
+                        {props.OrderDetail?.billing_address?.ward} -{" "}
+                        {props.OrderDetail?.billing_address?.district} -{" "}
+                        {props.OrderDetail?.billing_address?.city}
+                      </span>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          </>
+        )}
+
       </div>
     </Card>
   );

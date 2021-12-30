@@ -20,7 +20,7 @@ export const handleChangeMaterial = (material: MaterialResponse | false, form: F
       <strong style="color: rgb(34, 34, 34)">Ghi chú: </strong>${material.description}
     </p>
     `;
-      form.setFieldsValue({ description: formatDescription });
+      form.setFieldsValue({ description: formatDescription, material: material.name });
     }
   };
 

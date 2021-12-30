@@ -67,6 +67,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any, 
               Huỷ
             </Button>
           </Menu.Item>
+          
         </Menu>
         </StyledMenu>
       );
@@ -92,7 +93,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any, 
               <Button
                 type="text"
                 className="p-0 ant-btn-custom"
-                icon={<img src={threeDot} alt=""></img>}
+                icon={<img src={threeDot} alt="" style={{verticalAlign: 'super'}}/>}
               ></Button>
             </Dropdown>
           </div>

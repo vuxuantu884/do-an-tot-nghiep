@@ -4,7 +4,7 @@ import {MenuAction} from "component/table/ActionButton";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {ProductPermission} from "config/permissions/product.permission";
-import UrlConfig from "config/url.config";
+import UrlConfig, { ProductTabUrl } from "config/url.config";
 import {AccountGetListAction} from "domain/actions/account/account.action";
 import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {getCategoryRequestAction} from "domain/actions/product/category.action";
@@ -29,9 +29,9 @@ import {
 import {RootReducerType} from "model/reducers/RootReducerType";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
-import {convertCategory} from "utils/AppUtils";
+import {convertCategory, generateQuery} from "utils/AppUtils";
 import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showSuccess, showWarning} from "utils/ToastUtils";
@@ -47,7 +47,7 @@ const ACTIONS_INDEX = {
 const actionsDefault: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.EXPORT_EXCEL,
-    name: "Xuất thông in excel",
+    name: "Xuất thông tin excel",
   },
   {
     id: ACTIONS_INDEX.ACTIVE,
@@ -71,7 +71,7 @@ var idDelete = -1;
 
 const TabProductWrapper: React.FC = () => {
   const dispatch = useDispatch();
-
+  const history = useHistory();
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
 
   const [tableLoading, setTableLoading] = useState(true);
@@ -234,12 +234,22 @@ const TabProductWrapper: React.FC = () => {
     setListCategory(temp);
   }, []);
 
-  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => {
+  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => { 
+    dispatch(hideLoading());
     setTableLoading(false);
     if (!!result) {
       setData(result);
     }
-  }, []);
+  }, [dispatch]);
+
+  const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => { 
+    dispatch(hideLoading());
+    setTableLoading(false);
+    showSuccess("Xóa sản phẩm thành công");
+    if (!!result) {
+      setData(result);
+    }
+  }, [dispatch]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -257,19 +267,19 @@ const TabProductWrapper: React.FC = () => {
   const onFilter = useCallback(
     (values) => {
       let {info} = values;
-      values.info = info.trim();
+      values.info = info && info.trim();
       let newParams = {...params, ...values, page: 1};
       setParams(newParams);
+      let queryParam = generateQuery(newParams);
+      history.replace(`${ProductTabUrl.PRODUCTS}?${queryParam}`);
     },
-    [params]
+    [params, history]
   );
 
   const onDeleteSuccess = useCallback(() => {
-    setSelected([]);
-    dispatch(hideLoading());
-    showSuccess("Xóa sản phẩm thành công");
-    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
-  }, [dispatch, setSearchResult, params]);
+    setSelected([]); 
+    dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
+  }, [dispatch, setSearchResultDelete, params]);
 
   const onUpdateSuccess = useCallback(
     (result: ProductWrapperUpdateRequest) => {

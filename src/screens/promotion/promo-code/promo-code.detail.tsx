@@ -7,6 +7,7 @@ import CloseIcon from "assets/icon/x-close-red.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import VoucherIcon from "assets/img/voucher.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import {PromoPermistion} from "config/permissions/promotion.permisssion";
@@ -722,14 +723,8 @@ const PromotionDetailScreen: React.FC = () => {
       <BottomBarContainer
         back="Quay lại danh sách đợt phát hành"
         rightComponent={
-          <Space>
-            {/* {allowCancelPromoCode ? (
-              <Button disabled onClick={onDelete} style={{color: "#E24343"}}>
-                Xoá
-              </Button>
-            ) : null} */}
-            {allowUpdatePromoCode && data?.state!=='DISABLED' ? <Button onClick={onEdit}>Sửa</Button> : null}
-
+          <Space>          
+            {allowUpdatePromoCode && data?.state!=='CANCELLED' && <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}><Button onClick={onEdit}>Sửa</Button></AuthWrapper> }
             {allowCreatePromoCode ? <Button disabled>Nhân bản</Button> : null}
             {allowCancelPromoCode ? renderActionButton() : null}
           </Space>

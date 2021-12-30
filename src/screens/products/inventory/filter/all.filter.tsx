@@ -20,7 +20,6 @@ import { convertCategory, formatCurrency } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import TreeStore from "./TreeStore";
-import { FormatTextMonney } from "utils/FormatMonney";
 import { CollectionResponse } from "model/product/collection.model";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -144,7 +143,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     isWin = win;
     dispatch(
       AccountSearchAction(
-        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
@@ -503,7 +502,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                     <Col span={24} className="tag-filter">
                       {
                         lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                          return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
                         })
                       }
                     </Col>
@@ -665,7 +664,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                             <InputNumber
                               className="price_min"
                               placeholder="Từ"
-                              formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
+                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                               min="0"
                               max="100000000"
                             />
@@ -677,7 +676,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                             <InputNumber
                               className="site-input-right price_max"
                               placeholder="Đến"
-                              formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
+                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                               min="0"
                               max="1000000000"
                             />

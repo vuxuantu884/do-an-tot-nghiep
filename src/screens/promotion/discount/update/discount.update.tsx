@@ -35,7 +35,7 @@ const DiscountUpdate = () => {
     const [isAllChannel, setIsAllChannel] = useState(true);
     const [isAllSource, setIsAllSource] = useState(true);
     const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const discountUpdateContext = useContext(DiscountUpdateContext);
     const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
@@ -137,7 +137,7 @@ const DiscountUpdate = () => {
      */
     const onResult = useCallback(
         (result: DiscountResponse | false) => {
-            if (result) {
+            if (result) {                
                 // search data of parent product for entitled_product_ids
                 let product_ids: Array<number> = []
                 result.entitlements.forEach((item: EntilementFormModel) => {
@@ -150,12 +150,13 @@ const DiscountUpdate = () => {
                     product_ids
                 }
                 dispatch(searchProductWrapperRequestAction(query, (data: false | PageResponse<ProductResponse>) => {
-                    if (data)
+                    if (data) {
                         setDataProducts(data.items)
+                    }
                 }));
 
                 parseDataToForm(result);
-
+                setIsLoading(false);
             }
         },
         [dispatch, parseDataToForm]
@@ -210,6 +211,7 @@ const DiscountUpdate = () => {
     }, [discountData, form, mergeVariantsData]);
 
     useEffect(() => {
+        setIsLoading(true);
         dispatch(getVariants(idNumber, setDataVariants));
         dispatch(promoGetDetail(idNumber, onResult));
     }, [dispatch, idNumber, onResult]);
@@ -217,6 +219,7 @@ const DiscountUpdate = () => {
     return (
         <ContentContainer
             title={discountData.title}
+            isLoading={isLoading}
             breadcrumb={[
                 {
                     name: "Tổng quan",
@@ -239,7 +242,6 @@ const DiscountUpdate = () => {
                 layout="vertical"
                 scrollToFirstError
                 initialValues={discountData}
-                //  onFieldsChange={(changedFields, allFields) => {console.log(changedFields, allFields)}}
             >
                 <Row gutter={24}>
 

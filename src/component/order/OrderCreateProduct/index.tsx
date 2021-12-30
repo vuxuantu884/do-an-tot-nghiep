@@ -249,7 +249,6 @@ function OrderCreateProduct(props: PropType) {
 	const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
 	const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
 	const [isCalculateDiscount, setIsCalculateDiscount] = useState(false);
-	const [resultSearchStore, setResultSearchStore] = useState("");
 	const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
 	//tách đơn
@@ -314,6 +313,7 @@ function OrderCreateProduct(props: PropType) {
 						// console.log(barcode);
 						dispatch(
 							SearchBarCode(barcode, (data: VariantResponse) => {
+
 								let _items = [...items].reverse();
 								const item: OrderLineItemRequest = createItem(data);
 								let index = _items.findIndex((i) => i.variant_id === data.id);
@@ -329,6 +329,12 @@ function OrderCreateProduct(props: PropType) {
 										variantItems[lastIndex].price -
 										variantItems[lastIndex].discount_items[0].amount;
 									calculateChangeMoney(_items);
+								}
+
+								if (isAutomaticDiscount && _items.length > 0) {
+									handleApplyDiscount(_items);
+								} else if (couponInputText && _items.length > 0) {
+									handleApplyCouponWhenInsertCoupon(couponInputText, _items);
 								}
 
 								setItems(_items.reverse());
@@ -939,7 +945,7 @@ function OrderCreateProduct(props: PropType) {
 			unit: variant.product.unit,
 			weight: variant.weight,
 			weight_unit: variant.weight_unit,
-			warranty: variant.product.preservation,
+			warranty: variant.product.care_labels,
 			discount_items: [],
 			discount_amount: 0,
 			discount_rate: 0,
@@ -968,9 +974,9 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const removeAutomaticDiscountItem = (item: OrderLineItemRequest) => {
-		if(item.discount_items) {
+		if (item.discount_items) {
 			for (let i = 0; i < item.discount_items.length; i++) {
-				if(item.discount_items[i].promotion_id) {
+				if (item.discount_items[i].promotion_id) {
 					item.discount_items.splice(i, 1);
 				}
 			}
@@ -1533,9 +1539,8 @@ function OrderCreateProduct(props: PropType) {
 	}, [dispatch, items]);
 
 	useEffect(() => {
-		dispatch(StoreSearchListAction(resultSearchStore, setStoreArrayResponse));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [resultSearchStore]);
+		dispatch(StoreSearchListAction("", setStoreArrayResponse));
+	}, [dispatch]);
 
 	// useEffect(() => {
 	//   let storeids = [104435, 104436];
@@ -1615,7 +1620,7 @@ function OrderCreateProduct(props: PropType) {
 		_promotion?: OrderDiscountRequest | null,
 	) => {
 		if (_promotion === undefined) {
-			if(promotion) {
+			if (promotion) {
 				let _value = 0;
 				let _rate = 0;
 				let totalOrderAmount = totalAmount(_items);
@@ -1653,10 +1658,10 @@ function OrderCreateProduct(props: PropType) {
 				)
 			);
 			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
-			if(storeId && userReducer.account) {
-				if(userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
+			if (storeId && userReducer.account) {
+				if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
 					let initStore = listStores.find((single) => single.id === storeId)
-					if(initStore) {
+					if (initStore) {
 						newData.push(initStore);
 					}
 				}
@@ -2186,7 +2191,7 @@ function OrderCreateProduct(props: PropType) {
 					setStoreId={setStoreId}
 					columnsItem={items}
 					inventoryArray={inventoryResponse}
-					setResultSearchStore={setResultSearchStore}
+					setStoreArrayResponse={setStoreArrayResponse}
 					dataSearchCanAccess={storeArrayResponse}
 					handleCancel={handleInventoryCancel}
 				// setStoreForm={setStoreForm}

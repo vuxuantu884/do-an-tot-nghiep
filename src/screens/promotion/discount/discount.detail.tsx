@@ -1,4 +1,5 @@
 import { Button, Card, Col, Row, Space, Tooltip } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
@@ -415,7 +416,12 @@ const PromotionDetailScreen: React.FC = () => {
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
               <Space>
-                {allowUpdatePromoCode && <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>}
+                {allowUpdatePromoCode && (
+                  <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
+                    <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>
+                  </AuthWrapper>
+                )
+                }
                 {allowCreatePromoCode && <Button disabled>Nhân bản</Button>}
                 {allowCancelPromoCode && renderActionButton()}
               </Space>

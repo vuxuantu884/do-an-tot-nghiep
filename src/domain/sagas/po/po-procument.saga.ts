@@ -4,6 +4,8 @@ import {
   deletePurchaseProcumentService,
   searchProcurementApi,
   importProcumentApi,
+  confirmPoProcumentService,
+  approvalPurchaseProcumentService,
 } from "service/purchase-order/purchase-procument.service";
 import { createPurchaseProcumentService } from "service/purchase-order/purchase-procument.service";
 import { YodyAction } from "base/base.action";
@@ -49,6 +51,64 @@ function* poProcumentUpdateSaga(action: YodyAction) {
   try {
     let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
       updatePurchaseProcumentService,
+      poId,
+      procumentId,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        updateCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        updateCallback(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        updateCallback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    updateCallback(null);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* approvalPoProcumentUpdateSaga(action: YodyAction) {
+  const { poId, procumentId, request, updateCallback } = action.payload;
+  try {
+    let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
+      approvalPurchaseProcumentService,
+      poId,
+      procumentId,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        updateCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        updateCallback(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        updateCallback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    updateCallback(null);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* confirmPoProcumentConfirmSaga(action: YodyAction) {
+  const { poId, procumentId, request, updateCallback } = action.payload;
+  try {
+    let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
+      confirmPoProcumentService,
       poId,
       procumentId,
       request
@@ -200,4 +260,6 @@ export function* poProcumentSaga() {
     POProcumentType.IMPORT_PROCUMENT,
     importProcumentSaga
   );
+  yield takeEvery(POProcumentType.APROVAL_PROCUMENT, approvalPoProcumentUpdateSaga);
+  yield takeEvery(POProcumentType.CONFIRM_PROCUMENT, confirmPoProcumentConfirmSaga);
 } 

@@ -325,7 +325,16 @@ const CustomerDetail = () => {
 
   React.useEffect(() => {
     const _detail = [
-      { name: "Điểm hiện tại", value: loyaltyPoint?.point || null },
+      {
+        name: "Điểm hiện tại",
+        value: 
+          loyaltyPoint?.point ? 
+            <NumberFormat
+              value={loyaltyPoint.point}
+              displayType={"text"}
+              thousandSeparator={true}
+            /> : null
+      },
       {
         name: "Hạng thẻ",
         value:

@@ -72,6 +72,10 @@ const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormMo
                               required: filterType === FILTER_TYPE_CONSTANT.NEW ? true : false,
                               message: "Bạn chưa nhập tên bộ lọc mới",
                             },
+                              {
+                                max: 50,
+                                message: "Tên bộ lọc mới không vượt quá 50 ký tự",
+                              }
                           ]}>
                                 <Input className="item-radio-option" placeholder="Nhập tên bộ lọc mới"/>
                           </Form.Item>}
