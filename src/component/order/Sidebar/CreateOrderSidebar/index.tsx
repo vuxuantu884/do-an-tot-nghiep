@@ -219,7 +219,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           rules={[
             {
               required: true,
-              message: "Vui lòng chọn nhân viên bán hàng",
+              message: "Vui lòng chọn nhân viên bán hàng!",
             },
           ]}
         >
