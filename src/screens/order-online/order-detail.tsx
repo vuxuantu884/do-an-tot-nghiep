@@ -33,9 +33,10 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
+import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
 import {
 	checkPaymentAll,
 	checkPaymentStatusToShow,
@@ -79,6 +80,7 @@ const OrderDetail = (props: PropType) => {
   }
   let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
+  const isEcommerceOrder = useRef(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const dispatch = useDispatch();
@@ -270,6 +272,9 @@ const OrderDetail = (props: PropType) => {
     if (!data) {
       setError(true);
     } else {
+      const orderChannel = data.channel?.toLowerCase() || "";
+      isEcommerceOrder.current = ECOMMERCE_CHANNEL.includes(orderChannel);
+
       let _data = {
         ...data,
         fulfillments: data.fulfillments?.sort((a, b) => b.id - a.id),
@@ -703,15 +708,15 @@ const OrderDetail = (props: PropType) => {
                             OrderDetail.total === OrderDetail.total_paid ? (
                               ""
                             ) : (
-                              <>
+                              <React.Fragment>
                                 {OrderDetail?.payments
                                   .filter((payment) => {
                                     // nếu là đơn trả thì tính cả cod
-                                    if (OrderDetail.order_return_origin) {
-                                      return true;
-                                    }
+                                    // if (OrderDetail.order_return_origin) {
+                                    //   return true;
+                                    // }
                                     return (
-                                      payment.payment_method !== "cod" && payment.amount
+                                      payment.payment_method !== PaymentMethodCode.COD && payment.amount
                                     );
                                   })
                                   .map((payment: any, index: number) => (
@@ -757,7 +762,7 @@ const OrderDetail = (props: PropType) => {
                                       key={index}
                                     ></Panel>
                                   ))}
-                              </>
+                              </React.Fragment>
                             )}
                             {isShowPaymentPartialPayment && OrderDetail !== null && (
                               <Panel
@@ -982,6 +987,7 @@ const OrderDetail = (props: PropType) => {
                 disabledActions={disabledActions}
                 disabledBottomActions={disabledBottomActions}
                 reasons={reasons}
+                isEcommerceOrder={isEcommerceOrder.current}
               />
               {/*--- end shipment ---*/}
 

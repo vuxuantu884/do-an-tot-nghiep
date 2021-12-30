@@ -173,6 +173,7 @@ const TabCurrent: React.FC = () => {
       />
 
       <ProcumentInventoryModal
+        loadDetail={loadDetail}
         isEdit={false}
         items={purchaseOrderItem.line_items}
         stores={[] as Array<StoreResponse>}

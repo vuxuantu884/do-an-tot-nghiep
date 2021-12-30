@@ -194,9 +194,12 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
     }
   ]);
 
-  const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);
-    setSelectedRowKeys(selectedRowKeys);
+  const onSelectTableRow = useCallback((selectedRow) => {
+    const newSelectedRow = selectedRow.filter((row: any) => {
+      return row !== undefined;
+    });
+    const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
+    setSelectedRowKeys(selectedRowIds);
   }, []);
 
   const onPageChange = useCallback(
@@ -305,7 +308,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
                 onShowSizeChange: onPageChange,
               }
           }
-          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+          onSelectedChange={onSelectTableRow}
           dataSource={data.items}
           columns={columns}
           rowKey={(item: OrderModel) => item.id}

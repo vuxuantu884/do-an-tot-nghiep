@@ -3,14 +3,15 @@ import lazadaIcon from "assets/icon/e-lazada.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 
-const ECOMMERCE_ICON: any = {
+
+export const ECOMMERCE_CHANNEL = ["shopee", "lazada", "tiki", "sendo"];
+
+export const ECOMMERCE_ICON: any = {
   shopee: shopeeIcon,
   lazada: lazadaIcon,
   tiki: tikiIcon,
   sendo: sendoIcon,
 };
-
-export default ECOMMERCE_ICON;
 
 export const getEcommerceIcon = (ecommerce: any) => {
   switch (ecommerce?.toLowerCase()) {

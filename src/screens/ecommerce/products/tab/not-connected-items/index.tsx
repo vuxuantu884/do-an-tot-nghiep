@@ -900,8 +900,11 @@ const NotConnectedItems: React.FC = () => {
   // end handle select shop
 
   //select row table
-  const onSelectTable = React.useCallback((selectedRow: Array<any>) => {
-    setSelectedRow(selectedRow);
+  const onSelectTableRow = React.useCallback((selectedRow: Array<any>) => {
+    const newSelectedRow = selectedRow.filter((row: any) => {
+      return row !== undefined;
+    });
+    setSelectedRow(newSelectedRow);
   }, []);
 
   const closeResultConnectProductModal = () => {
@@ -1067,7 +1070,7 @@ const NotConnectedItems: React.FC = () => {
           bordered
           isRowSelection={allowProductsConnect}
           isLoading={isLoading}
-          onSelectedChange={onSelectTable}
+          onSelectedChange={onSelectTableRow}
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 1100 }}

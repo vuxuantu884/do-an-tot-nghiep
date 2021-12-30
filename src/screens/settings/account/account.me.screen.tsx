@@ -130,7 +130,7 @@ const AccountMeScreen: React.FC = () => {
             </Card>
 
             <Card title={<TitleCustom color="#FCAF17" bgColor="#FFF7E8" size={40} icon={<TeamOutlined />} text="THÔNG TIN KHÁC"/>}>   
-              <RowDetail title="Phòng ban" value={(objOrther?.departments && objOrther.departments?.length > 0) ? objOrther.jobs : "---"}/>
+              <RowDetail title="Phòng ban" value={(objOrther?.departments && objOrther.departments?.length > 0) ? objOrther.departments : "---"}/>
               <RowDetail title="Vị trí" value={(objOrther?.jobs && objOrther.jobs?.length > 0) ? objOrther?.jobs : "---"}/>
               <RowDetail title="Nhóm quyền" value={objOrther?.permissions?.role_name ?? "---"}/>
               <RowDetail title="Cửa hàng" value={(objOrther?.stores && objOrther.stores?.length > 0) ? objOrther.stores : "---"}/>

@@ -8,7 +8,7 @@ import YdCoin from "component/icon/YdCoin";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { StyledComponent } from "./styles";
@@ -44,6 +44,8 @@ function OrderPayments(props: PropType): JSX.Element {
     listPaymentMethod,
     setPayments,
   } = props;
+
+	console.log('payments', payments)
 
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
@@ -133,6 +135,14 @@ function OrderPayments(props: PropType): JSX.Element {
     _paymentData[index].reference = value;
     setPayments(_paymentData);
   };
+
+	useEffect(() => {
+		if(payments.some((payment) => payment.payment_method===PaymentMethodCode.COD)) {
+			let _payments = payments.filter((single) => single.payment_method !==PaymentMethodCode.COD);
+			setPayments(_payments);
+		}
+		
+	}, [payments, setPayments])
 
   return (
     <StyledComponent>

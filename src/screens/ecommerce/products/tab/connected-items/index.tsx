@@ -94,7 +94,7 @@ const ConnectedItems: React.FC = () => {
   const [syncStockAll, setSyncStockAll] = useState(true);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
 
-  const [selectedRow, setSelected] = useState<Array<any>>([]);
+  const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
 
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
@@ -559,8 +559,11 @@ const ConnectedItems: React.FC = () => {
     setVisibleFilter(false);
   }, []);
 
-  const onSelectTable = React.useCallback((selectedRow: Array<any>) => {
-    setSelected(selectedRow);
+  const onSelectTableRow = React.useCallback((selectedRow: Array<any>) => {
+    const newSelectedRow = selectedRow.filter((row: any) => {
+      return row !== undefined;
+    });
+    setSelectedRow(newSelectedRow);
   }, []);
 
   const isDisableAction = () => {
@@ -841,7 +844,7 @@ const ConnectedItems: React.FC = () => {
           bordered
           isRowSelection={isShowAction}
           isLoading={isLoading}
-          onSelectedChange={onSelectTable}
+          onSelectedChange={onSelectTableRow}
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 1500 }}

@@ -95,6 +95,7 @@ type UpdateShipmentCardProps = {
   orderSettings?: OrderSettingsModel;
   disabledBottomActions?: boolean;
   reasons? : any[];
+  isEcommerceOrder?: boolean;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -111,6 +112,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     OrderDetail,
     orderSettings,
     disabledBottomActions,
+    isEcommerceOrder,
   } = props;
 
   const history = useHistory();
@@ -118,6 +120,25 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [form] = Form.useForm();
   // action
   const dispatch = useDispatch();
+
+  //handle create a new fulfillment for ecommerce order
+  const latestFulfillment = useMemo(() => {
+    const fulfillment = props.OrderDetailAllFullfilment?.fulfillments
+      ? props.OrderDetailAllFullfilment.fulfillments[0]
+      : null;
+    return fulfillment;
+  }, [props.OrderDetailAllFullfilment]);
+
+  const initSelfDelivery = useMemo(() => {
+    const selfDelivery = {
+      shipper_code: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipper_code : null,
+      shipping_fee_paid_to_three_pls: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipping_fee_paid_to_three_pls : null,
+      shipping_fee_informed_to_customer: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipping_fee_informed_to_customer : null,
+    };
+    
+    return selfDelivery;
+  }, [isEcommerceOrder, latestFulfillment]);
+
   // ffm asc id
   const newFulfillments = useMemo(() => {
     const ffm = props.OrderDetailAllFullfilment?.fulfillments
@@ -484,18 +505,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     delivery_service_provider_code: "",
     delivery_service_provider_name: "",
     delivery_transport_type: "",
-    shipper_code: null,
+    shipper_code: initSelfDelivery.shipper_code,
     shipper_name: "",
     handover_id: null,
     service: null,
     fee_type: "",
     fee_base_on: "",
     delivery_fee: null,
-    shipping_fee_paid_to_three_pls: null,
+    shipping_fee_paid_to_three_pls: initSelfDelivery.shipping_fee_paid_to_three_pls,
     cod: null,
     expected_received_date: "",
     reference_status: "",
-    shipping_fee_informed_to_customer: null,
+    shipping_fee_informed_to_customer: initSelfDelivery.shipping_fee_informed_to_customer,
     reference_status_explanation: "",
     cancel_reason: "",
     tracking_code: "",
@@ -1736,6 +1757,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 handleCreateShipment={() => form.submit()}
                 creating={updateShipment}
                 handleCancelCreateShipment={() => setVisibleShipping(false)}
+                isEcommerceOrder={isEcommerceOrder}
+                initSelfDelivery={initSelfDelivery}
               />
             </Form>
             {/*--- Giao hàng sau ----*/}

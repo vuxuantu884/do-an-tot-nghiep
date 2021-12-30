@@ -162,6 +162,12 @@ export interface FulFillmentResponse {
   return_status: string | null;
 }
 
+export interface SelfDeliveryData {
+  shipper_code: string | null;
+  shipping_fee_paid_to_three_pls: number | null;
+  shipping_fee_informed_to_customer: number | null;
+}
+
 export interface OrderDiscountResponse {
   rate: number | null;
   value: number | null;

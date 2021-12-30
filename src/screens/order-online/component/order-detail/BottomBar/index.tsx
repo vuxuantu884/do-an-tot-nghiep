@@ -203,7 +203,14 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                       <Menu.Item
                         key="clone"
                         onClick={() => orderActionsClick && orderActionsClick("clone")}
-                        disabled={!isPassed}
+												// đơn hàng đổi trả không sao chép
+                        disabled={
+													!isPassed || 
+													(
+														orderDetail?.order_return_origin !== null 
+														&& orderDetail?.order_return_origin !== undefined
+													) 
+												}
                       >
                         Sao chép đơn hàng
                       </Menu.Item>}
