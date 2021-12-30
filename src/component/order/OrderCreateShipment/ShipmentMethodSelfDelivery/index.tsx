@@ -193,7 +193,7 @@ console.log('initYodyAccountData', initYodyAccountData)
                   : undefined
               }
             >
-							{typeDelivery === 'employee' && 
+							{typeDelivery === 'employee' ?
 								(
 									<AccountCustomSearchSelect
 										placeholder="Tìm theo họ tên hoặc mã nhân viên"
@@ -201,39 +201,39 @@ console.log('initYodyAccountData', initYodyAccountData)
 										dataToSelect={assigneeAccountData}
 										setDataToSelect={setYodyAccountData}
 										initDataToSelect={initYodyAccountData}
-										// disabled
-										// disabled={levelOrder > 3}
+										disabled={levelOrder > 3}
 									/>
 								)
+								:
+								(
+									<CustomSelect
+										className="select-with-search"
+										showSearch
+										notFoundContent="Không tìm thấy kết quả"
+										style={{width: "100%"}}
+										placeholder="Chọn đối tác giao hàng"
+										filterOption={(input, option) => {
+											if (option) {
+												return (
+													option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+												);
+											}
+											return false;
+										}}
+										disabled={levelOrder > 3}
+									>
+										{listExternalShippers?.map((item: any, index: number) => (
+											<CustomSelect.Option
+												style={{width: "100%"}}
+												key={index.toString()}
+												value={item.code}
+											>
+												{`${item.name} - ${item.phone}`}
+											</CustomSelect.Option>
+										))}
+									</CustomSelect>
+								)
 							}
-							{typeDelivery === 'external_shipper' && (
-								<CustomSelect
-									className="select-with-search"
-									showSearch
-									notFoundContent="Không tìm thấy kết quả"
-									style={{width: "100%"}}
-									placeholder="Chọn đối tác giao hàng"
-									filterOption={(input, option) => {
-										if (option) {
-											return (
-												option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-											);
-										}
-										return false;
-									}}
-									disabled={levelOrder > 3}
-								>
-									{listExternalShippers?.map((item: any, index: number) => (
-										<CustomSelect.Option
-											style={{width: "100%"}}
-											key={index.toString()}
-											value={item.code}
-										>
-											{`${item.name} - ${item.phone}`}
-										</CustomSelect.Option>
-									))}
-								</CustomSelect>
-							)}
             </Form.Item>
 
             {/* {paymentMethod === PaymentMethodOption.COD && ( */}

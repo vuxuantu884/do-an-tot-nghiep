@@ -45,7 +45,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
     },
     {
       statusBeforeCancellation: FulFillmentStatus.SHIPPING,
-      name: "Hủy đơn giao - Chưa nhận hàng",
+      name: "Hủy đơn giao - Đã nhận hàng",
       color: "#E24343",
       backgroundColor: "rgba(226, 67, 67, 0.1)",
     },
