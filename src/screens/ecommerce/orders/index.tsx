@@ -580,9 +580,13 @@ const EcommerceOrders: React.FC = () => {
     // },
   ]);
 
-  const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row?.id);
-    setSelectedRowKeys(selectedRowKeys);
+  const onSelectTableRow = useCallback((selectedRow) => {
+    const newSelectedRow = selectedRow.filter((row: any) => {
+      return row !== undefined;
+    });
+
+    const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
+    setSelectedRowKeys(selectedRowIds);
   }, []);
 
   const onPageChange = useCallback(
@@ -859,7 +863,7 @@ const EcommerceOrders: React.FC = () => {
                       onShowSizeChange: onPageChange,
                     }
                 }
-                onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+                onSelectedChange={onSelectTableRow}
                 dataSource={data.items}
                 columns={columnFinal}
                 rowKey={(item: OrderModel) => item.id}

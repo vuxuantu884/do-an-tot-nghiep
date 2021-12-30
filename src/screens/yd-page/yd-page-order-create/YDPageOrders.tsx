@@ -87,6 +87,8 @@ type OrdersCreatePermissionProps = {
   setCustomerPhone: (item: string | null) => void;
   fbCustomerId: string | null;
   fbPageId: string | null;
+  defaultSource: number | null;
+  defaultStore: number | null;
   userId: string | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyRate: LoyaltyRateResponse | undefined;
@@ -124,7 +126,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
     isVisibleCustomer,
     setVisibleCustomer,
     districtId,
-    setDistrictId
+    setDistrictId,
+    defaultStore,
+    defaultSource
   } = props;
   const dispatch = useDispatch();
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
@@ -232,7 +236,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   let initialRequest: OrderRequest = {
     action: "", //finalized
-    store_id: null,
+    store_id: defaultStore,
     company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
@@ -244,7 +248,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     shipping_fee_paid_to_three_pls: null,
     dating_ship: undefined,
     requirements: null,
-    source_id: null,
+    source_id: defaultSource,
     note: "",
     tags: "",
     customer_note: "",
