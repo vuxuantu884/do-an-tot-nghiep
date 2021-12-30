@@ -179,7 +179,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 150,
          render: (value,record) => {
-           return <div> {formatCurrency(record.total_stock)}</div> ;
+           return <div> {formatCurrency(record.total_stock,".")}</div> ;
          },
        },
        {
