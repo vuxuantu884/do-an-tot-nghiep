@@ -130,9 +130,6 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     [allProcurementItems, setData]
   );
 
-  console.log("data", poData); // console
-
-
   const onSelectProduct = useCallback(
     (sku: string) => {
       let procurement_items = form.getFieldValue(
