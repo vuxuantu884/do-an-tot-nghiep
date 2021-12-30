@@ -1,17 +1,18 @@
-import {Button, Divider, Space} from "antd";
-import {ColumnProps} from "antd/lib/table";
+import { Button, Divider, Space } from "antd";
+import { ColumnProps } from "antd/lib/table";
 import BottomBarContainer from "component/container/bottom-bar.container";
+import TextShowMore from "component/container/show-more/text-show-more";
 import CustomTable from "component/table/CustomTable";
-import {AccountPermissions} from "config/permissions/account.permisssion";
+import { AccountPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
-import {AccountJobResponse} from "model/account/account.model";
-import {useContext, useMemo} from "react";
-import {RiEditLine} from "react-icons/ri";
-import {useHistory} from "react-router";
-import {OFFSET_HEADER_TABLE} from "utils/Constants";
-import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-import {AccountDetailContext} from "../provider/account.detail.provider";
+import { AccountJobResponse } from "model/account/account.model";
+import { useContext, useMemo } from "react";
+import { RiEditLine } from "react-icons/ri";
+import { useHistory } from "react-router";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { AccountDetailContext } from "../provider/account.detail.provider";
 
 type Job = {
   department: string;
@@ -31,7 +32,7 @@ const JobColumn: Array<ColumnProps<Job>> = [
 function AccountViewTab() {
   const history = useHistory();
   const detailContext = useContext(AccountDetailContext);
-  const {accountInfo, userCode} = detailContext;
+  const { accountInfo, userCode } = detailContext;
 
   const allowUpdateAcc = useAuthorization({
     acceptPermissions: [AccountPermissions.UPDATE]
@@ -115,7 +116,7 @@ function AccountViewTab() {
           <tr>
             <td>Cửa hàng</td>
             <td colSpan={5}>
-              <b>: {stores}</b>
+              <b>: <TextShowMore maxLength={500} splitCharactor=",">{stores}</TextShowMore></b>
             </td>
           </tr>
         </tbody>
@@ -126,7 +127,7 @@ function AccountViewTab() {
         columns={JobColumn}
         dataSource={accountInfo?.account_jobs}
         pagination={false}
-        sticky={{offsetHeader: OFFSET_HEADER_TABLE}}
+        sticky={{ offsetHeader: OFFSET_HEADER_TABLE }}
         rowKey={(key: AccountJobResponse) => key.department_id}
       />
       <BottomBarContainer
@@ -137,10 +138,10 @@ function AccountViewTab() {
             <Button
               onClick={() => history.push(`${UrlConfig.ACCOUNTS}/${userCode}/update`)}
             >
-              <div style={{display: "flex", alignItems: "center"}}>
+              <div style={{ display: "flex", alignItems: "center" }}>
                 {allowUpdateAcc ? (
                   <>
-                    <RiEditLine color="#757575" style={{width: "15px"}} /> &nbsp; Chỉnh
+                    <RiEditLine color="#757575" style={{ width: "15px" }} /> &nbsp; Chỉnh
                     sửa
                   </>
                 ) : null}

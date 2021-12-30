@@ -65,7 +65,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
   };
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
   
-  const [itemProcument, setItemProcument] = useState<PurchaseProcument | null>(item);
+  const [itemProcument, setItemProcument] = useState<PurchaseProcument | null>(null);
   const dispatch = useDispatch();
   const { id } = useParams<PurchaseOrderParam>();
   let idNumber = parseInt(id);
