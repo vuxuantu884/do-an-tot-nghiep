@@ -444,7 +444,7 @@ function OrderCreateShipment(props: PropType) {
               levelOrder={levelOrder}
               setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
               isCancelValidateDelivery={isCancelValidateDelivery}
-              listShippers={listShippers}
+              storeId={storeDetail?.id}
               renderButtonCreateActionHtml={renderButtonCreateActionHtml}
               setThirdPL={setThirdPL}
               listExternalShippers={listExternalShippers}

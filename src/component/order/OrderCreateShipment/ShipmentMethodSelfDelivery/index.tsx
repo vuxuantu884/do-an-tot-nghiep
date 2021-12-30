@@ -1,18 +1,25 @@
 import { Checkbox, Col, Form, FormInstance, Radio, Row } from "antd";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import { HttpStatus } from "config/http-status.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { AccountResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
 // import { AccountResponse } from "model/account/account.model";
 import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { showError } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   totalAmountCustomerNeedToPay: number;
   levelOrder?: number;
   isCancelValidateDelivery: boolean;
-  listShippers: any;
   listExternalShippers: any;
+	storeId?: number | null;
   setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
@@ -23,7 +30,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     levelOrder = 0,
     totalAmountCustomerNeedToPay,
     isCancelValidateDelivery,
-    listShippers,
+		storeId,
     listExternalShippers,
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
@@ -32,13 +39,54 @@ function ShipmentMethodSelfDelivery(props: PropType) {
   } = props;
   const [is4h, setIs4h] = useState(false);
   const [typeDelivery, setTypeDelivery] = useState('employee');
+
+	const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
+	const [assigneeAccountData, setYodyAccountData] = useState<Array<AccountResponse>>(
+    []
+  );
+	const [initValueYodyCode, setInitValueYodyCode] = useState("");
+	const [initYodyAccountData, setInitYodyAccountData] = useState<
+    Array<AccountResponse>
+  >([]);
+
+	const dispatch = useDispatch();
+console.log('storeId', storeId)
+console.log('initYodyAccountData', initYodyAccountData)
+	useEffect(() => {
+		if(!storeId) {
+			return;
+		}
+		searchAccountPublicApi({
+			store_ids: [storeId],
+		})
+			.then((response) => {
+				if (response) {
+					switch (response.code) {
+						case HttpStatus.SUCCESS:
+							setStoreAccountData(response.data.items);
+							setInitYodyAccountData(response.data.items);
+							break;
+						case HttpStatus.UNAUTHORIZED:
+							dispatch(unauthorizedAction());
+							break;
+						default:
+							response.errors.forEach((e) => showError(e));
+							break;
+					}
+				}
+			})
+			.catch((error) => {
+				console.log("error", error);
+			})
+	}, [dispatch, storeId])
+
   const onChange = useCallback((e) => {
     setIs4h(e.target.checked);
   }, []);
 
   const onChangeType = useCallback((e) => {
     setTypeDelivery(e.target.value);
-    form?.setFieldsValue({shipper_code: null});
+    form?.setFieldsValue({shipper_code: undefined});
   }, [form]);
 
   useEffect(() => {
@@ -52,6 +100,59 @@ function ShipmentMethodSelfDelivery(props: PropType) {
       shipping_fee_paid_to_three_pls: null,
     })
   }, [is4h, setThirdPL, typeDelivery])
+
+	useEffect(() => {
+    const pushCurrentValueToDataAccount = (fieldName: string) => {
+			let fieldNameValue = form.getFieldValue(fieldName);
+      if (fieldNameValue) {
+        switch (fieldName) {
+          case "shipper_code":
+            setInitValueYodyCode(fieldNameValue);
+            break;
+          default:
+            break;
+        }
+        if (storeAccountData.some((single) => single.code === fieldNameValue)) {
+					setYodyAccountData(storeAccountData);
+        } else {
+					searchAccountPublicApi({
+						condition: fieldNameValue,
+					})
+						.then((response) => {
+							if (response) {
+								switch (response.code) {
+									case HttpStatus.SUCCESS:
+										if (storeAccountData.length > 0) {
+											let result = [...storeAccountData];
+											result.push(response.data.items[0]);
+											switch (fieldName) {
+												case "shipper_code":
+													setInitYodyAccountData(result);
+													setYodyAccountData(result);
+													break;
+												default:
+													break;
+											}
+										}
+										break;
+									case HttpStatus.UNAUTHORIZED:
+										dispatch(unauthorizedAction());
+										break;
+									default:
+										response.errors.forEach((e) => showError(e));
+										break;
+								}
+							}
+						})
+						.catch((error) => {
+							console.log("error", error);
+						});
+
+				}
+      }
+    };
+    pushCurrentValueToDataAccount("shipper_code");
+  }, [dispatch, form, storeAccountData]);
   return (
     <StyledComponent>
       <div>
@@ -79,41 +180,47 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                   : undefined
               }
             >
-              <CustomSelect
-                className="select-with-search"
-                showSearch
-                notFoundContent="Không tìm thấy kết quả"
-                style={{width: "100%"}}
-                placeholder="Chọn đối tác giao hàng"
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
-                disabled={levelOrder > 3}
-              >
-                {typeDelivery === 'employee' && listShippers?.map((item: any, index: number) => (
-                  <CustomSelect.Option
-                    style={{width: "100%"}}
-                    key={index.toString()}
-                    value={item.code}
-                  >
-                    {`${item.full_name} - ${item.phone}`}
-                  </CustomSelect.Option>
-                ))}
-                {typeDelivery === 'external_shipper' && listExternalShippers?.map((item: any, index: number) => (
-                  <CustomSelect.Option
-                    style={{width: "100%"}}
-                    key={index.toString()}
-                    value={item.code}
-                  >
-                    {`${item.name} - ${item.phone}`}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+							{typeDelivery === 'employee' && 
+								(
+									<AccountCustomSearchSelect
+										placeholder="Tìm theo họ tên hoặc mã nhân viên"
+										initValue={initValueYodyCode}
+										dataToSelect={assigneeAccountData}
+										setDataToSelect={setYodyAccountData}
+										initDataToSelect={initYodyAccountData}
+										// disabled
+										// disabled={levelOrder > 3}
+									/>
+								)
+							}
+							{typeDelivery === 'external_shipper' && (
+								<CustomSelect
+									className="select-with-search"
+									showSearch
+									notFoundContent="Không tìm thấy kết quả"
+									style={{width: "100%"}}
+									placeholder="Chọn đối tác giao hàng"
+									filterOption={(input, option) => {
+										if (option) {
+											return (
+												option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+											);
+										}
+										return false;
+									}}
+									disabled={levelOrder > 3}
+								>
+									{listExternalShippers?.map((item: any, index: number) => (
+										<CustomSelect.Option
+											style={{width: "100%"}}
+											key={index.toString()}
+											value={item.code}
+										>
+											{`${item.name} - ${item.phone}`}
+										</CustomSelect.Option>
+									))}
+								</CustomSelect>
+							)}
             </Form.Item>
 
             {/* {paymentMethod === PaymentMethodOption.COD && ( */}
