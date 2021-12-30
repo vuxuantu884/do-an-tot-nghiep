@@ -83,7 +83,6 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
 
   const ActionImport= {
     Ok: useCallback((res)=>{ 
-      setShowImportModal(false);
       if (idNumber) {
         dispatch(PoDetailAction(idNumber, onDetail));
       }
