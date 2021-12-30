@@ -138,7 +138,6 @@ const CreateInventoryAdjustment: FC = () => {
 
 
   const onFinish = (data: InventoryAdjustmentDetailItem) => {
-    debugger
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );

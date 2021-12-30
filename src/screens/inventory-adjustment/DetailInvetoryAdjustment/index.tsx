@@ -385,7 +385,7 @@ const DetailInvetoryAdjustment: FC = () => {
           } else {
             fileList.splice(index, 1);
             showError("Upload ảnh không thành công");
-          }
+          } 
           setFileList([...fileList]);
         })
       );
@@ -686,7 +686,6 @@ const onChangeNote = useCallback(
   const onEnterFilterVariant = useCallback(
     () => {
       setTableLoading(true);
-      debugger
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,

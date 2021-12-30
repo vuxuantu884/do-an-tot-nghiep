@@ -407,7 +407,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               setEditProcument(isEdit);
               let line_items = formMain.getFieldValue(POField.line_items);
               console.log('line_items', line_items);
-              setPOItem(line_items);
+              setPOItem(line_items); 
               if (isEdit) {
                 setProcumentDraft(value);
                 setVisibleDraft(true);
