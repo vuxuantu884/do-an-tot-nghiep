@@ -64,14 +64,19 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     id: string;
   };
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
+  
   const [itemProcument, setItemProcument] = useState<PurchaseProcument | null>(item);
   const dispatch = useDispatch();
   const { id } = useParams<PurchaseOrderParam>();
   let idNumber = parseInt(id);
 
   const itemForm = useMemo(()=>{
+    if (itemProcument === null) {
+      return item;
+    }
+
     return itemProcument;
-  },[itemProcument]);
+  },[itemProcument, item]);
 
   const onDetail = useCallback((result: PurchaseOrder | null)=>{
     if (result && result.procurements) {

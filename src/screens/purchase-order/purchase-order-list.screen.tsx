@@ -10,17 +10,14 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
-import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { createConfigPoAction, PODeleteAction, PoSearchAction, updateConfigPoAction } from "domain/actions/po/po.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
@@ -45,14 +42,7 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
-
-const supplierQuery: AccountSearchQuery = {
-  department_ids: [AppConfig.WIN_DEPARTMENT],
-};
-
-const rdQuery: AccountSearchQuery = {
-  department_ids: [AppConfig.WIN_DEPARTMENT],
-};
+ 
 const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
@@ -68,10 +58,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [isError, setError] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const [selected, setSelected] = useState<Array<PurchaseOrder>>([]);
-  const [listSupplierAccount, setListSupplierAccount] =
-    useState<Array<AccountResponse>>();
-  const [listRdAccount, setListRdAccount] = useState<Array<AccountResponse>>();
+  const [selected, setSelected] = useState<Array<PurchaseOrder>>([]); 
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -429,24 +416,6 @@ const PurchaseOrderListScreen: React.FC = () => {
     }
   }, []);
 
-  const onResultRd = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setListRdAccount(data.items);
-  }, []);
-
-  const onResultSupplier = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setListSupplierAccount(data.items);
-      dispatch(AccountSearchAction(rdQuery, onResultRd));
-    },
-    [dispatch, onResultRd]
-  );
-
   const getConfigColumnPo = useCallback(()=>{
     if (account && account.code) {
       getPurchaseOrderConfigService(account.code)
@@ -491,12 +460,11 @@ const PurchaseOrderListScreen: React.FC = () => {
 
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(AccountSearchAction(supplierQuery, onResultSupplier));
       dispatch(StoreGetListAction(setListStore));
     }
     isFirstLoad.current = false;
     dispatch(PoSearchAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult, onResultSupplier, onResultRd]);
+  }, [dispatch, params, setSearchResult]);
 
   const onSelect = useCallback((selectedRow: Array<PurchaseOrder>) => {
     setSelected(
@@ -560,19 +528,10 @@ const PurchaseOrderListScreen: React.FC = () => {
         extra={
           <Row>
             <Space>
-              {/* <Button
-                className="light"
-                size="large"
-                icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
-                onClick={() => {}}
-              >
-                Nhập file
-              </Button> */}
               <Button
                 className="light"
                 size="large"
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                // onClick={onExport}
                 onClick={() => {
                   setShowExportModal(true);
                 }}
@@ -593,9 +552,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               params={params}
               onMenuClick={onMenuClick}
               actions={actions}
-              onFilter={onFilter}
-              listSupplierAccount={listSupplierAccount}
-              listRdAccount={listRdAccount}
+              onFilter={onFilter} 
               listStore={listStore}
             />
             <CustomTable
