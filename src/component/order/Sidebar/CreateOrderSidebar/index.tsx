@@ -47,6 +47,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   const dispatch = useDispatch();
   const [initValueAssigneeCode, setInitValueAssigneeCode] = useState("");
   const [initValueMarketerCode, setInitValueMarketerCode] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [initValueCoordinatorCode, setInitValueCoordinatorCode] = useState("");
 
   const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
@@ -57,6 +58,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   const [marketingAccountData, setMarketingAccountData] = useState<
     Array<AccountResponse>
   >([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [coordinatorAccountData, setCoordinatorAccountData] = useState<
     Array<AccountResponse>
   >([]);
@@ -67,12 +69,13 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   const [initMarketingAccountData, setInitMarketingAccountData] = useState<
     Array<AccountResponse>
   >([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [initCoordinatorAccountData, setInitCoordinatorAccountData] = useState<
     Array<AccountResponse>
   >([]);
   // const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
 
-	console.log(initValueCoordinatorCode, coordinatorAccountData, initCoordinatorAccountData)
+	// console.log(initValueCoordinatorCode, coordinatorAccountData, initCoordinatorAccountData)
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";

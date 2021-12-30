@@ -81,7 +81,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
-  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(true);
+  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
@@ -197,7 +197,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       };
 
   useEffect(() => {
-    if (shippingAddress) {
+    if (shippingAddress&&shippingAddress.district_id) {
       dispatch(WardGetByDistrictAction(shippingAddress.district_id, setShippingWards));
     }
   }, [dispatch, shippingAddress]);
