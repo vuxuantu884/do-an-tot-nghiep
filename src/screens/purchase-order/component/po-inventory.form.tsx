@@ -31,6 +31,7 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 export type POInventoryFormProps = {
+  loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
   stores: Array<StoreResponse>;
   status: string;
   now: Moment;
@@ -77,6 +78,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     poData,
     formMain,
     isShowStatusTag,
+    loadDetail
   } = props;
 
   const [activeTab, setActiveTab] = useState(TAB[0].id);
@@ -469,6 +471,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       />
 
       <ProcumentInventoryModal
+        loadDetail={loadDetail}
         isEdit={isEditProcument}
         items={poItems}
         stores={stores}
