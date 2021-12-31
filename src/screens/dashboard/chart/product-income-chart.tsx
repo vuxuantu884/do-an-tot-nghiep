@@ -38,7 +38,7 @@ ProductIncomeChart.defaultProps = {
 function ProductIncomeChart(props: Props) {
     const { data } = props;
     return (
-        <PieChart width={1000} height={400}>
+        <PieChart width={300} height={400}>
             <Pie
                 dataKey={ProductIncomeLabel.value}
                 data={data}

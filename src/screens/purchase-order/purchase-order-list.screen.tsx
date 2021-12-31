@@ -295,7 +295,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       {
         title: "Tổng SL sp",
         dataIndex: "total_quantity",
-        render: (row: PurchaseOrder) => {
+        render: (value, row: PurchaseOrder) => {
           let total = 0;
           row?.line_items.forEach((item) => {
             total += item?.quantity ? item.quantity : 0;

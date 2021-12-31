@@ -99,7 +99,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
   ]
 
   useEffect(() => {
-    if (procumentCode !== undefined) {
+    if (procumentCode) {
       dispatch(getLogPOHistory(procumentCode, setLogData));
     }
   }, [dispatch, procumentCode]);
