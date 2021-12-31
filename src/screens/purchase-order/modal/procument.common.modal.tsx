@@ -277,7 +277,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   useEffect(() => {
     if (item) {
       if (type === "inventory") {
-        item.procurement_items.forEach((item1) => {
+        item.procurement_items?.forEach((item1) => {
           if (!item1.real_quantity) {
             item1.real_quantity = item1.quantity;
           }

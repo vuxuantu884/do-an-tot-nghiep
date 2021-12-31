@@ -134,7 +134,7 @@ const StoreListScreen: React.FC = () => {
       visible: true,
     },
     {
-      title: "Bộ phận",
+      title: "Trực thuộc",
       dataIndex: "department",
       visible: true,
       width: 180,
