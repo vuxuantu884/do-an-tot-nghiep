@@ -359,6 +359,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     });
     if (defaultSourceIndex > -1) {
       form.setFieldsValue({ source_id: defaultSourceId })
+    } else {
+      form.setFieldsValue({ source_id: null })
     }
   }, [listSources]);
 
