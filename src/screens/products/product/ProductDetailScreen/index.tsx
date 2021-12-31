@@ -1,5 +1,5 @@
 import { Loading3QuartersOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Image, Row, Spin, Switch, Tabs } from "antd";
+import { Button, Card, Col, Image, Popover, Row, Spin, Switch, Tabs } from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -26,6 +26,7 @@ import Slider from "react-slick";
 import { Products } from "utils/AppUtils";
 import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
 import { showSuccess } from "utils/ToastUtils";
+import { careInformation } from "../component/CareInformation/care-value";
 import RowDetail from "../component/RowDetail";
 import VariantList from "../component/VariantList";
 import TabProductHistory from "../tab/TabProductHistory";
@@ -140,6 +141,64 @@ const ProductDetailScreen: React.FC = () => {
     }
     return avatar;
   }, [data]);
+
+  const [careLabels, setCareLabels] = useState<any[]>([]);
+
+  useEffect(() => {
+    const newSelected = data?.care_labels ? data?.care_labels.split(";") : [];
+    console.log('newSelected', newSelected);
+    let careLabels: any[] = []
+    newSelected.forEach((value: string) => {
+      careInformation.washing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+
+      careInformation.beleaching.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.ironing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.drying.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.professionalCare.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      
+    })
+    setCareLabels(careLabels);
+  }, [data?.care_labels]);
 
   const onAllowSale = useCallback(
     (listSelected: Array<number>) => {
@@ -408,13 +467,13 @@ const tab= document.getElementById("tab");
                       </Col>
                     </Row>
                     <Row>
-                      <Col span={24}>
-                        <span>
-                          <span className="care-title">Thông tin bảo quản: </span>
-                          {data.care_labels && data.care_labels.split(";").map((label: string) => (
-                            <span className={`care-label ydl-${label}`}></span>
-                          ))}
-                        </span>
+                      <Col span={24} style={{ display: "contents" }}>
+                        <span className="care-title">Thông tin bảo quản: </span>
+                        {careLabels.map((item: any) => (
+                          <Popover content={item.name}>
+                            <span className={`care-label ydl-${item.value}`}></span>
+                          </Popover>
+                        ))}
                       </Col>
                     </Row>
                     <Row gutter={50}>

@@ -1,17 +1,18 @@
+import React, { useEffect, useState } from 'react'
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
-import { actionGetActionLogDetail } from "domain/actions/order/order.action";
-// import purify from "dompurify";
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { convertActionLogDetailToText, safeContent } from "utils/AppUtils";
+import { useDispatch } from 'react-redux';
+import purify from "dompurify";
+import moment from 'moment';
 import { StyledComponent } from "./styles";
+import { POGetActionLogDetail } from 'domain/actions/po/po.action';
+
 
 type PropType = {
   isModalVisible: boolean;
   actionId?: number;
   onCancel: () => void;
-};
+}
 
 type SingleLogType = {
   key: string;
@@ -21,7 +22,7 @@ type SingleLogType = {
   current: any;
 };
 
-function ActionHistoryModal(props: PropType) {
+function ActionPurchaseORderHistoryModal(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
 
   const dispatch = useDispatch();
@@ -29,15 +30,21 @@ function ActionHistoryModal(props: PropType) {
   const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
 
   const renderRow = (value: string, row: any) => {
-    return (
-      <div
-        className="purchaseOrderDetails"
-        dangerouslySetInnerHTML={{
-          __html: safeContent(value),
-        }}
-      ></div>
-    );
-}
+    if (row.type === "html") {
+      let doc = new DOMParser().parseFromString(value, "text/html");
+      let htmlInner = doc.getElementsByTagName("body")[0].innerHTML;
+
+      return (
+        <div
+          className="purchaseOrderDetails"
+          dangerouslySetInnerHTML={{
+            __html: purify.sanitize(htmlInner),
+          }}
+        ></div>
+      );
+    }
+    return value;
+  }
 
   const ACTION_LOG_SHORTEN_COLUMN = [
     {
@@ -78,8 +85,11 @@ function ActionHistoryModal(props: PropType) {
       dataIndex: "current",
       key: "current",
       width: "50%",
-      render: (text: string) => {
-        return text;
+      render: (Element: any) => {
+        if (typeof Element === "string") {
+          return Element;
+        }
+        return Element();
       },
     },
   ];
@@ -92,15 +102,30 @@ function ActionHistoryModal(props: PropType) {
     setIsShowLogDetail(false);
   };
 
+  const renderActionLog = (data?: string) => {
+    const dataJson = JSON.parse(data || '');
+    if (data) {
+      return (
+        <div>
+          <div>{`Nhân viên: ${dataJson.created_name}`}</div>
+          <div>{`Trạng thái: ${dataJson.status_after}`}</div>
+          <div>{`Địa chỉ nhà cung cấp: ${dataJson?.supplier_address?.fullAddress}`}</div>
+          <div>{`Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}`}</div>
+        </div>
+      );
+    }
+    return (<></>)
+  }
+
   useEffect(() => {
     if (actionId) {
       dispatch(
-        actionGetActionLogDetail(actionId, (response) => {
-          let detailToTextBefore = convertActionLogDetailToText(
-            response.before?.data, dateFormat
+        POGetActionLogDetail(actionId, (response) => {
+          let detailToTextBefore = renderActionLog(
+            response.before?.data
           );
-          let detailToTextCurrent = convertActionLogDetailToText(
-            response.current?.data, dateFormat
+          let detailToTextCurrent = renderActionLog(
+            response.current?.data
           );
           setSingleLogDetail([
             {
@@ -120,7 +145,7 @@ function ActionHistoryModal(props: PropType) {
             },
             {
               key: "2",
-              type: "html",
+              type: "jsx",
               title: "Data",
               before: detailToTextBefore,
               current: detailToTextCurrent,
@@ -147,7 +172,7 @@ function ActionHistoryModal(props: PropType) {
 
   return (
     <Modal
-      title="Chi tiết log đơn trả hàng"
+      title="Chi tiết log đơn hàng"
       visible={isModalVisible}
       footer={false}
       onCancel={handleCancel}
@@ -180,7 +205,7 @@ function ActionHistoryModal(props: PropType) {
         )}
       </StyledComponent>
     </Modal>
-  );
+  )
 }
 
-export default ActionHistoryModal;
+export default ActionPurchaseORderHistoryModal
