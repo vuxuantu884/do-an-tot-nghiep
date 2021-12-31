@@ -11,6 +11,7 @@ import {
   Col,
   Collapse,
   Form, Image, Input,
+  Popover,
   Row,
   Select,
   Space,
@@ -69,6 +70,7 @@ import { VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { careInformation } from "../component/CareInformation/care-value";
 import CareModal from "../component/CareInformation/CareModal";
 import ImageProduct from "../component/image-product.component";
 import ModalPickAvatar from "../component/ModalPickAvatar";
@@ -401,6 +403,65 @@ const ProductCreateScreen: React.FC = () => {
     return arr;
   }, [variants]);
 
+  const [careLabels, setCareLabels] = useState<any[]>([]);
+  const [careLabelsString, setCareLabelsString] = useState("");
+
+  useEffect(() => {
+    const newSelected = careLabelsString ? careLabelsString.split(";") : [];
+    console.log('newSelected', newSelected);
+    let careLabels: any[] = []
+    newSelected.forEach((value: string) => {
+      careInformation.washing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+
+      careInformation.beleaching.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.ironing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.drying.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.professionalCare.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      
+    })
+    setCareLabels(careLabels);
+  }, [careLabelsString]);
+
   const createCallback = useCallback(
     (result: ProductResponse) => {
       setLoadingSaveButton(false);
@@ -434,11 +495,11 @@ const ProductCreateScreen: React.FC = () => {
 
       let request = Products.convertProductViewToRequest({
         ...values,
-        care_labels: form.getFieldValue("care_labels"),
+        care_labels: careLabelsString,
       }, variantsHasProductAvatar, status);
       dispatch(productCreateAction(request, createCallback));
     },
-    [createCallback, dispatch, form, status, variants]
+    [createCallback, dispatch, careLabelsString, status, variants]
   );
 
   const onCancel = useCallback(() => {
@@ -1016,18 +1077,18 @@ const ProductCreateScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <Row>
-                  <Col span={24}>
-                    <span>
-                      <span className="care-title">Thông tin bảo quản: </span>
-                      {form.getFieldValue("care_labels") && form.getFieldValue("care_labels").split(";").map((label: string) => (
-                        <span className={`care-label ydl-${label}`}></span>
-                      ))}
-                      <Button
-                        className="button-plus"
-                        icon={form.getFieldValue("care_labels") && form.getFieldValue("care_labels").length > 0 ? <EditOutlined /> : <PlusOutlined />}
-                        onClick={() => setShowCareModal(true)}
-                      />
-                    </span>
+                  <Col span={24} style={{ display: "contents" }}>
+                    <span className="care-title">Thông tin bảo quản: </span>
+                    {careLabels.map((item: any) => (
+                      <Popover content={item.name}>
+                        <span className={`care-label ydl-${item.value}`}></span>
+                      </Popover>
+                    ))}
+                    <Button
+                      className="button-plus"
+                      icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
+                      onClick={() => setShowCareModal(true)}
+                    />
                   </Col>
                 </Row>
                 <Row gutter={24}>
@@ -1483,14 +1544,11 @@ const ProductCreateScreen: React.FC = () => {
             onCancel={() => setShowCareModal(false)}
             onOk={(data) => {
               console.log('data data', data);
-              
-              form.setFieldsValue({
-                care_labels: data
-              });
+              setCareLabelsString(data);
               setShowCareModal(false);
             }}
             visible={showCareModal}
-            careLabels={form.getFieldValue("care_labels")}
+            careLabels={careLabelsString}
           />
         </ContentContainer>
       </StyledComponent>
