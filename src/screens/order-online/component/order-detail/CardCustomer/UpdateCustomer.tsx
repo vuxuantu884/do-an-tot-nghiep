@@ -266,7 +266,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           })
         }
       }
-
+      setCustomerFormLoading(true);
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
         if (datas) {
           handleChangeCustomer(datas);
@@ -281,7 +281,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const onOkPress = useCallback(() => {
     customerForm.submit();
     setVisibleBtnUpdate(false);
-    setCustomerFormLoading(true);
+    
   }, [customerForm]);
 
   useEffect(() => {

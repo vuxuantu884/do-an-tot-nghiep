@@ -270,17 +270,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerChangeSearch = useCallback(
     (value) => {
-      // clearTimeout(timeRef);
-      // setKeySearchCustomer(value);
-      // setSearchCustomer(true);
-      // let time = setTimeout(() => {
-      //   initQueryCustomer.request = value.trim();
-      //   dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
-      //   setSearchCustomer(false);
-      // }, typingTimer);
-      // setTimeRef(time);
-      // setTypingTimer(3000);
-
       setKeySearchCustomer(value);
       setSearchCustomer(true);
       initQueryCustomer.request = value.trim();

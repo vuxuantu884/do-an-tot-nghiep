@@ -42,7 +42,7 @@ function CustomerShippingAddressOrder(props: any) {
                   handleChangeCustomer(datas);
                 })
               );
-              handleShippingAddress(data);
+              if(handleShippingAddress)handleShippingAddress(data);
               showSuccess("Đặt mặc định thành công");
             } else {
               showError("Đặt mặc định thất bại");
@@ -146,8 +146,6 @@ function CustomerShippingAddressOrder(props: any) {
             return {
               onClick: () => {
                 handleSingleShippingAddress(record);
-                //setModalAction("edit");
-                // setIsShowModalShipping(true);
               }, // click row
             };
           }}

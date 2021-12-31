@@ -116,7 +116,6 @@ function* getCustomerByPhone(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
-        console.log(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
