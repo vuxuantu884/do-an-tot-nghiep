@@ -1363,8 +1363,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           setStoreId={selectStore}
           columnsItem={items}
           inventoryArray={inventoryResponse}
-          setStoreArrayResponse={setStoreArrayResponse}
-          dataSearchCanAccess={storeArrayResponse}
+          storeArrayResponse={storeArrayResponse}
           handleCancel={handleInventoryCancel}
           // setStoreForm={setStoreForm}
         />

@@ -1,8 +1,8 @@
-import {Col, Input, Modal, Radio, Row} from "antd";
-import {StoreResponse} from "model/core/store.model";
-import {InventoryResponse} from "model/inventory";
-import {OrderLineItemRequest} from "model/request/order.request";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import { Col, Input, Modal, Radio, Row } from "antd";
+import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
+import { OrderLineItemRequest } from "model/request/order.request";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 type InventoryModalProps = {
   isModalVisible: boolean;
@@ -11,8 +11,7 @@ type InventoryModalProps = {
   setStoreId: (item: number) => void;
   columnsItem?: Array<OrderLineItemRequest>;
   inventoryArray: Array<InventoryResponse> | null;
-  dataSearchCanAccess: Array<StoreResponse> | null;
-  setStoreArrayResponse:(data:StoreResponse[] | null)=>void;
+  storeArrayResponse: Array<StoreResponse> | null;
   handleCancel: () => void;
 };
 
@@ -35,28 +34,23 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     isModalVisible,
     columnsItem,
     inventoryArray,
-    dataSearchCanAccess,
+    storeArrayResponse,
     storeId,
     setStoreId,
     setInventoryModalVisible,
     handleCancel,
-    setStoreArrayResponse
   } = props;
 
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
+  const [storeData, setsStoreData] = useState<StoreResponse[] | null>(null);
 
   const setAllAvailable = (variantId: number) => {
+
     let inventoryInt = 0;
     if (inventoryArray && inventoryArray.length) {
-      let newData: Array<InventoryResponse> = [];
-      newData = inventoryArray.filter((store) => store.variant_id === variantId);
-      newData.forEach(function (value) {
-        if (value.variant_id === variantId)
-          inventoryInt +=
-            value?.available === undefined || value?.available === null
-              ? 0
-              : value?.available;
-      });
+      data.forEach(function (item) {
+        inventoryInt += item.data[variantId];
+      })
     }
     return inventoryInt === null ? 0 : inventoryInt;
   };
@@ -65,22 +59,20 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     setSelectedStoreId(e.target.value);
   };
 
-  const onSearchInventory = (value:string) => {
-    let _item: StoreResponse[]|any = dataSearchCanAccess?.filter(x=>x.name.toLowerCase().includes(value.toLowerCase().trim()));
-		console.log(_item);
-		setStoreArrayResponse(_item);
-  }
+  const onSearchInventory = useCallback((value: string) => {
+    let _item: StoreResponse[] | any = storeArrayResponse?.filter(x => x.name.toLowerCase().includes(value.toLowerCase().trim()));
+    console.log("_item", _item);
+    setsStoreData(_item);
+  }, [storeArrayResponse])
 
   const handleOk = useCallback(() => {
-    if (selectedStoreId) {
-      setStoreId(selectedStoreId);
-    }
+    if (selectedStoreId) setStoreId(selectedStoreId);
     setInventoryModalVisible(false);
   }, [selectedStoreId, setInventoryModalVisible, setStoreId]);
 
   const data = useMemo(() => {
     let stores: Array<InventoryStore> = [];
-    dataSearchCanAccess?.forEach((value, index) => {
+    storeData?.forEach((value, index) => {
       let store: InventoryStore = {
         id: value.id,
         name: value.name,
@@ -88,50 +80,59 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
         data: {},
       };
 
+      //let variant:any=
+
       columnsItem?.forEach((value1) => {
         let inventory = inventoryArray?.find((value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id);
-        store.data[value1.variant_id.toString()] =  inventory && inventory.available ? inventory.available : 0
+        store.data[value1.variant_id.toString()] = inventory && inventory.available ? inventory.available : 0
       });
       stores.push(store);
     });
+    console.log("store", stores);
     stores.sort((a, b) => {
       let item1 = 0;
       let item2 = 0;
-      let totalAvaiable1= 0;
+      let totalAvaiable1 = 0;
       let totalAvaiable2 = 0;
       columnsItem?.forEach((value) => {
-        if(a.data[value.variant_id.toString()] > value.quantity) {
+        if (a.data[value.variant_id.toString()] > value.quantity) {
           item1++;
         }
-        if(b.data[value.variant_id.toString()] > value.quantity) {
+        if (b.data[value.variant_id.toString()] > value.quantity) {
           item2++;
         }
       });
-      
+
       Object.keys(a.data).forEach((key) => {
         totalAvaiable1 = totalAvaiable1 + a.data[key];
       })
       Object.keys(b.data).forEach((key) => {
         totalAvaiable2 = totalAvaiable2 + b.data[key];
       })
-      if(item1 === columnsItem?.length && item2 === columnsItem?.length) {
-        if(a.pitority >= b.pitority) {
+      if (item1 === columnsItem?.length && item2 === columnsItem?.length) {
+        if (a.pitority >= b.pitority) {
           return totalAvaiable2 - totalAvaiable1;
         } else {
           return b.pitority - a.pitority;
         }
       }
-      if(totalAvaiable1 !== totalAvaiable2) {
+      if (totalAvaiable1 !== totalAvaiable2) {
         return totalAvaiable2 - totalAvaiable1;
       }
       return item2 - item1;
     })
-    return stores; 
-  }, [columnsItem, dataSearchCanAccess, inventoryArray]);
+    return stores;
+  }, [columnsItem, storeData, inventoryArray]);
+
+  console.log("datasss", data)
 
   useEffect(() => {
     if (storeId) setSelectedStoreId(storeId);
   }, [storeId]);
+
+  useEffect(() => {
+    if (storeArrayResponse) setsStoreData(storeArrayResponse);
+  }, [storeArrayResponse]);
 
   return (
     <Modal
@@ -159,7 +160,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
             <Radio.Group
               onChange={onChange}
               value={selectedStoreId}
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
             >
               <table className="rules">
                 <thead>
@@ -197,9 +198,15 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                                 /> {data.name} */}
                         <Radio value={item.id}>{item.name}</Radio>
                       </th>
-                      {Object.keys(item.data).map((key: any) => (
+                      {/* {Object.keys(item.data).map((key: any) => (
                         <td className="condition" key={key}>
                           {item.data[key]}
+                        </td>
+                      ))} */}
+
+                      {columnsItem?.map((_itemi, index) => (
+                        <td className="condition" key={_itemi.variant_id}>
+                          {item.data[_itemi.variant_id]}
                         </td>
                       ))}
                     </tr>
