@@ -3,7 +3,7 @@ import { TextShowMoreStyle } from './text-show-more-style';
 
 interface Props {
     children: string;
-    maxLength?: number;
+    maxLength: number;
     splitCharactor?: string;
     endCharactor?: string;
     ShowMoreComponent?: ReactNode;
@@ -50,8 +50,15 @@ function TextShowMore(props: Props): ReactElement {
     const showLessText = useCallback((text: string, maxLength: number) => {
         const maxText = text.substring(0, maxLength);
         const lastSpace = maxText.lastIndexOf(splitCharactor!);
-        const trimmedText = maxText.substring(0, lastSpace);
-        setTextShow(trimmedText + endCharactor);
+        let trimmedText = '';
+
+        if (lastSpace > maxLength / 2) {
+            trimmedText = maxText.substring(0, lastSpace);
+        } else {
+            trimmedText = maxText + endCharactor
+
+        }
+        setTextShow(trimmedText);
         setIsShowFull(true);
         onShowMore?.()
 
@@ -69,7 +76,7 @@ function TextShowMore(props: Props): ReactElement {
 
     return (
         <TextShowMoreStyle>
-            {textShow} {isShowFull
+            <span className='content-show'>{textShow}</span>   {(isShowFull && children.length > maxLength!)
                 ? <span onClick={() => showMoreText(children)}>{ShowMoreComponent}</span>
                 : <span onClick={() => showLessText(children, maxLength!)}>{ShowLessComponent}</span>}
         </TextShowMoreStyle>

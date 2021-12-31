@@ -116,7 +116,7 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
                 <ul
                   style={{
                     padding: "0 16px",
-                    height: '300px',
+                    maxHeight: '300px',
                     overflowY: 'auto',
                     width: '100%'
                   }}
