@@ -86,7 +86,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [visible, setVisible] = useState(false);
   const [visibleEditProcurement, setVisibleEditProcurement] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
-  // const [procumentCode, setProcumentCode] = useState('');
   const procumentCodeRef = useRef('');
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
@@ -408,8 +407,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             confirmInventory={(value: PurchaseProcument, isEdit: boolean) => {
               setEditProcument(isEdit);
               let line_items = formMain.getFieldValue(POField.line_items);
-              console.log('line_items', line_items);
-              setPOItem(line_items); 
+              setPOItem(line_items);
               if (isEdit) {
                 setProcumentDraft(value);
                 setVisibleDraft(true);

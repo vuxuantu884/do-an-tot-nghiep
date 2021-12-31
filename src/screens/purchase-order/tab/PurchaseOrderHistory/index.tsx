@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import CustomTable from 'component/table/CustomTable';
 import { useDispatch } from 'react-redux';
 import moment from "moment";
@@ -6,6 +6,8 @@ import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
 import { getLogPOHistory } from 'domain/actions/po/po.action';
 import { StringMappingType } from 'typescript';
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
+import { Link } from 'react-router-dom';
+import UrlConfig from 'config/url.config';
 
 type POHistoryProps = {
   poData?: PurchaseOrder;
@@ -33,6 +35,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
   const [logData, setLogData] = useState<POLogHistory | any>();
   const formatDate = "DD/MM/YYYY HH:mm";
   const dispatch = useDispatch();
+  const updateNameRef = useRef('');
 
   const defaultColumns = [
     {
@@ -41,11 +44,21 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       key: "updated_name",
       render: (status: StringMappingType, record: POLogHistory) => {
         const { updated_name, updated_by } = record;
+        const name = logData.find((log: any) => log.updated_name === updateNameRef.current);
+        updateNameRef.current = updated_name;
         return (
-          <div>
-            <div style={{ color: "#2a2a86"}}>{updated_by}</div>
+          !name && (<div>
+            <div style={{ color: "#2A2A86" }}>
+              <Link
+                target="_blank"
+                to={`${UrlConfig.ACCOUNTS}/${updated_by}`}
+                className="primary"
+              >
+                {updated_by}
+              </Link>
+					  </div>
             <div>{updated_name}</div>
-          </div>
+          </div>)
         )
       }
     },

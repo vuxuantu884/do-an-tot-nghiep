@@ -1,4 +1,4 @@
-import {InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import {EditOutlined, InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -70,6 +70,7 @@ import {
 import {handleChangeMaterial} from "utils/ProductUtils";
 import {RegUtil} from "utils/RegUtils";
 import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import CareModal from "../component/CareInformation/CareModal";
 import ModalConfirmPrice from "../component/ModalConfirmPrice";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import ModalUpdatePrice from "../component/ModalUpdatePrice";
@@ -137,6 +138,7 @@ const ProductDetailScreen: React.FC = () => {
   const [visibleUpdatePrice, setVisibleUpdatePrice] = useState(false);
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
+  const [showCareModal, setShowCareModal] = useState(false);
 
   const categoryFilter = useMemo(() => {
     if (data === null) {
@@ -383,9 +385,15 @@ const ProductDetailScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: ProductRequest) => {
       setLoadingButton(true); 
-      dispatch(productUpdateAction(idNumber, values, onResultFinish));
+      dispatch(productUpdateAction(
+        idNumber,
+        {
+          ...values,
+          care_labels: form.getFieldValue("care_labels"),
+        },
+        onResultFinish));
     },
-    [dispatch, idNumber,onResultFinish]
+    [dispatch, form, idNumber, onResultFinish]
   );
 
   const beforeUpload = useCallback((file: RcFile) => {
@@ -913,6 +921,21 @@ const ProductDetailScreen: React.FC = () => {
                           >
                             <HashTag />
                           </Item>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col span={24}>
+                          <span>
+                            <span className="care-title">Thông tin bảo quản: </span>
+                            {form.getFieldValue("care_labels") && form.getFieldValue("care_labels").split(";").map((label: string) => (
+                              <span className={`care-label ydl-${label}`}></span>
+                            ))}
+                            <Button
+                              className="button-plus"
+                              icon={form.getFieldValue("care_labels") && form.getFieldValue("care_labels").length > 0 ? <EditOutlined /> : <PlusOutlined />}
+                              onClick={() => setShowCareModal(true)}
+                            />
+                          </span>
                         </Col>
                       </Row>
                       <Row gutter={24}>
@@ -1672,6 +1695,19 @@ const ProductDetailScreen: React.FC = () => {
           }}
           visible={visiblePrice}
           onOk={onOkPrice}
+        />
+        <CareModal
+          onCancel={() => setShowCareModal(false)}
+          onOk={(data) => {
+            console.log('data data', data);
+            
+            form.setFieldsValue({
+              care_labels: data
+            });
+            setShowCareModal(false);
+          }}
+          visible={showCareModal}
+          careLabels={form.getFieldValue("care_labels")}
         />
       </ContentContainer>
     </StyledComponent>

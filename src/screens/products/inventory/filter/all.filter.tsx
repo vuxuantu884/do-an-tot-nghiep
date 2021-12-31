@@ -265,6 +265,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
              if (res.data && res.data.length > 0) {
               const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_INVENTORY);
               setLstConfigFilter(configFilters);
+             }else{
+              setLstConfigFilter([]);
              }
            }
           }

@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "assets/css/app.scss";
 import "assets/font/iconmon/font.css";
+import "assets/font/laundry/style.css";
 import store from "domain/store";
 import React from "react";
 import ReactDOM from "react-dom";

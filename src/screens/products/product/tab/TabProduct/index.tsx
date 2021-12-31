@@ -214,7 +214,6 @@ const TabProduct: React.FC = () => {
       dispatch(hideLoading());
       if (!isException) {
         dispatch(searchVariantsRequestAction(params, setSearchResult));
-        showSuccess("Cập nhật thông tin thành công");
         setRowKey([]);
         setSelected([]);
       }
