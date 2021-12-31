@@ -22,6 +22,46 @@ function DiscountUpdateForm({
 
     const [unlimitedQuantity, setUnlimitedQuantity] = useState<boolean>(false);
 
+    const handleChangeDiscountMethod = (value: string) => {
+        if (value) {
+            setDiscountMethod(value);
+            const formData = form.getFieldsValue(true);
+            const isFixedPriceMethod = value === DiscountMethod.FIXED_PRICE;
+            const isQuantityMethod = value === DiscountMethod.QUANTITY;
+
+            const valueType = isFixedPriceMethod ? DiscountUnitType.FIXED_PRICE.value : DiscountUnitType.PERCENTAGE.value
+            if ((isFixedPriceMethod || isQuantityMethod) &&
+                Array.isArray(formData?.entitlements) && formData?.entitlements.length > 0) {
+                formData?.entitlements?.forEach((item: DiscountFormModel) => {
+                    const temp = {
+                        prerequisite_quantity_ranges: [{
+                            value_type: valueType,
+                            greater_than_or_equal_to: 1,
+                            value: 0,
+                        }]
+                    };
+                    _.merge(item, temp);
+                });
+            } else if ((isFixedPriceMethod || isQuantityMethod)) {
+                formData.entitlements = [{
+                    entitled_category_ids: [],
+                    entitled_product_ids: [],
+                    entitled_variant_ids: [],
+                    prerequisite_variant_ids: [],
+                    selectedProducts: [],
+                    prerequisite_quantity_ranges: [{
+                        value_type: valueType,
+                        greater_than_or_equal_to: 1,
+                        value: 0,
+                    }]
+                }];
+            }
+            form.setFieldsValue({
+                entitlements: _.cloneDeep(formData?.entitlements)
+            })
+        }
+    }
+
     useLayoutEffect(() => {
         setUnlimitedQuantity(unlimitedUsageProps);
     }, [unlimitedUsageProps]);
@@ -129,36 +169,7 @@ function DiscountUpdateForm({
                         <Form.Item name="entitled_method" label={<b>Phương thức chiết khấu</b>}>
                             <Select
                                 onChange={(value: string) => {
-                                    if (value) {
-                                        setDiscountMethod(value);
-                                        const formData = form.getFieldsValue(true);
-                                        if (value === DiscountMethod.FIXED_PRICE.toString()) {
-                                            formData?.entitlements?.forEach((item: DiscountFormModel) => {
-                                                const temp = {
-                                                    prerequisite_quantity_ranges: [{
-                                                        value_type: DiscountUnitType.FIXED_PRICE.value,
-                                                        greater_than_or_equal_to: 1,
-                                                        value: 0,
-                                                    }]
-                                                };
-                                                _.merge(item, temp);
-                                            });
-                                        } else if (value === DiscountMethod.QUANTITY.toString()) {
-                                            formData?.entitlements?.forEach((item: DiscountFormModel) => {
-                                                const temp = {
-                                                    prerequisite_quantity_ranges: [{
-                                                        value_type: DiscountUnitType.PERCENTAGE.value,
-                                                        greater_than_or_equal_to: 1,
-                                                        value: 0
-                                                    }]
-                                                };
-                                                _.merge(item, temp);
-                                            });
-                                        }
-                                        form.setFieldsValue({
-                                            entitlements: _.cloneDeep(formData?.entitlements)
-                                        })
-                                    }
+                                    handleChangeDiscountMethod(value)
                                 }}
                             >
                                 <Option value={DiscountMethod.FIXED_PRICE.toString()}>Đồng giá</Option>
