@@ -80,15 +80,12 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
         data: {},
       };
 
-      //let variant:any=
-
       columnsItem?.forEach((value1) => {
         let inventory = inventoryArray?.find((value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id);
         store.data[value1.variant_id.toString()] = inventory && inventory.available ? inventory.available : 0
       });
       stores.push(store);
     });
-    console.log("store", stores);
     stores.sort((a, b) => {
       let item1 = 0;
       let item2 = 0;
@@ -123,8 +120,6 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     })
     return stores;
   }, [columnsItem, storeData, inventoryArray]);
-
-  console.log("datasss", data)
 
   useEffect(() => {
     if (storeId) setSelectedStoreId(storeId);
