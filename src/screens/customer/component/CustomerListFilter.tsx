@@ -57,6 +57,13 @@ type CustomerListFilterProps = {
 const { Option } = Select;
 const today = new Date();
 const THIS_YEAR = today.getFullYear();
+const START_YEAR = 1900;
+const START_MONTH = 1;
+const END_MONTH = 12;
+const START_DAY = 1;
+const END_DAY = 31;
+const THIS_MONTH_VALUE = today.getMonth() + 1;
+const TODAY_VALUE = today.getDate();
 
 // select area
 let tempWardList: any[] = [];
@@ -174,12 +181,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }, [dispatch, setDataAccounts]);
 
 
-  // handle select birth day
+  // initialization birth day
   const initDateList = () => {
     const dateList: Array<any> = [];
     for (let i = 1; i < 32; i++) {
       dateList.push({
-        key: i,
         value: i,
         name: i,
         disable: false,
@@ -190,7 +196,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   const INIT_FROM_DATE_LIST = [
     {
-      key: 0,
       value: 0,
       name: "- Từ ngày -",
       disable: true,
@@ -199,48 +204,18 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   const INIT_TO_DATE_LIST = [
     {
-      key: 0,
       value: 0,
       name: "- Đến ngày -",
       disable: true,
     }
   ].concat(initDateList());
+  // end initialization birth day
 
-  const [fromDateList, setFromDateList] = useState<any>(INIT_FROM_DATE_LIST);
-  const [toDateList, setToDateList] = useState<any>(INIT_TO_DATE_LIST);
-
-
-  const onSelectFromDate = (value: any) => {
-    const newToDateList = [...toDateList];
-    newToDateList.forEach((item: any) => {
-      item.disable = (item.value < value);
-    })
-    setToDateList(newToDateList);
-  }
-
-  const onClearFromDate = () => {
-    setToDateList(INIT_TO_DATE_LIST);
-  }
-
-  const onSelectToDate = (value: any) => {
-    const newFromDateList = [...fromDateList];
-    newFromDateList.forEach((item: any) => {
-      item.disable = (item.value > value || item.value === 0);
-    })
-    setFromDateList(newFromDateList);
-  }
-
-  const onClearToDate = () => {
-    setFromDateList(INIT_FROM_DATE_LIST);
-  }
-  // end handle select birth day
-
-  // handle select birth month
+  // initialization birth month
   const initMonthList = () => {
     const monthList: Array<any> = [];
     for (let i = 1; i <= 12; i++) {
       monthList.push({
-        key: i,
         value: i,
         name: i,
         disable: false,
@@ -251,7 +226,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   const INIT_FROM_MONTH_LIST = [
     {
-      key: 0,
       value: 0,
       name: "- Từ tháng -",
       disable: true,
@@ -260,46 +234,17 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   const INIT_TO_MONTH_LIST = [
     {
-      key: 0,
       value: 0,
       name: "- Đến tháng -",
       disable: true,
     }
   ].concat(initMonthList());
-
-  const [fromMonthList, setFromMonthList] = useState<any>(INIT_FROM_MONTH_LIST);
-  const [toMonthList, setToMonthList] = useState<any>(INIT_TO_MONTH_LIST);
-
-
-  const onSelectFromMonth = (value: any) => {
-    const newToMonthList = [...toMonthList];
-    newToMonthList.forEach((item: any) => {
-      item.disable = (item.value < value);
-    })
-    setToMonthList(newToMonthList);
-  }
-
-  const onClearFromMonth = () => {
-    setToMonthList(INIT_TO_MONTH_LIST);
-  }
-
-  const onSelectToMonth = (value: any) => {
-    const newFromMonthList = [...fromMonthList];
-    newFromMonthList.forEach((item: any) => {
-      item.disable = (item.value > value || item.value === 0);
-    })
-    setFromMonthList(newFromMonthList);
-  }
-
-  const onClearToMonth = () => {
-    setFromMonthList(INIT_FROM_MONTH_LIST);
-  }
-  // end handle select birth month
+  // end initialization birth month
 
   // handle select birth year
   const initYearList = () => {
     const yearList: Array<any> = [];
-    for (let i = 1900; i <= THIS_YEAR; i++) {
+    for (let i = THIS_YEAR; i >= START_YEAR; i--) {
       yearList.push({
         key: i,
         value: i,
@@ -745,6 +690,18 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         value: textDayOfBirth,
       });
     }
+    
+    if (initialValues.month_of_birth_from || initialValues.month_of_birth_to) {
+      let monthOfBirthFiltered =
+        (initialValues.month_of_birth_from ? initialValues.month_of_birth_from : "") +
+        " - " +
+        (initialValues.month_of_birth_to ? initialValues.month_of_birth_to : "");
+      list.push({
+        key: "month_of_birth",
+        name: "Tháng sinh",
+        value: monthOfBirthFiltered,
+      });
+    }
 
     if (initialValues.year_of_birth_from || initialValues.year_of_birth_to) {
       let yearOfBirthFiltered =
@@ -768,18 +725,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         key: "channel_ids",
         name: "Kênh mua hàng",
         value: channelsFiltered,
-      });
-    }
-
-    if (initialValues.month_of_birth_from || initialValues.month_of_birth_to) {
-      let monthOfBirthFiltered =
-        (initialValues.month_of_birth_from ? initialValues.month_of_birth_from : "") +
-        " - " +
-        (initialValues.month_of_birth_to ? initialValues.month_of_birth_to : "");
-      list.push({
-        key: "month_of_birth",
-        name: "Tháng sinh",
-        value: monthOfBirthFiltered,
       });
     }
 
@@ -1073,6 +1018,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           onFilter && onFilter({ ...params, day_of_birth_from: null, day_of_birth_to: null });
           formCustomerFilter?.setFieldsValue({ day_of_birth_from: null, day_of_birth_to: null });
           break;
+        case "month_of_birth":
+          onFilter && onFilter({ ...params, month_of_birth_from: null, month_of_birth_to: null });
+          formCustomerFilter?.setFieldsValue({ month_of_birth_from: null, month_of_birth_to: null });
+          break;
         case "year_of_birth":
           onFilter && onFilter({ ...params, year_of_birth_from: null, year_of_birth_to: null });
           formCustomerFilter?.setFieldsValue({ year_of_birth_from: null, year_of_birth_to: null });
@@ -1080,10 +1029,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
         case "channel_ids":
           onFilter && onFilter({ ...params, channel_ids: [] });
           formCustomerFilter?.setFieldsValue({ channel_ids: [] });
-          break;
-        case "month_of_birth":
-          onFilter && onFilter({ ...params, month_of_birth_from: null, month_of_birth_to: null });
-          formCustomerFilter?.setFieldsValue({ month_of_birth_from: null, month_of_birth_to: null });
           break;
         case "age":
           onFilter && onFilter({ ...params, age_from: null, age_to: null });
@@ -1171,7 +1116,40 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     setVisibleBaseFilter(false);
   }, []);
 
+  
+  const validateBirthdayFilter = useCallback(() => {
+    const values = formCustomerFilter.getFieldsValue();
+    if ((values.day_of_birth_from > values.day_of_birth_to) && !values.month_of_birth_from && !values.month_of_birth_to && (values.year_of_birth_from || values.year_of_birth_to)) {
+      return false;
+    }
+
+    if (values.day_of_birth_from || values.day_of_birth_to || values.month_of_birth_from || values.month_of_birth_to ||
+        values.year_of_birth_from || values.year_of_birth_to
+      ) {
+      const day_of_birth_from = values.day_of_birth_from ? values.day_of_birth_from : (values.day_of_birth_to ? START_DAY : TODAY_VALUE);
+      const day_of_birth_to = values.day_of_birth_to ? values.day_of_birth_to : (values.day_of_birth_from ? END_DAY : TODAY_VALUE);
+
+      const month_of_birth_from = values.month_of_birth_from ? values.month_of_birth_from : (values.month_of_birth_to ? START_MONTH : THIS_MONTH_VALUE);
+      const month_of_birth_to = values.month_of_birth_to ? values.month_of_birth_to : (values.month_of_birth_from ? END_MONTH : THIS_MONTH_VALUE);
+
+      const year_of_birth_from = values.year_of_birth_from ? values.year_of_birth_from : (values.year_of_birth_to ? START_YEAR : THIS_YEAR);
+      const year_of_birth_to = values.year_of_birth_to ? values.year_of_birth_to : THIS_YEAR;
+
+      const startDate = new Date(month_of_birth_from.toString() + '/' + day_of_birth_from.toString() + '/' + year_of_birth_from.toString());
+      const endDate = new Date(month_of_birth_to.toString() + '/' + day_of_birth_to.toString() + '/' + year_of_birth_to.toString());
+      
+      return startDate <= endDate;
+    }
+    return true;
+  }, [formCustomerFilter]);
+
   const onFilterClick = useCallback(async () => {
+    const isValidBirthday = validateBirthdayFilter();
+    if (!isValidBirthday) {
+      showError("Trường ngày, tháng, năm sinh nhật bắt đầu lớn hơn kết thúc. Vui lòng kiểm tra lại!");
+      return;
+    }
+
     let isValidForm = true;
 
     await formCustomerFilter.validateFields()
@@ -1186,7 +1164,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     } else {
       showError("Trường dữ liệu nhập vào chưa đúng. Vui lòng kiểm tra lại!");
     }
-  }, [formCustomerFilter]);
+  }, [formCustomerFilter, validateBirthdayFilter]);
 
   // clear advanced filter
   const onClearAdvancedFilter = useCallback(() => {
@@ -1527,11 +1505,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         placeholder="Từ ngày"
-                        onSelect={onSelectFromDate}
-                        onClear={onClearFromDate}
                       >
-                        {fromDateList.map((item: any) => (
-                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                        {INIT_FROM_DATE_LIST.map((item: any) => (
+                          <Option key={item.value} value={item.value} disabled={item.disable}>
                             {item.name}
                           </Option>
                         ))}
@@ -1545,11 +1521,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         placeholder="Đến ngày"
-                        onSelect={onSelectToDate}
-                        onClear={onClearToDate}
                       >
-                        {toDateList.map((item: any) => (
-                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                        {INIT_TO_DATE_LIST.map((item: any) => (
+                          <Option key={item.value} value={item.value} disabled={item.disable}>
                             {item.name}
                           </Option>
                         ))}
@@ -1630,11 +1604,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         placeholder="Từ tháng"
-                        onSelect={onSelectFromMonth}
-                        onClear={onClearFromMonth}
                       >
-                        {fromMonthList.map((item: any) => (
-                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                        {INIT_FROM_MONTH_LIST.map((item: any) => (
+                          <Option key={item.value} value={item.value} disabled={item.disable}>
                             {item.name}
                           </Option>
                         ))}
@@ -1648,11 +1620,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         showSearch
                         allowClear
                         placeholder="Đến tháng"
-                        onSelect={onSelectToMonth}
-                        onClear={onClearToMonth}
                       >
-                        {toMonthList.map((item: any) => (
-                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                        {INIT_TO_MONTH_LIST.map((item: any) => (
+                          <Option key={item.value} value={item.value} disabled={item.disable}>
                             {item.name}
                           </Option>
                         ))}
