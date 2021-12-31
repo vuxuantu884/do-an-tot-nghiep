@@ -87,8 +87,8 @@ type OrdersCreatePermissionProps = {
   setCustomerPhone: (item: string | null) => void;
   fbCustomerId: string | null;
   fbPageId: string | null;
-  defaultSource: number | null;
-  defaultStore: number | null;
+  defaultSourceId: number | null;
+  defaultStoreId: number | null;
   userId: string | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyRate: LoyaltyRateResponse | undefined;
@@ -127,8 +127,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
     setVisibleCustomer,
     districtId,
     setDistrictId,
-    defaultStore,
-    defaultSource
+    defaultStoreId,
+    defaultSourceId
   } = props;
   const dispatch = useDispatch();
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
@@ -236,7 +236,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   let initialRequest: OrderRequest = {
     action: "", //finalized
-    store_id: defaultStore,
+    store_id: null,
     company_id: DEFAULT_COMPANY.company_id,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
@@ -248,7 +248,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     shipping_fee_paid_to_three_pls: null,
     dating_ship: undefined,
     requirements: null,
-    source_id: defaultSource,
+    source_id: null,
     note: "",
     tags: "",
     customer_note: "",
@@ -1103,6 +1103,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     districtId={districtId}
                     setDistrictId={setDistrictId}
                     setOrderSourceId={setOrderSourceId}
+                    defaultSourceId={defaultSourceId}
+                    form={form}
                   />
                   <OrderCreateProduct
                     changeInfo={onChangeInfoProduct}
@@ -1111,6 +1113,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       form.setFieldsValue({ store_id: value });
                     }}
                     storeId={storeId}
+                    defaultStoreId={defaultStoreId}
                     shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                     setItemGift={setItemGifts}
                     form={form}

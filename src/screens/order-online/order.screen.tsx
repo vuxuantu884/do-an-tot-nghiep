@@ -114,7 +114,6 @@ export default function Order() {
 		number | null
 	>(0);
 	const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-	console.log('payments', payments)
 	const [tags, setTags] = useState<string>("");
 	const formRef = createRef<FormInstance>();
 	const [form] = Form.useForm();
@@ -584,7 +583,6 @@ export default function Order() {
 							let isPointFocus = checkPointFocus(values);
 							if (isPointFocus) {
 								(async () => {
-									console.log('values', values);
 									try {
 										await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
 											// on error
@@ -1018,15 +1016,12 @@ export default function Order() {
 			(promotion?.value || 0)
 		);
 	}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
-	console.log('totalAmountOrder', totalAmountOrder)
 	/**
 	 * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
 	 */
 	const totalAmountCustomerNeedToPay = useMemo(() => {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
-
-	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
 	return (
 		<React.Fragment>

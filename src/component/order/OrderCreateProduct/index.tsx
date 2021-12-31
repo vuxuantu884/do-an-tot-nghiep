@@ -310,7 +310,6 @@ function OrderCreateProduct(props: PropType) {
 					barcode = barcode + event.key;
 				} else if (event.key === "Enter") {
 					if (barcode !== "" && event && items) {
-						// console.log(barcode);
 						dispatch(
 							SearchBarCode(barcode, (data: VariantResponse) => {
 								let _items = [...items].reverse();
@@ -329,7 +328,6 @@ function OrderCreateProduct(props: PropType) {
 									variantItems[lastIndex].line_amount_after_line_discount +=
 										variantItems[lastIndex].price -
 										amount;
-									console.log("amount",variantItems[lastIndex].discount_items[0]?.amount)
 									calculateChangeMoney(_items);
 								}
 
@@ -350,10 +348,10 @@ function OrderCreateProduct(props: PropType) {
 				}
 				return;
 			}
-
 		},
+		
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[items]
+		[items,isAutomaticDiscount,couponInputText,splitLine]
 	);
 
 	useEffect(() => {
@@ -414,7 +412,6 @@ function OrderCreateProduct(props: PropType) {
 					i.discount_amount = totalDiscount;
 				}
 			});
-			// console.log("totalAmount333", _amount);
 			return _amount;
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -481,9 +478,6 @@ function OrderCreateProduct(props: PropType) {
 			);
 		}
 	};
-
-	console.log('itemsCreateProduct', items)
-	console.log('promotion', promotion)
 
 	const onChangeQuantity = (value: number | null, index: number) => {
 		if (items) {
@@ -703,7 +697,6 @@ function OrderCreateProduct(props: PropType) {
 		width: "9%",
 		align: "right",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
-			// console.log('maxQuantityToApplyDiscountTest', l)
 			return (
 				<div className="yody-pos-qtt">
 					<NumberInput
@@ -925,7 +918,6 @@ function OrderCreateProduct(props: PropType) {
 
 	const autoCompleteRef = createRef<RefSelectProps>();
 	const createItem = (variant: VariantResponse) => {
-		//console.log("variant", variant);
 		let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
 		let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
 		let avatar = findAvatar(variant.variant_images);
@@ -1435,6 +1427,7 @@ function OrderCreateProduct(props: PropType) {
 			if (!items) {
 				return;
 			}
+			
 			let newV = parseInt(v);
 			let _items = [...items];
 			let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
@@ -1457,6 +1450,7 @@ function OrderCreateProduct(props: PropType) {
 					calculateChangeMoney(_items);
 				}
 			}
+
 			if (isAutomaticDiscount && _items.length > 0) {
 				handleApplyDiscount(_items);
 			} else if (couponInputText && _items.length > 0) {
