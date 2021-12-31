@@ -404,7 +404,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               }
               procumentCodeRef.current = procumentCode||'';
             }}
-            confirmInventory={(value: PurchaseProcument, isEdit: boolean) => {
+            confirmInventory={(value: PurchaseProcument, isEdit: boolean, procumentCode?: string) => {
               setEditProcument(isEdit);
               let line_items = formMain.getFieldValue(POField.line_items);
               setPOItem(line_items);
@@ -415,6 +415,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setProcumentInventory(value);
                 setVisibleConfirm(true);
               }
+              procumentCodeRef.current = procumentCode||'';
             }}
           />
         ) : (

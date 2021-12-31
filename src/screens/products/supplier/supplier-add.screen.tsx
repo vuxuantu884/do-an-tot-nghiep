@@ -24,10 +24,11 @@ import React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { useParams } from "react-router-dom";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
-import { getQueryParams, useQuery } from "utils/useQuery";
+// import { getQueryParams, useQuery } from "utils/useQuery";
 import CustomSelect from "component/custom/select.custom";
 
 
@@ -136,12 +137,8 @@ const CreateSupplierScreen: React.FC = () => {
     },
     items: [],
   });
-  const query = useQuery();
-  let getParams: CollectionQuery = getQueryParams(query);
-  if (!getParams.goods) {
-    getParams.goods = undefined;
-  }
-  const [params, setPrams] = useState<CollectionQuery>(getParams);
+
+  const params: CollectionQuery = useParams() as CollectionQuery;
 
   const onChangeStatus = useCallback(
     (checked: boolean) => {

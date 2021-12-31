@@ -20,6 +20,7 @@ import { OrderOnlineSaga } from "./order/order.saga";
 import { paymentConditionsSaga } from "./po/payment-conditions.saga";
 import { poPaymentSaga } from "./po/po-payment.saga";
 import { poProcumentSaga } from "./po/po-procument.saga";
+import { PurchaseOrderActionLogSaga } from "./po/action-log.saga";
 import { poSaga } from "./po/po.saga";
 import { settingPrinterSaga } from "./printer/printer.saga";
 import { categorySaga } from "./product/category.saga";
@@ -66,6 +67,7 @@ function* rootSaga() {
     paymentConditionsSaga(),
     poPaymentSaga(),
     poProcumentSaga(),
+    PurchaseOrderActionLogSaga(),
     customerGroupSaga(),
     OrderActionLogSaga(),
     inventorySaga(),

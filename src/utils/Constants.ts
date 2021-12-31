@@ -124,6 +124,41 @@ export const POStatus = {
   STOCK_IN: "stock_in",
 };
 
+export const PO_RETURN_HISTORY = [
+  {
+    code: "draft",
+    title: "Nháp",
+  },
+  {
+    code: "finalized",
+    title: "Đã xác nhận",
+  },
+  {
+    code: "completed",
+    title: "Đã hoàn thành",
+  },
+  {
+    code: "cancelled",
+    title: "Đã huỷ",
+  },
+  {
+    code: "finished",
+    title: "Đã kết thúc",
+  },
+  {
+    code: "stored",
+    title: "Đã nhập kho",
+  },
+  {
+    code: "stock_in",
+    title: "Đã nhập kho",
+  },
+  {
+    code: "draftpo",
+    title: "Phiếu nháp",
+  },
+]
+
 export const ProcumentStatus = {
   DRAFT: "draft",
   NOT_RECEIVED: "not_received",

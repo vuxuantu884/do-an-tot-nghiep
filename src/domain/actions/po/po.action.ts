@@ -10,6 +10,33 @@ import BaseResponse from "base/base.response";
 import { ImportProcument } from "model/purchase-order/purchase-procument";
 import { ImportResponse } from "model/other/files/export-model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
+import { ActionLogDetailResponse, PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
+
+export const POGetActionLogDetail = (
+  id: number,
+  handleData: (data: ActionLogDetailResponse) => void
+) => {
+  return {
+    type: POType.GET_ACTION_LOG_DETAILS,
+    payload: {
+      id,
+      handleData,
+    },
+  };
+};
+
+export const POGetPurchaseOrderActionLogs = (
+  id: number,
+  handleData: (data: PurchaseOrderActionLogResponse[]) => void
+) => {
+  return {
+    type: POType.GET_PURCHASE_ORDER_ACTION_LOGS,
+    payload: {
+      id,
+      handleData,
+    },
+  };
+};
 
 export const POGetPrintContentAction = (
   id: number,
