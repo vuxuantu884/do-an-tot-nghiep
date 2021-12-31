@@ -6,7 +6,26 @@ export const StyledHashTag = styled.div`
     padding: 10px;
 
     .tags-list {
-        margin-bottom: 20px;
+      margin-bottom: 20px;
+      .tag {
+        box-sizing: border-box;
+        margin: 0 8px 10px 0;
+        color: #000000d9;
+        display: inline-block;
+        padding: 0 7px;
+        font-size: 14px;
+        white-space: nowrap;
+        background: #fafafa;
+        border: 1px solid #d9d9d9;
+        border-radius: 2px;
+        opacity: 1;
+        transition: all .3s;
+        img {
+          width: 18px;
+          margin-left: 3px;
+          cursor: pointer;
+        }
+      }
     }
 
     .ant-input {
