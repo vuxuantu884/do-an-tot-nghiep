@@ -50,38 +50,38 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       backgroundColor: "rgba(226, 67, 67, 0.1)",
     },
   ];
-  const listStatusTagWithoutReturn = [
-    {
-      name: "Chưa giao hàng",
-      status: FulFillmentStatus.UNSHIPPED,
-      color: "#666666",
-      backgroundColor: "rgba(102, 102, 102, 0.1)",
-    },
-    {
-      name: "Đang nhặt hàng",
-      status: FulFillmentStatus.PICKED,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đã đóng gói",
-      status: FulFillmentStatus.PACKED,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đang giao hàng",
-      status: FulFillmentStatus.SHIPPING,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đã giao hàng",
-      status: FulFillmentStatus.SHIPPED,
-      color: "#27AE60",
-      backgroundColor: "rgba(39, 174, 96, 0.1)",
-    },
-  ];
+  // const listStatusTagWithoutReturn = [
+  //   {
+  //     name: "Chưa giao hàng",
+  //     status: FulFillmentStatus.UNSHIPPED,
+  //     color: "#666666",
+  //     backgroundColor: "rgba(102, 102, 102, 0.1)",
+  //   },
+  //   {
+  //     name: "Đang nhặt hàng",
+  //     status: FulFillmentStatus.PICKED,
+  //     color: "#FCAF17",
+  //     backgroundColor: "rgba(252, 175, 23, 0.1)",
+  //   },
+  //   {
+  //     name: "Đã đóng gói",
+  //     status: FulFillmentStatus.PACKED,
+  //     color: "#FCAF17",
+  //     backgroundColor: "rgba(252, 175, 23, 0.1)",
+  //   },
+  //   {
+  //     name: "Đang giao hàng",
+  //     status: FulFillmentStatus.SHIPPING,
+  //     color: "#FCAF17",
+  //     backgroundColor: "rgba(252, 175, 23, 0.1)",
+  //   },
+  //   {
+  //     name: "Đã giao hàng",
+  //     status: FulFillmentStatus.SHIPPED,
+  //     color: "#27AE60",
+  //     backgroundColor: "rgba(39, 174, 96, 0.1)",
+  //   },
+  // ];
 
   const findStatusTagWithReturning = () => {
     if (!fulfillment) {
@@ -106,14 +106,14 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       );
     });
   };
-  const findStatusTagWithoutReturnOrCancel = () => {
-    if (!fulfillment) {
-      return;
-    }
-    return listStatusTagWithoutReturn.find((singleStatusTag) => {
-      return singleStatusTag.status === fulfillment.status;
-    });
-  };
+  // const findStatusTagWithoutReturnOrCancel = () => {
+  //   if (!fulfillment) {
+  //     return;
+  //   }
+  //   return listStatusTagWithoutReturn.find((singleStatusTag) => {
+  //     return singleStatusTag.status === fulfillment.status;
+  //   });
+  // };
 
   const renderStatusTag = () => {
     if (!fulfillment) {
