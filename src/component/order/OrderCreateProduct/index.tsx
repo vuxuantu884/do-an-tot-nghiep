@@ -340,7 +340,7 @@ function OrderCreateProduct(props: PropType) {
 								}
 
 								setItems(_items.reverse());
-								autoCompleteRef.current?.blur();
+								//autoCompleteRef.current?.blur();
 								setIsInputSearchProductFocus(false);
 								setKeySearchVariant("");
 							})
@@ -2193,8 +2193,7 @@ function OrderCreateProduct(props: PropType) {
 					setStoreId={setStoreId}
 					columnsItem={items}
 					inventoryArray={inventoryResponse}
-					setStoreArrayResponse={setStoreArrayResponse}
-					dataSearchCanAccess={storeArrayResponse}
+					storeArrayResponse={storeArrayResponse}
 					handleCancel={handleInventoryCancel}
 				// setStoreForm={setStoreForm}
 				/>
