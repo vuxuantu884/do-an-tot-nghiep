@@ -108,7 +108,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const txtCustomerPhone = document.getElementById("customer_update_phone");
   const txtCustomerCarNumber = document.getElementById("customer_update_card_number");
   const txtCustomerFullAddress = document.getElementById("customer_update_full_address");
-  const txtCustomerBirthday = document.getElementById("customer_update_birthday");
 
   //event
   txtShippingAddressName?.addEventListener("change", (e: any) => {
@@ -140,10 +139,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   });
 
   txtCustomerFullAddress?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
-
-  txtCustomerBirthday?.addEventListener("change", (e: any) => {
     setVisibleBtnUpdate(true);
   });
 
@@ -301,7 +296,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         initialValues={initialFormValueshippingAddress}
         name="customer_update"
       >
-        <Spin tip="Vui lòng chờ..." spinning={customerFormLoading} delay={500}>
+        <Spin tip="Vui lòng chờ..." spinning={customerFormLoading} delay={100}>
           <Row gutter={24}>
             <Col xs={24} lg={12}>
               <Form.Item
@@ -797,6 +792,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           suffixIcon={
                             <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                           }
+                          onChange={() => {
+                            setVisibleBtnUpdate(true);
+                          }}
                         />
                       </Form.Item>
                     </Col>

@@ -85,7 +85,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     const txtCustomerPhone = document.getElementById("customer_add_phone");
     const txtCustomerNumber = document.getElementById("customer_add_card_number");
     const txtCustomerFullAddress = document.getElementById("customer_add_full_address");
-    const txtCustomerBirthday = document.getElementById("customer_add_birthday");
     //
     const txtShippingAddName = document.getElementById("customer_add_shipping_addresses_name");
     const txtShippingAddPhone = document.getElementById("customer_add_shipping_addresses_phone");
@@ -102,9 +101,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       setVisibleBtnUpdate(true);
     });
     txtCustomerFullAddress?.addEventListener("change", (e: any) => {
-      setVisibleBtnUpdate(true);
-    });
-    txtCustomerBirthday?.addEventListener("change", (e: any) => {
       setVisibleBtnUpdate(true);
     });
     txtShippingAddName?.addEventListener("change", (e: any) => {

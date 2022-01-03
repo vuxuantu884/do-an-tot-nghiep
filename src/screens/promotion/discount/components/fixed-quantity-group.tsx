@@ -31,7 +31,7 @@ import { ProductResponse, VariantResponse } from "../../../../model/product/prod
 import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
 import { DiscountUnitType } from "../constants";
-import { DiscountUpdateContext } from "./discount-update-provider";
+import { DiscountContext } from "./discount-provider";
 const Option = Select.Option;
 
 interface Props {
@@ -42,7 +42,7 @@ interface Props {
   fieldKey: number;
   handleVisibleManyProduct: (indexOfEntilement: number) => void;
 }
-const FixedPriceGroupUpdate = (props: Props) => {
+const FixedAndQuantityGroup = (props: Props) => {
   const { key, name, form, remove, handleVisibleManyProduct } = props;
   const dispatch = useDispatch();
 
@@ -51,9 +51,8 @@ const FixedPriceGroupUpdate = (props: Props) => {
 
   const productSearchRef = createRef<CustomAutoComplete>();
 
-  const discountUpdateContext = useContext(DiscountUpdateContext);
+  const discountUpdateContext = useContext(DiscountContext);
   const { discountMethod } = discountUpdateContext;
-  const [, setDiscountType] = useState(DiscountUnitType.FIXED_PRICE.value);
 
   const selectedProductParentRef = useRef<ProductResponse | null>(null)
   const variantsOfSelectedProductRef = useRef<Array<VariantResponse>>([])
@@ -197,7 +196,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
 
     let option: Array<{ value: string, label: string }> = [];
     if (discountMethod === DiscountMethod.FIXED_PRICE) {
-      setDiscountType(DiscountUnitType.FIXED_PRICE.value);
+      // setDiscountType(DiscountUnitType.FIXED_PRICE.value);
 
       option = [
         {
@@ -207,7 +206,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
     }
 
     if (discountMethod === DiscountMethod.QUANTITY) {
-      setDiscountType(DiscountUnitType.PERCENTAGE.value);
+      // setDiscountType(DiscountUnitType.PERCENTAGE.value);
       option = [
         {
           value: DiscountUnitType.PERCENTAGE.value,
@@ -318,7 +317,7 @@ const FixedPriceGroupUpdate = (props: Props) => {
                 <Select
                   style={{ borderRadius: "0px", width: "70px" }}
                   onSelect={(e) => {
-                    setDiscountType(e?.toString() || "");
+                    // setDiscountType(e?.toString() || "");
                     const value = form.getFieldValue("entitlements");
                     value[name].prerequisite_quantity_ranges[0].value = undefined;
                     form.setFieldsValue({
@@ -469,4 +468,4 @@ const FixedPriceGroupUpdate = (props: Props) => {
   );
 };
 
-export default FixedPriceGroupUpdate;
+export default FixedAndQuantityGroup;

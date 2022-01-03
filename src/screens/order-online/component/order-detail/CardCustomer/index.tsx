@@ -78,7 +78,7 @@ type CustomerCardProps = {
 //Add query for search Customer
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
-  limit: 15,
+  limit: 5,
   page: 1,
   gender: null,
   from_birthday: null,
@@ -90,6 +90,7 @@ const initQueryCustomer: CustomerSearchQuery = {
   customer_group_ids: [],
   customer_level_id: undefined,
   responsible_staff_codes: null,
+  search_type:"SIMPLE",
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => {
@@ -194,12 +195,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       if (event.target instanceof HTMLInputElement) {
         if (event.keyCode === 13 && event.target.id === "search_customer") {
           setTypingTimer(5000);
-          const initQueryCustomer: any = {
-            request: "",
-            limit: 5,
-            page: 1,
-            is_simple: 1
-          };
 
           if (autoCompleteRef.current?.props && autoCompleteRef.current?.props.value) {
             initQueryCustomer.request = autoCompleteRef.current?.props.value;

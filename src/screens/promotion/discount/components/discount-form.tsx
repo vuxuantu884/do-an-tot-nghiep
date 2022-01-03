@@ -3,9 +3,9 @@ import _ from 'lodash';
 import { DiscountFormModel, DiscountMethod } from 'model/promotion/discount.create.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
 import { DiscountUnitType, priorityOptions } from '../constants';
-import { DiscountUpdateContext } from './discount-update-provider';
-import FixedPriceSelectionUpdate from './fixed-price-selection.update';
-import TotalBillDiscountUpdate from './total-bill-discount-update';
+import { DiscountContext } from './discount-provider';
+import GroupDiscountList from './group-discount-list';
+import OrderThreshold from './order-threshold';
 const { Option } = Select;
 interface Props {
     form: FormInstance;
@@ -16,7 +16,7 @@ function DiscountUpdateForm({
     form,
     unlimitedUsageProps,
 }: Props): ReactElement {
-    const discountUpdateContext = useContext(DiscountUpdateContext);
+    const discountUpdateContext = useContext(DiscountContext);
 
     const { discountMethod, setDiscountMethod } = discountUpdateContext;
 
@@ -184,9 +184,9 @@ function DiscountUpdateForm({
                     </Col>
                     {/* Phương thức chiết khấu */}
                     {discountMethod === DiscountMethod.ORDER_THRESHOLD ? (
-                        <TotalBillDiscountUpdate form={form} />
+                        <OrderThreshold form={form} />
                     ) : (
-                        <FixedPriceSelectionUpdate form={form} />
+                        <GroupDiscountList form={form} />
                     )}
                 </Row>
             </Card>
