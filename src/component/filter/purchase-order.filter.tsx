@@ -464,7 +464,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   const onResetFilter = useCallback(() => {
     let fields = formAdvanceFilter.getFieldsValue(true);
-    console.log(fields);
     for (let key in fields) {
       if(fields[key] instanceof Array) {
         fields[key] = [];
@@ -473,9 +472,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
       }
     }
     formAdvanceFilter.setFieldsValue(fields);
+    formAdvanceFilter.submit();
     setVisible(false);
     setTagActive(null);
-    formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
 
   const onSelectFilterConfig = useCallback((index: number, id: number)=>{

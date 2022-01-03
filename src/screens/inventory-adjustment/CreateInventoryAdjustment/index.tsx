@@ -623,15 +623,16 @@ const CreateInventoryAdjustment: FC = () => {
     [dataTable, keySearch, form, searchVariant, onEnterFilterVariant]
   );
 
-  const onSearchVariant =useCallback(()=>{
-    _.debounce(()=>{
+  const onSearchVariant = React.useMemo(()=>
+    _.debounce((keySearch: string) => {
       setIsLoadingTable(true);
       onEnterFilterVariant(null);
-    }, 300)
-  },[onEnterFilterVariant]);
+    }, 300),
+    [onEnterFilterVariant]
+  )
 
-  const onChangeKeySearch = useCallback(()=>{
-    onSearchVariant();
+  const onChangeKeySearch = useCallback((keySearch)=>{
+    onSearchVariant(keySearch);
   },[onSearchVariant]);
 
   useEffect(() => {
@@ -878,7 +879,7 @@ const CreateInventoryAdjustment: FC = () => {
                         value={keySearch}
                         onChange={(e) => {
                           setKeySearch(e.target.value);
-                          onChangeKeySearch();
+                          onChangeKeySearch(e.target.value);
                         }} 
                         style={{marginLeft: 8}}
                         placeholder="Tìm kiếm sản phẩm trong phiếu"
