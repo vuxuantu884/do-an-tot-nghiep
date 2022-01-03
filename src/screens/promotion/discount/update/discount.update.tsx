@@ -1,7 +1,7 @@
 import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { searchProductWrapperRequestAction } from "domain/actions/product/products.action";
-import { getVariants, promoGetDetail, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
+import { getVariantsAction, getPriceRuleAction, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
 import { PriceRule, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model"; 
@@ -211,8 +211,8 @@ const DiscountUpdate = () => {
 
     useEffect(() => {
         setIsLoading(true);
-        dispatch(getVariants(idNumber, setDataVariants));
-        dispatch(promoGetDetail(idNumber, onResult));
+        dispatch(getVariantsAction(idNumber, setDataVariants));
+        dispatch(getPriceRuleAction(idNumber, onResult));
     }, [dispatch, idNumber, onResult]);
 
     return (

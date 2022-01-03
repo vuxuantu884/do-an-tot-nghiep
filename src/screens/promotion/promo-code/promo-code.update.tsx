@@ -4,8 +4,8 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
-  getVariants,
-  promoGetDetail,
+  getVariantsAction,
+  getPriceRuleAction,
   updatePriceRuleByIdAction
 } from "domain/actions/promotion/discount/discount.action";
 import { PriceRule, ProductEntitlements } from "model/promotion/price-rules.model"; 
@@ -310,8 +310,8 @@ const PromoCodeUpdate = () => {
   // Action: Lấy thông tin khuyến mãi
   useEffect(() => {
     setLoading(true);
-    dispatch(getVariants(idNumber, setDataVariants));
-    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getVariantsAction(idNumber, setDataVariants));
+    dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
   return (
@@ -327,7 +327,7 @@ const PromoCodeUpdate = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mại",
+          name: "Khuyến mãi",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {

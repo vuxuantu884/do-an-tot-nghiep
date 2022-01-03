@@ -415,7 +415,7 @@ const FixedAndQuantityGroup = (props: Props) => {
                       align: "center",
                       width: "15%",
                       dataIndex: "cost",
-                      render: (value, item) => {
+                      render: (value) => {
                         if (typeof value === "number") {
                           // price at create time
                           return formatCurrency(value);
