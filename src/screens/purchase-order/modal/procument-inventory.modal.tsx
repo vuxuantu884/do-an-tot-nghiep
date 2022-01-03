@@ -12,14 +12,20 @@ import { POUtils } from "utils/POUtils";
 import { Moment } from "moment";
 
 import ProcumentCommonModal from "./procument.common.modal";
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import importIcon from "assets/icon/import.svg";
 import ModalImport from "component/modal/ModalImport";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import {
+  PoDetailAction
+} from "domain/actions/po/po.action";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 
 type ProducmentInventoryModalProps = {
+  loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
   visible: boolean;
   isEdit: boolean;
   now: Moment;
@@ -51,16 +57,42 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     items,
     stores,
     poData,
-    isEdit,
+    isEdit
   } = props;
 
-  
+  type PurchaseOrderParam = {
+    id: string;
+  };
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
+  
+  const [itemProcument, setItemProcument] = useState<PurchaseProcument | null>(item);
+  const dispatch = useDispatch();
+  const { id } = useParams<PurchaseOrderParam>();
+  let idNumber = parseInt(id);
+
+  const itemForm = useMemo(()=>{
+    if (itemProcument === null) {
+      return item;
+    }
+
+    return itemProcument;
+  },[itemProcument, item]);
+
+  const onDetail = useCallback((result: PurchaseOrder | null)=>{
+    if (result && result.procurements) {
+      let data = result.procurements.find(e=>e.id === item?.id);
+      setItemProcument(data ?? null);
+    }
+    
+  },[item]);
 
   const ActionImport= {
     Ok: useCallback((res)=>{ 
-      setShowImportModal(false);
-    },[]),
+      if (idNumber) {
+        dispatch(PoDetailAction(idNumber, onDetail));
+      }
+      
+    },[idNumber, dispatch, onDetail]),
     Cancel: useCallback(()=>{
       setShowImportModal(false);
     },[]),
@@ -68,11 +100,12 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
 
   if (visible) {
     return (
+      <>
       <ProcumentCommonModal
         type="inventory"
         isEdit={isEdit}
         items={items}
-        item={item}
+        item={itemForm}
         onCancel={onCancel}
         procumentCode={procumentCode}
         now={now}
@@ -82,7 +115,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         visible={visible}
         cancelText="Hủy"
         onOk={onOk}
-        onDelete={onDelete}
+        onDelete={onDelete} 
         loading={loading}
         isConfirmModal={true}
         title={
@@ -268,24 +301,24 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                    </Table.Summary>
                  );
                }}
-              />
-
-              <ModalImport
-                visible= {showImportModal}
-                onOk= {(res)=>{ActionImport.Ok(res)} }
-                onCancel= {ActionImport.Cancel}
-                title= "Nhập file hàng về"
-                subTitle= "hàng về"
-                okText= "Xác nhận"
-                templateUrl={AppConfig.PROCUMENT_IMPORT_TEMPLATE_URL}
-                forder="stock-transfer"
-                customParams={{conditions: `${item?.purchase_order.id},${item?.id}`, 
-                      type: "IMPORT_PROCUREMENT"}}
-              />
+              /> 
             </> 
           );
         }}
       </ProcumentCommonModal>
+        <ModalImport
+        visible= {showImportModal}
+        onOk= {(res)=>{ActionImport.Ok(res)} }
+        onCancel= {ActionImport.Cancel}
+        title= "Nhập file hàng về"
+        subTitle= "hàng về"
+        okText= "Xác nhận"
+        templateUrl={AppConfig.PROCUMENT_IMPORT_TEMPLATE_URL}
+        forder="stock-transfer"
+        customParams={{conditions: `${item?.purchase_order.id},${item?.id}`, 
+              type: "IMPORT_PROCUREMENT"}}
+      />
+    </>
     );
   } else return <Fragment />;
 };

@@ -111,16 +111,22 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
         <Row>
           <Col span={24}>
             {data?.prerequisite_store_ids.length > 0 ? (
-              <ul
-                style={{
-                  padding: "0 16px",
-                }}
-              >
-                {listStore &&
-                  data.prerequisite_store_ids.map((id) => (
-                    <li>{listStore.find((store) => store.id === id)?.name}</li>
-                  ))}
-              </ul>
+              <>
+                <p>{data?.prerequisite_store_ids.length} cửa hàng </p>
+                <ul
+                  style={{
+                    padding: "0 16px",
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                    width: '100%'
+                  }}
+                >
+                  {listStore &&
+                    data.prerequisite_store_ids.map((id) => (
+                      <li>{listStore.find((store) => store.id === id)?.name}</li>
+                    ))}
+                </ul>
+              </>
             ) : (
               "Áp dụng toàn bộ"
             )}
@@ -171,6 +177,6 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       </Card>
       {/* khách hàng áp dụng */}
       <CustomerConditionDetail {...data} />
-    </Col>
+    </Col >
   );
 }

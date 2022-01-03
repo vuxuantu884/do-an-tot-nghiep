@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 //#region Import
-import {CloseOutlined, LoadingOutlined, SearchOutlined} from "@ant-design/icons";
+import { CloseOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Avatar,
@@ -29,33 +29,33 @@ import {
   DeleteShippingAddress,
   CustomerSearchSo,
 } from "domain/actions/customer/customer.action";
-import {getListSourceRequest} from "domain/actions/product/source.action";
-import {WardResponse} from "model/content/ward.model";
-import {modalActionType} from "model/modal/modal.model";
-import {CustomerSearchQuery} from "model/query/customer.query";
-import {CustomerShippingAddress} from "model/request/customer.request";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { WardResponse } from "model/content/ward.model";
+import { modalActionType } from "model/modal/modal.model";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import { CustomerShippingAddress } from "model/request/customer.request";
 import {
   BillingAddress,
   CustomerResponse,
   ShippingAddress,
 } from "model/response/customer/customer.response";
-import {SourceResponse} from "model/response/order/source.response";
+import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {AiOutlinePlusCircle} from "react-icons/ai";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AiOutlinePlusCircle } from "react-icons/ai";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import UrlConfig from "config/url.config";
 import * as CONSTANTS from "utils/Constants";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
-import {handleDelayActionWhenInsertTextInSearchInput} from "utils/AppUtils";
+import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 //#end region
 
 type CustomerCardProps = {
@@ -198,7 +198,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             request: "",
             limit: 5,
             page: 1,
-            is_simple:1
+            is_simple: 1
           };
 
           if (autoCompleteRef.current?.props && autoCompleteRef.current?.props.value) {
@@ -237,30 +237,30 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     [dispatch, autoCompleteElement, customer]
   );
 
-	const handlePressKeyBoards = (event: KeyboardEvent) => {
-		let findCustomerInput = document.getElementById("search_customer");
-		if (["F4"].indexOf(event.key) !== -1) {
-			event.preventDefault();
-			event.stopPropagation();
-		}
-		//if (event.target instanceof HTMLBodyElement) {
-		switch (event.key) {
-			case "F4":
-				findCustomerInput?.focus()
-				break;
-			default:
-				break;
-		}
-		return;
-	};
+  const handlePressKeyBoards = (event: KeyboardEvent) => {
+    let findCustomerInput = document.getElementById("search_customer");
+    if (["F4"].indexOf(event.key) !== -1) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    //if (event.target instanceof HTMLBodyElement) {
+    switch (event.key) {
+      case "F4":
+        findCustomerInput?.focus()
+        break;
+      default:
+        break;
+    }
+    return;
+  };
 
   useEffect(() => {
     window.addEventListener("keydown", event);
-		window.addEventListener("keydown", handlePressKeyBoards);
-		return () => {
-			window.removeEventListener("keypress", event);
-			window.removeEventListener("keydown", handlePressKeyBoards);
-		};
+    window.addEventListener("keydown", handlePressKeyBoards);
+    return () => {
+      window.removeEventListener("keypress", event);
+      window.removeEventListener("keydown", handlePressKeyBoards);
+    };
   }, [event, handlePressKeyBoards]);
 
   //#end region
@@ -270,17 +270,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerChangeSearch = useCallback(
     (value) => {
-      // clearTimeout(timeRef);
-      // setKeySearchCustomer(value);
-      // setSearchCustomer(true);
-      // let time = setTimeout(() => {
-      //   initQueryCustomer.request = value.trim();
-      //   dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
-      //   setSearchCustomer(false);
-      // }, typingTimer);
-      // setTimeRef(time);
-      // setTypingTimer(3000);
-
       setKeySearchCustomer(value);
       setSearchCustomer(true);
       initQueryCustomer.request = value.trim();
@@ -297,7 +286,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const CustomerRenderSearchResult = (item: CustomerResponse) => {
     return (
       <div className="row-search w-100">
-        <div className="rs-left w-100" style={{lineHeight: "35px"}}>
+        <div className="rs-left w-100" style={{ lineHeight: "35px" }}>
           <img
             src={imageDefault}
             alt="anh"
@@ -305,7 +294,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             className="logo-customer"
           />
           <div className="rs-info w-100">
-            <span style={{display: "flex"}}>
+            <span style={{ display: "flex" }}>
               {item.full_name}{" "}
               <i
                 className="icon-dot"
@@ -315,7 +304,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   color: "#737373",
                 }}
               ></i>{" "}
-              <span style={{color: "#737373"}}>{item.phone}</span>
+              <span style={{ color: "#737373" }}>{item.phone}</span>
             </span>
           </div>
         </div>
@@ -325,16 +314,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerConvertResultSearch = useMemo(() => {
     let options: any[] = [];
-    console.log("resultSearch",resultSearch);
-		if(resultSearch.length > 0) {
-			resultSearch.forEach((item: CustomerResponse, index: number) => {
-				options.push({
-					label: CustomerRenderSearchResult(item),
-					value: item.id ? item.id.toString() : "",
-				});
-			});
+    console.log("resultSearch", resultSearch);
+    if (resultSearch.length > 0) {
+      resultSearch.forEach((item: CustomerResponse, index: number) => {
+        options.push({
+          label: CustomerRenderSearchResult(item),
+          value: item.id ? item.id.toString() : "",
+        });
+      });
 
-		}
+    }
     return options;
   }, [dispatch, resultSearch]);
 
@@ -386,7 +375,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur)
           autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
-        setDistrictId(resultSearch[index].district_id);
+        if (resultSearch[index].district_id) {
+          console.log("districtId",resultSearch[index].district_id)
+          setDistrictId(resultSearch[index].district_id);
+        }
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
@@ -414,12 +406,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
 
-  useEffect(() => {
-    if (customer) setDistrictId(customer.district_id);
-  }, [customer]);
+  // useEffect(() => {
+  //   if (customer) setDistrictId(customer.district_id);
+  //   console.log("0974676818")
+  // }, [customer]);
 
-  const handleChangeArea = (districtId: string) => {
+  const handleChangeArea = (districtId: string | null) => {
     if (districtId) {
+      
       setDistrictId(districtId);
     }
   };
@@ -475,7 +469,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           </span>
           <Form.Item
             name="source_id"
-            style={{margin: "0px"}}
+            style={{ margin: "0px" }}
             rules={[
               {
                 required: true,
@@ -484,7 +478,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             ]}
           >
             <CustomSelect
-              style={{width: 300, borderRadius: "6px"}}
+              style={{ width: 300, borderRadius: "6px" }}
               showArrow
               showSearch
               placeholder="Nguồn đơn hàng"
@@ -502,7 +496,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             >
               {listSources.map((item, index) => (
                 <CustomSelect.Option
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   key={index.toString()}
                   value={item.id}
                 >
@@ -527,10 +521,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               onSelect={SearchCustomerSelect}
               dropdownClassName="search-layout-customer dropdown-search-header"
               dropdownMatchSelectWidth={456}
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
               onSearch={CustomerChangeSearch}
               options={CustomerConvertResultSearch}
-							defaultActiveFirstOption
+              defaultActiveFirstOption
               dropdownRender={(menu) => (
                 <div className="dropdown-custom">
                   <Button
@@ -549,9 +543,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 placeholder="Tìm hoặc thêm khách hàng... (F4)"
                 prefix={
                   searchCustomer ? (
-                    <LoadingOutlined style={{color: "#2a2a86"}} />
+                    <LoadingOutlined style={{ color: "#2a2a86" }} />
                   ) : (
-                    <SearchOutlined style={{color: "#ABB4BD"}} />
+                    <SearchOutlined style={{ color: "#ABB4BD" }} />
                   )
                 }
               />
@@ -570,7 +564,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   target="_blank"
                   to={`${UrlConfig.CUSTOMER}/${customer.id}`}
                   className="primary"
-                  style={{fontSize: "16px"}}
+                  style={{ fontSize: "16px" }}
                 >
                   {customer.full_name}
                 </Link>
@@ -584,10 +578,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 </span>
                 <a
                   className="customer-detail-text text-body primary"
-                  style={{color: "#5656A2"}}
-                  href={`tel:${
-                    customer?.phone === undefined ? "0987654321" : customer?.phone
-                  }`}
+                  style={{ color: "#5656A2" }}
+                  href={`tel:${customer?.phone === undefined ? "0987654321" : customer?.phone
+                    }`}
                 >
                   {" "}
                   {customer?.phone === undefined ? "0987654321" : customer?.phone}
@@ -602,7 +595,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   Tổng điểm:
                   <Typography.Text
                     type="success"
-                    style={{color: "#FCAF17", marginLeft: "5px"}}
+                    style={{ color: "#FCAF17", marginLeft: "5px" }}
                     strong
                   >
                     {loyaltyPoint?.point === undefined ? "0" : loyaltyPoint?.point}
@@ -623,18 +616,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 <Space className="customer-detail-action">
                   <CloseOutlined
                     onClick={CustomerDeleteInfo}
-                    style={{marginRight: "5px"}}
+                    style={{ marginRight: "5px" }}
                   />
                 </Space>
               )}
             </Row>
-            <Divider className="margin-0" style={{padding: 0, marginBottom: 0}} />
+            <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
           </div>
         )}
       </div>
       {isVisibleCustomer === true && (
         <div>
-          <div style={{marginTop: "14px"}}>
+          <div style={{ marginTop: "14px" }}>
             {modalAction === CONSTANTS.MODAL_ACTION_TYPE.create && (
               <CreateCustomer
                 areas={areas}

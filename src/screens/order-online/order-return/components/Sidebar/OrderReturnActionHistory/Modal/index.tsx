@@ -1,10 +1,10 @@
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
-import purify from "dompurify";
+// import purify from "dompurify";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { convertActionLogDetailToText } from "utils/AppUtils";
+import { convertActionLogDetailToText, safeContent } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -29,20 +29,15 @@ function ActionHistoryModal(props: PropType) {
   const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
 
   const renderRow = (value: string, row: any) => {
-    if (row.type === "html") {
-      let doc = new DOMParser().parseFromString(value, "text/html");
-      let htmlInner = doc.getElementsByTagName("body")[0].innerHTML;
-      return (
-        <div
-          className="orderDetails"
-          dangerouslySetInnerHTML={{
-            __html: purify.sanitize(htmlInner),
-          }}
-        ></div>
-      );
-    }
-    return value;
-  };
+    return (
+      <div
+        className="purchaseOrderDetails"
+        dangerouslySetInnerHTML={{
+          __html: safeContent(value),
+        }}
+      ></div>
+    );
+}
 
   const ACTION_LOG_SHORTEN_COLUMN = [
     {

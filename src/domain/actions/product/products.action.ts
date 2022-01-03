@@ -46,7 +46,7 @@ export const searchProductWrapperRequestAction = (
   });
 };
 
-export const productWrapperDeleteAction = (id: number, onDeleteSuccess: () => void) => {
+export const productWrapperDeleteAction = (id: number, onDeleteSuccess: (res: any) => void) => {
   return BaseAction(ProductType.DELETE_PRODUCT_WRAPPER_REQUEST, {id, onDeleteSuccess});
 }
 

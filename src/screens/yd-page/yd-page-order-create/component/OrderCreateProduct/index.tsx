@@ -84,6 +84,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   storeId: number | null;
+  defaultStoreId: number | null;
   items?: Array<OrderLineItemRequest>;
   shippingFeeInformedToCustomer: number | null;
   form: FormInstance<any>;
@@ -180,6 +181,7 @@ function OrderCreateProduct(props: PropType) {
     discountRate = 0,
     discountValue = 0,
     storeId,
+    defaultStoreId,
     inventoryResponse,
     levelOrder = 0,
     coupon = "",
@@ -197,7 +199,7 @@ function OrderCreateProduct(props: PropType) {
     // fetchData,
     setDiscountValue,
     setDiscountRate,
-    setCoupon,
+    setCoupon
   } = props;
   const dispatch = useDispatch();
   const [loadingAutomaticDiscount] = useState(false);
@@ -1473,6 +1475,17 @@ function OrderCreateProduct(props: PropType) {
     }
     return newData;
   }, [listStores, userReducer.account]);
+
+  useEffect(() => {
+    let defaultStoreIndex = dataCanAccess.findIndex(data => {
+      return data.id === defaultStoreId;
+    });
+    if (defaultStoreIndex > -1) {
+      form.setFieldsValue({ store_id: defaultStoreId })
+    } else {
+      form.setFieldsValue({ store_id: null })
+    }
+  }, [dataCanAccess])
 
   const onUpdateData = useCallback(
     (items: Array<OrderLineItemRequest>) => {

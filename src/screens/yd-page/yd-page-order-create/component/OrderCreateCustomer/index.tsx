@@ -17,6 +17,7 @@ import {
   Row,
   Tag,
   Typography,
+  FormInstance
 } from "antd";
 import imageDefault from "assets/icon/img-default.svg";
 import birthdayIcon from "assets/img/bithday.svg";
@@ -65,7 +66,7 @@ import UrlConfig from "config/url.config";
 import * as CONSTANTS from "utils/Constants";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
-import {formatCurrency} from "../../../../../utils/AppUtils";
+import { formatCurrency } from "../../../../../utils/AppUtils";
 //#end region
 
 type CustomerCardProps = {
@@ -85,6 +86,8 @@ type CustomerCardProps = {
   modalAction: modalActionType;
   districtId: number | null;
   setOrderSourceId?: (value: number) => void;
+  defaultSourceId: number | null;
+  form: FormInstance<any>;
 };
 
 //Add query for search Customer
@@ -116,11 +119,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     shippingAddress,
     setModalAction,
     modalAction,
-      districtId,
-      setDistrictId,
-      setBillingAddress,
-      setShippingAddress,
-    setOrderSourceId
+    districtId,
+    setDistrictId,
+    setBillingAddress,
+    setShippingAddress,
+    setOrderSourceId,
+    defaultSourceId,
+    form
   } = props;
 
   const dispatch = useDispatch();
@@ -272,13 +277,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             <span style={{ display: "flex" }}>
               {item.full_name}{" "}
               <i
-    className="icon-dot"
-    style={{
-      fontSize: "4px",
-      margin: "16px 10px 10px 10px",
-      color: "#737373",
-    }}
-    />{" "}
+                className="icon-dot"
+                style={{
+                  fontSize: "4px",
+                  margin: "16px 10px 10px 10px",
+                  color: "#737373",
+                }}
+              />{" "}
               <span style={{ color: "#737373" }}>{item.phone}</span>
             </span>
           </div>
@@ -322,7 +327,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               props.setShippingAddress(item);
             }
           });
-        }else{
+        } else {
           props.setShippingAddress(null);
         }
 
@@ -333,7 +338,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               props.setBillingAddress(item);
             }
           });
-        }else{
+        } else {
           props.setBillingAddress(null);
         }
         autoCompleteRef.current?.blur();
@@ -347,6 +352,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "POS");
   }, [listSource]);
+
+  useEffect(() => {
+    let defaultSourceIndex = listSources.findIndex(data => {
+      return data.id === defaultSourceId;
+    });
+    if (defaultSourceIndex > -1) {
+      form.setFieldsValue({ source_id: defaultSourceId })
+    } else {
+      form.setFieldsValue({ source_id: null })
+    }
+  }, [listSources]);
 
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
@@ -429,7 +445,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             ]}
           >
             <CustomSelect
-               style={{ width: "100%", borderRadius: "6px" }}
+              style={{ width: "100%", borderRadius: "6px" }}
               showArrow
               showSearch
               placeholder="Nguồn đơn hàng"
@@ -444,9 +460,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 }
                 return false;
               }}
-               onChange={(value) => {
-                 setOrderSourceId && setOrderSourceId(value)
-               }}
+              onChange={(value) => {
+                setOrderSourceId && setOrderSourceId(value)
+              }}
             >
               {listSources.map((item, index) => (
                 <CustomSelect.Option
@@ -500,8 +516,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   searchCustomer ? (
                     <LoadingOutlined style={{ color: "#2a2a86" }} />
                   ) : (
-                    <SearchOutlined style={{ color: "#ABB4BD" }} />
-                  )
+                      <SearchOutlined style={{ color: "#ABB4BD" }} />
+                    )
                 }
               />
             </AutoComplete>
@@ -518,13 +534,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               className="row-customer-detail"
               style={{ margin: "10px 0" }}
             >
-                  <Col style={{ display: "flex", alignItems: "center" }}>
-                    {levelOrder < 3 && (
-                        <CloseOutlined
-                            style={{ color: "red", fontSize: 20, marginRight: 10 }}
-                            onClick={CustomerDeleteInfo}
-                        />
-                    )}
+              <Col style={{ display: "flex", alignItems: "center" }}>
+                {levelOrder < 3 && (
+                  <CloseOutlined
+                    style={{ color: "red", fontSize: 20, marginRight: 10 }}
+                    onClick={CustomerDeleteInfo}
+                  />
+                )}
                 <div className="fpage-order-avatar-customer">
                   <img
                     style={{ width: 34, height: 34 }}
@@ -555,10 +571,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                     : customer?.phone}
                 </span>
               </Col>
-              </Row>
-              <Divider style={{ padding: 0, marginBottom: 6 }} />
+            </Row>
+            <Divider style={{ padding: 0, marginBottom: 6 }} />
             <Row align="middle" justify="space-between">
-            <Col className="customer-detail-point">
+              <Col className="customer-detail-point">
                 <span className="customer-detail-icon">
                   <img src={pointIcon} alt="" />
                 </span>

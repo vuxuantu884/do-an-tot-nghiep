@@ -210,7 +210,7 @@
   }
   &__list {
     padding: 10px 30px;
-    height: 350px;
+    max-height: 350px;
     overflow-y: auto;
     width: 100%;
   }

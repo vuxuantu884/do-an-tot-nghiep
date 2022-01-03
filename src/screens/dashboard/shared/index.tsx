@@ -21,10 +21,11 @@ export const CustomTooltip = (data: any) => {
     return null;
 };
 export const CustomTooltipUserRank = (data: any) => {
-    const { active, payload, label, labelName } = data;
+    const { active, payload,label, labelName } = data;
 
-    active && console.log(data)
+    
     if (active && payload && payload.length) {
+         console.log(payload)
         return (
             <div className="monthly-chart__tooltip">
                 <p className="tooltip-title">{label}</p>

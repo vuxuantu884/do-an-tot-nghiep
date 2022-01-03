@@ -31,6 +31,7 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 export type POInventoryFormProps = {
+  loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
   stores: Array<StoreResponse>;
   status: string;
   now: Moment;
@@ -77,6 +78,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     poData,
     formMain,
     isShowStatusTag,
+    loadDetail
   } = props;
 
   const [activeTab, setActiveTab] = useState(TAB[0].id);
@@ -84,7 +86,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [visible, setVisible] = useState(false);
   const [visibleEditProcurement, setVisibleEditProcurement] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
-  // const [procumentCode, setProcumentCode] = useState('');
   const procumentCodeRef = useRef('');
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
@@ -403,11 +404,10 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               }
               procumentCodeRef.current = procumentCode||'';
             }}
-            confirmInventory={(value: PurchaseProcument, isEdit: boolean) => {
+            confirmInventory={(value: PurchaseProcument, isEdit: boolean, procumentCode?: string) => {
               setEditProcument(isEdit);
               let line_items = formMain.getFieldValue(POField.line_items);
-              console.log('line_items', line_items);
-              setPOItem(line_items); 
+              setPOItem(line_items);
               if (isEdit) {
                 setProcumentDraft(value);
                 setVisibleDraft(true);
@@ -415,6 +415,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setProcumentInventory(value);
                 setVisibleConfirm(true);
               }
+              procumentCodeRef.current = procumentCode||'';
             }}
           />
         ) : (
@@ -469,6 +470,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       />
 
       <ProcumentInventoryModal
+        loadDetail={loadDetail}
         isEdit={isEditProcument}
         items={poItems}
         stores={stores}

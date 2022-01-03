@@ -202,13 +202,13 @@ export class CustomerModel implements CustomerRequest {
   card_number = "";
   phone = "";
   email = "";
-  gender = "";
+  gender = "Khác";
   birthday = "";
   website = "";
   wedding_date = "";
   company = "";
   tax_code = "";
-  country_id = null;
+  country_id = 233;
   district_id = null;
   district="";
   ward_id = null;

@@ -146,7 +146,6 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
 
   useEffect(() => {
 
-
     if (discountData?.rule && discountData.rule.conditions?.length > 0) {
       const temp: any[] = [];
       discountData?.rule?.conditions.forEach((element: DiscountConditionRule) => {
@@ -155,7 +154,8 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
       setValueComponentList(temp);
     }
 
-  }, [discountData?.rule]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [discountData.rule?.conditions?.length]);
 
   return (
     <TotalBillDiscountStyle>

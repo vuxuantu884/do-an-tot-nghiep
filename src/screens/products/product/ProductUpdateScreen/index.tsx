@@ -1,4 +1,4 @@
-import {InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import {EditOutlined, InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -8,6 +8,7 @@ import {
   Form,
   Image,
   Input,
+  Popover,
   Row,
   Select,
   Space,
@@ -70,6 +71,8 @@ import {
 import {handleChangeMaterial} from "utils/ProductUtils";
 import {RegUtil} from "utils/RegUtils";
 import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { careInformation } from "../component/CareInformation/care-value";
+import CareModal from "../component/CareInformation/CareModal";
 import ModalConfirmPrice from "../component/ModalConfirmPrice";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import ModalUpdatePrice from "../component/ModalUpdatePrice";
@@ -137,6 +140,7 @@ const ProductDetailScreen: React.FC = () => {
   const [visibleUpdatePrice, setVisibleUpdatePrice] = useState(false);
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
+  const [showCareModal, setShowCareModal] = useState(false);
 
   const categoryFilter = useMemo(() => {
     if (data === null) {
@@ -258,6 +262,64 @@ const ProductDetailScreen: React.FC = () => {
     return "";
   }, [productStatusList, status]);
 
+  const [careLabels, setCareLabels] = useState<any[]>([]);
+  const [careLabelsString, setCareLabelsString] = useState("");
+
+  useEffect(() => {
+    const newSelected = careLabelsString ? careLabelsString.split(";") : [];
+    let careLabels: any[] = []
+    newSelected.forEach((value: string) => {
+      careInformation.washing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+
+      careInformation.beleaching.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.ironing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.drying.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.professionalCare.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      
+    })
+    setCareLabels(careLabels);
+  }, [careLabelsString]);
+
   const onChange = useCallback(() => {
     setChange(true);
   }, []);
@@ -299,7 +361,16 @@ const ProductDetailScreen: React.FC = () => {
       if (values) {
         values.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
-            item.variant_prices = values.variants[active].variant_prices;
+            item.variant_prices.forEach((e)=>{
+              let priceActive =  values.variants[active].variant_prices.find(p=>p.currency_code === e.currency_code);
+              if (priceActive) {
+                e.cost_price = priceActive.cost_price;
+                e.retail_price = priceActive.retail_price;
+                e.tax_percent = priceActive.tax_percent;
+                e.wholesale_price = priceActive.retail_price;
+                e.import_price = priceActive.import_price;
+              }
+            });
           }
         });
         update(values);
@@ -383,9 +454,15 @@ const ProductDetailScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: ProductRequest) => {
       setLoadingButton(true); 
-      dispatch(productUpdateAction(idNumber, values, onResultFinish));
+      dispatch(productUpdateAction(
+        idNumber,
+        {
+          ...values,
+          care_labels: careLabelsString,
+        },
+        onResultFinish));
     },
-    [dispatch, idNumber,onResultFinish]
+    [careLabelsString, dispatch, idNumber, onResultFinish]
   );
 
   const beforeUpload = useCallback((file: RcFile) => {
@@ -600,6 +677,7 @@ const ProductDetailScreen: React.FC = () => {
         setError(true);
       } else {
         setData(result);
+        setCareLabelsString(result.care_labels);
         setStatus(result.status);
         productDetailRef.current = JSON.parse(JSON.stringify(result));
         form.setFieldsValue(result);
@@ -913,6 +991,21 @@ const ProductDetailScreen: React.FC = () => {
                           >
                             <HashTag />
                           </Item>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col span={24} style={{ display: "contents" }}>
+                          <span className="care-title">Thông tin bảo quản: </span>
+                          {careLabels.map((item: any) => (
+                            <Popover content={item.name}>
+                              <span className={`care-label ydl-${item.value}`}></span>
+                            </Popover>
+                          ))}
+                          <Button
+                            className="button-plus"
+                            icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
+                            onClick={() => setShowCareModal(true)}
+                          />
                         </Col>
                       </Row>
                       <Row gutter={24}>
@@ -1672,6 +1765,16 @@ const ProductDetailScreen: React.FC = () => {
           }}
           visible={visiblePrice}
           onOk={onOkPrice}
+        />
+        <CareModal
+          onCancel={() => setShowCareModal(false)}
+          onOk={(data) => {
+            console.log('data data', data);
+            setCareLabelsString(data);
+            setShowCareModal(false);
+          }}
+          visible={showCareModal}
+          careLabels={careLabelsString}
         />
       </ContentContainer>
     </StyledComponent>

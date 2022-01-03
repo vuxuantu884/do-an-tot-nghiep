@@ -12,7 +12,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 
 type TabConfirmedProps = {
-  confirmInventory: (item: PurchaseProcument, isEdit: boolean) => void;
+  confirmInventory: (item: PurchaseProcument, isEdit: boolean, procumentCode: string) => void;
 };
 
 const TabConfirmed: React.FC<TabConfirmedProps> = (
@@ -69,7 +69,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                   <Button
                     type="link"
                     onClick={() => {
-                      confirmInventory(item, true);
+                      confirmInventory(item, true, item?.code);
                     }}
                   >
                     <div style={{color: "#5D5D8A", textDecoration: "underline"}}>
@@ -120,7 +120,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                           onClick={() => {
                             console.log(item);
                             
-                            confirmInventory(item, false)
+                            confirmInventory(item, false, item?.code)
                           }}
                           type="primary"
                         >

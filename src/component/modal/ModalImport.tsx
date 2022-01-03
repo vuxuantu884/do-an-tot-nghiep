@@ -90,27 +90,28 @@ const ModalImport: React.FC<ModalImportProps> = (
 
             setLstJob(newListExportFile);
             setImportRes([]);
+            onOk(data);
             return
           }else if (response.data && response.data.status === EnumJobStatus.error) {
             setJobImportStatus(EnumJobStatus.error);
             setUploadStatus(EnumJobStatus.error);
+            setStatusImport(CON_STATUS_IMPORT.JOB_FINISH);
             return
           }
           setJobImportStatus(EnumJobStatus.processing);
         }
       });
     });
-  }, [lstJob]);
+  }, [lstJob,data, onOk]);
 
   const onResultImport = useCallback((res)=>{
    if (res) {
     const {status, code} = res;  
-    if (status === EnumImportStatus.processing) {
+    if (status === EnumImportStatus.processing) { 
       setFileList([]);
       setUploadStatus(status);
-      setJobImportStatus(EnumJobStatus.processing);
       setLstJob([code]);
-      checkImportFile();
+      checkImportFile(); 
     }
    }
   },[checkImportFile]);
@@ -120,7 +121,7 @@ const ModalImport: React.FC<ModalImportProps> = (
       fileList[0] = {...fileList[0],status: "done", url:res[0]};
       setFileList([...fileList]);
       setLinkFileImport(res[0]);
-      setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE); 
+      setStatusImport(CON_STATUS_IMPORT.CREATE_JOB_SUCCESS); 
     } 
  
   },[fileList]);
@@ -138,11 +139,13 @@ const ModalImport: React.FC<ModalImportProps> = (
     },[]),
     onImport: useCallback(()=>{ 
       if (linkFileImport && linkFileImport.length > 0) {
+        setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
         const params: ImportProcument = {
           url: linkFileImport,
           conditions: customParams?.conditions,
           type: customParams?.type
         }
+        setJobImportStatus(EnumJobStatus.processing);
         dispatch(importProcumentAction(params, onResultImport))
       }
     },[dispatch, customParams, onResultImport, linkFileImport])
@@ -151,7 +154,7 @@ const ModalImport: React.FC<ModalImportProps> = (
   const renderModalFooter = useMemo(() => {
     return (
       <>
-        {statusImport === CON_STATUS_IMPORT.CHANGE_FILE && (
+        {statusImport === CON_STATUS_IMPORT.CREATE_JOB_SUCCESS && (
           <Button
             key="cancel"
             type="primary"
@@ -160,16 +163,14 @@ const ModalImport: React.FC<ModalImportProps> = (
             Import
           </Button>
         )}
-        {(statusImport === CON_STATUS_IMPORT.CREATE_JOB_SUCCESS ||
-          statusImport === CON_STATUS_IMPORT.JOB_FINISH) && (
+        {(statusImport === CON_STATUS_IMPORT.JOB_FINISH || statusImport === CON_STATUS_IMPORT.ERROR) && (
           <Button key="link" type="primary" onClick={()=>{
             setSuccessCount(0);
             setSuccessCount(0);
             setUploadStatus(undefined);
-            setStatusImport(CON_STATUS_IMPORT.DEFAULT);
+            setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
             setFileList([]);
-            ActionImport.Cancel();
-            ActionImport.Ok();
+            ActionImport.Cancel(); 
           }}>
             {okText}
           </Button>
@@ -193,8 +194,7 @@ const ModalImport: React.FC<ModalImportProps> = (
           visible={visible}
           title={title}
           afterClose={()=>{ 
-            setSuccessCount(0);
-            setSuccessCount(0);
+            setSuccessCount(0); 
             setStatusImport(CON_STATUS_IMPORT.DEFAULT);
             setUploadStatus(undefined);
             setFileList([]);

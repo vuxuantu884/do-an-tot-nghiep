@@ -20,7 +20,7 @@ function OrderReturnActionHistory(props: PropType) {
   const dispatch = useDispatch();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [actionId, setActionId] = useState<number | undefined>(undefined);
+  const [actionId, setActionId] = useState<number | undefined>();
 
   const showModal = (actionId: number) => {
     setIsModalVisible(true);

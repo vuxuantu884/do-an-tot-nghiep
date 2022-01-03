@@ -4,8 +4,12 @@ import { useDispatch } from 'react-redux';
 import moment from "moment";
 import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
 import { getLogPOHistory } from 'domain/actions/po/po.action';
-import { StringMappingType } from 'typescript';
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
+import { Link } from 'react-router-dom';
+import UrlConfig from 'config/url.config';
+import ActionPurchaseORderHistoryModal from 'screens/purchase-order/Sidebar/ActionHistory/Modal';
+import { Button } from 'antd';
+import { PO_RETURN_HISTORY } from 'utils/Constants';
 
 type POHistoryProps = {
   poData?: PurchaseOrder;
@@ -33,20 +37,57 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
   const [logData, setLogData] = useState<POLogHistory | any>();
   const formatDate = "DD/MM/YYYY HH:mm";
   const dispatch = useDispatch();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [actionId, setActionId] = useState<number>();
+
+  const renderSingleActionLogTitle = (action?: string) => {
+    if (!action) {
+      return;
+    }
+    let result = action;
+    const resultAction = PO_RETURN_HISTORY?.find((singleStatus) => {
+      return singleStatus.code === action;
+    });
+    if (resultAction && resultAction.title) {
+      result = resultAction.title || action;
+    }
+    return result;
+  };
+
+  const hideModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const showModal = (actionId: number) => {
+    setIsModalVisible(true);
+    setActionId(actionId);
+  };
 
   const defaultColumns = [
     {
       title: "Người sửa",
       dataIndex: "updated_name",
       key: "updated_name",
-      render: (status: StringMappingType, record: POLogHistory) => {
-        const { updated_name, updated_by } = record;
-        return (
-          <div>
-            <div style={{ color: "#2a2a86"}}>{updated_by}</div>
-            <div>{updated_name}</div>
-          </div>
-        )
+      render: (updated_name: string, record: POLogHistory, index: number) => {
+        const {  updated_by } = record;
+        if (index > 0 && updated_name !== logData[index-1]) {
+          return <></>
+        }else{
+          return (
+            (<div>
+              <div style={{ color: "#2A2A86" }}>
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.ACCOUNTS}/${updated_by}`}
+                  className="primary"
+                >
+                  {updated_by}
+                </Link>
+              </div>
+              <div>{updated_name}</div>
+            </div>)
+          )
+        }
       }
     },
     {
@@ -61,13 +102,25 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       title: "Thao tác",
       dataIndex: "action",
       key: "action",
-
+      render: (status: string, record: POLogHistory) => {
+        return (
+          <Button 
+            type='link'
+            style={{ paddingLeft: 0 }}
+            onClick={() => {
+              showModal(record.id);
+            }}
+          >
+            {renderSingleActionLogTitle(record.action)}
+          </Button>
+        )
+      }
     },
     {
       title: "Trạng thái phiếu nhập kho",
       dataIndex: "status",
       key: "status",
-      render: (status: StringMappingType, record: POLogHistory) => {
+      render: (status: string, record: POLogHistory) => {
         if (record) {
           const { status_after, status_before} = record;
           return (
@@ -82,11 +135,16 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
         }
         return '';
       }
+    },
+    {
+      title: "Log ID",
+      dataIndex: "id",
+      key: "id"
     }
   ]
 
   useEffect(() => {
-    if (procumentCode !== undefined) {
+    if (procumentCode) {
       dispatch(getLogPOHistory(procumentCode, setLogData));
     }
   }, [dispatch, procumentCode]);
@@ -99,6 +157,11 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
         dataSource={logData}
         columns={defaultColumns}
         rowKey={(item: any) => item?.code}
+      />
+      <ActionPurchaseORderHistoryModal
+        isModalVisible={isModalVisible}
+        onCancel={hideModal}
+        actionId={actionId}
       />
     </div>
   )
