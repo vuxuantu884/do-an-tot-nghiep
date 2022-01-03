@@ -4,8 +4,7 @@ import { searchProductWrapperRequestAction } from "domain/actions/product/produc
 import { getVariants, promoGetDetail, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
-import { EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { PriceRule, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model"; 
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -41,7 +40,7 @@ const DiscountUpdate = () => {
     const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
 
     const parseDataToForm = useCallback(
-        (result: DiscountResponse) => {
+        (result: PriceRule) => {
             const formValue: any = {
                 title: result.title,
                 discount_code: result.code,
@@ -110,7 +109,7 @@ const DiscountUpdate = () => {
     /**
      * Update discount
      */
-    const updateCallback = (data: DiscountResponse) => {
+    const updateCallback = (data: PriceRule) => {
         if (data) {
             showSuccess("Cập nhật chiết khấu thành công");
             setIsSubmitting(false)
@@ -136,7 +135,7 @@ const DiscountUpdate = () => {
      * 
      */
     const onResult = useCallback(
-        (result: DiscountResponse | false) => {
+        (result: PriceRule | false) => {
             if (result) {                
                 // search data of parent product for entitled_product_ids
                 let product_ids: Array<number> = []

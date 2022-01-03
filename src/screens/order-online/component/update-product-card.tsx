@@ -224,7 +224,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             rowKey={(record) => record.id}
             columns={columns}
             dataSource={props.OrderDetail?.items.filter(
-              (item) => item.type === Type.NORMAL
+              (item) => item.type === Type.NORMAL || item.type === Type.SERVICE
             )}
             className="sale-product-box-table2 w-100"
             tableLayout="fixed"

@@ -6,8 +6,7 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
-import { DiscountMethod, ProductEntitlements } from "model/promotion/discount.create.model";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { PriceRuleMethod, PriceRule, ProductEntitlements } from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
@@ -29,6 +28,8 @@ import DiscountRuleInfo from "../components/discount-rule-info";
 import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, discountStatus } from "../constants/index";
 import "../discount.scss";
 
+const MAX_LOAD_VARIANT_LIST = 5;
+const RELOAD_VARIANT_LIST_TIME = 3000;
 export interface ProductParams {
   id: string;
   variantId: string;
@@ -53,10 +54,11 @@ const PromotionDetailScreen: React.FC = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLoadingVariantList, setIsLoadingVariantList] = useState(false);
-  const [dataDiscount, setDataDiscount] = useState<DiscountResponse | null>(null);
+  const [dataDiscount, setDataDiscount] = useState<PriceRule | null>(null);
   const [quantityColumn, setQuantityColumn] = useState<any>([]);
   const [dataVariants, setDataVariants] = useState<Array<ProductEntitlements>>();
   const isFirstLoadVariantList = useRef(true);
+  const countLoadVariantList = useRef(0);
 
   //phân quyền
   const [allowCancelPromoCode] = useAuthorization({
@@ -69,7 +71,7 @@ const PromotionDetailScreen: React.FC = () => {
     acceptPermissions: [PromoPermistion.CREATE],
   });
 
-  const onResult = useCallback((result: DiscountResponse | false) => {
+  const onResult = useCallback((result: PriceRule | false) => {
     setLoading(false);
     if (!result) {
       setError(true);
@@ -87,14 +89,14 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, []);
 
-  const getEntitledMethod = (data: DiscountResponse) => {
+  const getEntitledMethod = (data: PriceRule) => {
 
     switch (data.entitled_method) {
-      case DiscountMethod.FIXED_PRICE:
+      case PriceRuleMethod.FIXED_PRICE:
         return "Đồng giá";
-      case DiscountMethod.QUANTITY:
+      case PriceRuleMethod.QUANTITY:
         return "Chiết khấu theo từng sản phẩm";
-      case DiscountMethod.ORDER_THRESHOLD:
+      case PriceRuleMethod.ORDER_THRESHOLD:
         return "Chiết khấu theo đơn hàng";
     }
 
@@ -148,7 +150,7 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, [dataDiscount]);
 
-  const renderStatus = (data: DiscountResponse) => {
+  const renderStatus = (data: PriceRule) => {
     const status = discountStatus.find((status) => status.code === data.state);
     return <span style={{ marginLeft: "20px" }}>{status?.Component}</span>;
 
@@ -221,15 +223,16 @@ const PromotionDetailScreen: React.FC = () => {
     const variantIdLength = dataDiscount?.entitlements[0]?.entitled_variant_ids.length ?? 0;
     const productIdLength = dataDiscount?.entitlements[0]?.entitled_product_ids.length ?? 0;
 
-    if (dataDiscount?.entitlements[0] && variantLength < variantIdLength + productIdLength) {
+    if (dataDiscount?.entitlements[0] && variantLength < variantIdLength + productIdLength && countLoadVariantList.current <= MAX_LOAD_VARIANT_LIST) {
       isVariantNotLoadYet = true;
+      countLoadVariantList.current++;
       if (isFirstLoadVariantList.current) {
         showInfo("Đang tải dữ liệu sản phẩm...");
         isFirstLoadVariantList.current = false;
       }
       setTimeout(() => {
         dispatch(getVariants(idNumber, handleResponse));
-      }, 3000);
+      }, RELOAD_VARIANT_LIST_TIME);
     }
 
 
@@ -251,8 +254,7 @@ const PromotionDetailScreen: React.FC = () => {
       }])
     }
 
-    // }
-    setQuantityColumn(dataDiscount?.entitled_method !== "FIXED_PRICE" ? columnFixedPrice : columnDiscountQuantity);
+    setQuantityColumn(dataDiscount?.entitled_method !== PriceRuleMethod.FIXED_PRICE ? columnFixedPrice : columnDiscountQuantity);
     setIsLoadingVariantList(isVariantNotLoadYet);
   }, [dataVariants, dataDiscount, dispatch, handleResponse, idNumber]);
 
