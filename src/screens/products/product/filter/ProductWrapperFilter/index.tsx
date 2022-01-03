@@ -163,8 +163,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                 switch (key) {
                   case SearchVariantWrapperField.designer_code:
                     component = (
-                      <Select optionFilterProp="children" showSearch>
-                        <Option value="">Nhà thiết kế</Option>
+                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn thiết kế">
                         {listMerchandisers?.map((item) => (
                           <Option key={item.code} value={item.code}>
                             {item.code} - {item.full_name}
@@ -175,8 +174,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.merchandiser_code:
                     component = (
-                      <Select optionFilterProp="children" showSearch>
-                        <Option value="">Merchandiser</Option>
+                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn Merchandiser">
                         {listMerchandisers?.map((item) => (
                           <Option key={item.code} value={item.code}>
                             {item.code} - {item.full_name}
@@ -187,8 +185,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.status:
                     component = (
-                      <Select>
-                        <Option value="">TRẠNG THÁI</Option>
+                      <Select placeholder="Chọn trạng thái" allowClear>
                         <Option value="inactive">Ngừng hoạt động</Option>
                         <Option value="active">Đang hoạt động</Option>
                       </Select>
@@ -196,8 +193,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.category_id:
                     component = (
-                      <Select>
-                        <Option value="">DANH MỤC</Option>
+                      <Select placeholder="Chọn trạng thái" allowClear>
                         {listCategory?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {`${item.name}`}
@@ -208,8 +204,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.goods:
                     component = (
-                      <Select>
-                        <Option value="">NGÀNH HÀNG</Option>
+                      <Select placeholder="Chọn ngành hàng" allowClear>
                         {goods?.map((item) => (
                           <Option key={item.value} value={item.value}>
                             {item.name}
@@ -220,8 +215,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.material_id:
                     component = (
-                      <Select>
-                        <Option value="">CHẤT LIỆU</Option>
+                      <Select placeholder="Chọn chất liệu" allowClear>
                         {listMaterial?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.name}

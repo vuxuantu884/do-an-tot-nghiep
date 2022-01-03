@@ -14,8 +14,8 @@ import GeneralConditionForm from 'screens/promotion/shared/general-condition.for
 import { transformData } from 'utils/PromotionUtils';
 import { showError, showSuccess } from 'utils/ToastUtils';
 import { DiscountUnitType } from '../constants';
-import DiscountUpdateForm from '../update/discount-update-form';
-import DiscountUpdateProvider from '../update/discount-update-provider';
+import DiscountUpdateForm from '../components/discount-form';
+import DiscountProvider from '../components/discount-provider';
 
 
 
@@ -166,9 +166,9 @@ function DiscountCreateV2(): ReactElement {
 }
 
 
-const DiscountCreateWithProvider = () => (<DiscountUpdateProvider>
+const DiscountCreateWithProvider = () => (<DiscountProvider>
     <DiscountCreateV2 />
-</DiscountUpdateProvider>)
+</DiscountProvider>)
 export default DiscountCreateWithProvider;
 
 

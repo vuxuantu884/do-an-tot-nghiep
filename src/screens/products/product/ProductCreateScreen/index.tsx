@@ -108,7 +108,7 @@ const initialRequest: ProductRequestView = {
   saleable: true,
   variant_prices: [
     {
-      retail_price: "",
+      retail_price: 0,
       currency: AppConfig.currency,
       import_price: "",
       wholesale_price: "",
@@ -1168,7 +1168,7 @@ const ProductCreateScreen: React.FC = () => {
                     searchPlaceholder="Tìm kiếm nhân viên"
                     placeholder="Chọn thiết kế"
                     onPageChange={(key, page) => getAccounts(key, page, true, false)}
-                    onSearch={(key) => getAccounts(key, 1, false, true)}
+                    onSearch={(key) => getAccounts(key, 1, true, false)}
                   >
 
                     {designer.items.map((item) => (
@@ -1213,6 +1213,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  default={0}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)

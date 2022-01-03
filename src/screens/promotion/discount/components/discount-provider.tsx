@@ -3,24 +3,24 @@ import { DiscountMethod } from "model/promotion/discount.create.model";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import React, { createContext, ReactNode, useState } from "react";
 
-type DiscountUpdateAction = {
+type DiscountAction = {
   discountMethod: DiscountMethod | string;
   setDiscountMethod: (discountMethod: DiscountMethod | string) => void;
   discountData: DiscountResponse;
   setDiscountData: (discountData: DiscountResponse) => void;
 };
 
-export const DiscountUpdateContext = createContext<DiscountUpdateAction>(
-  {} as DiscountUpdateAction
+export const DiscountContext = createContext<DiscountAction>(
+  {} as DiscountAction
 );
 
 
-function DiscountUpdateProvider(props: { children: ReactNode }) {
+function DiscountProvider(props: { children: ReactNode }) {
   const [discountData, setDiscountData] = useState<DiscountResponse>({} as DiscountResponse);
   const [discountMethod, setDiscountMethod] = useState<DiscountMethod | string>(DiscountMethod.FIXED_PRICE);
 
   return (
-    <DiscountUpdateContext.Provider
+    <DiscountContext.Provider
       {...props}
       value={{
         discountMethod,
@@ -33,4 +33,4 @@ function DiscountUpdateProvider(props: { children: ReactNode }) {
   );
 }
 
-export default DiscountUpdateProvider;
+export default DiscountProvider;

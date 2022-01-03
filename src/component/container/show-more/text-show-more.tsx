@@ -15,8 +15,8 @@ interface Props {
 TextShowMore.defaultProps = {
     splitCharactor: ' ',
     endCharactor: " ...",
-    ShowMoreComponent: <span className='show-more-text'>Xem thêm</span>,
-    ShowLessComponent: <span className='show-more-text'>Thu gọn</span>,
+    ShowMoreComponent: <span className='show-more-text'>&nbsp; Xem thêm</span>,
+    ShowLessComponent: <span className='show-more-text'>&nbsp; Thu gọn</span>,
     maxLength: 500
 } as Partial<Props>
 
@@ -48,37 +48,55 @@ function TextShowMore(props: Props): ReactElement {
      * @param maxLength 
      */
     const showLessText = useCallback((text: string, maxLength: number) => {
-        const maxText = text.substring(0, maxLength);
-        const lastSpace = maxText.lastIndexOf(splitCharactor!);
-        let trimmedText = '';
+        if (text) {
+            const maxText = text.substring(0, maxLength);
+            const lastSpace = maxText.lastIndexOf(splitCharactor!);
+            let trimmedText = '';
 
-        if (lastSpace > maxLength / 2) {
-            trimmedText = maxText.substring(0, lastSpace);
-        } else {
-            trimmedText = maxText + endCharactor
+            if (lastSpace > maxLength / 2) {
+                trimmedText = maxText.substring(0, lastSpace);
+            } else {
+                trimmedText = maxText + endCharactor
 
+            }
+            setTextShow(trimmedText);
+            setIsShowFull(true);
+            onShowMore?.()
         }
-        setTextShow(trimmedText);
-        setIsShowFull(true);
-        onShowMore?.()
+
 
     }, [splitCharactor, endCharactor, onShowMore])
 
-
+    /**
+     * 
+     * @returns {ReactElement}
+     */
+    const ShowChilren = () => {
+        if (typeof textShow === "string" && children?.length > maxLength) {
+            if (isShowFull) {
+                return <span onClick={() => showMoreText(children)}>{ShowMoreComponent}</span>
+            } else {
+                return <span onClick={() => showLessText(children, maxLength)}>{ShowLessComponent}</span>
+            }
+        } else {
+            return <></>
+        }
+    }
     /**
      * First load : check if text is too long => collapse 
      */
     useEffect(() => {
-        if (children.length > maxLength!) {
+        if (children && children.length > maxLength!) {
             showLessText(children, maxLength!);
         }
     }, [children, maxLength, showLessText])
 
     return (
         <TextShowMoreStyle>
-            <span className='content-show'>{textShow}</span>   {(isShowFull && children.length > maxLength!)
-                ? <span onClick={() => showMoreText(children)}>{ShowMoreComponent}</span>
-                : <span onClick={() => showLessText(children, maxLength!)}>{ShowLessComponent}</span>}
+            <span className='content-show'>{textShow}</span>
+            {
+                <ShowChilren />
+            }
         </TextShowMoreStyle>
     )
 }
