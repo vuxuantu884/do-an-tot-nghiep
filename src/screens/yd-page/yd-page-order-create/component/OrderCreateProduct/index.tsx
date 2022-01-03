@@ -1482,6 +1482,8 @@ function OrderCreateProduct(props: PropType) {
     });
     if (defaultStoreIndex > -1) {
       form.setFieldsValue({ store_id: defaultStoreId })
+    } else {
+      form.setFieldsValue({ store_id: null })
     }
   }, [dataCanAccess])
 

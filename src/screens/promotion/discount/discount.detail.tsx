@@ -1,11 +1,12 @@
-import { Button, Card, Col, Row, Space, Tooltip } from "antd";
+import { Button, Card, Col, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
+import TextShowMore from "component/container/show-more/text-show-more";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
-import { ProductEntitlements } from "model/promotion/discount.create.model";
+import { DiscountMethod, ProductEntitlements } from "model/promotion/discount.create.model";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -86,9 +87,17 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, []);
 
-  const getEntitled_method = (data: DiscountResponse) => {
-    if (data.entitled_method === "FIXED_PRICE") return "Đồng giá";
-    if (data.entitled_method === "QUANTITY") return "Chiết khấu theo từng sản phẩm";
+  const getEntitledMethod = (data: DiscountResponse) => {
+
+    switch (data.entitled_method) {
+      case DiscountMethod.FIXED_PRICE:
+        return "Đồng giá";
+      case DiscountMethod.QUANTITY:
+        return "Chiết khấu theo từng sản phẩm";
+      case DiscountMethod.ORDER_THRESHOLD:
+        return "Chiết khấu theo đơn hàng";
+    }
+
   };
 
   const promoDetail: Array<any> | undefined = React.useMemo(() => {
@@ -106,7 +115,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Phương thức km",
-          value: getEntitled_method(dataDiscount),
+          value: getEntitledMethod(dataDiscount),
           position: "left",
         },
         {
@@ -119,11 +128,11 @@ const PromotionDetailScreen: React.FC = () => {
           value: dataDiscount?.quantity_limit || "Không giới hạn",
           position: "right",
         },
-        {
-          name: "Tổng doanh thu",
-          value: "---",
-          position: "right",
-        },
+        // {
+        //   name: "Tổng doanh thu",
+        //   value: "---",
+        //   position: "right",
+        // },
         {
           name: "Mức độ ưu tiên",
           value: dataDiscount.priority,
@@ -131,7 +140,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Mô tả",
-          value: <Tooltip title={dataDiscount.description} placement="rightTop">{dataDiscount.description}</Tooltip>,
+          value: <TextShowMore maxLength={50}>{dataDiscount.description}</TextShowMore>,
           position: "left",
         },
       ];
@@ -313,7 +322,6 @@ const PromotionDetailScreen: React.FC = () => {
                             <Col span={12} style={{ paddingLeft: 0 }}>
 
                               <div
-                                className="text-truncate-2"
                               >
                                 {detail.value ? detail.value : "---"}
                               </div>

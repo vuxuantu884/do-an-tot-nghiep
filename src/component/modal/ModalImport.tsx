@@ -90,6 +90,7 @@ const ModalImport: React.FC<ModalImportProps> = (
 
             setLstJob(newListExportFile);
             setImportRes([]);
+            onOk(data);
             return
           }else if (response.data && response.data.status === EnumJobStatus.error) {
             setJobImportStatus(EnumJobStatus.error);
@@ -101,21 +102,19 @@ const ModalImport: React.FC<ModalImportProps> = (
         }
       });
     });
-  }, [lstJob]);
+  }, [lstJob,data, onOk]);
 
   const onResultImport = useCallback((res)=>{
    if (res) {
     const {status, code} = res;  
-    if (status === EnumImportStatus.processing) {
+    if (status === EnumImportStatus.processing) { 
       setFileList([]);
       setUploadStatus(status);
-      setJobImportStatus(EnumJobStatus.processing);
       setLstJob([code]);
       checkImportFile(); 
-      onOk(data);
     }
    }
-  },[checkImportFile,onOk, data]);
+  },[checkImportFile]);
 
   const onResultChange = useCallback((res)=>{  
     if (res) {  
@@ -146,6 +145,7 @@ const ModalImport: React.FC<ModalImportProps> = (
           conditions: customParams?.conditions,
           type: customParams?.type
         }
+        setJobImportStatus(EnumJobStatus.processing);
         dispatch(importProcumentAction(params, onResultImport))
       }
     },[dispatch, customParams, onResultImport, linkFileImport])
