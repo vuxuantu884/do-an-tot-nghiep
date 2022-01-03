@@ -1,13 +1,12 @@
 
-import { DiscountMethod } from "model/promotion/discount.create.model";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { PriceRuleMethod, PriceRule } from "model/promotion/price-rules.model"; 
 import React, { createContext, ReactNode, useState } from "react";
 
 type DiscountAction = {
-  discountMethod: DiscountMethod | string;
-  setDiscountMethod: (discountMethod: DiscountMethod | string) => void;
-  discountData: DiscountResponse;
-  setDiscountData: (discountData: DiscountResponse) => void;
+  discountMethod: PriceRuleMethod | string;
+  setDiscountMethod: (discountMethod: PriceRuleMethod | string) => void;
+  discountData: PriceRule;
+  setDiscountData: (discountData: PriceRule) => void;
 };
 
 export const DiscountContext = createContext<DiscountAction>(
@@ -16,8 +15,8 @@ export const DiscountContext = createContext<DiscountAction>(
 
 
 function DiscountProvider(props: { children: ReactNode }) {
-  const [discountData, setDiscountData] = useState<DiscountResponse>({} as DiscountResponse);
-  const [discountMethod, setDiscountMethod] = useState<DiscountMethod | string>(DiscountMethod.FIXED_PRICE);
+  const [discountData, setDiscountData] = useState<PriceRule>({} as PriceRule);
+  const [discountMethod, setDiscountMethod] = useState<PriceRuleMethod | string>(PriceRuleMethod.FIXED_PRICE);
 
   return (
     <DiscountContext.Provider
