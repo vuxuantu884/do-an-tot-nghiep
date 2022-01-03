@@ -23,7 +23,7 @@ function ActionPurchaseOrderHistory(props: PropType) {
   const dispatch = useDispatch();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [actionId, setActionId] = useState<number>();
+  const [actionId, setActionId] = useState<number>(); 
 
   const showModal = (actionId: number) => {
     setIsModalVisible(true);
