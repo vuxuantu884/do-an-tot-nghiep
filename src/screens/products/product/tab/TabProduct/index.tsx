@@ -3,6 +3,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 import { AppConfig } from "config/app.config";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
@@ -42,7 +43,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ImageProduct from "../../component/image-product.component";
@@ -298,7 +299,7 @@ const TabProduct: React.FC = () => {
       visible: true,
     },
     {
-      title:  "Mã sản phẩm",
+      title:  "Sản phẩm",
       dataIndex: "sku",
       width: 300,
       render: (value: string, i: VariantResponse) => (
@@ -306,7 +307,7 @@ const TabProduct: React.FC = () => {
           <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`}>
             {value}
           </Link>
-          <div>{i.name}</div>
+          <div><TextEllipsis value={i.name} line={1} /></div>
         </div>
       ),
       visible: true,
@@ -327,44 +328,49 @@ const TabProduct: React.FC = () => {
         }
         return 0;
       },
-    },
-    {
-      title: "Nhà thiết kế",
-      render: (value: VariantResponse) => <div> {value?.product?.designer}</div>,
-      visible: true,
-      align: "center",
-    },
-    {
-      title: "Merchandiser",
-      render: (value: VariantResponse) => <div> {value?.product?.merchandiser}</div>,
-      align: "center",
-      visible: true,
-    },
+    }, 
     {
       title: "Có thể bán",
       dataIndex: "available",
       visible: true,
       align: "right",
+      width: 120,
+      render: (value: number, item: VariantResponse) => <div> {formatCurrency(value,".")}</div>,
     },
 
     {
       title: "Trạng thái",
-      dataIndex: "saleable",
+      dataIndex: "saleable",  
+      visible: true,
+      align: "center",
+      width: 100,
       render: (value: string, row: VariantResponse) => (
         <div className={value ? "text-success" : "text-error"}>
           {value ? "Cho phép bán" : "Ngừng  bán"}
         </div>
       ),
-      visible: true,
-      align: "center",
     },
     {
-      title: "Ngày khởi tạo",
+      title: "Nhà thiết kế",
+      visible: true,
+      align: "left",
+      width: 120,
+      render: (value: VariantResponse) => <div> {value?.product?.designer}</div>,
+    },
+    {
+      title: "Merchandiser",
+      align: "left",
+      width: 120,
+      visible: true,
+      render: (value: VariantResponse) => <div> {value?.product?.merchandiser}</div>,
+    },
+    {
+      title: "Ngày tạo",
       dataIndex: "created_date",
       visible: true,
       align: "left",
       width: 120,
-      render: (value, record) => ConvertUtcToLocalDate(record?.product?.created_date),
+      render: (value, record) => ConvertUtcToLocalDate(record?.product?.created_date,DATE_FORMAT.DDMMYYY),
     },
   ];
 
@@ -443,6 +449,7 @@ const TabProduct: React.FC = () => {
         onClickOpen={() => setShowSettingColumn(true)}
       />
       <CustomTable
+        bordered
         selectedRowKey={rowKey}
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection

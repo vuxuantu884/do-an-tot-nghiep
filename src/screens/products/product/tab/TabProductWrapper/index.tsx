@@ -3,6 +3,8 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {MenuAction} from "component/table/ActionButton";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
+import { AppConfig } from "config/app.config";
 import {ProductPermission} from "config/permissions/product.permission";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
 import {AccountGetListAction} from "domain/actions/account/account.action";
@@ -31,7 +33,7 @@ import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
 import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
-import {convertCategory, generateQuery} from "utils/AppUtils";
+import {convertCategory, formatCurrency, generateQuery} from "utils/AppUtils";
 import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showSuccess, showWarning} from "utils/ToastUtils";
@@ -64,7 +66,7 @@ const actionsDefault: Array<MenuAction> = [
 ];
 
 const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
+  department_ids: [AppConfig.WIN_DEPARTMENT],
 };
 
 var idDelete = -1;
@@ -103,9 +105,8 @@ const TabProductWrapper: React.FC = () => {
   const [columns, setColumn] = useState<Array<ICustomTableColumType<ProductResponse>>>([
     {
       title: "Ảnh",
-      fixed: "left",
       align: "left",
-      width: 70,
+      width: 80,
       render: (value: ProductResponse) => {
         let url = null;
         value.variants.forEach((item) => {
@@ -124,17 +125,15 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
-      width: 300,
       title: "Sản phẩm",
       dataIndex: "code",
-      fixed: "left",
       render: (value: string, i: ProductWrapperResponse) => {
         return (
           <>
             <div>
               <Link to={`${UrlConfig.PRODUCT}/${i.id}`}>{value}</Link>
             </div>
-            <div> {i.name}</div>
+            <div><TextEllipsis value={i.name} line={1} /></div>
           </>
         );
       },
@@ -144,6 +143,7 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       title: "SL Phiên bản",
       dataIndex: "variants",
+      width: 120,
       render: (value: Array<VariantResponse>) => (
         <>
           <div>{value ? value.length : ""}</div>
@@ -156,17 +156,22 @@ const TabProductWrapper: React.FC = () => {
       dataIndex: "on_hand",
       align: "right",
       visible: true,
+      width: 120,
+      render: (value: number) => <div> {formatCurrency(value,".")}</div>,
     },
     {
       align: "right",
       title: "Có thể bán",
       dataIndex: "available",
       visible: true,
+      width: 120,
+      render: (value: number) => <div> {formatCurrency(value,".")}</div>,
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       align: "center",
+      width: 150,
       render: (value: string, row: ProductWrapperResponse) => (
         <div className={row.status === "active" ? "text-success" : "text-error"}>
           {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
@@ -175,10 +180,10 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
-      title: "Ngày khởi tạo",
+      title: "Ngày tạo",
       align: "left",
       dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY HH:mm"),
+      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY"),
       width: 120,
       visible: true,
     },
@@ -380,12 +385,13 @@ const TabProductWrapper: React.FC = () => {
         initValue={{} as ProductWrapperSearchQuery}
       />
       <CustomTable
+        bordered
         selectedRowKey={rowKey}
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
         onSelectedChange={onSelect}
-        scroll={{x: 1500}}
+        scroll={{x: 1200}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,

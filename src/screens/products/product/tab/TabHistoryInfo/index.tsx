@@ -1,5 +1,6 @@
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 import UrlConfig, {ProductTabUrl} from "config/url.config";
 import {productGetHistoryAction} from "domain/actions/product/products.action";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -61,7 +62,6 @@ const TabHistoryInfo: React.FC = () => {
       dataIndex: "history_type",
       visible: true,
       fixed: "left",
-      width: 200,
       render: (value, item) => {
         if (IS_PRODUCT_TYPE.includes(value)) {
           return (
@@ -69,7 +69,7 @@ const TabHistoryInfo: React.FC = () => {
               <Link to={`${UrlConfig.PRODUCT}/${item.product_id}`}>
                 {item.product_code}
               </Link>
-              <div>{item.product_name}</div>
+              <div>{<TextEllipsis value={item.product_name} line={1} />}</div>
             </div>
           );
         }
@@ -80,13 +80,14 @@ const TabHistoryInfo: React.FC = () => {
             >
               {item.sku}
             </Link>
-            <div>{item.variant_name}</div>
+            <div>{<TextEllipsis value={item.variant_name} line={1} />}</div>
           </div>
         );
       },
     },
     {
       title: "Người sửa",
+      width: 200,
       dataIndex: "action_by",
       visible: true,
       align: "left",
@@ -109,7 +110,7 @@ const TabHistoryInfo: React.FC = () => {
       title: "Thao tác",
       dataIndex: "history_type_name",
       visible: true,
-      align: "center",
+      align: "left",
     },
     {
       title: "Thời gian",
@@ -117,7 +118,7 @@ const TabHistoryInfo: React.FC = () => {
       align: "left",
       dataIndex: "created_date",
       render: (value) => ConvertUtcToLocalDate(value),
-      width: 120
+      width: 160
     },
   ]);
   useEffect(() => {
@@ -147,6 +148,7 @@ const TabHistoryInfo: React.FC = () => {
         actions={[]}
       />
       <CustomTable
+        bordered
         rowKey={(record) => record.id}
         isRowSelection
         columns={columns}
