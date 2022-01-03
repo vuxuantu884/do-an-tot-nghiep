@@ -6,23 +6,21 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
-import { PriceRuleMethod, PriceRule, ProductEntitlements } from "model/promotion/price-rules.model";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { PriceRule, PriceRuleMethod, PriceRuleState, ProductEntitlements } from "model/promotion/price-rules.model";
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import BottomBarContainer from "../../../../component/container/bottom-bar.container";
 import CustomTable from "../../../../component/table/CustomTable";
-import { HttpStatus } from "../../../../config/http-status.config";
-import { unauthorizedAction } from "../../../../domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "../../../../domain/actions/loading.action";
 import {
+  bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction,
-  getVariants,
-  promoGetDetail
+  getPriceRuleAction,
+  getVariantsAction
 } from "../../../../domain/actions/promotion/discount/discount.action";
-import { bulkDisablePriceRules } from "../../../../service/promotion/discount/discount.service";
-import { showError, showInfo } from "../../../../utils/ToastUtils";
+import { showError, showInfo, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionDetail from "../../shared/general-condition.detail";
 import DiscountRuleInfo from "../components/discount-rule-info";
 import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, discountStatus } from "../constants/index";
@@ -35,11 +33,11 @@ export interface ProductParams {
   variantId: string;
 }
 
-type detailMapping = {
+type DetailMapping = {
   name: string;
-  value: string | null;
+  value?: ReactNode;
   position: string;
-  key: string;
+  key?: string;
   isWebsite?: boolean;
 };
 
@@ -54,7 +52,7 @@ const PromotionDetailScreen: React.FC = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLoadingVariantList, setIsLoadingVariantList] = useState(false);
-  const [dataDiscount, setDataDiscount] = useState<PriceRule | null>(null);
+  const [dataDiscount, setDataDiscount] = useState<PriceRule>();
   const [quantityColumn, setQuantityColumn] = useState<any>([]);
   const [dataVariants, setDataVariants] = useState<Array<ProductEntitlements>>();
   const isFirstLoadVariantList = useRef(true);
@@ -82,6 +80,7 @@ const PromotionDetailScreen: React.FC = () => {
 
   const handleResponse = useCallback((result: ProductEntitlements[]) => {
     setLoading(false);
+    setIsLoadingVariantList(false);
     if (result) {
       setDataVariants(result);
     } else {
@@ -102,104 +101,89 @@ const PromotionDetailScreen: React.FC = () => {
 
   };
 
-  const promoDetail: Array<any> | undefined = React.useMemo(() => {
-    if (dataDiscount) {
-      const details = [
-        {
-          name: "Tên khuyến mãi",
-          value: dataDiscount.title,
-          position: "left",
-        },
-        {
-          name: "Mã khuyến mãi",
-          value: dataDiscount.code ? dataDiscount.code : "",
-          position: "left",
-        },
-        {
-          name: "Phương thức km",
-          value: getEntitledMethod(dataDiscount),
-          position: "left",
-        },
-        {
-          name: "Số lượng đã bán",
-          value: dataDiscount?.async_allocation_count,
-          position: "right",
-        },
-        {
-          name: "Số lượng áp dụng",
-          value: dataDiscount?.quantity_limit || "Không giới hạn",
-          position: "right",
-        },
-        // {
-        //   name: "Tổng doanh thu",
-        //   value: "---",
-        //   position: "right",
-        // },
-        {
-          name: "Mức độ ưu tiên",
-          value: dataDiscount.priority,
-          position: "right",
-        },
-        {
-          name: "Mô tả",
-          value: <TextShowMore maxLength={50}>{dataDiscount.description}</TextShowMore>,
-          position: "left",
-        },
-      ];
-      return details;
-    }
-  }, [dataDiscount]);
+  const details = [
+    {
+      name: "Tên khuyến mãi",
+      value: dataDiscount?.title,
+      position: "left",
+    },
+    {
+      name: "Mã khuyến mãi",
+      value: dataDiscount?.code,
+      position: "left",
+    },
+    {
+      name: "Phương thức km",
+      value: dataDiscount ? getEntitledMethod(dataDiscount) : "",
+      position: "left",
+    },
+    {
+      name: "Số lượng đã bán",
+      value: dataDiscount?.async_allocation_count,
+      position: "right",
+    },
+    {
+      name: "Số lượng áp dụng",
+      value: dataDiscount?.quantity_limit ?? "Không giới hạn",
+      position: "right",
+    },
+    // {
+    //   name: "Tổng doanh thu",
+    //   value: "---",
+    //   position: "right",
+    // },
+    {
+      name: "Mức độ ưu tiên",
+      value: dataDiscount?.priority,
+      position: "right",
+    },
+    {
+      name: "Mô tả",
+      value: <TextShowMore maxLength={50}>{dataDiscount?.description}</TextShowMore>,
+      position: "left",
+    },
+  ];
 
-  const renderStatus = (data: PriceRule) => {
+
+  const RenderStatus = (data: PriceRule) => {
     const status = discountStatus.find((status) => status.code === data.state);
     return <span style={{ marginLeft: "20px" }}>{status?.Component}</span>;
 
   };
 
-  const onActivate = () => {
-    dispatch(showLoading());
-    dispatch(bulkEnablePriceRulesAction({ ids: [idNumber] }, onActivateSuccess));
-  };
-
-  const onDeactivate = async () => {
-    dispatch(showLoading());
-    try {
-      const deactivateResponse = await bulkDisablePriceRules({ ids: [idNumber] });
-      switch (deactivateResponse.code) {
-        case HttpStatus.SUCCESS:
-          dispatch(promoGetDetail(idNumber, onResult));
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          dispatch(unauthorizedAction());
-          break;
-        default:
-          deactivateResponse.errors.forEach((e: any) => showError(e.toString()));
-          break;
-      }
-    } catch (error) {
-      showError("Thao tác thất bại");
-    } finally {
-      dispatch(hideLoading());
+  const onChangePriceRuleStatus = (numberOfDisabled: number) => {
+    if (numberOfDisabled) {
+      showSuccess(`Cập nhật chiết khấu thành công`);
+      dispatch(getPriceRuleAction(idNumber, onResult));
+    } else {
+      showError(`Cập nhật chiết khấu thất bại`);
     }
+    dispatch(hideLoading());
+  }
+
+  const handleDeactivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkDisablePriceRulesAction({ ids: [idNumber] }, (numberOfDisabled: number) => onChangePriceRuleStatus(numberOfDisabled)));
   };
 
-  const onActivateSuccess = useCallback(() => {
-    dispatch(hideLoading());
-    dispatch(promoGetDetail(idNumber, onResult));
-  }, [dispatch, idNumber, onResult]);
 
-  const renderActionButton = () => {
+  const handleActivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkEnablePriceRulesAction({ ids: [idNumber] }, (numberOfDisabled: number) => onChangePriceRuleStatus(numberOfDisabled)));
+  };
+
+  const RenderActionButton = () => {
     switch (dataDiscount?.state) {
-      case "ACTIVE":
+      case PriceRuleState.ACTIVE:
         return (
-          <Button type="primary" onClick={onDeactivate}>
+          <Button type="primary" onClick={handleDeactivate}>
             Tạm ngừng
           </Button>
         );
-      case "DISABLED":
-      case "DRAFT":
+      case PriceRuleState.DISABLED:
+      case PriceRuleState.DRAFT:
         return (
-          <Button type="primary" onClick={onActivate}>
+          <Button type="primary" onClick={handleActivate}>
             Kích hoạt
           </Button>
         );
@@ -209,8 +193,8 @@ const PromotionDetailScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(promoGetDetail(idNumber, onResult));
-    dispatch(getVariants(idNumber, handleResponse));
+    dispatch(getPriceRuleAction(idNumber, onResult));
+    dispatch(getVariantsAction(idNumber, handleResponse));
   }, [dispatch, handleResponse, idNumber, onResult]);
 
   /**
@@ -231,7 +215,7 @@ const PromotionDetailScreen: React.FC = () => {
         isFirstLoadVariantList.current = false;
       }
       setTimeout(() => {
-        dispatch(getVariants(idNumber, handleResponse));
+        dispatch(getVariantsAction(idNumber, handleResponse));
       }, RELOAD_VARIANT_LIST_TIME);
     }
 
@@ -281,7 +265,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
       ]}
     >
-      {dataDiscount !== null && (
+      {dataDiscount && (
         <React.Fragment>
           <Row gutter={24}>
             <Col span={24} md={18}>
@@ -290,84 +274,82 @@ const PromotionDetailScreen: React.FC = () => {
                 title={
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span className="title-card">THÔNG TIN CÁ NHÂN</span>
-                    {renderStatus(dataDiscount)}
+                    {RenderStatus(dataDiscount)}
                   </div>
                 }
               >
                 <Row gutter={30}>
                   <Col span={12}>
-                    {promoDetail &&
-                      promoDetail
-                        .filter((detail: detailMapping) => detail.position === "left")
-                        .map((detail: detailMapping, index: number) => (
+                    {details
+                      .filter((detail: DetailMapping) => detail.position === "left")
+                      .map((detail: DetailMapping, index: number) => (
+                        <Col
+                          key={index}
+                          span={24}
+                          style={{
+                            padding: 0,
+                            display: "flex",
+                            marginBottom: 10,
+                            color: "#222222",
+                          }}
+                        >
                           <Col
-                            key={index}
-                            span={24}
+                            span={8}
                             style={{
-                              padding: 0,
                               display: "flex",
-                              marginBottom: 10,
-                              color: "#222222",
+                              justifyContent: "space-between",
+                              padding: "0 4px 0 0",
                             }}
                           >
-                            <Col
-                              span={8}
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                padding: "0 4px 0 0",
-                              }}
-                            >
-                              <span style={{ color: "#666666" }}>{detail.name}</span>
-                              <span style={{ fontWeight: 600 }}>:</span>
-                            </Col>
-                            <Col span={12} style={{ paddingLeft: 0 }}>
-
-                              <div
-                              >
-                                {detail.value ? detail.value : "---"}
-                              </div>
-
-                            </Col>
+                            <span style={{ color: "#666666" }}>{detail.name}</span>
+                            <span style={{ fontWeight: 600 }}>:</span>
                           </Col>
-                        ))}
+                          <Col span={12} style={{ paddingLeft: 0 }}>
+
+                            <div
+                            >
+                              {detail.value ? detail.value : "---"}
+                            </div>
+
+                          </Col>
+                        </Col>
+                      ))}
                   </Col>
                   <Col span={12}>
-                    {promoDetail &&
-                      promoDetail
-                        .filter((detail: detailMapping) => detail.position === "right")
-                        .map((detail: detailMapping, index: number) => (
+                    {details
+                      .filter((detail: DetailMapping) => detail.position === "right")
+                      .map((detail: DetailMapping, index: number) => (
+                        <Col
+                          key={index}
+                          span={24}
+                          style={{
+                            display: "flex",
+                            marginBottom: 10,
+                            color: "#222222",
+                          }}
+                        >
                           <Col
-                            key={index}
-                            span={24}
+                            span={8}
                             style={{
                               display: "flex",
-                              marginBottom: 10,
-                              color: "#222222",
+                              justifyContent: "space-between",
+                              padding: "0 4px 0 0",
                             }}
                           >
-                            <Col
-                              span={8}
+                            <span style={{ color: "#666666" }}>{detail.name}</span>
+                            <span style={{ fontWeight: 600 }}>:</span>
+                          </Col>
+                          <Col span={12} style={{ paddingLeft: 0 }}>
+                            <span
                               style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                padding: "0 4px 0 0",
+                                wordWrap: "break-word",
                               }}
                             >
-                              <span style={{ color: "#666666" }}>{detail.name}</span>
-                              <span style={{ fontWeight: 600 }}>:</span>
-                            </Col>
-                            <Col span={12} style={{ paddingLeft: 0 }}>
-                              <span
-                                style={{
-                                  wordWrap: "break-word",
-                                }}
-                              >
-                                {detail.value ? detail.value : "---"}
-                              </span>
-                            </Col>
+                              {detail.value ? detail.value : "---"}
+                            </span>
                           </Col>
-                        ))}
+                        </Col>
+                      ))}
                   </Col>
                 </Row>
 
@@ -392,7 +374,7 @@ const PromotionDetailScreen: React.FC = () => {
                 }
               >
 
-                {dataDiscount.entitled_method === "ORDER_THRESHOLD" &&
+                {dataDiscount.entitled_method === PriceRuleMethod.ORDER_THRESHOLD &&
                   <>
                     <DiscountRuleInfo dataDiscount={dataDiscount} />
                     <CustomTable
@@ -405,7 +387,7 @@ const PromotionDetailScreen: React.FC = () => {
 
 
 
-                {dataDiscount.entitled_method !== "ORDER_THRESHOLD" && dataVariants && <CustomTable
+                {dataDiscount.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD && dataVariants && <CustomTable
                   rowKey="id"
                   dataSource={dataVariants}
                   columns={
@@ -433,7 +415,7 @@ const PromotionDetailScreen: React.FC = () => {
                 )
                 }
                 {allowCreatePromoCode && <Button disabled>Nhân bản</Button>}
-                {allowCancelPromoCode && renderActionButton()}
+                {allowCancelPromoCode && RenderActionButton()}
               </Space>
             }
           />

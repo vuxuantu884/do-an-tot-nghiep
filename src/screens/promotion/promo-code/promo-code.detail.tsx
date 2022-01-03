@@ -16,8 +16,8 @@ import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
   bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction,
-  getVariants,
-  promoGetDetail,
+  getVariantsAction,
+  getPriceRuleAction,
 } from "domain/actions/promotion/discount/discount.action";
 import {
   addPromoCode,
@@ -167,7 +167,7 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getVariants(idNumber, handleResponse));
+    dispatch(getVariantsAction(idNumber, handleResponse));
   }, [dispatch, handleResponse, idNumber]);
 
   const checkIsHasPromo = useCallback((data: any) => {
@@ -252,7 +252,7 @@ const PromotionDetailScreen: React.FC = () => {
 
   const onActivateSuccess = useCallback(() => {
     dispatch(hideLoading());
-    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
   // section DELETE by Id
@@ -277,7 +277,7 @@ const PromotionDetailScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getPriceRuleAction(idNumber, onResult));
     return () => {};
   }, [dispatch, idNumber, onResult]);
 
