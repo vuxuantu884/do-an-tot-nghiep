@@ -1,7 +1,7 @@
 import { Form, Input, InputNumber } from "antd";
 import TagStatus from "component/tag/tag-status";
 import UrlConfig from "config/url.config";
-import { DiscountConditionRule, EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
+import { DiscountConditionRule, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model";
 import { Rule } from "rc-field-form/lib/interface";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
