@@ -96,6 +96,11 @@ const ModalImport: React.FC<ModalImportProps> = (
             setJobImportStatus(EnumJobStatus.error);
             setUploadStatus(EnumJobStatus.error);
             setStatusImport(CON_STATUS_IMPORT.JOB_FINISH);
+            const fileCode = response.data.code;
+            const newListExportFile = lstJob.filter((item) => {
+              return item !== fileCode;
+            }); 
+            setLstJob(newListExportFile);
             return
           }
           setJobImportStatus(EnumJobStatus.processing);
