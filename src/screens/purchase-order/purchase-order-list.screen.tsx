@@ -35,7 +35,7 @@ import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/purchase-order/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
 import { getPurchaseOrderConfigService } from "service/purchase-order/purchase-order.service";
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -300,7 +300,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           row?.line_items.forEach((item) => {
             total += item?.quantity ? item.quantity : 0;
           });
-          return <div>{total}</div>;
+          return <div>{formatCurrency(total,".")}</div>;
         },
         visible: true,
       },

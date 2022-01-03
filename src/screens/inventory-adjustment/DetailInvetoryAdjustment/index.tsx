@@ -439,7 +439,6 @@ const DetailInvetoryAdjustment: FC = () => {
       let params = {
         ids: data.id,
         store_id: data.adjusted_store_id
-        //type: "inventory_adjustment",
       };
       const queryParam = generateQuery(params);
       dispatch(
