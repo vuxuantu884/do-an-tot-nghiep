@@ -8,13 +8,13 @@ const loyaltyPage = React.lazy(() => import("screens/promotion/loyalty/index"));
 const loyaltyAccumulateDetail = React.lazy(
   () => import("screens/promotion/loyalty/accumulate/detail")
 );
-const discountPage = React.lazy(() => import("screens/promotion/discount"));
+const discountPage = React.lazy(() => import("screens/promotion/discount/discount-list"));
 const priceRulesPage = React.lazy(() => import("screens/promotion/promo-code"));
 const createDiscountPage = React.lazy(
   () => import("screens/promotion/discount/create-v2/discount-create-v2")
 );
 const detailDiscountPage = React.lazy(
-  () => import("screens/promotion/discount/discount.detail")
+  () => import("screens/promotion/discount/detail/discount.detail")
 );
 const DiscountUpdate = React.lazy(
   () => import("screens/promotion/discount/update/discount.update")

@@ -1,5 +1,6 @@
 import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Dropdown, Menu, Row } from "antd";
+import threeDot from "assets/icon/three-dot.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { MenuAction } from "component/table/ActionButton";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
@@ -23,7 +24,6 @@ import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { ACTIONS_DISCOUNT, STATUS_PROMO } from "../constant";
 import DiscountFilter from "./components/DiscountFilter";
 import "./discount.scss";
-import threeDot from "assets/icon/three-dot.svg";
 
 const DiscountPage = () => {
   const discountStatuses = STATUS_PROMO;
@@ -155,7 +155,7 @@ const DiscountPage = () => {
       title: "Trạng thái",
       visible: true,
       dataIndex: "state",
-      align: "center", 
+      align: "center",
       render: (value: any, item: any, index: number) => {
         const status: any | null = discountStatuses.find((e) => e.code === value);
         return <div style={status?.style}>{status?.value}</div>;
@@ -164,7 +164,7 @@ const DiscountPage = () => {
     {
       visible: true,
       dataIndex: "id",
-      align: "center", 
+      align: "center",
       render: (id: any, item: any, index: number) => (
         <Dropdown.Button
           overlay={
@@ -187,11 +187,11 @@ const DiscountPage = () => {
                   setTableLoading(false);
                 }}
               >
-               Tạm ngừng
+                Tạm ngừng
               </Menu.Item>
             </Menu>
           }
-          icon={<img src={threeDot} alt="" style={{verticalAlign: 'super'}}/>}
+          icon={<img src={threeDot} alt="" style={{ verticalAlign: 'super' }} />}
         />
       ),
     },
