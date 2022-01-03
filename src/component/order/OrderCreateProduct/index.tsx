@@ -312,35 +312,36 @@ function OrderCreateProduct(props: PropType) {
 					if (barcode !== "" && event && items) {
 						dispatch(
 							SearchBarCode(barcode, (data: VariantResponse) => {
-								let _items = [...items].reverse();
-								const item: OrderLineItemRequest = createItem(data);
-								let index = _items.findIndex((i) => i.variant_id === data.id);
-								item.position = items.length + 1;
-								if (splitLine || index === -1) {
-									_items.push(item);
-									calculateChangeMoney(_items);
-								} else {
-									
-									let variantItems = _items.filter((item) => item.variant_id === data.id);
-									let lastIndex = variantItems.length - 1;
-									let amount=variantItems[lastIndex].discount_items[0]?.amount?variantItems[lastIndex].discount_items[0]?.amount:0;
-									variantItems[lastIndex].quantity += 1;
-									variantItems[lastIndex].line_amount_after_line_discount +=
-										variantItems[lastIndex].price -
-										amount;
-									calculateChangeMoney(_items);
-								}
+								if (data) {
+									let _items = [...items];
+									let index = _items.findIndex((i) => i.variant_id === data.id);
+									const item: OrderLineItemRequest = createItem(data);
+									item.position = items.length + 1;
+									if (true) {
+										if (splitLine || index === -1) {
+											_items.unshift(item);
+											calculateChangeMoney(_items);
+										} else {
+											let variantItems = _items.filter((item) => item.variant_id === data.id);
+											let firstIndex = 0;
+											variantItems[firstIndex].quantity += 1;
+											variantItems[firstIndex].line_amount_after_line_discount +=
+												variantItems[firstIndex].price -
+												variantItems[firstIndex].discount_items[0]?.amount *
+												variantItems[firstIndex].quantity;
+											calculateChangeMoney(_items);
+										}
+									}
 
-								if (isAutomaticDiscount && _items.length > 0) {
-									handleApplyDiscount(_items);
-								} else if (couponInputText && _items.length > 0) {
-									handleApplyCouponWhenInsertCoupon(couponInputText, _items);
+									if (isAutomaticDiscount && _items.length > 0) {
+										handleApplyDiscount(_items);
+									} else if (couponInputText && _items.length > 0) {
+										handleApplyCouponWhenInsertCoupon(couponInputText, _items);
+									}
+									autoCompleteRef.current?.blur();
+									setIsInputSearchProductFocus(false);
+									setKeySearchVariant("");
 								}
-
-								setItems(_items.reverse());
-								//autoCompleteRef.current?.blur();
-								setIsInputSearchProductFocus(false);
-								setKeySearchVariant("");
 							})
 						);
 						barcode = "";
@@ -349,9 +350,9 @@ function OrderCreateProduct(props: PropType) {
 				return;
 			}
 		},
-		
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[items,isAutomaticDiscount,couponInputText,splitLine]
+		[items, isAutomaticDiscount, couponInputText, splitLine]
 	);
 
 	useEffect(() => {
@@ -1427,7 +1428,7 @@ function OrderCreateProduct(props: PropType) {
 			if (!items) {
 				return;
 			}
-			
+
 			let newV = parseInt(v);
 			let _items = [...items];
 			let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);

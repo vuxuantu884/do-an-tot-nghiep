@@ -19,8 +19,8 @@ import {
   getListDiscountAction
 } from "domain/actions/promotion/discount/discount.action";
 import useAuthorization from "hook/useAuthorization";
-import { PageResponse } from "model/base/base-metadata.response";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { PageResponse } from "model/base/base-metadata.response"; 
+import { PriceRule } from "model/promotion/price-rules.model";
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -46,7 +46,7 @@ const PromotionCode = () => {
     ...getQueryParams(query),
   };
   const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [dataSource, setDataSource] = useState<PageResponse<DiscountResponse> | null>({
+  const [dataSource, setDataSource] = useState<PageResponse<PriceRule> | null>({
     metadata: {
       limit: 30,
       page: 1,
@@ -74,7 +74,7 @@ const PromotionCode = () => {
   });
 
   const fetchData = useCallback(
-    (data: PageResponse<DiscountResponse> | null) => {
+    (data: PageResponse<PriceRule> | null) => {
       dispatch(hideLoading());
       if (data) {
         setDataSource(data);

@@ -5,6 +5,7 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { MenuAction } from "component/table/ActionButton";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
+import { PriceRule } from "model/promotion/price-rules.model";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { RiDeleteBin2Fill } from "react-icons/all";
@@ -16,8 +17,7 @@ import CustomTable, { ICustomTableColumType } from "../../../component/table/Cus
 import UrlConfig from "../../../config/url.config";
 import { bulkDisablePriceRulesAction, bulkEnablePriceRulesAction, getListDiscountAction } from "../../../domain/actions/promotion/discount/discount.action";
 import { PageResponse } from "../../../model/base/base-metadata.response";
-import { DiscountSearchQuery } from "../../../model/query/discount.query";
-import { DiscountResponse } from "../../../model/response/promotion/discount/list-discount.response";
+import { DiscountSearchQuery } from "../../../model/query/discount.query"; 
 import { DATE_FORMAT } from "../../../utils/DateUtils";
 import { showSuccess } from "../../../utils/ToastUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
@@ -42,7 +42,7 @@ const DiscountPage = () => {
   const query = useQuery();
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [discounts, setDiscounts] = useState<PageResponse<DiscountResponse>>({
+  const [discounts, setDiscounts] = useState<PageResponse<PriceRule>>({
     metadata: {
       limit: 30,
       page: 1,

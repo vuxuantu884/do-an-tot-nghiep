@@ -1,10 +1,10 @@
-import { DiscountResponse } from 'model/response/promotion/discount/list-discount.response'
+import { PriceRule } from 'model/promotion/price-rules.model';
 import React, { ReactElement } from 'react'
 import { formatCurrency } from 'utils/AppUtils';
 import "../discount.scss";
 
 interface Props {
-    dataDiscount: DiscountResponse
+    dataDiscount: PriceRule
 }
 
 function DiscountRuleInfo({ dataDiscount }: Props): ReactElement {

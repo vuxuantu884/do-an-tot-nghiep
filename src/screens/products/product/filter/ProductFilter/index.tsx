@@ -2,7 +2,6 @@ import {FilterOutlined} from "@ant-design/icons";
 import {Button, Collapse, Form, Input, Select, Space, Tag} from "antd";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
-import NumberInputRange from "component/filter/component/number-input-range";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
 import CustomSelectOne from "component/filter/component/select-one.custom";
 import {MenuAction} from "component/table/ActionButton";
@@ -157,9 +156,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
               {Object.keys(SearchVariantMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
-                  case SearchVariantField.inventory:
-                    component = <NumberInputRange />;
-                    break;
                   case SearchVariantField.made_in:
                     component = (
                       <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn xuất sứ">
@@ -353,9 +349,6 @@ const FilterList = ({
               (item: BaseBootstrapResponse) => item.value === value
             );
             renderTxt = `${SearchVariantMapping[filterKey]} : ${listBrands[index6].name}`;
-            break;
-          case SearchVariantField.inventory:
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${value.join(" - ")}`;
             break;
         }
         return (
