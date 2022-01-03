@@ -39,7 +39,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
   const dispatch = useDispatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [actionId, setActionId] = useState<number>();
-
+  
   const renderSingleActionLogTitle = (action?: string) => {
     if (!action) {
       return;
@@ -106,7 +106,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
         return (
           <Button 
             type='link'
-            style={{ paddingLeft: 0 }}
+            style={{ paddingLeft: 0, color: "#2A2A86" }}
             onClick={() => {
               showModal(record.id);
             }}
@@ -124,13 +124,15 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
         if (record) {
           const { status_after, status_before} = record;
           return (
-            <div style={{display: "flex", alignItems: "center"}}>
-              <span>{status_before}&nbsp;&nbsp;</span>
-              {
-                status_after && status_before && <HiOutlineArrowNarrowRight />
-              }
-              <span>&nbsp;&nbsp;{status_after}</span>
-            </div>
+            status_after === status_before ? (<span>{status_before}</span>) : (
+              <div style={{display: "flex", alignItems: "center"}}>
+                <span>{status_before}&nbsp;&nbsp;</span>
+                {
+                  status_after && status_before && <HiOutlineArrowNarrowRight />
+                }
+                <span>&nbsp;&nbsp;{status_after}</span>
+              </div>
+            )
           );
         }
         return '';

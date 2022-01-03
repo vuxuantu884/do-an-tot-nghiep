@@ -438,7 +438,7 @@ const DetailInvetoryAdjustment: FC = () => {
     if (data) {
       let params = {
         ids: data.id,
-        type: "inventory_transfer_bill",
+        store_id: data.adjusted_store_id
       };
       const queryParam = generateQuery(params);
       dispatch(

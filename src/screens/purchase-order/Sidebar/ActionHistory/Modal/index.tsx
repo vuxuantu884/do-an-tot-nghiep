@@ -103,13 +103,13 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
   };
 
   const renderActionLog = (data?: string) => {
-    const dataJson = JSON.parse(data || '');
     if (data) {
+      const dataJson = JSON.parse(data || '{}');
       return (
         <div>
           <div>{`Nhân viên: ${dataJson.created_name}`}</div>
           <div>{`Trạng thái: ${dataJson.status_after}`}</div>
-          <div>{`Địa chỉ nhà cung cấp: ${dataJson?.supplier_address?.fullAddress}`}</div>
+          <div>{`Địa chỉ nhà cung cấp: ${dataJson?.billing_address?.fullAddress}`}</div>
           <div>{`Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}`}</div>
         </div>
       );

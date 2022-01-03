@@ -64,9 +64,6 @@ export const StyledComponent = styled.div`
   .button-plus {
     border: 1px solid #E5E5E5;
     background: #FFFFFF;
-    color: #757575;
-    .anticon {
-      vertical-align: 0.125em;
-    }
+    color: #757575; 
   }
 `;
