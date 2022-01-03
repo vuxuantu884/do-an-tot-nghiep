@@ -16,8 +16,8 @@ import UrlConfig from "../../../../config/url.config";
 import { showError, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionForm from "../../shared/general-condition.form";
 import "../discount.scss";
-import DiscountUpdateForm from "./discount-update-form";
-import DiscountUpdateProvider, { DiscountUpdateContext } from "./discount-update-provider";
+import DiscountUpdateForm from "../components/discount-form";
+import DiscountProvider, { DiscountContext } from "../components/discount-provider";
 const DiscountUpdate = () => {
 
     const dispatch = useDispatch();
@@ -37,7 +37,7 @@ const DiscountUpdate = () => {
     const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const discountUpdateContext = useContext(DiscountUpdateContext);
+    const discountUpdateContext = useContext(DiscountContext);
     const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
 
     const parseDataToForm = useCallback(
@@ -275,7 +275,7 @@ const DiscountUpdate = () => {
     );
 };
 
-const DiscountUpdateWithProvider = () => (<DiscountUpdateProvider>
+const DiscountUpdateWithProvider = () => (<DiscountProvider>
     <DiscountUpdate />
-</DiscountUpdateProvider>)
+</DiscountProvider>)
 export default DiscountUpdateWithProvider;

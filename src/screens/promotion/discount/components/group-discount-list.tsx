@@ -13,8 +13,8 @@ import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
 import { DiscountUnitType, newEntitlements } from "../constants";
 import "../discount.scss";
-import { DiscountUpdateContext } from "./discount-update-provider";
-import FixedPriceGroupUpdate from "./fixed-price-group.update";
+import { DiscountContext } from "./discount-provider";
+import FixedAndQuantityGroup from "./fixed-quantity-group";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import { VariantResponse } from "model/product/product.model";
 import { HttpStatus } from "config/http-status.config";
@@ -46,7 +46,7 @@ interface Props {
 
 
 
-const FixedPriceSelectionUpdate = (props: Props) => {
+const GroupDiscountList = (props: Props) => {
   const token = getToken() || "";
   const { form, } = props;
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
@@ -64,7 +64,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   const [isImportingFile, setIsImportingFile] = useState<boolean>(false);
   const indexOfEntitlement = useRef<number>(0)
 
-  const discountUpdateContext = useContext(DiscountUpdateContext);
+  const discountUpdateContext = useContext(DiscountContext);
   const { discountMethod } = discountUpdateContext;
 
   // import file
@@ -180,7 +180,7 @@ const FixedPriceSelectionUpdate = (props: Props) => {
 
               {fields.map(({ key, name, fieldKey, ...restField }) => {
                 return (
-                  <FixedPriceGroupUpdate
+                  <FixedAndQuantityGroup
                     key={key}
                     name={name}
                     remove={removeEntitlementItem}
@@ -408,4 +408,4 @@ const FixedPriceSelectionUpdate = (props: Props) => {
   );
 };
 
-export default FixedPriceSelectionUpdate;
+export default GroupDiscountList;

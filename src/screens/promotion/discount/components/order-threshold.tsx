@@ -22,9 +22,9 @@ import React, { ReactElement, useContext, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import { formatDiscountValue } from "utils/PromotionUtils";
-import { TotalBillDiscountStyle } from "../create/total-bill-discount.style";
+import { TotalBillDiscountStyle } from "./order-threshold.style";
 import { DiscountUnitType, FieldSelectOptions, OperatorSelectOptions } from "../constants";
-import { DiscountUpdateContext } from "./discount-update-provider";
+import { DiscountContext } from "./discount-provider";
 const rule = "rule";
 const conditions = "conditions";
 
@@ -33,8 +33,6 @@ enum ColumnIndex {
   operator = "operator",
   value = "value",
 }
-
-
 
 const blankRow = {
   [ColumnIndex.field]: "product_name",
@@ -52,15 +50,12 @@ const defaultValueComponent = (name: string | Array<any>, rules: Rule[], default
 );
 
 
-
-
-export default function TotalBillDiscountUpdate(props: Props): ReactElement {
+export default function OrderThreshold(props: Props): ReactElement {
   const { form } = props;
 
-  const discountUpdateContext = useContext(DiscountUpdateContext);
+  const discountUpdateContext = useContext(DiscountContext);
   const { discountData } = discountUpdateContext;
-  const [isDiscountByPercentage, setIsDiscountByPercentage] = React.useState<boolean>(false);
-  // const [dataSource, setDataSource] = React.useState<Array<DiscountConditionRule>>([]);
+  const [isDiscountByPercentage, setIsDiscountByPercentage] = React.useState<boolean>(false); 
   const [ValueComponentList, setValueComponentList] = React.useState<Array<any>>([
     defaultValueComponent,
   ]);
@@ -86,6 +81,7 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
     }
   };
 
+
   const handleAdd = () => {
     setValueComponentList([...ValueComponentList, defaultValueComponent]);
 
@@ -98,7 +94,7 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
           [conditions]: temps
         }
       });
-      // setDataSource(temps);
+      
     } else {
       temps = [blankRow];
       form.setFieldsValue({
@@ -106,10 +102,11 @@ export default function TotalBillDiscountUpdate(props: Props): ReactElement {
           [conditions]: temps
         }
       });
-      // setDataSource(temps);
+    
     }
   };
 
+  
   function handleChangeFieldSelect(value: SelectValue, index: number): void {
     //set state value component
     const currentValueComponent = _.find(FieldSelectOptions, [
