@@ -51,7 +51,7 @@ import {
 } from "domain/actions/promotion/promo-code/promo-code.action"; 
 import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {showSuccess} from "utils/ToastUtils"; 
-import {promoGetDetail} from "domain/actions/promotion/discount/discount.action";
+import {getPriceRuleAction} from "domain/actions/promotion/discount/discount.action";
 import {AppConfig} from "../../../config/app.config";
 import _ from "lodash";
 import {getToken} from "../../../utils/LocalStorageUtils";
@@ -136,7 +136,7 @@ const ListCode = () => {
     setPromoValue(result);
   }, []);
   useEffect(() => {
-    dispatch(promoGetDetail(id, onResult));
+    dispatch(getPriceRuleAction(id, onResult));
   }, [dispatch, id, onResult]);
 
   // handle response get list
@@ -627,7 +627,7 @@ const ListCode = () => {
                 type="primary"
                 onClick={() => {
                   setUploadStatus(undefined);
-                  dispatch(promoGetDetail(id, onResult));
+                  dispatch(getPriceRuleAction(id, onResult));
                   setShowImportFile(false);
                 }}
                 disabled={uploadStatus === "error"}
