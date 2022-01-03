@@ -1,6 +1,6 @@
 import { Card, Col, Form, FormInstance, Input, InputNumber, Row, Select, Space, Switch } from 'antd';
 import _ from 'lodash';
-import { DiscountFormModel, DiscountMethod } from 'model/promotion/discount.create.model';
+import {  PriceRuleMethod, EntilementFormModel } from 'model/promotion/price-rules.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
 import { DiscountUnitType, priorityOptions } from '../constants';
 import { DiscountContext } from './discount-provider';
@@ -26,13 +26,13 @@ function DiscountUpdateForm({
         if (value) {
             setDiscountMethod(value);
             const formData = form.getFieldsValue(true);
-            const isFixedPriceMethod = value === DiscountMethod.FIXED_PRICE;
-            const isQuantityMethod = value === DiscountMethod.QUANTITY;
+            const isFixedPriceMethod = value === PriceRuleMethod.FIXED_PRICE;
+            const isQuantityMethod = value === PriceRuleMethod.QUANTITY;
 
             const valueType = isFixedPriceMethod ? DiscountUnitType.FIXED_PRICE.value : DiscountUnitType.PERCENTAGE.value
             if ((isFixedPriceMethod || isQuantityMethod) &&
                 Array.isArray(formData?.entitlements) && formData?.entitlements.length > 0) {
-                formData?.entitlements?.forEach((item: DiscountFormModel) => {
+                formData?.entitlements?.forEach((item: EntilementFormModel) => {
                     const temp = {
                         prerequisite_quantity_ranges: [{
                             value_type: valueType,
@@ -172,18 +172,18 @@ function DiscountUpdateForm({
                                     handleChangeDiscountMethod(value)
                                 }}
                             >
-                                <Option value={DiscountMethod.FIXED_PRICE.toString()}>Đồng giá</Option>
-                                <Option value={DiscountMethod.QUANTITY.toString()}>
+                                <Option value={PriceRuleMethod.FIXED_PRICE.toString()}>Đồng giá</Option>
+                                <Option value={PriceRuleMethod.QUANTITY.toString()}>
                                     Chiết khấu theo từng sản phẩm
                                 </Option>
-                                <Option value={DiscountMethod.ORDER_THRESHOLD.toString()}>
+                                <Option value={PriceRuleMethod.ORDER_THRESHOLD.toString()}>
                                     Chiết khấu theo đơn hàng
                                 </Option>
                             </Select>
                         </Form.Item>
                     </Col>
                     {/* Phương thức chiết khấu */}
-                    {discountMethod === DiscountMethod.ORDER_THRESHOLD ? (
+                    {discountMethod === PriceRuleMethod.ORDER_THRESHOLD ? (
                         <OrderThreshold form={form} />
                     ) : (
                         <GroupDiscountList form={form} />

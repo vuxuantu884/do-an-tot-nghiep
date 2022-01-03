@@ -1,22 +1,18 @@
-import {Card} from "antd";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import {CustomerGroups} from "domain/actions/customer/customer.action";
-import {LoyaltyRankSearch} from "domain/actions/loyalty/rank/loyalty-rank.action";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {CustomerGroupModel} from "model/response/customer/customer-group.response";
-import {LoyaltyRankResponse} from "model/response/loyalty/ranking/loyalty-rank.response";
-import {
-  CustomerSelectionOption,
-  DiscountResponse,
-  Gender,
-} from "model/response/promotion/discount/list-discount.response";
-import React, {ReactElement, useEffect} from "react";
-import {useDispatch} from "react-redux";
+import { Card } from "antd";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { CustomerGroups } from "domain/actions/customer/customer.action";
+import { LoyaltyRankSearch } from "domain/actions/loyalty/rank/loyalty-rank.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { CustomerSelectionOption, PriceRule, Gender } from "model/promotion/price-rules.model";
+import { CustomerGroupModel } from "model/response/customer/customer-group.response";
+import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response"; 
+import React, { ReactElement, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { getDateFormDuration } from "utils/PromotionUtils";
-import {CustomerContitionDetailStyle} from "./condition.style";
+import { CustomerContitionDetailStyle } from "./condition.style";
 
-export default function CustomerConditionDetail(props: DiscountResponse): ReactElement {
+export default function CustomerConditionDetail(props: PriceRule): ReactElement {
   const {
     customer_selection,
     prerequisite_genders,
@@ -89,17 +85,17 @@ export default function CustomerConditionDetail(props: DiscountResponse): ReactE
       info:
         prerequisite_genders && prerequisite_genders?.length > 0
           ? prerequisite_genders
-              ?.map((item: string) => {
-                if (item.toLocaleLowerCase() === Gender.MALE.toLocaleLowerCase()) {
-                  return "Nam";
-                }
-                if (item.toLocaleLowerCase() === Gender.FEMALE.toLocaleLowerCase()) {
-                  return "Nữ";
-                } else {
-                  return "Khác";
-                }
-              })
-              .join(", ")
+            ?.map((item: string) => {
+              if (item.toLocaleLowerCase() === Gender.MALE.toLocaleLowerCase()) {
+                return "Nam";
+              }
+              if (item.toLocaleLowerCase() === Gender.FEMALE.toLocaleLowerCase()) {
+                return "Nữ";
+              } else {
+                return "Khác";
+              }
+            })
+            .join(", ")
           : "--",
     },
     {
@@ -107,7 +103,7 @@ export default function CustomerConditionDetail(props: DiscountResponse): ReactE
       info: (
         <>
           {getDateFormDuration(prerequisite_birthday_duration?.starts_mmdd_key || 0)}
-          &nbsp; -&nbsp; 
+          &nbsp; -&nbsp;
           {getDateFormDuration(prerequisite_birthday_duration?.ends_mmdd_key || 0)}
         </>
       ),
@@ -117,7 +113,7 @@ export default function CustomerConditionDetail(props: DiscountResponse): ReactE
       info: (
         <>
           {getDateFormDuration(prerequisite_wedding_duration?.starts_mmdd_key || 0)}
-          &nbsp; -&nbsp; 
+          &nbsp; -&nbsp;
           {getDateFormDuration(prerequisite_wedding_duration?.ends_mmdd_key || 0)}
         </>
       ),
@@ -159,7 +155,7 @@ export default function CustomerConditionDetail(props: DiscountResponse): ReactE
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        {codes: prerequisite_assignee_codes},
+        { codes: prerequisite_assignee_codes },
         (result: PageResponse<AccountResponse> | false) => {
           if (result) {
             const temps = new Map<string, AccountResponse>();

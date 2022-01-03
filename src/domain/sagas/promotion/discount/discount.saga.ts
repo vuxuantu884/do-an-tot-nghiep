@@ -8,8 +8,7 @@ import {
   bulkDisablePriceRules,
   getVariantApi,
   updatePriceRuleById
-} from 'service/promotion/discount/discount.service';
-import { DiscountResponse } from 'model/response/promotion/discount/list-discount.response';
+} from 'service/promotion/discount/discount.service'; 
 import { YodyAction } from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
 import {call, put} from "@redux-saga/core/effects";
@@ -20,11 +19,12 @@ import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {takeLatest} from "typed-redux-saga";
 import {DiscountType, PriceRuleType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
+import { PriceRule } from 'model/promotion/price-rules.model';
 
 function* getDiscounts(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<DiscountResponse>> = yield call(
+    const response: BaseResponse<PageResponse<PriceRule>> = yield call(
       searchDiscountList,
       query
     );
@@ -77,7 +77,7 @@ function* getVariantsAct(action: YodyAction) {
 function* deletePriceRuleByIdAct(action: YodyAction) {
   const { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<DiscountResponse> = yield call(
+    let response: BaseResponse<PriceRule> = yield call(
       deletePriceRuleById,
       id
     );
@@ -103,7 +103,7 @@ function* deletePriceRuleByIdAct(action: YodyAction) {
 function* getPromoCodeDetail(action: YodyAction) {
   const { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<DiscountResponse> = yield call(
+    let response: BaseResponse<PriceRule> = yield call(
       getPriceRuleById,
       id
     );
@@ -130,7 +130,7 @@ function* addPriceRule(action: YodyAction) {
   console.log('addPriceRule - action : ', action);
   const { body, createCallback } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<PriceRule> = yield call(
       createPriceRule,
       body
     );
@@ -210,7 +210,7 @@ function* bulkDeletePriceRulesAct(action: YodyAction) {
   console.log('bulkDeletePriceRulesAct - action : ', action);
   const { body, deleteCallback } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<PriceRule> = yield call(
       bulkDeletePriceRules,
       body
     );
@@ -236,7 +236,7 @@ function* bulkDeletePriceRulesAct(action: YodyAction) {
 function* updatePriceRuleByIdSaga(action: YodyAction) { 
   const { body, onResult } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<PriceRule> = yield call(
       updatePriceRuleById,
       body
     );
@@ -264,7 +264,7 @@ function* updatePriceRuleByIdSaga(action: YodyAction) {
 function* createPriceRuleSaga(action: YodyAction) { 
   const { body, onResult } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<PriceRule> = yield call(
       createPriceRule,
       body
     );

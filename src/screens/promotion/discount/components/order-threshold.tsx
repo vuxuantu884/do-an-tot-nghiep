@@ -16,7 +16,7 @@ import {
 } from "antd";
 import { SelectValue } from "antd/lib/select";
 import _ from "lodash";
-import { DiscountConditionRule } from "model/promotion/discount.create.model";
+import { DiscountConditionRule } from "model/promotion/price-rules.model";
 import { Rule } from "rc-field-form/lib/interface";
 import React, { ReactElement, useContext, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";

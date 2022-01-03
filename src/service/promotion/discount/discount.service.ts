@@ -3,24 +3,23 @@ import BaseResponse from "../../../base/base.response";
 import {PageResponse} from "../../../model/base/base-metadata.response";
 import {generateQuery} from "../../../utils/AppUtils";
 import BaseAxios from "../../../base/base.axios";
-import {ApiConfig} from "../../../config/api.config";
-import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
+import {ApiConfig} from "../../../config/api.config"; 
 import { CouponRequestModel, DiscountRequestModel } from "model/request/promotion.request";
-import { ApplyCouponResponseModel } from "model/response/order/promotion.response";
-import { PriceRuleFormRequest } from "model/request/promotion/price-rule.request";
+import { ApplyCouponResponseModel } from "model/response/order/promotion.response"; 
+import { PriceRule } from "model/promotion/price-rules.model";
 
 const END_POINT = "/price-rules";
 
-export const searchDiscountList = (query: BaseQuery): Promise<BaseResponse<PageResponse<DiscountResponse>>> => {
+export const searchDiscountList = (query: BaseQuery): Promise<BaseResponse<PageResponse<PriceRule>>> => {
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/search?${params}`);
 };
 
-export const getPriceRuleById = (id: number) : Promise<DiscountResponse> => {
+export const getPriceRuleById = (id: number) : Promise<PriceRule> => {
   return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}`);
 }
 
-export const getVariantApi = (id: number) : Promise<DiscountResponse> => {
+export const getVariantApi = (id: number) : Promise<PriceRule> => {
   return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}/variants`);
 }
 
@@ -28,7 +27,7 @@ export const deletePriceRuleById = (id: number): Promise<any> => {
   return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}/${id}/cancel`);
 }
 
-export const createPriceRule = (discountForm: PriceRuleFormRequest) : Promise<any> => {
+export const createPriceRule = (discountForm: Partial<PriceRule>) : Promise<any> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}`, discountForm);
 }
 
@@ -79,6 +78,6 @@ export const applyDiscountService = (queryParams: DiscountRequestModel): Promise
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`, queryParams)
 };
 
-export const updatePriceRuleById = (body: any) : Promise<DiscountResponse> => {
+export const updatePriceRuleById = (body: any) : Promise<PriceRule> => {
   return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}/${body.id}`, body);
 }

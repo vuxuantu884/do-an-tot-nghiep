@@ -5,7 +5,7 @@ import ContentContainer from 'component/container/content.container';
 import { PromoPermistion } from 'config/permissions/promotion.permisssion';
 import UrlConfig from 'config/url.config';
 import { createPriceRuleAction } from 'domain/actions/promotion/discount/discount.action';
-import { DiscountMethod } from 'model/promotion/discount.create.model';
+import { PriceRuleMethod } from 'model/promotion/price-rules.model';
 import moment from 'moment';
 import React, { ReactElement, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -86,7 +86,7 @@ function DiscountCreateV2(): ReactElement {
         
         const initialValues = {
             starts_date: moment(),
-            entitled_method: DiscountMethod.FIXED_PRICE.toString(),
+            entitled_method: PriceRuleMethod.FIXED_PRICE.toString(),
             priority: 1,
             entitlements: [initEntilements]
         }

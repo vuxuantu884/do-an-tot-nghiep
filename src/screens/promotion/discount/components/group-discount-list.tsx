@@ -3,7 +3,7 @@ import { Button, Col, Divider, Form, FormInstance, message, Modal, Row, Space } 
 import Dragger from "antd/es/upload/Dragger";
 import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import _ from "lodash";
-import { DiscountMethod, EntilementFormModel, VariantEntitlementsFileImport } from "model/promotion/discount.create.model";
+import { PriceRuleMethod, EntilementFormModel, VariantEntitlementsFileImport } from "model/promotion/price-rules.model";
 import React, { useContext, useRef, useState } from "react";
 import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
@@ -132,10 +132,10 @@ const GroupDiscountList = (props: Props) => {
         }) => {
           let initValue = { ...newEntitlements };
           const addBlankEntitlement = () => {
-            if (discountMethod === DiscountMethod.FIXED_PRICE) {
+            if (discountMethod === PriceRuleMethod.FIXED_PRICE) {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.FIXED_PRICE.value
             }
-            if (discountMethod === DiscountMethod.QUANTITY) {
+            if (discountMethod === PriceRuleMethod.QUANTITY) {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.PERCENTAGE.value
             }
             initValue.selectedProducts = [];
