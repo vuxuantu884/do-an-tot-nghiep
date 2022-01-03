@@ -395,11 +395,23 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item 
-                    label="Diện tích cửa hàng (m²)"
-                    name="square"
+                  <Item
+                    label="Trực thuộc"
+                    name="department_id"
+                    rules={[{required: true, message: "Vui lòng chọn trực thuộc"}]}
                   >
-                    <NumberInput placeholder="Nhập diện tích cửa hàng" />
+                    <TreeSelect
+                      placeholder="Chọn trực thuộc"
+                      treeDefaultExpandAll
+                      className="selector"
+                      allowClear
+                      showSearch
+                      treeNodeFilterProp='title'
+                    >
+                      {lstDepartment?.map((item, index) => (
+                        <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+                      ))}
+                    </TreeSelect> 
                   </Item>
                 </Col>
               </Row>
@@ -516,23 +528,12 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                      label="Trực thuộc"
-                      name="department_id"
-                    >
-                        <TreeSelect
-                          placeholder="Chọn trực thuộc"
-                          treeDefaultExpandAll
-                          className="selector"
-                          allowClear
-                          showSearch
-                          treeNodeFilterProp='title'
-                        >
-                          {lstDepartment?.map((item, index) => (
-                            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-                          ))}
-                        </TreeSelect> 
-                    </Item>
+                <Item 
+                    label="Diện tích cửa hàng (m²)"
+                    name="square"
+                  >
+                    <NumberInput style={{ textAlign: "left" }} placeholder="Nhập diện tích cửa hàng" />
+                  </Item>
                 </Col>
               </Row>
               <Row gutter={50}>

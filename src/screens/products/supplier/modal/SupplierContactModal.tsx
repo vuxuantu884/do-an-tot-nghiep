@@ -79,6 +79,16 @@ const SupplierContactModal: React.FC<SupplierContactModalProps> = (
           </Col>
           <Col span={12}>
             <Form.Item
+              name="position"
+              label="Chức vụ"
+            >
+              <Input placeholder="Nhập chức vụ" maxLength={255} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={50}>
+          <Col span={12}>
+            <Form.Item
               rules={[
                 {
                   pattern: RegUtil.PHONE_HOTLINE,
@@ -91,21 +101,19 @@ const SupplierContactModal: React.FC<SupplierContactModalProps> = (
               <Input placeholder="Nhập số điện thoại liên hệ" maxLength={255} />
             </Form.Item>
           </Col>
-        </Row>
-        <Row gutter={50}>
-        <Col span={12}>
-            <Form.Item name="email" label="Email">
-              <Input placeholder="Nhập email" maxLength={255} />
-            </Form.Item>
-          </Col>
           <Col span={12}>
             <Form.Item name="fax" label="Fax">
               <Input placeholder="Nhập số fax" maxLength={255} />
             </Form.Item>
           </Col>
         </Row>
-        <Row>
-          <Col span={24}>
+        <Row gutter={50}>
+          <Col span={12}>
+            <Form.Item name="email" label="Email">
+              <Input placeholder="Nhập email" maxLength={255} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
             <Form.Item
               label="Website"
               name="website"
