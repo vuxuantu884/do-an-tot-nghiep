@@ -12,22 +12,22 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { Link, useHistory } from "react-router-dom";
-import BottomBarContainer from "../../../component/container/bottom-bar.container";
-import CustomTable from "../../../component/table/CustomTable";
-import { HttpStatus } from "../../../config/http-status.config";
-import { unauthorizedAction } from "../../../domain/actions/auth/auth.action";
-import { hideLoading, showLoading } from "../../../domain/actions/loading.action";
+import BottomBarContainer from "../../../../component/container/bottom-bar.container";
+import CustomTable from "../../../../component/table/CustomTable";
+import { HttpStatus } from "../../../../config/http-status.config";
+import { unauthorizedAction } from "../../../../domain/actions/auth/auth.action";
+import { hideLoading, showLoading } from "../../../../domain/actions/loading.action";
 import {
   bulkEnablePriceRulesAction,
   getVariants,
   promoGetDetail
-} from "../../../domain/actions/promotion/discount/discount.action";
-import { bulkDisablePriceRules } from "../../../service/promotion/discount/discount.service";
-import { showError, showInfo } from "../../../utils/ToastUtils";
-import GeneralConditionDetail from "../shared/general-condition.detail";
-import DiscountRuleInfo from "./components/discount-rule-info";
-import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, discountStatus } from "./constants/index";
-import "./discount.scss";
+} from "../../../../domain/actions/promotion/discount/discount.action";
+import { bulkDisablePriceRules } from "../../../../service/promotion/discount/discount.service";
+import { showError, showInfo } from "../../../../utils/ToastUtils";
+import GeneralConditionDetail from "../../shared/general-condition.detail";
+import DiscountRuleInfo from "../components/discount-rule-info";
+import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, discountStatus } from "../constants/index";
+import "../discount.scss";
 
 export interface ProductParams {
   id: string;
