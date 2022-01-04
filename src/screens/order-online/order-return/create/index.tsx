@@ -503,23 +503,25 @@ console.log('totalAmountOrder', totalAmountOrder)
       );
     })
   };
+	
+	const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
+		let value = 0;
+		if (items !== null) {
+			if (items.length > 0) {
+				items.forEach((a) => (value = value + a.paid_amount));
+			}
+		}
+		return value;
+	};
+
+	const totalAmountPayment = getAmountPayment(payments);
 
 	const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
 		// khách cần trả
-		const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-			let value = 0;
-			if (items !== null) {
-				if (items.length > 0) {
-					items.forEach((a) => (value = value + a.paid_amount));
-				}
-			}
-			return value;
-		};
 	
 		/**
 		 * tổng số tiền đã trả
 		 */
-		const totalAmountPayment = getAmountPayment(payments);
 		let totalAmountAfterPayments = totalAmountCustomerNeedToPay - totalAmountPayment;
 		if (totalAmountAfterPayments < 0) {
 			let returnAmount = Math.abs(totalAmountAfterPayments);
@@ -551,6 +553,13 @@ console.log('totalAmountOrder', totalAmountOrder)
 		return payments;
 	};
 
+	const checkIfNotHavePaymentsWhenReceiveAtStore = () => {
+		if(totalAmountPayment < totalAmountCustomerNeedToPay && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+			return true
+		}
+		return false
+	};
+
   const onReturnAndExchange = async () => {
     form
       .validateFields()
@@ -569,6 +578,10 @@ console.log('totalAmountOrder', totalAmountOrder)
             element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
           window.scrollTo({ top: offsetY, behavior: "smooth" });
           element?.focus();
+          return;
+        }
+				if(checkIfNotHavePaymentsWhenReceiveAtStore()){
+          showError("Vui lòng thanh toán đủ số tiền!");
           return;
         }
         if (OrderDetail && listReturnProducts) {
