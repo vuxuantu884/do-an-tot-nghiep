@@ -17,7 +17,7 @@ import {
   searchProductWrapperApi,
   searchVariantsApi,
 } from "service/product/product.service";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { deleteVariantApi, getVariantByBarcode, updateVariantApi } from "service/product/variant.service";

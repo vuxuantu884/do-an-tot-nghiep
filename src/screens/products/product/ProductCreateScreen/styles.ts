@@ -53,9 +53,9 @@ export const StyledComponent = styled.div`
     color: ${bluePlus}
   }
   .care-title {
-    margin-bottom: 15px;
     font-weight: 500;
     font-size: 1rem;
+    margin: 6px 8px 15px 0;
   }
   .care-label {
     font-size: 20px;

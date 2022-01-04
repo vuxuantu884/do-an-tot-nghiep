@@ -101,10 +101,50 @@ export const StyledComponent = styled.div`
   .care-title {
     margin-bottom: 15px;
     color: #666666;
-  }
+  } 
   .care-label {
     font-size: 20px;
-    margin: 0 4px;
     vertical-align: -0.125em;
+    margin: 6px 8px 15px 0;
+  }
+
+  .row-detail {
+    margin-bottom: 15px;
+    font-size: 14px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    &-left {
+      width: 35%;
+    }
+    &-right {
+      width: 65%;
+    }
+    .dot {
+      margin-right: 10px;
+    }
+    .title {
+      color: #666666;
+    }
+    .data {
+      color: #222222;
+      font-weight:500;
+    }
+    .row-detail-right{
+      word-wrap: break-word;
+    }
+    .row-detail-right .ant-tag{
+      margin-top: 0; 
+      font-size: 14px;
+    }
+
+    .button-plus {
+      border: 1px solid #E5E5E5;
+      background: #FFFFFF;
+      color: #757575;
+      .anticon {
+        vertical-align: 0.125em;
+      }
+    }
   }
 `;

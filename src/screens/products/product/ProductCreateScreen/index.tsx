@@ -662,7 +662,7 @@ const ProductCreateScreen: React.FC = () => {
   }, [dispatch, setDataAccounts]);
 
   const getSuppliers = useCallback((key: string, page: number) => {
-    dispatch(SupplierSearchAction({ condition: key }, (data: PageResponse<SupplierResponse>) => {
+    dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier(data);
     }));
   }, [dispatch]);
@@ -1083,7 +1083,7 @@ const ProductCreateScreen: React.FC = () => {
                       </Popover>
                     ))}
                     <Button
-                      className="button-plus"
+                      className={`button-plus`}
                       icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
                       onClick={() => setShowCareModal(true)}
                     />
