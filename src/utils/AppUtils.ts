@@ -1042,6 +1042,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
       let clone = {...duplicatedItem}
       if(singleOrder.quantity - duplicatedItem.quantity > 0) {
         clone.quantity = singleOrder.quantity - clone.quantity;
+				clone.id = singleOrder.id;
         result.push(clone)
 
       }
