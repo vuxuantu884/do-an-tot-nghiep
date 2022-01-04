@@ -21,7 +21,7 @@ import {
   getReturnsAction,
 } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { SourceResponse } from "model/response/order/source.response";
@@ -35,6 +35,7 @@ import ExportModal from "./modal/export.modal";
 import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import moment from "moment";
 
 const initQuery: ReturnSearchQuery = {
   page: 1,
@@ -105,7 +106,7 @@ const ListOrderScreen: React.FC = () => {
           </div>
           <div>
             {record.created_date
-              ? ConvertUtcToLocalDate(record.created_date)
+              ? moment(record.created_date).format(DATE_FORMAT.fullDate)
               : ""}
           </div>
         </div>
@@ -225,7 +226,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Ngày nhận hàng",
       dataIndex: "receive_date",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => <div>{moment(value).format(DATE_FORMAT.fullDate)}</div>,
       key: "total_amount",
       visible: true,
       align: "center",

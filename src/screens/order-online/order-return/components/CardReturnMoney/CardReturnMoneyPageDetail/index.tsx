@@ -3,7 +3,7 @@ import { OrderPaymentResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React from "react";
 import { formatCurrency } from "utils/AppUtils";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
@@ -68,7 +68,7 @@ function CardReturnMoneyPageDetail(props: PropType) {
                     </strong>
                   </Col>
                   <Col md={8} style={{ textAlign: "right" }}>
-                    <span>{ConvertUtcToLocalDate(single.created_date)}</span>
+                    <span>{ConvertUtcToLocalDate(single.created_date, DATE_FORMAT.fullDate)}</span>
                   </Col>
                 </Row>
               </Timeline.Item>
