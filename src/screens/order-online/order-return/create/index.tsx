@@ -49,6 +49,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
 	checkIfOrderHasReturnedAll,
+	getAmountPayment,
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
 	getTotalAmountAfterDiscount,
@@ -135,6 +136,7 @@ const ScreenReturnCreate = (props: PropType) => {
   >([]);
 
 	console.log('listExchangeProducts', listExchangeProducts)
+	console.log('payments', payments)
 
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
@@ -261,6 +263,10 @@ const totalAmountOrder = useMemo(() => {
 }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 console.log('totalAmountOrder', totalAmountOrder)
 
+
+const totalAmountPayment = getAmountPayment(payments);
+console.log('totalAmountPayment', totalAmountPayment)
+
   /**
    * if return > exchange: positive
    * else negative
@@ -269,6 +275,11 @@ console.log('totalAmountOrder', totalAmountOrder)
     let result = totalAmountOrder - totalAmountReturnProducts;
     return result;
   }, [totalAmountOrder, totalAmountReturnProducts]);
+
+	let totalAmountOrderAfterPayments = useMemo(() => {
+    let result = totalAmountCustomerNeedToPay - totalAmountPayment;
+    return result;
+  }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     console.log("1");
@@ -503,28 +514,14 @@ console.log('totalAmountOrder', totalAmountOrder)
       );
     })
   };
-	
-	const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-		let value = 0;
-		if (items !== null) {
-			if (items.length > 0) {
-				items.forEach((a) => (value = value + a.paid_amount));
-			}
-		}
-		return value;
-	};
-
-	const totalAmountPayment = getAmountPayment(payments);
 
 	const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
 		// khách cần trả
-	
 		/**
 		 * tổng số tiền đã trả
 		 */
-		let totalAmountAfterPayments = totalAmountCustomerNeedToPay - totalAmountPayment;
-		if (totalAmountAfterPayments < 0) {
-			let returnAmount = Math.abs(totalAmountAfterPayments);
+		if (totalAmountOrderAfterPayments < 0) {
+			let returnAmount = Math.abs(totalAmountOrderAfterPayments);
 			let _payments = [...payments];
 			let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
 			if (paymentCashIndex > -1) {
@@ -554,7 +551,7 @@ console.log('totalAmountOrder', totalAmountOrder)
 	};
 
 	const checkIfNotHavePaymentsWhenReceiveAtStore = () => {
-		if(totalAmountPayment < totalAmountCustomerNeedToPay && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+		if(totalAmountCustomerNeedToPay > 0 && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
 			return true
 		}
 		return false
@@ -1104,11 +1101,15 @@ console.log('totalAmountOrder', totalAmountOrder)
                     listPaymentMethods={listPaymentMethods}
                     payments={payments}
                     setPayments={setPayments}
+										totalAmountOrder={totalAmountOrder}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     isExchange={isExchange}
                     isStepExchange={isStepExchange}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
+										returnOrderInformation={{
+                      totalAmountReturn: totalAmountReturnProducts
+                    }}
                   />
                 )}
                 {isExchange && isStepExchange && (
@@ -1120,7 +1121,7 @@ console.log('totalAmountOrder', totalAmountOrder)
                       customer={customer}
                       items={listExchangeProducts}
                       isCancelValidateDelivery={false}
-                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                      totalAmountCustomerNeedToPay={totalAmountOrderAfterPayments}
                       setShippingFeeInformedToCustomer={ChangeShippingFeeInformedToCustomer}
                       onSelectShipment={onSelectShipment}
                       thirdPL={thirdPL}

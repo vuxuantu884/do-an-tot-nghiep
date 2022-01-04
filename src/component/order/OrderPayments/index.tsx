@@ -9,7 +9,7 @@ import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useMemo } from "react";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency, getAmountPayment, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
@@ -55,17 +55,6 @@ function OrderPayments(props: PropType): JSX.Element {
     let usageRate = loyaltyRate?.usage_rate ? loyaltyRate.usage_rate : 0;
     return usageRate;
   }, [loyaltyRate]);
-
-  // khách cần trả
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
-  };
 
   /**
    * tổng số tiền đã trả
@@ -253,6 +242,12 @@ function OrderPayments(props: PropType): JSX.Element {
                           marginLeft: 12,
                           borderRadius: 5,
                         }}
+												format={(a: string) =>
+													formatCurrency(a)
+												}
+												replace={(a: string) =>
+													replaceFormatString(a)
+												}
                         className="hide-number-handle"
                         onFocus={(e) => e.target.select()}
                         min={0}
