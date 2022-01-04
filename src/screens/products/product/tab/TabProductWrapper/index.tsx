@@ -4,23 +4,18 @@ import {MenuAction} from "component/table/ActionButton";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
-import { AppConfig } from "config/app.config";
 import {ProductPermission} from "config/permissions/product.permission";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
-import {AccountGetListAction} from "domain/actions/account/account.action";
 import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {getCategoryRequestAction} from "domain/actions/product/category.action";
-import {materialSearchAll} from "domain/actions/product/material.action";
 import {
   productWrapperDeleteAction,
   productWrapperUpdateAction,
   searchProductWrapperRequestAction,
 } from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
-import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import {CategoryResponse, CategoryView} from "model/product/category.model";
-import {MaterialResponse} from "model/product/material.model";
 import {
   ProductResponse,
   ProductWrapperResponse,
@@ -63,13 +58,7 @@ const actionsDefault: Array<MenuAction> = [
     id: ACTIONS_INDEX.DELETE,
     name: "Xóa sản phẩm",
   },
-];
-
-const initAccountQuery: AccountSearchQuery = {
-  department_ids: [AppConfig.WIN_DEPARTMENT],
-};
-
-var idDelete = -1;
+]; 
 
 const TabProductWrapper: React.FC = () => {
   const dispatch = useDispatch();
@@ -78,9 +67,6 @@ const TabProductWrapper: React.FC = () => {
 
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-
-  const [listMerchandiser, setMerchandiser] = useState<Array<AccountResponse>>();
-  const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const goods = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.goods
   );
@@ -330,17 +316,14 @@ const TabProductWrapper: React.FC = () => {
   const onMenuClick = useCallback(
     (index: number) => {
       if (selected.length > 0) {
-        let id = selected[0].id;
         switch (index) {
           case ACTIONS_INDEX.ACTIVE:
             onActive(selected[0]);
             break;
-
           case ACTIONS_INDEX.INACTIVE:
             onInactive(selected[0]);
             break;
-          case ACTIONS_INDEX.DELETE:
-            idDelete = id;
+          case ACTIONS_INDEX.DELETE: 
             setConfirmDelete(true);
             break;
           case 3:
@@ -361,8 +344,6 @@ const TabProductWrapper: React.FC = () => {
 
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setDataCategory));
-    dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
-    dispatch(materialSearchAll(setListMaterial));
     setTableLoading(true);
   }, [dispatch, setDataCategory]);
 
@@ -378,8 +359,6 @@ const TabProductWrapper: React.FC = () => {
         actions={actions}
         onFilter={onFilter}
         params={params}
-        listMerchandisers={listMerchandiser}
-        listMaterial={listMaterial}
         listCategory={listCategory}
         goods={goods}
         initValue={{} as ProductWrapperSearchQuery}
@@ -419,7 +398,11 @@ const TabProductWrapper: React.FC = () => {
         onOk={() => {
           setConfirmDelete(false);
           dispatch(showLoading());
-          dispatch(productWrapperDeleteAction(idDelete, onDeleteSuccess));
+          let ids: Array<number> = [];
+          selected.forEach((value) => {
+            ids.push(value.id);
+          });
+          dispatch(productWrapperDeleteAction(ids, onDeleteSuccess));
         }}
         title="Bạn chắc chắn xóa sản phẩm này?"
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."

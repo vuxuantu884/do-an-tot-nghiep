@@ -140,9 +140,14 @@ const ModalExport: React.FC<ModalImportProps> = (
           width={650}
           visible={visible}
           title={title}
+          closable={false}
+          afterClose={()=>{
+            setUploadStatus(undefined);
+            ActionImport.Cancel();
+          }}
           footer={[
             <Button
-              key="back"
+              key="cancel"
               onClick={()=>{
                 setUploadStatus(undefined);
                 ActionImport.Cancel();
