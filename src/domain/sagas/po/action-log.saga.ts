@@ -64,9 +64,6 @@ function* getPOActionLogDetailsSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    console.log(
-      'log', error
-    )
 		showError("Có lỗi khi lấy thông tin chi tiết bản ghi đơn nhập hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());

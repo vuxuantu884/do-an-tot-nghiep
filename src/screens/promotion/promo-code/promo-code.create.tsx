@@ -7,8 +7,7 @@ import { getListChannelRequest } from "domain/actions/order/order.action";
 import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
 import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
-import { ChannelResponse } from "model/response/product/channel.response";
-import { CustomerSelectionOption } from "model/response/promotion/discount/list-discount.response";
+import { ChannelResponse } from "model/response/product/channel.response"; 
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -24,6 +23,7 @@ import { CustomerFilterField } from "../shared/cusomer-condition.form";
 import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
 import IssuingProvider, { IssuingContext } from "./issuing-provider";
+import { CustomerSelectionOption } from "model/promotion/price-rules.model";
 
 
 const CreatePromotionCodePage = () => {
@@ -235,7 +235,7 @@ const CreatePromotionCodePage = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mại",
+          name: "Khuyến mãi",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {

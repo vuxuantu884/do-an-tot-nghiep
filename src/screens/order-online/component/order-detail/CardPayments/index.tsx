@@ -425,6 +425,12 @@ function CardPayments(props: CardPaymentsProps) {
                                           marginLeft: 12,
                                           borderRadius: 5,
                                         }}
+																				format={(a: string) =>
+																					formatCurrency(a)
+																				}
+																				replace={(a: string) =>
+																					replaceFormatString(a)
+																				}
                                         className="hide-number-handle"
                                         onFocus={(e) => e.target.select()}
                                         formatter={(value) =>

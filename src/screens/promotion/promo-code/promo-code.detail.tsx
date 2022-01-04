@@ -16,16 +16,16 @@ import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
   bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction,
-  getVariants,
-  promoGetDetail,
+  getVariantsAction,
+  getPriceRuleAction,
 } from "domain/actions/promotion/discount/discount.action";
 import {
   addPromoCode,
   getListPromoCode,
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
-import _ from "lodash";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
+import _ from "lodash"; 
+import { PriceRule } from "model/promotion/price-rules.model";
 import React, {useCallback, useEffect, useState} from "react";
 import {VscError} from "react-icons/all";
 import {RiUpload2Line} from "react-icons/ri";
@@ -132,7 +132,7 @@ const PromotionDetailScreen: React.FC = () => {
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<DiscountResponse | null>(null);
+  const [data, setData] = useState<PriceRule | null>(null);
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
@@ -167,7 +167,7 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getVariants(idNumber, handleResponse));
+    dispatch(getVariantsAction(idNumber, handleResponse));
   }, [dispatch, handleResponse, idNumber]);
 
   const checkIsHasPromo = useCallback((data: any) => {
@@ -198,7 +198,7 @@ const PromotionDetailScreen: React.FC = () => {
   };
 
   // section handle call api GET DETAIL
-  const onResult = useCallback((result: DiscountResponse | false) => {
+  const onResult = useCallback((result: PriceRule | false) => {
     setLoading(false);
     if (!result) {
       setError(true);
@@ -252,7 +252,7 @@ const PromotionDetailScreen: React.FC = () => {
 
   const onActivateSuccess = useCallback(() => {
     dispatch(hideLoading());
-    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
   // section DELETE by Id
@@ -277,7 +277,7 @@ const PromotionDetailScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getPriceRuleAction(idNumber, onResult));
     return () => {};
   }, [dispatch, idNumber, onResult]);
 
@@ -387,7 +387,7 @@ const PromotionDetailScreen: React.FC = () => {
     [dispatch, idNumber, dataQuery, checkIsHasPromo]
   );
 
-  const renderStatus = (data: DiscountResponse) => {
+  const renderStatus = (data: PriceRule) => {
     const status = promoStatuses.find((status) => status.code === data.state);
     return <span style={status?.style}>{status?.value}</span>;
   };

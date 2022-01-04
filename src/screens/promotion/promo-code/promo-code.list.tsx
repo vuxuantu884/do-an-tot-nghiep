@@ -48,12 +48,10 @@ import {
   publishedBulkPromoCode,
   enableBulkPromoCode,
   disableBulkPromoCode,
-} from "domain/actions/promotion/promo-code/promo-code.action";
-import {PromoCodeResponse} from "model/response/promotion/promo-code/list-promo-code.response";
+} from "domain/actions/promotion/promo-code/promo-code.action"; 
 import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {showSuccess} from "utils/ToastUtils";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
-import {promoGetDetail} from "domain/actions/promotion/discount/discount.action";
+import {showSuccess} from "utils/ToastUtils"; 
+import {getPriceRuleAction} from "domain/actions/promotion/discount/discount.action";
 import {AppConfig} from "../../../config/app.config";
 import _ from "lodash";
 import {getToken} from "../../../utils/LocalStorageUtils";
@@ -63,6 +61,7 @@ import useAuthorization from "hook/useAuthorization";
 import {PromoPermistion} from "config/permissions/promotion.permisssion";
 import {MenuAction} from "component/table/ActionButton";
 import NoPermission from "screens/no-permission.screen";
+import { DiscountCode, PriceRule } from "model/promotion/price-rules.model";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -100,7 +99,7 @@ const ListCode = () => {
   const [editData, setEditData] = React.useState<any>();
   const [uploadError, setUploadError] = useState<any>("");
   const [deleteData, setDeleteData] = React.useState<any>();
-  const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
+  const [data, setData] = useState<PageResponse<DiscountCode>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -133,11 +132,11 @@ const ListCode = () => {
   });
 
   // section handle call api GET DETAIL
-  const onResult = useCallback((result: DiscountResponse | false) => {
+  const onResult = useCallback((result: PriceRule | false) => {
     setPromoValue(result);
   }, []);
   useEffect(() => {
-    dispatch(promoGetDetail(id, onResult));
+    dispatch(getPriceRuleAction(id, onResult));
   }, [dispatch, id, onResult]);
 
   // handle response get list
@@ -628,7 +627,7 @@ const ListCode = () => {
                 type="primary"
                 onClick={() => {
                   setUploadStatus(undefined);
-                  dispatch(promoGetDetail(id, onResult));
+                  dispatch(getPriceRuleAction(id, onResult));
                   setShowImportFile(false);
                 }}
                 disabled={uploadStatus === "error"}

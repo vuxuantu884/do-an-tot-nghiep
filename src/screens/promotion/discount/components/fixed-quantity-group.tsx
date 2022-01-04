@@ -15,7 +15,7 @@ import {
 import ParentProductItem from "component/item-select/parent-product-item";
 import ModalConfirm from "component/modal/ModalConfirm";
 import _ from "lodash";
-import { DiscountMethod, EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
+import { PriceRuleMethod, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { RiInformationLine } from "react-icons/ri";
@@ -195,7 +195,7 @@ const FixedAndQuantityGroup = (props: Props) => {
   useEffect(() => {
 
     let option: Array<{ value: string, label: string }> = [];
-    if (discountMethod === DiscountMethod.FIXED_PRICE) {
+    if (discountMethod === PriceRuleMethod.FIXED_PRICE) {
       // setDiscountType(DiscountUnitType.FIXED_PRICE.value);
 
       option = [
@@ -205,7 +205,7 @@ const FixedAndQuantityGroup = (props: Props) => {
         },]
     }
 
-    if (discountMethod === DiscountMethod.QUANTITY) {
+    if (discountMethod === PriceRuleMethod.QUANTITY) {
       // setDiscountType(DiscountUnitType.PERCENTAGE.value);
       option = [
         {
@@ -415,7 +415,7 @@ const FixedAndQuantityGroup = (props: Props) => {
                       align: "center",
                       width: "15%",
                       dataIndex: "cost",
-                      render: (value, item) => {
+                      render: (value) => {
                         if (typeof value === "number") {
                           // price at create time
                           return formatCurrency(value);

@@ -1,14 +1,19 @@
 import {FilterOutlined} from "@ant-design/icons";
 import {Button, Collapse, Form, Input, Select, Space, Tag} from "antd";
 import search from "assets/img/search.svg";
+import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
-import NumberInputRange from "component/filter/component/number-input-range";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
 import CustomSelectOne from "component/filter/component/select-one.custom";
 import {MenuAction} from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
+import { AppConfig } from "config/app.config";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { SupplierSearchAction } from "domain/actions/core/supplier.action";
+import { getColorAction} from "domain/actions/product/color.action";
 import {AccountResponse} from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import {BaseBootstrapResponse} from "model/content/bootstrap.model";
 import {CountryResponse} from "model/content/country.model";
 import {SupplierResponse} from "model/core/supplier.model";
@@ -17,20 +22,22 @@ import {SearchVariantField, SearchVariantMapping} from "model/product/product-ma
 import {VariantSearchQuery} from "model/product/product.model";
 import {SizeResponse} from "model/product/size.model";
 import moment from "moment";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
+import { useDispatch } from "react-redux";
 import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
 import {StyledComponent} from "./style";
+
+var isWin = false;
+var isDesigner = false;
+var isColors = false;
+var isMainColors = false;
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
   listStatus?: Array<BaseBootstrapResponse>;
-  listBrands?: Array<BaseBootstrapResponse>;
-  listMerchandisers?: Array<AccountResponse>;
+  listBrands?: Array<BaseBootstrapResponse>; 
   listSize?: Array<SizeResponse>;
-  listCountries?: Array<CountryResponse>;
-  listMainColors?: Array<ColorResponse>;
-  listColors?: Array<ColorResponse>;
-  listSupplier?: Array<SupplierResponse>;
+  listCountries?: Array<CountryResponse>;  
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
@@ -41,16 +48,13 @@ const {Item} = Form;
 const {Option} = Select;
 
 const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) => {
+  const dispatch = useDispatch();
   const [formAvd] = Form.useForm();
   const {
     params,
     listStatus,
     listBrands,
-    listMerchandisers,
-    listSize,
-    listMainColors,
-    listColors,
-    listSupplier,
+    listSize, 
     listCountries,
     onFilter,
     onClickOpen,
@@ -59,6 +63,38 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  const [colors, setColors] = useState<PageResponse<ColorResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+  const [mainColors, setMainColors] = useState<PageResponse<ColorResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  ); 
+
+  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+
+  const [designers, setDeisgners] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+
+  const [suppliers, setSupplier] = useState<PageResponse<SupplierResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 }
+  });
+
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
@@ -105,6 +141,71 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     },
     [formAvd]
   );
+
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return false;
+      }
+      if (isWin) {
+        setWins(data);
+      }
+      if (isDesigner) {
+        setDeisgners(data);
+      }
+    },
+    []
+  );
+
+  const setDataColors = useCallback(
+    (data: PageResponse<ColorResponse>) => {
+      if (!data) {
+        return false;
+      } 
+      if (isColors) {
+        setColors(data);
+      }
+      if (isMainColors) {
+        setMainColors(data);
+      }
+    },
+    []
+  );
+
+  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
+    isDesigner = designer;
+    isWin = win;
+    dispatch(
+      searchAccountPublicAction(
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
+  const getColors = useCallback((code: string, page: number, isColor: boolean, isMainColor: boolean) => {
+    isColors = isColor;
+    isMainColors = isMainColor;
+    dispatch(
+      getColorAction(
+        { info: code, page: page, is_main_color: isMainColors ? 1: 0 },
+        setDataColors
+      )
+    );
+  }, [dispatch, setDataColors]);
+
+  const getSuppliers = useCallback((key: string, page: number) => {
+    dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
+      setSupplier(data);
+    }));
+  }, [dispatch]);
+
+  useEffect(()=>{
+    getAccounts("",1,true,true);
+    getColors('', 1,true,true);
+    getSuppliers('', 1);
+  },[getAccounts, getColors, getSuppliers]);
+
   return (
     <StyledComponent>
       <div className="product-filter">
@@ -130,14 +231,15 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         </Form>
         <FilterList
           filters={advanceFilters}
-          listColors={listColors}
-          listMainColors={listMainColors}
-          listSupplier={listSupplier}
+          mainColors={mainColors}
+          colors={colors}
+          suppliers={suppliers}
           listSize={listSize}
           listCountries={listCountries}
           listStatus={listStatus}
           resetField={resetField}
-          listMerchandisers={listMerchandisers}
+          designers={designers}
+          wins={wins}
           listBrands={listBrands}
         />
         <BaseFilter
@@ -157,9 +259,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
               {Object.keys(SearchVariantMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
-                  case SearchVariantField.inventory:
-                    component = <NumberInputRange />;
-                    break;
                   case SearchVariantField.made_in:
                     component = (
                       <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn xuất sứ">
@@ -173,24 +272,43 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.designer:
                     component = (
-                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn thiết kế">
-                        {listMerchandisers?.map((item) => (
-                          <Option key={item.code} value={item.code}>
-                            {item.code} - {item.full_name}
-                          </Option>
+                      <SelectPaging
+                        metadata={designers.metadata}
+                        showSearch={false}
+                        showArrow
+                        allowClear
+                        searchPlaceholder="Tìm kiếm nhân viên"
+                        placeholder="Chọn thiết kế"
+                        onPageChange={(key, page) => getAccounts(key, page, true, false)}
+                        onSearch={(key) => getAccounts(key, 1, true, false)}
+                      >
+    
+                        {designers.items.map((item) => (
+                          <SelectPaging.Option key={item.code} value={item.code}>
+                            {`${item.code} - ${item.full_name}`}
+                          </SelectPaging.Option>
                         ))}
-                      </Select>
+                      </SelectPaging>
                     );
                     break;
                   case SearchVariantField.merchandiser:
                     component = (
-                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn Merchandiser">
-                        {listMerchandisers?.map((item) => (
-                          <Option key={item.code} value={item.code}>
-                            {item.code} - {item.full_name}
-                          </Option>
+                      <SelectPaging
+                        metadata={wins.metadata}
+                        placeholder="Chọn merchandiser"
+                        showSearch={false}
+                        showArrow
+                        allowClear
+                        searchPlaceholder="Tìm kiếm nhân viên"
+                        onPageChange={(key, page) => getAccounts(key, page, false, true)}
+                        onSearch={(key) => getAccounts(key, 1, false, true)}
+                      >
+                        {wins.items.map((item) => (
+                          <SelectPaging.Option key={item.code} value={item.code}>
+                            {`${item.code} - ${item.full_name}`}
+                          </SelectPaging.Option>
                         ))}
-                      </Select>
+                      </SelectPaging>
                     );
                     break;
                   case SearchVariantField.created_date:
@@ -198,7 +316,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.size:
                     component = (
-                      <Select allowClear placeholder="Chọn kích thước">
+                      <Select showSearch optionFilterProp="children" allowClear placeholder="Chọn kích thước">
                         {listSize?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.code}
@@ -209,35 +327,65 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.color:
                     component = (
-                      <Select allowClear placeholder="Chọn màu sắc">
-                        {listColors?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
+                      <SelectPaging
+                        metadata={colors.metadata}
+                        notFoundContent={"Không có dữ liệu"}
+                        showSearch={false}
+                        searchPlaceholder="Tìm kiếm màu sắc"
+                        maxTagCount="responsive"
+                        showArrow
+                        allowClear
+                        onSearch={(key) => getColors(key, 1,true,false)}
+                        onPageChange={(key, page) => getColors(key, page,true,false)}
+                        placeholder="Chọn màu sắc"
+                      >
+                        {colors.items.map((item) => (
+                          <SelectPaging.Option key={item.id} value={item.id}>
+                            {`${item.code} - ${item.name}`}
+                          </SelectPaging.Option>
                         ))}
-                      </Select>
+                      </SelectPaging>
                     );
                     break;
                   case SearchVariantField.main_color:
                     component = (
-                      <Select allowClear placeholder="Chọn màu chủ đạo">
-                        {listMainColors?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.code}
-                          </Option>
+                      <SelectPaging
+                        metadata={mainColors.metadata}
+                        notFoundContent={"Không có dữ liệu"}
+                        showSearch={false}
+                        searchPlaceholder="Tìm kiếm màu sắc chủ đạo"
+                        maxTagCount="responsive"
+                        showArrow
+                        allowClear
+                        onSearch={(key) => getColors(key, 1,false,true)}
+                        onPageChange={(key, page) => getColors(key, page,false,true)}
+                        placeholder="Chọn màu sắc chủ đạo"
+                      >
+                        {mainColors.items.map((item) => (
+                          <SelectPaging.Option key={item.id} value={item.id}>
+                            {`${item.code} - ${item.name}`}
+                          </SelectPaging.Option>
                         ))}
-                      </Select>
+                      </SelectPaging>
                     );
                     break;
                   case SearchVariantField.supplier:
                     component = (
-                      <Select allowClear placeholder="Chọn nhà cung cấp">
-                        {listSupplier?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.code}
-                          </Option>
+                      <SelectPaging
+                        searchPlaceholder="Tìm kiếm nhà cung cấp"
+                        metadata={suppliers.metadata}
+                        showSearch={false}
+                        allowClear
+                        placeholder="Chọn nhà cung cấp"
+                        onSearch={(key) => getSuppliers(key, 1)}
+                        onPageChange={(key, page) => getSuppliers(key, page)}
+                      >
+                        {suppliers.items.map((item) => (
+                          <SelectPaging.Option key={item.id} value={item.id}>
+                            {item.name}
+                          </SelectPaging.Option>
                         ))}
-                      </Select>
+                      </SelectPaging>
                     );
                     break;
                   case SearchVariantField.saleable:
@@ -250,7 +398,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.brand:
                     component = (
-                      <Select allowClear placeholder="Chọn thương hiệu">
+                      <Select showSearch optionFilterProp="children" allowClear placeholder="Chọn thương hiệu">
                         {listBrands?.map((item) => (
                           <Select.Option key={item.value} value={item.value}>
                             {item.name}
@@ -281,12 +429,13 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
 const FilterList = ({
   filters,
   resetField,
-  listColors,
-  listMainColors,
-  listSupplier,
+  colors,
+  mainColors,
+  suppliers,
   listCountries,
   listSize,
-  listMerchandisers,
+  designers,
+  wins,
   listBrands,
 }: any) => {
   let filtersKeys = Object.keys(filters);
@@ -309,20 +458,19 @@ const FilterList = ({
               renderTxt = `${SearchVariantMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
             break;
           case SearchVariantField.color:
-            let index = listColors.findIndex((item: ColorResponse) => item.id === value);
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${listColors[index].name}`;
+            const color = colors.items.find((e: ColorResponse)=>e.id === value);
+            if (!color) return null;
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${color.name}`;
             break;
-          case SearchVariantField.main_color:
-            let index1 = listMainColors.findIndex(
-              (item: ColorResponse) => item.id === value
-            );
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${listMainColors[index1].name}`;
+          case SearchVariantField.main_color: 
+            const mainColor = mainColors.items.find((e: ColorResponse)=>e.id === value);
+            if (!mainColor) return null; 
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${mainColor.name}`;
             break;
           case SearchVariantField.supplier:
-            let index2 = listSupplier.findIndex(
-              (item: SupplierResponse) => item.id === value
-            );
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${listSupplier[index2].name}`;
+            const supplier = suppliers.items.find((e: ColorResponse)=>e.id === value);
+            if (!supplier) return null;  
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${supplier.name}`;
             break;
           case SearchVariantField.size:
             let index3 = listSize.findIndex(
@@ -342,20 +490,20 @@ const FilterList = ({
             }`;
             break;
           case SearchVariantField.merchandiser:
+            const win = wins.items.find((e: AccountResponse)=>e.code === value);
+            if (!win) return null;
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${win.full_name}`;
+            break;
           case SearchVariantField.designer:
-            let index5 = listMerchandisers.findIndex(
-              (item: AccountResponse) => item.code === value
-            );
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${listMerchandisers[index5].full_name}`;
+            const designer = designers.items.find((e: AccountResponse)=>e.code === value);
+            if (!designer) return null;
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${designer.full_name}`;
             break;
           case SearchVariantField.brand:
             let index6 = listBrands.findIndex(
               (item: BaseBootstrapResponse) => item.value === value
             );
             renderTxt = `${SearchVariantMapping[filterKey]} : ${listBrands[index6].name}`;
-            break;
-          case SearchVariantField.inventory:
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${value.join(" - ")}`;
             break;
         }
         return (
