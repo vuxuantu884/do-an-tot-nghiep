@@ -135,6 +135,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
 				statusTag = findStatusTagWithReturning();
 				break;
       default:
+				statusTag = findStatusTagWithoutReturnOrCancel();
         break;
     }
     if (statusTag) {
