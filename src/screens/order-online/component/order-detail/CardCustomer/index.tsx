@@ -379,9 +379,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
 
-  const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "POS");
-  }, [listSource]);
+  // const listSources = useMemo(() => {
+  //   return listSource.filter((item) => item.code !== "POS");
+  // }, [listSource]);
 
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
@@ -489,7 +489,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 console.log(value)
               }}
             >
-              {listSources.map((item, index) => (
+              {listSource.filter((x)=>x.name.toLowerCase()!==CONSTANTS.POS.channel_code.toLowerCase()).map((item, index) => (
                 <CustomSelect.Option
                   style={{ width: "100%" }}
                   key={index.toString()}
