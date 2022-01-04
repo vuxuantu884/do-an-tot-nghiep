@@ -91,7 +91,7 @@ function OrderPayments(props: PropType): JSX.Element {
         return_amount: 0,
         status: "paid",
         name: paymentMaster.name,
-        code: paymentMaster.code,
+        payment_method_code: paymentMaster.code,
         payment_method: paymentMaster.name,
         reference: "",
         source: "",

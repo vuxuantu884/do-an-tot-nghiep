@@ -219,7 +219,7 @@ export interface OrderPaymentRequest {
   return_amount: number;
   status: string;
   name?: string;
-  code: string;
+  code?: string;
   point?: number;
   customer_id: number | null;
   type: string;

@@ -48,7 +48,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
-	checkIfOrderHasReturnedAll,
+	
 	getAmountPayment,
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
@@ -142,6 +142,8 @@ const ScreenReturnCreate = (props: PropType) => {
     ShipmentMethodOption.DELIVER_LATER
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+
+  const [isReturnAll, setIsReturnAll] = useState(true)
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -302,6 +304,10 @@ console.log('totalAmountPayment', totalAmountPayment)
         setIsOrderFinished(true);
       }
       let listItemCanReturn = getListItemsCanReturn(_data);
+      console.log('listItemCanReturn', listItemCanReturn)
+      if(listItemCanReturn.length > 0) {
+        setIsReturnAll(false);
+      }
       setListItemCanBeReturn(listItemCanReturn);
       let returnProduct: ReturnProductModel[] = listItemCanReturn.map((single) => {
         return {
@@ -550,8 +556,10 @@ console.log('totalAmountPayment', totalAmountPayment)
 		return payments;
 	};
 
+  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay) 
+
 	const checkIfNotHavePaymentsWhenReceiveAtStore = () => {
-		if(totalAmountCustomerNeedToPay > 0 && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+		if(totalAmountOrderAfterPayments > 0 && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
 			return true
 		}
 		return false
@@ -1024,7 +1032,7 @@ console.log('totalAmountPayment', totalAmountPayment)
   };
 
   const renderIfOrderFinished = () => {
-    if (checkIfOrderHasReturnedAll(OrderDetail)) {
+    if (isReturnAll) {
       return <p>Đơn hàng đã đổi trả hết!</p>;
     }
     return (
