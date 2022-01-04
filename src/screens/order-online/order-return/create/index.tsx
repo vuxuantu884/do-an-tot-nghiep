@@ -556,8 +556,10 @@ console.log('totalAmountPayment', totalAmountPayment)
 		return payments;
 	};
 
+  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay) 
+
 	const checkIfNotHavePaymentsWhenReceiveAtStore = () => {
-		if(totalAmountCustomerNeedToPay > 0 && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+		if(totalAmountOrderAfterPayments > 0 && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
 			return true
 		}
 		return false
