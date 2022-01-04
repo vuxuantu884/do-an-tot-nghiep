@@ -28,7 +28,7 @@ import {
 	getShipmentsAction,
 } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { SourceResponse } from "model/response/order/source.response";
@@ -46,6 +46,7 @@ import { DeliveryServiceResponse } from "model/response/order/order.response";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { ShipmentMethod } from "utils/Constants";
+import moment from "moment";
 
 const ACTION_ID = {
 	delete: 1,
@@ -163,7 +164,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 					</Link>
 					<div>
 						{record.created_date
-							? ConvertUtcToLocalDate(record.created_date)
+							? moment(record.created_date).format(DATE_FORMAT.fullDate)
 							: ""}
 					</div>
 				</div>
@@ -380,7 +381,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			visible: true,
 			render: (value: string, record: ShipmentModel) => {
 				if (record.shipped_on) {
-					return <div>{ConvertUtcToLocalDate(record.shipped_on)}</div>
+					return <div>{moment(record.shipped_on).format(DATE_FORMAT.fullDate)}</div>
 				}
 				return ""
 			},
@@ -392,7 +393,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			title: "Ngày tạo đơn",
 			render: (value: string, record: ShipmentModel) => {
 				if (record.created_date) {
-					return <div>{ConvertUtcToLocalDate(record.created_date)}</div>
+					return <div>{moment(record.created_date).format(DATE_FORMAT.fullDate)}</div>
 				}
 				return ""
 			},
@@ -403,7 +404,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			title: "Ngày hoàn tất đơn",
 			render: (value: string, record: ShipmentModel) => {
 				if (record.finished_order_on) {
-					return <div>{ConvertUtcToLocalDate(record.finished_order_on)}</div>
+					return <div>{moment(record.finished_order_on).format(DATE_FORMAT.fullDate)}</div>
 				}
 				return ""
 			},
@@ -414,7 +415,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			title: "Ngày huỷ đơn",
 			render: (value: string, record: ShipmentModel) => {
 				if (record.cancel_date) {
-					return <div>{ConvertUtcToLocalDate(record.cancel_date)}</div>
+					return <div>{moment(record.cancel_date).format(DATE_FORMAT.fullDate)}</div>
 				}
 				return ""
 			},

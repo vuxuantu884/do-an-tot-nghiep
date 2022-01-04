@@ -4,6 +4,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import { useEffect, useMemo, useState } from "react";
 import { FulFillmentStatus, OrderStatus, POS } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 // import { FulFillmentStatus } from "utils/Constants";
 import "./create-bill-step.scss";
 
@@ -14,7 +15,7 @@ type StepStatusProps = {
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   const {orderDetail} = props;
-  const formatDate = "DD/MM/YY - HH:mm";
+  const formatDate = DATE_FORMAT.fullDate;
   const [currentStep, setCurrentStep] = useState(0);
   
   const fulfillments = useMemo(() => {
@@ -167,7 +168,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         }
       />
       <Steps.Step
-        title={!(orderDetail?.status === "cancelled") ? "Hoàn thành" : "Huỷ đơn"}
+        title={!(orderDetail?.status === OrderStatus.CANCELLED) ? orderDetail?.status === OrderStatus.COMPLETED ? "Hoàn thành" : "Kết thúc" : "Huỷ đơn"}
         description={renderStepFinishDescription()}
         className={orderDetail?.status === "cancelled" ? "cancelled" : ""}
       />
