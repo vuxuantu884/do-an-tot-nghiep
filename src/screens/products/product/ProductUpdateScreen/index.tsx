@@ -23,6 +23,7 @@ import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
 import {AppConfig} from "config/app.config";
 import {ProductPermission} from "config/permissions/product.permission";
@@ -80,6 +81,9 @@ import VariantList from "../component/VariantList";
 import {ProductParams} from "../ProductDetailScreen";
 import {StyledComponent} from "./styles";
 
+var isWin = false;
+var isDesigner = false;
+
 const {Item} = Form;
 let tempActive: number = 0;
 
@@ -126,8 +130,7 @@ const ProductDetailScreen: React.FC = () => {
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
-  const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [listColor, setListColor] = useState<Array<ColorResponse>>([]); 
   const [status, setStatus] = useState<string>("inactive");
   const [active, setActive] = useState<number>(tempActive);
   const [isChange, setChange] = useState<boolean>(false);
@@ -141,6 +144,19 @@ const ProductDetailScreen: React.FC = () => {
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
+  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+
+  const [designers, setDeisgner] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
 
   const categoryFilter = useMemo(() => {
     if (data === null) {
@@ -175,11 +191,16 @@ const ProductDetailScreen: React.FC = () => {
   }, []);
 
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return false;
-    }
-    setAccounts(data.items);
-  }, []);
+      if (!data) {
+        return false;
+      }
+      if (isWin) {
+        setWins(data);
+      }
+      if (isDesigner) {
+        setDeisgner(data);
+      }
+    },[]);
 
   const onPickAvatar = useCallback(() => {
     let variants: Array<VariantResponse> = form.getFieldValue("variants");
@@ -700,6 +721,17 @@ const ProductDetailScreen: React.FC = () => {
     }
   }, [data, active]);
 
+  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
+    isDesigner = designer;
+    isWin = win;
+    dispatch(
+      AccountSearchAction(
+        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setDataCategory));
     dispatch(SupplierGetAllAction(setListSupplier));
@@ -707,11 +739,8 @@ const ProductDetailScreen: React.FC = () => {
     dispatch(CountryGetAllAction(setListCountry));
     dispatch(sizeGetAll(setListSize));
     dispatch(listColorAction({is_main_color: 0}, setListColor));
-    dispatch(
-      AccountSearchAction({department_ids: [AppConfig.WIN_DEPARTMENT]}, setDataAccounts)
-    );
-    return () => {};
-  }, [dispatch, setDataAccounts, setDataCategory]);
+    getAccounts("",1,true,true);
+  }, [dispatch,getAccounts,setDataCategory]);
 
   return (
     <StyledComponent>
@@ -1087,39 +1116,42 @@ const ProductDetailScreen: React.FC = () => {
                           icon: <InfoCircleOutlined />,
                         }}
                       >
-                        <CustomSelect optionFilterProp="children" showSearch showArrow>
-                          <CustomSelect.Option value="">
-                            Chọn Merchandiser
-                          </CustomSelect.Option>
-                          {accounts.map((item) => (
-                            <CustomSelect.Option key={item.code} value={item.code}>
+                        <SelectPaging 
+                         optionFilterProp="children"
+                         metadata={designers.metadata}
+                         showSearch 
+                         allowClear
+                         placeholder="Chọn Merchandiser"
+                         onSearch={(key) => getAccounts(key, 1,false,true)}
+                         onPageChange={(key, page) => getAccounts(key, page,false,true)}
+                         showArrow>
+                          {wins.items.map((item) => (
+                            <SelectPaging.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.full_name}`}
-                            </CustomSelect.Option>
+                            </SelectPaging.Option>
                           ))}
-                        </CustomSelect>
+                        </SelectPaging>
                       </Item>
                       <Item
                         name="designer_code"
                         label="Thiết kế"
-                        tooltip={{
-                          title: "Tooltip",
-                          icon: <InfoCircleOutlined />,
-                        }}
+                        tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
                       >
-                        <CustomSelect
+                        <SelectPaging
+                          metadata={designers.metadata}
                           optionFilterProp="children"
                           showSearch
+                          allowClear
                           placeholder="Chọn thiết kế"
+                          onSearch={(key) => getAccounts(key, 1,true,false)}
+                          onPageChange={(key, page) => getAccounts(key, page,true,false)}
                         >
-                          <CustomSelect.Option value="">
-                            Chọn thiết kế
-                          </CustomSelect.Option>
-                          {accounts.map((item) => (
-                            <CustomSelect.Option key={item.code} value={item.code}>
+                          {designers.items.map((item) => (
+                            <SelectPaging.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.full_name}`}
-                            </CustomSelect.Option>
+                            </SelectPaging.Option>
                           ))}
-                        </CustomSelect>
+                        </SelectPaging>
                       </Item>
                     </div>
                   </Card>
