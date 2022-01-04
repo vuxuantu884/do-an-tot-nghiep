@@ -100,7 +100,7 @@ import {
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
@@ -1423,7 +1423,7 @@ export default function Order(props: PropType) {
                                                 <span className="date">
                                                   {ConvertUtcToLocalDate(
                                                     payment.created_date,
-                                                    "DD/MM/YYYY HH:mm"
+                                                    DATE_FORMAT.fullDate
                                                   )}
                                                 </span>
                                               </div>
@@ -1493,7 +1493,7 @@ export default function Order(props: PropType) {
                                                   <span className="date">
                                                     {ConvertUtcToLocalDate(
                                                       OrderDetail?.updated_date,
-                                                      "DD/MM/YYYY HH:mm"
+                                                      DATE_FORMAT.fullDate
                                                     )}
                                                   </span>
                                                 </div>

@@ -4,6 +4,7 @@ import { DistrictResponse } from "model/content/district.model";
 import { CityView } from "model/content/district.model";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
+import {Type} from "config/type.config";
 import moment from "moment";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
@@ -1035,13 +1036,14 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   }
   let result:OrderLineItemResponse[] = [];
   let orderReturnItems = getListReturnedOrders(OrderDetail);
-  console.log('orderReturnItems', orderReturnItems)
-  for (const singleOrder of OrderDetail.items) {
+	let normalItems = OrderDetail.items.filter(item=>item.type !==Type.SERVICE);
+  for (const singleOrder of normalItems) {
     let duplicatedItem = orderReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
     if(duplicatedItem) {
       let clone = {...duplicatedItem}
       if(singleOrder.quantity - duplicatedItem.quantity > 0) {
         clone.quantity = singleOrder.quantity - clone.quantity;
+				clone.id = singleOrder.id;
         result.push(clone)
 
       }

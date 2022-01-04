@@ -58,7 +58,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>Cửa hàng:</Col>
           <Col span={14}>
             <span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
-              <Link target="_blank" to={`${UrlConfig.STORE}/${OrderDetail?.store_id}`}>
+              <Link target="_blank" to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}>
                 {OrderDetail?.store}
               </Link>
             </span>
@@ -114,7 +114,7 @@ function SidebarOrderDetailInformation(props: PropType) {
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
               <Link
                 target="_blank"
-                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.assignee_code}`}
+								to={`${UrlConfig.ORDER}?page=1&limit=30&assignee_codes=${OrderDetail?.assignee_code}`}
               >
                 {OrderDetail?.assignee_code} - {OrderDetail?.assignee}
               </Link>
@@ -125,7 +125,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>NV marketing:</Col>
           <Col span={14}>
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
-              <Link
+							<Link
                 target="_blank"
                 to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.marketer_code}`}
               >
@@ -138,7 +138,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>NV điều phối:</Col>
           <Col span={14}>
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
-              <Link
+							<Link
                 target="_blank"
                 to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.coordinator_code}`}
               >
@@ -153,7 +153,7 @@ function SidebarOrderDetailInformation(props: PropType) {
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
               <Link
                 target="_blank"
-                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.account_code}`}
+								to={`${UrlConfig.ORDER}?page=1&limit=30&account_codes=${OrderDetail?.account_code}`}
               >
                 {OrderDetail?.account_code} - {OrderDetail?.account}
               </Link>
@@ -164,7 +164,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>Tham chiếu:</Col>
           <Col span={14} style={{wordWrap: "break-word"}}>
             {OrderDetail?.url ? (
-              <a href={OrderDetail?.url}>{OrderDetail?.reference_code}</a>
+              <a href={OrderDetail?.url} target="_blank" rel="noreferrer">{OrderDetail?.reference_code}</a>
             ) : (
               <span className="text-focus">{OrderDetail?.reference_code}</span>
             )}

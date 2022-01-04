@@ -446,7 +446,6 @@ const tab= document.getElementById("tab");
                     </div>
                   }
                 >
-                  <div className="padding-20">
                     <Row gutter={50}>
                       <Col span={24} md={12}>
                         <RowDetail title="Danh mục" value={data.category} />
@@ -497,7 +496,6 @@ const tab= document.getElementById("tab");
                         )}
                       </Col>
                     </Row>
-                  </div>
                 </Card>
               </Col>
               <Col span={24} md={6}>
@@ -507,10 +505,8 @@ const tab= document.getElementById("tab");
                   </div>
                 </Card>
                 <Card title="Phòng win" className="card">
-                  <div className="padding-20">
-                    <RowDetail title="Merchandiser" value={data.merchandiser} />
+                    <RowDetail title="Merchandiser " value={data.merchandiser} />
                     <RowDetail title="Thiết kế" value={data.designer} />
-                  </div>
                 </Card>
               </Col>
             </Row>

@@ -7,11 +7,8 @@ import TextEllipsis from "component/table/TextEllipsis";
 import { AppConfig } from "config/app.config";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
-import { AccountGetListAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { listColorAction } from "domain/actions/product/color.action";
 import {
   searchVariantsRequestAction,
   variantDeleteManyAction,
@@ -20,11 +17,8 @@ import {
 } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
-import { SupplierResponse } from "model/core/supplier.model";
-import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
 import {
   VariantImage,
   VariantPricesResponse,
@@ -86,18 +80,7 @@ const initQuery: VariantSearchQuery = {
   main_color: "",
   color: "",
   supplier: "",
-};
-
-const initAccountQuery: AccountSearchQuery = {
-  department_ids: [AppConfig.WIN_DEPARTMENT],
-};
-
-const initMainColorQuery: ColorSearchQuery = {
-  is_main_color: 1,
-};
-const initColorQuery: ColorSearchQuery = {
-  is_main_color: 0,
-};
+};  
 
 var variantResponse: VariantResponse | null = null;
 
@@ -113,15 +96,11 @@ const TabProduct: React.FC = () => {
   });
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const [listCountry, setCountry] = useState<Array<CountryResponse>>();
-  const [listMainColor, setMainColor] = useState<Array<ColorResponse>>();
-  const [listColor, setColor] = useState<Array<ColorResponse>>();
+  const [listCountry, setCountry] = useState<Array<CountryResponse>>();  
   const [listSize, setSize] = useState<Array<SizeResponse>>();
-  const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
-  const [selected, setSelected] = useState<Array<VariantResponse>>([]);
-  const [listMerchandiser, setMerchandiser] = useState<Array<AccountResponse>>();
+  const [selected, setSelected] = useState<Array<VariantResponse>>([]); 
   let dataQuery: VariantSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -418,12 +397,8 @@ const TabProduct: React.FC = () => {
   );
 
   useEffect(() => {
-    dispatch(CountryGetAllAction(setCountry));
-    dispatch(listColorAction(initMainColorQuery, setMainColor));
-    dispatch(listColorAction(initColorQuery, setColor));
+    dispatch(CountryGetAllAction(setCountry)); 
     dispatch(sizeGetAll(setSize));
-    dispatch(SupplierGetAllAction(setSupplier));
-    dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
     setTableLoading(true);
   }, [dispatch]);
   useEffect(() => {
@@ -439,12 +414,8 @@ const TabProduct: React.FC = () => {
         onFilter={onFilter}
         params={params}
         listStatus={listStatus}
-        listBrands={listBrands}
-        listMerchandisers={listMerchandiser}
-        listSize={listSize}
-        listMainColors={listMainColor}
-        listColors={listColor}
-        listSupplier={listSupplier}
+        listBrands={listBrands} 
+        listSize={listSize} 
         listCountries={listCountry}
         onClickOpen={() => setShowSettingColumn(true)}
       />

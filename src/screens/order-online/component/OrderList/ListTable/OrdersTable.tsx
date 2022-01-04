@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
 import { COD, FACEBOOK, FulFillmentStatus, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
@@ -255,7 +256,7 @@ function OrdersTable(props: PropsType) {
 								{value}
 							</Link>
 							<div style={{ fontSize: "0.86em" }}>
-								{moment(i.created_date).format("hh:mm DD-MM-YYYY")}
+								{moment(i.created_date).format(DATE_FORMAT.fullDate)}
 							</div>
 							<div style={{ fontSize: "0.86em", marginTop: 5 }}>
 								<Tooltip title="Cửa hàng">

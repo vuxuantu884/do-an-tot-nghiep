@@ -4,7 +4,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import React from "react";
 import ReturnMoneySelect from "screens/order-online/order-return/components/CardReturnMoney/ReturnMoneySelect";
 import { formatCurrency } from "utils/AppUtils";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -66,7 +66,7 @@ function CardReturnMoney(props: PropType) {
                     </strong>
                   </Col>
                   <Col md={8} style={{ textAlign: "right" }}>
-                    <span>{ConvertUtcToLocalDate(single.created_date)}</span>
+                    <span>{ConvertUtcToLocalDate(single.created_date, DATE_FORMAT.fullDate)}</span>
                   </Col>
                 </Row>
               </Timeline.Item>

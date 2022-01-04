@@ -112,16 +112,16 @@ function* getPromoCodeDetail(action: YodyAction) {
         onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        onResult(false);
+        onResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        onResult(false);
-        response.errors.forEach((e) => showError(e));
+        onResult(null);
+        response.errors?.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    onResult(false);
+    onResult(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -192,16 +192,16 @@ function* bulkDisablePriceRulesSaga(action: YodyAction) {
         disableCallback(response.data.count)
         break;
       case HttpStatus.UNAUTHORIZED:
-        disableCallback(false);
+        disableCallback(null);
         yield put(unauthorizedAction());
         break;
       default:
-        disableCallback(false);
+        disableCallback(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    disableCallback(false);
+    disableCallback(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -291,7 +291,7 @@ function* createPriceRuleSaga(action: YodyAction) {
 export function* discountSaga() {
   yield all([
     takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
-    takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail),
+    takeLatest(DiscountType.GET_PRICE_RULE_DETAIL, getPromoCodeDetail),
     takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct),
     takeLatest(DiscountType.ADD_PRICE_RULE, addPriceRule),
     takeLatest(DiscountType.ENABLE_PRICE_RULE, bulkEnablePriceRulesSaga),
