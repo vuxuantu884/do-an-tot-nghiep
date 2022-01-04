@@ -60,8 +60,8 @@ import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 
 type CustomerCardProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
-  ShippingAddressChange: (items: ShippingAddress) => void;
-  BillingAddressChange: (items: BillingAddress) => void;
+  ShippingAddressChange: (items: ShippingAddress|null) => void;
+  BillingAddressChange: (items: BillingAddress|null) => void;
   setVisibleCustomer: (item: boolean) => void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
@@ -90,7 +90,7 @@ const initQueryCustomer: CustomerSearchQuery = {
   customer_group_ids: [],
   customer_level_id: undefined,
   responsible_staff_codes: null,
-  search_type:"SIMPLE",
+  search_type: "SIMPLE",
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => {
@@ -344,24 +344,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           getCustomerDetailAction(
             resultSearch[index].id,
             (data: CustomerResponse | null) => {
-              handleCustomer(data);
-
-              //set Shipping Address
-              if (data?.shipping_addresses) {
-                data.shipping_addresses.forEach((item, index2) => {
-                  if (item.default === true) {
-                    props.ShippingAddressChange(item);
-                  }
-                });
-              }
-
-              //set Billing Address
-              if (data?.billing_addresses) {
-                data?.billing_addresses.forEach((item, index2) => {
-                  if (item.default === true) {
-                    props.BillingAddressChange(item);
-                  }
-                });
+              if (data) {
+                handleCustomer(data);
+                //set Shipping Address
+                let shipping_addresses_index: number = data.shipping_addresses.findIndex(x => x.default === true);
+                props.ShippingAddressChange(shipping_addresses_index!==-1?data.shipping_addresses[shipping_addresses_index]:null);
+                //set Billing Address
+                let billing_addresses_index=data.billing_addresses.findIndex(x=>x.default===true);
+                props.BillingAddressChange(billing_addresses_index?data.billing_addresses[billing_addresses_index]:null);
               }
             }
           )
@@ -371,7 +361,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
         if (resultSearch[index].district_id) {
-          console.log("districtId",resultSearch[index].district_id)
+          console.log("districtId", resultSearch[index].district_id)
           setDistrictId(resultSearch[index].district_id);
         }
       }
@@ -408,7 +398,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const handleChangeArea = (districtId: string | null) => {
     if (districtId) {
-      
+
       setDistrictId(districtId);
     }
   };
@@ -489,7 +479,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 console.log(value)
               }}
             >
-              {listSource.filter((x)=>x.name.toLowerCase()!==CONSTANTS.POS.channel_code.toLowerCase()).map((item, index) => (
+              {listSource.filter((x) => x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase()).map((item, index) => (
                 <CustomSelect.Option
                   style={{ width: "100%" }}
                   key={index.toString()}
