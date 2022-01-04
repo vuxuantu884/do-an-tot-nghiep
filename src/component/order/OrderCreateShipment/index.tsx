@@ -34,6 +34,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -354,7 +355,7 @@ function OrderCreateShipment(props: PropType) {
                 format={dateFormat}
                 style={{width: "100%"}}
                 className="r-5 w-100 ip-search"
-                placeholder="dd/mm/yyyy"
+                placeholder={DATE_FORMAT.DDMMYYY}
                 disabledDate={(current: any) => moment().add(-1, "days") >= current}
               />
             </Form.Item>

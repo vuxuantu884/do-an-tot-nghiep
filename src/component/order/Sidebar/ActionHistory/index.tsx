@@ -4,6 +4,7 @@ import { OrderActionLogResponse } from "model/response/order/action-log.response
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { DATE_FORMAT } from "utils/DateUtils";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
@@ -118,7 +119,7 @@ function ActionHistory(props: PropType) {
                       {singleActionHistory?.updated_date && (
                         <div className="singleActionHistory__date">
                           {moment(singleActionHistory?.updated_date).format(
-                            "HH:mm DD/MM/YYYY"
+                            DATE_FORMAT.fullDate
                           )}
                         </div>
                       )}
