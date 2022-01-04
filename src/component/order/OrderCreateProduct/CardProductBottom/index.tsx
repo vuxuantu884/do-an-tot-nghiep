@@ -209,9 +209,7 @@ function CardProductBottom(props: PropType) {
 							<Row className="payment-row" justify="space-between">
 								<strong className="font-size-text">Tổng tiền hàng trả:</strong>
 								<strong>
-									{returnOrderInformation.totalAmountReturn
-										? formatCurrency(returnOrderInformation.totalAmountReturn)
-										: "-"}
+									{formatCurrency(returnOrderInformation.totalAmountReturn)}
 								</strong>
 							</Row>
 						</React.Fragment>
