@@ -70,7 +70,7 @@ function CardProductBottom(props: PropType) {
 	return (
 		<StyledComponent>
 			<Row gutter={24}>
-				<Col xs={24} lg={11}>
+				<Col xs={24} lg={13}>
 					{/* <div className="optionRow">
             <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3} onChange={(e) =>setIsDisableAutomaticDiscount(e.target.value)}>
               Bỏ chiết khấu tự động
