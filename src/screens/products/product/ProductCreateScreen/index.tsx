@@ -27,8 +27,8 @@ import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config"; 
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
@@ -247,9 +247,7 @@ const ProductCreateScreen: React.FC = () => {
       }
     },
     []
-  );
-
-
+  ); 
 
   const onCategoryChange = useCallback(
     (value: number) => {
@@ -656,8 +654,8 @@ const ProductCreateScreen: React.FC = () => {
     isDesigner = designer;
     isWin = win;
     dispatch(
-      AccountSearchAction(
-        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+      searchAccountPublicAction(
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
