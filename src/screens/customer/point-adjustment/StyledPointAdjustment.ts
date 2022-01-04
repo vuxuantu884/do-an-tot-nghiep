@@ -24,6 +24,9 @@ export const StyledPointAdjustment = styled.div`
       .ant-select-selector {
         width: 100%;
       }
+      .ant-select-selection-overflow {
+        flex-wrap: nowrap;
+      }
     }
 
     div:not(:last-child) {
