@@ -28,7 +28,7 @@ import {
   PaymentMethodOption,
   ShipmentMethodOption,
 } from "utils/Constants";
-import { formatCurrency, formatSuffixPoint, replaceFormat } from "utils/AppUtils";
+import { formatCurrency, formatSuffixPoint, getAmountPayment, replaceFormat } from "utils/AppUtils";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { StyledComponent } from "./styles";
@@ -164,15 +164,6 @@ function CardPayments(props: CardPaymentsProps) {
   const totalOrderAmountAfterDiscountAddShippingFee =
     createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || (props.amount ? props.amount : 0);
 
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
-  };
   const totalAmountPayment = getAmountPayment(payments);
 
   const totalAmountCustomerNeedToPay =

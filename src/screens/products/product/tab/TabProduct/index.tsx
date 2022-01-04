@@ -193,6 +193,7 @@ const TabProduct: React.FC = () => {
     (isException) => {
       dispatch(hideLoading());
       if (!isException) {
+        showSuccess("Xóa sản phẩm thành công");
         dispatch(searchVariantsRequestAction(params, setSearchResult));
         setRowKey([]);
         setSelected([]);

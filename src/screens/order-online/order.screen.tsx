@@ -50,6 +50,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
+	getAmountPayment,
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
@@ -989,17 +990,6 @@ export default function Order() {
 			})
 		);
 	}, [dispatch]);
-
-	// khách cần trả
-	const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-		let value = 0;
-		if (items !== null) {
-			if (items.length > 0) {
-				items.forEach((a) => (value = value + a.paid_amount));
-			}
-		}
-		return value;
-	};
 
 	/**
 	 * tổng số tiền đã trả

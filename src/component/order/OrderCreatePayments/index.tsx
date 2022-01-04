@@ -5,7 +5,7 @@ import {OrderPaymentRequest} from "model/request/order.request";
 import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {useMemo} from "react";
-import {formatCurrency} from "utils/AppUtils";
+import {formatCurrency, getAmountPayment} from "utils/AppUtils";
 import {PaymentMethodOption, ShipmentMethodOption} from "utils/Constants";
 import {StyledComponent} from "./styles";
 
@@ -69,17 +69,6 @@ function OrderCreatePayments(props: PropType): JSX.Element {
     } else {
       setPayments([]);
     }
-  };
-
-  // khách cần trả
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
   };
 
   /**

@@ -1,5 +1,5 @@
 import { Loading3QuartersOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Image, Popover, Row, Spin, Switch, Tabs } from "antd";
+import { Button, Card, Col, Image, Popover, Row, Spin, Switch, Tabs, Tag } from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -462,14 +462,20 @@ const tab= document.getElementById("tab");
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={12}>
-                        <RowDetail title="Từ khóa" value={data.tags} />
+                        <div className="row-detail">
+                          <div className="row-detail-left title">Từ khóa</div>
+                          <div className="dot data">:</div>
+                          <div className="row-detail-right data">{data.tags?.split(",")?.map((keyword)=>{
+                            return <Tag key={keyword}>{keyword}</Tag>
+                          })}</div>
+                        </div>
                       </Col>
                     </Row>
                     <Row>
                       <Col span={24} style={{ display: "contents" }}>
                         <span className="care-title">Thông tin bảo quản: </span>
                         {careLabels.map((item: any) => (
-                          <Popover content={item.name}>
+                          <Popover key={item.value} content={item.name}>
                             <span className={`care-label ydl-${item.value}`}></span>
                           </Popover>
                         ))}

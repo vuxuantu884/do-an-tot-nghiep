@@ -620,13 +620,13 @@ const DetailInvetoryAdjustment: FC = () => {
         dispatch(
           getLinesItemAdjustmentAction(
             idNumber,
-            `page=1&limit=30&condition=${keySearch?.toString()}`,
+            `page=1&limit=30&condition=`,
             onResultDataTable
           )
         );
       }
     },
-    [idNumber, keySearch, form, onResultDataTable, dispatch]
+    [idNumber, form, onResultDataTable, dispatch]
   );
 
   const updateAdjustment = React.useMemo(() =>
@@ -778,20 +778,16 @@ const onChangeNote = useCallback(
     [dataLinesItem, dispatch, idNumber, keySearch, onResultDataTable]
   );
 
-  const onSearchVariant =useCallback(()=>{
+  const debounceSearchVariant = useMemo(()=>
     _.debounce(()=>{
       onEnterFilterVariant();
-    }, 300)
-  },[onEnterFilterVariant]);
+   }, 300),
+   [onEnterFilterVariant]
+   );
 
   const onChangeKeySearch = useCallback(()=>{
-    onSearchVariant();
-  },[onSearchVariant]);
-
-  useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
-  }, [idNumber, onResult, dispatch, setDataAccounts]);
+    debounceSearchVariant();
+  },[debounceSearchVariant]); 
 
   const onExport = useCallback(() => {
     exportFile({
@@ -908,6 +904,14 @@ const onChangeNote = useCallback(
     const getFileInterval = setInterval(checkImportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [listJobImportFile, statusImport, checkImportFile]);
+
+  useEffect(() => {
+    dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
+  }, [idNumber, onResult, dispatch]);
+
+  useEffect(()=>{
+    dispatch(AccountSearchAction({}, setDataAccounts));
+  },[dispatch,setDataAccounts])
 
   return (
     <StyledWrapper>

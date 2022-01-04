@@ -758,7 +758,7 @@ const ProductDetailScreen: React.FC = () => {
             path: `${UrlConfig.VARIANTS}`,
           },
           {
-            name: data !== null ? data.name : "",
+            name: data !== null ? data.code : "",
           },
         ]}
       >
@@ -1031,7 +1031,7 @@ const ProductDetailScreen: React.FC = () => {
                             </Popover>
                           ))}
                           <Button
-                            className="button-plus"
+                            className={`button-plus button-care-lable`}
                             icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
                             onClick={() => setShowCareModal(true)}
                           />
