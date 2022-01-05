@@ -219,13 +219,13 @@ function OrderPayments(props: PropType): JSX.Element {
             <Row
               gutter={20}
               className="row-price"
-              key={method.code}
+              key={method.payment_method_code}
               style={{margin: "10px 0"}}
             >
               <Col lg={15} xxl={9} style={{padding: "0"}}>
                 <Row align="middle">
                   <b style={{padding: "8px 0"}}>{method.payment_method}:</b>
-                  {method.code === PaymentMethodCode.POINT ? (
+                  {method.payment_method_code === PaymentMethodCode.POINT ? (
                     <Col className="point-spending">
                       <span
                         style={{
@@ -260,7 +260,7 @@ function OrderPayments(props: PropType): JSX.Element {
                     </Col>
                   ) : null}
 
-                  {method.code === PaymentMethodCode.BANK_TRANSFER ? (
+                  {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? (
                     <Col
                       className="point-spending"
                       style={{marginLeft: 12}}
@@ -278,12 +278,12 @@ function OrderPayments(props: PropType): JSX.Element {
                   ) : null}
                 </Row>
               </Col>
-              {method.code !== PaymentMethodCode.POINT ? (
+              {method.payment_method_code !== PaymentMethodCode.POINT ? (
                 <Col className="lbl-money" lg={6} xxl={6} style={{marginLeft: 10}}>
 									<NumberInput
                     min={0}
                     value={method.amount}
-                    disabled={method.code === PaymentMethodCode.POINT || levelOrder > 2}
+                    disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2}
                     className="yody-payment-input hide-number-handle"
                     placeholder="Nhập tiền mặt"
                     style={{

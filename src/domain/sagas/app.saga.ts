@@ -9,6 +9,9 @@ import { AccountResponse } from 'model/account/account.model';
 import { HttpStatus } from 'config/http-status.config';
 import { AppSettingReducerType } from 'model/reducers/AppSettingReducerType';
 import { unauthorizedAction } from 'domain/actions/auth/auth.action';
+import OtherType from 'domain/types/other.type';
+import { showError } from 'utils/ToastUtils';
+import { YodyAction } from 'base/base.action';
 
 function* loadUserFromStorageSaga() {
   let token: string = yield call(getToken);
@@ -47,8 +50,25 @@ function* loadSettingAppSaga() {
   }
 }
 
+function* fetchApiErrorSaga(action: YodyAction) {
+  let {textApiInformation, response} = action.payload;
+  switch (response.code) {
+    case HttpStatus.UNAUTHORIZED:
+      yield put(unauthorizedAction());
+      break;
+    case HttpStatus.FORBIDDEN:
+      showError(`${textApiInformation}: ${response.message}`);
+      break;
+    default:
+      yield put(unauthorizedAction());
+      response.errors.forEach((e:any) => showError(e));
+      break;
+  }
+}
+
 
 export function* appSaga() {
   yield takeLatest(AppType.LOAD_USER_FROM_STORAGE, loadUserFromStorageSaga)
   yield takeLatest(AppType.LOAD_SETTING_APP, loadSettingAppSaga)
+	yield takeLatest(OtherType.FETCH_API_ERROR, fetchApiErrorSaga);
 }
