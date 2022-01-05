@@ -90,7 +90,7 @@ function OrdersTable(props: PropsType) {
 		{
 			payment_method_code: null,
 			icon: IconPaymentCash,
-			tooltip: "Đã thanh toán tiền mặt",
+			tooltip: null,
 		},
 		{
 			payment_method_code: PaymentMethodCode.POINT,
@@ -181,7 +181,7 @@ function OrdersTable(props: PropsType) {
 			);
 			return (
 				<div className="singlePayment">
-					<Tooltip title={selectedPayment?.tooltip}>
+					<Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
 						<img src={selectedPayment?.icon} alt="" />
 						<span className="amount">{formatCurrency(payment.paid_amount)}</span>
 					</Tooltip>
@@ -450,7 +450,7 @@ function OrdersTable(props: PropsType) {
 					const sortedFulfillments = record.fulfillments?.sort(
 						(a: any, b: any) => b.id - a.id
 					);
-					if (record.source_id === POS.source_id || (sortedFulfillments && sortedFulfillments[0]?.delivery_type === ShipmentMethod.PICK_AT_STORE)) {
+					if (record.source_id === POS.source_id) {
 						return (
 							<React.Fragment>
 								<div className="single">

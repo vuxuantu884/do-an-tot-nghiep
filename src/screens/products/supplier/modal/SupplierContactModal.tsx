@@ -52,6 +52,7 @@ const SupplierContactModal: React.FC<SupplierContactModalProps> = (
                 city_id: null,
                 district_id: null,
                 address: "",
+                is_default: false,
               }
             : data
         }

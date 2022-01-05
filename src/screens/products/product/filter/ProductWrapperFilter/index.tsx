@@ -1,12 +1,17 @@
 import { FilterOutlined } from "@ant-design/icons";
 import { Button, Collapse, Form, Input, Select, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
+import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
+import { AppConfig } from "config/app.config";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { getMaterialAction } from "domain/actions/product/material.action";
 import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CategoryView } from "model/product/category.model";
 import { MaterialResponse } from "model/product/material.model";
@@ -17,17 +22,19 @@ import {
 import { ProductWrapperSearchQuery, VariantSearchQuery } from "model/product/product.model";
 import { StatusFilterResponse } from "model/product/status.model";
 import moment from "moment";
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
-import { StyledComponent } from "./styled";
+import { StyledComponent } from "./styled"; 
+
+var isWin = false;
+var isDesigner = false;
 
 type ProductFilterProps = {
   params: ProductWrapperSearchQuery;
-  listMerchandisers?: Array<AccountResponse>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
   onClickOpen?: () => void;
-  listMaterial?: Array<MaterialResponse>;
   listCategory?: Array<CategoryView>;
   goods?: Array<BaseBootstrapResponse>;
   actions: Array<MenuAction>;
@@ -48,20 +55,38 @@ const listStatus = [
 ];
 
 const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) => {
+  const dispatch = useDispatch();
   const {
     params,
-    listMerchandisers,
     actions,
     onMenuClick,
     onFilter,
     onClickOpen,
-    listMaterial,
     listCategory,
     goods,
   } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [form] = Form.useForm();
+  const [materials, setMaterials] = useState<PageResponse<MaterialResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+  
+  const [designers, setDeisgners] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
@@ -116,6 +141,49 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     [form]
   );
 
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse>) => {
+      if (!data) {
+        return false;
+      }
+      if (isWin) {
+        setWins(data);
+      }
+      if (isDesigner) {
+        setDeisgners(data);
+      }
+    },
+    []
+  );
+
+  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
+    isDesigner = designer;
+    isWin = win;
+    dispatch(
+      searchAccountPublicAction(
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
+  const getMaterials = useCallback((code: string, page: number) => {
+    dispatch(
+      getMaterialAction(
+        { info: code, page: page},
+        (res)=>{
+          if (res) { setMaterials(res);}
+        }
+      )
+    );
+  }, [dispatch]);
+
+
+  useEffect(()=>{
+    getAccounts("",1,true,true);
+    getMaterials("",1);
+  },[getAccounts, getMaterials]);
+
   return (
     <StyledComponent>
       <div className="product-filter">
@@ -143,8 +211,9 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
         <FilterList
           filters={advanceFilters}
           resetField={resetField}
-          listMerchandisers={listMerchandisers}
-          listMaterial={listMaterial}
+          wins={wins}
+          materials={materials}
+          designers={designers}
           listCategory={listCategory}
           goods={goods}
           form={form}
@@ -163,24 +232,43 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                 switch (key) {
                   case SearchVariantWrapperField.designer_code:
                     component = (
-                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn thiết kế">
-                        {listMerchandisers?.map((item) => (
-                          <Option key={item.code} value={item.code}>
-                            {item.code} - {item.full_name}
-                          </Option>
+                      <SelectPaging
+                        metadata={designers.metadata}
+                        showSearch={false}
+                        showArrow
+                        allowClear
+                        searchPlaceholder="Tìm kiếm nhân viên"
+                        placeholder="Chọn thiết kế"
+                        onPageChange={(key, page) => getAccounts(key, page, true, false)}
+                        onSearch={(key) => getAccounts(key, 1, true, false)}
+                      >
+    
+                        {designers.items.map((item) => (
+                          <SelectPaging.Option key={item.code} value={item.code}>
+                            {`${item.code} - ${item.full_name}`}
+                          </SelectPaging.Option>
                         ))}
-                      </Select>
+                      </SelectPaging>
                     );
                     break;
                   case SearchVariantWrapperField.merchandiser_code:
                     component = (
-                      <Select optionFilterProp="children" showSearch allowClear placeholder="Chọn Merchandiser">
-                        {listMerchandisers?.map((item) => (
-                          <Option key={item.code} value={item.code}>
-                            {item.code} - {item.full_name}
-                          </Option>
+                      <SelectPaging
+                        metadata={wins.metadata}
+                        placeholder="Chọn merchandiser"
+                        showSearch={false}
+                        showArrow
+                        allowClear
+                        searchPlaceholder="Tìm kiếm nhân viên"
+                        onPageChange={(key, page) => getAccounts(key, page, false, true)}
+                        onSearch={(key) => getAccounts(key, 1, false, true)}
+                      >
+                        {wins.items.map((item) => (
+                          <SelectPaging.Option key={item.code} value={item.code}>
+                            {`${item.code} - ${item.full_name}`}
+                          </SelectPaging.Option>
                         ))}
-                      </Select>
+                      </SelectPaging>
                     );
                     break;
                   case SearchVariantWrapperField.status:
@@ -193,7 +281,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.category_id:
                     component = (
-                      <Select placeholder="Chọn trạng thái" allowClear>
+                      <Select showSearch optionFilterProp="children" placeholder="Chọn danh mục" allowClear>
                         {listCategory?.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {`${item.name}`}
@@ -215,13 +303,22 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.material_id:
                     component = (
-                      <Select placeholder="Chọn chất liệu" allowClear>
-                        {listMaterial?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                      <SelectPaging
+                        metadata={materials.metadata}
+                        placeholder="Chọn chất liệu"
+                        showSearch={false}
+                        showArrow
+                        allowClear
+                        searchPlaceholder="Tìm kiếm chất liệu"
+                        onPageChange={(key, page) => getMaterials(key, page)}
+                        onSearch={(key) => getMaterials(key, 1)}
+                      >
+                      {materials.items.map((item) => (
+                        <SelectPaging.Option key={item.id} value={item.id}>
+                          {`${item.name}`}
+                        </SelectPaging.Option>
+                      ))}
+                    </SelectPaging>
                     );
                     break;
                   case SearchVariantWrapperField.created_date:
@@ -250,10 +347,11 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
 const FilterList = ({
   filters,
   resetField,
-  listMaterial,
+  materials,
   listCategory,
+  designers,
   goods,
-  listMerchandisers,
+  wins,
   form,
 }: any) => {
   let filtersKeys = Object.keys(filters);
@@ -291,8 +389,9 @@ const FilterList = ({
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listCategory[index2].name}`;
               break;
             case SearchVariantWrapperField.material_id:
-              let index3 = listMaterial.findIndex((item: MaterialResponse) => item.id === value);
-              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listMaterial[index3].name}`;
+              const material = materials.items.find((e: MaterialResponse)=>e.id === value);
+              if (!material) return null;
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${material.name}`;
               break;
             case SearchVariantWrapperField.goods:
               let index4 = goods.findIndex((item: BaseBootstrapResponse) => item.value === value);
@@ -305,11 +404,14 @@ const FilterList = ({
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listStatus[index6].name}`;
               break;
             case SearchVariantWrapperField.merchandiser_code:
+              const win = wins.items.find((e: AccountResponse)=>e.code === value);
+              if (!win) return null;
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${win.full_name}`;
+              break;
             case SearchVariantWrapperField.designer_code:
-              let index5 = listMerchandisers.findIndex(
-                (item: AccountResponse) => item.code === value
-              );
-              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listMerchandisers[index5].full_name}`;
+              const designer = designers.items.find((e: AccountResponse)=>e.code === value);
+              if (!designer) return null;
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${designer.full_name}`;
               break;
           }
           return (

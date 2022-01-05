@@ -66,8 +66,8 @@ function PrintShippingLabel(props: PropTypes): JSX.Element {
         isShow = false;
       }
     }
-    return isShow;
-  };
+    return isShow; 
+  }; 
 
   const renderHtml = (text: string) => {
     if (text === "") {

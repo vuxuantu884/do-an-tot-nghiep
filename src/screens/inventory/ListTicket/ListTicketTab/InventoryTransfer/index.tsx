@@ -27,7 +27,7 @@ import {Input, Modal, Tag, Form} from "antd";
 import {InventoryTransferTabWrapper} from "./styles";
 import {STATUS_INVENTORY_TRANSFER} from "../../constants";
 
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import {
   BarsOutlined,
   CopyOutlined,
@@ -39,7 +39,7 @@ import {
 import {Link} from "react-router-dom";
 import UrlConfig from "config/url.config";
 
-import {generateQuery} from "utils/AppUtils";
+import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {useHistory} from "react-router-dom";
 import {AccountResponse} from "model/account/account.model";
 import {AccountSearchAction} from "domain/actions/account/account.action";
@@ -190,9 +190,9 @@ const InventoryTransferTab: React.FC = () => {
       title: "ID phiếu chuyển",
       dataIndex: "code",
       visible: true,
-      align: "center",
+      align: "left",
       fixed: "left",
-      width: "150px",
+      width: 150,
       render: (value: string, row: InventoryTransferDetailItem) => (
         <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}>{value}</Link>
       ),
@@ -201,13 +201,14 @@ const InventoryTransferTab: React.FC = () => {
       title: "Kho gửi",
       dataIndex: "from_store_name",
       visible: true,
-      align: "center",
+      align: "left",
+      width: 150,
     },
     {
       title: "Kho nhận",
       dataIndex: "to_store_name",
       visible: true,
-      align: "center",
+      align: "left",
     },
     {
       title: "Trạng thái",
@@ -247,20 +248,26 @@ const InventoryTransferTab: React.FC = () => {
       title: "SP",
       dataIndex: "total_variant",
       visible: true,
-      align: "center",
+      align: "right",
+      render: (value: number) => {
+        return formatCurrency(value,".");
+      },
     },
     {
       title: "SL",
       dataIndex: "total_quantity",
       visible: true,
-      align: "center",
+      align: "right",
+      render: (value: number) => {
+        return formatCurrency(value,".");
+      },
     },
     {
       title: "Thành tiền",
       dataIndex: "total_amount",
       visible: true,
       align: "center",
-      width: "100px",
+      width: 120,
       render: (value: number) => {
         return (
           <NumberFormat
@@ -278,7 +285,7 @@ const InventoryTransferTab: React.FC = () => {
       visible: true,
       align: "center",
       width: "150px",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value,DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
       title: "Ngày nhận",
@@ -286,7 +293,7 @@ const InventoryTransferTab: React.FC = () => {
       visible: true,
       align: "center",
       width: "150px",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
       title: "Tệp đính kèm",
@@ -312,7 +319,7 @@ const InventoryTransferTab: React.FC = () => {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
-      align: "center",
+      align: "left",
       width: "250px",
       render: (item: string, row: InventoryTransferDetailItem, index: number) => {
         return (
@@ -333,8 +340,8 @@ const InventoryTransferTab: React.FC = () => {
       title: "Người tạo",
       dataIndex: "created_by",
       visible: true,
-      align: "center",
-      width: "150px",
+      align: "left",
+      width: 150,
       render: (value: string, item: InventoryTransferDetailItem, index: number) => {
         return (
           <>
@@ -354,7 +361,7 @@ const InventoryTransferTab: React.FC = () => {
       visible: true,
       align: "center",
       width: "150px",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
   ]);
 
