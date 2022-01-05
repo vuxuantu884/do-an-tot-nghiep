@@ -1,5 +1,9 @@
 import { UploadFile } from "antd/lib/upload/interface";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 import { Type } from "config/type.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import _ from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DepartmentResponse, DepartmentView } from "model/account/department.model";
 import { CityView, DistrictResponse } from "model/content/district.model";
@@ -7,37 +11,37 @@ import { LineItem } from "model/inventory/transfer";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import {
-  ProductRequest,
-  ProductRequestView,
-  ProductResponse,
-  VariantImage,
-  VariantPriceRequest,
-  VariantPricesResponse,
-  VariantPriceViewRequest,
-  VariantRequest,
-  VariantRequestView,
-  VariantResponse,
-  VariantUpdateRequest,
-  VariantUpdateView
+	ProductRequest,
+	ProductRequestView,
+	ProductResponse,
+	VariantImage,
+	VariantPriceRequest,
+	VariantPricesResponse,
+	VariantPriceViewRequest,
+	VariantRequest,
+	VariantRequestView,
+	VariantResponse,
+	VariantUpdateRequest,
+	VariantUpdateView
 } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
-  OrderLineItemRequest,
-  OrderPaymentRequest
+	OrderLineItemRequest,
+	OrderPaymentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  // DeliveryServiceResponse,
-  OrderLineItemResponse,
-  OrderPaymentResponse,
-  OrderResponse,
-  ReturnProductModel
+	// DeliveryServiceResponse,
+	OrderLineItemResponse,
+	OrderPaymentResponse,
+	OrderResponse,
+	ReturnProductModel
 } from "model/response/order/order.response";
 import moment from "moment";
 import { ErrorGHTK } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { RegUtil } from "./RegUtils";
-import _ from "lodash";
+import { showError } from "./ToastUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -1253,3 +1257,26 @@ export const safeContent = (html: any) => {
     __html: html,
   };
 };
+
+export const isFetchApiSuccessful = (response:BaseResponse<any>) => {
+	switch (response.code) {
+		case HttpStatus.SUCCESS:
+			return true;
+		default:
+			return false;
+	}
+};
+
+export function handleFetchApiError(response: BaseResponse<any>, textApiInformation: string, dispatch: any) {
+  switch (response.code) {
+    case HttpStatus.UNAUTHORIZED:
+      dispatch(unauthorizedAction());
+      break;
+    case HttpStatus.FORBIDDEN:
+      showError(`${textApiInformation}: ${response.message}`);
+      break;
+    default:
+      response.errors.forEach((e:any) => showError(e));
+      break;
+  }
+}
