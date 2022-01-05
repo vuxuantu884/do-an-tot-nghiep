@@ -84,7 +84,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
-  const [customerFormLoading,setCustomerFormLoading]=useState(false);
+  const [customerFormLoading, setCustomerFormLoading] = useState(false);
 
   const handleShippingWards = useCallback(
     (value: number) => {
@@ -143,7 +143,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   });
 
   const initialFormValueshippingAddress =
-    shippingAddress && shippingAddress !== null && customerItem
+    customerItem
       ? {
         full_name: customerItem.full_name,
         district_id: customerItem.district_id,
@@ -194,11 +194,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const handleSubmit = useCallback(
     (value: any) => {
-      if (!shippingAddress && !customerItem) return;
+      //return;
+      if (!customerItem) return;
 
-      let _shippingAddress: ShippingAddress[] = customerItem.shipping_addresses;
-      let index = _shippingAddress.findIndex((x) => x.id === shippingAddress.id);
-      _shippingAddress.splice(index, 1);
+      let _shippingAddress: ShippingAddress[] = customerItem.shipping_addresses?customerItem.shipping_addresses:[];
+
+      if(shippingAddress &&_shippingAddress && _shippingAddress.length>0)
+      {
+        let index = _shippingAddress.findIndex((x) => x.id === shippingAddress.id);
+        _shippingAddress.splice(index, 1);
+      }
 
       let area_shipping = areas.find((area: any) => area.id === value.shipping_addresses_district_id);
       let area_customer = areas.find((area: any) => area.id === value.district_id);
@@ -213,6 +218,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         ward_id: value.shipping_addresses_ward_id,
         full_address: value.shipping_addresses_full_address,
         is_default: true,
+        default: true,
+        country_id:shippingAddress?shippingAddress.country_id:VietNamId
       };
 
       _shippingAddress.push(paramShipping);
@@ -263,20 +270,18 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       }
       setCustomerFormLoading(true);
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
-        if (datas) {
-          handleChangeCustomer(datas);
-          showSuccess("Cập nhật thông tin khách thành công");
-        }
+        if (datas) showSuccess("Cập nhật thông tin khách thành công");
+        handleChangeCustomer(datas);
         setCustomerFormLoading(false);
       }));
     },
-    [customerItem, dispatch, handleChangeCustomer, areas, shippingAddress, isVisibleCollapseCustomer]
+    [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer]
   );
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
     setVisibleBtnUpdate(false);
-    
+
   }, [customerForm]);
 
   useEffect(() => {
