@@ -37,6 +37,7 @@ import moment from "moment";
 import { ErrorGHTK } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { RegUtil } from "./RegUtils";
+import _ from "lodash";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -690,7 +691,11 @@ export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) =
 
 export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
   let total = 0;
-  items.forEach((a) => (total = total + a.quantity));
+  items.forEach((a) => {
+		if(a.type !== Type.GIFT) {
+			total = total + a.quantity
+		}
+	});
   return total;
 };
 
@@ -1007,8 +1012,8 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
 	let listReturned = getListReturnedOrders(OrderDetail)
   let orderReturnItems = [...listReturned]
 	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
-	let newReturnItems = [..._orderReturnItems];
-	let normalItems = OrderDetail.items.filter(item=>item.type !==Type.SERVICE);
+	let newReturnItems = _.cloneDeep(_orderReturnItems);
+	let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
   
   for (const singleOrder of normalItems) {
 		// trường hợp line item trùng nhau

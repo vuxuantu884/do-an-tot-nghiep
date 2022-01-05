@@ -1,5 +1,6 @@
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
+import { fetchApiErrorAction } from "domain/actions/app.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
@@ -71,108 +72,61 @@ import { unauthorizedAction } from "./../../actions/auth/auth.action";
 
 function* getDetailOrderSaga(action:YodyAction){
   let {orderId, setData}= action.payload;
-  try{
-    let response:BaseResponse<OrderResponse>=yield call(getDetailOrderApi, orderId);
-    switch(response.code)
-    {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-			case HttpStatus.UNAUTHORIZED:
-				yield put(unauthorizedAction());
-				break;
-			default:
-				response.errors.forEach(e=>showError(e));
-				break;
-    }
-  }
-  catch{
-    showError("Có lỗi khi lấy dữ liệu đơn hàng! Vui lòng thử lại sau!")
+	let response:BaseResponse<OrderResponse>=yield call(getDetailOrderApi, orderId);
+  try {
+    setData(response.data);
+  } catch (error) {
+    console.log('error', error)
+    yield put(fetchApiErrorAction(response, "Dữ liệu đơn hàng"));
   }
 }
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData, handleError } = action.payload;
-  try {
-    let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-			case HttpStatus.UNAUTHORIZED:
-				yield put(unauthorizedAction());
-				handleError()
-				break;
-			default:
-				response.errors.forEach((e) => showError(e));
-				handleError()
-				break;
-    }
-  } catch (error) {
-		showError("Có lỗi khi lấy dữ liệu danh sách đơn hàng! Vui lòng thử lại sau!")
+	let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
+	try {
+		setData(response.data);
+	} catch (error) {
+		console.log('error', error)
 		handleError()
-	 }
+		yield put(fetchApiErrorAction(response, "Danh sách đơn hàng"));
+	}
 }
 
 function* getListOrderFpageSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  try {
-    let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-			case HttpStatus.UNAUTHORIZED:
-				yield put(unauthorizedAction());
-				break;
-      default:
-        break;
-    }
-  } catch (error) { 
-		showError("Có lỗi khi lấy dữ liệu danh sách đơn hàng FPage! Vui lòng thử lại sau!")
-	 }
+	let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
+	try {
+		setData(response.data);
+	} catch (error) {
+		console.log('error', error)
+		yield put(fetchApiErrorAction(response, "Danh sách đơn hàng FPage"));
+	}
 }
 
 function* getListOrderCustomerSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  try {
-    let response: BaseResponse<Array<OrderModel>> = yield call(
-      getListOrderCustomerApi,
-      query
-    );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-			case HttpStatus.UNAUTHORIZED:
-				yield put(unauthorizedAction());
-				break;
-      default:
-        break;
-    }
-  } catch (error) { 
-		showError("Có lỗi khi lấy dữ liệu danh sách khách hàng! Vui lòng thử lại sau!")
-	 }
+	let response: BaseResponse<Array<OrderModel>> = yield call(
+		getListOrderCustomerApi,
+		query
+	);
+	try {
+		setData(response.data);
+	} catch (error) {
+		console.log('error', error)
+		yield put(fetchApiErrorAction(response, "Danh sách khách hàng"));
+	}
 }
 
 function* getShipmentsSaga(action: YodyAction) {
   let { query, setData, handleError } = action.payload;
-  try {
-    let response: BaseResponse<Array<ShipmentModel>> = yield call(getShipmentApi, query);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-			case HttpStatus.UNAUTHORIZED:
-				yield put(unauthorizedAction());
-				break;
-      default:
-        break;
-    }
-  } catch (error) {
-		console.log('error', error);
+	let response: BaseResponse<Array<ShipmentModel>> = yield call(getShipmentApi, query);
+	try {
+		setData(response.data);
+	} catch (error) {
+		console.log('error', error)
 		handleError();
-		showError("Có lỗi khi lấy dữ liệu đơn giao hàng! Vui lòng thử lại sau!")
+		yield put(fetchApiErrorAction(response, "Dữ liệu giao hàng"));
 	}
 }
 
