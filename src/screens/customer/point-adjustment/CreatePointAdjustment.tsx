@@ -252,8 +252,17 @@ const CreatePointAdjustment = () => {
   );
 
   const onChangeName = (e: any) => {
-    setFieldName(e.target.value);
+    setFieldName(e.target.value.trim());
   };
+
+  const onBlur = (e: any) => {
+    const nameValue = e.target.value.trim();
+    setFieldName(nameValue);
+    formRef.current?.setFieldsValue({
+      name: nameValue,
+    });
+  };
+
 
   const onChangeType = useCallback(
     (value: string) => {
@@ -274,13 +283,13 @@ const CreatePointAdjustment = () => {
     }
   };
 
-  const checkDisableCreateButton = () => {
+  const checkDisableCreateButton = useCallback(() => {
     if (selectedCustomers.length === 0 || !fieldName) {
       return true;
     } else {
       return false;
     }
-  };
+  }, [fieldName, selectedCustomers.length]);
 
 
   return (
@@ -332,7 +341,8 @@ const CreatePointAdjustment = () => {
                           >
                             <Input
                               onChange={onChangeName}
-                              style={{ width: "100%" }}
+                              onBlur={onBlur}
+                              maxLength={255}
                               placeholder="Nhập tên phiếu điều chỉnh"
                             />
                           </Item>
