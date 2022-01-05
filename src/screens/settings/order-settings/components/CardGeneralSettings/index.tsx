@@ -7,6 +7,7 @@ import {
   Select,
   Space,
   Switch,
+  TreeSelect,
 } from "antd";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { OrderConfigRequestModel } from "model/request/settings/order-settings.resquest";
@@ -14,8 +15,11 @@ import {
   OrderConfigPrintResponseModel,
   OrderConfigResponseModel,
 } from "model/response/settings/order-settings.response";
+import { SHOW_PARENT } from "rc-tree-select";
 import { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
+
+const { TreeNode } = TreeSelect;
 
 type PropType = {
   listPrintConfig: OrderConfigPrintResponseModel[] | null;
@@ -146,6 +150,38 @@ function CardGeneralSettings(props: PropType) {
     valueCustomerCanViewOrderOption.forSingleOrder,
   ]);
 
+
+  const treeData = [
+    {
+      title: 'Node1',
+      value: '0-0',
+      key: '0-0',
+     
+    },
+    {
+      title: 'Node2',
+      value: '0-1',
+      key: '0-1',
+      
+    },
+  ];
+
+  const onChangeApplyPrint = (value:any)=>{
+    console.log('onChange ', value);
+  }
+
+  const tProps = {
+    treeData,
+    value: ['0-0'],
+    onChange: onChangeApplyPrint,
+    treeCheckable: true,
+    showCheckedStrategy: SHOW_PARENT,
+    placeholder: 'Please select',
+    style: {
+      width: '100%',
+    },
+  };
+
   return (
     <StyledComponent>
       <Card title="Cài đặt chung">
@@ -208,7 +244,19 @@ function CardGeneralSettings(props: PropType) {
                 In hóa đơn
               </h4>
               <div className="singleSetting__content">
-                <Select
+                <TreeSelect
+                  key={Math.random()}
+                  onChange={onChangeApplyPrint}
+                  treeCheckable={true}
+                  showCheckedStrategy={SHOW_PARENT}
+                  placeholder="Please select"
+                  className="selectInNhieuDonHang"
+                  maxTagCount="responsive"
+                >
+                  <TreeNode value={1} title="In hóa đơn không hiển thị quà tặng"></TreeNode>
+                  <TreeNode value={2} title="In hóa đơn không có sản phẩm tặng kèm"></TreeNode>
+                </TreeSelect>
+                {/* <Select
                   key={Math.random()}
                   placeholder="Chọn in hóa đơn"
                   onChange={onChangeSelectSettingPrinter}
@@ -224,7 +272,7 @@ function CardGeneralSettings(props: PropType) {
                    <Select.Option value={1} key={1}>
                       In hóa đơn không hiển thị quà tặng
                   </Select.Option>
-                </Select>
+                </Select> */}
               </div>
             </div>
           </Col>
