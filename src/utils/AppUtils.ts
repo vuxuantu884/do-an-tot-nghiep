@@ -1,12 +1,11 @@
-import { ConvertDateToUtc } from "./DateUtils";
+import { UploadFile } from "antd/lib/upload/interface";
+import { Type } from "config/type.config";
 import { AccountStoreResponse } from "model/account/account.model";
-import { DistrictResponse } from "model/content/district.model";
-import { CityView } from "model/content/district.model";
+import { DepartmentResponse, DepartmentView } from "model/account/department.model";
+import { CityView, DistrictResponse } from "model/content/district.model";
+import { LineItem } from "model/inventory/transfer";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import {Type} from "config/type.config";
-import moment from "moment";
-import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   ProductRequest,
   ProductRequestView,
@@ -19,25 +18,25 @@ import {
   VariantRequestView,
   VariantResponse,
   VariantUpdateRequest,
-  VariantUpdateView,
+  VariantUpdateView
 } from "model/product/product.model";
+import { SizeDetail, SizeResponse } from "model/product/size.model";
+import {
+  OrderLineItemRequest,
+  OrderPaymentRequest
+} from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
-	ReturnProductModel,
+  ReturnProductModel
 } from "model/response/order/order.response";
-import {
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-} from "model/request/order.request";
-import { RegUtil } from "./RegUtils";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import moment from "moment";
 import { ErrorGHTK } from "./Constants";
-import { UploadFile } from "antd/lib/upload/interface";
-import { LineItem } from "model/inventory/transfer";
-import { DepartmentResponse, DepartmentView } from "model/account/department.model";
+import { ConvertDateToUtc } from "./DateUtils";
+import { RegUtil } from "./RegUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -995,8 +994,48 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
 
      }
   }
+	console.log('orderReturnItems', orderReturnItems)
   return orderReturnItems;
 };
+
+// lấy danh sách còn có thể đổi trả
+export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return [];
+  }
+  let result:OrderLineItemResponse[] = [];
+	let listReturned = getListReturnedOrders(OrderDetail)
+  let orderReturnItems = [...listReturned]
+	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
+	let newReturnItems = [..._orderReturnItems];
+	let normalItems = OrderDetail.items.filter(item=>item.type !==Type.SERVICE);
+  
+  for (const singleOrder of normalItems) {
+		// trường hợp line item trùng nhau
+    let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
+    if(duplicatedItem) {
+			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id)
+			const quantityLeft = newReturnItems[index].quantity - singleOrder.quantity;
+			if(quantityLeft ===0) {
+				newReturnItems.splice(index, 1);
+			} else if(quantityLeft > 0) {
+				newReturnItems[index].quantity = quantityLeft;
+				const clone = {...duplicatedItem}
+				clone.quantity = quantityLeft;
+				clone.id = singleOrder.id;
+				// result.push(clone)
+			} else {
+				singleOrder.quantity = singleOrder.quantity - duplicatedItem.quantity;
+				newReturnItems.splice(index, 1);
+				result.push(singleOrder);
+			}
+    } else {
+      result.push(singleOrder);
+    }
+  }
+  console.log('result', result)
+ return result;
+}
 
 // kiểm tra xem đã trả hết hàng chưa
 export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) => {
@@ -1004,56 +1043,11 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
     return false;
   }
   let result = false;
-  let orderReturnItems = getListReturnedOrders(OrderDetail)
-  console.log('orderReturnItems', orderReturnItems)
-  // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về false
-  if( orderReturnItems.length > 0) {
-    let checkIfNotReturnAll = false;
-    for (const singleItem of OrderDetail.items) {
-      console.log('singleItem', singleItem)
-      let selectedItem = orderReturnItems.find((item) => item.variant_id === singleItem.variant_id);
-      console.log('selectedItem', selectedItem)
-      if(!selectedItem) {
-        checkIfNotReturnAll = true;
-        break;
-      }
-      if(selectedItem.quantity < singleItem.quantity) {
-        checkIfNotReturnAll = true;
-        break;
-      }
-      checkIfNotReturnAll = false;
-    }
-    console.log('checkIfNotReturnAll', checkIfNotReturnAll)
-    result = !checkIfNotReturnAll;
+	let abc = getListItemsCanReturn(OrderDetail)
+  if(abc.length===0) {
+    result = true;
   }
-  console.log('result', result)
   return result;
-}
-// lấy danh sách còn có thể đổi trả
-export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
-  if(!OrderDetail) {
-    return [];
-  }
-  let result:OrderLineItemResponse[] = [];
-  let orderReturnItems = getListReturnedOrders(OrderDetail);
-	let normalItems = OrderDetail.items.filter(item=>item.type !==Type.SERVICE);
-  for (const singleOrder of normalItems) {
-    let duplicatedItem = orderReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
-    if(duplicatedItem) {
-      let clone = {...duplicatedItem}
-      if(singleOrder.quantity - duplicatedItem.quantity > 0) {
-        clone.quantity = singleOrder.quantity - clone.quantity;
-				clone.id = singleOrder.id;
-        result.push(clone)
-
-      }
-    }
-    else {
-      result.push(singleOrder);
-    }
-  }
-  console.log('result', result)
- return result;
 }
 
 export const customGroupBy = (array:any, groupBy:any) => {
