@@ -1216,6 +1216,7 @@ const ProductCreateScreen: React.FC = () => {
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
+                                  maxLength={15}
                                   placeholder="VD: 100,000"
                                 />
                               </Item>
@@ -1241,6 +1242,7 @@ const ProductCreateScreen: React.FC = () => {
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
+                                  maxLength={15}
                                   placeholder="VD: 100,000"
                                 />
                               </Item>
@@ -1261,6 +1263,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  maxLength={15}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
@@ -1288,6 +1291,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  maxLength={15}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
@@ -1306,6 +1310,7 @@ const ProductCreateScreen: React.FC = () => {
                                   isFloat
                                   placeholder="VD: 10"
                                   suffix={<span>%</span>}
+                                  maxLength={15}
                                 />
                               </Item>
                             </Col>

@@ -127,7 +127,7 @@ export const POStatus = {
 export const PO_RETURN_HISTORY = [
   {
     code: "draft",
-    title: "Nháp",
+    title: "Đặt hàng",
   },
   {
     code: "finalized",
@@ -156,6 +156,14 @@ export const PO_RETURN_HISTORY = [
   {
     code: "draftpo",
     title: "Phiếu nháp",
+  },
+  {
+    code: "null",
+    title: "Không có dữ liệu",
+  },
+  {
+    code: "Create",
+    title: "Đã tạo",
   },
 ]
 

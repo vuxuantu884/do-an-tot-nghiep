@@ -175,7 +175,7 @@ export default function Order() {
 		setItems(_items);
 		let amount = totalAmount(_items);
 		setOrderAmount(amount);
-		if(_promotion !== undefined) {
+		if (_promotion !== undefined) {
 			setPromotion(_promotion);
 		}
 	};
@@ -396,7 +396,7 @@ export default function Order() {
 		let listDiscountRequest = [];
 		if (promotion) {
 			listDiscountRequest.push(promotion);
-		} 
+		}
 		return listDiscountRequest;
 	};
 
@@ -538,7 +538,7 @@ export default function Order() {
 				}
 				let valuesCalculateReturnAmount = {
 					...values,
-					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !==0))
+					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
 				}
 				if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
 					if (typeButton === OrderStatus.DRAFT) {
@@ -847,11 +847,19 @@ export default function Order() {
 		if (customer) {
 			dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
 			setVisibleCustomer(true);
-
-			let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
-			onChangeShippingAddress(shipping_addresses_index!==-1?customer.shipping_addresses[shipping_addresses_index]:null);
-			let billing_addresses_index=customer.billing_addresses.findIndex(x=>x.default===true);
-			onChangeBillingAddress(billing_addresses_index!==-1?customer.billing_addresses[billing_addresses_index]:null);
+			console.log("customer check", customer)
+			if (customer.shipping_addresses) {
+				let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
+				onChangeShippingAddress(shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null);
+			}
+			else
+				onChangeShippingAddress(null)
+			if (customer.billing_addresses) {
+				let billing_addresses_index = customer.billing_addresses.findIndex(x => x.default === true);
+				onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
+			}
+			else
+				onChangeShippingAddress(null)
 		} else {
 			setLoyaltyPoint(null);
 		}

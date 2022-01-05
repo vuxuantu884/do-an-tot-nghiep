@@ -22,7 +22,7 @@ import { showError, showSuccess } from "../../../utils/ToastUtils";
 import { CustomerFilterField } from "../shared/cusomer-condition.form";
 import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
-import IssuingProvider, { IssuingContext } from "./issuing-provider";
+import IssueProvider, { IssueContext } from "../issue/components/issue-provider";
 import { CustomerSelectionOption } from "model/promotion/price-rules.model";
 
 
@@ -35,7 +35,7 @@ const CreatePromotionCodePage = () => {
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [, setFormValues] = useState({}); // force re-render form value
   //phân quyền
-  const { isAllProduct } = useContext(IssuingContext);
+  const { isAllProduct } = useContext(IssueContext);
 
   const initialValues = {
     title: "",
@@ -293,9 +293,9 @@ const CreatePromotionCodePage = () => {
 
 const CreatePromoWithProvider = () => {
   return (
-    <IssuingProvider>
+    <IssueProvider>
       <CreatePromotionCodePage />
-    </IssuingProvider>
+    </IssueProvider>
   );
 }
 

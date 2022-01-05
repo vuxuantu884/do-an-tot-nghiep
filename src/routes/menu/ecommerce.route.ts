@@ -18,27 +18,27 @@ const ordersMappingViewPermission = [EcommerceOrderPermission?.orders_mapping_vi
 
 const ecommerce: Array<RouteMenu> = [
   {
+    path: `${UrlConfig.ECOMMERCE}/orders-mapping`,
+    exact: true,
+    title: "Quản lý đơn hàng",
+    icon: "icon-dot",
+    component: OrdersMapping,
+    key: "manage_orders",
+    isShow: true,
+    header: null,
+    subMenu: [],
+    permissions: ordersMappingViewPermission
+  },
+  {
     path: `${UrlConfig.ECOMMERCE}/orders`,
     exact: true,
     title: "Đơn hàng",
     icon: "icon-dot",
     component: EcommerceOrders,
-    key: "submenu400",
+    key: "ecommerce_orders",
     isShow: true,
     header: null,
     subMenu: [],
-  },
-  {
-    path: `${UrlConfig.ECOMMERCE}/orders-mapping`,
-    exact: true,
-    title: "Đơn hàng mapping",
-    icon: "icon-dot",
-    component: OrdersMapping,
-    key: "orders-mapping",
-    isShow: true,
-    header: null,
-    subMenu: [],
-    permissions: ordersMappingViewPermission
   },
   {
     path: `${UrlConfig.ECOMMERCE}/products`,

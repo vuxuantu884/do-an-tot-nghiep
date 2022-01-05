@@ -297,7 +297,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     let prefix = "phiếu nháp";
     if (type === "confirm") prefix = "phiếu duyệt";
     else if (type === "inventory") prefix = "phiếu nhập kho";
-    return `Bạn chắc chắn xóa ${prefix} ${item?.code}?`;
+    return `Bạn chắc chắn huỷ ${prefix} ${item?.code}?`;
   }, [type, item]);
   return (
     <Fragment>
@@ -370,7 +370,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                           setVisibleDelete(true);
                         }}
                       >
-                        Xóa
+                        Huỷ phiếu
                       </Button>
                     </AuthWrapper>
                   )}

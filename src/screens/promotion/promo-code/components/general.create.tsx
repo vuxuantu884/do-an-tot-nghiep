@@ -31,7 +31,7 @@ import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError } from "utils/ToastUtils";
 import { DATE_FORMAT } from "../../../../utils/DateUtils";
 import CustomerFilter from "../../shared/cusomer-condition.form";
-import { IssuingContext } from "../issuing-provider";
+import { IssueContext } from "../../issue/components/issue-provider";
 import "../promo-code.scss";
 import ChooseDiscount from "./choose-discount.create";
 
@@ -58,7 +58,7 @@ const GeneralCreate = (props: any) => {
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [prerequisiteSubtotal, setPrerequisiteSubtotal] = useState<any>();
-  const { isAllProduct, setIsAllProduct } = useContext(IssuingContext);
+  const { isAllProduct, setIsAllProduct } = useContext(IssueContext);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];

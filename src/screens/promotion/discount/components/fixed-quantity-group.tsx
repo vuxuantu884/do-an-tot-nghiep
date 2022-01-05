@@ -21,7 +21,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { RiInformationLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { handleDenyParentProduct, onSelectVariantAndProduct, parseSelectProductToTableData } from "utils/PromotionUtils";
+import { handleDenyParentProduct, onSelectVariantOfDiscount, parseSelectProductToTableData } from "utils/PromotionUtils";
 import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
 import UrlConfig from "../../../../config/url.config";
@@ -349,7 +349,7 @@ const FixedAndQuantityGroup = (props: Props) => {
               onSearch={_.debounce(onSearchVariant, 300)}
               dropdownMatchSelectWidth={456}
               style={{ width: "100%" }}
-              onSelect={(value) => onSelectVariantAndProduct(value, selectedProductParentRef, variantsOfSelectedProductRef, setIsVisibleConfirmReplaceProductModal, form, name, dispatch)}
+              onSelect={(value) => onSelectVariantOfDiscount(value, selectedProductParentRef, variantsOfSelectedProductRef, setIsVisibleConfirmReplaceProductModal, form, name, dispatch)}
               options={renderResult}
               ref={productSearchRef}
               textEmpty={"Không tìm thấy sản phẩm"}

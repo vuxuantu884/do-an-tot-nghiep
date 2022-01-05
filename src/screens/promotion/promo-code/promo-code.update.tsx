@@ -19,10 +19,10 @@ import { parseDurationToMoment } from "utils/PromotionUtils";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import { showError, showSuccess } from "../../../utils/ToastUtils";
+import IssueProvider, { IssueContext } from "../issue/components/issue-provider";
 import { CustomerFilterField } from "../shared/cusomer-condition.form";
 import GeneralConditionForm from "../shared/general-condition.form";
-import PromoCodeUpdateForm from "./components/promo-code-update-form";
-import IssuingProvider, { IssuingContext } from "./issuing-provider";
+import PromoCodeUpdateForm from "./components/promo-code-update-form"; 
 import "./promo-code.scss";
 
 const PromoCodeUpdate = () => {
@@ -47,7 +47,7 @@ const PromoCodeUpdate = () => {
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [typeUnit, setTypeUnit] = useState<string>("PERCENTAGE");
 
-  const { isAllProduct, setIsAllProduct } = useContext(IssuingContext);
+  const { isAllProduct, setIsAllProduct } = useContext(IssueContext);
 
   const transformData = (values: any) => {
     let body: any = values;
@@ -377,9 +377,9 @@ const PromoCodeUpdate = () => {
 
 const UpdatePromoWithProvider = () => {
   return (
-    <IssuingProvider>
+    <IssueProvider>
       <PromoCodeUpdate />
-    </IssuingProvider>
+    </IssueProvider>
   );
 }
 

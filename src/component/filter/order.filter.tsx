@@ -16,7 +16,7 @@ import { StyledComponent } from "component/filter/order.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import UrlConfig from "config/url.config";
-import { AccountResponse } from "model/account/account.model";
+import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
@@ -37,7 +37,7 @@ type PropTypes = {
 	listSource: Array<SourceResponse>;
 	listStore: Array<StoreResponse> | undefined;
 	accounts: Array<AccountResponse>;
-	shippers?: Array<AccountResponse>;
+	shippers?: Array<DeliverPartnerResponse>;
 	deliveryService: Array<any>;
 	listPaymentMethod: Array<PaymentMethodResponse>;
 	subStatus: Array<OrderProcessingStatusModel>;
@@ -90,6 +90,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		onFilter,
 		onShowColumnSetting
 	} = props;
+	console.log('shippers', shippers)
 	const [visible, setVisible] = useState(false);
 	const [rerender, setRerender] = useState(false);
 	const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
@@ -592,7 +593,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			let mappedShippers = shippers?.filter((account) => initialValues.shipper_codes?.some((single) => single === account.code.toString()))
 			console.log('mappedShippers', mappedShippers)
 			console.log('shippers', shippers)
-			let text = getFilterString(mappedShippers, "full_name", UrlConfig.ACCOUNTS, "code");
+			let text = getFilterString(mappedShippers, "name", UrlConfig.ACCOUNTS, "code");
 			list.push({
 				key: 'shipper_codes',
 				name: 'Đối tác giao hàng',
@@ -1039,7 +1040,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 									>
 										{shippers && shippers.map((shipper) => (
 											<CustomSelect.Option key={shipper.code} value={shipper.code}>
-												{shipper.full_name} - {shipper.code}
+												{shipper.code} - {shipper.name}
 											</CustomSelect.Option>
 										))}
 									</CustomSelect>

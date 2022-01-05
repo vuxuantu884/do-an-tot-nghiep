@@ -26,6 +26,7 @@ const { Item } = Form;
 const BaseProcumentField = {
   content: "content",
   merchandisers: "merchandisers",
+  suppliers: "suppliers"
 };
 
 interface ProcurementFilter {
@@ -46,7 +47,6 @@ const ProcurementFilterItem = {
   confirmDate: "confirmDate",
   expectDate: "expectDate",
   status: "status",
-  suppliers: "suppliers",
   stores: "stores",
 };
 
@@ -55,7 +55,6 @@ const ProcurementFilterName = {
   [ProcurementFilterItem.confirmDate]: "Ngày nhập kho",
   [ProcurementFilterItem.status]: "Trạng thái phiếu nhập kho",
   [ProcurementFilterItem.stores]: "Kho nhận hàng",
-  [ProcurementFilterItem.suppliers]: "Nhà cung cấp",
   [ProcurementFilterItem.expectDate]: "Ngày nhận dự kiến",
 };
 const { Panel } = Collapse;
@@ -198,6 +197,9 @@ function TabListFilter() {
               placeholder="Tìm kiếm phiếu nhập kho"
             />
           </Item>
+          <Item name={BaseProcumentField.suppliers} className="suppliers">
+            <SelectSupplierField isMulti />
+          </Item>
           <Item name={BaseProcumentField.merchandisers} className="merchandisers">
             <SelectMerchandisers isMulti allowClear />
           </Item>
@@ -248,9 +250,6 @@ function TabListFilter() {
 
                 case ProcurementFilterItem.stores:
                   component = <TreeStore name={field} form={formAdvanced} listStore={allStore}/>;
-                  break;
-                case ProcurementFilterItem.suppliers:
-                  component = <SelectSupplierField isMulti />;
                   break;
                 case ProcurementFilterItem.status:
                   component = (
@@ -318,19 +317,19 @@ const FilterList = ({ filters, resetField, allSupplier }: FilterListProps) => {
               renderTxt = `${ProcurementFilterName[filterKey]} : ${formatedFrom} - ${formatedTo}`;
             break;
 
-          case ProcurementFilterItem.suppliers:
-            if (Array.isArray(value) && value.length > 0) {
-              let text = "";
-              value?.forEach((id: number) => {
-                allSupplier?.forEach((element: SupplierResponse, index: number) => {
-                  if (id === element.id) {
-                    text += ", " + allSupplier[index].name;
-                  }
-                });
-              });
-              renderTxt = `${ProcurementFilterName[filterKey]} : ${text.substr(1)}`;
-            }
-            break;
+          // case ProcurementFilterItem.suppliers:
+          //   if (Array.isArray(value) && value.length > 0) {
+          //     let text = "";
+          //     value?.forEach((id: number) => {
+          //       allSupplier?.forEach((element: SupplierResponse, index: number) => {
+          //         if (id === element.id) {
+          //           text += ", " + allSupplier[index].name;
+          //         }
+          //       });
+          //     });
+          //     renderTxt = `${ProcurementFilterName[filterKey]} : ${text.substr(1)}`;
+          //   }
+          //   break;
           case ProcurementFilterItem.stores:
             if (Array.isArray(value) && value.length > 0) {
               renderTxt = `${ProcurementFilterName[filterKey]} : ${value}`;

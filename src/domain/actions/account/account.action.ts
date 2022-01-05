@@ -1,4 +1,4 @@
-import { AccountRequest, MeRequest } from "./../../../model/account/account.model";
+import { AccountRequest, DeliverPartnerResponse, MeRequest } from "./../../../model/account/account.model";
 import { PositionResponse } from "model/account/position.model";
 import { DepartmentResponse } from "model/account/department.model";
 import BaseAction from "base/base.action";
@@ -43,7 +43,7 @@ export const ShipperGetListAction = (
 };
 
 export const ExternalShipperGetListAction = (
-  setData: (data: Array<AccountResponse>) => void
+  setData: (data: Array<DeliverPartnerResponse>) => void
 ) => {
   return BaseAction(AccountType.GET_LIST_EXTERNAL_SHIPPER_REQUEST, { setData }); 
 };

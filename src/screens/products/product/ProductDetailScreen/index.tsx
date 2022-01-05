@@ -708,7 +708,7 @@ const tab= document.getElementById("tab");
           </React.Fragment>
         )}
         <BottomBarContainer
-          back="Quay lại danh sách"
+          back="Quay lại"
           rightComponent={
             <AuthWrapper acceptPermissions={[ProductPermission.update]}>
               <Button onClick={onEdit}>Sửa sản phẩm</Button>
