@@ -123,7 +123,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     });
   })
 
-  useEffect(()=>{
+  useEffect(() => {
     const txtCustomerFullName = document.getElementById("customer_update_full_name");
     const txtCustomerPhone = document.getElementById("customer_update_phone");
     const txtCustomerCarNumber = document.getElementById("customer_update_card_number");
@@ -144,7 +144,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     txtCustomerFullAddress?.addEventListener("change", (e: any) => {
       setVisibleBtnUpdate(true);
     });
-  },[isVisibleCollapseCustomer])
+  }, [isVisibleCollapseCustomer])
 
   const initialFormValueshippingAddress =
     customerItem
@@ -378,15 +378,17 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             <Col xs={24} lg={12}>
               <Form.Item
                 rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Số điện thoại",
-                  },
-                  {
-                    required: true,
-                    pattern: RegUtil.PHONE,
-                    message: "Số điện thoại sai định dạng"
-                  }
+                  () => ({
+                    validator(_, value) {
+                      if (value.length === 0) {
+                        return Promise.reject(new Error("Vui lòng nhập Số điện thoại!"));
+                      }
+                      if (!RegUtil.PHONE.test(value)) {
+                        return Promise.reject(new Error("Số điện thoại sai định dạng!"));
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
                 ]}
                 name="shipping_addresses_phone"
               //label="Số điện thoại"
@@ -667,7 +669,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         rules={[
                           () => ({
                             validator(_, value) {
-                              if(value.length===0) {
+                              if (value.length === 0) {
                                 return Promise.reject(new Error("Vui lòng nhập Số điện thoại!"));
                               }
                               if (!RegUtil.PHONE.test(value)) {
