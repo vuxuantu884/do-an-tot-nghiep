@@ -367,7 +367,7 @@ const CreateInventoryAdjustment: FC = () => {
       if (result) {
         setIsLoading(false);
         if (result) {
-          showSuccess("Thêm mới dữ liệu thành công");
+          showSuccess("Tạo phiếu kiểm thành công");
           history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}/${result.id}`);
         }
       } else {
