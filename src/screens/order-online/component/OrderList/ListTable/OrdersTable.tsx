@@ -350,7 +350,11 @@ function OrdersTable(props: PropsType) {
 											</div>
 										</div>
 										<div className="quantity quantityWidth">
-											<span>{item.quantity}</span>
+											<NumberFormat
+												value={item.quantity}
+												displayType={"text"}
+												thousandSeparator={true}
+											/>
 										</div>
 										<div className="price priceWidth">
 											<div>
@@ -395,16 +399,13 @@ function OrdersTable(props: PropsType) {
 				render: (record: any) => (
 					<React.Fragment>
 						<Tooltip title="Thành tiền">
-							<span>
-								<NumberFormat
-									value={record.total_line_amount_after_line_discount}
-									className="foo"
-									displayType={"text"}
-									thousandSeparator={true}
-								/>
-							</span>
+							<NumberFormat
+								value={record.total_line_amount_after_line_discount}
+								className="foo"
+								displayType={"text"}
+								thousandSeparator={true}
+							/>
 						</Tooltip>
-
 						{record.total_discount && (
 							<React.Fragment>
 								<br />
@@ -420,15 +421,13 @@ function OrdersTable(props: PropsType) {
 										/>
 									</span>
 								</Tooltip>
-
-
 							</React.Fragment>
 						)}
 					</React.Fragment>
 				),
 				key: "customer.amount_money",
 				visible: true,
-				align: "left",
+				align: "right",
 				width: 100,
 			},
 			{
