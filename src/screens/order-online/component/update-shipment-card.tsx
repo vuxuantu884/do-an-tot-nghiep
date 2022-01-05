@@ -1059,7 +1059,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <span style={{color: "#000000d9"}}>
                                 {fulfillment.cancel_date ? moment(
                                   fulfillment.cancel_date
-                                ).format("DD/MM/YYYY") : ''}
+                                ).format("DD/MM/YYYY HH:mm") : ''}
                               </span>
                             </span> : 
                             <span>
