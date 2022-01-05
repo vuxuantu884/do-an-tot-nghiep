@@ -211,6 +211,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 className="formInputAmount"
                 maxLength={999999999999}
                 minLength={0}
+								disabled
               />
             </Form.Item>
           </Col>

@@ -95,7 +95,9 @@ import {
 	getTotalDiscount,
 	getTotalQuantity,
 	handleDelayActionWhenInsertTextInSearchInput,
+	handleFetchApiError,
 	haveAccess,
+	isFetchApiSuccessful,
 	replaceFormatString
 } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
@@ -1274,10 +1276,8 @@ function OrderCreateProduct(props: PropType) {
 			// dispatch(showLoading());
 			await applyDiscountService(params)
 				.then(async (response: BaseResponse<ApplyCouponResponseModel>) => {
-					switch (response.code) {
-						case HttpStatus.SUCCESS:
-							// console.log("response", response);
-							const applyDiscountResponse = response.data.applied_discount;
+					if (isFetchApiSuccessful(response)) {
+						const applyDiscountResponse = response.data.applied_discount;
 							// console.log("applyDiscountResponse", applyDiscountResponse);
 							if (applyDiscountResponse.invalid === true) {
 								showError(applyDiscountResponse.invalid_description);
@@ -1424,15 +1424,13 @@ function OrderCreateProduct(props: PropType) {
 								}
 								showSuccess("Thêm coupon thành công!");
 							}
-							break;
-						default:
-							response.errors.forEach((e) => showError(e));
-							break;
+					} else {
+						handleFetchApiError(response, "Áp dụng chiết khấu", dispatch)
 					}
 				})
 				.catch((error) => {
 					console.log("error", error);
-					showError("Có lỗi khi kết nối api tính mã giảm giá!");
+					showError("Có lỗi khi áp dụng chiết khấu!");
 				})
 				.finally(() => {
 					// dispatch(hideLoading());
@@ -1897,14 +1895,14 @@ function OrderCreateProduct(props: PropType) {
 								Chiết khấu tự động
 							</Checkbox>
 						</Form.Item>
-						<Select
+						{/* <Select
 							style={{ minWidth: 145, height: 38 }}
 							placeholder="Chương trình khuyến mại"
 						>
 							<Select.Option value="" color="#222222">
 								(Tạm thời chưa có)
 							</Select.Option>
-						</Select>
+						</Select> */}
 						<Button
 							onClick={() => {
 								showInventoryModal();
