@@ -32,6 +32,7 @@ import RenderTabBar from 'component/table/StickyTabBar';
 import PurchaseOrderHistory from "../tab/PurchaseOrderHistory";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseOrderDraft } from "screens/purchase-order/purchase-order-list.style";
+import { AppConfig } from "config/app.config";
 
 export type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
@@ -593,7 +594,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                   <Form
                     initialValues={{
                       procurement_items: [],
-                      store_id: defaultStore,
+                      store_id: defaultStore ?? AppConfig.PO_STORE_DEFAULT,
                       status: ProcumentStatus.DRAFT,
                       expect_receipt_date: ConvertDateToUtc(now),
                     }}
@@ -684,7 +685,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                                 showSearch
                                 showArrow
                                 optionFilterProp="children"
-                                placeholder="Chọn kho"
+                                placeholder="YD KHO TỔNG"
                               >
                                 <Select.Option value="">Chọn kho nhận</Select.Option>
                                 {stores.map((item) => (

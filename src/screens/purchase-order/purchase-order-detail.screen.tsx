@@ -129,7 +129,7 @@ const PODetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
-        setPurchaseItem(result);
+        setPurchaseItem(result); 
         formMain.setFieldsValue(result);
         setStatus(result.status);
       }
@@ -273,7 +273,7 @@ const PODetailScreen: React.FC = () => {
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [{
       id: ActionMenu.EXPORT,
-      name: "Export excel",
+      name: "Xuất file NPL",
     }];
     if (!poData) return [];
     let poStatus = poData.status;
@@ -614,7 +614,7 @@ const PODetailScreen: React.FC = () => {
         onCancel={ActionExport.Cancel}
         title="Tải đề xuất NPL"
         okText="Export"
-        cancelText="Hủy"
+        cancelText="Đóng"
         templateUrl={AppConfig.PO_EXPORT_URL}
         forder="stock-transfer"
         customParams={{ url_template: AppConfig.PO_EXPORT_TEMPLATE_URL, conditions: poData?.id, type: "EXPORT_PO_NPL" }}

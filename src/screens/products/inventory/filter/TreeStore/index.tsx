@@ -31,7 +31,7 @@ const TreeStore = (props: Props) => {
     }
 
     const grouped: any = listStore !== undefined ? groupBy(listStore, (store: StoreResponse) => store.department) : [];
-    const newStores = _.filter([...grouped], store => store[0]?.startsWith('ASM'));
+    const newStores = _.filter([...grouped], store => store[0]);
     setStores(newStores);
   }, [listStore]);
 

@@ -733,6 +733,23 @@ function OrderCreateProduct(props: PropType) {
 		},
 	};
 
+	const inventoryColumnt = {
+		title: () => (
+			<div>
+				<span style={{ color: "#222222", textAlign: "center" }}>Tồn</span>
+			</div>
+		),
+		className: "yody-pos-quantity text-center",
+		width: "8%",
+		align: "center",
+		render: (a: OrderLineItemRequest, item: any, index: number) => {
+			let inventory = a.available ? a.available : 0;
+			return (
+				<span style={inventory > 0 ? { color: "#008000" } : { color: "#e24343" }}>{a.available ? a.available : 0}</span>
+			);
+		},
+	};
+
 	const PriceColumn = {
 		title: () => (
 			<div>
@@ -815,7 +832,7 @@ function OrderCreateProduct(props: PropType) {
 				<span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
 			</div>
 		),
-		align: "right",
+		align: "center",
 		className: "yody-table-total-money text-right",
 		width: "12%",
 		render: (l: OrderLineItemRequest, item: any, index: number) => {
@@ -911,6 +928,7 @@ function OrderCreateProduct(props: PropType) {
 	const columns = [
 		ProductColumn,
 		AmountColumn,
+		inventoryColumnt,
 		PriceColumn,
 		DiscountColumn,
 		TotalPriceColumn,
@@ -2089,7 +2107,7 @@ function OrderCreateProduct(props: PropType) {
 								<div
 									className="yody-foot-total-text"
 									style={{
-										width: "37%",
+										width: "32%",
 										float: "left",
 										fontWeight: 700,
 									}}
@@ -2099,7 +2117,7 @@ function OrderCreateProduct(props: PropType) {
 
 								<div
 									style={{
-										width: "16%",
+										width: "27.5%",
 										float: "left",
 										textAlign: "right",
 									}}
@@ -2109,7 +2127,7 @@ function OrderCreateProduct(props: PropType) {
 
 								<div
 									style={{
-										width: "21%",
+										width: "14.5%",
 										float: "left",
 										textAlign: "right",
 									}}
@@ -2119,7 +2137,7 @@ function OrderCreateProduct(props: PropType) {
 
 								<div
 									style={{
-										width: "14.5%",
+										width: "13.5%",
 										float: "left",
 										textAlign: "right",
 										color: "#000000",

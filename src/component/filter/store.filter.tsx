@@ -106,7 +106,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               placeholder="Tên/ Mã cửa hàng/ Sđt/ Hotline"
             />
           </Form.Item> 
-          <Form.Item name="department" style={{ minWidth: 200 }}>
+          <Form.Item name="department_id" style={{ minWidth: 200 }}>
             <TreeSelect
               placeholder="Chọn trực thuộc"
               treeDefaultExpandAll

@@ -38,6 +38,7 @@ import SupplierAddModal from "screens/products/supplier/modal/supplier-add-modal
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { RegUtil } from "utils/RegUtils";
 import UrlConfig from "config/url.config";
+import _ from "lodash";
 
 type POSupplierFormProps = {
   listCountries: Array<CountryResponse>;
@@ -77,19 +78,24 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const [addressChangeType, setAddressChangeType] = useState<string>("");
   const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(isEdit);
 
-  const onSupplierSearchChange = useCallback(
-    (value) => {
-      if (value.length >= 3) {
-        setLoadingSearch(true);
-        dispatch(
-          SupplierSearchAction({ condition: value, status: "active" }, onResult)
-        );
-      } else {
-        setData([]);
-      }
-    },
+  
+  const debouncedSearchSupplier = React.useMemo(() =>
+    _.debounce((keyword: string) => {
+      setLoadingSearch(true);
+      dispatch(
+        SupplierSearchAction({ condition: keyword.trim(), status: "active" }, onResult)
+      );
+    }, 300),
     [dispatch, onResult]
-  );
+  ) 
+
+  const onChangeKeySearchSupplier = useCallback(
+    (keyword: string) => {
+      debouncedSearchSupplier(keyword)
+    },
+    [debouncedSearchSupplier]
+  )   
+
   const ShowEditAddressModal = useCallback(
     (addressInfo: PurchaseAddress, type: string) => {
       setAddressChangeType(type);
@@ -275,7 +281,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       loading={loadingSearch}
                       dropdownClassName="supplier"
                       placeholder="Tìm kiếm nhà cung cấp"
-                      onSearch={onSupplierSearchChange}
+                      onSearch={onChangeKeySearchSupplier}
                       dropdownMatchSelectWidth={456}
                       style={{ width: "100%" }}
                       showAdd={true}
@@ -603,7 +609,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         let supplier_address: PurchaseAddress =
                           getFieldValue("supplier_address");
                           
-                        return supplier_id ? (
+                        return supplier_id && (
                           <div>
                             <div className="title-address">
                               Địa chỉ xuất hàng :
@@ -676,7 +682,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                               Thay đổi địa chỉ xuất hàng
                             </Button>
                           </div>
-                        ) : null;
+                        );
                       }}
                     </Form.Item>
                   </Col>
