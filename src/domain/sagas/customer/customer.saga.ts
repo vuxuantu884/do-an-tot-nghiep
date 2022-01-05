@@ -66,7 +66,7 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
         query
       );
 			if (isFetchApiSuccessful(response)) {
-				setData(response.data);
+				setData(response.data.items);
 			} else {
 				yield put(fetchApiErrorAction(response, "Tìm kiếm khách hàng"));
 			}
