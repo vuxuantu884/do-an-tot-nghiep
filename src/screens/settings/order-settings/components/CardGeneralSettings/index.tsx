@@ -149,7 +149,9 @@ function CardGeneralSettings(props: PropType) {
   return (
     <StyledComponent>
       <Card title="Cài đặt chung">
-        <Row gutter={30}>
+
+        {/* /////////////// */}
+        <Row style={{padding:"0px 30px"}} >
           <Col span={12}>
             <div className="singleSetting">
               <h4 className="title">Cho khách hàng xem hàng</h4>
@@ -201,7 +203,36 @@ function CardGeneralSettings(props: PropType) {
             </div>
           </Col>
           <Col span={12}>
-            <div className="singleSetting">
+          <div className="singleSetting">
+              <h4 className="title">
+                In hóa đơn
+              </h4>
+              <div className="singleSetting__content">
+                <Select
+                  key={Math.random()}
+                  placeholder="Chọn in hóa đơn"
+                  onChange={onChangeSelectSettingPrinter}
+                  className="selectInNhieuDonHang"
+                  defaultValue={
+                    listOrderConfigs?.order_config_print.id.toString() ||
+                    undefined
+                  }
+                >
+                  <Select.Option value={1} key={1}>
+                      In hóa đơn không hiển thị quà tặng
+                  </Select.Option>
+                   <Select.Option value={1} key={1}>
+                      In hóa đơn không hiển thị quà tặng
+                  </Select.Option>
+                </Select>
+              </div>
+            </div>
+          </Col>
+        </Row>
+
+        <Row  style={{marginTop:"10px", padding:"0px 30px"}}>
+          <Col span={12}>
+          <div className="singleSetting">
               <h4 className="title">Cài đặt khác</h4>
               <div className="singleSetting__content">
                 <Space direction="vertical" size={15}>
@@ -226,6 +257,9 @@ function CardGeneralSettings(props: PropType) {
                 </Space>
               </div>
             </div>
+           
+          </Col>
+          <Col span={12}>
             <div className="singleSetting">
               <h4 className="title">
                 Cấu hình cho phép in nhiều liên đơn hàng cho hóa đơn bán lẻ
