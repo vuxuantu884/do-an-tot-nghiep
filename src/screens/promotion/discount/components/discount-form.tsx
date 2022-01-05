@@ -1,8 +1,8 @@
 import { Card, Col, Form, FormInstance, Input, InputNumber, Row, Select, Space, Switch } from 'antd';
-import _ from 'lodash';
-import {  PriceRuleMethod, EntilementFormModel } from 'model/promotion/price-rules.model';
+import { PriceRuleMethod } from 'model/promotion/price-rules.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
-import { DiscountUnitType, priorityOptions } from '../constants';
+import { handleChangeDiscountMethod } from 'utils/PromotionUtils';
+import { priorityOptions } from '../constants';
 import { DiscountContext } from './discount-provider';
 import GroupDiscountList from './group-discount-list';
 import OrderThreshold from './order-threshold';
@@ -21,46 +21,6 @@ function DiscountUpdateForm({
     const { discountMethod, setDiscountMethod } = discountUpdateContext;
 
     const [unlimitedQuantity, setUnlimitedQuantity] = useState<boolean>(false);
-
-    const handleChangeDiscountMethod = (value: string) => {
-        if (value) {
-            setDiscountMethod(value);
-            const formData = form.getFieldsValue(true);
-            const isFixedPriceMethod = value === PriceRuleMethod.FIXED_PRICE;
-            const isQuantityMethod = value === PriceRuleMethod.QUANTITY;
-
-            const valueType = isFixedPriceMethod ? DiscountUnitType.FIXED_PRICE.value : DiscountUnitType.PERCENTAGE.value
-            if ((isFixedPriceMethod || isQuantityMethod) &&
-                Array.isArray(formData?.entitlements) && formData?.entitlements.length > 0) {
-                formData?.entitlements?.forEach((item: EntilementFormModel) => {
-                    const temp = {
-                        prerequisite_quantity_ranges: [{
-                            value_type: valueType,
-                            greater_than_or_equal_to: 1,
-                            value: 0,
-                        }]
-                    };
-                    _.merge(item, temp);
-                });
-            } else if ((isFixedPriceMethod || isQuantityMethod)) {
-                formData.entitlements = [{
-                    entitled_category_ids: [],
-                    entitled_product_ids: [],
-                    entitled_variant_ids: [],
-                    prerequisite_variant_ids: [],
-                    selectedProducts: [],
-                    prerequisite_quantity_ranges: [{
-                        value_type: valueType,
-                        greater_than_or_equal_to: 1,
-                        value: 0,
-                    }]
-                }];
-            }
-            form.setFieldsValue({
-                entitlements: _.cloneDeep(formData?.entitlements)
-            })
-        }
-    }
 
     useLayoutEffect(() => {
         setUnlimitedQuantity(unlimitedUsageProps);
@@ -96,7 +56,7 @@ function DiscountUpdateForm({
                         <Row gutter={30}>
                             <Col span={12}>
                                 <Form.Item
-                                    label={<b>Số lượng áp dụng:</b>}
+                                    label={"Số lượng áp dụng"}
                                     name="quantity_limit"
                                     rules={[
                                         {
@@ -166,10 +126,10 @@ function DiscountUpdateForm({
             <Card>
                 <Row gutter={30}>
                     <Col span={24}>
-                        <Form.Item name="entitled_method" label={<b>Phương thức chiết khấu</b>}>
+                        <Form.Item name="entitled_method" label={'Phương thức chiết khấu'}>
                             <Select
                                 onChange={(value: string) => {
-                                    handleChangeDiscountMethod(value)
+                                    handleChangeDiscountMethod(value as PriceRuleMethod, form, setDiscountMethod)
                                 }}
                             >
                                 <Option value={PriceRuleMethod.FIXED_PRICE.toString()}>Đồng giá</Option>

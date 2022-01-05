@@ -1,21 +1,18 @@
 import {FormInstance} from "antd";
 import {YodyAction} from "base/base.action";
-import {
-  productGetDetail,
-  searchProductWrapperRequestAction,
-} from "domain/actions/product/products.action";
+import {productGetDetail} from "domain/actions/product/products.action";
 import _ from "lodash";
-import {PageResponse} from "model/base/base-metadata.response";
 import {ProductResponse, VariantResponse} from "model/product/product.model";
 import {
   EntilementFormModel,
+  IgnoreVariant,
+  PriceRuleMethod,
   ProductEntitlements,
   VariantEntitlementsFileImport,
-  PriceRuleMethod,
-  IgnoreVariant,
 } from "model/promotion/price-rules.model";
 import moment from "moment";
 import {Dispatch} from "redux";
+import {DiscountUnitType} from "screens/promotion/discount/constants";
 import {CustomerFilterField} from "screens/promotion/shared/cusomer-condition.form";
 import {formatCurrency} from "./AppUtils";
 import {PROMO_TYPE} from "./Constants";
@@ -278,7 +275,6 @@ export const shareDiscountImportedProduct = (
   form.setFieldsValue({entitlements: cleanEntilementList});
 };
 
-
 export function nonAccentVietnamese(str: string) {
   str = str.toLowerCase();
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
@@ -375,43 +371,43 @@ export const getDayOptions = () => {
   return days;
 };
 
-export const handleSearchProduct = _.debounce(
-  (
-    dispatch: Dispatch<YodyAction>,
-    value: string,
-    onSetData: (data: Array<ProductResponse>) => void
-  ) => {
-    dispatch(
-      searchProductWrapperRequestAction(
-        {
-          status: "active",
-          limit: 200,
-          page: 1,
-          info: value.trim(),
-        },
-        (response: PageResponse<ProductResponse> | false) => {
-          if (response) {
-            onSetData(response.items);
-          }
-        }
-      )
-    );
-  },
-  500
-);
+// export const handleSearchProduct = _.debounce(
+//   (
+//     dispatch: Dispatch<YodyAction>,
+//     value: string,
+//     onSetData: (data: Array<ProductResponse>) => void
+//   ) => {
+//     dispatch(
+//       searchProductWrapperRequestAction(
+//         {
+//           status: "active",
+//           limit: 200,
+//           page: 1,
+//           info: value.trim(),
+//         },
+//         (response: PageResponse<ProductResponse> | false) => {
+//           if (response) {
+//             onSetData(response.items);
+//           }
+//         }
+//       )
+//     );
+//   },
+//   500
+// );
 
 /**
- *
+ * chọn sp chiết khấu
  * @param value : selected product
  * @param selectedProductParentRef : ref of selected product parent
- * @param variantIdOfSelectedProdcutRef : ref of selected product parent
+ * @param variantIdOfSelectedProdcutRef : save variant id of selected product => remove another variant if exist
  * @param setIsVisibleConfirmModal : variant id of selected product
  * @param form : form
  * @param name : number of discount group
  * @param dispatch  : dispatch
  * @returns : none
  */
-export const onSelectVariantAndProduct = (
+export const onSelectVariantOfDiscount = (
   value: string,
   selectedProductParentRef: any,
   variantIdOfSelectedProdcutRef: any,
@@ -420,7 +416,7 @@ export const onSelectVariantAndProduct = (
   name: number, // index of a group entilement
   dispatch: Dispatch<YodyAction>
 ) => {
-  let entitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+  const entitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
 
   const currentProductList: Array<ProductEntitlements> =
     entitlements[name].selectedProducts || [];
@@ -530,7 +526,6 @@ export const parseSelectVariantToTableData = (selectedItem: VariantResponse) => 
     isParentProduct: false,
   };
 };
-
 
 export const addProductFromSelectToForm = (
   selectedItem: VariantResponse,
@@ -693,4 +688,65 @@ export const transformData = (values: any) => {
   }
 
   return body;
+};
+
+/**
+ *
+ * @param value
+ * @param form
+ * @param setDiscountMethod
+ */
+export const handleChangeDiscountMethod = (
+  value: PriceRuleMethod,
+  form: FormInstance,
+  setDiscountMethod: (discountMethod: PriceRuleMethod) => void
+) => {
+  if (value) {
+    setDiscountMethod(value);
+    const formData = form.getFieldsValue(true);
+    const isFixedPriceMethod = value === PriceRuleMethod.FIXED_PRICE;
+    const isQuantityMethod = value === PriceRuleMethod.QUANTITY;
+
+    const valueType = isFixedPriceMethod
+      ? DiscountUnitType.FIXED_PRICE.value
+      : DiscountUnitType.PERCENTAGE.value;
+    if (
+      (isFixedPriceMethod || isQuantityMethod) &&
+      Array.isArray(formData?.entitlements) &&
+      formData?.entitlements.length > 0
+    ) {
+      formData?.entitlements?.forEach((item: EntilementFormModel) => {
+        const temp = {
+          prerequisite_quantity_ranges: [
+            {
+              value_type: valueType,
+              greater_than_or_equal_to: 1,
+              value: 0,
+            },
+          ],
+        };
+        _.merge(item, temp);
+      });
+    } else if (isFixedPriceMethod || isQuantityMethod) {
+      formData.entitlements = [
+        {
+          entitled_category_ids: [],
+          entitled_product_ids: [],
+          entitled_variant_ids: [],
+          prerequisite_variant_ids: [],
+          selectedProducts: [],
+          prerequisite_quantity_ranges: [
+            {
+              value_type: valueType,
+              greater_than_or_equal_to: 1,
+              value: 0,
+            },
+          ],
+        },
+      ];
+    }
+    form.setFieldsValue({
+      entitlements: _.cloneDeep(formData?.entitlements),
+    });
+  }
 };
