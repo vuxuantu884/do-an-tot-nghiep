@@ -19,7 +19,7 @@ import {
 	actionGetOrderConfig,
 	actionListConfigurationShippingServiceAndShippingFee
 } from "domain/actions/settings/order-settings.action";
-import { AccountResponse } from "model/account/account.model";
+import { DeliverPartnerResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -131,7 +131,7 @@ function OrderCreateShipment(props: PropType) {
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
-  const [listExternalShippers, setListExternalShippers] = useState<Array<AccountResponse> | null>(null);
+  const [listExternalShippers, setListExternalShippers] = useState<Array<DeliverPartnerResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]

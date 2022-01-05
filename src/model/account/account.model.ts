@@ -36,6 +36,15 @@ export interface AccountResponse extends AccountBaseModel, BaseObject {
   role_name: string;
 }
 
+export interface DeliverPartnerResponse { 
+  address: string;
+	code: string;
+	id: number;
+	name: string;
+	phone: string;
+	status: string;
+	tax_code: string|null;
+}
 export interface AccountSearchQuery extends BaseQuery {
   code?: string;
   department_ids?: Array<number>;
