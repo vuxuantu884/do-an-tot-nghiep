@@ -14,6 +14,7 @@ export enum PriceRuleType {
   AUTOMATIC= "AUTOMATIC", // Tự động
   MANUAL = "MANUAL", // Thủ công
 }
+
 export enum PriceRuleState {
   DRAFT = "DRAFT",
   ACTIVE = "ACTIVE",
@@ -116,7 +117,7 @@ export interface EntilementFormModel {
   entitled_variant_ids: Array<number>;
   prerequisite_quantity_ranges: Array<EntitleRange>;
   prerequisite_variant_ids?: Array<number>;
-  selectedProducts?: Array<ProductEntitlements>;
+  selectedProducts?: Array<ProductEntitlements>;// dùng trong local, không dùng để gửi lên server
 }
 
 export interface EntitleRange {
@@ -192,3 +193,4 @@ export interface PriceRule extends BaseObject {
   usage_limit?: number;
   usage_limit_per_customer?: number;
 }
+

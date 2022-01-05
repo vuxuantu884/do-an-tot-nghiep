@@ -18,10 +18,10 @@ import React, {
 } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { IssueContext } from "screens/promotion/issue/components/issue-provider";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
-import { showError } from "utils/ToastUtils";
-import { IssuingContext } from "../issuing-provider";
+import { showError } from "utils/ToastUtils"; 
 import "../promo-code.scss";
 import ChooseDiscount from "./choose-discount.create";
 const {Option} = Select;
@@ -49,7 +49,7 @@ function PromoCodeUpdateForm({
   // const [isProduct, setIsProduct] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [data, setData] = useState<Array<VariantResponse>>([]);
-  const { isAllProduct, setIsAllProduct } = useContext(IssuingContext);
+  const { isAllProduct, setIsAllProduct } = useContext(IssueContext);
 
 
   const onDeleteItem = (index: number) => {

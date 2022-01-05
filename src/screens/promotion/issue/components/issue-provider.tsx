@@ -1,21 +1,21 @@
 
 import React, { createContext, ReactNode, useState } from "react";
 
-type IssuingAction = {
+type IssueAction = {
 
   isAllProduct: boolean;
   setIsAllProduct: (discountData: boolean) => void;
 };
 
-export const IssuingContext = createContext<IssuingAction>(
-  {} as IssuingAction
+export const IssueContext = createContext<IssueAction>(
+  {} as IssueAction
 );
 
-function IssuingProvider(props: { children: ReactNode }) {
+function IssueProvider(props: { children: ReactNode }) {
   const [isAllProduct, setIsAllProduct] = useState<boolean>(false);
 
   return (
-    <IssuingContext.Provider
+    <IssueContext.Provider
       {...props}
       value={{
         isAllProduct,
@@ -25,4 +25,4 @@ function IssuingProvider(props: { children: ReactNode }) {
   );
 }
 
-export default IssuingProvider;
+export default IssueProvider;
