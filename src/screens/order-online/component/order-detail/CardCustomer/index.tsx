@@ -325,6 +325,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //Delete customer
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
+    props.ShippingAddressChange(null);
     setVisibleCustomer(false);
     setKeySearchCustomer("");
   };
@@ -346,12 +347,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             (data: CustomerResponse | null) => {
               if (data) {
                 handleCustomer(data);
-                //set Shipping Address
-                let shipping_addresses_index: number = data.shipping_addresses.findIndex(x => x.default === true);
-                props.ShippingAddressChange(shipping_addresses_index!==-1?data.shipping_addresses[shipping_addresses_index]:null);
-                //set Billing Address
-                let billing_addresses_index=data.billing_addresses.findIndex(x=>x.default===true);
-                props.BillingAddressChange(billing_addresses_index?data.billing_addresses[billing_addresses_index]:null);
+                // //set Shipping Address
+                // let shipping_addresses_index: number = data.shipping_addresses.findIndex(x => x.default === true);
+                // props.ShippingAddressChange(shipping_addresses_index!==-1?data.shipping_addresses[shipping_addresses_index]:null);
+                // //set Billing Address
+                // let billing_addresses_index=data.billing_addresses.findIndex(x=>x.default===true);
+                // props.BillingAddressChange(billing_addresses_index!==-1?data.billing_addresses[billing_addresses_index]:null);
               }
             }
           )

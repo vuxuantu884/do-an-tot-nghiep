@@ -847,10 +847,11 @@ export default function Order() {
 		if (customer) {
 			dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
 			setVisibleCustomer(true);
-			let shippingAddressItem = customer.shipping_addresses.find(
-				(p: any) => p.default === true
-			);
-			if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
+
+			let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
+			onChangeShippingAddress(shipping_addresses_index!==-1?customer.shipping_addresses[shipping_addresses_index]:null);
+			let billing_addresses_index=customer.billing_addresses.findIndex(x=>x.default===true);
+			onChangeBillingAddress(billing_addresses_index!==-1?customer.billing_addresses[billing_addresses_index]:null);
 		} else {
 			setLoyaltyPoint(null);
 		}
