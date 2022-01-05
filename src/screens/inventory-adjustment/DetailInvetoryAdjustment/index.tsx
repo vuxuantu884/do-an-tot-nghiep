@@ -524,38 +524,9 @@ const DetailInvetoryAdjustment: FC = () => {
               min={0}
               maxLength={12}
               value={value}
-              onChange={(value) => {
-                onRealQuantityChange(value, row, index);
-              }}
-              onKeyPress={(event) => {
-                if (event.key === "Enter") {
-                  let value = event.target.value;
-                  row.real_on_hand = value ?? 0;
-                  let totalDiff = 0;
-                  totalDiff = value - row.on_hand;
-                  if (totalDiff === 0) {
-                    row.on_hand_adj = null;
-                    row.on_hand_adj_dis = null;
-                  } else if (row.on_hand < value) {
-                    row.on_hand_adj = totalDiff;
-                    row.on_hand_adj_dis = `+${totalDiff}`;
-                  } else if (row.on_hand > value) {
-                    row.on_hand_adj = totalDiff;
-                    row.on_hand_adj_dis = `${totalDiff}`;
-                  }
-                  
-                  dispatch(
-                    updateItemOnlineInventoryAction(data?.id, row, (result: LineItemAdjustment) => {
-                      if (result) {
-                        showSuccess("Nhập tồn thực tế thành công.");
-                        onEnterFilterVariant();
-                        const version = form.getFieldValue('version');
-                        form.setFieldsValue({version: version + 1});
-                      }
-                    })
-                  );
-                }
-              }}
+              onChange={(value) => { 
+                onChangeRealOnHand(row, value ?? 0);
+              }} 
             />
           );
         } else {
@@ -684,18 +655,18 @@ const onChangeNote = useCallback(
   }, [dispatch, data?.id, onResult]);
 
   const onEnterFilterVariant = useCallback(
-    () => {
+    (code: string) => {
       setTableLoading(true);
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,
-          `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+          `page=1&limit=30&condition=${code?.toLocaleLowerCase()}`,
           onResultDataTable
         )
       );
       setTableLoading(false);
     },
-    [keySearch, dispatch, idNumber, onResultDataTable]
+    [dispatch, idNumber, onResultDataTable]
   );
 
   type accountAudit = {
@@ -714,7 +685,7 @@ const onChangeNote = useCallback(
   );
 
   const onRealQuantityChange = useCallback(
-    (quantity: number | any, row: LineItemAdjustment, index: number) => {
+    (quantity: number | any, row: LineItemAdjustment) => {
       const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataLinesItem.items);
 
       dataTableClone.forEach((item) => {
@@ -779,14 +750,14 @@ const onChangeNote = useCallback(
   );
 
   const debounceSearchVariant = useMemo(()=>
-    _.debounce(()=>{
-      onEnterFilterVariant();
+    _.debounce((code: string)=>{
+      onEnterFilterVariant(code);
    }, 300),
    [onEnterFilterVariant]
    );
 
-  const onChangeKeySearch = useCallback(()=>{
-    debounceSearchVariant();
+  const onChangeKeySearch = useCallback((code: string)=>{
+    debounceSearchVariant(code);
   },[debounceSearchVariant]); 
 
   const onExport = useCallback(() => {
@@ -911,7 +882,49 @@ const onChangeNote = useCallback(
 
   useEffect(()=>{
     dispatch(AccountSearchAction({}, setDataAccounts));
-  },[dispatch,setDataAccounts])
+  },[dispatch,setDataAccounts]);
+
+  const debounceChangeRealOnHand = useMemo(()=>
+  _.debounce((row: LineItemAdjustment, realOnHand: number)=>{
+      if (row.real_on_hand && row.real_on_hand === realOnHand) {
+        return;
+      }
+      onRealQuantityChange(realOnHand, row);
+      let value = realOnHand;
+      row.real_on_hand = value ?? 0;
+      let totalDiff = 0;
+      totalDiff = value - row.on_hand;
+      if (totalDiff === 0) {
+        row.on_hand_adj = null;
+        row.on_hand_adj_dis = null;
+      } else if (row.on_hand < value) {
+        row.on_hand_adj = totalDiff;
+        row.on_hand_adj_dis = `+${totalDiff}`;
+      } else if (row.on_hand > value) {
+        row.on_hand_adj = totalDiff;
+        row.on_hand_adj_dis = `${totalDiff}`;
+      }
+      if (!data || (data === undefined || !data.id)) {
+        return null;
+      }
+      
+      dispatch(
+        updateItemOnlineInventoryAction(data.id, row, (result: LineItemAdjustment) => {
+          if (result) {
+            showSuccess("Nhập tồn thực tế thành công.");
+            onEnterFilterVariant(keySearch);
+            const version = form.getFieldValue('version');
+            form.setFieldsValue({version: version + 1});
+          }
+        })
+      );
+    },300),
+ [data,dispatch,onRealQuantityChange,onEnterFilterVariant, form, keySearch]
+ );
+
+  const onChangeRealOnHand = useCallback((item: LineItemAdjustment, realOnHand: number)=>{
+    debounceChangeRealOnHand(item, realOnHand);
+  },[debounceChangeRealOnHand]);
 
   return (
     <StyledWrapper>
@@ -1039,13 +1052,13 @@ const onChangeNote = useCallback(
                             value={keySearch}
                             onChange={(e) => {
                               setKeySearch(e.target.value);
-                              onChangeKeySearch();
+                              onChangeKeySearch(e.target.value);
                             }} 
                             style={{marginLeft: 8}}
                             placeholder="Tìm kiếm sản phẩm trong phiếu"
                             addonAfter={
                               <SearchOutlined
-                                onClick={onChangeKeySearch}
+                                onClick={()=>{onChangeKeySearch(keySearch)}}
                                 style={{color: "#2A2A86"}}
                               />
                             }

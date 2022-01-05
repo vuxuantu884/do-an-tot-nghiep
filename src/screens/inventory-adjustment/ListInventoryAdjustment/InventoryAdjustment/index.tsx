@@ -169,7 +169,7 @@ const InventoryAdjustment: React.FC = () => {
           </Link>
           <br />
           <span style={{fontSize: "12px"}}>
-            Ngày tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+            Ngày tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYYY)}
           </span>
         </>
       ),
