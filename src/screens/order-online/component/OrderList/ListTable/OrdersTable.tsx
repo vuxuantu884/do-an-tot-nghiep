@@ -406,7 +406,7 @@ function OrdersTable(props: PropsType) {
 								thousandSeparator={true}
 							/>
 						</Tooltip>
-						{record.total_discount && (
+						{record.total_discount ? (
 							<React.Fragment>
 								<br />
 								<Tooltip title="Chiết khấu đơn hàng">
@@ -422,7 +422,7 @@ function OrdersTable(props: PropsType) {
 									</span>
 								</Tooltip>
 							</React.Fragment>
-						)}
+						) : null}
 					</React.Fragment>
 				),
 				key: "customer.amount_money",

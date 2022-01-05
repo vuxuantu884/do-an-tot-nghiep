@@ -1,14 +1,14 @@
 import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Collapse,
-  Form,
-  Row,
-  Space,
-  Tag,
-  Typography
+	Badge,
+	Button,
+	Card,
+	Col,
+	Collapse,
+	Form,
+	Row,
+	Space,
+	Tag,
+	Typography
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
@@ -22,31 +22,29 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
-import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
-  DeliveryServicesGetList,
-  getTrackingLogFulfillmentAction,
-  UpdateFulFillmentStatusAction,
-  UpdateShipmentAction
+	DeliveryServicesGetList,
+	getTrackingLogFulfillmentAction,
+	UpdateFulFillmentStatusAction,
+	UpdateShipmentAction
 } from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  UpdateFulFillmentRequest,
-  UpdateFulFillmentStatusRequest,
-  UpdateLineFulFillment,
-  UpdateShipmentRequest
+	UpdateFulFillmentRequest,
+	UpdateFulFillmentStatusRequest,
+	UpdateLineFulFillment,
+	UpdateShipmentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  DeliveryServiceResponse,
-  OrderResponse,
-  ShipmentResponse,
-  TrackingLogFulfillmentResponse
+	DeliveryServiceResponse,
+	OrderResponse,
+	ShipmentResponse,
+	TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -54,13 +52,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { setTimeout } from "timers";
 import {
-  checkIfOrderHasReturnedAll,
-  checkPaymentStatusToShow,
-  CheckShipmentType,
-  formatCurrency,
-  getAmountPayment, getShippingAddressDefault, SumWeight,
-  SumWeightResponse,
-  TrackingCode
+	checkIfOrderHasReturnedAll,
+	checkPaymentStatusToShow,
+	CheckShipmentType,
+	formatCurrency,
+	getAmountPayment, getShippingAddressDefault, SumWeight,
+	SumWeightResponse,
+	TrackingCode
 } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { dangerColor } from "utils/global-styles/variables";
@@ -147,7 +145,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     return ffm;
   }, [props.OrderDetailAllFullfilment]);
   // state
-  const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   // const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
   //   useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] = useState<boolean>(false);
@@ -207,12 +204,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     clearTimeout(decWidth);
     navigator.clipboard.writeText(data ? data : "").then(() => {});
   };
-
-  //#endregion
-  useEffect(() => {
-    dispatch(ShipperGetListAction(setShipper));
-    
-  }, [dispatch]);
 
   const [reload, setReload] = useState(false);
   useEffect(() => {
@@ -1157,7 +1148,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
                                 {(fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EMPLOYEE ||
                                 fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SHIPPER)  &&
-                                  shipper &&
                                   fulfillment.shipment?.info_shipper}
                               </b>
                             </Col>
