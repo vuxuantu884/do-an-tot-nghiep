@@ -20,6 +20,8 @@ import {takeLatest} from "typed-redux-saga";
 import {DiscountType, PriceRuleType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
 import { PriceRule } from 'model/promotion/price-rules.model';
+import { isFetchApiSuccessful } from 'utils/AppUtils';
+import { fetchApiErrorAction } from 'domain/actions/app.action';
 
 function* getDiscounts(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -28,22 +30,15 @@ function* getDiscounts(action: YodyAction) {
       searchDiscountList,
       query
     );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        setData(null);
-        yield put(unauthorizedAction());
-        break;
-      default:
-        setData(null);
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			setData(response.data);
+		} else {
+			setData(null);
+			yield put(fetchApiErrorAction(response, "Thông tin khuyến mại đơn hàng"));
+		}
   } catch (error) {
     setData(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy thông tin khuyến mại đơn hàn. Vui lòng thử lại sau!");
   }
 }
 
@@ -54,22 +49,15 @@ function* getVariantsAct(action: YodyAction) {
       getVariantApi,
       id
     );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        onResult(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        onResult(false);
-        yield put(unauthorizedAction());
-        break;
-      default:
-        onResult(false);
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			onResult(response.data);
+		} else {
+			onResult(false);
+			yield put(fetchApiErrorAction(response, "Danh sách sản phẩm"));
+		}
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy danh sách sản phẩm. Vui lòng thử lại sau!");
   }
 }
 

@@ -1,19 +1,19 @@
-import {OrderModel} from "model/order/order.model";
-import {CustomerDuplicateModel} from "./../../../model/order/duplicate.model";
-import {OrderType} from "domain/types/order.type";
-import {
-  getDetailOrderDuplicateService,
-  getOrderDuplicateService,
-  putOrderCancelService,
-  putOrderMergeService,
-} from "./../../../service/order/order-duplicate.service";
-import {call, takeLatest, put} from "@redux-saga/core/effects";
-import {YodyAction} from "base/base.action";
-import {showError} from "utils/ToastUtils";
+import { call, put, takeLatest } from "@redux-saga/core/effects";
+import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import {HttpStatus} from "config/http-status.config";
-import {PageResponse} from "model/base/base-metadata.response";
-import {unauthorizedAction} from "./../../actions/auth/auth.action";
+import { fetchApiErrorAction } from "domain/actions/app.action";
+import { OrderType } from "domain/types/order.type";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderModel } from "model/order/order.model";
+import { isFetchApiSuccessful } from "utils/AppUtils";
+import { showError } from "utils/ToastUtils";
+import { CustomerDuplicateModel } from "./../../../model/order/duplicate.model";
+import {
+	getDetailOrderDuplicateService,
+	getOrderDuplicateService,
+	putOrderCancelService,
+	putOrderMergeService
+} from "./../../../service/order/order-duplicate.service";
 
 function* getOrderDuplicateSaga(action: YodyAction) {
   let {param, setData} = action.payload;
@@ -22,19 +22,13 @@ function* getOrderDuplicateSaga(action: YodyAction) {
       getOrderDuplicateService,
       param
     );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			setData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách đơn trùng"));
+		}
   } catch {
-    showError("Có lỗi khi lấy dữ liệu khach hàng có đơn trùng! Vui lòng thử lại sau!");
+    showError("Có lỗi khi lấy danh sách đơn trùng! Vui lòng thử lại sau!");
   }
 }
 
@@ -42,19 +36,12 @@ function* putOrderDuplicateMergeSaga(action: YodyAction) {
   let {origin_id, ids, setData} = action.payload;
   try {
     let response: BaseResponse<OrderModel> = yield call(putOrderMergeService, origin_id, ids);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        setData(null);
-        yield put(unauthorizedAction());
-        break;
-      default:
-        setData(null);
-        response.errors.forEach((e: any) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			setData(response.data);
+		} else {
+			setData(null);
+			yield put(fetchApiErrorAction(response, "Gộp đơn trùng"));
+		}
   } catch {
     showError("Có lỗi xảy ra khi thực hiện thao tác gộp đơn trùng");
   }
@@ -64,20 +51,14 @@ function* putOrderDuplicateCancelSaga(action: YodyAction) {
   let {ids, setData} = action.payload;
   try {
     let response: BaseResponse<any> = yield call(putOrderCancelService, ids);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(true);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        setData(false);
-        yield put(unauthorizedAction());
-        break;
-      default:
-        setData(false);
-        response.errors.forEach((e: any) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			setData(true);
+		} else {
+			setData(false);
+			yield put(fetchApiErrorAction(response, "Hủy đơn trùng"));
+		}
   } catch {
+		setData(false);
     showError("Có lỗi xảy ra khi thực hiện thao tác hủy đơn trùng");
   }
 }
@@ -89,19 +70,13 @@ function* getDetailOrderDuplicateSaga(action: YodyAction) {
       getDetailOrderDuplicateService,
       query
     );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			setData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách đơn trùng"));
+		}
   } catch (error) {
-    showError("Có lỗi khi lấy dữ liệu danh sách đơn hàng! Vui lòng thử lại sau!");
+    showError("Có lỗi khi lấy dữ liệu danh sách đơn trùng! Vui lòng thử lại sau!");
   }
 }
 

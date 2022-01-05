@@ -2,8 +2,6 @@ import { Checkbox, Col, Form, FormInstance, Radio, Row } from "antd";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
-import { HttpStatus } from "config/http-status.config";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { AccountResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { SelfDeliveryData } from "model/response/order/order.response";
@@ -11,8 +9,7 @@ import { SelfDeliveryData } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { showError } from "utils/ToastUtils";
+import { formatCurrency, handleFetchApiError, isFetchApiSuccessful, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -65,19 +62,11 @@ console.log('initYodyAccountData', initYodyAccountData)
 			store_ids: [storeId],
 		})
 			.then((response) => {
-				if (response) {
-					switch (response.code) {
-						case HttpStatus.SUCCESS:
-							setStoreAccountData(response.data.items);
-							setInitYodyAccountData(response.data.items);
-							break;
-						case HttpStatus.UNAUTHORIZED:
-							dispatch(unauthorizedAction());
-							break;
-						default:
-							response.errors.forEach((e) => showError(e));
-							break;
-					}
+				if (isFetchApiSuccessful(response)) {
+					setStoreAccountData(response.data.items);
+					setInitYodyAccountData(response.data.items);
+				} else {
+					handleFetchApiError(response, "Danh sách tài khoản", dispatch)
 				}
 			})
 			.catch((error) => {
@@ -124,29 +113,21 @@ console.log('initYodyAccountData', initYodyAccountData)
 						condition: fieldNameValue,
 					})
 						.then((response) => {
-							if (response) {
-								switch (response.code) {
-									case HttpStatus.SUCCESS:
-										if (storeAccountData.length > 0) {
-											let result = [...storeAccountData];
-											result.push(response.data.items[0]);
-											switch (fieldName) {
-												case "shipper_code":
-													setInitYodyAccountData(result);
-													setYodyAccountData(result);
-													break;
-												default:
-													break;
-											}
-										}
-										break;
-									case HttpStatus.UNAUTHORIZED:
-										dispatch(unauthorizedAction());
-										break;
-									default:
-										response.errors.forEach((e) => showError(e));
-										break;
+							if (isFetchApiSuccessful(response)) {
+								if (storeAccountData.length > 0) {
+									let result = [...storeAccountData];
+									result.push(response.data.items[0]);
+									switch (fieldName) {
+										case "shipper_code":
+											setInitYodyAccountData(result);
+											setYodyAccountData(result);
+											break;
+										default:
+											break;
+									}
 								}
+							} else {
+								handleFetchApiError(response, "Danh sách tài khoản", dispatch)
 							}
 						})
 						.catch((error) => {

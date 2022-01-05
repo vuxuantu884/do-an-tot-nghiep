@@ -84,7 +84,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
-  const [customerFormLoading,setCustomerFormLoading]=useState(false);
+  const [customerFormLoading, setCustomerFormLoading] = useState(false);
 
   const handleShippingWards = useCallback(
     (value: number) => {
@@ -98,52 +98,56 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   //properties
   const disableInput = levelOrder >= 4 ? true : false;
 
-  //element
-  const txtShippingAddressName = document.getElementById("customer_update_shipping_addresses_name");
-  const txtShippingAddressPhone = document.getElementById("customer_update_shipping_addresses_phone");
-  const txtShippingAddressCardNumber = document.getElementById("customer_update_shipping_addresses_card_number");
-  const txtShippingAddressFullAddress = document.getElementById("customer_update_shipping_addresses_full_address");
+  useEffect(() => {
+    //element
+    const txtShippingAddressName = document.getElementById("customer_update_shipping_addresses_name");
+    const txtShippingAddressPhone = document.getElementById("customer_update_shipping_addresses_phone");
+    const txtShippingAddressCardNumber = document.getElementById("customer_update_shipping_addresses_card_number");
+    const txtShippingAddressFullAddress = document.getElementById("customer_update_shipping_addresses_full_address");
 
-  const txtCustomerFullName = document.getElementById("customer_update_full_name");
-  const txtCustomerPhone = document.getElementById("customer_update_phone");
-  const txtCustomerCarNumber = document.getElementById("customer_update_card_number");
-  const txtCustomerFullAddress = document.getElementById("customer_update_full_address");
+    //event
+    txtShippingAddressName?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
 
-  //event
-  txtShippingAddressName?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
+    txtShippingAddressPhone?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
 
-  txtShippingAddressPhone?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
+    txtShippingAddressCardNumber?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
 
-  txtShippingAddressCardNumber?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
+    txtShippingAddressFullAddress?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+  })
 
-  txtShippingAddressFullAddress?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
+  useEffect(() => {
+    const txtCustomerFullName = document.getElementById("customer_update_full_name");
+    const txtCustomerPhone = document.getElementById("customer_update_phone");
+    const txtCustomerCarNumber = document.getElementById("customer_update_card_number");
+    const txtCustomerFullAddress = document.getElementById("customer_update_full_address");
 
-  txtCustomerFullName?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
+    txtCustomerFullName?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
 
-  txtCustomerPhone?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
+    txtCustomerPhone?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
 
-  txtCustomerCarNumber?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
+    txtCustomerCarNumber?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
 
-  txtCustomerFullAddress?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true);
-  });
+    txtCustomerFullAddress?.addEventListener("change", (e: any) => {
+      setVisibleBtnUpdate(true);
+    });
+  }, [isVisibleCollapseCustomer])
 
   const initialFormValueshippingAddress =
-    shippingAddress && shippingAddress !== null && customerItem
+    customerItem
       ? {
         full_name: customerItem.full_name,
         district_id: customerItem.district_id,
@@ -194,11 +198,15 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const handleSubmit = useCallback(
     (value: any) => {
-      if (!shippingAddress && !customerItem) return;
+      //return;
+      if (!customerItem) return;
 
-      let _shippingAddress: ShippingAddress[] = customerItem.shipping_addresses;
-      let index = _shippingAddress.findIndex((x) => x.id === shippingAddress.id);
-      _shippingAddress.splice(index, 1);
+      let _shippingAddress: ShippingAddress[] = customerItem.shipping_addresses ? customerItem.shipping_addresses : [];
+
+      if (shippingAddress && _shippingAddress && _shippingAddress.length > 0) {
+        let index = _shippingAddress.findIndex((x) => x.id === shippingAddress.id);
+        _shippingAddress.splice(index, 1);
+      }
 
       let area_shipping = areas.find((area: any) => area.id === value.shipping_addresses_district_id);
       let area_customer = areas.find((area: any) => area.id === value.district_id);
@@ -213,6 +221,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         ward_id: value.shipping_addresses_ward_id,
         full_address: value.shipping_addresses_full_address,
         is_default: true,
+        default: true,
+        country_id: shippingAddress ? shippingAddress.country_id : VietNamId
       };
 
       _shippingAddress.push(paramShipping);
@@ -263,20 +273,18 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       }
       setCustomerFormLoading(true);
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
-        if (datas) {
-          handleChangeCustomer(datas);
-          showSuccess("Cập nhật thông tin khách thành công");
-        }
+        if (datas) showSuccess("Cập nhật thông tin khách thành công");
+        handleChangeCustomer(datas);
         setCustomerFormLoading(false);
       }));
     },
-    [customerItem, dispatch, handleChangeCustomer, areas, shippingAddress, isVisibleCollapseCustomer]
+    [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer]
   );
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
     setVisibleBtnUpdate(false);
-    
+
   }, [customerForm]);
 
   useEffect(() => {
@@ -370,15 +378,17 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             <Col xs={24} lg={12}>
               <Form.Item
                 rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Số điện thoại",
-                  },
-                  {
-                    required: true,
-                    pattern: RegUtil.PHONE,
-                    message: "Số điện thoại sai định dạng"
-                  }
+                  () => ({
+                    validator(_, value) {
+                      if (value.length === 0) {
+                        return Promise.reject(new Error("Vui lòng nhập Số điện thoại!"));
+                      }
+                      if (!RegUtil.PHONE.test(value)) {
+                        return Promise.reject(new Error("Số điện thoại sai định dạng!"));
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
                 ]}
                 name="shipping_addresses_phone"
               //label="Số điện thoại"
@@ -657,18 +667,19 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     <Col xs={24} lg={12}>
                       <Form.Item
                         rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập Số điện thoại",
-                          },
-                          {
-                            required: true,
-                            pattern: RegUtil.PHONE,
-                            message: "Số điện thoại sai định dạng"
-                          }
+                          () => ({
+                            validator(_, value) {
+                              if (value.length === 0) {
+                                return Promise.reject(new Error("Vui lòng nhập Số điện thoại!"));
+                              }
+                              if (!RegUtil.PHONE.test(value)) {
+                                return Promise.reject(new Error("Số điện thoại sai định dạng!"));
+                              }
+                              return Promise.resolve();
+                            },
+                          }),
                         ]}
                         name="phone"
-                      //label="Số điện thoại"
                       >
                         <Input
                           placeholder="Nhập số điện thoại"

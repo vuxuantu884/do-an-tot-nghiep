@@ -1421,7 +1421,7 @@ export default function Order(props: PropType) {
                                               </div>
                                               <div className="orderPaymentItem__right">
                                                 <span className="date">
-                                                  {ConvertUtcToLocalDate(
+                                                  Thời gian: {ConvertUtcToLocalDate(
                                                     payment.created_date,
                                                     DATE_FORMAT.fullDate
                                                   )}
@@ -1863,7 +1863,7 @@ export default function Order(props: PropType) {
                                               <span style={{color: "#000000d9"}}>
                                                 {fulfillment.cancel_date ? moment(
                                                   fulfillment.cancel_date
-                                                ).format("DD/MM/YYYY") : ''}
+                                                ).format("DD/MM/YYYY HH:mm") : ''}
                                               </span>
                                             </span> : 
                                             <span>

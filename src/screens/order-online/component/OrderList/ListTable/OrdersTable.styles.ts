@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import {borderColor} from "utils/global-styles/variables";
 export const nameQuantityWidth = 290;
-const quantityWidth = 40;
+const quantityWidth = 50;
 const massWidth = 100;
 const priceWidth = 100;
 const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
@@ -10,6 +10,7 @@ export const StyledComponent = styled.div`
   th {
     text-align: center !important;
 		padding: 12px 5px !important;
+		justify-content: center !important;
 		.separator {
 			display: none;
 		}
@@ -41,6 +42,8 @@ export const StyledComponent = styled.div`
   .priceWidth {
     width: ${priceWidth}px;
     text-align: center;
+		justify-content: flex-end;
+		padding: 0 10px;
   }
   .item.custom-td {
     height: 100%;
@@ -63,7 +66,6 @@ export const StyledComponent = styled.div`
       white-space: nowrap;
       display: flex;
       align-items: center;
-      justify-content: center;
       position: relative;
       &:before {
         content: "";
@@ -77,6 +79,9 @@ export const StyledComponent = styled.div`
         background-color: ${borderColor};
       }
     }
+		.quantity {
+			justify-content: center;
+		}
     .mass {
       white-space: nowrap;
       display: flex;
@@ -99,7 +104,7 @@ export const StyledComponent = styled.div`
       white-space: nowrap;
       display: flex;
       align-items: center;
-      justify-content: center;
+			justify-content: flex-end;
       &:before {
         // content: "";
         display: block;

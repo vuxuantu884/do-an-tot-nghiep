@@ -482,7 +482,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			let text = getFilterString(orderStatuses, "name", undefined, undefined);
 			list.push({
 				key: 'order_status',
-				name: 'Trạng thái đơn hàng',
+				name: 'trạng thái tiến trình đơn hàng',
 				value: text,
 			})
 		}
