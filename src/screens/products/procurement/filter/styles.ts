@@ -10,6 +10,10 @@ export const FilterProcurementStyle = styled.div`
   }
   .merchandisers {
     width: 20%;
+    min-width: 200px;
+  }
+  .suppliers {
+    width: 20%;
   }
   .btn-action {
     display: flex;

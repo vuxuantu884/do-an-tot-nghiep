@@ -143,7 +143,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const onDeleteProcumentCallback = useCallback((result) => {
     if (result !== null) {
       setLoadingCreate(false);
-      showSuccess("Xóa phiếu nháp thành công");
+      showSuccess("Huỷ phiếu nháp thành công");
       setVisible(false);
       setVisibleDraft(false);
       setVisibleConfirm(false);
