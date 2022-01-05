@@ -1897,14 +1897,14 @@ function OrderCreateProduct(props: PropType) {
 								Chiết khấu tự động
 							</Checkbox>
 						</Form.Item>
-						<Select
+						{/* <Select
 							style={{ minWidth: 145, height: 38 }}
 							placeholder="Chương trình khuyến mại"
 						>
 							<Select.Option value="" color="#222222">
 								(Tạm thời chưa có)
 							</Select.Option>
-						</Select>
+						</Select> */}
 						<Button
 							onClick={() => {
 								showInventoryModal();
