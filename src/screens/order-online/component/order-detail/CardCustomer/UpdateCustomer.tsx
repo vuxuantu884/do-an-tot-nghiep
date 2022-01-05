@@ -259,16 +259,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       else {
         customerRequest = {
           ...customerItem,
-          billing_addresses: customerItem.billing_addresses.map((item: any) => {
+          billing_addresses: customerItem.billing_addresses?customerItem.billing_addresses.map((item: any) => {
             let _item = { ...item };
             _item.is_default = _item.default;
             return _item;
-          }),
-          shipping_addresses: _shippingAddress.map((item: any) => {
+          }):[],
+          shipping_addresses: _shippingAddress?_shippingAddress.map((item: any) => {
             let _item = { ...item };
             _item.is_default = _item.default;
             return _item;
-          })
+          }):[]
         }
       }
       setCustomerFormLoading(true);
