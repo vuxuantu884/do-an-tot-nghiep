@@ -132,8 +132,12 @@ const CustomerCreate = (props: any) => {
   );
 
   const handleSubmit = (values: any) => {
-    let area = areas.find((area) => area.id === districtId);
-    let piece = {
+    const countrySelected = countries.find((country) => country.id === values.country_id);
+    const area = areas.find((area) => area.id === values.district_id);
+    const wardSelected = wards.find((item) => item.id === values.ward_id);
+    const staffSelected = accounts.find((account) => account.code === values.responsible_staff_code);
+
+    const params = {
       ...values,
       birthday: values.birthday
         ? new Date(values.birthday).toISOString()
@@ -142,7 +146,12 @@ const CustomerCreate = (props: any) => {
         ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
+      country: countrySelected ? countrySelected.name : null,
       city_id: area ? area.city_id : null,
+      city: area ? area.city_name : null,
+      district: area ? area.name : null,
+      ward: wardSelected ? wardSelected.name : null,
+      responsible_staff: staffSelected ? staffSelected.full_name : null,
       contacts: [
         {
           ...CustomerContactClass,
@@ -153,9 +162,9 @@ const CustomerCreate = (props: any) => {
         },
       ],
     };
-
+    
     setIsLoading(true);
-    dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
+    dispatch(CreateCustomer({ ...new CustomerModel(), ...params }, setResult));
   };
 
   const handleSubmitFail = (errorFields: any) => {

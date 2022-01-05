@@ -31,6 +31,7 @@ import { showError } from "utils/ToastUtils";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { isFetchApiSuccessful } from "utils/AppUtils";
 import { fetchApiErrorAction } from "domain/actions/app.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* onKeySearchCustomerChange(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -210,6 +211,7 @@ function* CustomerTypes(action: YodyAction) {
 
 function* CreateCustomer(action: YodyAction) {
   const { request, setResult } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<any> = yield call(createCustomer, request);
     switch (response.code) {
@@ -227,11 +229,14 @@ function* CreateCustomer(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* UpdateCustomer(action: YodyAction) {
   const { id, request, setResult } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<any> = yield call(updateCustomer, id, request);
     switch (response.code) {
@@ -249,6 +254,8 @@ function* UpdateCustomer(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
