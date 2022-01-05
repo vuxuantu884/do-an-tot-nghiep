@@ -71,8 +71,9 @@ export const StyledComponent = styled.div`
     margin: 6px 8px 15px 0;
   } 
   .care-label {
-    font-size: 20px;
-    margin: 0 4px;
+    font-size: 28px;
+    margin: 0px 4px;
+    line-height: 32px;
   }
   .button-plus {
     border: 1px solid #E5E5E5;

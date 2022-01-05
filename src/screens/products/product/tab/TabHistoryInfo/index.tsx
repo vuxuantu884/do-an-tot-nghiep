@@ -5,7 +5,7 @@ import UrlConfig, {ProductTabUrl} from "config/url.config";
 import {productGetHistoryAction} from "domain/actions/product/products.action";
 import {PageResponse} from "model/base/base-metadata.response";
 import {ProductHistoryQuery, ProductHistoryResponse} from "model/product/product.model";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch} from "react-redux";
 import {useHistory} from "react-router";
 import {Link} from "react-router-dom";
@@ -121,6 +121,12 @@ const TabHistoryInfo: React.FC = () => {
       width: 160
     },
   ]);
+
+  const columnFinal = useMemo(() => {
+    return columns.filter((item) => item.visible === true);
+  }, [columns]);
+
+
   useEffect(() => {
     setLoading(true);
     dispatch(productGetHistoryAction(params, onResult));
@@ -151,7 +157,7 @@ const TabHistoryInfo: React.FC = () => {
         bordered
         rowKey={(record) => record.id}
         isRowSelection
-        columns={columns}
+        columns={columnFinal}
         dataSource={data.items}
         isLoading={loading}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}

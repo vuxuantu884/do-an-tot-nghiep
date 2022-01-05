@@ -9,7 +9,7 @@ import {
   ProductHistoryQuery,
   ProductHistoryResponse
 } from "model/product/product.model";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
@@ -90,7 +90,7 @@ const TabHistoryPrice: React.FC = () => {
     {
       title: "Giá nhập cũ",
       dataIndex: "data_old",
-      visible: true,
+      visible: false,
       align: "right",
       width: 120,
       render: (value) => {
@@ -160,6 +160,11 @@ const TabHistoryPrice: React.FC = () => {
       width: 160
     },
   ]);
+
+  const columnFinal = useMemo(() => {
+    return columns.filter((item) => item.visible === true);
+  }, [columns]);
+
   useEffect(() => {
     setLoading(true);
     dispatch(productGetHistoryAction(params, onResult));
@@ -193,7 +198,7 @@ const TabHistoryPrice: React.FC = () => {
         rowKey={(record) => record.id}
         isRowSelection
         scroll={{ x: 1300 }}
-        columns={columns}
+        columns={columnFinal}
         dataSource={data.items}
         isLoading={loading}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
