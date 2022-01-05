@@ -8,6 +8,23 @@ export const StyledComponent = styled.div`
       border: 1px solid #5c5c5c;
     }
   }
+
+  .action-dropdown {
+    width: 110px;
+    margin-right: 10px;
+    .action-button {
+      padding: 6px 15px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      color: $primary-color;
+      &:hover {
+        color: $primary-color;
+        border: 1px solid $primary-color;
+        color: $primary-color;
+      }
+    }
+  }
 `;
 
 export const StyledYodyProductColumn = styled.div`
@@ -25,7 +42,7 @@ export const StyledYodyProductColumn = styled.div`
     background-color: transparent;
     outline: none;
     cursor: pointer;
-    transition: color .3s;
+    transition: color 0.3s;
     &:hover {
       color: #1890ff;
       text-decoration: underline;
@@ -65,7 +82,7 @@ export const StyledProductListDropdown = styled.div`
         .item-name {
           line-height: 16px;
           width: 200px;
-          color: #37394D;
+          color: #37394d;
         }
 
         .item-price-unit {
@@ -79,12 +96,12 @@ export const StyledProductListDropdown = styled.div`
         display: flex;
         justify-content: space-between;
         margin-top: 5px;
-  
+
         .item-sku {
           width: 200px;
-          color: #95A1AC;
+          color: #95a1ac;
         }
-  
+
         .item-inventory {
           color: #737373;
         }
@@ -104,5 +121,4 @@ export const StyledProductListDropdown = styled.div`
       margin-left: 20px;
     }
   }
-  
 `;

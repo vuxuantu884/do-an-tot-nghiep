@@ -12,8 +12,10 @@ import {
   AutoComplete,
   Checkbox,
   Card,
+  Dropdown,
+  Menu,
 } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
@@ -88,7 +90,7 @@ const NotConnectedItems: React.FC = () => {
   const [diffPriceProductList, setDiffPriceProductList] = useState<Array<any>>([]);
   const [isVisibleConfirmConnectItemsModal, setIsVisibleConfirmConnectItemsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [idDeleteItem, setIdDeleteItem] = useState(null);
+  const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
 
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
@@ -162,7 +164,7 @@ const NotConnectedItems: React.FC = () => {
   //handle delete item
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
-    setIdDeleteItem(item.id);
+    setIdsItemSelected([item.id]);
   };
 
   const cancelDeleteItemModal = () => {
@@ -172,16 +174,14 @@ const NotConnectedItems: React.FC = () => {
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
 
-    if (idDeleteItem) {
-      dispatch(
-        deleteEcommerceItem([idDeleteItem], (result) => {
-          if (result) {
-            showSuccess("Xóa sản phẩm thành công");
-            reloadPage();
-          }
-        })
-      );
-    }
+    dispatch(
+      deleteEcommerceItem(idsItemSelected, (result) => {
+        if (result) {
+          showSuccess("Xóa sản phẩm thành công");
+          reloadPage();
+        }
+      })
+    );
   };
   //end handle delete item
 
@@ -913,12 +913,65 @@ const NotConnectedItems: React.FC = () => {
   };
 
 
+  const [allowProductsDelete] = useAuthorization({
+    acceptPermissions: productsDeletePermission,
+    not: false,
+  });
+
+  const isShowAction = allowProductsDelete;
+
+  const isDisableAction = () => {
+    return !selectedRow || selectedRow.length === 0;
+  };
+
+  const handleDeleteItemsSelected = () => {
+    if (isDisableAction()) {
+      return;
+    }
+
+    const itemSelected: any[] = [];
+    if (selectedRow) {
+      selectedRow.forEach((item) => {
+        itemSelected.push(item.id);
+      });
+    }
+    setIdsItemSelected(itemSelected);
+    setIsShowDeleteItemModal(true);
+  };
+
+  const actionList = (
+    <Menu>
+      {allowProductsDelete &&
+        <Menu.Item key="2" disabled={isDisableAction()}>
+          <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
+        </Menu.Item>
+      }
+    </Menu>
+  )
+
+
   return (
     <StyledComponent>
       <Card>
         <StyledProductFilter>
           <div className="filter">
             <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
+
+              {isShowAction &&
+                <div className="action-dropdown">
+                  <Dropdown
+                    overlay={actionList}
+                    trigger={["click"]}
+                    disabled={isLoading}
+                  >
+                    <Button className="action-button">
+                      <div style={{ marginRight: 10 }}>Thao tác</div>
+                      <DownOutlined />
+                    </Button>
+                  </Dropdown>
+                </div>
+              }
+
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
