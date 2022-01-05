@@ -34,7 +34,7 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useLayoutEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
 import { VietNamId } from "utils/Constants";
