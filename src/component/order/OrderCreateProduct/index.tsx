@@ -789,7 +789,7 @@ function OrderCreateProduct(props: PropType) {
 							checkIfLineItemHasAutomaticDiscount(l) ||
 							couponInputText !== "" ||
 							promotion !== null ||
-							(userReducer?.account?.role_id === ACCOUNT_ROLE_ID.admin)
+							(userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin)
 						}
 					/>
 				</div>
@@ -1217,26 +1217,35 @@ function OrderCreateProduct(props: PropType) {
 			taxes_included: true,
 			tax_exempt: false,
 		};
+		applyDiscountService(params).then((response) => {
+      try {
+        if (
+					response?.code === HttpStatus.SUCCESS &&
+					response.data.line_items.length > 0
+				) {
+					let result = getApplyDiscountLineItem(response, items);
+					let promotionResult = handleApplyDiscountOrder(response, result);
+					// console.log("result", result);
+					calculateChangeMoney(result, promotionResult)
+					showSuccess("Cập nhật chiết khấu tự động thành công!");
+					setIsCalculateDiscount(false);
+				} else {
+					setIsCalculateDiscount(false);
+					showError("Có lỗi khi áp dụng chiết khấu!");
+				}
+      } catch (error) {
+        console.log("error", error);
+        handleFetchApiError(response, "Chiết khấu", dispatch);
+      }
 
-		// dispatch(showLoading());
-		const checkingDiscountResponse = await applyDiscountService(params).finally(() => {
-			// dispatch(hideLoading());
-		});
+    }).catch((error) => {
+      console.log('error', error)
+      showError("Cập nhật chiết khấu tự động thất bại!");
+    }).finally (()=>{
+      
+    });
 		// console.log("checkingDiscountResponse", checkingDiscountResponse);
-		if (
-			checkingDiscountResponse?.code === HttpStatus.SUCCESS &&
-			checkingDiscountResponse.data.line_items.length > 0
-		) {
-			let result = getApplyDiscountLineItem(checkingDiscountResponse, items);
-			let promotionResult = handleApplyDiscountOrder(checkingDiscountResponse, result);
-			// console.log("result", result);
-			calculateChangeMoney(result, promotionResult)
-			showSuccess("Cập nhật chiết khấu tự động thành công!");
-			setIsCalculateDiscount(false);
-		} else {
-			setIsCalculateDiscount(false);
-			showError("Có lỗi khi áp dụng chiết khấu!");
-		}
+		
 	};
 
 	const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
