@@ -82,7 +82,6 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   );
   const onClearFilterAdvanceClick = useCallback(() => {
     formRef.current?.setFieldsValue(initValue);
-    setVisible(false);
     formRef.current?.submit();
   }, [formRef, initValue]);
   useEffect(() => {
@@ -103,7 +102,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Form.Item name="info" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              placeholder="Tên/ Mã cửa hàng/ Sđt/ Hotline"
+              placeholder="Tên/ Mã cửa hàng/ Sđt"
             />
           </Form.Item> 
           <Form.Item name="department_id" style={{ minWidth: 200 }}>
