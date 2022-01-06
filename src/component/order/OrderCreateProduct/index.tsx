@@ -100,7 +100,7 @@ import {
 	isFetchApiSuccessful,
 	replaceFormatString
 } from "utils/AppUtils";
-import { MoneyType } from "utils/Constants";
+import { ACCOUNT_ROLE_ID, MoneyType } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
@@ -265,6 +265,8 @@ function OrderCreateProduct(props: PropType) {
 
 	const [storeArrayResponse, setStoreArrayResponse] =
 		useState<Array<StoreResponse> | null>([]);
+
+	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
 	// const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
 
@@ -786,7 +788,8 @@ function OrderCreateProduct(props: PropType) {
 							levelOrder > 3 ||
 							checkIfLineItemHasAutomaticDiscount(l) ||
 							couponInputText !== "" ||
-							promotion !== null
+							promotion !== null ||
+							(userReducer?.account?.role_id === ACCOUNT_ROLE_ID.admin)
 						}
 					/>
 				</div>
@@ -1542,8 +1545,6 @@ function OrderCreateProduct(props: PropType) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[form]
 	);
-
-	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
 	const showInventoryModal = useCallback(() => {
 		if (items !== null && items?.length) setInventoryModalVisible(true);

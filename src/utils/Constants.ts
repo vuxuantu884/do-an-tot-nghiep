@@ -269,3 +269,7 @@ export const COLUMN_CONFIG_TYPE = {
   COLUMN_INVENTORY: "column_inventory",
   COLUMN_PO:  "column_po"
 };
+
+export const ACCOUNT_ROLE_ID = {
+	admin: 1,
+}
