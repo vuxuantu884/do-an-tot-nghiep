@@ -1,15 +1,11 @@
 import BaseAction from 'base/base.action';
-import { PriceRule } from 'model/promotion/price-rules.model';
+import { DiscountCode, PriceRule } from 'model/promotion/price-rules.model';
 import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {PromoCodeType} from "../../../types/promotion.type"; 
 import {BaseQuery} from './../../../../model/base/base.query';
 
 export const checkPromoCode = (code: string, handleResponse: (data: PageResponse<PriceRule>) => void) => {
   return BaseAction(PromoCodeType.CHECK_PROMO_CODE, { code, handleResponse });
-}
-
-export const getListPromoCode = (priceRuleId: number, query: BaseQuery, setData: (data: PageResponse<PriceRule>) => void) => {
-  return BaseAction(PromoCodeType.GET_LIST_PROMO_CODE, { priceRuleId, query, setData });
 }
 
 export const getPromoCodeById = (priceRuleId: number, id: number, onResult: (result: PriceRule|false) => void) => {
@@ -40,4 +36,8 @@ export const enableBulkPromoCode = (priceRuleId: number, body: any, enableCallBa
 }
 export const disableBulkPromoCode = (priceRuleId: number, body: any, disableCallBack: (result: PriceRule|false) => void) => {
   return BaseAction(PromoCodeType.DISABLE_PROMO_CODE_BULK, {priceRuleId, body, disableCallBack});
+}
+
+export const getListPromoCode = (priceRuleId: number, query: BaseQuery, setData: (data: PageResponse<DiscountCode>) => void) => {
+  return BaseAction(PromoCodeType.GET_LIST_PROMO_CODE, { priceRuleId, query, setData });
 }

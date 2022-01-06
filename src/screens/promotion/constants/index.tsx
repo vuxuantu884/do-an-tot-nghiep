@@ -1,4 +1,5 @@
 import { Form, Input, InputNumber } from "antd";
+import { MenuAction } from "component/table/ActionButton";
 import TagStatus from "component/tag/tag-status";
 import UrlConfig from "config/url.config";
 import { DiscountConditionRule, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model";
@@ -194,7 +195,7 @@ export const dayOfWeekOptions = [
 
 
 //discount view
-export const discountStatus = [
+export const DISCOUNT_STATUS = [
   {
     code: "ACTIVE",
     value: "Đang áp dụng",
@@ -459,3 +460,53 @@ export const OperatorSelectOptions = [
   },
 ];
 
+// promo code 
+export const STATUS_PROMO_CODE: any = [ 
+  {
+    disabled: false,
+    Component:  <TagStatus type="primary">Đang áp dụng</TagStatus>,
+  },
+  {
+    disabled: true,
+    Component: <TagStatus type="warning">Ngừng áp dụng</TagStatus>,
+  },
+];
+
+export const statuses = [
+  {
+    code: "ENABLED",
+    value: "Đang áp dụng",
+  },
+  {
+    code: "DISABLED",
+    value: "Ngừng áp dụng",
+  },
+];
+
+export const ACTIONS_PROMO: Array<MenuAction> = [
+  {id: 1, name: "Kích hoạt"},
+  {id: 2, name: "Tạm ngừng"},
+  {id: 3, name: "Xuất Excel", disabled: true},
+  {id: 4, name: "Xoá", disabled: true},
+];
+
+export const ACTIONS_DISCOUNT: Array<MenuAction> = [
+  {id: 1, name: "Kích hoạt"},
+  {id: 2, name: "Tạm ngừng"},
+  // { id: 3, name: "Xuất Excel", disabled: true },
+];
+
+export const ACTIONS_PROMO_CODE: Array<MenuAction> = [
+  // {
+  //     id: 1,
+  //     name: "Đã tặng",
+  // },
+  {
+    id: 2,
+    name: "Áp dụng",
+  },
+  {
+    id: 3,
+    name: "Ngừng áp dụng",
+  },
+];

@@ -7,7 +7,7 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule } from "model/promotion/price-rules.model";
 import moment from "moment";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
 import { RiDeleteBin2Fill } from "react-icons/all";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -17,16 +17,17 @@ import CustomTable, { ICustomTableColumType } from "../../../component/table/Cus
 import UrlConfig from "../../../config/url.config";
 import { bulkDisablePriceRulesAction, bulkEnablePriceRulesAction, getListDiscountAction } from "../../../domain/actions/promotion/discount/discount.action";
 import { PageResponse } from "../../../model/base/base-metadata.response";
-import { DiscountSearchQuery } from "../../../model/query/discount.query"; 
+import { DiscountSearchQuery } from "../../../model/query/discount.query";
 import { DATE_FORMAT } from "../../../utils/DateUtils";
 import { showSuccess } from "../../../utils/ToastUtils";
-import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { ACTIONS_DISCOUNT, STATUS_PROMO } from "../constant";
+import { getQueryParams, useQuery } from "../../../utils/useQuery"; 
 import DiscountFilter from "./components/DiscountFilter";
+import { ACTIONS_DISCOUNT, DISCOUNT_STATUS } from "../constants";
 import "./discount.scss";
 
+
 const DiscountPage = () => {
-  const discountStatuses = STATUS_PROMO;
+
   const initQuery: DiscountSearchQuery = {
     type: PROMO_TYPE.AUTOMATIC,
     request: "",
@@ -156,16 +157,16 @@ const DiscountPage = () => {
       visible: true,
       dataIndex: "state",
       align: "center",
-      render: (value: any, item: any, index: number) => {
-        const status: any | null = discountStatuses.find((e) => e.code === value);
-        return <div style={status?.style}>{status?.value}</div>;
+      render: (state: string) => {
+        const StatusTag: ReactNode = DISCOUNT_STATUS.find((e) => e.code === state)?.Component ?? <Fragment />;
+        return StatusTag;
       },
     },
     {
       visible: true,
       dataIndex: "id",
       align: "center",
-      render: (id: any, item: any, index: number) => (
+      render: (id: number) => (
         <Dropdown.Button
           overlay={
             <Menu>
@@ -173,7 +174,7 @@ const DiscountPage = () => {
                 <Link to={`discounts/${id}/update`}>Chỉnh sửa</Link>
               </Menu.Item>
               <Menu.Item
-                key={1}
+                key={2}
                 icon={<RiDeleteBin2Fill />}
                 onClick={() => {
                   setTableLoading(true);

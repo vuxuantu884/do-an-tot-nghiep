@@ -14,7 +14,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, {ReactElement, useState} from "react";
-import { priorityOptions } from "../discount/constants";
+import { priorityOptions } from "../constants";
 import GeneralConditionForm from "../shared/general-condition.form";
 
 interface Props {}

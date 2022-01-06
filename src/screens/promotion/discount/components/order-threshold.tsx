@@ -23,7 +23,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import { formatDiscountValue } from "utils/PromotionUtils";
 import { TotalBillDiscountStyle } from "./order-threshold.style";
-import { DiscountUnitType, FieldSelectOptions, OperatorSelectOptions } from "../constants";
+import { DiscountUnitType, FieldSelectOptions, OperatorSelectOptions } from "../../constants";
 import { DiscountContext } from "./discount-provider";
 const rule = "rule";
 const conditions = "conditions";
