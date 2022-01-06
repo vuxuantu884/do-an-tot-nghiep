@@ -140,6 +140,9 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 					})
 						.then((response) => {
 							if (isFetchApiSuccessful(response)) {
+								if(response.data.items.length === 0) {
+									return;
+								}
 								let result = [...storeAccountData];
 								result.push(response.data.items[0]);
 								switch (fieldName) {
