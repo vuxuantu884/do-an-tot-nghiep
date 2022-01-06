@@ -1,31 +1,31 @@
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/http-status.config";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { fetchApiErrorAction } from "domain/actions/app.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
 import {
-  IsAllowToSellWhenNotAvailableStockResponseModel,
-  OrderConfigActionOrderPreviewResponseModel,
-  OrderConfigPrintResponseModel,
-  OrderConfigResponseModel,
-  ShippingServiceConfigDetailResponseModel,
-  ShippingServiceConfigResponseModel,
+	IsAllowToSellWhenNotAvailableStockResponseModel,
+	OrderConfigActionOrderPreviewResponseModel,
+	OrderConfigPrintResponseModel,
+	OrderConfigResponseModel,
+	ShippingServiceConfigDetailResponseModel,
+	ShippingServiceConfigResponseModel
 } from "model/response/settings/order-settings.response";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
-  configureIsAllowToSellWhenNotAvailableStockService,
-  createListShippingServiceConfigService,
-  deleteShippingServiceConfigService,
-  editOrderConfigActionService,
-  getIsAllowToSellWhenNotAvailableStockService,
-  getListShippingServiceConfigService,
-  getOrderConfigActionService,
-  getOrderConfigPrintService,
-  getOrderConfigService,
-  getShippingServiceConfigDetailService,
-  updateShippingServiceConfigService,
+	configureIsAllowToSellWhenNotAvailableStockService,
+	createListShippingServiceConfigService,
+	deleteShippingServiceConfigService,
+	editOrderConfigActionService,
+	getIsAllowToSellWhenNotAvailableStockService,
+	getListShippingServiceConfigService,
+	getOrderConfigActionService,
+	getOrderConfigPrintService,
+	getOrderConfigService,
+	getShippingServiceConfigDetailService,
+	updateShippingServiceConfigService
 } from "service/order/order-settings.service";
+import { isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 
 function* getOrderConfigSaga(action: YodyAction) {
@@ -35,18 +35,11 @@ function* getOrderConfigSaga(action: YodyAction) {
     let response: BaseResponse<OrderConfigResponseModel> = yield call(
       getOrderConfigService
     );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Cấu hình đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi api cấu hình đơn hàng!");
@@ -62,18 +55,11 @@ function* getOrderConfigPrintSaga(action: YodyAction) {
     let response: BaseResponse<OrderConfigPrintResponseModel[]> = yield call(
       getOrderConfigPrintService
     );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách cấu hình in"));
+		}
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi api danh sách cấu hình in!");
@@ -88,21 +74,15 @@ function* getOrderConfigActionSaga(action: YodyAction) {
   try {
     let response: BaseResponse<OrderConfigActionOrderPreviewResponseModel[]> =
       yield call(getOrderConfigActionService);
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Cấu hình đơn hàng"));
+		}
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi api lấy danh sách cấu hình chung!");
+    showError("Có lỗi api lấy danh sách cấu hình đơn hàng!");
   } finally {
     yield put(hideLoading());
   }
@@ -117,21 +97,15 @@ function* editOrderConfigActionSaga(action: YodyAction) {
       params
     );
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        showSuccess("Cập nhật cấu hình chung thành công!");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+      showSuccess("Cập nhật cấu hình chung thành công!");
+		} else {
+			yield put(fetchApiErrorAction(response, "Cập nhật cấu hình đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi api cập nhật cấu hình chung!");
+    showError("Có lỗi api cập nhật cấu hình đơn hàng. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -144,20 +118,15 @@ function* getIsAllowToSellWhenNotAvailableStockSaga(action: YodyAction) {
     let response: BaseResponse<IsAllowToSellWhenNotAvailableStockResponseModel> =
       yield call(getIsAllowToSellWhenNotAvailableStockService);
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Cập nhật cấu hình đơn hàng bán khi tồn kho nhỏ hơn 0"));
+		}
+
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi api cấu hình đơn hàng bán khi tồn kho!");
+    showError("Có lỗi api cấu hình đơn hàng bán khi tồn kho nhỏ hơn 0!");
   } finally {
     yield put(hideLoading());
   }
@@ -172,22 +141,15 @@ function* configureIsAllowToSellWhenNotAvailableStockSaga(action: YodyAction) {
         configureIsAllowToSellWhenNotAvailableStockService,
         sellable_inventory
       );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        showSuccess("Cập nhật trạng thái cho phép bán khi tồn kho thành công!");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+			showSuccess("Cập nhật trạng thái cho phép bán khi tồn kho thành công!");
+		} else {
+			yield put(fetchApiErrorAction(response, "Cập nhật cho phép bán khi tồn kho"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi api cập nhật trạng thái cho phép bán khi tồn kho!");
+    showError("Có lỗi api cập nhật trạng thái cho phép bán khi tồn kho! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -202,17 +164,11 @@ function* listConfigurationShippingServiceAndShippingFeeSaga(
     let response: BaseResponse<ShippingServiceConfigResponseModel[]> =
       yield call(getListShippingServiceConfigService);
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách cấu hình phí ship và phí vận chuyển"));
+		}
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi api lấy danh sách cấu hình phí ship và phí vận chuyển!");
@@ -231,19 +187,12 @@ function* createConfigurationShippingServiceAndShippingFeeSaga(
       createListShippingServiceConfigService,
       params
     );
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Tạo mới cài đặt phí ship và phí vận chuyển"));
+		}
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData();
-        showSuccess("Tạo mới cài đặt thành công");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi api tạo mới cài đặt phí ship và phí vận chuyển!");
@@ -261,20 +210,14 @@ function* getConfigurationShippingServiceAndShippingFeeDetailSaga(
     let response: BaseResponse<ShippingServiceConfigDetailResponseModel> =
       yield call(getShippingServiceConfigDetailService, id);
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Chi tiết cấu hình phí ship và phí vận chuyển"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi api chi tiết cấu hình phí ship và phí vận chuyển!");
   } finally {
     yield put(hideLoading());
   }
@@ -291,22 +234,14 @@ function* updateConfigurationShippingServiceAndShippingFeeSaga(
       id,
       params
     );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData();
-        showSuccess("Cập nhật cài đặt thành công");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Cập nhật cấu hình phí ship và phí vận chuyển"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi api cập nhật cấu hình phí ship và phí vận chuyển!");
   } finally {
     yield put(hideLoading());
   }
@@ -323,21 +258,15 @@ function* deleteConfigurationShippingServiceAndShippingFeeSaga(
       id
     );
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        showSuccess("Xóa cài đặt thành công");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+      showSuccess("Xóa cài đặt thành công");
+		} else {
+			yield put(fetchApiErrorAction(response, "Xóa cấu hình phí ship và phí vận chuyển"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi api xóa cấu hình phí ship và phí vận chuyển!");
   } finally {
     yield put(hideLoading());
   }
