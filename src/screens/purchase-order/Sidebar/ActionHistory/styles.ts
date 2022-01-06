@@ -1,6 +1,9 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
+  max-height: 1185px;
+  overflow: auto;
+
   .ant-card-head-title {
     white-space: normal;
   }

@@ -17,7 +17,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import {
   POCancelAction,
-  PoDetailAction, POGetPrintContentAction, PoUpdateAction,
+  PoDetailAction, POGetPrintContentAction, POGetPurchaseOrderActionLogs, PoUpdateAction,
 } from "domain/actions/po/po.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
@@ -35,6 +35,7 @@ import {
   PurchaseOrderPrint
 } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -122,6 +123,8 @@ const PODetailScreen: React.FC = () => {
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
   const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
+  const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
+
 
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
@@ -423,6 +426,16 @@ const PODetailScreen: React.FC = () => {
     }
   }, [dispatch, idNumber, loadDetail, onStoreResult, printContentCallback]);
 
+  useEffect(() => {
+    if (poData?.id) {
+      dispatch(
+        POGetPurchaseOrderActionLogs(poData?.id, (response: PurchaseOrderActionLogResponse[]) => {
+          setActionLog(response);
+        })
+      );
+    }
+  }, [dispatch, poData?.id, poData]);
+
   const handleExport = () => {
     var temp = document.createElement("div");
     temp.id = "temp";
@@ -593,7 +606,7 @@ const PODetailScreen: React.FC = () => {
               isEditDetail={isEditDetail}
             />
             <ActionPurchaseOrderHistory
-              poId={poData?.id}
+              actionLog={actionLog}
             />
           </Col>
         </Row>

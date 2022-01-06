@@ -11,13 +11,13 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { SupplierCreateAction } from "domain/actions/core/supplier.action";
+import { SupplierCreateAction, SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { SupplierCreateRequest } from "model/core/supplier.model";
+import { SupplierCreateRequest, SupplierResponse } from "model/core/supplier.model";
 import { CollectionQuery, CollectionResponse } from "model/product/collection.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React from "react";
@@ -28,8 +28,8 @@ import { useParams } from "react-router-dom";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
-// import { getQueryParams, useQuery } from "utils/useQuery";
 import CustomSelect from "component/custom/select.custom";
+import _ from 'lodash';
 
 
 const { Item } = Form;
@@ -137,6 +137,7 @@ const CreateSupplierScreen: React.FC = () => {
     },
     items: [],
   });
+  const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
 
   const params: CollectionQuery = useParams() as CollectionQuery;
 
@@ -220,6 +221,7 @@ const CreateSupplierScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch(getCollectionRequestAction(params, onGetSuccess));
+    dispatch(SupplierGetAllAction(setListSupplier))
   }, [dispatch, onGetSuccess, params]);
 
   useEffect(() => {
@@ -599,6 +601,24 @@ const CreateSupplierScreen: React.FC = () => {
                                   pattern: RegUtil.PHONE,
                                   message: "Số điện thoại không đúng định dạng",
                                 },
+                                ({ getFieldValue }) => ({
+                                  validator() {
+                                    const phoneNumber = getFieldValue("phone");
+
+                                    const check = _.find(listSupplier, (supplier: SupplierResponse) => {
+                                      return _.find(supplier.contacts, (contact: any) => contact?.phone === phoneNumber);
+                                    })
+
+                                    if(check === undefined) {
+                                      return Promise.reject(
+                                        new Error("Số điện thoại đã tồn tại")
+                                      );
+                                    }
+
+                                    return Promise.resolve();
+                                  }
+                                }),
+             
                               ]}
                             >
                               <Input
