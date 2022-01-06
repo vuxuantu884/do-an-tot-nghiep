@@ -45,6 +45,8 @@ function CardGeneralSettings(props: PropType) {
         allow_choose_item: listOrderConfigs.allow_choose_item,
         order_config_action: listOrderConfigs.order_config_action,
         order_config_print_id: listOrderConfigs.order_config_print.id,
+        hide_gift:listOrderConfigs.hide_gift,
+        hide_bonus_item:listOrderConfigs.hide_bonus_item
       };
     }
     return result;
@@ -54,8 +56,13 @@ function CardGeneralSettings(props: PropType) {
     forAllOrders: "chonChoTatCaDonHang",
   };
 
-  const [valueCustomerCanViewOrder, setValueCustomerCanViewOrder] =
-    useState("");
+  const valueApplyPrintOrderOption = {
+    hideGift: "inHoaDonKhongHienThiQuaTang",
+    hideBonusItem: "inHoaDonKhongCoSanPhamTangKem"
+  }
+
+  const [valueCustomerCanViewOrder, setValueCustomerCanViewOrder] = useState("");
+  const [invoicePrintingConfiguration, setInvoicePrintingConfiguration] = useState<string[]>([]);
 
   const onChangeCustomerCanViewOrder = (e: RadioChangeEvent) => {
     let initParams = getInitParams();
@@ -144,50 +151,47 @@ function CardGeneralSettings(props: PropType) {
         valueCustomerCanViewOrderOption.forSingleOrder
       );
     }
+
   }, [
     listOrderConfigs,
     valueCustomerCanViewOrderOption.forAllOrders,
     valueCustomerCanViewOrderOption.forSingleOrder,
   ]);
 
+  useEffect(() => {
+    let config: string[] = [];
+    if (listOrderConfigs?.hide_gift === true)
+      config.push(valueApplyPrintOrderOption.hideGift)
+    if (listOrderConfigs?.hide_bonus_item === true)
+      config.push(valueApplyPrintOrderOption.hideBonusItem)
+    setInvoicePrintingConfiguration(config)
+  }, [
+    listOrderConfigs,
+    valueApplyPrintOrderOption.hideBonusItem,
+    valueApplyPrintOrderOption.hideGift
+  ]);
 
-  const treeData = [
-    {
-      title: 'Node1',
-      value: '0-0',
-      key: '0-0',
-     
-    },
-    {
-      title: 'Node2',
-      value: '0-1',
-      key: '0-1',
-      
-    },
-  ];
+  console.log("listOrderConfigs",listOrderConfigs)
+  console.log("invoicePrintingConfiguration",invoicePrintingConfiguration)
 
-  const onChangeApplyPrint = (value:any)=>{
-    console.log('onChange ', value);
+  const onChangeApplyPrint = (value: string[]) => {
+    let initParams = getInitParams();
+    if (!listOrderConfigs || !initParams) {
+      return;
+    }
+
+    const params: OrderConfigRequestModel = {
+      ...initParams,
+      hide_gift:value.findIndex(x=>x===valueApplyPrintOrderOption.hideGift)!==-1?true:false,
+      hide_bonus_item:value.findIndex(x=>x===valueApplyPrintOrderOption.hideBonusItem)!==-1?true:false,
+    };
+    onUpdateOrderConfig(params);
   }
-
-  const tProps = {
-    treeData,
-    value: ['0-0'],
-    onChange: onChangeApplyPrint,
-    treeCheckable: true,
-    showCheckedStrategy: SHOW_PARENT,
-    placeholder: 'Please select',
-    style: {
-      width: '100%',
-    },
-  };
 
   return (
     <StyledComponent>
       <Card title="Cài đặt chung">
-
-        {/* /////////////// */}
-        <Row style={{padding:"0px 30px"}} >
+        <Row style={{ padding: "0px 30px" }} >
           <Col span={12}>
             <div className="singleSetting">
               <h4 className="title">Cho khách hàng xem hàng</h4>
@@ -239,7 +243,7 @@ function CardGeneralSettings(props: PropType) {
             </div>
           </Col>
           <Col span={12}>
-          <div className="singleSetting">
+            <div className="singleSetting">
               <h4 className="title">
                 In hóa đơn
               </h4>
@@ -249,12 +253,13 @@ function CardGeneralSettings(props: PropType) {
                   onChange={onChangeApplyPrint}
                   treeCheckable={true}
                   showCheckedStrategy={SHOW_PARENT}
-                  placeholder="Please select"
+                  placeholder="Chọn in hóa đơn"
                   className="selectInNhieuDonHang"
                   maxTagCount="responsive"
+                  defaultValue={invoicePrintingConfiguration}
                 >
-                  <TreeNode value={1} title="In hóa đơn không hiển thị quà tặng"></TreeNode>
-                  <TreeNode value={2} title="In hóa đơn không có sản phẩm tặng kèm"></TreeNode>
+                  <TreeNode value={valueApplyPrintOrderOption.hideGift} title="In hóa đơn không hiển thị quà tặng"></TreeNode>
+                  <TreeNode value={valueApplyPrintOrderOption.hideBonusItem} title="In hóa đơn không có sản phẩm tặng kèm"></TreeNode>
                 </TreeSelect>
                 {/* <Select
                   key={Math.random()}
@@ -278,9 +283,9 @@ function CardGeneralSettings(props: PropType) {
           </Col>
         </Row>
 
-        <Row  style={{marginTop:"10px", padding:"0px 30px"}}>
+        <Row style={{ marginTop: "10px", padding: "0px 30px" }}>
           <Col span={12}>
-          <div className="singleSetting">
+            <div className="singleSetting">
               <h4 className="title">Cài đặt khác</h4>
               <div className="singleSetting__content">
                 <Space direction="vertical" size={15}>
@@ -305,12 +310,12 @@ function CardGeneralSettings(props: PropType) {
                 </Space>
               </div>
             </div>
-           
+
           </Col>
           <Col span={12}>
             <div className="singleSetting">
               <h4 className="title">
-                Cấu hình cho phép in nhiều liên đơn hàng cho hóa đơn bán lẻ
+              Cấu hình cho phép in nhiều liên đơn hàng
               </h4>
               <div className="singleSetting__content">
                 <Select

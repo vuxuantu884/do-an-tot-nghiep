@@ -27,7 +27,8 @@ export const StyledComponent = styled.div`
     }
   }
   .selectInNhieuDonHang {
-    width: 255px;
+    width: 330px;
     max-width: 100%;
   }
+  
 `;

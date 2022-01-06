@@ -1,10 +1,8 @@
 import { Card, Col, Row } from "antd";
 import UrlConfig from "config/url.config";
-import { POGetPurchaseOrderActionLogs } from "domain/actions/po/po.action";
 import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 import moment from "moment";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { PO_RETURN_HISTORY } from "utils/Constants";
 import historyAction from "./images/action-history.svg";
@@ -12,15 +10,11 @@ import ActionPurchaseORderHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  countChangeSubStatus?: number;
-  poId?: number | null;
-  reload?: boolean;
+  actionLog: PurchaseOrderActionLogResponse[];
 };
 
 function ActionPurchaseOrderHistory(props: PropType) {
-  const { poId, reload } = props;
-  const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
-  const dispatch = useDispatch();
+  const { actionLog } = props;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [actionId, setActionId] = useState<number>(); 
@@ -68,19 +62,6 @@ function ActionPurchaseOrderHistory(props: PropType) {
     }
     return result;
   };
-
-  useEffect(() => {
-    if (!poId) {
-      return;
-    }
-    if (poId || reload) {
-      dispatch(
-        POGetPurchaseOrderActionLogs(poId, (response: PurchaseOrderActionLogResponse[]) => {
-          setActionLog(response);
-        })
-      );
-    }
-  }, [dispatch, poId, reload]);
 
   return (
     <StyledComponent>

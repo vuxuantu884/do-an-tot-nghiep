@@ -9,6 +9,8 @@ export interface OrderConfigResponseModel extends BaseObject {
   };
   for_all_order: boolean;
   allow_choose_item: boolean;
+  hide_gift:boolean;
+  hide_bonus_item:boolean;
 }
 
 export interface OrderConfigPrintResponseModel extends BaseObject {

@@ -23,6 +23,8 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { deleteVariantApi, getVariantByBarcode, updateVariantApi } from "service/product/variant.service";
 import { ProductUploadModel } from "model/product/product-upload.model";
 import { SearchType } from 'domain/types/search.type';
+import { isFetchApiSuccessful } from 'utils/AppUtils';
+import { fetchApiErrorAction } from 'domain/actions/app.action';
 
 function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -159,24 +161,17 @@ function* searchVariantOrderSaga(action: YodyAction) {
         searchVariantsApi,
         query
       );
-      switch (response.code) {
-        case HttpStatus.SUCCESS:
-          let data = { ...response.data };
-          data.items = data.items.filter((item) => item.status === "active");
-          setData(data);
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          response.errors.forEach((e) => showError(e));
-          handleError && handleError();
-          break;
-      }
+			if (isFetchApiSuccessful(response)) {
+				let data = { ...response.data };
+				data.items = data.items.filter((item) => item.status === "active");
+				setData(data);
+			} else {
+				yield put(fetchApiErrorAction(response, "Tìm kiếm sản phẩm"));
+			}
     }
   } catch (error) {
     handleError && handleError();
-		showError("Có lỗi khi lấy dữ liệu tồn kho sản phẩm! Vui lòng thử lại sau!");
+		showError("Có lỗi khi tìm kiếm sản phẩm! Vui lòng thử lại sau!");
   }
 }
 
