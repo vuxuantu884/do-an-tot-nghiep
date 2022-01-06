@@ -361,10 +361,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur)
           autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
-        if (resultSearch[index].district_id) {
-          console.log("districtId", resultSearch[index].district_id)
-          setDistrictId(resultSearch[index].district_id);
-        }
+        // if (resultSearch[index].district_id) {
+        //   console.log("districtId", resultSearch[index].district_id)
+        //   setDistrictId(resultSearch[index].district_id);
+        // }
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
@@ -392,10 +392,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (customer) setDistrictId(customer.district_id);
-  //   console.log("0974676818")
-  // }, [customer]);
+  useEffect(() => {
+    if (customer) setDistrictId(customer.district_id);
+  }, [customer]);
 
   const handleChangeArea = (districtId: string | null) => {
     if (districtId) {
