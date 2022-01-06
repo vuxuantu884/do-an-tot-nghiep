@@ -24,3 +24,7 @@ export const createCollectionApi = (request: CollectionCreateRequest) => {
 export const collectionDeleteApi = (id: number): Promise<BaseResponse<string>> => {
   return BaseAxios.delete(`${ApiConfig.PRODUCT}/collections/${id}`);
 }
+
+export const collectionDeleteProductApi = (id: number, productId: number): Promise<BaseResponse<string>> => {
+  return BaseAxios.delete(`${ApiConfig.PRODUCT}/collections/${id}/product/${productId}`);
+}

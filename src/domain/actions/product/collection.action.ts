@@ -22,3 +22,7 @@ export const collectionUpdateAction = (id: number, request: CollectionUpdateRequ
 export const collectionDeleteAction = (id: number, onDeleteSuccess: () => void) => {
   return BaseAction(CollectionType.DELETE_COLLECTION_REQUEST, {id, onDeleteSuccess});
 }
+
+export const collectionDeleteProductAction = (id:number, ids: Array<number>, onDeleteSuccess: () => void) => {
+  return BaseAction(CollectionType.DELETE_PRODUCT_COLLECTION_REQUEST, {id, ids, onDeleteSuccess});
+}

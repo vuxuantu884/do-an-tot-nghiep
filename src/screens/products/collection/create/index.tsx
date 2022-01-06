@@ -34,14 +34,14 @@ import { PageResponse } from 'model/base/base-metadata.response';
 import { ProductResponse, VariantResponse } from 'model/product/product.model';
 import ProductItem from 'component/custom/ProductItem';
 import { SearchOutlined } from '@ant-design/icons';
-import { LineItem } from 'model/inventory/transfer';
 import _ from 'lodash';
-import { inventoryGetVariantByStoreAction } from 'domain/actions/inventory/stock-transfer/stock-transfer.action';
 import PickManyProductModal from 'component/modal/PickManyProductModal';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import { Link } from 'react-router-dom';
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
 import { formatCurrency } from 'utils/AppUtils';
+import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm';
+import { searchProductWrapperRequestAction } from 'domain/actions/product/products.action';
 
 let initialRequest: CollectionCreateRequest = {
   code: '',
@@ -56,98 +56,135 @@ const AddCollection: React.FC = () => {
   const [keySearch, setKeySearch] = useState<string>("");
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const productSearchRef = createRef<CustomAutoComplete>();
-  const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
+  const [resultSearch, setResultSearch] = useState<PageResponse<ProductResponse> | any>();
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
-  const [dataTable, setDataTable] = useState<Array<LineItem> | any>(
-    [] as Array<LineItem>
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [dataTable, setDataTable] = useState<Array<ProductResponse>>(
+    [] as Array<ProductResponse>
   );
-  const [searchProduct, setSearchProduct] = useState<Array<LineItem>>(
-    [] as Array<LineItem>
+  const [searchProduct, setSearchProduct] = useState<Array<ProductResponse>>(
+    [] as Array<ProductResponse>
   );
 
-  const defaultColumns: Array<ICustomTableColumType<any>> = [
-    {
-      title: "STT",
-      align: "center",
-      width: 60,
-      render: (value: string, record: VariantResponse, index: number) => index + 1,
-    },
-    {
-      title: "Ảnh",
-      width: "60px",
-      render: (record: ProductResponse) => {
-        let url = null;
-        record.variants.forEach((item) => {
-          item.variant_images.forEach((item1) => {
-            if (item1.product_avatar) {
-              url = item1.url;
-            }
-          });
-        });
-        return (
-          <div className="product-item-image">
-            <img src={!url ? imgDefIcon : url} alt="" className="" />
-          </div>
+  
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
+  const [selected, setSelected] = useState<Array<ProductResponse>>([]);
+
+  const onClickDelete = useCallback(()=>{
+    setIsLoadingTable(true);
+    
+    let temps = [...dataTable];
+    temps = temps.filter(e=> selectedRowKeys.indexOf(e.id) === -1);
+    
+    setDataTable(temps);
+    setSearchProduct(temps);
+    setSelectedRowKeys([]);
+    setSelected([]);
+    setConfirmDelete(false);
+  },[selectedRowKeys, dataTable]);
+
+  const ActionComponent = useMemo( 
+    () => {
+      let Compoment = () => <span>STT</span>;
+      if (selected?.length > 0) {
+        Compoment = () => (
+          <Button style={{paddingLeft: 5,paddingRight: 5}} onClick={()=>{setConfirmDelete(true)}}>
+            Xóa
+          </Button>
         );
+      }
+      return <Compoment />;
+  },[selected]);
+
+  const defaultColumns: Array<ICustomTableColumType<ProductResponse>> = useMemo(()=>{ 
+    return [
+      {
+        title: ActionComponent,
+        align: "center",
+        width: 60,
+        render: (value: string, record: ProductResponse, index: number) => index + 1,
       },
-    },
-    {
-      title: "Sản phẩm",
-      className: "ant-col-info",
-      dataIndex: "name",
-      render: (value: string, record: ProductResponse, index: number) => {
-        return (
-          <div>
+      {
+        title: "Ảnh",
+        width: "60px",
+        render: (record: ProductResponse) => {
+          let url = null;
+          record.variants.forEach((item) => {
+            item.variant_images.forEach((item1) => {
+              if (item1.product_avatar) {
+                url = item1.url;
+              }
+            });
+          });
+          return (
+            <div className="product-item-image">
+              <img src={!url ? imgDefIcon : url} alt="" className="" />
+            </div>
+          );
+        },
+      },
+      {
+        title: ()=>{
+          return <>
+            Sản phẩm {dataTable && `(${dataTable.length})`}
+          </>
+        },
+        className: "ant-col-info",
+        dataIndex: "name",
+        render: (value: string, record: ProductResponse, index: number) => {
+          return (
             <div>
-              <div className="product-item-sku">
-                <Link
-                  target="_blank"
-                  to={`${UrlConfig.PRODUCT}/${record.id}`}
-                >
-                  {record.code}
-                </Link>
-              </div>
-              <div className="product-item-name">
-                <span className="product-item-name-detail">{value}</span>
+              <div>
+                <div className="product-item-sku">
+                  <Link
+                    target="_blank"
+                    to={`${UrlConfig.PRODUCT}/${record.id}`}
+                  >
+                    {record.code}
+                  </Link>
+                </div>
+                <div className="product-item-name">
+                  <span className="product-item-name-detail">{value}</span>
+                </div>
               </div>
             </div>
-          </div>
-        );
+          );
+        },
+      }, 
+      {
+        align: "right",
+        title: "SL Phiên bản",
+        dataIndex: "variants",
+        width: 120,
+        render: (value: Array<VariantResponse>) => (
+          <>
+            <div>{value ? formatCurrency(value.length,".") : ""}</div>
+          </>
+        ),
+        visible: true,
       },
-    }, 
-    {
-      align: "right",
-      title: "SL Phiên bản",
-      dataIndex: "variants",
-      width: 120,
-      render: (value: Array<VariantResponse>) => (
-        <>
-          <div>{value ? formatCurrency(value.length,".") : ""}</div>
-        </>
-      ),
-      visible: true,
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      align: "center",
-      width: 150,
-      render: (value: string, row: ProductResponse) => (
-        <div className={row.status === "active" ? "text-success" : "text-error"}>
-          {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
-        </div>
-      ),
-      visible: true,
-    },
-    {
-      title: "Ngày tạo",
-      align: "left",
-      dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY"),
-      width: 120,
-      visible: true,
-    },
-  ];  
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        align: "center",
+        width: 150,
+        render: (value: string, row: ProductResponse) => (
+          <div className={row.status === "active" ? "text-success" : "text-error"}>
+            {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
+          </div>
+        ),
+        visible: true,
+      },
+      {
+        title: "Ngày tạo",
+        align: "left",
+        dataIndex: "created_date",
+        render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY"),
+        width: 120,
+        visible: true,
+      },
+    ]
+  },[ActionComponent, dataTable]);    
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -174,7 +211,7 @@ const AddCollection: React.FC = () => {
     [dispatch, onSuccess]
   );  
 
-  const onPickManyProduct = (result: Array<ProductResponse>) => {
+  const onPickManyProduct = useCallback((result: Array<ProductResponse>) => {
     const newResult = result?.map((item) => {
       return {
         ...item,
@@ -183,13 +220,12 @@ const AddCollection: React.FC = () => {
     const dataTemp = [...dataTable, ...newResult];
 
     const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
-
     setIsLoadingTable(true);
     setDataTable(arrayUnique);
     setSearchProduct(arrayUnique);
     setIsLoadingTable(false);
-    setVisibleManyProduct(false);
-  };
+    setVisibleManyProduct(false);   
+  },[dataTable]);
 
   const onEnterFilterProduct = useCallback(
     (key: string) => {
@@ -211,11 +247,11 @@ const AddCollection: React.FC = () => {
   );
 
   const debounceSearchVariant = useMemo(()=>
-  _.debounce((code: string)=>{
-    onEnterFilterProduct(code);
- }, 300),
- [onEnterFilterProduct]
- );
+    _.debounce((code: string)=>{
+      onEnterFilterProduct(code);
+  }, 300),
+  [onEnterFilterProduct]
+  );
 
   const onChangeKeySearch = useCallback((code)=>{
     debounceSearchVariant(code);
@@ -224,23 +260,23 @@ const AddCollection: React.FC = () => {
   const onSelectProduct = useCallback((value: string) => {
     const dataTemp = [...dataTable];
     const selectedItem = resultSearch?.items?.find(
-      (variant: VariantResponse) => variant.id.toString() === value
+      (product: ProductResponse) => product.id.toString() === value
     );
 
-    if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
+    if (!dataTemp.some((product: ProductResponse) => product.id === selectedItem.id)) {
 
-      setDataTable((prev: Array<LineItem>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name}])
+      setDataTable((prev: Array<ProductResponse>) =>
+        prev.concat([{...selectedItem, ProductResponse: selectedItem.name}])
       );
-      setSearchProduct((prev: Array<LineItem>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name}])
+      setSearchProduct((prev: Array<ProductResponse>) =>
+        prev.concat([{...selectedItem, name: selectedItem.name}])
       );
     } 
   },[dataTable,resultSearch]);
 
   const onSearchProduct = (value: string) => {
     dispatch(
-      inventoryGetVariantByStoreAction(
+      searchProductWrapperRequestAction(
         {
           status: "active",
           limit: 10,
@@ -250,7 +286,21 @@ const AddCollection: React.FC = () => {
         setResultSearch
       )
     );
-  };
+  }; 
+
+  const onSelectedChange = useCallback(
+    (selectedRow: Array<ProductResponse>) => {
+      const selectedRowKeys = selectedRow.filter(e=>e !==undefined).map((row) => row.id);
+      setSelectedRowKeys(selectedRowKeys);
+
+      setSelected(
+        selectedRow.filter(function (el) {
+          return el !== undefined;
+        })
+      );
+    },
+    []
+  );
 
   return (
     <ContentContainer
@@ -305,7 +355,7 @@ const AddCollection: React.FC = () => {
             </Col>
           </Row>
         </Card>
-        <Card title="Thông tin sản phẩm" bordered={false}>
+        <Card title="Thông tin sản phẩm" bordered={false} className='product'>
           <Input.Group className="display-flex">
              <CustomAutoComplete
                dropdownClassName="product"
@@ -352,6 +402,7 @@ const AddCollection: React.FC = () => {
              />
             </Input.Group>
               <CustomTable
+                isRowSelection
                 bordered
                 style={{marginTop: 20}}
                 rowClassName="product-table-row"
@@ -365,17 +416,22 @@ const AddCollection: React.FC = () => {
                     ? searchProduct
                     : dataTable
                 }
+                onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+                rowKey={(item: ProductResponse) => item.id}
               />
         </Card>
-        {visibleManyProduct && (
-              <PickManyProductModal
-              selected={dataTable}
-              onSave={onPickManyProduct}
-              onCancel={() => setVisibleManyProduct(false)}
-              visible={visibleManyProduct}
-            />
-          )}
-
+          <PickManyProductModal
+          selected={dataTable}
+          onSave={onPickManyProduct}
+          onCancel={() => setVisibleManyProduct(false)}
+          visible={visibleManyProduct}
+        />
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={onClickDelete}
+          title="Bạn chắc chắn xóa sản phẩm?" 
+          visible={isConfirmDelete}
+        />
         <BottomBarContainer
           back={"Quay lại danh sách"}
           rightComponent={
