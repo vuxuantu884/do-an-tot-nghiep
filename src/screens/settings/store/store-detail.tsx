@@ -99,9 +99,6 @@ const StoreDetailScreen: React.FC = () => {
                   <Col span={24} lg={8} md={12} sm={24}>
                     <RowDetail title="Số điện thoại" value={data.hotline} />
                   </Col>
-                  <Col span={24} lg={8} md={12} sm={24}>
-                    <RowDetail title="Trạng thái" value={status} />
-                  </Col>
                 </Row>
                 <Row style={{marginTop: 10}} gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>

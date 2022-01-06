@@ -171,8 +171,9 @@ const StoreListScreen: React.FC = () => {
       align: "center",
       visible: true,
       sorter: (currentRecord, nextRecord) => {
-        const currentRankName = currentRecord.rank_name?.toUpperCase();
-        const nextRankName = nextRecord.rank_name?.toUpperCase();
+        const currentRankName = currentRecord.rank_name?.toUpperCase() || '';
+        const nextRankName = nextRecord.rank_name?.toUpperCase() || '';
+
         if (currentRankName > nextRankName) {
           return 1;
         }
