@@ -59,7 +59,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     item: PurchaseProcumentLineItem,
     lineIndex: number
   ) => {
-    setMessage(`Bạn chắc chắn xoá ${item.sku}`);
+    setMessage(`Bạn chắc chắn huỷ ${item.sku}`);
     setRemoveIndex(lineIndex);
     setIsShowConfirmDeleteLineItem(true);
   };
@@ -99,6 +99,8 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         okText={isEdit ? "Lưu phiếu duyệt" : "Duyệt phiếu nháp"}
       >
         {(onQuantityChange, onRemove, line_items) => {
+          const listItems = line_items.filter(item => item.quantity > 0);
+
           return (
             <Table
               className="product-table"
@@ -106,7 +108,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                 record.line_item_id
               }
               rowClassName="product-table-row"
-              dataSource={line_items}
+              dataSource={listItems}
               tableLayout="fixed"
               scroll={{ y: 250, x: 845 }}
               pagination={false}

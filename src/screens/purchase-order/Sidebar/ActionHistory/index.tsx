@@ -62,9 +62,9 @@ function ActionPurchaseOrderHistory(props: PropType) {
     if (status_before && status_after) {
       result = `${status_before} -> ${status_after}`;
     } else if (!status_before) {
-      result = `${status_after}`;
+      result = `${status_after || "Không có dữ liệu"}`;
     } else if (!status_after) {
-      result = `${status_before}`;
+      result = `${status_before || "Không có dữ liệu"}`;
     }
     return result;
   };

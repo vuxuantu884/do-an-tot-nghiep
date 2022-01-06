@@ -1,7 +1,6 @@
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
-// import purify from "dompurify";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { convertActionLogDetailToText, safeContent } from "utils/AppUtils";
@@ -31,7 +30,7 @@ function ActionHistoryModal(props: PropType) {
   const renderRow = (value: string, row: any) => {
     return (
       <div
-        className="purchaseOrderDetails"
+        className="orderDetails"
         dangerouslySetInnerHTML={{
           __html: safeContent(value),
         }}

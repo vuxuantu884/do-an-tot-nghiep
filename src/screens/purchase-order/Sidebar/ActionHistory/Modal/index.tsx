@@ -6,7 +6,7 @@ import purify from "dompurify";
 import moment from 'moment';
 import { StyledComponent } from "./styles";
 import { POGetActionLogDetail } from 'domain/actions/po/po.action';
-
+import { PO_RETURN_HISTORY } from 'utils/Constants';
 
 type PropType = {
   isModalVisible: boolean;
@@ -102,22 +102,55 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
     setIsShowLogDetail(false);
   };
 
-  const renderActionLog = (data?: string) => {
-    if (data) {
-      const dataJson = JSON.parse(data || '{}');
-      return (
-        <div>
-          <div>{`Nhân viên: ${dataJson.created_name}`}</div>
-          <div>{`Trạng thái: ${dataJson.status_after}`}</div>
-          <div>{`Địa chỉ nhà cung cấp: ${dataJson?.billing_address?.fullAddress}`}</div>
-          <div>{`Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}`}</div>
-        </div>
-      );
+  const renderSingleActionLogTitle = (action?: string) => {
+    if (!action) {
+      return;
     }
-    return (<></>)
-  }
+    let result = action;
+    const resultAction = PO_RETURN_HISTORY?.find((singleStatus) => {
+      return singleStatus.code === action;
+    });
+    if (resultAction && resultAction.title) {
+      result = resultAction.title || action;
+    }
+    return result;
+  };
+
 
   useEffect(() => {
+    const renderActionLog = (data?: string) => {
+      if (data) {
+        const dataJson = JSON.parse(data || '{}');
+        console.log("123", dataJson);
+        return (
+          <div>
+            <div>{`Nhân viên: ${dataJson.created_name}`}</div>
+            <div>{`Trạng thái: ${renderSingleActionLogTitle(dataJson.status)}`}</div>
+            <div>{`Địa chỉ nhà cung cấp: ${dataJson?.billing_address?.fullAddress}`}</div>
+            <div>{`Số lượng nhập: ${dataJson?.receipt_quantity}`}</div>
+            <div>{`Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}`}</div>
+            <div>{`Merchandiser: ${dataJson?.merchandiser}`}</div>
+            <div>{`Số diện thoại: ${dataJson?.phone}`}</div>
+            <div style={{ color: "red" }}>Thông tin sản phẩm: </div>
+            {
+              dataJson.line_items?.map((item: any) => (
+                <div key={item?.id}>
+                  <div style={{ fontWeight: "bold" }}>{`- Tên: ${item.product}`}</div>
+                  <div>{`- Loại: ${item.product_type}`}</div>
+                  <div>{`- SKU: ${item.sku}`}</div>
+                  <div>{`- Số lượng: ${item.quantity}`}</div>
+                  <div>{`- Người tạo: ${item.updated_name}`}</div>
+                  <div>{`- Thời gian: ${moment(item.updated_date).format(dateFormat)}`}</div>
+                </div>
+              ))
+            }
+          </div>
+          
+        );
+      }
+      return (<></>)
+    }
+
     if (actionId) {
       dispatch(
         POGetActionLogDetail(actionId, (response) => {

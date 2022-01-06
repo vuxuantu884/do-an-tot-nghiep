@@ -1401,6 +1401,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       }
                                                       placeholder="VD: 100,000"
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1433,6 +1434,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       }
                                                       placeholder="VD: 100,000"
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1462,6 +1464,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       }
                                                       placeholder="VD: 100,000"
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1494,6 +1497,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       }
                                                       placeholder="VD: 100,000"
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1508,6 +1512,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       placeholder="VD: 10"
                                                       suffix={<span>%</span>}
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>

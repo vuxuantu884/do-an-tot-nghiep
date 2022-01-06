@@ -23,6 +23,7 @@ function SelectSupplierField(props: SupplierSelectProps) {
   useEffect(() => {
     dispatch(
       SupplierGetAllAction((suppliers) => {
+        if(suppliers)
         setAllSupplier(suppliers);
       })
     );
@@ -36,6 +37,7 @@ function SelectSupplierField(props: SupplierSelectProps) {
       mode={isMulti ? "multiple" : undefined}
       style={{
         width: "100%",
+        minWidth: 200
       }}
       maxTagCount="responsive"
       {...restProps}

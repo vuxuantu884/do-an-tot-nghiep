@@ -191,7 +191,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
 
   return (
     <Modal
-      title="Thêm địa chỉ"
+      title="Thêm địa chỉ giao hàng"
       visible={visible}
       centered
       okText="Lưu"
@@ -199,6 +199,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
       className="update-shipping"
       onOk={onOkPress}
       onCancel={handleCancel}
+      width={"700px"}
     >
       <Form
         form={form}
@@ -238,7 +239,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
                   ]}
                 >
                   <Input
-                    placeholder="Nhập số điện thoại"
+                    placeholder="Nhập số điện thoại người nhận"
                     style={{ width: "100%" }}
                     minLength={9}
                     maxLength={15}
@@ -350,7 +351,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
               ]}
             >
               <Input
-                placeholder="Nhập địa chỉ chi tiết"
+                placeholder="Nhập địa chỉ chi tiết VD: 90 Nguyễn Tuân"
                 style={{ width: "100%" }}
                 maxLength={255}
               />

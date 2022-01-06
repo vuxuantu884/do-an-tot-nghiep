@@ -378,7 +378,7 @@ const GroupDiscountList = (props: Props) => {
                         {entitlementErrorsResponse?.map((error: any, index) => (
                           <div key={index} className="error-import-file__item">
                             <span>
-                              - Dòng {error.index + 2}: {csvColumnMapping[error.column]}
+                              - Dòng {error.index + 2}: {csvColumnMapping[error.column]} &nbsp;
                               {csvColumnMapping[error.type.toLowerCase()]}
                             </span>
                           </div>
