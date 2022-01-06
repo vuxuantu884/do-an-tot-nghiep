@@ -63,7 +63,7 @@ export interface OrderResponse extends BaseObject {
   items: Array<OrderLineItemResponse>;
   discounts: Array<OrderDiscountResponse> | null;
   payments: Array<OrderPaymentResponse> | null;
-  total_paid?: number | null;
+  // total_paid?: number | null;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;

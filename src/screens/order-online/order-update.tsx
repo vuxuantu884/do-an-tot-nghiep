@@ -85,7 +85,7 @@ import {
 	checkPaymentStatus,
 	checkPaymentStatusToShow,
 	CheckShipmentType,
-	formatCurrency, getAccountCodeFromCodeAndName, getAmountPaymentRequest,
+	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
 	SumCOD,
 	SumWeightResponse,
@@ -400,6 +400,8 @@ export default function Order(props: PropType) {
     }
     return listFulfillmentRequest;
   };
+
+	const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
 
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
@@ -799,17 +801,6 @@ export default function Order(props: PropType) {
   // const [totalPaid, setTotalPaid] = useState(0);
   // console.log("totalPaid", totalPaid);
   // console.log("setTotalPaid", setTotalPaid);
-
-  // khách cần trả
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
-  };
 
   /**
    * tổng số tiền đã trả
@@ -1377,7 +1368,7 @@ export default function Order(props: PropType) {
                                 ghost
                               >
                                 {OrderDetail.total === SumCOD(OrderDetail) &&
-                                OrderDetail.total === OrderDetail.total_paid ? (
+                                OrderDetail.total === totalPaid ? (
                                   ""
                                 ) : (
                                   <>
