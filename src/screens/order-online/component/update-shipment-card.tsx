@@ -154,7 +154,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
-  // console.log(setTakeMoneyHelper)
+  console.log(setTakeMoneyHelper)
 
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
@@ -247,6 +247,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	const sortedFulfillments = useMemo(() => {
     return OrderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
   }, [OrderDetail?.fulfillments])
+
+	const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
 
   //#region Update Fulfillment Status
   // let timeout = 500;
@@ -464,18 +466,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
         props.OrderDetail?.total_line_amount_after_line_discount +
         props.shippingFeeInformedCustomer -
-        (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
+        totalPaid -
         (props.OrderDetail?.discounts &&
         props.OrderDetail?.discounts.length > 0 &&
         props.OrderDetail?.discounts[0].amount
           ? props.OrderDetail?.discounts[0].amount
           : 0)
       );
-    } else if (props.OrderDetail?.total && props.OrderDetail?.total_paid) {
+    } else if (props.OrderDetail?.total && totalPaid) {
       return (
         props.OrderDetail?.total +
         props.shippingFeeInformedCustomer -
-        props.OrderDetail?.total_paid
+        totalPaid
       );
     } else if (
       props.OrderDetail &&
