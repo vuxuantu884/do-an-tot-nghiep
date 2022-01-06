@@ -100,7 +100,7 @@ import {
 	isFetchApiSuccessful,
 	replaceFormatString
 } from "utils/AppUtils";
-import { MoneyType } from "utils/Constants";
+import { ACCOUNT_ROLE_ID, MoneyType } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
@@ -265,6 +265,8 @@ function OrderCreateProduct(props: PropType) {
 
 	const [storeArrayResponse, setStoreArrayResponse] =
 		useState<Array<StoreResponse> | null>([]);
+
+	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
 	// const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
 
@@ -786,7 +788,8 @@ function OrderCreateProduct(props: PropType) {
 							levelOrder > 3 ||
 							checkIfLineItemHasAutomaticDiscount(l) ||
 							couponInputText !== "" ||
-							promotion !== null
+							promotion !== null ||
+							(userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin)
 						}
 					/>
 				</div>
@@ -1214,26 +1217,35 @@ function OrderCreateProduct(props: PropType) {
 			taxes_included: true,
 			tax_exempt: false,
 		};
+		applyDiscountService(params).then((response) => {
+      try {
+        if (
+					response?.code === HttpStatus.SUCCESS &&
+					response.data.line_items.length > 0
+				) {
+					let result = getApplyDiscountLineItem(response, items);
+					let promotionResult = handleApplyDiscountOrder(response, result);
+					// console.log("result", result);
+					calculateChangeMoney(result, promotionResult)
+					showSuccess("Cập nhật chiết khấu tự động thành công!");
+					setIsCalculateDiscount(false);
+				} else {
+					setIsCalculateDiscount(false);
+					showError("Có lỗi khi áp dụng chiết khấu!");
+				}
+      } catch (error) {
+        console.log("error", error);
+        handleFetchApiError(response, "Chiết khấu", dispatch);
+      }
 
-		// dispatch(showLoading());
-		const checkingDiscountResponse = await applyDiscountService(params).finally(() => {
-			// dispatch(hideLoading());
-		});
+    }).catch((error) => {
+      console.log('error', error)
+      showError("Cập nhật chiết khấu tự động thất bại!");
+    }).finally (()=>{
+      
+    });
 		// console.log("checkingDiscountResponse", checkingDiscountResponse);
-		if (
-			checkingDiscountResponse?.code === HttpStatus.SUCCESS &&
-			checkingDiscountResponse.data.line_items.length > 0
-		) {
-			let result = getApplyDiscountLineItem(checkingDiscountResponse, items);
-			let promotionResult = handleApplyDiscountOrder(checkingDiscountResponse, result);
-			// console.log("result", result);
-			calculateChangeMoney(result, promotionResult)
-			showSuccess("Cập nhật chiết khấu tự động thành công!");
-			setIsCalculateDiscount(false);
-		} else {
-			setIsCalculateDiscount(false);
-			showError("Có lỗi khi áp dụng chiết khấu!");
-		}
+		
 	};
 
 	const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
@@ -1542,8 +1554,6 @@ function OrderCreateProduct(props: PropType) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[form]
 	);
-
-	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
 	const showInventoryModal = useCallback(() => {
 		if (items !== null && items?.length) setInventoryModalVisible(true);

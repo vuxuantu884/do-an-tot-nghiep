@@ -114,6 +114,9 @@ console.log('initYodyAccountData', initYodyAccountData)
 					})
 						.then((response) => {
 							if (isFetchApiSuccessful(response)) {
+								if(response.data.items.length === 0) {
+									return;
+								}
 								if (storeAccountData.length > 0) {
 									let result = [...storeAccountData];
 									result.push(response.data.items[0]);
@@ -235,7 +238,7 @@ console.log('initYodyAccountData', initYodyAccountData)
                 }}
                 maxLength={999999999999}
                 minLength={0}
-                disabled={levelOrder > 3}
+                disabled
               />
             </Form.Item>
             {/* )} */}

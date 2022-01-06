@@ -1985,6 +1985,13 @@ export default function Order(props: PropType) {
 																										<span>{fulfillment.shipment.shipper_code} - {fulfillment.shipment.shipper_name}</span>
 																									)
 																									}
+																									{fulfillment.shipment
+                                                  ?.delivery_service_provider_type ===
+                                                  ShipmentMethod.EMPLOYEE &&
+                                                  (
+																										<span>{fulfillment.shipment.info_shipper}</span>
+																									)
+																									}
                                               </b>
                                             </Col>
                                           </Row>
