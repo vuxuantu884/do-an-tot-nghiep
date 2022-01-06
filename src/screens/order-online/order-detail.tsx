@@ -503,6 +503,7 @@ const OrderDetail = (props: PropType) => {
   };
 
   const customerNeedToPayValue = customerNeedToPay();
+	const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
   // end
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
@@ -687,8 +688,7 @@ const OrderDetail = (props: PropType) => {
 													<b style={{color: "red"}}>
 														{formatCurrency(
 															Math.abs(
-																customerNeedToPayValue -
-																	(OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+																customerNeedToPayValue - totalPaid
 															)
 														)}
                           </b>
