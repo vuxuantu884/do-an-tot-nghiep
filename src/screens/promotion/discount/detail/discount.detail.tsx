@@ -23,7 +23,7 @@ import {
 import { showError, showInfo, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionDetail from "../../shared/general-condition.detail";
 import DiscountRuleInfo from "../components/discount-rule-info";
-import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, discountStatus } from "../constants/index";
+import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants/index";
 import "../discount.scss";
 
 const MAX_LOAD_VARIANT_LIST = 5;
@@ -146,7 +146,7 @@ const PromotionDetailScreen: React.FC = () => {
 
 
   const RenderStatus = (data: PriceRule) => {
-    const status = discountStatus.find((status) => status.code === data.state);
+    const status = DISCOUNT_STATUS.find((status) => status.code === data.state);
     return <span style={{ marginLeft: "20px" }}>{status?.Component}</span>;
 
   };
