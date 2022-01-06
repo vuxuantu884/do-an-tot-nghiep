@@ -31,7 +31,7 @@ import {withRouter} from "react-router";
 import {useHistory} from "react-router-dom";
 import {getDepartmentAllApi} from "service/accounts/account.service";
 import {deleteMultiOrderSourceService} from "service/order/order.service";
-import {convertDepartment, generateQuery} from "utils/AppUtils";
+import {convertDepartment, generateQuery, handleFetchApiError, isFetchApiSuccessful} from "utils/AppUtils";
 import {showError, showSuccess} from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import {StyledComponent} from "./styles";
@@ -456,23 +456,21 @@ function OrderSources(props: PropsType) {
   useEffect(() => {
     getDepartmentAllApi()
       .then((response: BaseResponse<DepartmentResponse[]>) => {
-        switch (response.code) {
-          case HttpStatus.SUCCESS:
-            if (response.data) {
-              // setListDepartments(response.data);
-              let array: any = convertDepartment(response.data);
-              setListDepartments(array);
-            }
-            break;
-          default:
-            response.errors.forEach((e) => showError(e));
-            break;
-        }
+				if (isFetchApiSuccessful(response)) {
+					if (response.data) {
+						// setListDepartments(response.data);
+						let array: any = convertDepartment(response.data);
+						setListDepartments(array);
+					}
+				} else {
+					handleFetchApiError(response, "Danh sách phòng ban", dispatch)
+				}
       })
       .catch((error) => {
+				console.log('error', error)
         showError("Có lỗi khi lấy danh sách phòng ban!");
       });
-  }, []);
+  }, [dispatch]);
 
   return (
     <StyledComponent>
