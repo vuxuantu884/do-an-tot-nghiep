@@ -29,6 +29,7 @@ export interface Shipment {
   reason_ids: string;
   cod: number;
 	reference_status: string;
+  tracking_code: string;
 }
 export interface ShipmentModel {
   id: number;

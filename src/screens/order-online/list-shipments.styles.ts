@@ -61,4 +61,33 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .code {
+    .order {
+      .title {
+        font-weight: 500;
+      }
+    }
+    .order-time {
+      padding-left: 38px;
+      color: #666666;
+      font-size: 12px;
+      font-weight: 400;
+    }
+    .tracking {
+      .title {
+        font-weight: 500;
+        width: 50px;
+      }
+    }
+  }
+  .shipment-details {
+    .label {
+      color: #666666;
+      font-weight: 400;
+    }
+    .value {
+      color: #222222;
+      font-weight: 500;
+    }
+  }
 `;
