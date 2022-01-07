@@ -1,4 +1,4 @@
-import { 
+import {
   checkPromoCode,
   addPromoCode,
   deletePromoCodeById,
@@ -8,21 +8,22 @@ import {
   deleteBulkPromoCode,
   publishedBulkPromoCode,
   enableBulkPromoCode,
-  disableBulkPromoCode
-} from '../../../../service/promotion/promo-code/promo-code.service';
+  disableBulkPromoCode,
+} from "../../../../service/promotion/promo-code/promo-code.service";
 import {YodyAction} from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
 import {call, put, takeLatest} from "@redux-saga/core/effects";
 import {HttpStatus} from "../../../../config/http-status.config";
 import {unauthorizedAction} from "../../../actions/auth/auth.action";
 import {showError} from "../../../../utils/ToastUtils";
-import {PageResponse} from "../../../../model/base/base-metadata.response"; 
+import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {PromoCodeType} from "../../../types/promotion.type";
-import { all } from "redux-saga/effects";
-import { DiscountCode } from 'model/promotion/price-rules.model';
+import {all} from "redux-saga/effects";
+import {DiscountCode} from "model/promotion/price-rules.model";
+import {callApiSaga} from "utils/ApiUtils";
 
 function* checkPromoCodeAtc(action: YodyAction) {
-  const { code, handleResponse } = action.payload;
+  const {code, handleResponse} = action.payload;
   try {
     const response: BaseResponse<PageResponse<DiscountCode>> = yield call(
       checkPromoCode,
@@ -46,31 +47,12 @@ function* checkPromoCodeAtc(action: YodyAction) {
 }
 
 function* getPromoCode(action: YodyAction) {
-  const { priceRuleId, query, setData } = action.payload;
-  try {
-    const response: BaseResponse<PageResponse<DiscountCode>> = yield call(
-      getAllPromoCodeList,
-      priceRuleId,
-      query
-    );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
-  }
+  const {priceRuleId, query, setData} = action.payload;
+  yield callApiSaga(true, setData, getAllPromoCodeList, priceRuleId, query);
 }
 
 function* getPromoCodeByIdAct(action: YodyAction) {
-  const { priceRuleId, id, onResult } = action.payload;
+  const {priceRuleId, id, onResult} = action.payload;
   try {
     let response: BaseResponse<DiscountCode> = yield call(
       getPromoCodeById,
@@ -97,8 +79,8 @@ function* getPromoCodeByIdAct(action: YodyAction) {
 }
 
 function* deletePromoCodeByIdAct(action: YodyAction) {
-  console.log('deletePriceRuleByIdAct - action : ', action);
-  const { priceRuleId, id, deleteCallBack } = action.payload;
+  console.log("deletePriceRuleByIdAct - action : ", action);
+  const {priceRuleId, id, deleteCallBack} = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       deletePromoCodeById,
@@ -125,8 +107,8 @@ function* deletePromoCodeByIdAct(action: YodyAction) {
 }
 
 function* updatePromoCodeByIdAct(action: YodyAction) {
-  console.log('updatePromoCodeByIdAct - action : ', action);
-  const { priceRuleId, body, updateCallBack } = action.payload;
+  console.log("updatePromoCodeByIdAct - action : ", action);
+  const {priceRuleId, body, updateCallBack} = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       updatePromoCodeById,
@@ -153,7 +135,7 @@ function* updatePromoCodeByIdAct(action: YodyAction) {
 }
 
 function* addPromoCodeManualAct(action: YodyAction) {
-  const { priceRuleId, body, addCallBack } = action.payload;
+  const {priceRuleId, body, addCallBack} = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       addPromoCode,
@@ -174,16 +156,16 @@ function* addPromoCodeManualAct(action: YodyAction) {
         break;
     }
   } catch (error: any) {
-    if(typeof error?.response.data.message === 'string') {
-    showError(error?.response.data.message || "Có lỗi vui lòng thử lại sau");
+    if (typeof error?.response.data.message === "string") {
+      showError(error?.response.data.message || "Có lỗi vui lòng thử lại sau");
     }
     addCallBack(false);
   }
 }
 
 function* deleteBulkPromoCodeAct(action: YodyAction) {
-  console.log('deleteBulkPromoCodeAct - action : ', action);
-  const { priceRuleId, body, deleteCallBack } = action.payload;
+  console.log("deleteBulkPromoCodeAct - action : ", action);
+  const {priceRuleId, body, deleteCallBack} = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       deleteBulkPromoCode,
@@ -192,26 +174,26 @@ function* deleteBulkPromoCodeAct(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        deleteCallBack(true)
+        deleteCallBack(true);
         break;
       case HttpStatus.UNAUTHORIZED:
-        deleteCallBack(false)
+        deleteCallBack(false);
         yield put(unauthorizedAction());
         break;
       default:
-        deleteCallBack(false)
+        deleteCallBack(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    deleteCallBack(false)
+    deleteCallBack(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* publishedBulkPromoCodeAct(action: YodyAction) {
-  console.log('publishedBulkPromoCodeAct - action : ', action);
-  const { priceRuleId, body, publishedCallBack } = action.payload;
+  console.log("publishedBulkPromoCodeAct - action : ", action);
+  const {priceRuleId, body, publishedCallBack} = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       publishedBulkPromoCode,
@@ -220,26 +202,26 @@ function* publishedBulkPromoCodeAct(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        publishedCallBack(true)
+        publishedCallBack(true);
         break;
       case HttpStatus.UNAUTHORIZED:
-        publishedCallBack(false)
+        publishedCallBack(false);
         yield put(unauthorizedAction());
         break;
       default:
-        publishedCallBack(false)
+        publishedCallBack(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    publishedCallBack(false)
+    publishedCallBack(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* enableBulkPromoCodeAct(action: YodyAction) {
-  console.log('enableBulkPromoCodeAct - action : ', action);
-  const { priceRuleId, body, enableCallBack } = action.payload;
+  console.log("enableBulkPromoCodeAct - action : ", action);
+  const {priceRuleId, body, enableCallBack} = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       enableBulkPromoCode,
@@ -248,26 +230,26 @@ function* enableBulkPromoCodeAct(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        enableCallBack(true)
+        enableCallBack(true);
         break;
       case HttpStatus.UNAUTHORIZED:
-        enableCallBack(false)
+        enableCallBack(false);
         yield put(unauthorizedAction());
         break;
       default:
-        enableCallBack(false)
+        enableCallBack(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    enableCallBack(false)
+    enableCallBack(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* disableBulkPromoCodeAct(action: YodyAction) {
-  console.log('disableBulkPromoCodeAct - action : ', action);
-  const { priceRuleId, body, disableCallBack } = action.payload;
+  console.log("disableBulkPromoCodeAct - action : ", action);
+  const {priceRuleId, body, disableCallBack} = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       disableBulkPromoCode,
@@ -276,19 +258,19 @@ function* disableBulkPromoCodeAct(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        disableCallBack(true)
+        disableCallBack(true);
         break;
       case HttpStatus.UNAUTHORIZED:
-        disableCallBack(false)
+        disableCallBack(false);
         yield put(unauthorizedAction());
         break;
       default:
-        disableCallBack(false)
+        disableCallBack(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    disableCallBack(false)
+    disableCallBack(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -304,6 +286,6 @@ export function* promoCodeSaga() {
     takeLatest(PromoCodeType.DELETE_PROMO_CODE_BULK, deleteBulkPromoCodeAct),
     takeLatest(PromoCodeType.PUBLISHED_PROMO_CODE_BULK, publishedBulkPromoCodeAct),
     takeLatest(PromoCodeType.ENABLE_PROMO_CODE_BULK, enableBulkPromoCodeAct),
-    takeLatest(PromoCodeType.DISABLE_PROMO_CODE_BULK, disableBulkPromoCodeAct)
-  ])
+    takeLatest(PromoCodeType.DISABLE_PROMO_CODE_BULK, disableBulkPromoCodeAct),
+  ]);
 }
