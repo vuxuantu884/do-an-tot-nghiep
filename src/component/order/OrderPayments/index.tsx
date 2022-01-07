@@ -261,56 +261,38 @@ function OrderPayments(props: PropType): JSX.Element {
                 <Row align="middle">
                   <b style={{ padding: "8px 0" }}>{method.payment_method}:</b>
                   {method.payment_method_code === PaymentMethodCode.POINT ? (
-                    <>
-                      <Col className="point-spending">
-                        <span
-                          style={{
-                            marginLeft: 5,
-                          }}
-                        >
-                          {" "}
-                          (1 điểm = {formatCurrency(usageRate)}₫)
-                        </span>
-                      </Col>
-
-                      <Col className="point-spending">
-                        <Input.Group compact style={{
-                          width: 129,
+                    <Col className="point-spending">
+                      <span
+                        style={{
+                          marginLeft: 5,
+                        }}
+                      >
+                        {" "}
+                        (1 điểm = {formatCurrency(usageRate)}₫)
+                      </span>
+                      <NumberInput
+                        value={method.point}
+                        style={{
+                          width: 110,
                           marginLeft: 12,
-                        }}>
-                          <NumberInput
-                            value={method.point}
-                            style={{
-                              width: "calc(100% - 55px)",
-                              //marginLeft: 12,
-                              //borderRadius: 5,
-                            }}
-                            format={(a: string) =>
-                              formatCurrency(a)
-                            }
-                            replace={(a: string) =>
-                              replaceFormatString(a)
-                            }
-                            className="hide-number-handle"
-                            onFocus={(e) => e.target.select()}
-                            min={0}
-                            max={totalAmountOrder / usageRate}
-                            onChange={(value) => {
-                              handleInputPoint(index, value);
-                            }}
-                            disabled={levelOrder > 2}
-                          />
-                          <Button
-                            style={{ marginRight: 0 }}
-                            type="default"
-                            icon={<ArrowLeftOutlined />}
-                            onClick={() => {
-                              handleInputMonney(method.payment_method_code)
-                            }}
-                          ></Button>
-                        </Input.Group>
-                      </Col>
-                    </>
+                          borderRadius: 5,
+                        }}
+												format={(a: string) =>
+													formatCurrency(a)
+												}
+												replace={(a: string) =>
+													replaceFormatString(a)
+												}
+                        className="hide-number-handle"
+                        onFocus={(e) => e.target.select()}
+                        min={0}
+                        max={totalAmountOrder / usageRate}
+                        onChange={(value) => {
+                          handleInputPoint(index, value);
+                        }}
+                        disabled={levelOrder > 2}
+                      />
+                    </Col>
                   ) : null}
 
                   {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? (
