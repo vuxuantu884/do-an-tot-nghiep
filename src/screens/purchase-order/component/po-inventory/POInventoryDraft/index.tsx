@@ -351,7 +351,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           let columns: Array<ICustomTableColumType<PurchaseProcument>> = [];
           new_line_items.forEach((item, indexLineItem) => {
             columns.push({
-              width: 90,
+              width: 100,
               align: "right",
               title: () => (
                 <div style={{ textAlign: "right" }}>
@@ -371,7 +371,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
             <Table
               className="product-table"
               pagination={false}
-              scroll={{ y: 300, x: 950 }}
+              // scroll={{ y: 300, x: 950 }}
               rowKey={(item) => item.id}
               dataSource={procument_items}
               columns={[
@@ -382,7 +382,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   render: (value, record, index) => index + 1,
                 },
                 {
-                  width: 250,
+                  width: 150,
                   title: "Cửa hàng nhận",
                   dataIndex: "store",
                   render: (value, record, index) => value,
