@@ -849,7 +849,13 @@ function OrdersTable(props: PropsType) {
 						result = (
 							<a href={record?.url}>{value}</a>
 						)
-					} else {
+					} if(record?.linked_order_code) {
+						return (
+							<Link to={`${UrlConfig.ORDER}/${record.linked_order_code}`} target="_blank">
+								{record?.linked_order_code}
+							</Link>
+						)
+					}else {
 						result = value
 					}
 					return result;

@@ -206,16 +206,16 @@ function OrderList(props: PropsType) {
       if (currentParam === queryParam) {
         handleFetchData(newPrams);
       } else {
-        history.push(`${UrlConfig.ORDER}?${queryParam}`);
+				history.push(`${location.pathname}?${queryParam}`);
       }
     },
-    [handleFetchData, history, params]
+    [handleFetchData, history, location.pathname, params]
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.ORDER}?${queryParam}`);
-  }, [history, initQuery]);
+		history.push(`${location.pathname}?${queryParam}`);
+  }, [history, initQuery, location.pathname]);
 
   const onMenuClick = useCallback(
     (index: number) => {
