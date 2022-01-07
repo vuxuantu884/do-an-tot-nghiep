@@ -56,7 +56,7 @@ import {
 	checkPaymentStatusToShow,
 	CheckShipmentType,
 	formatCurrency,
-	getAmountPayment, getShippingAddressDefault, SumWeight,
+	getAmountPayment, getShippingAddressDefault, scrollAndFocusToDomElement, SumWeight,
 	SumWeightResponse,
 	TrackingCode
 } from "utils/AppUtils";
@@ -626,6 +626,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
 		if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !thirdPL.service) {
 			showError("Vui lòng chọn đơn vị vận chuyển!");
+			const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
+			scrollAndFocusToDomElement(element)
 		} else {
 			setUpdateShipment(true);
 			(async () => {

@@ -54,7 +54,7 @@ import UrlConfig from "config/url.config";
 import * as CONSTANTS from "utils/Constants";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
-import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
+import { handleDelayActionWhenInsertTextInSearchInput, sortSources } from "utils/AppUtils";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 //#end region
@@ -69,6 +69,7 @@ type CustomerCardProps = {
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
+  isDisableSelectSource?: boolean;
   isVisibleCustomer: boolean;
   shippingAddress: ShippingAddress | any;
   setModalAction: (item: modalActionType) => void;
@@ -101,6 +102,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     loyaltyPoint,
     loyaltyUsageRules,
     levelOrder = 0,
+    isDisableSelectSource = false,
     setVisibleCustomer,
     isVisibleCustomer,
     shippingAddress,
@@ -386,24 +388,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //   return listSource.filter((item) => item.code !== "POS");
   // }, [listSource]);
 
-	
-	const sortedSources = useMemo(() => {
-	 let result = listSource;
-	 let abc = [...listSource];
-	 let departmentSources = [];
-	 if(departmentIds && departmentIds.length > 0) {
-		for (const departmentId of departmentIds) {
-			let ddd = listSource.findIndex(single=>single.department_id === departmentId)
-			if(ddd > -1) {
-				abc.splice(ddd, 1);
-				departmentSources.push(listSource[ddd])
-			}	
-		}
-		result = [...departmentSources, ...abc]
-	 }
-	 return result;
-	}, [departmentIds, listSource])
-	console.log('sortedSources', sortedSources)
+	const sortedSources = sortSources(listSource, departmentIds);
 
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
@@ -524,6 +509,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 setOrderSourceId && setOrderSourceId(value);
                 console.log(value)
               }}
+							disabled={isDisableSelectSource}
             >
               {sortedSources.filter((x) => {
 								return (

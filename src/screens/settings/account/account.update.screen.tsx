@@ -50,6 +50,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } f
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { convertDistrict } from "utils/AppUtils";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
@@ -91,7 +92,7 @@ const AccountUpdateScreen: React.FC = () => {
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [accountDetail, setAccountDetail] = useState<AccountResponse>();
-  const [isSelectAllStore, setIsSelectAllStore] = useState(false);
+  // const [isSelectAllStore, setIsSelectAllStore] = useState(false);
   const [listDepartmentTree, setDepartmentTree] = useState<Array<DepartmentResponse>>();
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
@@ -173,11 +174,6 @@ const AccountUpdateScreen: React.FC = () => {
     }
     return "";
   }, [status, listAccountStatus]);
-
-  const selectAllStore = useMemo(() => {
-    return listStore?.map((item) => item.id);
-  }, [listStore]);
-
   //end memo
 
   const backAction = () => {
@@ -199,11 +195,6 @@ const AccountUpdateScreen: React.FC = () => {
       history.goBack();
     }
   };
-
-  useEffect(() => {
-    setIsSelectAllStore(listStore?.length === accountDetail?.store_ids.length);
-    console.log(accountDetail?.account_jobs);
-  }, [accountDetail, listStore]);
 
   useEffect(() => {
     dispatch(
@@ -399,43 +390,9 @@ const AccountUpdateScreen: React.FC = () => {
               </Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item name="store_ids" label="Cửa hàng">
-                <Select
-                  placeholder="Chọn cửa hàng"
-                  allowClear
-                  showArrow
-                  maxTagCount={"responsive" as const}
-                  mode={isSelectAllStore ? "tags" : "multiple"}
-                  optionFilterProp="children"
-                  onChange={(value: any) => {
-                    if (
-                      (Array.isArray(value) && value.includes("all")) ||
-                      value === "all"
-                    ) {
-                      if (isSelectAllStore) {
-                        formRef.current?.setFieldsValue({ store_ids: [] });
-                        setIsSelectAllStore(false);
-                      } else {
-                        formRef.current?.setFieldsValue({
-                          store_ids: selectAllStore,
-                        });
-                        setIsSelectAllStore(true);
-                      }
-                    } else {
-                      setIsSelectAllStore(false);
-                    }
-                  }}
-                >
-                  <Option value={"all"}>
-                    {isSelectAllStore ? "Bỏ chọn tất cả" : "Chọn tất cả cửa hàng"}
-                  </Option>
-                  {listStore?.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
+              <Form.Item name="store_ids" style={{minWidth: 220}}>
+                <TreeStore name="store_ids" listStore={listStore} />
+            </Form.Item>
             </Col>
           </Row>
           <Row gutter={24}>
