@@ -88,6 +88,8 @@ function TextShowMore(props: Props): ReactElement {
     useEffect(() => {
         if (children && children.length > maxLength!) {
             showLessText(children, maxLength!);
+        }else{
+            setTextShow(children);
         }
     }, [children, maxLength, showLessText])
 

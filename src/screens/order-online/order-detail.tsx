@@ -158,13 +158,13 @@ const OrderDetail = (props: PropType) => {
             payment_method: returnMoneyMethod.name,
             amount: -Math.abs(
               customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                totalPaid
             ),
             reference: "",
             source: "",
             paid_amount: -Math.abs(
               customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                totalPaid
             ),
             return_amount: 0.0,
             status: "paid",
@@ -613,14 +613,14 @@ const OrderDetail = (props: PropType) => {
 
               {OrderDetail?.order_return_origin?.items &&
                 customerNeedToPayValue -
-                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                  totalPaid <
                   0 && (
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}
                     returnMoneyAmount={(
                       customerNeedToPayValue -
-                        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                        totalPaid
                     )}
                     isShowPaymentMethod={true}
                     setIsShowPaymentMethod={() => {}}
@@ -680,7 +680,7 @@ const OrderDetail = (props: PropType) => {
                         <Col span={12}>
                           <span className="text-field margin-right-40">
                             {customerNeedToPayValue -
-                              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) >=
+                              totalPaid >=
                             0
                               ? `Còn phải trả:`
                               : `Hoàn tiền cho khách:`}
@@ -705,7 +705,7 @@ const OrderDetail = (props: PropType) => {
                             ghost
                           >
                             {OrderDetail.total === SumCOD(OrderDetail) &&
-                            OrderDetail.total === OrderDetail.total_paid ? (
+                            OrderDetail.total === totalPaid ? (
                               ""
                             ) : (
                               <React.Fragment>
@@ -970,14 +970,7 @@ const OrderDetail = (props: PropType) => {
                 customerDetail={customerDetail}
                 storeDetail={storeDetail}
                 stepsStatusValue={stepsStatusValue}
-                totalPaid={
-                  OrderDetail?.total_paid
-                    ? OrderDetail?.total_paid
-                    : paymentMethod === 2
-                    ? // ? totalPaid
-                      0
-                    : 0
-                }
+                totalPaid={totalPaid}
                 officeTime={officeTime}
                 shipmentMethod={shipmentMethod}
                 isVisibleShipping={isVisibleShipping}

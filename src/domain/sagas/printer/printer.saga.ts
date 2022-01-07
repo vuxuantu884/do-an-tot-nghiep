@@ -113,7 +113,7 @@ function* fetchPrintFormByOrderIdsSaga(action: YodyAction) {
     let response: BaseResponse<BaseResponse<PrintFormByOrderIdsResponseModel>> =
       yield call(getPrintFormByOrderIdsService, ids, type);
 		if (isFetchApiSuccessful(response)) {
-			handleData(response.data);
+			handleData(response);
 		} else {
 			yield put(fetchApiErrorAction(response, "In nhiều đơn hàng"));
 		}
