@@ -16,7 +16,7 @@ import {
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
-import eyeOutline from "assets/icon/eye_outline.svg";
+// import eyeOutline from "assets/icon/eye_outline.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
