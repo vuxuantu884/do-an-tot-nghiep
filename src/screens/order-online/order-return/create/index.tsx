@@ -43,12 +43,11 @@ import {
 	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
-	
+
 	getAmountPayment,
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
@@ -62,11 +61,9 @@ import {
 	FulFillmentStatus,
 	OrderStatus,
 	PaymentMethodCode,
-	PaymentMethodOption,
-	ShipmentMethod,
+	PaymentMethodOption, POS, ShipmentMethod,
 	ShipmentMethodOption,
-	TaxTreatment,
-	POS
+	TaxTreatment
 } from "utils/Constants";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
