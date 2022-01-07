@@ -424,7 +424,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [dispatch]);
 
 	useEffect(() => {
-		let departmentId = userReducer.account?.account_jobs[0].department_id;
+		let departmentId = userReducer.account?.account_jobs[0]?.department_id;
 		if(departmentId) {
 			let department:number[] = [];
 			department.push(departmentId)
