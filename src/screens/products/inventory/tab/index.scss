@@ -1,3 +1,14 @@
 .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th {
     line-height: 1.2;
 }
+
+.ant-table.ant-table-middle .ant-table-tbody .ant-table-wrapper:only-child .ant-table{
+    margin: -12px -8px -12px 35px;
+}
+
+.ant-table-expanded-row.ant-table-expanded-row-level-1 .custom-table{
+    margin-right: -4px;
+}
+.ant-table-cell.column-product{
+    min-width: 200px !important;
+}
