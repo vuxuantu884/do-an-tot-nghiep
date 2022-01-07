@@ -37,6 +37,7 @@ import {
 	OrderResponse,
 	ReturnProductModel
 } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import { ErrorGHTK } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
@@ -1279,4 +1280,21 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
       response.errors.forEach((e:any) => showError(e));
       break;
   }
+}
+
+export function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
+	let result = orderSources;
+	let abc = [...orderSources];
+	let departmentSources = [];
+	if(departmentIds && departmentIds.length > 0) {
+		for (const departmentId of departmentIds) {
+			let ddd = orderSources.findIndex(single=>single.department_id === departmentId)
+			if(ddd > -1) {
+				abc.splice(ddd, 1);
+				departmentSources.push(orderSources[ddd])
+			}	
+		}
+		result = [...departmentSources, ...abc]
+	}
+	return result;
 }

@@ -276,6 +276,7 @@ function* updatePaymentSaga(action: YodyAction) {
 		if (isFetchApiSuccessful(response)) {
 			setData(response.data);
 		} else {
+			setError(true);
 			yield put(fetchApiErrorAction(response, "Cập nhật thanh toán"));
 		}
 	} catch (error) {

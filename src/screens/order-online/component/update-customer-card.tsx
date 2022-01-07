@@ -1,18 +1,26 @@
 //#region Import
-import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
-import bithdayIcon from "assets/img/bithday.svg";
+import { Avatar, Card, Col, Divider, Form, Row, Space, Tag, Typography } from "antd";
+import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
 import addressIcon from "assets/img/user-pin.svg";
+import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
+import { departmentDetailAction } from "domain/actions/account/department.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 //import { useState } from "react";
 import { Link } from "react-router-dom";
-import { POS } from "utils/Constants";
+import { sortSources } from "utils/AppUtils";
+import * as CONSTANTS from "utils/Constants";
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -20,12 +28,14 @@ type CustomerCardUpdateProps = {
   customerDetail: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
+	isShowSelectOrderSources?: boolean;
 };
 
 const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   props: CustomerCardUpdateProps
 ) => {
-  const { loyaltyPoint, loyaltyUsageRules } = props;
+  const { loyaltyPoint, loyaltyUsageRules, isShowSelectOrderSources = false } = props;
+	const [departmentIds, setDepartmentIds] = useState<number[]|null>(null);
   // const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   // const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
@@ -60,7 +70,14 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   // const handleVisibleBillingAddressChange = (value: boolean) => {
   //   // setVisibleBillingAddress(value);
   // };
+
+	const dispatch = useDispatch();
+	const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
   let customerBirthday = moment(props.customerDetail?.birthday).format("DD/MM/YYYY");
+
+	const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
 
   const rankName = loyaltyUsageRules.find(
     (x) =>
@@ -70,6 +87,80 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 
   console.log(props.OrderDetail?.channel_code);
   //props.OrderDetail?.channel_code !== POS.channel_code
+	const sortedSources = sortSources(listSource, departmentIds);
+
+	useEffect(() => {
+    dispatch(getListSourceRequest(setListSource));
+  }, [dispatch]);
+
+	useEffect(() => {
+		let departmentId = userReducer.account?.account_jobs[0]?.department_id;
+		if(departmentId) {
+			let department:number[] = [];
+			department.push(departmentId)
+			dispatch(departmentDetailAction(departmentId, (response) => {
+				if(response && response.parent_id) {
+					department.push(response.parent_id)
+				 setDepartmentIds(department)
+				}
+			}))
+
+		}
+	}, [dispatch, userReducer.account?.account_jobs])
+
+	const renderSelectOrderSource = () => {
+		return(
+			<div>
+          <span
+            style={{
+              float: "left",
+              lineHeight: "40px",
+              marginRight: "10px",
+            }}
+          >
+            Nguồn <span className="text-error">*</span>
+          </span>
+          <Form.Item
+            name="source_id"
+            style={{ margin: "0px" }}
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng chọn nguồn đơn hàng",
+              },
+            ]}
+          >
+            <CustomSelect
+              style={{ width: 300, borderRadius: "6px" }}
+              showArrow
+              showSearch
+              placeholder="Nguồn đơn hàng"
+              notFoundContent="Không tìm thấy kết quả"
+              filterOption={(input, option) => {
+                if (option) {
+                  return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                }
+                return false;
+              }}
+            >
+              {sortedSources.filter((x) => {
+								return (
+									x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
+								)
+							}).map((item, index) => (
+                <CustomSelect.Option
+                  style={{ width: "100%" }}
+                  key={index.toString()}
+                  value={item.id}
+                >
+                  {item.name}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>
+          </Form.Item>
+        </div>
+		)
+	};
 
   return (
     <Card
@@ -80,19 +171,23 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
         </div>
       }
       extra={
-        <div className="d-flex align-items-center form-group-with-search">
-          <span
-            style={{
-              float: "left",
-              lineHeight: "40px",
-            }}
-          >
-            <span style={{ marginRight: "10px" }}>Nguồn:</span>
-            <span className="text-error">
-              <span style={{ color: "red" }}>{props.OrderDetail?.source}</span>
-            </span>
-          </span>
-        </div>
+				!isShowSelectOrderSources ? (
+					<div className="d-flex align-items-center form-group-with-search">
+						<span
+							style={{
+								float: "left",
+								lineHeight: "40px",
+							}}
+						>
+							<span style={{ marginRight: "10px" }}>Nguồn:</span>
+							<span className="text-error">
+								<span style={{ color: "red" }}>{props.OrderDetail?.source}</span>
+							</span>
+						</span>
+					</div>
+				) : (
+					renderSelectOrderSource()
+				)
       }
     >
       <div>
@@ -134,7 +229,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 
           <Space className="customer-detail-birthday">
             <span className="customer-detail-icon">
-              <img src={bithdayIcon} alt="" />
+              <img src={birthdayIcon} alt="" />
             </span>
             <span className="customer-detail-text">
               {props.customerDetail?.birthday !== null
@@ -143,7 +238,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
             </span>
           </Space>
         </Row>
-        {props.OrderDetail?.channel_code?.toUpperCase() !== POS.channel_code.toUpperCase() && (
+        {props.OrderDetail?.channel_code?.toUpperCase() !== CONSTANTS.POS.channel_code.toUpperCase() && (
           <>
             <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
             <div>

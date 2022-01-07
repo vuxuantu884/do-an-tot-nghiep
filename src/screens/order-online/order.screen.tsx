@@ -572,6 +572,8 @@ export default function Order() {
 						!thirdPL.service
 					) {
 						showError("Vui lòng chọn đơn vị vận chuyển!");
+						const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
+						scrollAndFocusToDomElement(element)
 						setCreating(false);
 					} else {
 						if (typeButton === OrderStatus.DRAFT) {
