@@ -70,7 +70,7 @@ const PointAdjustment = () => {
       width: "9%",
       render: (value: string, item: any) => {
         return (
-          <Link to={`${UrlConfig.CUSTOMER}/point-adjustments/${item.id}`}>{item.code}</Link>
+          <Link to={`${UrlConfig.CUSTOMER2}-adjustments/${item.id}`}>{item.code}</Link>
         )
       }
     },
@@ -193,7 +193,7 @@ const PointAdjustment = () => {
         extra={
           <>
             {allowCreatePointAdjustment &&
-              <Link to={`${UrlConfig.CUSTOMER}/point-adjustments/create`}>
+              <Link to={`${UrlConfig.CUSTOMER2}-adjustments/create`}>
                 <Button
                   className="ant-btn-outline ant-btn-primary"
                   size="large"

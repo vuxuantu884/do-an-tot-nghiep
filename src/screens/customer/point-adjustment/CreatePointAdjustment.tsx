@@ -210,7 +210,7 @@ const CreatePointAdjustment = () => {
       setSelectedCustomers([]);
       dispatch(hideLoading());
       showSuccess("Tạo mới phiếu điều chỉnh thành công");
-      history.replace(`${UrlConfig.CUSTOMER}/point-adjustments/${data?.id}`)
+      history.replace(`${UrlConfig.CUSTOMER2}-adjustments/${data?.id}`)
     },
     [formRef, dispatch, history]
   );
@@ -279,7 +279,7 @@ const CreatePointAdjustment = () => {
     if (paramCustomerIds?.length) {
       history.replace(`${UrlConfig.CUSTOMER}`)
     } else {
-      history.replace(`${UrlConfig.CUSTOMER}/point-adjustments`)
+      history.replace(`${UrlConfig.CUSTOMER2}-adjustments`)
     }
   };
 
@@ -303,7 +303,7 @@ const CreatePointAdjustment = () => {
           },
           {
             name: "Phiếu điều chỉnh",
-            path: `${UrlConfig.CUSTOMER}/point-adjustments`,
+            path: `${UrlConfig.CUSTOMER2}-adjustments`,
           },
           {
             name: "Thêm mới",
