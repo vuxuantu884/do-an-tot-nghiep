@@ -82,9 +82,9 @@ const ConnectedItems: React.FC = () => {
     acceptPermissions: productsDisconnectPermission,
     not: false,
   });
-  
+
   const isShowAction = allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
-  
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
@@ -108,7 +108,7 @@ const ConnectedItems: React.FC = () => {
     },
     items: [],
   });
-  
+
   const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
@@ -396,7 +396,7 @@ const ConnectedItems: React.FC = () => {
       render: (item: any, v: any, i: any) => {
         return (
           <StyledStatus>
-            {item.connect_status === "connected" && 
+            {item.connect_status === "connected" &&
               <div className="green-status" style={{ width: 120 }}>Thành công</div>
             }
           </StyledStatus>
@@ -449,8 +449,8 @@ const ConnectedItems: React.FC = () => {
     },
 
     ConnectedItemActionColumn(
-      handleSyncStock,
       handleDeleteItem,
+      handleSyncStock,
       handleDisconnectItem
     ),
   ]);
