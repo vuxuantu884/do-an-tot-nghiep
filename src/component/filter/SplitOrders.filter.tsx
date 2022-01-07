@@ -29,6 +29,8 @@ import DebounceSelect from "./component/debounce-select";
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import { POS } from "utils/Constants";
+import { useSelector } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 type SplitOrdersFilterProps = {
   params: OrderSearchQuery;
@@ -87,16 +89,12 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     return isLoading ? true : false
   }, [isLoading])
 
-  const status = useMemo(() => [
-    {name: "Nháp", value: "draft"},
-    {name: "Đóng gói", value: "packed"},
-    {name: "Xuất kho", value: "shipping"},
-    {name: "Đã xác nhận", value: "finalized"},
-    {name: "Hoàn thành", value: "completed"},
-    {name: "Kết thúc", value: "finished"},
-    {name: "Đã huỷ", value: "cancelled"},
-    {name: "Đã hết hạn", value: "expired"},
-  ], []);
+	const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+
+	const status = bootstrapReducer.data?.order_main_status.filter(single => single.value !== "splitted");
+
   const fulfillmentStatus = useMemo(() => [
     {name: "Chưa giao", value: "unshipped"},
     // {name: "Đã lấy hàng", value: "picked"},

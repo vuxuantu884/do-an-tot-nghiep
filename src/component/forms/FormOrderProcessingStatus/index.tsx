@@ -44,7 +44,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
+  const LIST_STATUS = bootstrapReducer.data?.order_main_status.filter(single => single.value !== "splitted");
 
   useEffect(() => {
     form.resetFields();
