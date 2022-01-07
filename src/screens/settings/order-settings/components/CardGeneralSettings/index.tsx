@@ -113,19 +113,19 @@ function CardGeneralSettings(props: PropType) {
     onUpdateOrderConfig(params);
   };
 
-  const onChangeAllowChooseItemBeforeChooseStore = (checked: boolean) => {
-    let initParams = getInitParams();
-    if (!listOrderConfigs || !initParams) {
-      return;
-    }
-    const allow_choose_item = checked;
-    listOrderConfigs.allow_choose_item = checked;
-    const params: OrderConfigRequestModel = {
-      ...initParams,
-      allow_choose_item,
-    };
-    onUpdateOrderConfig(params);
-  };
+  // const onChangeAllowChooseItemBeforeChooseStore = (checked: boolean) => {
+  //   let initParams = getInitParams();
+  //   if (!listOrderConfigs || !initParams) {
+  //     return;
+  //   }
+  //   const allow_choose_item = checked;
+  //   listOrderConfigs.allow_choose_item = checked;
+  //   const params: OrderConfigRequestModel = {
+  //     ...initParams,
+  //     allow_choose_item,
+  //   };
+  //   onUpdateOrderConfig(params);
+  // };
 
   const onChangeAllowToSellWhenNotAvailableStock = (checked: boolean) => {
     let initParams = getInitParams();
@@ -289,7 +289,7 @@ function CardGeneralSettings(props: PropType) {
               <h4 className="title">Cài đặt khác</h4>
               <div className="singleSetting__content">
                 <Space direction="vertical" size={15}>
-                  <div>
+                  {/* <div>
                     <Switch
                       key={Math.random()}
                       defaultChecked={listOrderConfigs?.allow_choose_item}
@@ -297,7 +297,7 @@ function CardGeneralSettings(props: PropType) {
                       className="ant-switch-primary"
                     />
                     Cài đặt chọn cửa hàng trước mới cho chọn sản phẩm
-                  </div>
+                  </div> */}
                   <div>
                     <Switch
                       key={Math.random()}
