@@ -8,13 +8,13 @@ export const DATE_FORMAT = {
 };
 
 export const ConvertUtcToLocalDate = (
-  date?: Date | string | number,
+  date?: Date | string | number | null,
   format?: string
 ) => {
   if (date != null) {
     let localDate = moment.utc(date).toDate();
     let dateFormat = moment(localDate).format(
-      format ? format : "DD/MM/YYYY HH:mm:ss"
+      format ? format : DATE_FORMAT.fullDate
     );
     return dateFormat;
   }

@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom';
 import GeneralConditionForm from 'screens/promotion/shared/general-condition.form';
 import { transformData } from 'utils/PromotionUtils';
 import { showError, showSuccess } from 'utils/ToastUtils';
-import { DiscountUnitType } from '../constants';
+import { DiscountUnitType } from '../../constants';
 import DiscountUpdateForm from '../components/discount-form';
 import DiscountProvider from '../components/discount-provider';
 

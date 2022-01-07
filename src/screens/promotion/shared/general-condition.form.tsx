@@ -22,7 +22,7 @@ import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
-import { dayOfWeekOptions } from "../discount/constants/index";
+import { dayOfWeekOptions } from "../constants/index";
 import { CustomerContitionFormlStyle } from "./condition.style";
 import CustomerFilter from "./cusomer-condition.form";
 

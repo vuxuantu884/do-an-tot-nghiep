@@ -64,7 +64,7 @@ const CreateCustomerRanking = () => {
   const onCreateCallback = useCallback((data: LoyaltyRankResponse) => {
     formRef.current?.resetFields();
     showSuccess('Thành công')
-    history.push(`${UrlConfig.CUSTOMER}/rankings`)
+    history.push(`${UrlConfig.CUSTOMER2}-rankings`)
   }, [formRef, history])
 
   const onFinish = useCallback((values) => {
@@ -91,7 +91,7 @@ const CreateCustomerRanking = () => {
         },
         {
           name: "Hạng khách hàng",
-          path: `${UrlConfig.CUSTOMER}/rankings`,
+          path: `${UrlConfig.CUSTOMER2}-rankings`,
         },
         {
           name: `${params.id ? "Sửa hạng khách hàng" : "Thêm hạng khách hàng"}`,
@@ -227,7 +227,7 @@ const CreateCustomerRanking = () => {
           }}
         >
           <Col span={8} className="back">
-            <Link to={`${UrlConfig.CUSTOMER}/rankings`}>
+            <Link to={`${UrlConfig.CUSTOMER2}-rankings`}>
               <img src={IconBack} alt="" style={{ marginRight: 10 }} />
               <span>Quay lại danh sách hạng khách hàng</span>
             </Link>

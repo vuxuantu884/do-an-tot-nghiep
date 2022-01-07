@@ -3,7 +3,7 @@ import { Button, Col, Divider, Form, FormInstance, message, Modal, Row, Space } 
 import Dragger from "antd/es/upload/Dragger";
 import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import _ from "lodash";
-import { PriceRuleMethod, EntilementFormModel, VariantEntitlementsFileImport } from "model/promotion/price-rules.model";
+import { PriceRuleMethod, EntilementFormModel, VariantEntitlementsFileImport, ProductEntitlements } from "model/promotion/price-rules.model";
 import React, { useContext, useRef, useState } from "react";
 import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
@@ -11,13 +11,14 @@ import { parseSelectVariantToTableData, shareDiscountImportedProduct } from "uti
 import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
-import { DiscountUnitType, newEntitlements } from "../constants";
+import { DiscountUnitType, newEntitlements } from "../../constants";
 import "../discount.scss";
 import { DiscountContext } from "./discount-provider";
 import FixedAndQuantityGroup from "./fixed-quantity-group";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import { VariantResponse } from "model/product/product.model";
 import { HttpStatus } from "config/http-status.config";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -62,6 +63,7 @@ const GroupDiscountList = (props: Props) => {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [isImportingFile, setIsImportingFile] = useState<boolean>(false);
+  const [selectedProductList, setSelectedProductList] = useState<Array<ProductEntitlements>>([]);
   const indexOfEntitlement = useRef<number>(0)
 
   const discountUpdateContext = useContext(DiscountContext);
@@ -92,32 +94,67 @@ const GroupDiscountList = (props: Props) => {
   const handleVisibleManyProduct = (name: number) => {
     setVisibleManyProduct((prev) => !prev)
     indexOfEntitlement.current = name;
+
+    /**
+     * set selected product list => set default checked product
+     */
+    const entilementFormValue: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+    setSelectedProductList(entilementFormValue[name]?.selectedProducts ?? []);
+
   }
 
   /**
    * 
    * @param items 
+   * @param name Thứ tự của nhóm chiết khấu trong form
    */
   const onPickManyProduct = (items: Array<VariantResponse>, name: number) => {
 
     if (items.length) {
+      /**
+       * numberOfDuplicateProduct : số lượng sản phẩm trùng => thông báo
+       */
+      let numberOfDuplicateProduct = 0;
       let selectedVariantId: number[] = [];
-      const newProducts = items.map(item => {
-        selectedVariantId.push(item.id);
-        return parseSelectVariantToTableData(item);
-      })
 
       const entilementFormValue: Array<EntilementFormModel> = form.getFieldValue("entitlements");
       entilementFormValue[name].entitled_variant_ids = _.uniq([...entilementFormValue[name].entitled_variant_ids, ...selectedVariantId]);
 
-      const currentProduct = entilementFormValue[name].selectedProducts;
+      const currentProduct: ProductEntitlements[] = entilementFormValue[name].selectedProducts || [];
 
+      const newProducts = items.reduce((previousValue: ProductEntitlements[], currentValue: VariantResponse) => {
+        // check đã tồn tại sp cha thì bỏ qua => đếm sp bị bỏ qua => thông báo
+        if (currentProduct?.some((product: ProductEntitlements) => currentValue.sku?.startsWith(product.sku))) {
+          numberOfDuplicateProduct++;
+        } else if (currentValue.id && currentValue.sku && currentValue.name) {
+          selectedVariantId.push(currentValue.id);
+          previousValue.push(parseSelectVariantToTableData(currentValue))
+        } else {
+          numberOfDuplicateProduct++;
+        }
+        return previousValue;
+      }, [])
+
+      
       if (Array.isArray(currentProduct)) {
         entilementFormValue[name].selectedProducts = _.uniqBy([...newProducts, ...currentProduct], "sku");
       } else {
         entilementFormValue[name].selectedProducts = newProducts;
       }
 
+      /**
+       * Kiểm tra số lượng sp trùng và thông báo
+       */
+      if (numberOfDuplicateProduct > 0) {
+        showWarning(`${numberOfDuplicateProduct} sản phẩm đã tồn tại hoặc đã có sản phẩm cha trong danh sách`);
+      } else {
+        showSuccess(`Thêm sản phẩm thành công`);
+      }
+
+
+      /**
+       * set giá trị cho form và tắt modal
+       */
       form.setFieldsValue({ entitlements: _.cloneDeep(entilementFormValue) });
       setVisibleManyProduct(false);
     }
@@ -399,7 +436,7 @@ const GroupDiscountList = (props: Props) => {
 
       <PickManyProductModal
         onSave={(result: Array<VariantResponse>) => onPickManyProduct(result, indexOfEntitlement.current)}
-        selected={[]}
+        selected={getSelectedProductList(selectedProductList)}
         onCancel={() => setVisibleManyProduct(false)}
         visible={visibleManyProduct}
         emptyText={"Không tìm thấy sản phẩm"}
@@ -408,4 +445,12 @@ const GroupDiscountList = (props: Props) => {
   );
 };
 
+function getSelectedProductList(selectedProductList: ProductEntitlements[]) {
+  return selectedProductList.reduce((previousValue: { id: number }[], currentValue: ProductEntitlements) => {
+    if (currentValue.variant_id) {
+      previousValue.push({ id: currentValue.variant_id });
+    }
+    return previousValue;
+  }, [])
+}
 export default GroupDiscountList;

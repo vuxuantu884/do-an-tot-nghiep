@@ -52,6 +52,7 @@ function* loadSettingAppSaga() {
 
 function* fetchApiErrorSaga(action: YodyAction) {
   let {textApiInformation, response} = action.payload;
+	console.log('response', response)
   switch (response.code) {
     case HttpStatus.UNAUTHORIZED:
       yield put(unauthorizedAction());
@@ -60,7 +61,6 @@ function* fetchApiErrorSaga(action: YodyAction) {
       showError(`${textApiInformation}: ${response.message}`);
       break;
     default:
-      yield put(unauthorizedAction());
       response.errors.forEach((e:any) => showError(e));
       break;
   }

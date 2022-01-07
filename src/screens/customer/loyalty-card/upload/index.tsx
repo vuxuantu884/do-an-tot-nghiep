@@ -72,7 +72,7 @@ const UploadLoyaltyCardRelease = () => {
         },
         {
           name: "Phát hành thẻ",
-          path: `${UrlConfig.CUSTOMER}/cards`,
+          path: `${UrlConfig.CUSTOMER2}-cards`,
         },
         {
           name: "Thêm mới đợt phát hành"

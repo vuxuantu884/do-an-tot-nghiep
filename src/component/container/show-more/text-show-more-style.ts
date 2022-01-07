@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const TextShowMoreStyle = styled.div`
+export const TextShowMoreStyle = styled.span`
   .content-show {
     word-break: break-all
   }

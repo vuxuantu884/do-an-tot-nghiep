@@ -30,7 +30,7 @@ import { PageResponse } from "../../../../model/base/base-metadata.response";
 import { ProductResponse, VariantResponse } from "../../../../model/product/product.model";
 import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
-import { DiscountUnitType } from "../constants";
+import { DiscountUnitType } from "../../constants";
 import { DiscountContext } from "./discount-provider";
 const Option = Select.Option;
 
