@@ -65,7 +65,8 @@ import {
 	PaymentMethodOption,
 	ShipmentMethod,
 	ShipmentMethodOption,
-	TaxTreatment
+	TaxTreatment,
+	POS
 } from "utils/Constants";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
@@ -187,6 +188,8 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+
+	const [isShowSelectOrderSources, setIsShowSelectOrderSources] = useState(false)
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -558,8 +561,9 @@ console.log('totalAmountPayment', totalAmountPayment)
 
   console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay) 
 
-	const checkIfNotHavePaymentsWhenReceiveAtStore = () => {
-		if(totalAmountOrderAfterPayments > 0 && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+	const checkIfNotHavePaymentsWhenReceiveAtStoreOrLater = () => {
+		const methods = [ShipmentMethodOption.PICK_AT_STORE, ShipmentMethodOption.DELIVER_LATER]
+		if(totalAmountOrderAfterPayments > 0 && methods.includes(shipmentMethod)) {
 			return true
 		}
 		return false
@@ -585,7 +589,9 @@ console.log('totalAmountPayment', totalAmountPayment)
           element?.focus();
           return;
         }
-				if(checkIfNotHavePaymentsWhenReceiveAtStore()){
+				if(checkIfNotHavePaymentsWhenReceiveAtStoreOrLater()){
+					const element: any = document.getElementsByClassName("create-order-payment")[0] as HTMLElement;
+					scrollAndFocusToDomElement(element);
           showError("Vui lòng thanh toán đủ số tiền!");
           return;
         }
@@ -713,6 +719,8 @@ console.log('totalAmountPayment', totalAmountPayment)
                     !thirdPL.service
                   ) {
                     showError("Vui lòng chọn đơn vị vận chuyển!");
+										const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
+										scrollAndFocusToDomElement(element)
                   } else {
                     handleCreateOrderExchangeByValue(valuesResult);
                   }
@@ -772,7 +780,7 @@ console.log('totalAmountPayment', totalAmountPayment)
     values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
-    values.source_id = OrderDetail ? OrderDetail.source_id : null;
+    values.source_id =  form.getFieldValue("source_id") ? form.getFieldValue("source_id") : OrderDetail ? OrderDetail.source_id : null;
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
@@ -1051,6 +1059,7 @@ console.log('totalAmountPayment', totalAmountPayment)
                   customerDetail={customer}
                   loyaltyPoint={loyaltyPoint}
                   loyaltyUsageRules={loyaltyUsageRules}
+                  isShowSelectOrderSources={isShowSelectOrderSources}
                 />
                 <CardReturnOrder
                   isDetailPage={false}
@@ -1280,6 +1289,24 @@ console.log('totalAmountPayment', totalAmountPayment)
   }, [dispatch])
 
   console.log("storeReturn index",storeReturn);
+
+	useEffect(() => {
+		const shipmentMethodsToSelectSource = [
+			ShipmentMethodOption.DELIVER_PARTNER, 
+			ShipmentMethodOption.SELF_DELIVER
+		]
+		if(OrderDetail?.source_id === POS.source_id) {
+			if(shipmentMethodsToSelectSource.includes(shipmentMethod)) {
+				setIsShowSelectOrderSources(true)
+			} else {
+				setIsShowSelectOrderSources(false);
+				form.setFieldsValue({
+					source_id: undefined
+				})
+			}
+		}
+	}, [OrderDetail?.source_id, form, shipmentMethod])
+	
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
