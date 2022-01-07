@@ -28,4 +28,6 @@ export interface OrderConfigRequestModel {
   allow_choose_item: boolean;
   order_config_action: string;
   order_config_print_id: number;
+  hide_gift:boolean;
+  hide_bonus_item:boolean;
 }

@@ -3,22 +3,19 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {MenuAction} from "component/table/ActionButton";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 import {ProductPermission} from "config/permissions/product.permission";
-import UrlConfig from "config/url.config";
-import {AccountGetListAction} from "domain/actions/account/account.action";
+import UrlConfig, { ProductTabUrl } from "config/url.config";
 import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {getCategoryRequestAction} from "domain/actions/product/category.action";
-import {materialSearchAll} from "domain/actions/product/material.action";
 import {
   productWrapperDeleteAction,
   productWrapperUpdateAction,
   searchProductWrapperRequestAction,
 } from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
-import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import {CategoryResponse, CategoryView} from "model/product/category.model";
-import {MaterialResponse} from "model/product/material.model";
 import {
   ProductResponse,
   ProductWrapperResponse,
@@ -29,9 +26,9 @@ import {
 import {RootReducerType} from "model/reducers/RootReducerType";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
-import {convertCategory} from "utils/AppUtils";
+import {convertCategory, formatCurrency, generateQuery} from "utils/AppUtils";
 import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showSuccess, showWarning} from "utils/ToastUtils";
@@ -47,7 +44,7 @@ const ACTIONS_INDEX = {
 const actionsDefault: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.EXPORT_EXCEL,
-    name: "Xuất thông in excel",
+    name: "Xuất thông tin excel",
   },
   {
     id: ACTIONS_INDEX.ACTIVE,
@@ -61,24 +58,15 @@ const actionsDefault: Array<MenuAction> = [
     id: ACTIONS_INDEX.DELETE,
     name: "Xóa sản phẩm",
   },
-];
-
-const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
-};
-
-var idDelete = -1;
+]; 
 
 const TabProductWrapper: React.FC = () => {
   const dispatch = useDispatch();
-
+  const history = useHistory();
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
 
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-
-  const [listMerchandiser, setMerchandiser] = useState<Array<AccountResponse>>();
-  const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const goods = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.goods
   );
@@ -103,9 +91,8 @@ const TabProductWrapper: React.FC = () => {
   const [columns, setColumn] = useState<Array<ICustomTableColumType<ProductResponse>>>([
     {
       title: "Ảnh",
-      fixed: "left",
       align: "left",
-      width: 70,
+      width: 80,
       render: (value: ProductResponse) => {
         let url = null;
         value.variants.forEach((item) => {
@@ -124,17 +111,15 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
-      width: 300,
       title: "Sản phẩm",
       dataIndex: "code",
-      fixed: "left",
       render: (value: string, i: ProductWrapperResponse) => {
         return (
           <>
             <div>
               <Link to={`${UrlConfig.PRODUCT}/${i.id}`}>{value}</Link>
             </div>
-            <div> {i.name}</div>
+            <div><TextEllipsis value={i.name} line={1} /></div>
           </>
         );
       },
@@ -144,6 +129,7 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       title: "SL Phiên bản",
       dataIndex: "variants",
+      width: 120,
       render: (value: Array<VariantResponse>) => (
         <>
           <div>{value ? value.length : ""}</div>
@@ -156,17 +142,22 @@ const TabProductWrapper: React.FC = () => {
       dataIndex: "on_hand",
       align: "right",
       visible: true,
+      width: 120,
+      render: (value: number) => <div> {formatCurrency(value,".")}</div>,
     },
     {
       align: "right",
       title: "Có thể bán",
       dataIndex: "available",
       visible: true,
+      width: 120,
+      render: (value: number) => <div> {formatCurrency(value,".")}</div>,
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       align: "center",
+      width: 150,
       render: (value: string, row: ProductWrapperResponse) => (
         <div className={row.status === "active" ? "text-success" : "text-error"}>
           {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
@@ -175,10 +166,10 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
-      title: "Ngày khởi tạo",
+      title: "Ngày tạo",
       align: "left",
       dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY HH:mm"),
+      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY"),
       width: 120,
       visible: true,
     },
@@ -234,12 +225,22 @@ const TabProductWrapper: React.FC = () => {
     setListCategory(temp);
   }, []);
 
-  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => {
+  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => { 
+    dispatch(hideLoading());
     setTableLoading(false);
     if (!!result) {
       setData(result);
     }
-  }, []);
+  }, [dispatch]);
+
+  const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => { 
+    dispatch(hideLoading());
+    setTableLoading(false);
+    showSuccess("Xóa sản phẩm thành công");
+    if (!!result) {
+      setData(result);
+    }
+  }, [dispatch]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -257,19 +258,22 @@ const TabProductWrapper: React.FC = () => {
   const onFilter = useCallback(
     (values) => {
       let {info} = values;
-      values.info = info.trim();
+      values.info = info && info.trim();
       let newParams = {...params, ...values, page: 1};
       setParams(newParams);
+      let queryParam = generateQuery(newParams);
+      history.replace(`${ProductTabUrl.PRODUCTS}?${queryParam}`);
     },
-    [params]
+    [params, history]
   );
 
-  const onDeleteSuccess = useCallback(() => {
-    setSelected([]);
-    dispatch(hideLoading());
-    showSuccess("Xóa sản phẩm thành công");
-    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
-  }, [dispatch, setSearchResult, params]);
+  const onDeleteSuccess = useCallback((res: any) => {
+    if (res) {
+      setSelected([]); 
+      dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
+    }
+   
+  }, [dispatch, setSearchResultDelete, params]);
 
   const onUpdateSuccess = useCallback(
     (result: ProductWrapperUpdateRequest) => {
@@ -312,17 +316,14 @@ const TabProductWrapper: React.FC = () => {
   const onMenuClick = useCallback(
     (index: number) => {
       if (selected.length > 0) {
-        let id = selected[0].id;
         switch (index) {
           case ACTIONS_INDEX.ACTIVE:
             onActive(selected[0]);
             break;
-
           case ACTIONS_INDEX.INACTIVE:
             onInactive(selected[0]);
             break;
-          case ACTIONS_INDEX.DELETE:
-            idDelete = id;
+          case ACTIONS_INDEX.DELETE: 
             setConfirmDelete(true);
             break;
           case 3:
@@ -343,8 +344,6 @@ const TabProductWrapper: React.FC = () => {
 
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setDataCategory));
-    dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
-    dispatch(materialSearchAll(setListMaterial));
     setTableLoading(true);
   }, [dispatch, setDataCategory]);
 
@@ -360,19 +359,18 @@ const TabProductWrapper: React.FC = () => {
         actions={actions}
         onFilter={onFilter}
         params={params}
-        listMerchandisers={listMerchandiser}
-        listMaterial={listMaterial}
         listCategory={listCategory}
         goods={goods}
         initValue={{} as ProductWrapperSearchQuery}
       />
       <CustomTable
+        bordered
         selectedRowKey={rowKey}
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
         onSelectedChange={onSelect}
-        scroll={{x: 1500}}
+        scroll={{x: 1200}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,
@@ -400,7 +398,11 @@ const TabProductWrapper: React.FC = () => {
         onOk={() => {
           setConfirmDelete(false);
           dispatch(showLoading());
-          dispatch(productWrapperDeleteAction(idDelete, onDeleteSuccess));
+          let ids: Array<number> = [];
+          selected.forEach((value) => {
+            ids.push(value.id);
+          });
+          dispatch(productWrapperDeleteAction(ids, onDeleteSuccess));
         }}
         title="Bạn chắc chắn xóa sản phẩm này?"
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."

@@ -20,7 +20,6 @@ import { convertCategory, formatCurrency } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import TreeStore from "./TreeStore";
-import { FormatTextMonney } from "utils/FormatMonney";
 import { CollectionResponse } from "model/product/collection.model";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -144,7 +143,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     isWin = win;
     dispatch(
       AccountSearchAction(
-        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
@@ -152,7 +151,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
   const FilterList = ({ filters, resetField }: any) => {
     let filtersKeys = Object.keys(filters);
-    let renderTxt: any = null;
+    let renderTxt: any = null; 
 
     return (
       <div>
@@ -161,6 +160,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           let value = filters[filterKey];
 
           if (!value) return null;
+          if (value && Array.isArray(value)  && value.length === 0) return null;
           if (!AllInventoryMappingField[filterKey] || filterKey === AvdAllFilter.to_price) return null; 
           
           switch (filterKey) {
@@ -248,8 +248,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, []);
 
   const onCancelFilter = useCallback(() => {
+    formAdvanceFilter.resetFields();
     setVisible(false);
-  }, []);
+  }, [formAdvanceFilter]);
 
   const onShowSaveFilter = useCallback(() => {
     setModalAction("create");
@@ -266,6 +267,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
              if (res.data && res.data.length > 0) {
               const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_INVENTORY);
               setLstConfigFilter(configFilters);
+             }else{
+              setLstConfigFilter([]);
              }
            }
           }
@@ -374,9 +377,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   },[lstConfigFilter, formAdvanceFilter]);
 
   const onCloseFilterConfig = useCallback(()=>{
-    formAdvanceFilter.resetFields();
     setTagActive(null);
-  },[formAdvanceFilter]);
+  },[]);
 
   const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>)=>{
     if (res) {
@@ -413,28 +415,34 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const onResetFilter = useCallback(() => {
     let fields = formAdvanceFilter.getFieldsValue(true);
     for (let key in fields) {
-      fields[key] = null;
+      if(fields[key] instanceof Array) {
+        fields[key] = [];
+      } else {
+        fields[key] = undefined;
+      }
     }
     formAdvanceFilter.setFieldsValue(fields);
-    setVisible(false);
     formAdvanceFilter.submit();
+    setVisible(false);
     onCloseFilterConfig();
-  }, [formAdvanceFilter, onCloseFilterConfig]);
+  }, [formAdvanceFilter, onCloseFilterConfig]); 
+
+  useEffect(() => { 
+    formBaseFilter.setFieldsValue({...advanceFilters});
+    formAdvanceFilter.setFieldsValue({...advanceFilters});
+  }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
   useEffect(() => {
     setAdvanceFilters({ ...params });
     dispatch(getCategoryRequestAction({}, setDataCategory));
     dispatch(getCollectionRequestAction({}, setDataCollection));
     dispatch(CountryGetAllAction(setListCountry));
-    getAccounts('', 1, true, true); 
     getConfigInventory();
-  }, [params, dispatch,getAccounts,getConfigInventory, setDataCategory, setDataCollection]);
+  }, [params, dispatch,getConfigInventory, setDataCategory, setDataCollection]);
 
-  useEffect(() => {
-    formBaseFilter.setFieldsValue({...advanceFilters});
-    formAdvanceFilter.setFieldsValue({...advanceFilters});
-  }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
-
+  useEffect(()=>{
+    getAccounts('', 1, true, true); 
+  },[getAccounts]);
 
   return (
       <div className="inventory-filter">
@@ -503,7 +511,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                     <Col span={24} className="tag-filter">
                       {
                         lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
+                          return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
                         })
                       }
                     </Col>
@@ -665,7 +673,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                             <InputNumber
                               className="price_min"
                               placeholder="Từ"
-                              formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
+                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                               min="0"
                               max="100000000"
                             />
@@ -677,7 +685,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                             <InputNumber
                               className="site-input-right price_max"
                               placeholder="Đến"
-                              formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
+                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                               min="0"
                               max="1000000000"
                             />

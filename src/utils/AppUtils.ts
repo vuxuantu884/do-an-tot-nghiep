@@ -1,42 +1,47 @@
-import { ConvertDateToUtc } from "./DateUtils";
+import { UploadFile } from "antd/lib/upload/interface";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
+import { Type } from "config/type.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import _ from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
-import { DistrictResponse } from "model/content/district.model";
-import { CityView } from "model/content/district.model";
+import { DepartmentResponse, DepartmentView } from "model/account/department.model";
+import { CityView, DistrictResponse } from "model/content/district.model";
+import { LineItem } from "model/inventory/transfer";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import moment from "moment";
+import {
+	ProductRequest,
+	ProductRequestView,
+	ProductResponse,
+	VariantImage,
+	VariantPriceRequest,
+	VariantPricesResponse,
+	VariantPriceViewRequest,
+	VariantRequest,
+	VariantRequestView,
+	VariantResponse,
+	VariantUpdateRequest,
+	VariantUpdateView
+} from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
-  ProductRequest,
-  ProductRequestView,
-  ProductResponse,
-  VariantImage,
-  VariantPriceRequest,
-  VariantPricesResponse,
-  VariantPriceViewRequest,
-  VariantRequest,
-  VariantRequestView,
-  VariantResponse,
-  VariantUpdateRequest,
-  VariantUpdateView,
-} from "model/product/product.model";
-import {
-  // DeliveryServiceResponse,
-  OrderLineItemResponse,
-  OrderPaymentResponse,
-  OrderResponse,
-	ReturnProductModel,
-} from "model/response/order/order.response";
-import {
-  OrderLineItemRequest,
-  OrderPaymentRequest,
+	OrderLineItemRequest,
+	OrderPaymentRequest
 } from "model/request/order.request";
-import { RegUtil } from "./RegUtils";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import {
+	// DeliveryServiceResponse,
+	OrderLineItemResponse,
+	OrderPaymentResponse,
+	OrderResponse,
+	ReturnProductModel
+} from "model/response/order/order.response";
+import moment from "moment";
 import { ErrorGHTK } from "./Constants";
-import { UploadFile } from "antd/lib/upload/interface";
-import { LineItem } from "model/inventory/transfer";
-import { DepartmentResponse, DepartmentView } from "model/account/department.model";
+import { ConvertDateToUtc } from "./DateUtils";
+import { RegUtil } from "./RegUtils";
+import { showError } from "./ToastUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -487,7 +492,7 @@ export const Products = {
       made_in_id: pr.made_in_id,
       merchandiser_code: pr.merchandiser_code,
       name: pr.name,
-      preservation: pr.preservation,
+      care_labels: pr.care_labels,
       specifications: pr.specifications,
       product_type: pr.product_type ? pr.product_type : "",
       status: status,
@@ -496,6 +501,7 @@ export const Products = {
       unit: pr.unit,
       supplier_id: pr.supplier_id,
       material_id: pr.material_id,
+      material: pr.material,
       collections: pr.collections,
     };
     return productRequest;
@@ -559,7 +565,7 @@ export const Products = {
         designer_code: variant.product.designer_code,
         made_in_id: variant.product.made_in_id,
         merchandiser_code: variant.product.merchandiser_code,
-        preservation: variant.product.preservation,
+        care_labels: variant.product.care_labels,
         specifications: variant.product.specifications,
         material_id: variant.product.material_id,
       },
@@ -689,7 +695,11 @@ export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) =
 
 export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
   let total = 0;
-  items.forEach((a) => (total = total + a.quantity));
+  items.forEach((a) => {
+		if(a.type !== Type.GIFT) {
+			total = total + a.quantity
+		}
+	});
   return total;
 };
 
@@ -993,8 +1003,48 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
 
      }
   }
+	console.log('orderReturnItems', orderReturnItems)
   return orderReturnItems;
 };
+
+// lấy danh sách còn có thể đổi trả
+export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return [];
+  }
+  let result:OrderLineItemResponse[] = [];
+	let listReturned = getListReturnedOrders(OrderDetail)
+  let orderReturnItems = [...listReturned]
+	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
+	let newReturnItems = _.cloneDeep(_orderReturnItems);
+	let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
+  
+  for (const singleOrder of normalItems) {
+		// trường hợp line item trùng nhau
+    let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
+    if(duplicatedItem) {
+			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id)
+			const quantityLeft = newReturnItems[index].quantity - singleOrder.quantity;
+			if(quantityLeft ===0) {
+				newReturnItems.splice(index, 1);
+			} else if(quantityLeft > 0) {
+				newReturnItems[index].quantity = quantityLeft;
+				const clone = {...duplicatedItem}
+				clone.quantity = quantityLeft;
+				clone.id = singleOrder.id;
+				// result.push(clone)
+			} else {
+				singleOrder.quantity = singleOrder.quantity - duplicatedItem.quantity;
+				newReturnItems.splice(index, 1);
+				result.push(singleOrder);
+			}
+    } else {
+      result.push(singleOrder);
+    }
+  }
+  console.log('result', result)
+ return result;
+}
 
 // kiểm tra xem đã trả hết hàng chưa
 export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) => {
@@ -1002,55 +1052,11 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
     return false;
   }
   let result = false;
-  let orderReturnItems = getListReturnedOrders(OrderDetail)
-  console.log('orderReturnItems', orderReturnItems)
-  // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về false
-  if( orderReturnItems.length > 0) {
-    let checkIfNotReturnAll = false;
-    for (const singleItem of OrderDetail.items) {
-      console.log('singleItem', singleItem)
-      let selectedItem = orderReturnItems.find((item) => item.variant_id === singleItem.variant_id);
-      console.log('selectedItem', selectedItem)
-      if(!selectedItem) {
-        checkIfNotReturnAll = true;
-        break;
-      }
-      if(selectedItem.quantity < singleItem.quantity) {
-        checkIfNotReturnAll = true;
-        break;
-      }
-      checkIfNotReturnAll = false;
-    }
-    console.log('checkIfNotReturnAll', checkIfNotReturnAll)
-    result = !checkIfNotReturnAll;
+	let abc = getListItemsCanReturn(OrderDetail)
+  if(abc.length===0) {
+    result = true;
   }
-  console.log('result', result)
   return result;
-}
-// lấy danh sách còn có thể đổi trả
-export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
-  if(!OrderDetail) {
-    return [];
-  }
-  let result:OrderLineItemResponse[] = [];
-  let orderReturnItems = getListReturnedOrders(OrderDetail);
-  console.log('orderReturnItems', orderReturnItems)
-  for (const singleOrder of OrderDetail.items) {
-    let duplicatedItem = orderReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
-    if(duplicatedItem) {
-      let clone = {...duplicatedItem}
-      if(singleOrder.quantity - duplicatedItem.quantity > 0) {
-        clone.quantity = singleOrder.quantity - clone.quantity;
-        result.push(clone)
-
-      }
-    }
-    else {
-      result.push(singleOrder);
-    }
-  }
-  console.log('result', result)
- return result;
 }
 
 export const customGroupBy = (array:any, groupBy:any) => {
@@ -1168,3 +1174,109 @@ export const isNullOrUndefined = (value: any) => {
     return false;
   }
 };
+
+export const convertActionLogDetailToText = (data?: string, dateFormat: string = "HH:mm DD/MM/YYYY") => {
+	let result = "";
+	if (data) {
+		let dataJson = JSON.parse(data);
+		console.log("dataJson", dataJson);
+		result = `
+		<span style="color:red">Thông tin đơn hàng: </span><br/> 
+		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
+		- Trạng thái : ${dataJson?.status_after || "-"}<br/>
+		- Nguồn : ${dataJson?.source || "-"}<br/>
+		- Cửa hàng : ${dataJson?.store || "-"}<br/>
+		- Địa chỉ cửa hàng : ${dataJson?.store_full_address}<br/>
+		- Thời gian: ${dataJson.updated_date ? moment(dataJson.updated_date).format(dateFormat) : "-"}<br/>
+		- Ghi chú: ${dataJson?.note || "-"} <br/>
+		<br/>
+		<span style="color:red">Sản phẩm: </span><br/> 
+		${dataJson.items
+			.map((singleItem: any, index: any) => {
+				return `
+		- Sản phẩm ${index + 1}: ${singleItem.product} <br/>
+			+ Đơn giá: ${singleItem?.price} <br/>
+			+ Số lượng: ${singleItem?.quantity} <br/>
+			+ Thuế : ${singleItem?.tax_rate || 0} <br/>
+			+ Chiết khấu sản phẩm: ${singleItem?.discount_value || 0} <br/>
+			+ Thành tiền: ${singleItem?.amount} <br/>
+			`;
+			})
+			.join("<br/>")}
+		<br/>
+		<span style="color:red">Phiếu đóng gói: </span><br/> 
+		- Địa chỉ giao hàng: ${`${dataJson.shipping_address?.full_address}, ${dataJson.shipping_address?.ward}, ${dataJson.shipping_address?.district}, ${dataJson.shipping_address?.city}`} <br/>
+		- Địa chỉ nhận hóa đơn: ${`${dataJson.shipping_address?.full_address}, ${dataJson.shipping_address?.ward}, ${dataJson.shipping_address?.district}, ${dataJson.shipping_address?.city}`} <br/>
+		- Phương thức giao hàng: ${
+			dataJson.fulfillments && dataJson.fulfillments[0].shipment && dataJson.fulfillments[0].shipment.delivery_service_provider ? dataJson.fulfillments && dataJson.fulfillments[0].shipment.delivery_service_provider : '-'
+		} <br/>
+		- Trạng thái: ${dataJson.fulfillments[0].status} <br/>
+		<br/>
+		<span style="color:red">Thanh toán: </span><br/>  
+		${
+			dataJson.payments.length <= 0
+				? `- Chưa thanh toán`
+				: dataJson.payments
+						.map((singlePayment: any, index: number) => {
+							return `
+							- ${singlePayment.payment_method}: ${singlePayment.paid_amount}
+						`;
+						})
+						.join("<br/>")
+		}
+		`;
+	}
+	return result;
+};
+
+/**
+* utils to remove all XSS  attacks potential
+* @param
+{
+    String
+}
+html
+* @return
+{
+    Object
+}
+*/
+export const safeContent = (html: any) => {
+  if(!html) return html
+  const SCRIPT_REGEX = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+
+  //Removing the <script> tags
+  while (SCRIPT_REGEX.test(html)) {
+    html = html.replace(SCRIPT_REGEX, "");
+  }
+
+  //Removing all events from tags...
+  html = html.replace(/ on\w+="[^"]*"/g, "");
+
+  return {
+    __html: html,
+  };
+};
+
+export const isFetchApiSuccessful = (response:BaseResponse<any>) => {
+	switch (response.code) {
+		case HttpStatus.SUCCESS:
+			return true;
+		default:
+			return false;
+	}
+};
+
+export function handleFetchApiError(response: BaseResponse<any>, textApiInformation: string, dispatch: any) {
+  switch (response.code) {
+    case HttpStatus.UNAUTHORIZED:
+      dispatch(unauthorizedAction());
+      break;
+    case HttpStatus.FORBIDDEN:
+      showError(`${textApiInformation}: ${response.message}`);
+      break;
+    default:
+      response.errors.forEach((e:any) => showError(e));
+      break;
+  }
+}

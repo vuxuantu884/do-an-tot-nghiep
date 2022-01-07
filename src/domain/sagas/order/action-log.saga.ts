@@ -1,18 +1,18 @@
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/http-status.config";
+import { fetchApiErrorAction } from "domain/actions/app.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
-  ActionLogDetailResponse,
-  OrderActionLogResponse,
+	ActionLogDetailResponse,
+	OrderActionLogResponse
 } from "model/response/order/action-log.response";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
-  getActionLogDetailService,
-  getOrderActionLogsService,
+	getActionLogDetailService,
+	getOrderActionLogsService
 } from "service/order/action-log.service";
+import { isFetchApiSuccessful } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
-import { unauthorizedAction } from "../../actions/auth/auth.action";
 import { OrderType } from "../../types/order.type";
 
 function* getOrderActionLogsSaga(action: YodyAction) {
@@ -23,18 +23,11 @@ function* getOrderActionLogsSaga(action: YodyAction) {
       getOrderActionLogsService,
       id
     );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách bản ghi đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
 		showError("Có lỗi khi lấy danh sách bản ghi đơn hàng! Vui lòng thử lại sau!");
@@ -51,18 +44,11 @@ function* getActionLogDetailsSaga(action: YodyAction) {
       getActionLogDetailService,
       id
     );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Chi tiết bản ghi đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
 		showError("Có lỗi khi lấy thông tin chi tiết bản ghi đơn hàng! Vui lòng thử lại sau!");

@@ -2,9 +2,7 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import { Card, Form, FormInstance, Input, Select } from "antd";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import CustomInputTags from "component/custom/custom-input-tags";
-import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { AccountResponse } from "model/account/account.model";
 import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
@@ -12,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { showError } from "utils/ToastUtils";
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -47,6 +45,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   const dispatch = useDispatch();
   const [initValueAssigneeCode, setInitValueAssigneeCode] = useState("");
   const [initValueMarketerCode, setInitValueMarketerCode] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [initValueCoordinatorCode, setInitValueCoordinatorCode] = useState("");
 
   const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
@@ -57,6 +56,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   const [marketingAccountData, setMarketingAccountData] = useState<
     Array<AccountResponse>
   >([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [coordinatorAccountData, setCoordinatorAccountData] = useState<
     Array<AccountResponse>
   >([]);
@@ -67,12 +67,13 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   const [initMarketingAccountData, setInitMarketingAccountData] = useState<
     Array<AccountResponse>
   >([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [initCoordinatorAccountData, setInitCoordinatorAccountData] = useState<
     Array<AccountResponse>
   >([]);
   // const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
 
-	console.log(initValueCoordinatorCode, coordinatorAccountData, initCoordinatorAccountData)
+	// console.log(initValueCoordinatorCode, coordinatorAccountData, initCoordinatorAccountData)
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";
@@ -138,37 +139,30 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 						condition: fieldNameValue,
 					})
 						.then((response) => {
-							if (response) {
-								switch (response.code) {
-									case HttpStatus.SUCCESS:
-										if (storeAccountData.length > 0) {
-											let result = [...storeAccountData];
-											result.push(response.data.items[0]);
-											switch (fieldName) {
-												case "assignee_code":
-													setInitAssigneeAccountData(result);
-													setAssigneeAccountData(result);
-													break;
-												case "marketer_code":
-													setInitMarketingAccountData(result);
-													setMarketingAccountData(result);
-													break;
-												case "coordinator_code":
-													setInitCoordinatorAccountData(result);
-													setCoordinatorAccountData(result);
-													break;
-												default:
-													break;
-											}
-										}
+							if (isFetchApiSuccessful(response)) {
+								if(response.data.items.length === 0) {
+									return;
+								}
+								let result = [...storeAccountData];
+								result.push(response.data.items[0]);
+								switch (fieldName) {
+									case "assignee_code":
+										setInitAssigneeAccountData(result);
+										setAssigneeAccountData(result);
 										break;
-									case HttpStatus.UNAUTHORIZED:
-										dispatch(unauthorizedAction());
+									case "marketer_code":
+										setInitMarketingAccountData(result);
+										setMarketingAccountData(result);
+										break;
+									case "coordinator_code":
+										setInitCoordinatorAccountData(result);
+										setCoordinatorAccountData(result);
 										break;
 									default:
-										response.errors.forEach((e) => showError(e));
 										break;
 								}
+							} else {
+								handleFetchApiError(response, "Danh sách tài khoản", dispatch)
 							}
 						})
 						.catch((error) => {
@@ -191,18 +185,10 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 			store_ids: [storeId],
 		})
 			.then((response) => {
-				if (response) {
-					switch (response.code) {
-						case HttpStatus.SUCCESS:
-							setStoreAccountData(response.data.items);
-							break;
-						case HttpStatus.UNAUTHORIZED:
-							dispatch(unauthorizedAction());
-							break;
-						default:
-							response.errors.forEach((e) => showError(e));
-							break;
-					}
+				if (isFetchApiSuccessful(response)) {
+					setStoreAccountData(response.data.items);
+				} else {
+					handleFetchApiError(response, "Danh sách tài khoản", dispatch)
 				}
 			})
 			.catch((error) => {
@@ -219,7 +205,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
           rules={[
             {
               required: true,
-              message: "Vui lòng chọn nhân viên bán hàng",
+              message: "Vui lòng chọn nhân viên bán hàng!",
             },
           ]}
         >

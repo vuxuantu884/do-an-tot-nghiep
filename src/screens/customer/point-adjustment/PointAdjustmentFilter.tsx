@@ -9,6 +9,7 @@ import {
 import { FilterOutlined } from "@ant-design/icons";
 
 import BaseFilter from "component/filter/base.filter";
+import CustomSelect from "component/custom/select.custom";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.request";
 
@@ -139,11 +140,11 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
           initialValues={initialValues}
           className="basic-filter"
         >
-          <Item name="id" className="search-input">
+          <Item name="term" className="search-input">
             <Input
               disabled={isLoading}
               prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo mã phiếu"
+              placeholder="Tìm kiếm theo mã phiếu, tên phiếu điều chỉnh"
               onBlur={(e) => {
                 formFilter?.setFieldsValue({
                   request: e.target.value.trim(),
@@ -153,9 +154,9 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
           </Item>
 
           <Item name="reasons" className="select-reason">
-            <Select
+            <CustomSelect
               mode="multiple"
-              maxTagCount='responsive'
+              maxTagCount="responsive"
               showSearch
               disabled={isLoading}
               placeholder="Chọn lý do điều chỉnh"
@@ -167,7 +168,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
                   <div>{item}</div>
                 </Option>
               ))}
-            </Select>
+            </CustomSelect>
           </Item>
 
           <Item>

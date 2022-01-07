@@ -34,8 +34,8 @@ const GetGoodsBack: React.FC<GetGoodsBackModalProps> = (
       okText={okText}
       cancelText={cancelText}
       title={[
-        <div key="1">
-          <img src={icon} alt="" />
+        <div key="1" style={{display: "flex", alignItems: "center"}}>
+          <img src={icon} alt="" style={{marginRight: 15}}/>
           <div>
             <h4>{title}</h4>
             <span

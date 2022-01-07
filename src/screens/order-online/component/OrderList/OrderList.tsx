@@ -12,7 +12,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountSearchAction, ExternalShipperGetListAction } from "domain/actions/account/account.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -23,7 +23,7 @@ import {
 } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
-import { AccountResponse } from "model/account/account.model";
+import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
@@ -95,7 +95,7 @@ function OrderList(props: PropsType) {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [shippers, setShippers] = useState<Array<AccountResponse>>([]);
+  const [shippers, setShippers] = useState<Array<DeliverPartnerResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
@@ -415,11 +415,9 @@ function OrderList(props: PropsType) {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(AccountSearchAction({
-			is_shipper: 1
-		}, (response) => {
+    dispatch(ExternalShipperGetListAction((response) => {
 			if(response) {
-				setShippers(response.items)
+				setShippers(response)
 			}
 		}));
     dispatch(getListSourceRequest(setListSource));

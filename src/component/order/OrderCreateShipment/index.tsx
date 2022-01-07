@@ -1,43 +1,44 @@
 import {
-  Button,
-  Checkbox,
-  Col,
-  DatePicker,
-  Form,
-  FormInstance,
-  Row,
-  Select,
-  Space,
+	Button,
+	Checkbox,
+	Col,
+	DatePicker,
+	Form,
+	FormInstance,
+	Row,
+	Select,
+	Space
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
-import {ExternalShipperGetListAction, ShipperGetListAction} from "domain/actions/account/account.action";
-import {DeliveryServicesGetList, getFeesAction} from "domain/actions/order/order.action";
+import { ExternalShipperGetListAction } from "domain/actions/account/account.action";
+import { DeliveryServicesGetList, getFeesAction } from "domain/actions/order/order.action";
 import {
-  actionGetOrderConfig,
-  actionListConfigurationShippingServiceAndShippingFee,
+	actionGetOrderConfig,
+	actionListConfigurationShippingServiceAndShippingFee
 } from "domain/actions/settings/order-settings.action";
-import {AccountResponse} from "model/account/account.model";
-import {thirdPLModel} from "model/order/shipment.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {OrderLineItemRequest} from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {DeliveryServiceResponse, StoreCustomResponse} from "model/response/order/order.response";
+import { DeliverPartnerResponse } from "model/account/account.model";
+import { thirdPLModel } from "model/order/shipment.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderLineItemRequest } from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { DeliveryServiceResponse, SelfDeliveryData, StoreCustomResponse } from "model/response/order/order.response";
 import {
-  OrderConfigResponseModel,
-  ShippingServiceConfigDetailResponseModel,
+	OrderConfigResponseModel,
+	ShippingServiceConfigDetailResponseModel
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {getShippingAddressDefault, SumWeight} from "utils/AppUtils";
-import {ShipmentMethodOption, SHIPPING_REQUIREMENT} from "utils/Constants";
+import { useDispatch, useSelector } from "react-redux";
+import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
+import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 // shipment button action
 type ShipmentButtonType = {
@@ -64,6 +65,8 @@ type PropType = {
   handleCreateShipment?: () => void;
   creating?: boolean;
   handleCancelCreateShipment?: () => void;
+  initSelfDelivery? : SelfDeliveryData;
+  isEcommerceOrder?: boolean;
 };
 
 /**
@@ -120,13 +123,15 @@ function OrderCreateShipment(props: PropType) {
     handleCreateShipment,
     creating,
     handleCancelCreateShipment,
+    initSelfDelivery,
+    isEcommerceOrder,
   } = props;
   const dateFormat = "DD/MM/YYYY";
+	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
-  const [listShippers, setListShippers] = useState<Array<AccountResponse> | null>(null);
-  const [listExternalShippers, setListExternalShippers] = useState<Array<AccountResponse> | null>(null);
+  const [listExternalShippers, setListExternalShippers] = useState<Array<DeliverPartnerResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
@@ -292,7 +297,6 @@ function OrderCreateShipment(props: PropType) {
   }, [customer, dispatch, items, storeDetail]);
 
   useEffect(() => {
-    dispatch(ShipperGetListAction(setListShippers));
     dispatch(ExternalShipperGetListAction(setListExternalShippers));
   }, [dispatch]);
 
@@ -352,7 +356,7 @@ function OrderCreateShipment(props: PropType) {
                 format={dateFormat}
                 style={{width: "100%"}}
                 className="r-5 w-100 ip-search"
-                placeholder="dd/mm/yyyy"
+                placeholder={DATE_FORMAT.DDMMYYY}
                 disabledDate={(current: any) => moment().add(-1, "days") >= current}
               />
             </Form.Item>
@@ -444,11 +448,13 @@ function OrderCreateShipment(props: PropType) {
               levelOrder={levelOrder}
               setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
               isCancelValidateDelivery={isCancelValidateDelivery}
-              listShippers={listShippers}
+              storeId={storeDetail?.id}
               renderButtonCreateActionHtml={renderButtonCreateActionHtml}
               setThirdPL={setThirdPL}
               listExternalShippers={listExternalShippers}
               form={form}
+              isEcommerceOrder={isEcommerceOrder}
+              initSelfDelivery={initSelfDelivery}
             />
           )}
           {/*--- Nhận tại cửa hàng ----*/}

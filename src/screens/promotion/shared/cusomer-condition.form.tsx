@@ -14,8 +14,8 @@ import { CustomerGroups } from "domain/actions/customer/customer.action";
 import { LoyaltyRankSearch } from "domain/actions/loyalty/rank/loyalty-rank.action";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
-import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
-import { Gender } from "model/response/promotion/discount/list-discount.response";
+import { Gender } from "model/promotion/price-rules.model";
+import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response"; 
 import React, { ReactElement, useCallback, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -341,6 +341,10 @@ export default function CustomerFilter(props: Props): ReactElement {
                   showSearch
                   allowClear
                   mode="multiple"
+                  filterOption={(input, option) =>
+                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                    0
+                  }
                 >
                   {groups.map((group) => (
                     <Option key={group.id} value={group.id}>

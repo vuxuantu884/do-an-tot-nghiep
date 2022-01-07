@@ -12,7 +12,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 
 type TabDraftProps = {
-  confirmDraft: (item: PurchaseProcument, isEdit: boolean) => void;
+  confirmDraft: (item: PurchaseProcument, isEdit: boolean, procumentCode: string) => void;
 };
 const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
   const { confirmDraft } = props;
@@ -62,7 +62,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                   <Button
                     type="link"
                     onClick={() => {
-                      confirmDraft(item, true);
+                      confirmDraft(item, true, item?.code);
                     }}
                   >
                     <div style={{color: "#5D5D8A", textDecoration: "underline"}}>
@@ -103,7 +103,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                       <AuthWrapper
                         acceptPermissions={[PurchaseOrderPermission.procurements_approve]}
                       >
-                        <Button onClick={() => confirmDraft(item, false)} type="primary">
+                        <Button onClick={() => {confirmDraft(item, false, item?.code);}} type="primary">
                           Duyệt phiếu
                         </Button>
                       </AuthWrapper>

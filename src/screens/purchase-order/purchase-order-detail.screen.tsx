@@ -17,7 +17,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import {
   POCancelAction,
-  PoDetailAction, POGetPrintContentAction, PoUpdateAction
+  PoDetailAction, POGetPrintContentAction, POGetPurchaseOrderActionLogs, PoUpdateAction,
 } from "domain/actions/po/po.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
@@ -35,6 +35,7 @@ import {
   PurchaseOrderPrint
 } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -52,6 +53,7 @@ import POStep from "./component/po-step";
 import POSupplierForm from "./component/po-supplier.form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import ModalExport from "./modal/ModalExport";
+import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
 
 const ActionMenu = {
   EXPORT: 1,
@@ -95,8 +97,8 @@ const PODetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [formMain] = Form.useForm();
- 
-const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
+
+  const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
 
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status); 
@@ -121,14 +123,16 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
   const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
-  
+  const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
+
+
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
       setLoading(false);
       if (!result) {
         setError(true);
       } else {
-        setPurchaseItem(result);
+        setPurchaseItem(result); 
         formMain.setFieldsValue(result);
         setStatus(result.status);
       }
@@ -211,18 +215,18 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       loadDetail(idNumber, true, isSuggest);
     },
     [idNumber, loadDetail]
-  ); 
+  );
 
-  const ActionExport= {
-    Ok: useCallback((res: ImportResponse)=>{ 
+  const ActionExport = {
+    Ok: useCallback((res: ImportResponse) => {
       if (res && res.url) {
         window.location.assign(res.url);
         setShowExportModal(false);
       }
-    },[]),
-    Cancel: useCallback(()=>{
+    }, []),
+    Cancel: useCallback(() => {
       setShowExportModal(false);
-    },[]),
+    }, []),
   }
 
   const onCancel = useCallback(() => {
@@ -242,7 +246,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       switch (index) {
         case ActionMenu.DELETE:
           setConfirmDelete(true);
-          break; 
+          break;
         case ActionMenu.EXPORT:
           setShowExportModal(true);
           break;
@@ -251,7 +255,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {
-    console.log('poData?.status', poData?.status);
+    console.log('poData?.status', poData);
     if(poData?.status === POStatus.FINALIZED){
       setPaymentItem(undefined);
       setVisiblePaymentModal(true)
@@ -259,20 +263,20 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         is_refund: true,
         amount: poData.total_paid,
       });
-    }else{
-       history.push(`${UrlConfig.PURCHASE_ORDERS}/${id}/return`, {
-      params: poData,
-      listCountries: listCountries,
-      listDistrict: listDistrict,
-    });
+    } else {
+      history.push(`${UrlConfig.PURCHASE_ORDERS}/${id}/return`, {
+        params: poData,
+        listCountries: listCountries,
+        listDistrict: listDistrict,
+      });
     }
-   
+
   }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
-  const [canCancelPO] = useAuthorization({acceptPermissions:[PurchaseOrderPermission.cancel]})
+  const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [{
       id: ActionMenu.EXPORT,
-      name: "Export excel",
+      name: "Xuất file NPL",
     }];
     if (!poData) return [];
     let poStatus = poData.status;
@@ -403,7 +407,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     status,
   ]);
 
- 
+
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
@@ -421,6 +425,16 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       setError(true);
     }
   }, [dispatch, idNumber, loadDetail, onStoreResult, printContentCallback]);
+
+  useEffect(() => {
+    if (poData?.id) {
+      dispatch(
+        POGetPurchaseOrderActionLogs(poData?.id, (response: PurchaseOrderActionLogResponse[]) => {
+          setActionLog(response);
+        })
+      );
+    }
+  }, [dispatch, poData?.id, poData]);
 
   const handleExport = () => {
     var temp = document.createElement("div");
@@ -486,7 +500,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
                 e.stopPropagation();
                 handlePrint && handlePrint();
               }}
-              icon={<PrinterFilled style={{fontSize: 28}} />}
+              icon={<PrinterFilled style={{ fontSize: 28 }} />}
             ></Button>
           </AuthWrapper>
           <Button
@@ -495,9 +509,9 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
               e.stopPropagation();
               handleExport();
             }}
-            icon={<SaveFilled style={{fontSize: 28}} />}
+            icon={<SaveFilled style={{ fontSize: 28 }} />}
           ></Button>
-          <div style={{display: "none"}}>
+          <div style={{ display: "none" }}>
             <div className="printContent" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{
@@ -510,12 +524,12 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       </div>
       <Form
         form={formMain}
-        onFinishFailed={({errorFields}: any) => {
+        onFinishFailed={({ errorFields }: any) => {
           setStatusAction("");
           const element: any = document.getElementById(errorFields[0].name.join(""));
           element?.focus();
           const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-          window.scrollTo({top: y, behavior: "smooth"});
+          window.scrollTo({ top: y, behavior: "smooth" });
         }}
         onFinish={onFinish}
         initialValues={initPurchaseOrder}
@@ -536,7 +550,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
         <Form.Item name={POField.procurements} noStyle hidden>
           <Input />
         </Form.Item>
-        <Row gutter={24} style={{paddingBottom: 80}}>
+        <Row gutter={24} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
@@ -552,13 +566,13 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
               poData={poData}
-              isEdit={!isEditDetail}
+              isEdit={true}
               now={now}
+              loadDetail={loadDetail}
               formMain={formMain}
               status={status}
               stores={listStore}
             />
-
             {poData && poData.status !== POStatus.DRAFT ? (
               <POPaymentForm
                 setSuggest={(isSuggest) => setSuggest(isSuggest)}
@@ -591,6 +605,9 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
               isEdit={true}
               isEditDetail={isEditDetail}
             />
+            <ActionPurchaseOrderHistory
+              actionLog={actionLog}
+            />
           </Col>
         </Row>
         <BottomBarContainer
@@ -605,17 +622,17 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       {renderModalDelete()}
 
       <ModalExport
-        visible= {showExportModal}
-        onOk= {(res)=>{ActionExport.Ok(res)} }
-        onCancel= {ActionExport.Cancel}
-        title= "Tải đề xuất NPL"
-        okText= "Export"
-        cancelText= "Hủy"
+        visible={showExportModal}
+        onOk={(res) => { ActionExport.Ok(res) }}
+        onCancel={ActionExport.Cancel}
+        title="Tải đề xuất NPL"
+        okText="Export"
+        cancelText="Đóng"
         templateUrl={AppConfig.PO_EXPORT_URL}
-        forder="stock-transfer" 
-        customParams={{url_template: AppConfig.PO_EXPORT_TEMPLATE_URL,conditions: poData?.id,  type: "EXPORT_PO_NPL"}}
+        forder="stock-transfer"
+        customParams={{ url_template: AppConfig.PO_EXPORT_TEMPLATE_URL, conditions: poData?.id, type: "EXPORT_PO_NPL" }}
       />
     </ContentContainer>
   );
 };
- export default PODetailScreen
+export default PODetailScreen

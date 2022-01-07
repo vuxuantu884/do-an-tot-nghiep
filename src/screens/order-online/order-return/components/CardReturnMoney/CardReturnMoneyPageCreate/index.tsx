@@ -13,10 +13,14 @@ import ReturnMoneySelect from "../ReturnMoneySelect";
 type PropType = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentRequest[];
+	totalAmountOrder: number;
   totalAmountCustomerNeedToPay: number;
   isExchange: boolean;
   isStepExchange: boolean;
   returnMoneyType?: string;
+	returnOrderInformation: {
+		totalAmountReturn: number;
+	};
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   setReturnMoneyType?: (value: string) => void;
 };
@@ -32,6 +36,8 @@ function CardReturnMoneyPageCreate(props: PropType) {
     totalAmountCustomerNeedToPay,
     isStepExchange,
     returnMoneyType,
+		totalAmountOrder,
+		returnOrderInformation,
     setPayments,
     setReturnMoneyType,
   } = props;
@@ -41,11 +47,6 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const isReturnMoneyToCustomer =
     totalAmountCustomerNeedToPay !== undefined && totalAmountCustomerNeedToPay <= 0;
-
-	 /**
-   * tổng số tiền đã trả
-   */
-		const totalAmountPayment = getAmountPayment(payments);
 
   const renderWhenReturnMoneyToCustomer = () => {
     return (
@@ -112,8 +113,8 @@ function CardReturnMoneyPageCreate(props: PropType) {
                         Tổng tiền cần thanh toán:{" "}
                       </span>
                       <strong>
-                        {totalAmountCustomerNeedToPay &&
-                          formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
+                        {returnOrderInformation &&
+                          formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))}
                       </strong>
                     </div>
                   </Col>
@@ -122,8 +123,8 @@ function CardReturnMoneyPageCreate(props: PropType) {
                       <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
                       <strong>
                         {formatCurrency(
-                          Math.round((totalAmountCustomerNeedToPay-totalAmountPayment) > 0
-													? (totalAmountCustomerNeedToPay-totalAmountPayment)
+                          Math.round((totalAmountCustomerNeedToPay - getAmountPayment(payments)) > 0
+													? (totalAmountCustomerNeedToPay - getAmountPayment(payments))
 													: 0)
                         )}
                       </strong>
@@ -133,7 +134,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                   <OrderPayments
                     payments={payments}
                     setPayments={setPayments}
-                    totalAmountOrder={totalAmountCustomerNeedToPay}
+                    totalAmountOrder={totalAmountOrder - returnOrderInformation.totalAmountReturn}
                     loyaltyRate={loyaltyRate}
                     listPaymentMethod={listPaymentMethods}
                   />

@@ -87,6 +87,8 @@ type OrdersCreatePermissionProps = {
   setCustomerPhone: (item: string | null) => void;
   fbCustomerId: string | null;
   fbPageId: string | null;
+  defaultSourceId: number | null;
+  defaultStoreId: number | null;
   userId: string | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyRate: LoyaltyRateResponse | undefined;
@@ -124,7 +126,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
     isVisibleCustomer,
     setVisibleCustomer,
     districtId,
-    setDistrictId
+    setDistrictId,
+    defaultStoreId,
+    defaultSourceId
   } = props;
   const dispatch = useDispatch();
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
@@ -1099,6 +1103,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     districtId={districtId}
                     setDistrictId={setDistrictId}
                     setOrderSourceId={setOrderSourceId}
+                    defaultSourceId={defaultSourceId}
+                    form={form}
                   />
                   <OrderCreateProduct
                     changeInfo={onChangeInfoProduct}
@@ -1107,6 +1113,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       form.setFieldsValue({ store_id: value });
                     }}
                     storeId={storeId}
+                    defaultStoreId={defaultStoreId}
                     shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                     setItemGift={setItemGifts}
                     form={form}

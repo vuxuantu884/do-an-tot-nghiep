@@ -11,6 +11,7 @@ export const PaymentMethodCode = {
   BANK_TRANSFER: "bank_transfer",
   QR_CODE: "qr_pay",
   POINT: "point",
+  COD: "cod",
 };
 
 export const OrderStatus = {
@@ -46,6 +47,11 @@ export const FulFillmentStatus = {
   SHIPPING: "shipping",
   SHIPPED: "shipped",
   CANCELLED: "cancelled",
+  RETURNING: "returning",
+  RETURNED: "returned",
+};
+
+export const FulFillmentReturnStatus = {
   RETURNING: "returning",
   RETURNED: "returned",
 };
@@ -117,6 +123,49 @@ export const POStatus = {
   STORED: "stored",
   STOCK_IN: "stock_in",
 };
+
+export const PO_RETURN_HISTORY = [
+  {
+    code: "draft",
+    title: "Đặt hàng",
+  },
+  {
+    code: "finalized",
+    title: "Đã xác nhận",
+  },
+  {
+    code: "completed",
+    title: "Đã hoàn thành",
+  },
+  {
+    code: "cancelled",
+    title: "Đã huỷ",
+  },
+  {
+    code: "finished",
+    title: "Đã kết thúc",
+  },
+  {
+    code: "stored",
+    title: "Đã nhập kho",
+  },
+  {
+    code: "stock_in",
+    title: "Đã nhập kho",
+  },
+  {
+    code: "draftpo",
+    title: "Phiếu nháp",
+  },
+  {
+    code: "null",
+    title: "Không có dữ liệu",
+  },
+  {
+    code: "Create",
+    title: "Đã tạo",
+  },
+]
 
 export const ProcumentStatus = {
   DRAFT: "draft",
@@ -193,7 +242,8 @@ export const ADMIN_ORDER = {
 
 export const POS = {
 	channel_id: 1,
-  channel_code: "POS"
+  channel_code: "POS",
+	source_id: 18,
 };
 
 export const SHOPEE = {
@@ -219,3 +269,7 @@ export const COLUMN_CONFIG_TYPE = {
   COLUMN_INVENTORY: "column_inventory",
   COLUMN_PO:  "column_po"
 };
+
+export const ACCOUNT_ROLE_ID = {
+	admin: 1,
+}

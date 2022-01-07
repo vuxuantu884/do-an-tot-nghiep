@@ -1,4 +1,3 @@
-import { PromoCodeResponse } from 'model/response/promotion/promo-code/list-promo-code.response';
 import { 
   checkPromoCode,
   addPromoCode,
@@ -20,11 +19,12 @@ import {showError} from "../../../../utils/ToastUtils";
 import {PageResponse} from "../../../../model/base/base-metadata.response"; 
 import {PromoCodeType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
+import { DiscountCode } from 'model/promotion/price-rules.model';
 
 function* checkPromoCodeAtc(action: YodyAction) {
   const { code, handleResponse } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<PromoCodeResponse>> = yield call(
+    const response: BaseResponse<PageResponse<DiscountCode>> = yield call(
       checkPromoCode,
       code
     );
@@ -48,7 +48,7 @@ function* checkPromoCodeAtc(action: YodyAction) {
 function* getPromoCode(action: YodyAction) {
   const { priceRuleId, query, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<PromoCodeResponse>> = yield call(
+    const response: BaseResponse<PageResponse<DiscountCode>> = yield call(
       getAllPromoCodeList,
       priceRuleId,
       query
@@ -72,7 +72,7 @@ function* getPromoCode(action: YodyAction) {
 function* getPromoCodeByIdAct(action: YodyAction) {
   const { priceRuleId, id, onResult } = action.payload;
   try {
-    let response: BaseResponse<PromoCodeResponse> = yield call(
+    let response: BaseResponse<DiscountCode> = yield call(
       getPromoCodeById,
       priceRuleId,
       id
@@ -100,7 +100,7 @@ function* deletePromoCodeByIdAct(action: YodyAction) {
   console.log('deletePriceRuleByIdAct - action : ', action);
   const { priceRuleId, id, deleteCallBack } = action.payload;
   try {
-    const response: BaseResponse<PromoCodeResponse> = yield call(
+    const response: BaseResponse<DiscountCode> = yield call(
       deletePromoCodeById,
       priceRuleId,
       id
@@ -128,7 +128,7 @@ function* updatePromoCodeByIdAct(action: YodyAction) {
   console.log('updatePromoCodeByIdAct - action : ', action);
   const { priceRuleId, body, updateCallBack } = action.payload;
   try {
-    const response: BaseResponse<PromoCodeResponse> = yield call(
+    const response: BaseResponse<DiscountCode> = yield call(
       updatePromoCodeById,
       priceRuleId,
       body
@@ -155,7 +155,7 @@ function* updatePromoCodeByIdAct(action: YodyAction) {
 function* addPromoCodeManualAct(action: YodyAction) {
   const { priceRuleId, body, addCallBack } = action.payload;
   try {
-    const response: BaseResponse<PromoCodeResponse> = yield call(
+    const response: BaseResponse<DiscountCode> = yield call(
       addPromoCode,
       priceRuleId,
       body
@@ -185,7 +185,7 @@ function* deleteBulkPromoCodeAct(action: YodyAction) {
   console.log('deleteBulkPromoCodeAct - action : ', action);
   const { priceRuleId, body, deleteCallBack } = action.payload;
   try {
-    const response: BaseResponse<PromoCodeResponse> = yield call(
+    const response: BaseResponse<DiscountCode> = yield call(
       deleteBulkPromoCode,
       priceRuleId,
       body
@@ -213,7 +213,7 @@ function* publishedBulkPromoCodeAct(action: YodyAction) {
   console.log('publishedBulkPromoCodeAct - action : ', action);
   const { priceRuleId, body, publishedCallBack } = action.payload;
   try {
-    const response: BaseResponse<PromoCodeResponse> = yield call(
+    const response: BaseResponse<DiscountCode> = yield call(
       publishedBulkPromoCode,
       priceRuleId,
       body
@@ -241,7 +241,7 @@ function* enableBulkPromoCodeAct(action: YodyAction) {
   console.log('enableBulkPromoCodeAct - action : ', action);
   const { priceRuleId, body, enableCallBack } = action.payload;
   try {
-    const response: BaseResponse<PromoCodeResponse> = yield call(
+    const response: BaseResponse<DiscountCode> = yield call(
       enableBulkPromoCode,
       priceRuleId,
       body
@@ -269,7 +269,7 @@ function* disableBulkPromoCodeAct(action: YodyAction) {
   console.log('disableBulkPromoCodeAct - action : ', action);
   const { priceRuleId, body, disableCallBack } = action.payload;
   try {
-    const response: BaseResponse<PromoCodeResponse> = yield call(
+    const response: BaseResponse<DiscountCode> = yield call(
       disableBulkPromoCode,
       priceRuleId,
       body

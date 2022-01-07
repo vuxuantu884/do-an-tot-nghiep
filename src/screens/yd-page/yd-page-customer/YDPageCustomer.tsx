@@ -64,7 +64,7 @@ const YDPageCustomerDetail = (props: any) => {
   // const history = useHistory();
   const dispatch = useDispatch();
 
-  
+
   const [allowCreateCustomer] = useAuthorization({
     acceptPermissions: customersCreatePermission,
     not: false,
@@ -73,7 +73,7 @@ const YDPageCustomerDetail = (props: any) => {
     acceptPermissions: customersUpdatePermission,
     not: false,
   });
-  
+
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
@@ -205,7 +205,7 @@ const YDPageCustomerDetail = (props: any) => {
               target="_blank"
               to={`${UrlConfig.ORDER}/${row.id}`}
             >
-              <img src={urlCrimson} alt="link"/>
+              <img src={urlCrimson} alt="link" />
             </Link>
           </Tooltip>
         );
@@ -352,7 +352,7 @@ const YDPageCustomerDetail = (props: any) => {
     };
     dispatch(UpdateCustomer(customer?.id, processValue, setResultUpdate));
   };
-  const handleSubmitFail = () => {};
+  const handleSubmitFail = () => { };
 
   const reloadPage = () => {
     getCustomerWhenPhoneChange(customer?.phone);
@@ -460,7 +460,7 @@ const YDPageCustomerDetail = (props: any) => {
                 rowKey={(data) => data.id}
               />
             </Card>
-            
+
             <div className="customer-bottom-button">
               <Button
                 style={{ marginRight: "10px" }}
@@ -481,7 +481,7 @@ const YDPageCustomerDetail = (props: any) => {
               )}
             </div>
           </Form>
-        : <NoPermission />)}
+          : <NoPermission />)}
       </AuthWrapper>
     </div>
   );

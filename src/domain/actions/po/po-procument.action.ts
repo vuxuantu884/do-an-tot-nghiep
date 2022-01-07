@@ -29,6 +29,34 @@ export const PoProcumentUpdateAction = (
   });
 };
 
+export const ConfirmPoProcumentAction = (
+  poId: number,
+  procumentId: number,
+  request: PurchaseProcument,
+  updateCallback: (result: PurchaseProcument | null) => void
+) => {
+  return BaseAction(POProcumentType.CONFIRM_PROCUMENT, {
+    poId,
+    procumentId,
+    request,
+    updateCallback,
+  });
+};
+
+export const ApprovalPoProcumentAction = (
+  poId: number,
+  procumentId: number,
+  request: PurchaseProcument,
+  updateCallback: (result: PurchaseProcument | null) => void
+) => {
+  return BaseAction(POProcumentType.APROVAL_PROCUMENT, {
+    poId,
+    procumentId,
+    request,
+    updateCallback,
+  });
+};
+
 export const PoProcumentFinishAction = (
   poId: number,
   status: string,

@@ -28,7 +28,7 @@ import {
 	getShipmentsAction,
 } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { SourceResponse } from "model/response/order/source.response";
@@ -46,6 +46,7 @@ import { DeliveryServiceResponse } from "model/response/order/order.response";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { ShipmentMethod } from "utils/Constants";
+import moment from "moment";
 
 const ACTION_ID = {
 	delete: 1,
@@ -74,9 +75,9 @@ const initQuery: ShipmentSearchQuery = {
 	ship_on_min: null,
 	ship_on_max: null,
 	ship_on_predefined: null,
-	received_on_min: null,
-	received_on_max: null,
-	received_predefined: null,
+	shipped_on_min: null,
+	shipped_on_max: null,
+	shipped_predefined: null,
 	cancelled_on_min: null,
 	cancelled_on_max: null,
 	cancelled_on_predefined: null,
@@ -140,44 +141,50 @@ const ShipmentsScreen: React.FC = (props: any) => {
 	});
 
 	const status_order = [
-		{ name: "Chưa giao", value: "unshipped" },
-		{ name: "Đã lấy hàng", value: "picked" },
-		{ name: "Giao một phần", value: "partial" },
-		{ name: "Đã đóng gói", value: "packed" },
-		{ name: "Đang giao", value: "shipping" },
-		{ name: "Đã giao", value: "shipped" },
-		{ name: "Đang trả lại", value: "returning" },
-		{ name: "Đã trả lại", value: "returned" },
-		{ name: "Đã hủy", value: "cancelled" }
+		{ name: "Chưa giao", value: "unshipped", color: "#000000" },
+		{ name: "Đã lấy hàng", value: "picked", color: "#2A2A86" },
+		{ name: "Giao một phần", value: "partial", color: "#FCAF17"  },
+		{ name: "Đã đóng gói", value: "packed", color: "#FCAF17"  },
+		{ name: "Đang giao", value: "shipping", color: "#FCAF17"  },
+		{ name: "Đã giao", value: "shipped", color: "#27AE60"  },
+		{ name: "Đang trả lại", value: "returning", color: "#E24343"  },
+		{ name: "Đã trả lại", value: "returned", color: "#E24343"  },
+		{ name: "Đã hủy", value: "cancelled", color: "#E24343"  }
 	];
 
 	const [columns, setColumn] = useState<
 		Array<ICustomTableColumType<ShipmentModel>>
 	>([
 		{
-			title: "Mã đơn giao",
+			title: "Mã đơn giao / Mã vận đơn",
 			render: (record: ShipmentModel) => (
-				<div>
-					<Link target="_blank" to={`${UrlConfig.SHIPMENTS}/${record.code}`}>
-						{record.code}
-					</Link>
-					<div>
+				<div className="code">
+					<div className="order">
+						<span>
+							<span className="title">MĐG: </span>
+							<Link target="_blank" to={`${UrlConfig.SHIPMENTS}/${record.code}`}>
+								{record.code}
+							</Link>
+						</span>
+					</div>
+					<div className="order-time">
 						{record.created_date
-							? ConvertUtcToLocalDate(record.created_date)
+							? moment(record.created_date).format(DATE_FORMAT.fullDate)
 							: ""}
 					</div>
+					{record.shipment.tracking_code  && 
+						<div className="tracking">
+							<span>
+								<span className="title">MVĐ: </span>
+								<span>{record.shipment.tracking_code}</span>
+							</span>
+						</div>
+					}
 				</div>
 			),
 			visible: true,
 			fixed: "left",
-			width: "120px",
-		},
-		{
-			title: "Mã vận đơn",
-			dataIndex: "shipment",
-			render: (shipment: any) => shipment?.tracking_code,
-			visible: true,
-			width: "120px",
+			width: "200px",
 		},
 		{
 			title: "Người nhận",
@@ -243,80 +250,148 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			width: "280px",
 		},
 		{
-			title: "Tiền COD",
-			dataIndex: "shipment",
-			render: (value?) => (
-				<NumberFormat
-					value={value?.cod}
-					className="foo"
-					displayType={"text"}
-					thousandSeparator={true}
-				/>
-			),
-			key: "cod",
-			visible: true,
-			align: "center",
-		},
-		{
-			title: "HT Vận Chuyển",
+			title: "Vận Chuyển",
 			render: (record: any) => {
 				switch (record.shipment?.delivery_service_provider_type) {
 					case ShipmentMethod.EXTERNAL_SERVICE:
 						const service_id = record.shipment.delivery_service_provider_id;
 						const service = delivery_services.find((service) => service.id === service_id);
 						return (
-							service && (
-								<img
-									src={service.logo ? service.logo : ""}
-									alt=""
-									style={{ width: "100%" }}
-								/>
-							)
+							<div className="shipment-details">
+								{service && 
+									<img
+										src={service.logo ? service.logo : ""}
+										alt=""
+										style={{ width: "100%" }}
+									/>
+								}
+								<p>
+									<span className="label">Tiền COD: </span>
+									<span className="value">
+										<NumberFormat
+											value={record.shipment?.cod}
+											className="foo"
+											displayType={"text"}
+											thousandSeparator={true}
+										/>
+									</span>
+								</p>
+								<p>
+									<span className="label">Tổng SL: </span>
+									<span className="value">{record.total_quantity}</span>
+								</p>
+								{record.shipment?.shipping_fee_paid_to_three_pls && <p>
+									<span className="label">Phí giao: </span>
+									<span className="value">
+										<NumberFormat
+											value={record.shipment?.shipping_fee_paid_to_three_pls}
+											className="foo"
+											displayType={"text"}
+											thousandSeparator={true}
+										/>
+									</span>
+								</p>}
+							</div>
 						);
 					case ShipmentMethod.EMPLOYEE:
 					case ShipmentMethod.EXTERNAL_SHIPPER:
-						return `Đối tác - ${record.shipment.shipper_code} - ${record.shipment.shipper_name}`;
+						return (
+							<div className="shipment-details">
+								<p>Đối tác - {record.shipment.shipper_code} - {record.shipment.shipper_name}</p>
+								<p>
+									<span className="label">Tiền COD: </span>
+									<span className="value">
+										<NumberFormat
+											value={record.shipment?.cod}
+											className="foo"
+											displayType={"text"}
+											thousandSeparator={true}
+										/>
+									</span>
+								</p>
+								<p>
+									<span className="label">Tổng SL: </span>
+									<span className="value">{record.total_quantity}</span>
+								</p>
+								{record.shipment?.shipping_fee_paid_to_three_pls && <p>
+									<span className="label">Phí giao: </span>
+									<span className="value">
+										<NumberFormat
+											value={record.shipment?.shipping_fee_paid_to_three_pls}
+											className="foo"
+											displayType={"text"}
+											thousandSeparator={true}
+										/>
+									</span>
+								</p>}
+							</div>
+						);
 					case ShipmentMethod.PICK_AT_STORE:
-						return `Nhận tại - ${record.store}`;
+						return (
+							<div className="shipment-details">
+								<p>Nhận tại - {record.store}</p>
+								<p>
+									<span className="label">Tiền COD: </span>
+									<span className="value">
+										<NumberFormat
+											value={record.shipment?.cod}
+											className="foo"
+											displayType={"text"}
+											thousandSeparator={true}
+										/>
+									</span>
+								</p>
+								<p>
+									<span className="label">Tổng SL: </span>
+									<span className="value">{record.total_quantity}</span>
+								</p>
+								{record.shipment?.shipping_fee_paid_to_three_pls && <p>
+									<span className="label">Phí giao: </span>
+									<span className="value">
+										<NumberFormat
+											value={record.shipment?.shipping_fee_paid_to_three_pls}
+											className="foo"
+											displayType={"text"}
+											thousandSeparator={true}
+										/>
+									</span>
+								</p>}
+							</div>
+						);
 					default: return ""
 				}
 			},
 			key: "shipment.type",
 			visible: true,
-			width: 140,
-			align: "center",
+			width: 200,
+			// align: "center",
 		},
 		{
 			title: "Trạng thái giao vận",
-			dataIndex: "status",
+			// dataIndex: "status",
 			key: "status",
-			render: (status_value: string) => {
+			render: (record: any) => {
 				const status = status_order.find(
-					(status) => status.value === status_value
+					(status) => status.value === record.status
 				);
 				return (
-					<div
-						style={{
-							background: "rgba(42, 42, 134, 0.1)",
-							borderRadius: "100px",
-							color: "#2A2A86",
-						}}
-					>
-						{status?.name}
-					</div>
+					<div>
+						<p
+							style={{
+								// background: "rgba(42, 42, 134, 0.1)",
+								// borderRadius: "100px",
+								color: status?.color
+							}}
+						>
+							{status?.name}
+						</p>
+						{record.reason?.name && <p>Lý do: {record.reason?.name}</p>}
+						</div>
 				);
 			},
 			visible: true,
 			align: "center",
-			width: 180,
-		},
-
-		{
-			title: "Tổng SL sản phẩm",
-			dataIndex: "total_quantity",
-			key: "total_quantity",
-			visible: true,
-			align: "center",
+			width: 160,
 		},
 		{
 			title: "Nhân viên tạo đơn giao",
@@ -341,46 +416,11 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			visible: true,
 		},
 		{
-			title: "Lý do huỷ giao",
-			key: "reason",
-			render: (value: string, record: ShipmentModel) => {
-				return (
-					<div>
-						{record.reason?.name}
-					</div>
-				)
-			},
-			visible: true,
-		},
-		{
-			title: "Phí trả đối tác",
-			key: "shipping_fee_paid_to_three_pls",
-			render: (value: string, record: ShipmentModel) => {
-				return (
-					<NumberFormat
-						value={record.shipment?.shipping_fee_paid_to_three_pls}
-						className="foo"
-						displayType={"text"}
-						thousandSeparator={true}
-					/>
-				)
-			},
-			visible: true,
-			align: "center",
-		},
-		// {
-		//   title: "Khách đã trả",
-		//   dataIndex: "total",
-		//   key: "total",
-		//   visible: true,
-		// },
-
-		{
 			title: "Ngày giao hàng",
 			visible: true,
 			render: (value: string, record: ShipmentModel) => {
 				if (record.shipped_on) {
-					return <div>{ConvertUtcToLocalDate(record.shipped_on)}</div>
+					return <div>{moment(record.shipped_on).format(DATE_FORMAT.fullDate)}</div>
 				}
 				return ""
 			},
@@ -392,7 +432,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			title: "Ngày tạo đơn",
 			render: (value: string, record: ShipmentModel) => {
 				if (record.created_date) {
-					return <div>{ConvertUtcToLocalDate(record.created_date)}</div>
+					return <div>{moment(record.created_date).format(DATE_FORMAT.fullDate)}</div>
 				}
 				return ""
 			},
@@ -403,7 +443,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			title: "Ngày hoàn tất đơn",
 			render: (value: string, record: ShipmentModel) => {
 				if (record.finished_order_on) {
-					return <div>{ConvertUtcToLocalDate(record.finished_order_on)}</div>
+					return <div>{moment(record.finished_order_on).format(DATE_FORMAT.fullDate)}</div>
 				}
 				return ""
 			},
@@ -414,7 +454,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			title: "Ngày huỷ đơn",
 			render: (value: string, record: ShipmentModel) => {
 				if (record.cancel_date) {
-					return <div>{ConvertUtcToLocalDate(record.cancel_date)}</div>
+					return <div>{moment(record.cancel_date).format(DATE_FORMAT.fullDate)}</div>
 				}
 				return ""
 			},
@@ -772,7 +812,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 						isRowSelection
 						isLoading={tableLoading}
 						showColumnSetting={true}
-						scroll={{ x: 3630 * columnFinal.length / (columns.length ? columns.length : 1) }}
+						scroll={{ x: 2525 * columnFinal.length / (columns.length ? columns.length : 1) }}
 						sticky={{ offsetScroll: 10, offsetHeader: 55 }}
 						pagination={{
 							pageSize: data.metadata.limit,

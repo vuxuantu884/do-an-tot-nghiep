@@ -70,6 +70,14 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
 
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
+      values.contacts =[{email: "",
+                        fax: "",
+                        id: null,
+                        is_default: true,
+                        name: "",
+                        phone: values.phone ?? null,
+                        supplier_id: null,
+                        website: ""}];
       dispatch(SupplierCreateAction(values, createSupplierCallback));
     },
     [createSupplierCallback, dispatch]

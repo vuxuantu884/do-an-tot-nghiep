@@ -1,7 +1,7 @@
 import { Tag } from "antd";
 import { FulFillmentResponse } from "model/response/order/order.response";
 import React from "react";
-import { FulFillmentStatus } from "utils/Constants";
+import { FulFillmentReturnStatus, FulFillmentStatus } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -19,7 +19,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
     },
     {
       statusBeforeCancellation: FulFillmentStatus.SHIPPED,
-      name: "Hủy đơn giao - Đã nhận hàng",
+      name: "Hủy đơn giao - Chưa nhận hàng",
       color: "#E24343",
       backgroundColor: "rgba(226, 67, 67, 0.1)",
     },
@@ -45,7 +45,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
     },
     {
       statusBeforeCancellation: FulFillmentStatus.SHIPPING,
-      name: "Hủy đơn giao - Chưa nhận hàng",
+      name: "Hủy đơn giao - Đã nhận hàng",
       color: "#E24343",
       backgroundColor: "rgba(226, 67, 67, 0.1)",
     },
@@ -121,17 +121,21 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
     }
     let statusTag = null;
     switch (fulfillment?.status) {
-      case FulFillmentStatus.RETURNING:
-        statusTag = findStatusTagWithReturning();
-        break;
+			case FulFillmentStatus.CANCELLED:
+				if(fulfillment?.return_status === FulFillmentReturnStatus.RETURNED ) {
+					statusTag = findStatusTagWithReturnedOrCancel();
+				} else if(fulfillment?.return_status === FulFillmentReturnStatus.RETURNING) {
+					statusTag = findStatusTagWithReturning();
+				}
+				break;
       case FulFillmentStatus.RETURNED:
         statusTag = findStatusTagWithReturnedOrCancel();
         break;
-      case FulFillmentStatus.CANCELLED:
-        statusTag = findStatusTagWithReturnedOrCancel();
-        break;
+			case FulFillmentStatus.RETURNING:
+				statusTag = findStatusTagWithReturning();
+				break;
       default:
-        statusTag = findStatusTagWithoutReturnOrCancel();
+				statusTag = findStatusTagWithoutReturnOrCancel();
         break;
     }
     if (statusTag) {

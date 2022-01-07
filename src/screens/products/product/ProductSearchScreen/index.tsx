@@ -11,6 +11,7 @@ import useAuthorization from "hook/useAuthorization";
 import React, {useEffect, useState} from "react";
 import {Link, useHistory, useRouteMatch} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
+import { showInfo } from "utils/ToastUtils";
 import TabHistoryInfo from "../tab/TabHistoryInfo";
 import TabHistoryPrice from "../tab/TabHistoryPrice";
 import TabProduct from "../tab/TabProduct";
@@ -132,7 +133,7 @@ const ListProductScreen: React.FC = () => {
               className="light"
               size="large"
               icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-              onClick={() => {}}
+              onClick={() => {showInfo("Tính năng đang phát triển")}}
             >
               Xuất file
             </Button>

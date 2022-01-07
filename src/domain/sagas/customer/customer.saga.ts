@@ -29,6 +29,9 @@ import {
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { isFetchApiSuccessful } from "utils/AppUtils";
+import { fetchApiErrorAction } from "domain/actions/app.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* onKeySearchCustomerChange(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -63,21 +66,14 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
         getCustomersSo,
         query
       );
-      switch (response.code) {
-        case HttpStatus.SUCCESS:
-          setData(response.data.items);
-          
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          response.errors.forEach((e) => showError(e));
-          break;
-      }
+			if (isFetchApiSuccessful(response)) {
+				setData(response.data.items);
+			} else {
+				yield put(fetchApiErrorAction(response, "Tìm kiếm khách hàng"));
+			}
     }
   } catch (error) {
-    showError("Có lỗi khi lấy danh sách khách hàng! Vui lòng thử lại sau!");
+    showError("Có lỗi khi tìm kiếm khách hàng! Vui lòng thử lại sau!");
   }
 }
 
@@ -116,7 +112,6 @@ function* getCustomerByPhone(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
-        console.log(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -160,19 +155,13 @@ function* CustomerGroups(action: YodyAction) {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomerGroups
     );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			setData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách nhóm khách hàng"));
+		}
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy danh sách nhóm khách hàng. Vui lòng thử lại sau!");
   }
 }
 
@@ -222,6 +211,7 @@ function* CustomerTypes(action: YodyAction) {
 
 function* CreateCustomer(action: YodyAction) {
   const { request, setResult } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<any> = yield call(createCustomer, request);
     switch (response.code) {
@@ -239,11 +229,14 @@ function* CreateCustomer(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* UpdateCustomer(action: YodyAction) {
   const { id, request, setResult } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<any> = yield call(updateCustomer, id, request);
     switch (response.code) {
@@ -261,6 +254,8 @@ function* UpdateCustomer(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 

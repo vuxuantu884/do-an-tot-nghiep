@@ -14,7 +14,8 @@ import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
-import { COD, FACEBOOK, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
+import { COD, FACEBOOK, FulFillmentStatus, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import EditNote from "../../edit-note";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
@@ -89,7 +90,7 @@ function OrdersTable(props: PropsType) {
 		{
 			payment_method_code: null,
 			icon: IconPaymentCash,
-			tooltip: "Đã thanh toán tiền mặt",
+			tooltip: null,
 		},
 		{
 			payment_method_code: PaymentMethodCode.POINT,
@@ -180,9 +181,9 @@ function OrdersTable(props: PropsType) {
 			);
 			return (
 				<div className="singlePayment">
-					<Tooltip title={selectedPayment?.tooltip}>
+					<Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
 						<img src={selectedPayment?.icon} alt="" />
-						<span className="amount">{formatCurrency(payment.amount)}</span>
+						<span className="amount">{formatCurrency(payment.paid_amount)}</span>
 					</Tooltip>
 				</div>
 			);
@@ -255,7 +256,7 @@ function OrdersTable(props: PropsType) {
 								{value}
 							</Link>
 							<div style={{ fontSize: "0.86em" }}>
-								{moment(i.created_date).format("hh:mm DD-MM-YYYY")}
+								{moment(i.created_date).format(DATE_FORMAT.fullDate)}
 							</div>
 							<div style={{ fontSize: "0.86em", marginTop: 5 }}>
 								<Tooltip title="Cửa hàng">
@@ -349,7 +350,11 @@ function OrdersTable(props: PropsType) {
 											</div>
 										</div>
 										<div className="quantity quantityWidth">
-											<span>{item.quantity}</span>
+											<NumberFormat
+												value={item.quantity}
+												displayType={"text"}
+												thousandSeparator={true}
+											/>
 										</div>
 										<div className="price priceWidth">
 											<div>
@@ -394,17 +399,14 @@ function OrdersTable(props: PropsType) {
 				render: (record: any) => (
 					<React.Fragment>
 						<Tooltip title="Thành tiền">
-							<span>
-								<NumberFormat
-									value={record.total_line_amount_after_line_discount}
-									className="foo"
-									displayType={"text"}
-									thousandSeparator={true}
-								/>
-							</span>
+							<NumberFormat
+								value={record.total_line_amount_after_line_discount}
+								className="foo"
+								displayType={"text"}
+								thousandSeparator={true}
+							/>
 						</Tooltip>
-
-						{record.total_discount && (
+						{record.total_discount ? (
 							<React.Fragment>
 								<br />
 								<Tooltip title="Chiết khấu đơn hàng">
@@ -419,15 +421,13 @@ function OrdersTable(props: PropsType) {
 										/>
 									</span>
 								</Tooltip>
-
-
 							</React.Fragment>
-						)}
+						) : null}
 					</React.Fragment>
 				),
 				key: "customer.amount_money",
 				visible: true,
-				align: "left",
+				align: "right",
 				width: 100,
 			},
 			{
@@ -449,7 +449,7 @@ function OrdersTable(props: PropsType) {
 					const sortedFulfillments = record.fulfillments?.sort(
 						(a: any, b: any) => b.id - a.id
 					);
-					if (record.source_code === POS.channel_code || (sortedFulfillments && sortedFulfillments[0]?.delivery_type === ShipmentMethod.PICK_AT_STORE)) {
+					if (record.source_id === POS.source_id) {
 						return (
 							<React.Fragment>
 								<div className="single">
@@ -459,9 +459,21 @@ function OrdersTable(props: PropsType) {
 							</React.Fragment>
 						)
 					}
+					if(record?.fulfillments && record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED) {
+						return (
+							<div className="single">
+								<img
+									src={iconShippingFeePay3PL}
+									alt=""
+									className="iconShipping"
+								/>
+								Đã hủy vận chuyển
+							</div>
+						)
+					}
 					if (sortedFulfillments) {
 						if (sortedFulfillments[0]?.shipment) {
-							switch (sortedFulfillments[0].shipment.delivery_service_provider_type) {
+							switch (sortedFulfillments[0].shipment?.delivery_service_provider_type) {
 								case ShipmentMethod.EXTERNAL_SERVICE:
 									const thirdPLId =
 										sortedFulfillments[0].shipment.delivery_service_provider_id;
@@ -502,6 +514,7 @@ function OrdersTable(props: PropsType) {
 															<img
 																src={iconShippingFeePay3PL}
 																alt=""
+																className="iconShipping"
 															/>
 															{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
 														</div>

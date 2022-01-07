@@ -12,6 +12,7 @@ import TextArea from "antd/es/input/TextArea";
 import React, {
   createRef,
   useCallback,
+  useMemo,
   useState,
 } from 'react';
 import {useDispatch} from 'react-redux';
@@ -21,11 +22,26 @@ import {
   CollectionResponse,
 } from 'model/product/collection.model';
 import ContentContainer from 'component/container/content.container';
-import UrlConfig from 'config/url.config';
+import UrlConfig, { BASE_NAME_ROUTER } from 'config/url.config';
 import {RegUtil} from 'utils/RegUtils';
 import { showSuccess } from 'utils/ToastUtils';
+import imgDefIcon from "assets/img/img-def.svg";
 import BottomBarContainer from 'component/container/bottom-bar.container'; 
 import { createCollectionAction } from 'domain/actions/product/collection.action';
+import PlusOutline from "assets/icon/plus-outline.svg";
+import CustomAutoComplete from 'component/custom/autocomplete.cusom';
+import { PageResponse } from 'model/base/base-metadata.response';
+import { ProductResponse, VariantResponse } from 'model/product/product.model';
+import ProductItem from 'component/custom/ProductItem';
+import { SearchOutlined } from '@ant-design/icons';
+import _ from 'lodash';
+import PickManyProductModal from 'component/modal/PickManyProductModal';
+import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
+import { Link } from 'react-router-dom';
+import { ConvertUtcToLocalDate } from 'utils/DateUtils';
+import { formatCurrency } from 'utils/AppUtils';
+import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm';
+import { searchProductWrapperRequestAction } from 'domain/actions/product/products.action';
 
 let initialRequest: CollectionCreateRequest = {
   code: '',
@@ -37,6 +53,149 @@ const AddCollection: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>(); 
   const [loading, setLoading] = useState<boolean>(false); 
+  const [keySearch, setKeySearch] = useState<string>("");
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const productSearchRef = createRef<CustomAutoComplete>();
+  const [resultSearch, setResultSearch] = useState<PageResponse<ProductResponse> | any>();
+  const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [dataTable, setDataTable] = useState<Array<ProductResponse>>(
+    [] as Array<ProductResponse>
+  );
+  const [searchProduct, setSearchProduct] = useState<Array<ProductResponse>>(
+    [] as Array<ProductResponse>
+  );
+
+  
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
+  const [selected, setSelected] = useState<Array<ProductResponse>>([]);
+
+  const onClickDelete = useCallback(()=>{
+    setIsLoadingTable(true);
+    
+    let temps = [...dataTable];
+    temps = temps.filter(e=> selectedRowKeys.indexOf(e.id) === -1);
+    
+    setDataTable(temps);
+    setSearchProduct(temps);
+    setSelectedRowKeys([]);
+    setSelected([]);
+    setConfirmDelete(false);
+  },[selectedRowKeys, dataTable]);
+
+  const ActionComponent = useMemo( 
+    () => {
+      let Compoment = () => <span>STT</span>;
+      if (selected?.length > 0) {
+        Compoment = () => (
+          <Button style={{paddingLeft: 5,paddingRight: 5}} onClick={()=>{setConfirmDelete(true)}}>
+            Xóa
+          </Button>
+        );
+      }
+      return <Compoment />;
+  },[selected]);
+
+  const defaultColumns: Array<ICustomTableColumType<ProductResponse>> = useMemo(()=>{ 
+    return [
+      {
+        title: ActionComponent,
+        align: "center",
+        width: 60,
+        render: (value: string, record: ProductResponse, index: number) => index + 1,
+      },
+      {
+        title: "Ảnh",
+        width: "60px",
+        render: (record: ProductResponse) => {
+          let url = null;
+          record.variants.forEach((item) => {
+            item.variant_images.forEach((item1) => {
+              if (item1.product_avatar) {
+                url = item1.url;
+              }
+            });
+          });
+          return (
+            <div className="product-item-image">
+              <img src={!url ? imgDefIcon : url} alt="" className="" />
+            </div>
+          );
+        },
+      },
+      {
+        title: ()=>{
+          return <>
+            Sản phẩm {dataTable && `(${dataTable.length})`}
+          </>
+        },
+        className: "ant-col-info",
+        dataIndex: "name",
+        render: (value: string, record: ProductResponse, index: number) => {
+          return (
+            <div>
+              <div>
+                <div className="product-item-sku">
+                  <Link
+                    target="_blank"
+                    to={`${UrlConfig.PRODUCT}/${record.id}`}
+                  >
+                    {record.code}
+                  </Link>
+                </div>
+                <div className="product-item-name">
+                  <span className="product-item-name-detail">{value}</span>
+                </div>
+              </div>
+            </div>
+          );
+        },
+      }, 
+      {
+        align: "right",
+        title: "SL Phiên bản",
+        dataIndex: "variants",
+        width: 120,
+        render: (value: Array<VariantResponse>) => (
+          <>
+            <div>{value ? formatCurrency(value.length,".") : ""}</div>
+          </>
+        ),
+        visible: true,
+      },
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        align: "center",
+        width: 150,
+        render: (value: string, row: ProductResponse) => (
+          <div className={row.status === "active" ? "text-success" : "text-error"}>
+            {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
+          </div>
+        ),
+        visible: true,
+      },
+      {
+        title: "Ngày tạo",
+        align: "left",
+        dataIndex: "created_date",
+        render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY"),
+        width: 120,
+        visible: true,
+      },
+    ]
+  },[ActionComponent, dataTable]);    
+
+  const renderResult = useMemo(() => {
+    let options: any[] = [];
+    resultSearch?.items?.forEach((item: ProductResponse, index: number) => {
+      options.push({
+        label: <ProductItem data={item} key={item.id.toString()} />,
+        value: item.id.toString(),
+      });
+    });
+    return options;
+  }, [resultSearch]);
 
   const onSuccess = useCallback((result: CollectionResponse) => {
     showSuccess('Thêm nhóm hàng thành công');
@@ -51,6 +210,97 @@ const AddCollection: React.FC = () => {
     },
     [dispatch, onSuccess]
   );  
+
+  const onPickManyProduct = useCallback((result: Array<ProductResponse>) => {
+    const newResult = result?.map((item) => {
+      return {
+        ...item,
+      };
+    });
+    const dataTemp = [...dataTable, ...newResult];
+
+    const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
+    setIsLoadingTable(true);
+    setDataTable(arrayUnique);
+    setSearchProduct(arrayUnique);
+    setIsLoadingTable(false);
+    setVisibleManyProduct(false);   
+  },[dataTable]);
+
+  const onEnterFilterProduct = useCallback(
+    (key: string) => {
+      key = key ? key.toLocaleLowerCase() : "";
+      let temps = [...dataTable];
+
+      let dataSearch = [
+        ...temps.filter((e: ProductResponse) => {
+          return (
+            e.name?.toLocaleLowerCase().includes(key) ||
+            e.code?.toLocaleLowerCase().includes(key) 
+          );
+        }),
+      ];
+
+      setSearchProduct(dataSearch);
+    },
+    [dataTable]
+  );
+
+  const debounceSearchVariant = useMemo(()=>
+    _.debounce((code: string)=>{
+      onEnterFilterProduct(code);
+  }, 300),
+  [onEnterFilterProduct]
+  );
+
+  const onChangeKeySearch = useCallback((code)=>{
+    debounceSearchVariant(code);
+  },[debounceSearchVariant]); 
+
+  const onSelectProduct = useCallback((value: string) => {
+    const dataTemp = [...dataTable];
+    const selectedItem = resultSearch?.items?.find(
+      (product: ProductResponse) => product.id.toString() === value
+    );
+
+    if (!dataTemp.some((product: ProductResponse) => product.id === selectedItem.id)) {
+
+      setDataTable((prev: Array<ProductResponse>) =>
+        prev.concat([{...selectedItem, ProductResponse: selectedItem.name}])
+      );
+      setSearchProduct((prev: Array<ProductResponse>) =>
+        prev.concat([{...selectedItem, name: selectedItem.name}])
+      );
+    } 
+  },[dataTable,resultSearch]);
+
+  const onSearchProduct = (value: string) => {
+    dispatch(
+      searchProductWrapperRequestAction(
+        {
+          status: "active",
+          limit: 10,
+          page: 1,
+          info: value.trim(),
+        },
+        setResultSearch
+      )
+    );
+  }; 
+
+  const onSelectedChange = useCallback(
+    (selectedRow: Array<ProductResponse>) => {
+      const selectedRowKeys = selectedRow.filter(e=>e !==undefined).map((row) => row.id);
+      setSelectedRowKeys(selectedRowKeys);
+
+      setSelected(
+        selectedRow.filter(function (el) {
+          return el !== undefined;
+        })
+      );
+    },
+    []
+  );
 
   return (
     <ContentContainer
@@ -105,6 +355,83 @@ const AddCollection: React.FC = () => {
             </Col>
           </Row>
         </Card>
+        <Card title="Thông tin sản phẩm" bordered={false} className='product'>
+          <Input.Group className="display-flex">
+             <CustomAutoComplete
+               dropdownClassName="product"
+               placeholder="Thêm sản phẩm vào nhóm hàng"
+               onSearch={onSearchProduct}
+               dropdownMatchSelectWidth={456}
+               style={{width: "100%"}}
+               showAdd={true}
+               textAdd="Thêm mới sản phẩm"
+               onSelect={onSelectProduct}
+               options={renderResult}
+               ref={productSearchRef}
+               onClickAddNew={() => {
+                 window.open(
+                   `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                   "_blank"
+                 );
+               }}
+             />
+             <Button
+               onClick={() => {
+                 setVisibleManyProduct(true);
+               }}
+               style={{width: 132, marginLeft: 10}}
+               icon={<img src={PlusOutline} alt="" />}
+             >
+               &nbsp;&nbsp; Chọn nhiều
+             </Button>
+             <Input
+               name="key_search"
+               value={keySearch}
+               onChange={(e) => {
+                 setKeySearch(e.target.value);
+                 onChangeKeySearch(e.target.value);
+               }} 
+               style={{marginLeft: 8}}
+               placeholder="Tìm kiếm sản phẩm trong phiếu"
+               addonAfter={
+                 <SearchOutlined
+                   onClick={onChangeKeySearch}
+                   style={{color: "#2A2A86"}}
+                 />
+               }
+             />
+            </Input.Group>
+              <CustomTable
+                isRowSelection
+                bordered
+                style={{marginTop: 20}}
+                rowClassName="product-table-row"
+                tableLayout="fixed"
+                scroll={{y: 300}}
+                columns={defaultColumns}
+                pagination={false}
+                loading={isLoadingTable}
+                dataSource={
+                  searchProduct && (searchProduct.length > 0 || keySearch !== "")
+                    ? searchProduct
+                    : dataTable
+                }
+                onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+                rowKey={(item: ProductResponse) => item.id}
+              />
+        </Card>
+          <PickManyProductModal
+          selected={dataTable}
+          onSave={onPickManyProduct}
+          onCancel={() => setVisibleManyProduct(false)}
+          visible={visibleManyProduct}
+        />
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={onClickDelete}
+          title="Bạn chắc chắn xóa sản phẩm?" 
+          visible={isConfirmDelete}
+        />
         <BottomBarContainer
           back={"Quay lại danh sách"}
           rightComponent={

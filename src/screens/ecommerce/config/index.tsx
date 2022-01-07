@@ -23,7 +23,6 @@ import {
   ecommerceConnectAction,
   ecommerceConfigInfoAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
-import EcommerceModal from "screens/ecommerce/common/ecommerce-custom-modal";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { ecommerceConfigDeleteAction } from "domain/actions/ecommerce/ecommerce.actions"
 
@@ -360,17 +359,23 @@ const EcommerceConfig: React.FC = () => {
                   </TabPane>
                 </Tabs>
               </Card>
-      
-              <EcommerceModal
+
+              {/* Confirm modal to delete shop */}
+              <Modal
                 onCancel={() => setIsShowDeleteModal(false)}
                 onOk={onOkDeleteEcommerce}
                 visible={isShowDeleteModal}
                 okText="Đồng ý"
                 cancelText="Hủy"
                 title=""
-                text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
-                icon={DeleteIcon}
-              />
+                width={600}
+                centered
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <img src={DeleteIcon} alt="" />
+                  <span style={{ fontSize: 16, marginLeft: 15}}>Bạn có chắc chắn xóa gian hàng <strong>{modalShopInfo?.name}</strong> này không?</span>
+                </div>
+              </Modal>
 
               {isConfirmUpdateShop &&
                 <Modal

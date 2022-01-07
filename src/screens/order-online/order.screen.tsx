@@ -50,6 +50,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
+	getAmountPayment,
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
@@ -114,12 +115,14 @@ export default function Order() {
 		number | null
 	>(0);
 	const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-	console.log('payments', payments)
 	const [tags, setTags] = useState<string>("");
 	const formRef = createRef<FormInstance>();
 	const [form] = Form.useForm();
 	const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
-	const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+	const [visibleBillStep, setVisibleBillStep] = useState({
+		isShow: false,
+		isAlreadyShow: false,
+	})
 	const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 	const [officeTime, setOfficeTime] = useState<boolean>(false);
 
@@ -172,7 +175,7 @@ export default function Order() {
 		setItems(_items);
 		let amount = totalAmount(_items);
 		setOrderAmount(amount);
-		if(_promotion !== undefined) {
+		if (_promotion !== undefined) {
 			setPromotion(_promotion);
 		}
 	};
@@ -393,7 +396,7 @@ export default function Order() {
 		let listDiscountRequest = [];
 		if (promotion) {
 			listDiscountRequest.push(promotion);
-		} 
+		}
 		return listDiscountRequest;
 	};
 
@@ -535,7 +538,7 @@ export default function Order() {
 				}
 				let valuesCalculateReturnAmount = {
 					...values,
-					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !==0))
+					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
 				}
 				if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
 					if (typeButton === OrderStatus.DRAFT) {
@@ -581,7 +584,6 @@ export default function Order() {
 							let isPointFocus = checkPointFocus(values);
 							if (isPointFocus) {
 								(async () => {
-									console.log('values', values);
 									try {
 										await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
 											// on error
@@ -602,12 +604,13 @@ export default function Order() {
 		}
 	};
 	const scroll = useCallback(() => {
-		if (window.pageYOffset > 100) {
-			setIsShowBillStep(true);
-		} else {
-			setIsShowBillStep(false);
+		if (window.pageYOffset > 100 || visibleBillStep.isAlreadyShow) {
+			setVisibleBillStep({
+				isShow: true,
+				isAlreadyShow: true
+			})
 		}
-	}, []);
+	}, [visibleBillStep]);
 
 	useEffect(() => {
 		if (storeId != null) {
@@ -728,9 +731,9 @@ export default function Order() {
 								...initialForm,
 								customer_note: response.customer_note,
 								source_id: response.source_id,
-								assignee_code: response.assignee_code,
-								marketer_code: response.marketer_code,
-								coordinator_code: response.coordinator_code,
+								assignee_code: response?.assignee_code|| null,
+								marketer_code: response?.marketer_code|| undefined,
+								coordinator_code: response?.coordinator_code || undefined,
 								store_id: response.store_id,
 								items: responseItems,
 								dating_ship: newDatingShip,
@@ -844,10 +847,19 @@ export default function Order() {
 		if (customer) {
 			dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
 			setVisibleCustomer(true);
-			let shippingAddressItem = customer.shipping_addresses.find(
-				(p: any) => p.default === true
-			);
-			if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
+			console.log("customer check", customer)
+			if (customer.shipping_addresses) {
+				let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
+				onChangeShippingAddress(shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null);
+			}
+			else
+				onChangeShippingAddress(null)
+			if (customer.billing_addresses) {
+				let billing_addresses_index = customer.billing_addresses.findIndex(x => x.default === true);
+				onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
+			}
+			else
+				onChangeShippingAddress(null)
 		} else {
 			setLoyaltyPoint(null);
 		}
@@ -988,17 +1000,6 @@ export default function Order() {
 		);
 	}, [dispatch]);
 
-	// khách cần trả
-	const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-		let value = 0;
-		if (items !== null) {
-			if (items.length > 0) {
-				items.forEach((a) => (value = value + a.paid_amount));
-			}
-		}
-		return value;
-	};
-
 	/**
 	 * tổng số tiền đã trả
 	 */
@@ -1014,15 +1015,12 @@ export default function Order() {
 			(promotion?.value || 0)
 		);
 	}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
-	console.log('totalAmountOrder', totalAmountOrder)
 	/**
 	 * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
 	 */
 	const totalAmountCustomerNeedToPay = useMemo(() => {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
-
-	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
 	return (
 		<React.Fragment>
@@ -1157,7 +1155,7 @@ export default function Order() {
 										/>
 									</Col>
 								</Row>
-								{isShowBillStep && (
+								{visibleBillStep.isShow && (
 									<OrderDetailBottomBar
 										formRef={formRef}
 										handleTypeButton={handleTypeButton}

@@ -10,17 +10,14 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
-import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { createConfigPoAction, PODeleteAction, PoSearchAction, updateConfigPoAction } from "domain/actions/po/po.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
@@ -38,21 +35,14 @@ import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/purchase-order/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
 import { getPurchaseOrderConfigService } from "service/purchase-order/purchase-order.service";
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
-
-const supplierQuery: AccountSearchQuery = {
-  department_ids: [AppConfig.WIN_DEPARTMENT],
-};
-
-const rdQuery: AccountSearchQuery = {
-  department_ids: [AppConfig.RD_DEPARTMENT],
-};
+ 
 const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
@@ -68,10 +58,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [isError, setError] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const [selected, setSelected] = useState<Array<PurchaseOrder>>([]);
-  const [listSupplierAccount, setListSupplierAccount] =
-    useState<Array<AccountResponse>>();
-  const [listRdAccount, setListRdAccount] = useState<Array<AccountResponse>>();
+  const [selected, setSelected] = useState<Array<PurchaseOrder>>([]); 
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -308,12 +295,12 @@ const PurchaseOrderListScreen: React.FC = () => {
       {
         title: "Tổng SL sp",
         dataIndex: "total_quantity",
-        render: (row: PurchaseOrder) => {
+        render: (value, row: PurchaseOrder) => {
           let total = 0;
           row?.line_items.forEach((item) => {
             total += item?.quantity ? item.quantity : 0;
           });
-          return <div>{total}</div>;
+          return <div>{formatCurrency(total,".")}</div>;
         },
         visible: true,
       },
@@ -332,17 +319,17 @@ const PurchaseOrderListScreen: React.FC = () => {
       },
       {
         title: "Merchandiser",
-        dataIndex: 'Merchandiser',
-        render: (row) => {
+        dataIndex: 'merchandiser',
+        render: (value, row: PurchaseOrder) => {
           if (!row || !row.merchandiser_code || !row.merchandiser) return "";
           return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
         },
         visible: true,
-      },
+      }, 
       {
         title: "QC",
-        dataIndex: 'QC',
-        render: (row) => {
+        dataIndex: 'qc',
+        render: (value,row: PurchaseOrder) => {
           if (!row || !row.qc_code || !row.qc) return "";
           return <div>{`${row.qc_code} - ${row.qc}`}</div>;
         },
@@ -429,24 +416,6 @@ const PurchaseOrderListScreen: React.FC = () => {
     }
   }, []);
 
-  const onResultRd = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return;
-    }
-    setListRdAccount(data.items);
-  }, []);
-
-  const onResultSupplier = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setListSupplierAccount(data.items);
-      dispatch(AccountSearchAction(rdQuery, onResultRd));
-    },
-    [dispatch, onResultRd]
-  );
-
   const getConfigColumnPo = useCallback(()=>{
     if (account && account.code) {
       getPurchaseOrderConfigService(account.code)
@@ -458,14 +427,13 @@ const PurchaseOrderListScreen: React.FC = () => {
                 if (res.data && res.data.length > 0) {
                   const userConfigColumn = res.data.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_PO);
                 
-                 if (userConfigColumn){
-                    let cf = JSON.parse(userConfigColumn.json_content) as Array<ICustomTableColumType<PurchaseOrder>>;
-                    cf.forEach(e => {
-                      e.render = defaultColumns.find(p=>p.dataIndex === e.dataIndex)?.render;
-                    });
-                    
-                    setColumn(cf);
-                 }
+                   if (userConfigColumn){
+                      let cf = JSON.parse(userConfigColumn.json_content) as Array<ICustomTableColumType<PurchaseOrder>>;
+                      cf.forEach(e => {
+                        e.render = defaultColumns.find(p=>p.dataIndex === e.dataIndex)?.render;
+                      });
+                      setColumn(cf);
+                   }
                 }
                }
               break;
@@ -492,12 +460,11 @@ const PurchaseOrderListScreen: React.FC = () => {
 
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(AccountSearchAction(supplierQuery, onResultSupplier));
       dispatch(StoreGetListAction(setListStore));
     }
     isFirstLoad.current = false;
     dispatch(PoSearchAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult, onResultSupplier, onResultRd]);
+  }, [dispatch, params, setSearchResult]);
 
   const onSelect = useCallback((selectedRow: Array<PurchaseOrder>) => {
     setSelected(
@@ -561,19 +528,10 @@ const PurchaseOrderListScreen: React.FC = () => {
         extra={
           <Row>
             <Space>
-              {/* <Button
-                className="light"
-                size="large"
-                icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
-                onClick={() => {}}
-              >
-                Nhập file
-              </Button> */}
               <Button
                 className="light"
                 size="large"
                 icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                // onClick={onExport}
                 onClick={() => {
                   setShowExportModal(true);
                 }}
@@ -594,9 +552,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               params={params}
               onMenuClick={onMenuClick}
               actions={actions}
-              onFilter={onFilter}
-              listSupplierAccount={listSupplierAccount}
-              listRdAccount={listRdAccount}
+              onFilter={onFilter} 
               listStore={listStore}
             />
             <CustomTable

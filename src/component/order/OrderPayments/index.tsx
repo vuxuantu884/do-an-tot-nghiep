@@ -8,8 +8,8 @@ import YdCoin from "component/icon/YdCoin";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useMemo } from "react";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { useEffect, useMemo } from "react";
+import { formatCurrency, getAmountPayment, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
@@ -45,6 +45,8 @@ function OrderPayments(props: PropType): JSX.Element {
     setPayments,
   } = props;
 
+	console.log('payments', payments)
+
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
   }, [listPaymentMethod]);
@@ -53,17 +55,6 @@ function OrderPayments(props: PropType): JSX.Element {
     let usageRate = loyaltyRate?.usage_rate ? loyaltyRate.usage_rate : 0;
     return usageRate;
   }, [loyaltyRate]);
-
-  // khách cần trả
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
-  };
 
   /**
    * tổng số tiền đã trả
@@ -100,7 +91,7 @@ function OrderPayments(props: PropType): JSX.Element {
         return_amount: 0,
         status: "paid",
         name: paymentMaster.name,
-        code: paymentMaster.code,
+        payment_method_code: paymentMaster.code,
         payment_method: paymentMaster.name,
         reference: "",
         source: "",
@@ -133,6 +124,14 @@ function OrderPayments(props: PropType): JSX.Element {
     _paymentData[index].reference = value;
     setPayments(_paymentData);
   };
+
+	useEffect(() => {
+		if(payments.some((payment) => payment.payment_method===PaymentMethodCode.COD)) {
+			let _payments = payments.filter((single) => single.payment_method !==PaymentMethodCode.COD);
+			setPayments(_payments);
+		}
+		
+	}, [payments, setPayments])
 
   return (
     <StyledComponent>
@@ -220,13 +219,13 @@ function OrderPayments(props: PropType): JSX.Element {
             <Row
               gutter={20}
               className="row-price"
-              key={method.code}
+              key={method.payment_method_code}
               style={{margin: "10px 0"}}
             >
               <Col lg={15} xxl={9} style={{padding: "0"}}>
                 <Row align="middle">
                   <b style={{padding: "8px 0"}}>{method.payment_method}:</b>
-                  {method.code === PaymentMethodCode.POINT ? (
+                  {method.payment_method_code === PaymentMethodCode.POINT ? (
                     <Col className="point-spending">
                       <span
                         style={{
@@ -243,6 +242,12 @@ function OrderPayments(props: PropType): JSX.Element {
                           marginLeft: 12,
                           borderRadius: 5,
                         }}
+												format={(a: string) =>
+													formatCurrency(a)
+												}
+												replace={(a: string) =>
+													replaceFormatString(a)
+												}
                         className="hide-number-handle"
                         onFocus={(e) => e.target.select()}
                         min={0}
@@ -255,7 +260,7 @@ function OrderPayments(props: PropType): JSX.Element {
                     </Col>
                   ) : null}
 
-                  {method.code === PaymentMethodCode.BANK_TRANSFER ? (
+                  {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? (
                     <Col
                       className="point-spending"
                       style={{marginLeft: 12}}
@@ -273,12 +278,12 @@ function OrderPayments(props: PropType): JSX.Element {
                   ) : null}
                 </Row>
               </Col>
-              {method.code !== PaymentMethodCode.POINT ? (
+              {method.payment_method_code !== PaymentMethodCode.POINT ? (
                 <Col className="lbl-money" lg={6} xxl={6} style={{marginLeft: 10}}>
 									<NumberInput
                     min={0}
                     value={method.amount}
-                    disabled={method.code === PaymentMethodCode.POINT || levelOrder > 2}
+                    disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2}
                     className="yody-payment-input hide-number-handle"
                     placeholder="Nhập tiền mặt"
                     style={{

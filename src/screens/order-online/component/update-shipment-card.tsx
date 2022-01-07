@@ -1,14 +1,14 @@
 import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Collapse,
-  Form,
-  Row,
-  Space,
-  Tag,
-  Typography
+	Badge,
+	Button,
+	Card,
+	Col,
+	Collapse,
+	Form,
+	Row,
+	Space,
+	Tag,
+	Typography
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
@@ -22,31 +22,29 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
-import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
-  DeliveryServicesGetList,
-  getTrackingLogFulfillmentAction,
-  UpdateFulFillmentStatusAction,
-  UpdateShipmentAction
+	DeliveryServicesGetList,
+	getTrackingLogFulfillmentAction,
+	UpdateFulFillmentStatusAction,
+	UpdateShipmentAction
 } from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  UpdateFulFillmentRequest,
-  UpdateFulFillmentStatusRequest,
-  UpdateLineFulFillment,
-  UpdateShipmentRequest
+	UpdateFulFillmentRequest,
+	UpdateFulFillmentStatusRequest,
+	UpdateLineFulFillment,
+	UpdateShipmentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  DeliveryServiceResponse,
-  OrderResponse,
-  ShipmentResponse,
-  TrackingLogFulfillmentResponse
+	DeliveryServiceResponse,
+	OrderResponse,
+	ShipmentResponse,
+	TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -54,13 +52,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { setTimeout } from "timers";
 import {
-  checkIfOrderHasReturnedAll,
-  checkPaymentStatusToShow,
-  CheckShipmentType,
-  formatCurrency,
-  getAmountPayment, getShippingAddressDefault, SumWeight,
-  SumWeightResponse,
-  TrackingCode
+	checkIfOrderHasReturnedAll,
+	checkPaymentStatusToShow,
+	CheckShipmentType,
+	formatCurrency,
+	getAmountPayment, getShippingAddressDefault, SumWeight,
+	SumWeightResponse,
+	TrackingCode
 } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { dangerColor } from "utils/global-styles/variables";
@@ -95,6 +93,7 @@ type UpdateShipmentCardProps = {
   orderSettings?: OrderSettingsModel;
   disabledBottomActions?: boolean;
   reasons? : any[];
+  isEcommerceOrder?: boolean;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -111,6 +110,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     OrderDetail,
     orderSettings,
     disabledBottomActions,
+    isEcommerceOrder,
   } = props;
 
   const history = useHistory();
@@ -118,6 +118,25 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [form] = Form.useForm();
   // action
   const dispatch = useDispatch();
+
+  //handle create a new fulfillment for ecommerce order
+  const latestFulfillment = useMemo(() => {
+    const fulfillment = props.OrderDetailAllFullfilment?.fulfillments
+      ? props.OrderDetailAllFullfilment.fulfillments[0]
+      : null;
+    return fulfillment;
+  }, [props.OrderDetailAllFullfilment]);
+
+  const initSelfDelivery = useMemo(() => {
+    const selfDelivery = {
+      shipper_code: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipper_code : null,
+      shipping_fee_paid_to_three_pls: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipping_fee_paid_to_three_pls : null,
+      shipping_fee_informed_to_customer: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipping_fee_informed_to_customer : null,
+    };
+    
+    return selfDelivery;
+  }, [isEcommerceOrder, latestFulfillment]);
+
   // ffm asc id
   const newFulfillments = useMemo(() => {
     const ffm = props.OrderDetailAllFullfilment?.fulfillments
@@ -126,7 +145,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     return ffm;
   }, [props.OrderDetailAllFullfilment]);
   // state
-  const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   // const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
   //   useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] = useState<boolean>(false);
@@ -136,7 +154,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
-  // console.log(setTakeMoneyHelper)
+  console.log(setTakeMoneyHelper)
 
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
@@ -187,12 +205,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     navigator.clipboard.writeText(data ? data : "").then(() => {});
   };
 
-  //#endregion
-  useEffect(() => {
-    dispatch(ShipperGetListAction(setShipper));
-    
-  }, [dispatch]);
-
   const [reload, setReload] = useState(false);
   useEffect(() => {
     if (TrackingCode(props.OrderDetail) !== "Đang xử lý" || reload) {
@@ -235,6 +247,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	const sortedFulfillments = useMemo(() => {
     return OrderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
   }, [OrderDetail?.fulfillments])
+
+	const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
 
   //#region Update Fulfillment Status
   // let timeout = 500;
@@ -452,18 +466,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
         props.OrderDetail?.total_line_amount_after_line_discount +
         props.shippingFeeInformedCustomer -
-        (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
+        totalPaid -
         (props.OrderDetail?.discounts &&
         props.OrderDetail?.discounts.length > 0 &&
         props.OrderDetail?.discounts[0].amount
           ? props.OrderDetail?.discounts[0].amount
           : 0)
       );
-    } else if (props.OrderDetail?.total && props.OrderDetail?.total_paid) {
+    } else if (props.OrderDetail?.total && totalPaid) {
       return (
         props.OrderDetail?.total +
         props.shippingFeeInformedCustomer -
-        props.OrderDetail?.total_paid
+        totalPaid
       );
     } else if (
       props.OrderDetail &&
@@ -484,18 +498,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     delivery_service_provider_code: "",
     delivery_service_provider_name: "",
     delivery_transport_type: "",
-    shipper_code: null,
+    shipper_code: initSelfDelivery.shipper_code,
     shipper_name: "",
     handover_id: null,
     service: null,
     fee_type: "",
     fee_base_on: "",
     delivery_fee: null,
-    shipping_fee_paid_to_three_pls: null,
+    shipping_fee_paid_to_three_pls: initSelfDelivery.shipping_fee_paid_to_three_pls,
     cod: null,
     expected_received_date: "",
     reference_status: "",
-    shipping_fee_informed_to_customer: null,
+    shipping_fee_informed_to_customer: initSelfDelivery.shipping_fee_informed_to_customer,
     reference_status_explanation: "",
     cancel_reason: "",
     tracking_code: "",
@@ -1038,7 +1052,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <span style={{color: "#000000d9"}}>
                                 {fulfillment.cancel_date ? moment(
                                   fulfillment.cancel_date
-                                ).format("DD/MM/YYYY") : ''}
+                                ).format("DD/MM/YYYY HH:mm") : ''}
                               </span>
                             </span> : 
                             <span>
@@ -1136,7 +1150,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
                                 {(fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EMPLOYEE ||
                                 fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SHIPPER)  &&
-                                  shipper &&
                                   fulfillment.shipment?.info_shipper}
                               </b>
                             </Col>
@@ -1736,6 +1749,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 handleCreateShipment={() => form.submit()}
                 creating={updateShipment}
                 handleCancelCreateShipment={() => setVisibleShipping(false)}
+                isEcommerceOrder={isEcommerceOrder}
+                initSelfDelivery={initSelfDelivery}
               />
             </Form>
             {/*--- Giao hàng sau ----*/}

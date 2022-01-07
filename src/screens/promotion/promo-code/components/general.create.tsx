@@ -31,7 +31,7 @@ import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError } from "utils/ToastUtils";
 import { DATE_FORMAT } from "../../../../utils/DateUtils";
 import CustomerFilter from "../../shared/cusomer-condition.form";
-import { IssuingContext } from "../issuing-provider";
+import { IssueContext } from "../../issue/components/issue-provider";
 import "../promo-code.scss";
 import ChooseDiscount from "./choose-discount.create";
 
@@ -58,7 +58,7 @@ const GeneralCreate = (props: any) => {
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [prerequisiteSubtotal, setPrerequisiteSubtotal] = useState<any>();
-  const { isAllProduct, setIsAllProduct } = useContext(IssuingContext);
+  const { isAllProduct, setIsAllProduct } = useContext(IssueContext);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -231,6 +231,12 @@ const GeneralCreate = (props: any) => {
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
+                  showSearch
+                  allowClear
+                  filterOption={(input, option) =>
+                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                    0
+                  }
                 >
                   <Option key="SALE_CODE" value={"SALE_CODE"}>
                     Mã giảm giá
@@ -566,6 +572,12 @@ const GeneralCreate = (props: any) => {
                     placeholder="Chọn kênh bán hàng"
                     mode="multiple"
                     className="ant-select-selector-min-height"
+                    showSearch
+                    allowClear
+                    filterOption={(input, option) =>
+                      option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                      0
+                    }
                   >
                     {listChannel?.map((store: any, index: number) => (
                       <Option key={index} value={store.name}>
@@ -602,6 +614,12 @@ const GeneralCreate = (props: any) => {
                     placeholder="Chọn nguồn đơn hàng"
                     mode="multiple"
                     className="ant-select-selector-min-height"
+                    showSearch
+                    allowClear
+                    filterOption={(input, option) =>
+                      option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                      0
+                    }
                   >
                     {listSource?.map((source: any, index: number) => (
                       <Option key={index} value={source.id}>

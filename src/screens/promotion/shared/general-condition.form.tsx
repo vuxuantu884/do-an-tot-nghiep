@@ -22,7 +22,7 @@ import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
-import { dayOfWeekOptions } from "../discount/constants/index";
+import { dayOfWeekOptions } from "../constants/index";
 import { CustomerContitionFormlStyle } from "./condition.style";
 import CustomerFilter from "./cusomer-condition.form";
 
@@ -200,6 +200,12 @@ function GeneralConditionForm({
                 placeholder="Chọn kênh bán hàng"
                 mode="multiple"
                 className="ant-select-selector-min-height"
+                showSearch
+                allowClear
+                filterOption={(input, option) =>
+                  option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                  0
+                }
               >
                 {listChannel?.map((channel: any) => (
                   <Option value={channel.name} key={channel.name}>{channel.name}</Option>
@@ -236,6 +242,12 @@ function GeneralConditionForm({
                 placeholder="Chọn nguồn đơn hàng"
                 mode="multiple"
                 className="ant-select-selector-min-height"
+                showSearch
+                allowClear
+                filterOption={(input, option) =>
+                  option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
+                  0
+                }
               >
                 {listSource?.map((source: any) => (
                   <Option value={source.id} key={source.name}>{source.name}</Option>

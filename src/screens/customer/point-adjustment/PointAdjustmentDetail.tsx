@@ -23,30 +23,34 @@ const TYPE_ADJUSTMENT = [
 
 const pointInfoColumns: Array<ICustomTableColumType<any>> = [
   {
-    title: "STT",
-    align: "center",
-    width: "70px",
-    render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
+    title: "Mã phiếu",
+    dataIndex: "code",
+    width: "9%",
   },
   {
-    title: "Mã phiếu",
-    dataIndex: "id",
-    width: "10%",
-    render: (value: string, item: any) => (
-      <div>{value}</div>
-    ),
+    title: "Tên phiếu điều chỉnh",
+    dataIndex: "name",
+    width: "15%",
   },
   {
     title: "Số KH",
-    width: "6%",
+    width: "8%",
     render: (value: any, item: any) => (
-      <div style={{ textAlign: "right" }}>{value.customers?.length}</div>
+      <div style={{ textAlign: "right" }}>
+        {item.customers?.length &&
+          <NumberFormat
+            value={item.customers?.length}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        }
+        </div>
     ),
   },
   {
     title: "Kiểu điều chỉnh",
     dataIndex: "type",
-    width: "10%",
+    width: "7%",
     align: "center",
     render: (value: any, item: any) => {
       const type = TYPE_ADJUSTMENT.find(type => type.value === value);
@@ -58,33 +62,35 @@ const pointInfoColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "Giá trị",
     dataIndex: "point_change",
-    width: "10%",
+    width: "8%",
     align: "center",
     render: (value: any, item: any) => (
       <div style={{ textAlign: "right" }}>
-        <NumberFormat
+        {value &&
+          <NumberFormat
           value={value}
           displayType={"text"}
           thousandSeparator={true}
-        />
+          />
+        }
       </div>
     ),
   },
   {
     title: "Lý do điều chỉnh",
     dataIndex: "reason",
-    width: "15%"
+    width: "12%"
   },
   {
     title: "Người điều chỉnh",
     dataIndex: "created_by",
-    width: "15%"
+    width: "10%"
   },
   {
     title: "Ngày điều chỉnh",
     dataIndex: "created_date",
     align: "center",
-    width: "12%",
+    width: "10%",
     render: (value: any, item: any) => (
       <div>{ConvertUtcToLocalDate(value, "HH:mm DD/MM/YYYY")}</div>
     ),

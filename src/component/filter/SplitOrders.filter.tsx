@@ -259,7 +259,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
   
 
   const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== POS.channel_code);
+    return listSource.filter((item) => item.id !== POS.source_id);
   }, [listSource]);
   
   const initialValues = useMemo(() => {

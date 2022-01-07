@@ -138,7 +138,6 @@ const CreateInventoryAdjustment: FC = () => {
 
 
   const onFinish = (data: InventoryAdjustmentDetailItem) => {
-    debugger
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );
@@ -368,7 +367,7 @@ const CreateInventoryAdjustment: FC = () => {
       if (result) {
         setIsLoading(false);
         if (result) {
-          showSuccess("Thêm mới dữ liệu thành công");
+          showSuccess("Tạo phiếu kiểm thành công");
           history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}/${result.id}`);
         }
       } else {
@@ -624,15 +623,16 @@ const CreateInventoryAdjustment: FC = () => {
     [dataTable, keySearch, form, searchVariant, onEnterFilterVariant]
   );
 
-  const onSearchVariant =useCallback(()=>{
-    _.debounce(()=>{
+  const onSearchVariant = React.useMemo(()=>
+    _.debounce((keySearch: string) => {
       setIsLoadingTable(true);
       onEnterFilterVariant(null);
-    }, 300)
-  },[onEnterFilterVariant]);
+    }, 300),
+    [onEnterFilterVariant]
+  )
 
-  const onChangeKeySearch = useCallback(()=>{
-    onSearchVariant();
+  const onChangeKeySearch = useCallback((keySearch)=>{
+    onSearchVariant(keySearch);
   },[onSearchVariant]);
 
   useEffect(() => {
@@ -822,16 +822,13 @@ const CreateInventoryAdjustment: FC = () => {
                   </Col>
                 </Row>
                 {formStoreData && (
-                  <Row>
+                  <Row gutter={24}>
                     <Col span={3}></Col>
-                    <Col span={31}>
-                      <>
-                        <span>
-                          <b>{formStoreData.name}:</b>
-                        </span>{" "}
-                        {formStoreData.code} - {formStoreData.hotline} -{" "}
-                        {ConvertFullAddress(formStoreData)}
-                      </>
+                    <Col span={21}>
+                      <div style={{ wordBreak: "break-word"}}>
+                        <strong>{formStoreData.name}: </strong>
+                        <span>{formStoreData.code} - {formStoreData.hotline} - {ConvertFullAddress(formStoreData)}</span>
+                      </div>
                     </Col>
                   </Row>
                 )}
@@ -882,7 +879,7 @@ const CreateInventoryAdjustment: FC = () => {
                         value={keySearch}
                         onChange={(e) => {
                           setKeySearch(e.target.value);
-                          onChangeKeySearch();
+                          onChangeKeySearch(e.target.value);
                         }} 
                         style={{marginLeft: 8}}
                         placeholder="Tìm kiếm sản phẩm trong phiếu"
@@ -1025,7 +1022,7 @@ const CreateInventoryAdjustment: FC = () => {
                   labelCol={{span: 24, offset: 0}}
                   rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                 >
-                  <TextArea placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
+                  <TextArea placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
                 </Form.Item>
 
                 <Form.Item

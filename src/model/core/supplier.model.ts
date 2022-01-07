@@ -144,6 +144,7 @@ export interface SupplierCreateRequest {
   status: string,
   tax_code: string|null,
   type: string,
+  phone?: string,
   addresses: Array<SupplierAddress>,
   contacts: Array<SupplierContact>,
   payments: Array<SupplierPayment>,

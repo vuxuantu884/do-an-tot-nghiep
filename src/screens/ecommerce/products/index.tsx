@@ -58,7 +58,6 @@ const Products: React.FC = () => {
   const [isShowGetProductModal, setIsShowGetProductModal] = useState(false);
   const [isShowResultGetItemModal, setIsShowResultGetItemModal] = useState(false);
   const [totalGetItem, setTotalGetItem] = useState(0);
-  const [itemsUpdated, setItemsUpdated] = useState(0);
   const [itemsNotConnected, setItemsNotConnected] = useState(0);
 
 
@@ -94,7 +93,6 @@ const Products: React.FC = () => {
       setIsShowResultGetItemModal(true);
 
       setTotalGetItem(data.total);
-      setItemsUpdated(data.update_total);
       setItemsNotConnected(data.create_total);
     }
   }, []);
@@ -193,14 +191,8 @@ const Products: React.FC = () => {
         cancelButtonProps={{ style: { display: 'none' } }}
       >
         <div>
-          <div>
-            <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
-            <span>Có <p style={{ color: "orange", display: "inline-block" }}>{itemsNotConnected}</p> sản phẩm được tải mới về để ghép</span>
-          </div>
-          <div>
-            <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
-            <span>Có <p style={{ color: "green", display: "inline-block" }}>{itemsUpdated}</p> sản phẩm đã update thành công</span>
-          </div>
+          <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
+          <span>Có <p style={{ color: "orange", display: "inline-block" }}>{itemsNotConnected}</p> sản phẩm được tải mới về để ghép</span>
         </div>
       </Modal>
 

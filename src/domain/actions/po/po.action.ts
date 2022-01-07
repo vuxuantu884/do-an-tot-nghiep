@@ -1,5 +1,5 @@
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
-import { POConfig, POType } from "domain/types/purchase-order.type";
+import { POConfig, POLogHistory, POType } from "domain/types/purchase-order.type";
 import BaseAction from "base/base.action";
 import {
   PurchaseOrder,
@@ -10,6 +10,33 @@ import BaseResponse from "base/base.response";
 import { ImportProcument } from "model/purchase-order/purchase-procument";
 import { ImportResponse } from "model/other/files/export-model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
+import { ActionLogDetailResponse, PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
+
+export const POGetActionLogDetail = (
+  id: number,
+  handleData: (data: ActionLogDetailResponse) => void
+) => {
+  return {
+    type: POType.GET_ACTION_LOG_DETAILS,
+    payload: {
+      id,
+      handleData,
+    },
+  };
+};
+
+export const POGetPurchaseOrderActionLogs = (
+  id: number,
+  handleData: (data: PurchaseOrderActionLogResponse[]) => void
+) => {
+  return {
+    type: POType.GET_PURCHASE_ORDER_ACTION_LOGS,
+    payload: {
+      id,
+      handleData,
+    },
+  };
+};
 
 export const POGetPrintContentAction = (
   id: number,
@@ -144,5 +171,25 @@ export const deleteConfigPoAction = (
   return BaseAction(POConfig.DELETE_PO_CONFIG, {
     id,
     onResult
+  });
+};
+
+export const getLogDetailPOHistory = (
+  id: number,
+  setData: (result: BaseResponse<PurchaseOrder>) => void
+) => {
+  return BaseAction(POLogHistory.GET_LOG_DETAIL_PO, {
+    id,
+    setData
+  });
+};
+
+export const getLogPOHistory = (
+  code: string,
+  setData: (result: BaseResponse<PurchaseOrder>) => void
+) => {
+  return BaseAction(POLogHistory.GET_LOG_PO, {
+    code,
+    setData
   });
 };

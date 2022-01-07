@@ -48,7 +48,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
-	checkIfOrderHasReturnedAll,
+	
+	getAmountPayment,
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
 	getTotalAmountAfterDiscount,
@@ -135,11 +136,14 @@ const ScreenReturnCreate = (props: PropType) => {
   >([]);
 
 	console.log('listExchangeProducts', listExchangeProducts)
+	console.log('payments', payments)
 
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+
+  const [isReturnAll, setIsReturnAll] = useState(true)
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -261,6 +265,10 @@ const totalAmountOrder = useMemo(() => {
 }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 console.log('totalAmountOrder', totalAmountOrder)
 
+
+const totalAmountPayment = getAmountPayment(payments);
+console.log('totalAmountPayment', totalAmountPayment)
+
   /**
    * if return > exchange: positive
    * else negative
@@ -269,6 +277,11 @@ console.log('totalAmountOrder', totalAmountOrder)
     let result = totalAmountOrder - totalAmountReturnProducts;
     return result;
   }, [totalAmountOrder, totalAmountReturnProducts]);
+
+	let totalAmountOrderAfterPayments = useMemo(() => {
+    let result = totalAmountCustomerNeedToPay - totalAmountPayment;
+    return result;
+  }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     console.log("1");
@@ -291,6 +304,10 @@ console.log('totalAmountOrder', totalAmountOrder)
         setIsOrderFinished(true);
       }
       let listItemCanReturn = getListItemsCanReturn(_data);
+      console.log('listItemCanReturn', listItemCanReturn)
+      if(listItemCanReturn.length > 0) {
+        setIsReturnAll(false);
+      }
       setListItemCanBeReturn(listItemCanReturn);
       let returnProduct: ReturnProductModel[] = listItemCanReturn.map((single) => {
         return {
@@ -504,6 +521,50 @@ console.log('totalAmountOrder', totalAmountOrder)
     })
   };
 
+	const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
+		// khách cần trả
+		/**
+		 * tổng số tiền đã trả
+		 */
+		if (totalAmountOrderAfterPayments < 0) {
+			let returnAmount = Math.abs(totalAmountOrderAfterPayments);
+			let _payments = [...payments];
+			let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
+			if (paymentCashIndex > -1) {
+				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount - returnAmount;
+				_payments[paymentCashIndex].return_amount = returnAmount;
+			} else {
+				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+				newPaymentCash = {
+					code: PaymentMethodCode.CASH,
+					payment_method_id: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+					amount: 0,
+					paid_amount: -returnAmount,
+					return_amount: returnAmount,
+					status: "",
+					payment_method: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
+					reference: '',
+					source: '',
+					customer_id: 1,
+					note: '',
+					type: '',
+				};
+				_payments.push(newPaymentCash)
+			}
+			return _payments;
+		}
+		return payments;
+	};
+
+  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay) 
+
+	const checkIfNotHavePaymentsWhenReceiveAtStore = () => {
+		if(totalAmountOrderAfterPayments > 0 && shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+			return true
+		}
+		return false
+	};
+
   const onReturnAndExchange = async () => {
     form
       .validateFields()
@@ -522,6 +583,10 @@ console.log('totalAmountOrder', totalAmountOrder)
             element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
           window.scrollTo({ top: offsetY, behavior: "smooth" });
           element?.focus();
+          return;
+        }
+				if(checkIfNotHavePaymentsWhenReceiveAtStore()){
+          showError("Vui lòng thanh toán đủ số tiền!");
           return;
         }
         if (OrderDetail && listReturnProducts) {
@@ -591,8 +656,10 @@ console.log('totalAmountOrder', totalAmountOrder)
           valuesResult.channel_id = ADMIN_ORDER.channel_id;
           values.company_id = DEFAULT_COMPANY.company_id;
           if (checkPointFocus(values)) {
-            const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
+						const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
+							console.log('valuesResult', valuesResult)
 							valuesResult.order_return_id = orderReturnId;
+							valuesResult.payments = valuesResult.payments ? reCalculatePaymentReturn(valuesResult.payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !==0)) : null;
               if (isErrorExchange) {
                 // showWarning("Đã tạo đơn đổi hàng không thành công!");
                 dispatch(
@@ -965,7 +1032,7 @@ console.log('totalAmountOrder', totalAmountOrder)
   };
 
   const renderIfOrderFinished = () => {
-    if (checkIfOrderHasReturnedAll(OrderDetail)) {
+    if (isReturnAll) {
       return <p>Đơn hàng đã đổi trả hết!</p>;
     }
     return (
@@ -1042,11 +1109,15 @@ console.log('totalAmountOrder', totalAmountOrder)
                     listPaymentMethods={listPaymentMethods}
                     payments={payments}
                     setPayments={setPayments}
+										totalAmountOrder={totalAmountOrder}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     isExchange={isExchange}
                     isStepExchange={isStepExchange}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
+										returnOrderInformation={{
+                      totalAmountReturn: totalAmountReturnProducts
+                    }}
                   />
                 )}
                 {isExchange && isStepExchange && (
@@ -1058,7 +1129,7 @@ console.log('totalAmountOrder', totalAmountOrder)
                       customer={customer}
                       items={listExchangeProducts}
                       isCancelValidateDelivery={false}
-                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                      totalAmountCustomerNeedToPay={totalAmountOrderAfterPayments}
                       setShippingFeeInformedToCustomer={ChangeShippingFeeInformedToCustomer}
                       onSelectShipment={onSelectShipment}
                       thirdPL={thirdPL}

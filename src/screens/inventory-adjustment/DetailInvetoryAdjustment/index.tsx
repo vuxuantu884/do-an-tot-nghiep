@@ -385,7 +385,7 @@ const DetailInvetoryAdjustment: FC = () => {
           } else {
             fileList.splice(index, 1);
             showError("Upload ảnh không thành công");
-          }
+          } 
           setFileList([...fileList]);
         })
       );
@@ -438,7 +438,7 @@ const DetailInvetoryAdjustment: FC = () => {
     if (data) {
       let params = {
         ids: data.id,
-        type: "inventory_transfer_bill",
+        store_id: data.adjusted_store_id
       };
       const queryParam = generateQuery(params);
       dispatch(
@@ -524,38 +524,9 @@ const DetailInvetoryAdjustment: FC = () => {
               min={0}
               maxLength={12}
               value={value}
-              onChange={(value) => {
-                onRealQuantityChange(value, row, index);
-              }}
-              onKeyPress={(event) => {
-                if (event.key === "Enter") {
-                  let value = event.target.value;
-                  row.real_on_hand = value ?? 0;
-                  let totalDiff = 0;
-                  totalDiff = value - row.on_hand;
-                  if (totalDiff === 0) {
-                    row.on_hand_adj = null;
-                    row.on_hand_adj_dis = null;
-                  } else if (row.on_hand < value) {
-                    row.on_hand_adj = totalDiff;
-                    row.on_hand_adj_dis = `+${totalDiff}`;
-                  } else if (row.on_hand > value) {
-                    row.on_hand_adj = totalDiff;
-                    row.on_hand_adj_dis = `${totalDiff}`;
-                  }
-                  
-                  dispatch(
-                    updateItemOnlineInventoryAction(data?.id, row, (result: LineItemAdjustment) => {
-                      if (result) {
-                        showSuccess("Nhập tồn thực tế thành công.");
-                        onEnterFilterVariant();
-                        const version = form.getFieldValue('version');
-                        form.setFieldsValue({version: version + 1});
-                      }
-                    })
-                  );
-                }
-              }}
+              onChange={(value) => { 
+                onChangeRealOnHand(row, value ?? 0);
+              }} 
             />
           );
         } else {
@@ -620,13 +591,13 @@ const DetailInvetoryAdjustment: FC = () => {
         dispatch(
           getLinesItemAdjustmentAction(
             idNumber,
-            `page=1&limit=30&condition=${keySearch?.toString()}`,
+            `page=1&limit=30&condition=`,
             onResultDataTable
           )
         );
       }
     },
-    [idNumber, keySearch, form, onResultDataTable, dispatch]
+    [idNumber, form, onResultDataTable, dispatch]
   );
 
   const updateAdjustment = React.useMemo(() =>
@@ -684,19 +655,18 @@ const onChangeNote = useCallback(
   }, [dispatch, data?.id, onResult]);
 
   const onEnterFilterVariant = useCallback(
-    () => {
+    (code: string) => {
       setTableLoading(true);
-      debugger
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,
-          `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+          `page=1&limit=30&condition=${code?.toLocaleLowerCase()}`,
           onResultDataTable
         )
       );
       setTableLoading(false);
     },
-    [keySearch, dispatch, idNumber, onResultDataTable]
+    [dispatch, idNumber, onResultDataTable]
   );
 
   type accountAudit = {
@@ -715,7 +685,7 @@ const onChangeNote = useCallback(
   );
 
   const onRealQuantityChange = useCallback(
-    (quantity: number | any, row: LineItemAdjustment, index: number) => {
+    (quantity: number | any, row: LineItemAdjustment) => {
       const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataLinesItem.items);
 
       dataTableClone.forEach((item) => {
@@ -779,20 +749,16 @@ const onChangeNote = useCallback(
     [dataLinesItem, dispatch, idNumber, keySearch, onResultDataTable]
   );
 
-  const onSearchVariant =useCallback(()=>{
-    _.debounce(()=>{
-      onEnterFilterVariant();
-    }, 300)
-  },[onEnterFilterVariant]);
+  const debounceSearchVariant = useMemo(()=>
+    _.debounce((code: string)=>{
+      onEnterFilterVariant(code);
+   }, 300),
+   [onEnterFilterVariant]
+   );
 
-  const onChangeKeySearch = useCallback(()=>{
-    onSearchVariant();
-  },[onSearchVariant]);
-
-  useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
-  }, [idNumber, onResult, dispatch, setDataAccounts]);
+  const onChangeKeySearch = useCallback((code: string)=>{
+    debounceSearchVariant(code);
+  },[debounceSearchVariant]); 
 
   const onExport = useCallback(() => {
     exportFile({
@@ -909,6 +875,56 @@ const onChangeNote = useCallback(
     const getFileInterval = setInterval(checkImportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [listJobImportFile, statusImport, checkImportFile]);
+
+  useEffect(() => {
+    dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
+  }, [idNumber, onResult, dispatch]);
+
+  useEffect(()=>{
+    dispatch(AccountSearchAction({}, setDataAccounts));
+  },[dispatch,setDataAccounts]);
+
+  const debounceChangeRealOnHand = useMemo(()=>
+  _.debounce((row: LineItemAdjustment, realOnHand: number)=>{
+      if (row.real_on_hand && row.real_on_hand === realOnHand) {
+        return;
+      }
+      onRealQuantityChange(realOnHand, row);
+      let value = realOnHand;
+      row.real_on_hand = value ?? 0;
+      let totalDiff = 0;
+      totalDiff = value - row.on_hand;
+      if (totalDiff === 0) {
+        row.on_hand_adj = null;
+        row.on_hand_adj_dis = null;
+      } else if (row.on_hand < value) {
+        row.on_hand_adj = totalDiff;
+        row.on_hand_adj_dis = `+${totalDiff}`;
+      } else if (row.on_hand > value) {
+        row.on_hand_adj = totalDiff;
+        row.on_hand_adj_dis = `${totalDiff}`;
+      }
+      if (!data || (data === undefined || !data.id)) {
+        return null;
+      }
+      
+      dispatch(
+        updateItemOnlineInventoryAction(data.id, row, (result: LineItemAdjustment) => {
+          if (result) {
+            showSuccess("Nhập tồn thực tế thành công.");
+            onEnterFilterVariant(keySearch);
+            const version = form.getFieldValue('version');
+            form.setFieldsValue({version: version + 1});
+          }
+        })
+      );
+    },300),
+ [data,dispatch,onRealQuantityChange,onEnterFilterVariant, form, keySearch]
+ );
+
+  const onChangeRealOnHand = useCallback((item: LineItemAdjustment, realOnHand: number)=>{
+    debounceChangeRealOnHand(item, realOnHand);
+  },[debounceChangeRealOnHand]);
 
   return (
     <StyledWrapper>
@@ -1036,13 +1052,13 @@ const onChangeNote = useCallback(
                             value={keySearch}
                             onChange={(e) => {
                               setKeySearch(e.target.value);
-                              onChangeKeySearch();
+                              onChangeKeySearch(e.target.value);
                             }} 
                             style={{marginLeft: 8}}
                             placeholder="Tìm kiếm sản phẩm trong phiếu"
                             addonAfter={
                               <SearchOutlined
-                                onClick={onChangeKeySearch}
+                                onClick={()=>{onChangeKeySearch(keySearch)}}
                                 style={{color: "#2A2A86"}}
                               />
                             }
@@ -1111,7 +1127,7 @@ const onChangeNote = useCallback(
                       labelCol={{span: 24, offset: 0}}
                       rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                     >
-                      <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
+                      <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
                     </Form.Item> 
                   </Row>  
                   <Row

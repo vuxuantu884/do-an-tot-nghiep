@@ -7,9 +7,10 @@ import {
   Input,
   Row,
   Select,
+  TreeSelect,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect,  useState } from "react";
+import React, { createRef, useCallback, useEffect,  useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
@@ -22,6 +23,7 @@ import "assets/css/custom-filter.scss";
 import { DepartmentResponse } from "model/account/department.model";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomSelect from "component/custom/select.custom";
+import TreeDepartment from "screens/settings/department/component/TreeDepartment";
 
 type StoreFilterProps = {
   initValue: StoreQuery;
@@ -48,7 +50,6 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     onMenuClick,
     storeStatusList,
     storeRanks,
-    groups,
     initValue,
     type,
     listDepartment,
@@ -81,7 +82,6 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   );
   const onClearFilterAdvanceClick = useCallback(() => {
     formRef.current?.setFieldsValue(initValue);
-    setVisible(false);
     formRef.current?.submit();
   }, [formRef, initValue]);
   useEffect(() => {
@@ -102,27 +102,22 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Form.Item name="info" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              placeholder="Tên/ Mã cửa hàng/ Sđt/ Hotline"
+              placeholder="Tên/ Mã cửa hàng/ Sđt"
             />
           </Form.Item> 
-          <Form.Item name="department_ids">
-            <CustomSelect
-              showSearch
+          <Form.Item name="department_id" style={{ minWidth: 200 }}>
+            <TreeSelect
+              placeholder="Chọn trực thuộc"
+              treeDefaultExpandAll
+              className="selector"
               allowClear
-              showArrow 
-              placeholder="Chọn bộ phận"
-              style={{
-                minWidth: 200,
-                width: "100%",
-              }}
-              optionFilterProp="children"
+              showSearch
+              treeNodeFilterProp='title'
             >
-              {listDepartment?.map((item) => (
-                <Select.Option key={item.id} value={item.id}>
-                  {item.name}
-                </Select.Option>
+              {listDepartment?.map((item, index) => (
+                <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
               ))}
-            </CustomSelect>
+            </TreeSelect> 
           </Form.Item>
           <Form.Item name="status">
             <CustomSelect  
@@ -185,16 +180,6 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           </Item>
           <Item name="hotline" label="Số điện thoại">
             <Input placeholder="Nhập số điện thoại" />
-          </Item>
-          <Item name="group_id" label="Trực thuộc">
-            <Select placeholder="Chọn trực thuộc">
-              <Option value="">Chọn trực thuộc</Option>
-              {groups?.map((item) => (
-                <Option key={item.id} value={item.id}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
           </Item>
           <Row gutter={24}>
             <Col span={12}>

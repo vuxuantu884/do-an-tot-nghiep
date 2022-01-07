@@ -156,7 +156,11 @@ const CustomerUpdate = (props: any) => {
   );
 
   const handleSubmit = (values: any) => {
-    let area = areas.find((area) => area.id === districtId);
+    const countrySelected = countries.find((country) => country.id === values.country_id);
+    const area = areas.find((area) => area.id === values.district_id);
+    const wardSelected = wards.find((item) => item.id === values.ward_id);
+    const staffSelected = accounts.find((account) => account.code === values.responsible_staff_code);
+
     values.full_name = values.full_name.trim();
     if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
     const processValue = {
@@ -169,7 +173,12 @@ const CustomerUpdate = (props: any) => {
         : null,
       status: status,
       version: customer.version,
+      country: countrySelected ? countrySelected.name : null,
       city_id: area ? area.city_id : null,
+      city: area ? area.city_name : null,
+      district: area ? area.name : null,
+      ward: wardSelected ? wardSelected.name : null,
+      responsible_staff: staffSelected ? staffSelected.full_name : null,
       shipping_addresses: customer.shipping_addresses.map((item: any) => {
         let _item = { ...item };
         _item.is_default = _item.default;

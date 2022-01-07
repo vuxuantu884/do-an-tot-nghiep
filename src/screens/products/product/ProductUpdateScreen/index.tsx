@@ -1,4 +1,4 @@
-import {InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import {EditOutlined, InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -8,6 +8,7 @@ import {
   Form,
   Image,
   Input,
+  Popover,
   Row,
   Select,
   Space,
@@ -22,6 +23,7 @@ import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
 import {AppConfig} from "config/app.config";
 import {ProductPermission} from "config/permissions/product.permission";
@@ -70,12 +72,17 @@ import {
 import {handleChangeMaterial} from "utils/ProductUtils";
 import {RegUtil} from "utils/RegUtils";
 import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { careInformation } from "../component/CareInformation/care-value";
+import CareModal from "../component/CareInformation/CareModal";
 import ModalConfirmPrice from "../component/ModalConfirmPrice";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import ModalUpdatePrice from "../component/ModalUpdatePrice";
 import VariantList from "../component/VariantList";
 import {ProductParams} from "../ProductDetailScreen";
 import {StyledComponent} from "./styles";
+
+var isWin = false;
+var isDesigner = false;
 
 const {Item} = Form;
 let tempActive: number = 0;
@@ -123,8 +130,7 @@ const ProductDetailScreen: React.FC = () => {
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
-  const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [listColor, setListColor] = useState<Array<ColorResponse>>([]); 
   const [status, setStatus] = useState<string>("inactive");
   const [active, setActive] = useState<number>(tempActive);
   const [isChange, setChange] = useState<boolean>(false);
@@ -137,6 +143,20 @@ const ProductDetailScreen: React.FC = () => {
   const [visibleUpdatePrice, setVisibleUpdatePrice] = useState(false);
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
+  const [showCareModal, setShowCareModal] = useState(false);
+  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+
+  const [designers, setDeisgner] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
 
   const categoryFilter = useMemo(() => {
     if (data === null) {
@@ -171,11 +191,16 @@ const ProductDetailScreen: React.FC = () => {
   }, []);
 
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (!data) {
-      return false;
-    }
-    setAccounts(data.items);
-  }, []);
+      if (!data) {
+        return false;
+      }
+      if (isWin) {
+        setWins(data);
+      }
+      if (isDesigner) {
+        setDeisgner(data);
+      }
+    },[]);
 
   const onPickAvatar = useCallback(() => {
     let variants: Array<VariantResponse> = form.getFieldValue("variants");
@@ -258,6 +283,64 @@ const ProductDetailScreen: React.FC = () => {
     return "";
   }, [productStatusList, status]);
 
+  const [careLabels, setCareLabels] = useState<any[]>([]);
+  const [careLabelsString, setCareLabelsString] = useState("");
+
+  useEffect(() => {
+    const newSelected = careLabelsString ? careLabelsString.split(";") : [];
+    let careLabels: any[] = []
+    newSelected.forEach((value: string) => {
+      careInformation.washing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+
+      careInformation.beleaching.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.ironing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.drying.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.professionalCare.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      
+    })
+    setCareLabels(careLabels);
+  }, [careLabelsString]);
+
   const onChange = useCallback(() => {
     setChange(true);
   }, []);
@@ -299,7 +382,16 @@ const ProductDetailScreen: React.FC = () => {
       if (values) {
         values.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
-            item.variant_prices = values.variants[active].variant_prices;
+            item.variant_prices.forEach((e)=>{
+              let priceActive =  values.variants[active].variant_prices.find(p=>p.currency_code === e.currency_code);
+              if (priceActive) {
+                e.cost_price = priceActive.cost_price;
+                e.retail_price = priceActive.retail_price;
+                e.tax_percent = priceActive.tax_percent;
+                e.wholesale_price = priceActive.retail_price;
+                e.import_price = priceActive.import_price;
+              }
+            });
           }
         });
         update(values);
@@ -383,9 +475,15 @@ const ProductDetailScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: ProductRequest) => {
       setLoadingButton(true); 
-      dispatch(productUpdateAction(idNumber, values, onResultFinish));
+      dispatch(productUpdateAction(
+        idNumber,
+        {
+          ...values,
+          care_labels: careLabelsString,
+        },
+        onResultFinish));
     },
-    [dispatch, idNumber,onResultFinish]
+    [careLabelsString, dispatch, idNumber, onResultFinish]
   );
 
   const beforeUpload = useCallback((file: RcFile) => {
@@ -600,6 +698,7 @@ const ProductDetailScreen: React.FC = () => {
         setError(true);
       } else {
         setData(result);
+        setCareLabelsString(result.care_labels);
         setStatus(result.status);
         productDetailRef.current = JSON.parse(JSON.stringify(result));
         form.setFieldsValue(result);
@@ -622,6 +721,17 @@ const ProductDetailScreen: React.FC = () => {
     }
   }, [data, active]);
 
+  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
+    isDesigner = designer;
+    isWin = win;
+    dispatch(
+      AccountSearchAction(
+        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setDataCategory));
     dispatch(SupplierGetAllAction(setListSupplier));
@@ -629,11 +739,8 @@ const ProductDetailScreen: React.FC = () => {
     dispatch(CountryGetAllAction(setListCountry));
     dispatch(sizeGetAll(setListSize));
     dispatch(listColorAction({is_main_color: 0}, setListColor));
-    dispatch(
-      AccountSearchAction({department_ids: [AppConfig.WIN_DEPARTMENT]}, setDataAccounts)
-    );
-    return () => {};
-  }, [dispatch, setDataAccounts, setDataCategory]);
+    getAccounts("",1,true,true);
+  }, [dispatch,getAccounts,setDataCategory]);
 
   return (
     <StyledComponent>
@@ -651,7 +758,7 @@ const ProductDetailScreen: React.FC = () => {
             path: `${UrlConfig.VARIANTS}`,
           },
           {
-            name: data !== null ? data.name : "",
+            name: data !== null ? data.code : "",
           },
         ]}
       >
@@ -873,6 +980,7 @@ const ProductDetailScreen: React.FC = () => {
                       </Row>
                       <Row gutter={50}>
                         <Col span={24} md={12} sm={24}>
+                          <Item name="material" hidden={true}></Item>
                           <Item name="material_id" label="Chất liệu">
                             <CustomSelect
                               showSearch
@@ -912,6 +1020,21 @@ const ProductDetailScreen: React.FC = () => {
                           >
                             <HashTag />
                           </Item>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col span={24} style={{ display: "contents" }}>
+                          <span className="care-title">Thông tin bảo quản: </span>
+                          {careLabels.map((item: any) => (
+                            <Popover content={item.name}>
+                              <span className={`care-label ydl-${item.value}`}></span>
+                            </Popover>
+                          ))}
+                          <Button
+                            className={`button-plus button-care-lable`}
+                            icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
+                            onClick={() => setShowCareModal(true)}
+                          />
                         </Col>
                       </Row>
                       <Row gutter={24}>
@@ -993,39 +1116,42 @@ const ProductDetailScreen: React.FC = () => {
                           icon: <InfoCircleOutlined />,
                         }}
                       >
-                        <CustomSelect optionFilterProp="children" showSearch showArrow>
-                          <CustomSelect.Option value="">
-                            Chọn Merchandiser
-                          </CustomSelect.Option>
-                          {accounts.map((item) => (
-                            <CustomSelect.Option key={item.code} value={item.code}>
+                        <SelectPaging 
+                         optionFilterProp="children"
+                         metadata={designers.metadata}
+                         showSearch 
+                         allowClear
+                         placeholder="Chọn Merchandiser"
+                         onSearch={(key) => getAccounts(key, 1,false,true)}
+                         onPageChange={(key, page) => getAccounts(key, page,false,true)}
+                         showArrow>
+                          {wins.items.map((item) => (
+                            <SelectPaging.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.full_name}`}
-                            </CustomSelect.Option>
+                            </SelectPaging.Option>
                           ))}
-                        </CustomSelect>
+                        </SelectPaging>
                       </Item>
                       <Item
                         name="designer_code"
                         label="Thiết kế"
-                        tooltip={{
-                          title: "Tooltip",
-                          icon: <InfoCircleOutlined />,
-                        }}
+                        tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
                       >
-                        <CustomSelect
+                        <SelectPaging
+                          metadata={designers.metadata}
                           optionFilterProp="children"
                           showSearch
+                          allowClear
                           placeholder="Chọn thiết kế"
+                          onSearch={(key) => getAccounts(key, 1,true,false)}
+                          onPageChange={(key, page) => getAccounts(key, page,true,false)}
                         >
-                          <CustomSelect.Option value="">
-                            Chọn thiết kế
-                          </CustomSelect.Option>
-                          {accounts.map((item) => (
-                            <CustomSelect.Option key={item.code} value={item.code}>
+                          {designers.items.map((item) => (
+                            <SelectPaging.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.full_name}`}
-                            </CustomSelect.Option>
+                            </SelectPaging.Option>
                           ))}
-                        </CustomSelect>
+                        </SelectPaging>
                       </Item>
                     </div>
                   </Card>
@@ -1275,6 +1401,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       }
                                                       placeholder="VD: 100,000"
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1307,6 +1434,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       }
                                                       placeholder="VD: 100,000"
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1336,6 +1464,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       }
                                                       placeholder="VD: 100,000"
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1368,6 +1497,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       }
                                                       placeholder="VD: 100,000"
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1382,6 +1512,7 @@ const ProductDetailScreen: React.FC = () => {
                                                       placeholder="VD: 10"
                                                       suffix={<span>%</span>}
                                                       disabled={!canUpdateCost}
+                                                      maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
@@ -1435,15 +1566,6 @@ const ProductDetailScreen: React.FC = () => {
                                           maxTagCount="responsive"
                                           showArrow
                                           placeholder="Chọn màu sắc"
-                                          suffix={
-                                            <Button
-                                              style={{
-                                                width: 37,
-                                                height: 37,
-                                              }}
-                                              icon={<PlusOutlined />}
-                                            />
-                                          }
                                         >
                                           {listColor?.map((item) => (
                                             <CustomSelect.Option
@@ -1463,15 +1585,6 @@ const ProductDetailScreen: React.FC = () => {
                                           maxTagCount="responsive"
                                           optionFilterProp="children"
                                           showSearch
-                                          suffix={
-                                            <Button
-                                              style={{
-                                                width: 37,
-                                                height: 37,
-                                              }}
-                                              icon={<PlusOutlined />}
-                                            />
-                                          }
                                         >
                                           {listSize?.map((item) => (
                                             <CustomSelect.Option
@@ -1689,6 +1802,16 @@ const ProductDetailScreen: React.FC = () => {
           }}
           visible={visiblePrice}
           onOk={onOkPrice}
+        />
+        <CareModal
+          onCancel={() => setShowCareModal(false)}
+          onOk={(data) => {
+            console.log('data data', data);
+            setCareLabelsString(data);
+            setShowCareModal(false);
+          }}
+          visible={showCareModal}
+          careLabels={careLabelsString}
         />
       </ContentContainer>
     </StyledComponent>

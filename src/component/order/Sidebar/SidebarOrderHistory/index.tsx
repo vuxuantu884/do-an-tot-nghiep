@@ -8,6 +8,7 @@ import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {formatCurrency} from "utils/AppUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import {StyledComponent} from "./styles";
 
 type PropType = {
@@ -15,7 +16,7 @@ type PropType = {
 };
 
 function SidebarOrderHistory(props: PropType) {
-  const formatDate = "hh:mm DD-MM-YYYY";
+  const formatDate = DATE_FORMAT.fullDate;
   const {customerId} = props;
   const dispatch = useDispatch();
   const [customerHistory, setCustomerHistory] = useState<OrderModel[] | null>(null);

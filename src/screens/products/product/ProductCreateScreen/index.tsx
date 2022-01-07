@@ -11,6 +11,7 @@ import {
   Col,
   Collapse,
   Form, Image, Input,
+  Popover,
   Row,
   Select,
   Space,
@@ -26,8 +27,8 @@ import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config"; 
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
@@ -69,6 +70,8 @@ import { VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { careInformation } from "../component/CareInformation/care-value";
+import CareModal from "../component/CareInformation/CareModal";
 import ImageProduct from "../component/image-product.component";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import UploadImageModal, {
@@ -99,13 +102,13 @@ const initialRequest: ProductRequestView = {
   designer_code: null,
   made_in_id: null,
   merchandiser_code: null,
-  preservation: "",
+  care_labels: "",
   specifications: "",
   status: "active",
   saleable: true,
   variant_prices: [
     {
-      retail_price: "",
+      retail_price: 0,
       currency: AppConfig.currency,
       import_price: "",
       wholesale_price: "",
@@ -115,6 +118,7 @@ const initialRequest: ProductRequestView = {
   ],
   material_id: null,
   supplier_id: null,
+  material: null
 };
 
 const ProductCreateScreen: React.FC = () => {
@@ -217,6 +221,7 @@ const ProductCreateScreen: React.FC = () => {
   const [isVisibleUpload, setVisibleUpload] = useState<boolean>(false);
   const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
+  const [showCareModal, setShowCareModal] = useState(false);
   //end category
   //end state
 
@@ -242,9 +247,7 @@ const ProductCreateScreen: React.FC = () => {
       }
     },
     []
-  );
-
-
+  ); 
 
   const onCategoryChange = useCallback(
     (value: number) => {
@@ -398,6 +401,65 @@ const ProductCreateScreen: React.FC = () => {
     return arr;
   }, [variants]);
 
+  const [careLabels, setCareLabels] = useState<any[]>([]);
+  const [careLabelsString, setCareLabelsString] = useState("");
+
+  useEffect(() => {
+    const newSelected = careLabelsString ? careLabelsString.split(";") : [];
+    console.log('newSelected', newSelected);
+    let careLabels: any[] = []
+    newSelected.forEach((value: string) => {
+      careInformation.washing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+
+      careInformation.beleaching.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.ironing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.drying.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.professionalCare.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      
+    })
+    setCareLabels(careLabels);
+  }, [careLabelsString]);
+
   const createCallback = useCallback(
     (result: ProductResponse) => {
       setLoadingSaveButton(false);
@@ -429,10 +491,13 @@ const ProductCreateScreen: React.FC = () => {
         variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
       }
 
-      let request = Products.convertProductViewToRequest(values, variantsHasProductAvatar, status);
+      let request = Products.convertProductViewToRequest({
+        ...values,
+        care_labels: careLabelsString,
+      }, variantsHasProductAvatar, status);
       dispatch(productCreateAction(request, createCallback));
     },
-    [createCallback, dispatch, status, variants]
+    [createCallback, dispatch, careLabelsString, status, variants]
   );
 
   const onCancel = useCallback(() => {
@@ -589,15 +654,15 @@ const ProductCreateScreen: React.FC = () => {
     isDesigner = designer;
     isWin = win;
     dispatch(
-      AccountSearchAction(
-        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+      searchAccountPublicAction(
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
   }, [dispatch, setDataAccounts]);
 
   const getSuppliers = useCallback((key: string, page: number) => {
-    dispatch(SupplierSearchAction({ condition: key }, (data: PageResponse<SupplierResponse>) => {
+    dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier(data);
     }));
   }, [dispatch]);
@@ -832,7 +897,8 @@ const ProductCreateScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <Row gutter={50}>
-                  <Col span={24} md={12} sm={24}>
+                  <Col span={24} md={12} sm={24}> 
+                    <Item name="material" hidden={true}></Item>
                     <Item name="material_id" label="Chất liệu">
                       <CustomSelect
                         showSearch
@@ -1009,16 +1075,18 @@ const ProductCreateScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <Row>
-                  <Col span={24}>
-                    <Item name="care_labels" label={`Thông tin bảo quản `}> 
-                      {
-                        (form.getFieldValue("care_labels") && form.getFieldValue("care_labels").length > 0) ?
-                         <>
-                          <Button className="button-plus" icon={<EditOutlined />} />
-                         </> :
-                         <Button className="button-plus" icon={<PlusOutlined />} />
-                      }
-                    </Item>
+                  <Col span={24} style={{ display: "contents" }}>
+                    <span className="care-title">Thông tin bảo quản: </span>
+                    {careLabels.map((item: any) => (
+                      <Popover content={item.name}>
+                        <span className={`care-label ydl-${item.value}`}></span>
+                      </Popover>
+                    ))}
+                    <Button
+                      className={`button-plus`}
+                      icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
+                      onClick={() => setShowCareModal(true)}
+                    />
                   </Col>
                 </Row>
                 <Row gutter={24}>
@@ -1098,7 +1166,7 @@ const ProductCreateScreen: React.FC = () => {
                     searchPlaceholder="Tìm kiếm nhân viên"
                     placeholder="Chọn thiết kế"
                     onPageChange={(key, page) => getAccounts(key, page, true, false)}
-                    onSearch={(key) => getAccounts(key, 1, false, true)}
+                    onSearch={(key) => getAccounts(key, 1, true, false)}
                   >
 
                     {designer.items.map((item) => (
@@ -1143,10 +1211,12 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  default={0}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
+                                  maxLength={15}
                                   placeholder="VD: 100,000"
                                 />
                               </Item>
@@ -1172,6 +1242,7 @@ const ProductCreateScreen: React.FC = () => {
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
+                                  maxLength={15}
                                   placeholder="VD: 100,000"
                                 />
                               </Item>
@@ -1192,6 +1263,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  maxLength={15}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
@@ -1219,6 +1291,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  maxLength={15}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
@@ -1237,6 +1310,7 @@ const ProductCreateScreen: React.FC = () => {
                                   isFloat
                                   placeholder="VD: 10"
                                   suffix={<span>%</span>}
+                                  maxLength={15}
                                 />
                               </Item>
                             </Col>
@@ -1469,6 +1543,16 @@ const ProductCreateScreen: React.FC = () => {
               // getFirstProductAvatarCreate(variants)
               setVisibleUpload(false);
             }}
+          />
+          <CareModal
+            onCancel={() => setShowCareModal(false)}
+            onOk={(data) => {
+              console.log('data data', data);
+              setCareLabelsString(data);
+              setShowCareModal(false);
+            }}
+            visible={showCareModal}
+            careLabels={careLabelsString}
           />
         </ContentContainer>
       </StyledComponent>

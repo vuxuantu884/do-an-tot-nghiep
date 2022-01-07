@@ -4,6 +4,7 @@ export const DATE_FORMAT = {
   DDMMYYY: "DD/MM/YYYY",
   DDMMYY_HHmm: "DD/MM/YYYY HH:mm",
   DDMM: "DD/MM",
+	fullDate: "DD/MM/YY HH:mm",
 };
 
 export const ConvertUtcToLocalDate = (

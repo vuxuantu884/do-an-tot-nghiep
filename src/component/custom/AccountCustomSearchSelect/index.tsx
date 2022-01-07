@@ -1,15 +1,12 @@
 import { Select, Spin } from "antd";
-import { HttpStatus } from "config/http-status.config";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { AccountResponse } from "model/account/account.model";
 import React, {
 	MutableRefObject,
-	useCallback, useRef, useState
+	useCallback, useEffect, useRef, useState
 } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
-import { showError } from "utils/ToastUtils";
+import { handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 
 type PropType = {
   placeholder: string;
@@ -43,19 +40,11 @@ function AccountCustomSearchSelect(props: PropType) {
             limit: undefined,
           })
             .then((response) => {
-              if (response) {
-                switch (response.code) {
-                  case HttpStatus.SUCCESS:
-                    setDataToSelect(response.data.items);
-                    break;
-                  case HttpStatus.UNAUTHORIZED:
-                    dispatch(unauthorizedAction());
-                    break;
-                  default:
-                    response.errors.forEach((e) => showError(e));
-                    break;
-                }
-              }
+							if (isFetchApiSuccessful(response)) {
+								setDataToSelect(response.data.items);
+							} else {
+								handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+							}
             })
             .catch((error) => {
               console.log("error", error);
@@ -79,6 +68,10 @@ function AccountCustomSearchSelect(props: PropType) {
 		},
 		[initDataToSelect, setDataToSelect],
 	)
+
+	useEffect(() => {
+		setDataToSelect(initDataToSelect)
+	}, [initDataToSelect, setDataToSelect])
 
   return (
 		<Select

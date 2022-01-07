@@ -86,7 +86,6 @@ const UpdateTicket: FC = () => {
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-  const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
 
@@ -120,13 +119,13 @@ const UpdateTicket: FC = () => {
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
+      console.log(result)
       if (!result) {
         return;
       } else {
         form.setFieldsValue(result);
         setInitDataForm(result); 
-        setDataTable(result.line_items);
-        console.log(result.line_items);
+        setDataTable(result.line_items); 
         const listFile: any = result.attached_files?.map((item: string ) => {
           return {
             name: item,
@@ -134,12 +133,12 @@ const UpdateTicket: FC = () => {
           }
         });
         setFileList(listFile);
-        const fileCurrent = listFile.map((item: any) => item.url);
+        const fileCurrent = listFile?.map((item: any) => item.url);
         form.setFieldsValue({ attached_files: fileCurrent });
+        setToStoreData(stores.find(e=>e.id=== result.to_store_id));
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    }, 
+    [stores, form]
   );
 
   function onQuantityChange(quantity: number | null, index: number) {
@@ -167,6 +166,15 @@ const UpdateTicket: FC = () => {
     setDataTable(temps);
   }
 
+  useEffect(()=>{
+    dispatch(
+      inventoryGetSenderStoreAction(
+        { status: "active", simple: true },
+        setStores
+      )
+    );
+  },[dispatch])
+
   // get store
   useEffect(() => {
     if ( CopyId ) {
@@ -180,14 +188,7 @@ const UpdateTicket: FC = () => {
       }
     } else {
       dispatch(getDetailInventoryTransferAction(idNumber, onResult));
-    }
-
-    dispatch(
-      inventoryGetSenderStoreAction(
-        { status: "active", simple: true },
-        setStores
-      )
-    );
+    } 
   }, [CopyId, stateImport, dispatch, idNumber, onResult, form]);
 
   // validate
@@ -476,7 +477,6 @@ const UpdateTicket: FC = () => {
 
     if (countError > 0) {
       showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-      setHasError(true);
       return;
     } 
   
@@ -572,52 +572,36 @@ const UpdateTicket: FC = () => {
   },[CopyId, createCallback, dataTable, dispatch, initDataForm, stateImport, stores]);
 
   const checkError = (index: number) => {
+    const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
     const thisInput = document.getElementById(`item-quantity-${index}`);
 
-    if (dataTable[index].transfer_quantity === 0) {
+    if (dataLineItems[index].transfer_quantity === 0) {
       showError("Số lượng phải lớn hơn 0");
       if (thisInput) thisInput.style.borderColor = "red";
-      setHasError(true);
     } else if (
-      dataTable[index].transfer_quantity >
-      (dataTable[index].available ? dataTable[index].available : 0)
+      dataLineItems[index].transfer_quantity >
+      (dataLineItems[index].available ? dataLineItems[index].available : 0)
     ) {
       showError("Không đủ tồn kho gửi");
       if (thisInput) thisInput.style.borderColor = "red";
-      setHasError(true);
     } else {
       if (thisInput) thisInput.style.borderColor = "unset";
-      setHasError(false);
     }
-    let countError = 0;
-
-    dataTable?.forEach((element: VariantResponse, index: number) => {
+    
+    dataLineItems?.forEach((element: VariantResponse, index: number) => {
       const thisInput = document.getElementById(`item-quantity-${index}`);
       if (!element.transfer_quantity) {
         if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        setHasError(true);
       } else if (element.transfer_quantity === 0) {
         if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        setHasError(true);
       } else if (
         element.transfer_quantity > (element.available ? element.available : 0)
       ) {
         if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        setHasError(true);
       } else {
         if (thisInput) thisInput.style.borderColor = "unset";
-        setHasError(false);
-      }
-    }, () => {
-      if (countError > 0) {
-        
-        setHasError(true);
       }
     });
-    
   };
   
   const onDeleteTicket = (value: string | undefined) => {
@@ -636,35 +620,41 @@ const UpdateTicket: FC = () => {
     );
   };
 
-  useEffect(() => {
+  const isError = useMemo(()=>{       
+   const fromId =  form.getFieldValue("from_store_id");
+   console.log(`xxx ${fromId} ${toStoreData?.id}`);
+   
+    if (!fromId || !toStoreData ||  (fromId === toStoreData.id))  return true
+    let error = false;
+
     if (dataTable.length === 0) {
-      setHasError(true);
+      return true
     }
 
-    let countError = 0;
+    dataTable?.forEach((element: VariantResponse, index: number) => {
+      if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
+        error= true
+      } 
+    }); 
+    return error;
+  },[form, toStoreData, dataTable])
+
+  useEffect(() => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
       const thisInput = document.getElementById(`item-quantity-${index}`);
       if (!element.transfer_quantity) {
         if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
       } else if (element.transfer_quantity === 0) {
         if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
       } else if (
         element.transfer_quantity > (element.available ? element.available : 0)
       ) {
-        countError++;
         if (thisInput) thisInput.style.borderColor = "red";
       } else {
         if (thisInput) thisInput.style.borderColor = "unset";
-        setHasError(false);
-      }
-    }, () => {
-      if (countError > 0) {
-        setHasError(true);
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [dataTable]);
 
   const columns: ColumnsType<any> = [
@@ -953,6 +943,9 @@ const UpdateTicket: FC = () => {
                         onSelect={onSelectProduct}
                         options={renderResult}
                         ref={productSearchRef}
+                        onClickAddNew={() => {
+                          window.open(`/admin${UrlConfig.PRODUCT}/create`, "_blank");
+                        }}
                       />
                       <Button
                         onClick={() => {
@@ -999,7 +992,7 @@ const UpdateTicket: FC = () => {
                   >
                     <TextArea
                       maxLength={250}
-                      placeholder=" "
+                      placeholder="Nhập ghi chú nội bộ"
                       autoSize={{ minRows: 4, maxRows: 6 }}
                     />
                   </Form.Item>
@@ -1039,7 +1032,7 @@ const UpdateTicket: FC = () => {
                   {(!CopyId || !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
                   
                   <Button
-                    disabled={hasError || isLoading}
+                    disabled={isError || isLoading}
                     htmlType={"submit"}
                     type="primary"
                     loading={isLoading}

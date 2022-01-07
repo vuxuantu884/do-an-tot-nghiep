@@ -66,6 +66,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
           {
             title: 'Thao tác',
             dataIndex: "action",
+            align: 'left',
           },
           {
             title: "Thời gian",

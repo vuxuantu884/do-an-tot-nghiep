@@ -85,7 +85,7 @@ import {
 	checkPaymentStatus,
 	checkPaymentStatusToShow,
 	CheckShipmentType,
-	formatCurrency, getAccountCodeFromCodeAndName, getAmountPaymentRequest,
+	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
 	SumCOD,
 	SumWeightResponse,
@@ -100,7 +100,7 @@ import {
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
@@ -400,6 +400,8 @@ export default function Order(props: PropType) {
     }
     return listFulfillmentRequest;
   };
+
+	const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
 
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
@@ -799,17 +801,6 @@ export default function Order(props: PropType) {
   // const [totalPaid, setTotalPaid] = useState(0);
   // console.log("totalPaid", totalPaid);
   // console.log("setTotalPaid", setTotalPaid);
-
-  // khách cần trả
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
-  };
 
   /**
    * tổng số tiền đã trả
@@ -1377,20 +1368,19 @@ export default function Order(props: PropType) {
                                 ghost
                               >
                                 {OrderDetail.total === SumCOD(OrderDetail) &&
-                                OrderDetail.total === OrderDetail.total_paid ? (
+                                OrderDetail.total === totalPaid ? (
                                   ""
                                 ) : (
                                   <>
                                     {OrderDetail?.payments
                                       .filter((payment) => {
                                         // nếu là đơn trả thì tính cả cod
-                                        if (OrderDetail.order_return_origin) {
-                                          return true;
-                                        }
+                                        // if (OrderDetail.order_return_origin) {
+                                        //   return true;
+                                        // }
                                         return (
-                                          payment.payment_method !== "cod" &&
-                                          payment.amount
-                                        );
+																					payment.payment_method !== PaymentMethodCode.COD && payment.amount
+																				);
                                       })
                                       .map((payment: any, index: number) => (
                                         <Collapse.Panel
@@ -1422,9 +1412,9 @@ export default function Order(props: PropType) {
                                               </div>
                                               <div className="orderPaymentItem__right">
                                                 <span className="date">
-                                                  {ConvertUtcToLocalDate(
+                                                  Thời gian: {ConvertUtcToLocalDate(
                                                     payment.created_date,
-                                                    "DD/MM/YYYY HH:mm"
+                                                    DATE_FORMAT.fullDate
                                                   )}
                                                 </span>
                                               </div>
@@ -1494,7 +1484,7 @@ export default function Order(props: PropType) {
                                                   <span className="date">
                                                     {ConvertUtcToLocalDate(
                                                       OrderDetail?.updated_date,
-                                                      "DD/MM/YYYY HH:mm"
+                                                      DATE_FORMAT.fullDate
                                                     )}
                                                   </span>
                                                 </div>
@@ -1864,7 +1854,7 @@ export default function Order(props: PropType) {
                                               <span style={{color: "#000000d9"}}>
                                                 {fulfillment.cancel_date ? moment(
                                                   fulfillment.cancel_date
-                                                ).format("DD/MM/YYYY") : ''}
+                                                ).format("DD/MM/YYYY HH:mm") : ''}
                                               </span>
                                             </span> : 
                                             <span>
@@ -1984,6 +1974,13 @@ export default function Order(props: PropType) {
                                                   ShipmentMethod.EXTERNAL_SHIPPER &&
                                                   (
 																										<span>{fulfillment.shipment.shipper_code} - {fulfillment.shipment.shipper_name}</span>
+																									)
+																									}
+																									{fulfillment.shipment
+                                                  ?.delivery_service_provider_type ===
+                                                  ShipmentMethod.EMPLOYEE &&
+                                                  (
+																										<span>{fulfillment.shipment.info_shipper}</span>
 																									)
 																									}
                                               </b>

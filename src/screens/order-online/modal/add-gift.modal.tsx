@@ -225,7 +225,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       unit: variant.product.unit,
       weight: variant.weight,
       weight_unit: variant.weight_unit,
-      warranty: variant.product.preservation,
+      warranty: variant.product.care_labels,
       discount_items: [discountItem],
       discount_amount: 0,
       discount_rate: 0,
