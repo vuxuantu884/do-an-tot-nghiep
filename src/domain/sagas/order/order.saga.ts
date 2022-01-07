@@ -235,6 +235,7 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
 		if (isFetchApiSuccessful(response)) {
 			setData(response.data);
 		} else {
+			setError(true);
 			yield put(fetchApiErrorAction(response, "Cập nhật trạng thái fulfillment"));
 		}
 	} catch (error) {
