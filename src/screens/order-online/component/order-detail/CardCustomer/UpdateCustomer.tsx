@@ -151,7 +151,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       ? {
         full_name: customerItem.full_name,
         district_id: customerItem.district_id,
-        phone: customerItem.phone,
+        phone: customerItem.phone || "",
         ward_id: customerItem.ward_id,
         card_number: customerItem.card_number,
         full_address: customerItem.full_address,
@@ -164,7 +164,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         shipping_addresses_district_id: shippingAddress?.district_id,
         shipping_addresses_country_id: shippingAddress?.country_id,
         shipping_addresses_city_id: shippingAddress?.city_id,
-        shipping_addresses_phone: shippingAddress?.phone,
+        shipping_addresses_phone: shippingAddress?.phone || "",
         shipping_addresses_ward_id: shippingAddress?.ward_id,
         shipping_addresses_full_address: shippingAddress?.full_address,
       }
@@ -259,16 +259,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       else {
         customerRequest = {
           ...customerItem,
-          billing_addresses: customerItem.billing_addresses?customerItem.billing_addresses.map((item: any) => {
+          billing_addresses: customerItem.billing_addresses ? customerItem.billing_addresses.map((item: any) => {
             let _item = { ...item };
             _item.is_default = _item.default;
             return _item;
-          }):[],
-          shipping_addresses: _shippingAddress?_shippingAddress.map((item: any) => {
+          }) : [],
+          shipping_addresses: _shippingAddress ? _shippingAddress.map((item: any) => {
             let _item = { ...item };
             _item.is_default = _item.default;
             return _item;
-          }):[]
+          }) : []
         }
       }
       setCustomerFormLoading(true);
@@ -391,6 +391,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   }),
                 ]}
                 name="shipping_addresses_phone"
+                required={false}
               //label="Số điện thoại"
               >
                 <Input
@@ -669,10 +670,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         rules={[
                           () => ({
                             validator(_, value) {
-                              if (value.length === 0) {
+                              if (value.trim().length === 0) {
                                 return Promise.reject(new Error("Vui lòng nhập Số điện thoại!"));
                               }
-                              if (!RegUtil.PHONE.test(value)) {
+                              if (!RegUtil.PHONE.test(value.trim())) {
                                 return Promise.reject(new Error("Số điện thoại sai định dạng!"));
                               }
                               return Promise.resolve();
@@ -797,6 +798,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         ]}
                       >
                         <DatePicker
+                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : moment("01/01/1991", "DD/MM/YYYY")} 
                           style={{ width: "100%" }}
                           placeholder="Chọn ngày sinh"
                           format={"DD/MM/YYYY"}
