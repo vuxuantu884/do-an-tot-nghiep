@@ -77,7 +77,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const initialFormValueCustomer ={
       phone:  pattern.test(keySearchCustomer)?keySearchCustomer:"",
       shipping_addresses_phone:"",
-      birthday:moment("01/01/1991", "DD/MM/YYYY")
+      //birthday:moment("01/01/1991", "DD/MM/YYYY")
     }
 
   useLayoutEffect(() => {
