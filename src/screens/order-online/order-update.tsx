@@ -199,6 +199,8 @@ export default function Order(props: PropType) {
 	const [isLoadForm, setIsLoadForm] = useState(false);
 	const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
 
+	const [isDisableSelectSource, setIsDisableSelectSource] = useState(false)
+
 	const stepsStatus = () => {
 		if (OrderDetail?.status === OrderStatus.DRAFT) {
 			return OrderStatus.DRAFT;
@@ -804,7 +806,9 @@ export default function Order(props: PropType) {
 	/**
 	 * tổng số tiền đã trả
 	 */
-	const totalAmountPayment = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) :getAmountPayment(payments);
+	const totalAmountPayment = OrderDetail?.payments && OrderDetail?.payments?.length > 0 ? getAmountPayment(OrderDetail.payments) :getAmountPayment(payments);
+
+	console.log('totalAmountPayment', totalAmountPayment)
 
 	/**
 	 * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
@@ -1181,6 +1185,11 @@ export default function Order(props: PropType) {
 		return false
 	};
 
+	useEffect(() => {
+		if(OrderDetail?.fulfillments && OrderDetail?.fulfillments[0] )
+		setIsDisableSelectSource(true);
+	}, [OrderDetail?.fulfillments])
+
 	return (
 		<React.Fragment>
 			<ContentContainer
@@ -1249,6 +1258,7 @@ export default function Order(props: PropType) {
 										modalAction={modalAction}
 										setModalAction={setModalAction}
 										setOrderSourceId={setOrderSourceId}
+										isDisableSelectSource={isDisableSelectSource}
 									/>
 									{/* <CardProduct
                     orderId={id}
