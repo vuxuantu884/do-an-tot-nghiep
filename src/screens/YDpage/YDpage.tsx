@@ -25,7 +25,7 @@ const YDpage: React.FC = () => {
   function setYdpagePath(path: any) {
     const url = new URL(window.location.href);
     url.searchParams.set('path', path);
-    window.history.pushState({}, '', url);
+    window.history.pushState({}, '', url.toString());
   }
 
   function getYdPageUrl() {
