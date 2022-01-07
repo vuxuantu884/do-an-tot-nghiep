@@ -410,7 +410,7 @@ const LoyaltyPointAccumulate = () => {
   const afterSubmit = useCallback((data: BaseResponse<LoyaltyAccumulationProgramResponse>) => {
     if (data) {
       showSuccess(loyaltyProgram ? 'Cập nhật thành công chương trình tích điểm' : 'Tạo thành công chương trình tích điểm')
-      const redirectUrl = loyaltyProgram ? `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${loyaltyProgram.id}` : `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`
+      const redirectUrl = loyaltyProgram ? `${UrlConfig.LOYALTY}/accumulation/${loyaltyProgram.id}` : `${UrlConfig.LOYALTY}`
       history.push(redirectUrl)
     }
   }, [loyaltyProgram, history])
@@ -506,11 +506,11 @@ const LoyaltyPointAccumulate = () => {
         },
         {
           name: "Tích điểm",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
+          path: `${UrlConfig.LOYALTY}`,
         },
         {
           name: loyaltyProgram ? "Sửa chương trình tích điểm" : "Thêm mới chương trình tích điểm",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`,
+          path: `${UrlConfig.LOYALTY}/accumulation`,
         },
       ]}
     >
@@ -828,7 +828,7 @@ const LoyaltyPointAccumulate = () => {
               </div>
             </Col>
             <Col span={18} className="action-group">
-              <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`}>
+              <Link to={`${UrlConfig.LOYALTY}`}>
                 <Button
                   type="default"
                   className="cancel-btn"

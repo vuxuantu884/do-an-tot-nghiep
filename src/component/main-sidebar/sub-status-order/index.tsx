@@ -28,6 +28,21 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   );
   const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
+	const removeValuesBeforeSubStatus = (sub_status_code: string, list: OrderSubStatusResponse[] ) => {
+		if(!sub_status_code) {
+			return list;
+		}
+		const subStatusCodes = list.map(single=>single.code);
+		const index = subStatusCodes.indexOf(sub_status_code);
+		if(index > -1) {
+			let clone = [...list];
+			clone.splice(0, index);
+			return clone;
+		} else {
+			return list;
+		}
+	};
+	
   const handleChange = (sub_status_code: string) => {
     
     if (orderId) {
@@ -79,12 +94,18 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           //   },
           // ];
           // let result = data.concat(moreSubStatus);
-          // setListOrderSubStatus(result);
-          setListOrderSubStatus(data);
+					if(valueSubStatusCode) {
+						const result = removeValuesBeforeSubStatus(valueSubStatusCode, data);
+						setListOrderSubStatus(result);
+
+					} else {
+						setListOrderSubStatus(data);
+
+					}
         })
       );
     }
-  }, [dispatch, fulfillments, status]);
+  }, [dispatch, fulfillments, status, subStatusCode, valueSubStatusCode]);
 
   useEffect(() => {
     if (subStatusCode) {

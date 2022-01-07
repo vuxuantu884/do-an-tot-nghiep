@@ -4,7 +4,7 @@ import search from "assets/img/search.svg";
 import {FilterWrapper} from "component/container/filter.container";
 import {MenuAction} from "component/table/ActionButton";
 import {AccountSearchQuery} from "model/account/account.model";
-import {DepartmentResponse} from "model/account/department.model";
+import {DepartmentView} from "model/account/department.model";
 import {PositionResponse} from "model/account/position.model";
 import {BaseBootstrapResponse} from "model/content/bootstrap.model";
 import {StoreResponse} from "model/core/store.model";
@@ -12,12 +12,11 @@ import {useEffect, useCallback, useLayoutEffect, useState} from "react";
 import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import BaseFilter from "./base.filter";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
-// import StoreSearchSelect from "component/custom/select-search/store-select";
+import { getListStoresSimpleAction } from "domain/actions/core/store.action"; 
 
 type AccountFilterProps = {
   params: AccountSearchQuery;
-  listDepartment?: Array<DepartmentResponse>;
+  listDepartment?: Array<DepartmentView>;
   listPosition?: Array<PositionResponse>;
   listStatus?: Array<BaseBootstrapResponse>;
   listStore?: Array<StoreResponse>;
@@ -51,6 +50,12 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
     setVisible(false);
     formRef?.submit();
   }, [formRef]);
+
+  const handleClearFilter = ()=>{
+    setVisible(false);
+    onClearFilter?.();
+  }
+
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
@@ -126,7 +131,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
         </FilterWrapper>
       </Form>
       <BaseFilter
-        onClearFilter={onClearFilter}
+        onClearFilter={handleClearFilter}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
