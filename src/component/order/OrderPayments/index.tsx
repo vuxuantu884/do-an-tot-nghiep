@@ -1,4 +1,4 @@
-import { BugOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, BugOutlined } from "@ant-design/icons";
 import { Button, Col, Input, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import Cash from "component/icon/Cash";
@@ -45,7 +45,7 @@ function OrderPayments(props: PropType): JSX.Element {
     setPayments,
   } = props;
 
-	console.log('payments', payments)
+  console.log('payments', payments)
 
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
@@ -65,10 +65,10 @@ function OrderPayments(props: PropType): JSX.Element {
     return totalAmountOrder - totalAmountPayment;
   }, [totalAmountOrder, totalAmountPayment]);
 
-  const handleInputPoint = (index: number, point: number|null) => {
-		if(!point) {
-			point = 0
-		}
+  const handleInputPoint = (index: number, point: number | null) => {
+    if (!point) {
+      point = 0
+    }
     payments[index].point = point;
     payments[index].amount = point * usageRate;
     payments[index].paid_amount = point * usageRate;
@@ -104,10 +104,10 @@ function OrderPayments(props: PropType): JSX.Element {
     }
     setPayments([...payments]);
   };
-  const handleInputMoney = (index: number, amount: number|null) => {
-		if(!amount) {
-			amount = 0
-		}
+  const handleInputMoney = (index: number, amount: number | null) => {
+    if (!amount) {
+      amount = 0
+    }
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
       payments[index].amount = amount * usageRate;
@@ -125,13 +125,48 @@ function OrderPayments(props: PropType): JSX.Element {
     setPayments(_paymentData);
   };
 
-	useEffect(() => {
-		if(payments.some((payment) => payment.payment_method===PaymentMethodCode.COD)) {
-			let _payments = payments.filter((single) => single.payment_method !==PaymentMethodCode.COD);
-			setPayments(_payments);
-		}
-		
-	}, [payments, setPayments])
+  const handleInputMonney = (code?: string) => {
+    if (code && code.length === 0) return;
+    let paymentCopy: OrderPaymentRequest[] = payments;
+    let indexPayment = paymentCopy.findIndex(x => x.payment_method_code === code);
+
+    if (indexPayment !== -1 && totalAmountCustomerNeedToPay >= 0) {
+
+      if (paymentCopy[indexPayment].payment_method_code === PaymentMethodCode.POINT) {
+
+        let addPoint = Math.round(totalAmountCustomerNeedToPay / usageRate);
+        let point = paymentCopy[indexPayment].point ? paymentCopy[indexPayment].point : 0 + addPoint;
+
+        paymentCopy[indexPayment].point = point;
+
+        let amount = paymentCopy[indexPayment].amount + (addPoint * usageRate);
+        let paid_amount = paymentCopy[indexPayment].paid_amount + (addPoint * usageRate);
+
+        paymentCopy[indexPayment].amount = amount;
+        paymentCopy[indexPayment].paid_amount = paid_amount;
+
+      }
+
+      else {
+        let amount = paymentCopy[indexPayment].amount + totalAmountCustomerNeedToPay;
+        let paid_amount = paymentCopy[indexPayment].paid_amount + totalAmountCustomerNeedToPay;
+
+        paymentCopy[indexPayment].amount = amount;
+        paymentCopy[indexPayment].paid_amount = paid_amount;
+      }
+
+    }
+
+    setPayments([...paymentCopy])
+  }
+
+  useEffect(() => {
+    if (payments.some((payment) => payment.payment_method === PaymentMethodCode.COD)) {
+      let _payments = payments.filter((single) => single.payment_method !== PaymentMethodCode.COD);
+      setPayments(_payments);
+    }
+
+  }, [payments, setPayments])
 
   return (
     <StyledComponent>
@@ -140,7 +175,7 @@ function OrderPayments(props: PropType): JSX.Element {
           className="btn-list-method"
           gutter={5}
           align="middle"
-          style={{marginLeft: 0, marginRight: 0}}
+          style={{ marginLeft: 0, marginRight: 0 }}
         >
           {ListPaymentMethods.map((method, index) => {
             let icon = null;
@@ -165,7 +200,7 @@ function OrderPayments(props: PropType): JSX.Element {
             return (
               <Col key={method.code} className="btn-payment-method">
                 <Button
-                  style={{display: "flex", padding: 10}}
+                  style={{ display: "flex", padding: 10 }}
                   type={
                     payments.some(
                       (p) =>
@@ -192,12 +227,12 @@ function OrderPayments(props: PropType): JSX.Element {
         </Row>
       </Col>
       <Col span={20} xs={20}>
-        <Row gutter={24} className="row-price" style={{height: 38, margin: "10px 0"}}>
+        <Row gutter={24} className="row-price" style={{ height: 38, margin: "10px 0" }}>
           <Col
             lg={15}
             xxl={9}
             className="row-large-title"
-            style={{padding: "8px 0", marginLeft: 2}}
+            style={{ padding: "8px 0", marginLeft: 2 }}
           >
             <b>Khách cần trả:</b>
           </Col>
@@ -220,11 +255,11 @@ function OrderPayments(props: PropType): JSX.Element {
               gutter={20}
               className="row-price"
               key={method.payment_method_code}
-              style={{margin: "10px 0"}}
+              style={{ margin: "10px 0" }}
             >
-              <Col lg={15} xxl={9} style={{padding: "0"}}>
+              <Col lg={15} xxl={9} style={{ padding: "0" }}>
                 <Row align="middle">
-                  <b style={{padding: "8px 0"}}>{method.payment_method}:</b>
+                  <b style={{ padding: "8px 0" }}>{method.payment_method}:</b>
                   {method.payment_method_code === PaymentMethodCode.POINT ? (
                     <Col className="point-spending">
                       <span
@@ -263,7 +298,7 @@ function OrderPayments(props: PropType): JSX.Element {
                   {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? (
                     <Col
                       className="point-spending"
-                      style={{marginLeft: 12}}
+                      style={{ marginLeft: 12 }}
                       lg={14}
                       xxl={14}
                     >
@@ -279,29 +314,37 @@ function OrderPayments(props: PropType): JSX.Element {
                 </Row>
               </Col>
               {method.payment_method_code !== PaymentMethodCode.POINT ? (
-                <Col className="lbl-money" lg={6} xxl={6} style={{marginLeft: 10}}>
-									<NumberInput
-                    min={0}
-                    value={method.amount}
-                    disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2}
-                    className="yody-payment-input hide-number-handle"
-                    placeholder="Nhập tiền mặt"
-                    style={{
-                      textAlign: "right",
-                      width: "100%",
-                      borderRadius: 5,
-                    }}
-										format={(a: string) =>
-											formatCurrency(a)
-										}
-										replace={(a: string) =>
-											replaceFormatString(a)
-										}
-                    onChange={(value) => {
-											handleInputMoney(index, value)
-										}}
-                    onFocus={(e) => e.target.select()}
-									/>
+                <Col className="lbl-money" lg={6} xxl={6} style={{ marginLeft: 10 }}>
+                  <Input.Group compact>
+                    <NumberInput
+                      min={0}
+                      value={method.amount}
+                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2}
+                      className="yody-payment-input hide-number-handle"
+                      //placeholder="Nhập tiền mặt"
+                      style={{
+                        textAlign: "right",
+                        width: "calc(100% - 55px)",
+                      }}
+                      format={(a: string) =>
+                        formatCurrency(a)
+                      }
+                      replace={(a: string) =>
+                        replaceFormatString(a)
+                      }
+                      onChange={(value) => {
+                        handleInputMoney(index, value)
+                      }}
+                      onFocus={(e) => e.target.select()}
+                    />
+                    <Button
+                      type="default"
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => {
+                        handleInputMonney(method.payment_method_code)
+                      }}
+                    ></Button>
+                  </Input.Group>
                 </Col>
               ) : (
                 <Col
@@ -314,7 +357,7 @@ function OrderPayments(props: PropType): JSX.Element {
                     marginLeft: 10,
                   }}
                 >
-                  <span style={{padding: "14px", lineHeight: 1}}>
+                  <span style={{ padding: "14px", lineHeight: 1 }}>
                     {formatCurrency(method.amount)}
                   </span>
                 </Col>
@@ -322,8 +365,8 @@ function OrderPayments(props: PropType): JSX.Element {
             </Row>
           );
         })}
-        <Row gutter={20} className="row-price" style={{height: 38, margin: "10px 0 0 0"}}>
-          <Col lg={15} xxl={9} style={{padding: "8px 0"}}>
+        <Row gutter={20} className="row-price" style={{ height: 38, margin: "10px 0 0 0" }}>
+          <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
             <b>{totalAmountCustomerNeedToPay >= 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
           </Col>
           <Col
@@ -336,7 +379,7 @@ function OrderPayments(props: PropType): JSX.Element {
               fontSize: "20px",
             }}
           >
-            <span style={{color: totalAmountCustomerNeedToPay < 0 ? "blue" : "red"}}>
+            <span style={{ color: totalAmountCustomerNeedToPay < 0 ? "blue" : "red" }}>
               {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
             </span>
           </Col>
