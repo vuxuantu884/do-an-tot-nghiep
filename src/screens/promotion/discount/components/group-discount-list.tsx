@@ -118,7 +118,6 @@ const GroupDiscountList = (props: Props) => {
       let selectedVariantId: number[] = [];
 
       const entilementFormValue: Array<EntilementFormModel> = form.getFieldValue("entitlements");
-      entilementFormValue[name].entitled_variant_ids = _.uniq([...entilementFormValue[name].entitled_variant_ids, ...selectedVariantId]);
 
       const currentProduct: ProductEntitlements[] = entilementFormValue[name].selectedProducts || [];
 
@@ -137,10 +136,11 @@ const GroupDiscountList = (props: Props) => {
 
       
       if (Array.isArray(currentProduct)) {
-        entilementFormValue[name].selectedProducts = _.uniqBy([...newProducts, ...currentProduct], "sku");
+        entilementFormValue[name].selectedProducts = [...newProducts, ...currentProduct];
       } else {
         entilementFormValue[name].selectedProducts = newProducts;
       }
+      entilementFormValue[name].entitled_variant_ids = _.uniq([...entilementFormValue[name].entitled_variant_ids, ...selectedVariantId]);
 
       /**
        * Kiểm tra số lượng sp trùng và thông báo

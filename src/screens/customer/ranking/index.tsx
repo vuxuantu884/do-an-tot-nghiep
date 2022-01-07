@@ -64,7 +64,7 @@ const CustomerRanking = () => {
       <Menu>
         {allowUpdateCustomerLevel &&
           <Menu.Item key="1">
-            <Link to={`${UrlConfig.CUSTOMER}/rankings/${value.id}/update`}>
+            <Link to={`${UrlConfig.CUSTOMER2}-rankings/${value.id}/update`}>
               <Button
                 icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
                 type="text"
@@ -139,7 +139,7 @@ const CustomerRanking = () => {
       fixed: "left",
       render: (value, row, index) => {
         return (
-          <Link to={`${UrlConfig.CUSTOMER}/rankings/${row.id}/update`}>
+          <Link to={`${UrlConfig.CUSTOMER2}-rankings/${row.id}/update`}>
             {value}
           </Link>
         )
@@ -239,7 +239,7 @@ const CustomerRanking = () => {
           {allowCreateCustomerLevel &&
             <ButtonCreate
               child="Thêm mới"
-              path={`${UrlConfig.CUSTOMER}/rankings/create`}
+              path={`${UrlConfig.CUSTOMER2}-rankings/create`}
             />
           }
         </>

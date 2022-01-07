@@ -18,7 +18,7 @@ const ordersMappingViewPermission = [EcommerceOrderPermission?.orders_mapping_vi
 
 const ecommerce: Array<RouteMenu> = [
   {
-    path: `${UrlConfig.ECOMMERCE}/orders-mapping`,
+    path: `${UrlConfig.ECOMMERCE}-orders-mapping`,
     exact: true,
     title: "Quản lý đơn hàng",
     icon: "icon-dot",
@@ -30,7 +30,7 @@ const ecommerce: Array<RouteMenu> = [
     permissions: ordersMappingViewPermission
   },
   {
-    path: `${UrlConfig.ECOMMERCE}/orders`,
+    path: `${UrlConfig.ECOMMERCE}-orders`,
     exact: true,
     title: "Đơn hàng",
     icon: "icon-dot",
@@ -41,7 +41,7 @@ const ecommerce: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: `${UrlConfig.ECOMMERCE}/products`,
+    path: `${UrlConfig.ECOMMERCE}-products`,
     exact: true,
     title: "Sản phẩm",
     icon: "icon-dot",
@@ -75,7 +75,7 @@ const ecommerce: Array<RouteMenu> = [
   //   subMenu: [],
   // },
   {
-    path: `${UrlConfig.ECOMMERCE}/config`,
+    path: `${UrlConfig.ECOMMERCE}-config`,
     exact: true,
     title: "Cấu hình",
     icon: "icon-dot",

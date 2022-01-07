@@ -1068,7 +1068,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               <div className="product-item-name">
                                 <span className="product-item-name-detail">
                                   {value}
-                                </span>
+                                </span>                              
+                              </div>
+                              <div className="product-item-name">
+                                <span className="product-item-name-detail">
+                                  {item.note}
+                                </span>                             
                               </div>
                             </div>
                           </div>

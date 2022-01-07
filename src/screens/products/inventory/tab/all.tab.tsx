@@ -32,6 +32,7 @@ import { showError } from "utils/ToastUtils";
 import {getQueryParams} from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
 import {TabProps} from "./tab.props";
+import "./index.scss"
 
 type ConfigColumnInventory = {
   Columns: Array<ICustomTableColumType<InventoryResponse>>,
@@ -149,7 +150,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: "variant_prices",
          align: "center",
-         width: 150,
+         width: 110,
          fixed: true,
          render: (value) => {
            let price = Products.findPrice(value, AppConfig.currency);
@@ -177,7 +178,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `total_stock`,
          align: "center",
-         width: 150,
+         width: 100,
          render: (value,record) => {
            return <div> {formatCurrency(record.total_stock,".")}</div> ;
          },
@@ -191,7 +192,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `on_hand`,
          align: "center",
-         width: 150,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -205,7 +206,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `available`,
          align: "center",
-         width: 150,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -219,21 +220,21 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `committed`,
          align: "center",
-         width: 160,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        }, 
        {
-        title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Hàng tạm giữ",
+        title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Tạm giữ",
                           InventoryColumnField.on_hold, 
                           (sortColumn:string)=>{onSortASC(sortColumn)},
                           (sortColumn:string)=>{onSortDESC(sortColumn)}), 
-         titleCustom: "Hàng tạm giữ",
+         titleCustom: "Tạm giữ",
          visible: true,
          dataIndex: `on_hold`,
          align: "center",
-         width: 150,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -246,7 +247,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `defect`,
          align: "center",
-         width: 150,
+         width: 70,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -259,42 +260,42 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `in_coming`,
          align: "center",
-         width: 150,
+         width: 70,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-        title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng đang chuyển đến",
+        title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng chuyển đến",
                             InventoryColumnField.transferring, 
                             (sortColumn:string)=>{onSortASC(sortColumn)},
                             (sortColumn:string)=>{onSortDESC(sortColumn)}), 
-         titleCustom: "Hàng đang chuyển đến",
+         titleCustom: "Hàng chuyển đến",
          visible: true,
          dataIndex: `transferring`,
          align: "center",
-         width: 210,
+         width: 130,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-        title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng đang chuyển đi",
+        title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng chuyển đi",
                             InventoryColumnField.on_way, 
                             (sortColumn:string)=>{onSortASC(sortColumn)},
                             (sortColumn:string)=>{onSortDESC(sortColumn)}), 
-         titleCustom: "Hàng đang chuyển đi",
+         titleCustom: "Hàng chuyển đi",
          visible: true,
          dataIndex: `on_way`,
          align: "center",
-         width: 200,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-        title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Hàng đang giao",
+        title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Đang giao",
                             InventoryColumnField.shipping, 
                             (sortColumn:string)=>{onSortASC(sortColumn)},
                             (sortColumn:string)=>{onSortDESC(sortColumn)}), 
-         titleCustom: "Hàng đang giao",
+         titleCustom: "Đang giao",
          visible: true,
          dataIndex: `shipping`,
          align: "center",
@@ -328,7 +329,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Tổng tồn",
          dataIndex: `total_stock`,
          align: "center",
-         width: 150,
+         width: 100,
          render: (value,record) => {
            return <div>{formatCurrency(record.total_stock)}</div> ;
          },
@@ -337,7 +338,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Tồn trong kho",
          dataIndex: `on_hand`,
          align: "center",
-         width: 150,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -346,7 +347,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Có thể bán",
          dataIndex: `available`,
          align: "center",
-         width: 150,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -355,15 +356,15 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Đang giao địch",
          dataIndex: `committed`,
          align: "center",
-         width: 150, render: (value) => {
+         width: 100, render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        }, 
        {
-         title: "Hàng tạm giữ",
+         title: "Tạm giữ",
          dataIndex: `on_hold`,
          align: "center",
-         width: 150,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -371,7 +372,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Hàng lỗi",
          dataIndex: `defect`,
          align: "center",
-         width: 150,
+         width: 70,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -379,28 +380,28 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Chờ nhập",
          dataIndex: `in_coming`,
          align: "center",
-         width: 150,
+         width: 70,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-         title: "Hàng đang chuyển đến",
+         title: "Hàng chuyển đến",
          dataIndex: `transferring`,
          align: "center",
-         width: 200,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-         title: "Hàng đang chuyển đi",
+         title: "Hàng chuyển đi",
          dataIndex: `on_way`,
          align: "center",
-         width: 200,
+         width: 100,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        },{
-         title: "Hàng đang giao",
+         title: "Đang giao",
          dataIndex: `shipping`,
          align: "center",
          render: (value) => {
@@ -628,7 +629,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         isRowSelection
         isLoading={loading}
         dataSource={data.items}
-        scroll={{x: 2200}}
+        scroll={{x: 1500}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         expandedRowKeys={expandRow} 
         onSelectedChange={onSelect} 

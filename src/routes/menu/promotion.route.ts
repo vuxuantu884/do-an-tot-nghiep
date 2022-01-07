@@ -37,7 +37,7 @@ const PromoCodeUpdate = React.lazy(
 
 const promotion: Array<RouteMenu> = [
   {
-    path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
+    path: `${UrlConfig.LOYALTY}`,
     exact: true,
     title: "Tích điểm",
     icon: "icon-dot",
@@ -47,7 +47,7 @@ const promotion: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
+        path: `${UrlConfig.LOYALTY}`,
         exact: true,
         title: "Cấu hình tích điểm",
         icon: "icon-dot",
@@ -57,7 +57,7 @@ const promotion: Array<RouteMenu> = [
         header: null,
         subMenu: [
           {
-            path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`,
+            path: `${UrlConfig.LOYALTY}/accumulation`,
             exact: true,
             title: "Tạo cấu hình tích điểm",
             icon: "icon-dot",
@@ -68,7 +68,7 @@ const promotion: Array<RouteMenu> = [
             subMenu: [],
           },
           {
-            path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/:id`,
+            path: `${UrlConfig.LOYALTY}/accumulation/:id`,
             exact: true,
             title: "Chi tiết cấu hình tích điểm",
             icon: "icon-dot",
@@ -79,7 +79,7 @@ const promotion: Array<RouteMenu> = [
             subMenu: [],
           },
           {
-            path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/:id/update`,
+            path: `${UrlConfig.LOYALTY}/accumulation/:id/update`,
             exact: true,
             title: "Cập nhật cấu hình tích điểm",
             icon: "icon-dot",

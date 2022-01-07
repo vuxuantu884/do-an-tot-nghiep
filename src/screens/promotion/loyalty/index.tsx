@@ -79,7 +79,7 @@ const LoyaltyPage = () => {
       <Menu>
         {allowUpdateProgram &&
           <Menu.Item key="1">
-          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${value.id}/update`}>
+          <Link to={`${UrlConfig.LOYALTY}/accumulation/${value.id}/update`}>
             <Button
               icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
               type="text"
@@ -131,7 +131,7 @@ const LoyaltyPage = () => {
       fixed: "left",
       render: (value: any, item: any, index: number) => 
         <Link
-          to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${value.id}`}
+          to={`${UrlConfig.LOYALTY}/accumulation/${value.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
           {value.name}
@@ -278,7 +278,7 @@ const LoyaltyPage = () => {
         },
         {
           name: "Tích điểm",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
+          path: `${UrlConfig.LOYALTY}`,
         },
       ]}
     >
@@ -404,7 +404,7 @@ const LoyaltyPage = () => {
                   Danh sách chương trình
                 </span>
                 {allowCreateProgram &&
-                  <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`}>
+                  <Link to={`${UrlConfig.LOYALTY}/accumulation`}>
                     <div className="add-new-btn">
                       <PlusOutlined /> Thêm mới
                     </div>

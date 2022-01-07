@@ -5,7 +5,7 @@ import { FormInstance } from 'antd';
 import { StoreResponse } from "model/core/store.model";
  
 interface Props extends TreeSelectProps<string> {
-  form: FormInstance;
+  form?: FormInstance;
   name: string;
   placeholder?: string;
   listStore: Array<StoreResponse> | undefined;
@@ -65,7 +65,7 @@ const TreeStore = (props: Props) => {
       treeNodeFilterProp='title'
       tagRender={tagRender}
       maxTagCount="responsive"
-      onChange={(value) => {form.setFieldsValue({ [name]: value })}}
+      onChange={(value) => {form?.setFieldsValue({ [name]: value })}}
       {...restProps}
       filterTreeNode={(search: any, item: any) => {
         return item?.title.toLowerCase().includes(search.toLowerCase().trim());

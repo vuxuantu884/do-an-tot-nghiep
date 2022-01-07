@@ -11,7 +11,7 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { SupplierCreateAction, SupplierGetAllAction } from "domain/actions/core/supplier.action";
+import { SupplierCreateAction, SupplierSearchAction } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -29,8 +29,6 @@ import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import CustomSelect from "component/custom/select.custom";
-import _ from 'lodash';
-
 
 const { Item } = Form;
 const { Option } = Select;
@@ -219,9 +217,34 @@ const CreateSupplierScreen: React.FC = () => {
     }
   }, []);
 
+  const validatePhone = (rule: any, value: any, callback: any): void => {
+    if (value) {
+      if (!RegUtil.PHONE.test(value)) {
+        callback(`Số điện thoại không đúng định dạng`);
+      } else {
+        listSupplier.forEach((supplier: SupplierResponse) => {
+          supplier?.contacts.forEach(contact => {
+            if (contact?.phone === value) {
+              callback(`Số điện thoại đã tồn tại`);
+            }
+          })
+        })
+        callback();
+      }
+    } else {
+      callback();
+    }
+  };
+
   useEffect(() => {
     dispatch(getCollectionRequestAction(params, onGetSuccess));
-    dispatch(SupplierGetAllAction(setListSupplier))
+    dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
+      if(response){
+      setListSupplier(response.items)
+    } else {
+      setListSupplier([]);
+    }
+    }))
   }, [dispatch, onGetSuccess, params]);
 
   useEffect(() => {
@@ -598,27 +621,8 @@ const CreateSupplierScreen: React.FC = () => {
                               rules={[
                                 { required: true, message: "Vui lòng nhập số điện thoại" },
                                 {
-                                  pattern: RegUtil.PHONE,
-                                  message: "Số điện thoại không đúng định dạng",
-                                },
-                                ({ getFieldValue }) => ({
-                                  validator() {
-                                    const phoneNumber = getFieldValue("phone");
-
-                                    const check = _.find(listSupplier, (supplier: SupplierResponse) => {
-                                      return _.find(supplier.contacts, (contact: any) => contact?.phone === phoneNumber);
-                                    })
-
-                                    if(check === undefined) {
-                                      return Promise.reject(
-                                        new Error("Số điện thoại đã tồn tại")
-                                      );
-                                    }
-
-                                    return Promise.resolve();
-                                  }
-                                }),
-             
+                                  validator: validatePhone,
+                                }
                               ]}
                             >
                               <Input
