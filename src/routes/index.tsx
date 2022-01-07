@@ -19,6 +19,7 @@ const childRoute : Array<RouteMenu> = [];
 const listMenu = () => {
   let list: Array<RouteMenu> = [];
   menu.forEach((item) => list = [...list, ...getAllRoute(item)]);
+  console.log("RouteMenu",list)
   return list;
 }
 
