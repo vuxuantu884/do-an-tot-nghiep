@@ -227,6 +227,7 @@ const ModalImport: React.FC<ModalImportProps> = (
                       file.type !==
                       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     ) {
+                      setStatusImport(CON_STATUS_IMPORT.ERROR);
                       setUploadStatus("ERROR");
                       setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
                       setImportRes([]);
@@ -259,7 +260,7 @@ const ModalImport: React.FC<ModalImportProps> = (
          {
            statusImport !== CON_STATUS_IMPORT.DEFAULT &&
            <>
-            <Upload showUploadList={{showRemoveIcon: false}} fileList={fileList} />
+            {statusImport !== CON_STATUS_IMPORT.ERROR && <Upload showUploadList={{showRemoveIcon: false}} fileList={fileList} />}
             <div
               style={{
                 display:

@@ -103,7 +103,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       visible={props.visible}
       cancelText="Thoát"
       okText="Thêm sản phẩm"
-      width={1000}
+      width={800}
       onCancel={() => {
         setSelection([]);
         setQuery(initQuery);

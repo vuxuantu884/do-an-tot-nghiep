@@ -4,32 +4,23 @@ import editIcon from "assets/icon/edit.svg";
 import closeIcon from "assets/icon/close.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import { StyledMenu, StyledDropDown } from "./styles";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
 
-const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any, handleGift?: any) => {
+const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
     width: "5%",
     className: "saleorder-product-card-action ",
-    render: (l: any, item: any, index: number) => {
+    render: (_: any, item: any) => {
       const menu = (
         <StyledMenu>
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-        {/*{ handleGift &&*/}
-        {/*    <Menu.Item key="1">*/}
-        {/*      <Button*/}
-        {/*        icon={<img style={{ marginRight: 12 }} alt="" src={checkIcon} />}*/}
-        {/*        type="text"*/}
-        {/*        className=""*/}
-        {/*        onClick={() => handleGift(item)}*/}
-        {/*      >*/}
-        {/*        Đã tặng*/}
-        {/*      </Button>*/}
-        {/*    </Menu.Item>*/}
-        {/*  }*/}
 
           { handleStatus &&
             <Menu.Item key="2">
+            <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
               <Button
                 icon={<img style={{ marginRight: 12 }} alt="" src={closeIcon} />}
                 type="text"
@@ -38,10 +29,12 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any, 
               >
                 Ngừng áp dụng
               </Button>
+              </AuthWrapper>
             </Menu.Item>
           }
 
           <Menu.Item key="3">
+          <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
             <Button
               icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
               type="text"
@@ -50,9 +43,11 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any, 
             >
               Chỉnh sửa
             </Button>
+            </AuthWrapper>
           </Menu.Item>
 
           <Menu.Item key="4">
+            <AuthWrapper acceptPermissions={[PromoPermistion.CANCEL]}>
             <Button
               icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
               type="text"
@@ -66,6 +61,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any, 
             >
               Huỷ
             </Button>
+            </AuthWrapper>
           </Menu.Item>
           
         </Menu>

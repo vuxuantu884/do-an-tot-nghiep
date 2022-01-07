@@ -12,7 +12,7 @@ import {
 } from "model/promotion/price-rules.model";
 import moment from "moment";
 import {Dispatch} from "redux";
-import {DiscountUnitType} from "screens/promotion/discount/constants";
+import {DiscountUnitType} from "screens/promotion/constants";
 import {CustomerFilterField} from "screens/promotion/shared/cusomer-condition.form";
 import {formatCurrency} from "./AppUtils";
 import {PROMO_TYPE} from "./Constants";
@@ -504,21 +504,20 @@ export const onSelectVariantOfDiscount = (
 };
 
 export const parseSelectProductToTableData = (selectedItem: ProductResponse) => {
-  return {
-    ...selectedItem,
+  return { 
     cost: 0,
-    open_quantity: selectedItem.on_hand || 0, // tạm thời chưa có trường on_hand của sp trong api variant
+    open_quantity: selectedItem.on_hand || 0,  
     variant_title: selectedItem.name,
     product_id: selectedItem.id, // id của sp cha
     sku: selectedItem.code,
     isParentProduct: true,
+
   };
 };
 export const parseSelectVariantToTableData = (selectedItem: VariantResponse) => {
-  return {
-    ...selectedItem,
-    cost: selectedItem.variant_prices[0]?.import_price || 0,
-    open_quantity: selectedItem.on_hand || 0, // tạm thời chưa có trường on_hand của sp trong api variant
+  return { 
+    cost: Array(selectedItem.variant_prices) && selectedItem.variant_prices?.length > 0 ? selectedItem.variant_prices[0]?.import_price : 0,
+    open_quantity: selectedItem.on_hand || 0,  
     variant_title: selectedItem.name,
     product_id: selectedItem.product_id, // id của sp cha
     variant_id: selectedItem.id, // id của sp variant

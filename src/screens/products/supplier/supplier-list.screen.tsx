@@ -171,12 +171,6 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-      align: "center",
-      visible: true,
-    },
-    {
       title: "Phân cấp",
       dataIndex: "scorecard",
       align: "center",

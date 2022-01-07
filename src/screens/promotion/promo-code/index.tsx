@@ -29,8 +29,8 @@ import NoPermission from "screens/no-permission.screen";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { ACTIONS_PROMO } from "../constant";
+import { getQueryParams, useQuery } from "../../../utils/useQuery"; 
+import { ACTIONS_PROMO } from "../constants";
 import actionColumn from "./actions/action.column";
 import "./promo-code.scss";
 

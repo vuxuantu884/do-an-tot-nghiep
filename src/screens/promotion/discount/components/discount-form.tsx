@@ -2,7 +2,7 @@ import { Card, Col, Form, FormInstance, Input, InputNumber, Row, Select, Space, 
 import { PriceRuleMethod } from 'model/promotion/price-rules.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
 import { handleChangeDiscountMethod } from 'utils/PromotionUtils';
-import { priorityOptions } from '../constants';
+import { priorityOptions } from '../../constants';
 import { DiscountContext } from './discount-provider';
 import GroupDiscountList from './group-discount-list';
 import OrderThreshold from './order-threshold';

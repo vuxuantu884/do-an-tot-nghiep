@@ -1,6 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { globalCssCustomButton } from "./button";
 import { globalCssCustomCard } from "./card";
+import { globalCssCustomCheckbox } from "./tree";
 import { globalCssCustomForm } from "./form";
 import { globalCssCustomInput } from "./input";
 import { globalCssLayout } from "./layout";
@@ -27,4 +28,5 @@ export const GlobalStyle = createGlobalStyle`
   ${globalCssCustomInput}
   ${globalCssLayout}
   ${globalCssLayoutOutsideComponent}
+  ${globalCssCustomCheckbox}
 `;
