@@ -798,7 +798,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         ]}
                       >
                         <DatePicker
-                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : moment("01/01/1991", "DD/MM/YYYY")}
+                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : moment("01/01/1991", "DD/MM/YYYY")} 
                           style={{ width: "100%" }}
                           placeholder="Chọn ngày sinh"
                           format={"DD/MM/YYYY"}
