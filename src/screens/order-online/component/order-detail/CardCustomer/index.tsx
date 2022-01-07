@@ -69,6 +69,7 @@ type CustomerCardProps = {
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
+  isDisableSelectSource?: boolean;
   isVisibleCustomer: boolean;
   shippingAddress: ShippingAddress | any;
   setModalAction: (item: modalActionType) => void;
@@ -101,6 +102,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     loyaltyPoint,
     loyaltyUsageRules,
     levelOrder = 0,
+    isDisableSelectSource = false,
     setVisibleCustomer,
     isVisibleCustomer,
     shippingAddress,
@@ -507,6 +509,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 setOrderSourceId && setOrderSourceId(value);
                 console.log(value)
               }}
+							disabled={isDisableSelectSource}
             >
               {sortedSources.filter((x) => {
 								return (

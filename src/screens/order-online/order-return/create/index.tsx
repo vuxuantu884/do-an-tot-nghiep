@@ -203,7 +203,7 @@ const ScreenReturnCreate = (props: PropType) => {
     delivery_fee: null,
     shipping_fee_informed_to_customer: null,
     shipping_fee_paid_to_three_pls: null,
-    dating_ship: moment(),
+    dating_ship: undefined,
     requirements: null,
     source_id: null,
     note: "",
