@@ -74,11 +74,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
   var pattern = new RegExp(RegUtil.PHONE);
-  const initialFormValueCustomer = pattern.test(keySearchCustomer)
-    ? {
-      phone: keySearchCustomer,
+  const initialFormValueCustomer ={
+      phone:  pattern.test(keySearchCustomer)?keySearchCustomer:"",
+      shipping_addresses_phone:"",
+      birthday:moment("01/01/1991", "DD/MM/YYYY")
     }
-    : {};
 
   useLayoutEffect(() => {
     const txtCustomerFullName: any = document.getElementById("customer_add_full_name");
@@ -135,7 +135,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         showSuccess("Thêm mới khách hàng thành công");
 
         handleChangeCustomer({ ...result, version: 1 });
-          setVisibleBtnUpdate(false);
+        setVisibleBtnUpdate(false);
       }
     },
     [handleChangeCustomer]
@@ -145,7 +145,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     (values: any) => {
       let area = areas.find((area: any) => area.id === values.district_id);
       values.full_name = values.full_name.trim();
-      let shipping_addresses:CustomerShippingAddress[]|null=isVisibleShipping===false?[
+      let shipping_addresses: CustomerShippingAddress[] | null = isVisibleShipping === false ? [
         {
           ...new CustomerShippingAddressClass(),
           is_default: true,
@@ -158,7 +158,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           city_id: area ? area.city_id : null,
           full_address: values.shipping_addresses_full_address,
         }
-      ]:null;
+      ] : null;
 
       let piece: any = {
         full_name: values.full_name.trim(),
@@ -191,7 +191,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         CustomerCreateAction({ ...new CustomerModel(), ...piece }, createCustomerCallback)
       );
     },
-    [dispatch, createCustomerCallback, areas,isVisibleShipping]
+    [dispatch, createCustomerCallback, areas, isVisibleShipping]
   );
 
   const onOkPress = useCallback(() => {
@@ -281,15 +281,17 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           <Col xs={24} lg={12}>
             <Form.Item
               rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập Số điện thoại",
-                },
-                {
-                  required: true,
-                  pattern: RegUtil.PHONE,
-                  message: "Số điện thoại sai định dạng"
-                }
+                () => ({
+                  validator(_, value) {
+                    if (value.trim().length === 0) {
+                      return Promise.reject(new Error("Vui lòng nhập Số điện thoại!"));
+                    }
+                    if (!RegUtil.PHONE.test(value.trim())) {
+                      return Promise.reject(new Error("Số điện thoại sai định dạng!"));
+                    }
+                    return Promise.resolve();
+                  },
+                }),
               ]}
               name="phone"
             //label="Số điện thoại"
@@ -428,8 +430,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     style={{ width: "100%" }}
                     placeholder="Chọn ngày sinh"
                     format={"DD/MM/YYYY"}
-                    defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
-                    value={moment("01/01/1991", "DD/MM/YYYY")}
+                    defaultPickerValue={moment("01/01/1991", "DD/MM/YYYY")}
                     suffixIcon={
                       <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                     }
@@ -565,15 +566,17 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 <Col xs={24} lg={12}>
                   <Form.Item
                     rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập Số điện thoại người nhận",
-                      },
-                      {
-                        required: true,
-                        pattern: RegUtil.PHONE,
-                        message: "Số điện thoại sai định dạng"
-                      }
+                      () => ({
+                        validator(_, value) {
+                          if (value.trim().length === 0) {
+                            return Promise.reject(new Error("Vui lòng nhập Số điện thoại!"));
+                          }
+                          if (!RegUtil.PHONE.test(value.trim())) {
+                            return Promise.reject(new Error("Số điện thoại sai định dạng!"));
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
                     ]}
                     name="shipping_addresses_phone"
                   //label="Số điện thoại"
