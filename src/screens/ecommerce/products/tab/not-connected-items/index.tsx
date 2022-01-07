@@ -248,6 +248,7 @@ const NotConnectedItems: React.FC = () => {
     const closeResultConnectionModal = () => {
       setIsShowResultConnectionModal(false);
       reloadPage();
+      history.replace(`${history.location.pathname}#connected-item`);
     };
 
     const updateNotConnectedProductList = useCallback((data) => {
