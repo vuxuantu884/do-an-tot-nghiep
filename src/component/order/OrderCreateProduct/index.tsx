@@ -1189,6 +1189,7 @@ function OrderCreateProduct(props: PropType) {
 			return;
 		}
 		setIsCalculateDiscount(true);
+		removeCoupon()
 		// handleRemoveAllAutomaticDiscount();
 		const lineItems: LineItemRequestModel[] = items.map((single) => {
 			return {
@@ -1725,10 +1726,7 @@ function OrderCreateProduct(props: PropType) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [items, itemGifts, indexItem]);
 
-	const handleRemoveAllAutomaticDiscount = async () => {
-		if (!items || items.length === 0) {
-			return;
-		}
+	const removeCoupon = () => {
 		if (promotion?.promotion_id || promotion?.discount_code) {
 			setPromotion && setPromotion(null);
 		}
@@ -1736,6 +1734,13 @@ function OrderCreateProduct(props: PropType) {
 			setCoupon && setCoupon("");
 			setCouponInputText("");
 		}
+	};
+
+	const handleRemoveAllAutomaticDiscount = async () => {
+		if (!items || items.length === 0) {
+			return;
+		}
+		removeCoupon()
 		let _items = [...items];
 		_items.forEach((lineItem) => {
 			if (lineItem.discount_items[0]?.promotion_id || couponInputText) {
@@ -1885,7 +1890,7 @@ function OrderCreateProduct(props: PropType) {
 						</Form.Item>
 						<Form.Item name="automatic_discount" valuePropName="checked">
 							<Checkbox
-								disabled={levelOrder > 3 || isCalculateDiscount}
+								disabled={levelOrder > 3 || isCalculateDiscount || typeof(promotion?.discount_code) === "string"}
 								value={isAutomaticDiscount}
 								onChange={(e) => {
 									if (e.target.checked) {
