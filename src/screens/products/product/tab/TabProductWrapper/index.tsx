@@ -95,8 +95,8 @@ const TabProductWrapper: React.FC = () => {
       width: 80,
       render: (value: ProductResponse) => {
         let url = null;
-        value.variants.forEach((item) => {
-          item.variant_images.forEach((item1) => {
+        value.variants?.forEach((item) => {
+          item.variant_images?.forEach((item1) => {
             if (item1.product_avatar) {
               url = item1.url;
             }

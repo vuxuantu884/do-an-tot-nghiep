@@ -503,7 +503,7 @@ export const Products = {
       supplier_id: pr.supplier_id,
       material_id: pr.material_id,
       material: pr.material,
-      collections: pr.collections,
+      collections: pr.product_collections,
     };
     return productRequest;
   },
@@ -554,8 +554,8 @@ export const Products = {
         product_type: variant.product.product_type,
         goods: variant.product.goods,
         category_id: variant.product.category_id,
-        collections: variant.product.product_collections.map(
-          (i) => i.collection
+        collections: variant.product.collections.map(
+          (i) => i.code
         ),
         tags:
           variant.product.tags !== null ? variant.product.tags.split(";") : [],
@@ -603,8 +603,8 @@ export const Products = {
   findAvatarProduct: (product: ProductResponse | null) => {
     let avatar = null;
     if (product) {
-      product.variants.forEach((variant) => {
-        variant.variant_images.forEach((variantImage) => {
+      product.variants?.forEach((variant) => {
+        variant.variant_images?.forEach((variantImage) => {
           if (variantImage.product_avatar) {
             avatar = variantImage.url;
           }

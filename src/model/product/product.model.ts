@@ -1,5 +1,6 @@
  import { BaseQuery } from 'model/base/base.query';
 import { BaseObject } from 'model/base/base.response';
+import { CollectionResponse } from './collection.model';
 
 
 export interface ProductCollectionsResponse  {
@@ -58,10 +59,11 @@ export interface ProductResponse extends BaseObject {
   unit_name:string,
   product_type:string,
   code:string,
-  product_collections: Array<ProductCollectionsResponse>,
+  collections: Array<CollectionResponse>,
   specifications: string,
   variants: Array<VariantResponse>
   on_hand:number,
+  product_collections: Array<string>
 }
 
 export interface ProductWrapperResponse extends BaseObject {
@@ -88,7 +90,7 @@ export interface ProductWrapperResponse extends BaseObject {
   care_labels:string,
   unit:string,
   product_type:string,
-  product_collections: Array<ProductCollectionsResponse>,
+  collections: Array<CollectionResponse>,
   specifications: string,
   variants: Array<VariantResponse>,
 }
@@ -117,7 +119,7 @@ export interface ProductWrapperUpdateRequest{
   care_labels:string | null,
   unit:string | null,
   product_type:string | null,
-  product_collections: Array<ProductCollectionsResponse>,
+  collections: Array<CollectionResponse>,
   specifications: string | null,
   variants: Array<VariantResponse>,
 }
@@ -321,11 +323,11 @@ export interface VariantPriceViewRequest {
   currency: string,
   tax_percent: number|"",
 }
+
 export interface ProductRequestView {
   product_type?: string|null,
   goods: string|null,
   category_id: number|null,
-  collections: Array<string>,
   code: string,
   name: string,
   width: number|null,
@@ -349,14 +351,15 @@ export interface ProductRequestView {
   saleable: boolean,
   material_id:number|null,
   supplier_id:number|null,
-  material: string|null
+  material: string|null,
+  collections: Array<CollectionResponse>,
+  product_collections: Array<string>
 }
 
 export interface ProductUpdateView {
   product_type?: string|null,
   goods: string|null,
   category_id: number|null,
-  collections: Array<string>,
   tags: Array<string>,
   product_unit: string|null,
   brand: string|null,
@@ -368,6 +371,7 @@ export interface ProductUpdateView {
   care_labels: string,
   specifications: string,
   material_id: number,
+  collections: Array<string>
 }
 
 export interface VariantUpdateView {
