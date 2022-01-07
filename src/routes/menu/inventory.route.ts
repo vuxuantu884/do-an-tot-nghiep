@@ -74,7 +74,7 @@ export const inventory: Array<RouteMenu> = [
   {
     path: UrlConfig.PURCHASE_ORDERS,
     exact: true,
-    title: "Nhập hàng",
+    title: "Đặt hàng",
     icon: "icon-dot",
     component: PurchaseOrderListScreen,
     key: "submenu22",
