@@ -14,9 +14,7 @@ export const globalCssCustomCheckbox = css`
   .ant-select-tree-checkbox:hover .ant-select-tree-checkbox-inner {
     border-color: ${primaryColor};
   }
-  .ant-select-tree-switcher{
-    width: 5px;
-  }
+  
   .ant-tree-select-dropdown .ant-select-tree-list-holder-inner .ant-select-tree-treenode:hover {
     background-color: #f5f5f5;
 }
