@@ -269,7 +269,7 @@ const SettingCustomerGroup: React.FC = () => {
       page: 1,
     };
     setParams({ ...newParams });
-    history.replace(`${UrlConfig.CUSTOMER}/groups`);
+    history.replace(`${UrlConfig.CUSTOMER2}-groups`);
     window.scrollTo(0, 0);
   };
 

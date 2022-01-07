@@ -25,7 +25,7 @@ const customers: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: `${UrlConfig.CUSTOMER}/groups`,
+    path: `${UrlConfig.CUSTOMER2}-groups`,
     exact: true,
     title: "Nhóm khách hàng",
     icon: 'icon-dot',
@@ -36,7 +36,7 @@ const customers: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: `${UrlConfig.CUSTOMER}/cards`,
+    path: `${UrlConfig.CUSTOMER2}-cards`,
     exact: true,
     title: "Thẻ khách hàng",
     icon: "icon-dot",
@@ -46,7 +46,7 @@ const customers: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.CUSTOMER}/cards/upload`,
+        path: `${UrlConfig.CUSTOMER2}-cards/upload`,
         exact: true,
         title: "Thẻ khách hàng",
         icon: "icon-dot",
@@ -59,7 +59,7 @@ const customers: Array<RouteMenu> = [
     ],
   },
   {
-    path: `${UrlConfig.CUSTOMER}/rankings`,
+    path: `${UrlConfig.CUSTOMER2}-rankings`,
     exact: true,
     title: "Hạng khách hàng",
     icon: 'icon-dot',
@@ -69,7 +69,7 @@ const customers: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.CUSTOMER}/rankings/create`,
+        path: `${UrlConfig.CUSTOMER2}-rankings/create`,
         exact: true,
         title: "Tạo hạng thẻ",
         icon: 'icon-dot',
@@ -80,7 +80,7 @@ const customers: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.CUSTOMER}/rankings/:id/update`,
+        path: `${UrlConfig.CUSTOMER2}-rankings/:id/update`,
         exact: true,
         title: "Sửa hạng thẻ",
         icon: 'icon-dot',
@@ -93,7 +93,7 @@ const customers: Array<RouteMenu> = [
     ],
   },
   {
-    path: `${UrlConfig.CUSTOMER}/point-adjustments`,
+    path: `${UrlConfig.CUSTOMER2}-adjustments`,
     exact: true,
     title: "Phiếu điều chỉnh",
     icon: 'icon-dot',
@@ -103,7 +103,7 @@ const customers: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.CUSTOMER}/point-adjustments/create`,
+        path: `${UrlConfig.CUSTOMER2}-adjustments/create`,
         exact: true,
         title: "Tạo mới phiếu điều chỉnh",
         icon: 'icon-dot',
@@ -114,7 +114,7 @@ const customers: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.CUSTOMER}/point-adjustments/:id`,
+        path: `${UrlConfig.CUSTOMER2}-adjustments/:id`,
         exact: true,
         title: `Chi tiết phiếu điều chỉnh`,
         icon: 'icon-dot',
