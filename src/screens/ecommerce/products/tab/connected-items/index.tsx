@@ -57,6 +57,8 @@ import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/produc
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 
+import { useHistory } from 'react-router-dom'
+
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
@@ -64,6 +66,9 @@ const productsDisconnectPermission = [EcommerceProductPermission.products_discon
 
 
 const ConnectedItems: React.FC = () => {
+
+  const history = useHistory()
+
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -284,13 +289,13 @@ const ConnectedItems: React.FC = () => {
 
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
-
+    
     if (idsItemSelected) {
       dispatch(
         disconnectEcommerceItem({ ids: idsItemSelected }, (result) => {
           if (result) {
             showSuccess("Ngắt kết nối sản phẩm thành công");
-            reloadPage();
+            history.replace(`${history.location.pathname}#not-connected-item`);
           }
         })
       );

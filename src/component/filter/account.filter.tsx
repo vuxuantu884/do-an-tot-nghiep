@@ -52,7 +52,6 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
   }, [formRef]);
 
   const handleClearFilter = ()=>{
-    setVisible(false);
     onClearFilter?.();
   }
 
