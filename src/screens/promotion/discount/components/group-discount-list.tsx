@@ -20,17 +20,6 @@ import { VariantResponse } from "model/product/product.model";
 import { HttpStatus } from "config/http-status.config";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 
-const csvColumnMapping: any = {
-  sku: "Mã SKU",
-  min_quantity: "SL Tối thiểu",
-  usage_limit: "Giới hạn",
-  discount_percentage: "Chiết khấu (%)",
-  fixed_amount: "Chiết khấu (VND)",
-  invalid: "Không đúng định dạng",
-  notfound: "không tìm thấy",
-  required: "Không được trống",
-  sku_duplicate: "Bị trùng",
-};
 
 type UploadStatus = "error" | "success" | "done" | "uploading" | "removed" | undefined;
 enum EnumUploadStatus {
@@ -44,8 +33,6 @@ interface Props {
   form: FormInstance;
 
 }
-
-
 
 const GroupDiscountList = (props: Props) => {
   const token = getToken() || "";
@@ -415,8 +402,7 @@ const GroupDiscountList = (props: Props) => {
                         {entitlementErrorsResponse?.map((error: any, index) => (
                           <div key={index} className="error-import-file__item">
                             <span>
-                              - Dòng {error.index + 2}: {csvColumnMapping[error.column]} &nbsp;
-                              {csvColumnMapping[error.type.toLowerCase()]}
+                              - Dòng {error?.index + 2}: {error?.message} 
                             </span>
                           </div>
                         ))}

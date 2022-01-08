@@ -16,7 +16,7 @@ import {HttpStatus} from "../../../../config/http-status.config";
 import {unauthorizedAction} from "../../../actions/auth/auth.action";
 import {showError} from "../../../../utils/ToastUtils";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {takeLatest} from "typed-redux-saga";
+import {takeEvery, takeLatest} from "typed-redux-saga";
 import {DiscountType, PriceRuleType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
 import { PriceRule } from 'model/promotion/price-rules.model';
@@ -285,7 +285,7 @@ export function* discountSaga() {
     takeLatest(DiscountType.ENABLE_PRICE_RULE, bulkEnablePriceRulesSaga),
     takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesSaga),
     takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct),
-    takeLatest(DiscountType.GET_VARIANTS, getVariantsAct),
+    takeEvery(DiscountType.GET_VARIANTS, getVariantsAct),
     takeLatest(DiscountType.UPDATE_PRICE_RULE_BY_ID, updatePriceRuleByIdSaga),
     takeLatest(PriceRuleType.CREATE_PRICE_RULE, createPriceRuleSaga)
   ])

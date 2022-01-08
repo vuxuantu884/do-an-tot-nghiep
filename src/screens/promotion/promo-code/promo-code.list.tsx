@@ -1,67 +1,50 @@
 import {
-  Card,
-  Button,
-  Form,
-  Input,
-  Row,
-  Space,
-  Modal,
-  Col,
-  Select,
-  message,
-  Divider,
-} from "antd";
-import React, { Fragment, ReactNode, useCallback, useEffect, useState } from "react";
-import moment from "moment";
-import actionColumn from "./actions/promo.action.column";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import CustomFilter from "component/table/custom.filter";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import exportIcon from "assets/icon/export.svg";
-import VoucherIcon from "assets/img/voucher.svg";
-import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
-import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
-import CustomModal from "./components/CustomModal";
-import Dragger from "antd/lib/upload/Dragger";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import search from "assets/img/search.svg";
-import "./promo-code.scss";
-import { useParams } from "react-router";
-import {
   CheckCircleOutlined,
   FilterOutlined,
   LoadingOutlined,
-  PlusOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
-import { DATE_FORMAT } from "utils/DateUtils";
-import { PageResponse } from "model/base/base-metadata.response";
-import { DiscountSearchQuery } from "model/query/discount.query";
-import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { RiUpload2Line } from "react-icons/ri";
 import {
-  addPromoCode,
-  getListPromoCode,
-  deletePromoCodeById,
-  updatePromoCodeById,
-  publishedBulkPromoCode,
-  enableBulkPromoCode,
-  disableBulkPromoCode,
-} from "domain/actions/promotion/promo-code/promo-code.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { showSuccess } from "utils/ToastUtils";
-import { getPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
-import { AppConfig } from "../../../config/app.config";
-import _ from "lodash";
-import { getToken } from "../../../utils/LocalStorageUtils"; 
-import { VscError } from "react-icons/all";
-import useAuthorization from "hook/useAuthorization";
+  Button, Card, Col, Divider, Form,
+  Input, message, Modal, Row, Select, Space
+} from "antd";
+import Dragger from "antd/lib/upload/Dragger";
+import exportIcon from "assets/icon/export.svg";
+import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
+import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
+import search from "assets/img/search.svg";
+import VoucherIcon from "assets/img/voucher.svg";
+import ContentContainer from "component/container/content.container";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import CustomFilter from "component/table/custom.filter";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
-import { MenuAction } from "component/table/ActionButton";
-import NoPermission from "screens/no-permission.screen";
+import UrlConfig from "config/url.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
+import {
+  addPromoCode, deletePromoCodeById, disableBulkPromoCode, enableBulkPromoCode, getListPromoCode, publishedBulkPromoCode, updatePromoCodeById
+} from "domain/actions/promotion/promo-code/promo-code.action";
+import useAuthorization from "hook/useAuthorization";
+import _ from "lodash";
+import { PageResponse } from "model/base/base-metadata.response";
 import { DiscountCode, PriceRule } from "model/promotion/price-rules.model";
+import { DiscountSearchQuery } from "model/query/discount.query";
+import moment from "moment";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import { VscError } from "react-icons/all";
+import { RiUpload2Line } from "react-icons/ri";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
+import { AppConfig } from "../../../config/app.config";
+import { getToken } from "../../../utils/LocalStorageUtils";
+import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { ACTIONS_PROMO_CODE, statuses, STATUS_PROMO_CODE } from "../constants";
+import ActionColumn from "./actions/promo.action.column";
+import CustomModal from "./components/CustomModal";
+import "./promo-code.scss";
 const { Item } = Form;
 const { Option } = Select;
 
@@ -120,17 +103,12 @@ const ListCode = () => {
     "error" | "success" | "done" | "uploading" | "removed"
   >();
 
-  //phân quyền
-  const [actionsPromoCode, setAcionsPromoCode] =
-    useState<Array<MenuAction>>(ACTIONS_PROMO_CODE);
-  const [allowCancelPromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CANCEL],
-  });
+  //phân quyền  
   const [allowCreatePromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CREATE],
   });
-  const [allowReadPromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.READ],
+  const [allowUpdatePromoCode] = useAuthorization({
+    acceptPermissions: [PromoPermistion.UPDATE],
   });
 
   // section handle call api GET DETAIL
@@ -329,7 +307,7 @@ const ListCode = () => {
         created_date ? moment(created_date).format(DATE_FORMAT.DDMMYYY) : ""
       ),
     },
-    actionColumn(handleUpdate, handleDelete, handleStatus),
+    ActionColumn(handleUpdate, handleDelete, handleStatus),
   ];
 
 
@@ -376,18 +354,10 @@ const ListCode = () => {
     dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
   }, [dispatch, onSetPromoListData, priceRuleId, params]);
 
+ 
 
-  useEffect(() => {
-    if (!allowCancelPromoCode) {
-      setAcionsPromoCode([...ACTIONS_PROMO_CODE.filter((e) => e.id !== 2 && e.id !== 3)]);
-    } else {
-      setAcionsPromoCode([...ACTIONS_PROMO_CODE]);
-    }
-  }, [allowCancelPromoCode]);
-
-  return (
-    <>
-      {allowReadPromoCode ? (
+  return ( 
+      
         <ContentContainer
           title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ''}`}
           breadcrumb={[
@@ -432,7 +402,7 @@ const ListCode = () => {
         >
           <Card>
             <div className="discount-code__search">
-              <CustomFilter onMenuClick={onMenuClick} menu={actionsPromoCode}>
+              <CustomFilter onMenuClick={onMenuClick} menu={ACTIONS_PROMO_CODE} actionDisable={!allowUpdatePromoCode}>
                 <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
                   <Item name="code" className="search">
                     <Input
@@ -819,10 +789,8 @@ const ListCode = () => {
             visible={isShowDeleteModal}
           />
         </ContentContainer>
-      ) : (
-        <NoPermission />
-      )}
-    </>
+      
+    
   );
 };
 

@@ -30,7 +30,7 @@ function generateGreetings() {
         return TimeOfDay.MORNING;
     } else if (currentHour >= 12 && currentHour < 18) {
         return TimeOfDay.AFTERNOON;
-    } else if (currentHour >= 18 && currentHour < 3) {
+    } else if (currentHour >= 18 || currentHour < 5) {
         return TimeOfDay.NIGHT;
     } else {
         return TimeOfDay.HELLO;
