@@ -24,7 +24,7 @@ import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { DeliveryServiceResponse, SelfDeliveryData, StoreCustomResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, EcommerceDeliveryResponse, OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import {
 	OrderConfigResponseModel,
 	ShippingServiceConfigDetailResponseModel
@@ -36,6 +36,7 @@ import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
+import ShipmentMethodEcommerce from "component/order/OrderCreateShipment/ShipmentMethodEcommerce";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
@@ -65,8 +66,9 @@ type PropType = {
   handleCreateShipment?: () => void;
   creating?: boolean;
   handleCancelCreateShipment?: () => void;
-  initSelfDelivery? : SelfDeliveryData;
+  ecommerceShipment? : EcommerceDeliveryResponse | null;
   isEcommerceOrder?: boolean;
+	OrderDetail?: OrderResponse | null;
 };
 
 /**
@@ -123,8 +125,9 @@ function OrderCreateShipment(props: PropType) {
     handleCreateShipment,
     creating,
     handleCancelCreateShipment,
-    initSelfDelivery,
+    ecommerceShipment,
     isEcommerceOrder,
+    OrderDetail,
   } = props;
   const dateFormat = "DD/MM/YYYY";
 	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
@@ -347,126 +350,136 @@ function OrderCreateShipment(props: PropType) {
 
   return (
     <StyledComponent>
-      <div className="orders-shipment">
-        <Row gutter={24}>
-          <Col md={9}>
-            <span className="orders-shipment__dateLabel">Hẹn giao:</span>
-            <Form.Item name="dating_ship">
-              <DatePicker
-                format={dateFormat}
-                style={{width: "100%"}}
-                className="r-5 w-100 ip-search"
-                placeholder={DATE_FORMAT.DDMMYYY}
-                disabledDate={(current: any) => moment().add(-1, "days") >= current}
-              />
-            </Form.Item>
-          </Col>
+      {isEcommerceOrder &&
+        <ShipmentMethodEcommerce
+          ecommerceShipment={ecommerceShipment}
+          OrderDetail={OrderDetail}
+          handleCreateShipment={handleCreateShipment}
+          setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+          isLoading={creating}
+        />
+      }
 
-          <Col md={6}>
-            <Form.Item name="office_time" valuePropName="checked">
-              <Checkbox  style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
-            </Form.Item>
-          </Col>
-          <Col md={9}>
-            <span className="orders-shipment__dateLabel">Yêu cầu:</span>
-            <Form.Item name="requirements">
-              <Select
-                className="select-with-search"
-                showSearch
-                showArrow
-                notFoundContent="Không tìm thấy kết quả"
-                style={{width: "100%"}}
-                placeholder="Chọn yêu cầu"
-                disabled={orderConfig?.for_all_order}
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
-              >
-                {shipping_requirements?.map((item, index) => (
-                  <Select.Option
-                    style={{width: "100%"}}
-                    key={index.toString()}
-                    value={item.value}
-                  >
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
+      {!isEcommerceOrder &&
+        <div className="orders-shipment">
+          <Row gutter={24}>
+            <Col md={9}>
+              <span className="orders-shipment__dateLabel">Hẹn giao:</span>
+              <Form.Item name="dating_ship">
+                <DatePicker
+                  format={dateFormat}
+                  style={{width: "100%"}}
+                  className="r-5 w-100 ip-search"
+                  placeholder={DATE_FORMAT.DDMMYYY}
+                  disabledDate={(current: any) => moment().add(-1, "days") >= current}
+                />
+              </Form.Item>
+            </Col>
 
-        <Row>
+            <Col md={6}>
+              <Form.Item name="office_time" valuePropName="checked">
+                <Checkbox  style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+              </Form.Item>
+            </Col>
+            <Col md={9}>
+              <span className="orders-shipment__dateLabel">Yêu cầu:</span>
+              <Form.Item name="requirements">
+                <Select
+                  className="select-with-search"
+                  showSearch
+                  showArrow
+                  notFoundContent="Không tìm thấy kết quả"
+                  style={{width: "100%"}}
+                  placeholder="Chọn yêu cầu"
+                  disabled={orderConfig?.for_all_order}
+                  filterOption={(input, option) => {
+                    if (option) {
+                      return (
+                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      );
+                    }
+                    return false;
+                  }}
+                >
+                  {shipping_requirements?.map((item, index) => (
+                    <Select.Option
+                      style={{width: "100%"}}
+                      key={index.toString()}
+                      value={item.value}
+                    >
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row>
+            <div
+              className="saleorder_shipment_method_btn 2"
+              style={
+                shipmentMethod === ShipmentMethodOption.DELIVER_LATER
+                  ? {border: "none"}
+                  : {borderBottom: "1px solid #2A2A86"}
+              }
+            >
+              <Space size={10} align="start">
+                {renderShipmentTabHeader()}
+              </Space>
+            </div>
+          </Row>
           <div
-            className="saleorder_shipment_method_btn 2"
+            className="saleorder_shipment_method_content"
             style={
-              shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                ? {border: "none"}
-                : {borderBottom: "1px solid #2A2A86"}
+              shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
+                ? {marginTop: 15}
+                : undefined
             }
           >
-            <Space size={10} align="start">
-              {renderShipmentTabHeader()}
-            </Space>
+            {/*--- Chuyển hãng vận chuyển ----*/}
+            {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
+              <ShipmentMethodDeliverPartner
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                thirdPL={thirdPL}
+                setThirdPL={setThirdPL}
+                shippingServiceConfig={shippingServiceConfig}
+                setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+                deliveryServices={deliveryServices}
+                infoFees={infoFees}
+                addressError={addressError}
+                levelOrder={levelOrder}
+                orderPrice={orderPrice}
+                customer={customer}
+                form={form}
+                renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+              />
+            )}
+            {/*--- Tự vận chuyển ----*/}
+            {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
+              <ShipmentMethodSelfDelivery
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                levelOrder={levelOrder}
+                setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+                isCancelValidateDelivery={isCancelValidateDelivery}
+                storeId={storeDetail?.id}
+                renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+                setThirdPL={setThirdPL}
+                listExternalShippers={listExternalShippers}
+                form={form}
+              />
+            )}
+            {/*--- Nhận tại cửa hàng ----*/}
+            {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
+              <ShipmentMethodReceiveAtStore
+                storeDetail={storeDetail}
+                isCancelValidateDelivery={isCancelValidateDelivery}
+                renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+              />
+            )}
           </div>
-        </Row>
-        <div
-          className="saleorder_shipment_method_content"
-          style={
-            shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
-              ? {marginTop: 15}
-              : undefined
-          }
-        >
-          {/*--- Chuyển hãng vận chuyển ----*/}
-          {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
-            <ShipmentMethodDeliverPartner
-              totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-              thirdPL={thirdPL}
-              setThirdPL={setThirdPL}
-              shippingServiceConfig={shippingServiceConfig}
-              setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
-              deliveryServices={deliveryServices}
-              infoFees={infoFees}
-              addressError={addressError}
-              levelOrder={levelOrder}
-              orderPrice={orderPrice}
-              customer={customer}
-              form={form}
-              renderButtonCreateActionHtml={renderButtonCreateActionHtml}
-            />
-          )}
-          {/*--- Tự vận chuyển ----*/}
-          {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
-            <ShipmentMethodSelfDelivery
-              totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-              levelOrder={levelOrder}
-              setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
-              isCancelValidateDelivery={isCancelValidateDelivery}
-              storeId={storeDetail?.id}
-              renderButtonCreateActionHtml={renderButtonCreateActionHtml}
-              setThirdPL={setThirdPL}
-              listExternalShippers={listExternalShippers}
-              form={form}
-              isEcommerceOrder={isEcommerceOrder}
-              initSelfDelivery={initSelfDelivery}
-            />
-          )}
-          {/*--- Nhận tại cửa hàng ----*/}
-          {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-            <ShipmentMethodReceiveAtStore
-              storeDetail={storeDetail}
-              isCancelValidateDelivery={isCancelValidateDelivery}
-              renderButtonCreateActionHtml={renderButtonCreateActionHtml}
-            />
-          )}
         </div>
-      </div>
+      }
     </StyledComponent>
   );
 }
