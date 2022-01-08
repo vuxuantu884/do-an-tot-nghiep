@@ -558,8 +558,8 @@ console.log('totalAmountPayment', totalAmountPayment)
 
   console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay) 
 
-	const checkIfNotHavePaymentsWhenReceiveAtStoreOrLaterPOS = () => {
-		const methods = [ShipmentMethodOption.PICK_AT_STORE, ShipmentMethodOption.DELIVER_LATER]
+	const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
+		const methods = [ShipmentMethodOption.PICK_AT_STORE]
 		if(totalAmountOrderAfterPayments > 0 && methods.includes(shipmentMethod) && OrderDetail?.source_id === POS.source_id) {
 			return true
 		}
@@ -586,7 +586,7 @@ console.log('totalAmountPayment', totalAmountPayment)
           element?.focus();
           return;
         }
-				if(checkIfNotHavePaymentsWhenReceiveAtStoreOrLaterPOS()){
+				if(checkIfNotHavePaymentsWhenReceiveAtStorePOS()){
 					const element: any = document.getElementsByClassName("create-order-payment")[0] as HTMLElement;
 					scrollAndFocusToDomElement(element);
           showError("Vui lòng thanh toán đủ số tiền!");
