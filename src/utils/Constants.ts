@@ -79,6 +79,12 @@ export const ShipmentMethod = {
   EXTERNAL_SERVICE: "external_service",
   EMPLOYEE: "employee",
   EXTERNAL_SHIPPER: "external_shipper",
+  SHOPEE: "shopee",
+};
+
+export const SHIPPING_TYPE = {
+  DELIVERY_4H: "4h_delivery",
+  ROAD: "road",
 };
 
 export const TRANSPORTS = {

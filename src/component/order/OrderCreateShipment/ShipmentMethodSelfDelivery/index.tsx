@@ -4,7 +4,6 @@ import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
-import { SelfDeliveryData } from "model/response/order/order.response";
 // import { AccountResponse } from "model/account/account.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -22,8 +21,6 @@ type PropType = {
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   form: FormInstance<any>;
-  initSelfDelivery? : SelfDeliveryData;
-  isEcommerceOrder?: boolean;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -36,8 +33,6 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     renderButtonCreateActionHtml,
     setThirdPL,
     form,
-    initSelfDelivery,
-    isEcommerceOrder,
   } = props;
   const [is4h, setIs4h] = useState(false);
   const [typeDelivery, setTypeDelivery] = useState('employee');
@@ -142,12 +137,6 @@ console.log('initYodyAccountData', initYodyAccountData)
     };
     pushCurrentValueToDataAccount("shipper_code");
   }, [dispatch, form, storeAccountData]);
-  useEffect(() => {
-    if (isEcommerceOrder && initSelfDelivery) {
-      setShippingFeeInformedToCustomer(initSelfDelivery.shipping_fee_informed_to_customer || 0);
-      form.setFieldsValue({ shipping_fee_informed_to_customer: initSelfDelivery.shipping_fee_informed_to_customer  || 0 });
-    }
-  }, [form, initSelfDelivery, isEcommerceOrder, setShippingFeeInformedToCustomer])
 
 
   return (
