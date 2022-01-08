@@ -125,7 +125,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          dataIndex: "sku",
          align: "left",
          fixed: "left",
-         width: 200,
+         className: "column-product",
          render: (value, record, index) => {
            return (
              <div>
@@ -178,7 +178,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `total_stock`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value,record) => {
            return <div> {formatCurrency(record.total_stock,".")}</div> ;
          },
@@ -192,7 +192,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `on_hand`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -206,7 +206,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `available`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -220,7 +220,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `committed`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -234,7 +234,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `on_hold`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -247,7 +247,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `defect`,
          align: "center",
-         width: 70,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -260,7 +260,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `in_coming`,
          align: "center",
-         width: 70,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -273,7 +273,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `transferring`,
          align: "center",
-         width: 130,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -286,7 +286,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `on_way`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -299,6 +299,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          visible: true,
          dataIndex: `shipping`,
          align: "center",
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -319,7 +320,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
        },{
          dataIndex: "variant_prices",
          align: "center",
-         width: 150,
+         width: 110,
          fixed: true,
          render: (value) => {
            return <></>;
@@ -329,16 +330,16 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Tổng tồn",
          dataIndex: `total_stock`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value,record) => {
-           return <div>{formatCurrency(record.total_stock)}</div> ;
+           return <div>{formatCurrency(record.total_stock,".")}</div> ;
          },
        },
        {
          title: "Tồn trong kho",
          dataIndex: `on_hand`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -347,7 +348,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Có thể bán",
          dataIndex: `available`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -356,7 +357,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Đang giao địch",
          dataIndex: `committed`,
          align: "center",
-         width: 100, render: (value) => {
+         width: 80, render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
        }, 
@@ -364,7 +365,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Tạm giữ",
          dataIndex: `on_hold`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -372,7 +373,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Hàng lỗi",
          dataIndex: `defect`,
          align: "center",
-         width: 70,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -380,7 +381,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Chờ nhập",
          dataIndex: `in_coming`,
          align: "center",
-         width: 70,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -388,7 +389,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Hàng chuyển đến",
          dataIndex: `transferring`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -396,7 +397,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Hàng chuyển đi",
          dataIndex: `on_way`,
          align: "center",
-         width: 100,
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -404,6 +405,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          title: "Đang giao",
          dataIndex: `shipping`,
          align: "center",
+         width: 80,
          render: (value) => {
            return <div> {formatCurrency(value,".")}</div> ;
          },
@@ -538,10 +540,12 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
               if (res) {
                 setLstConfig(res.data);
                 if (res.data && res.data.length > 0) {
-                  const userConfigColumn = res.data.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY);
+                  const userConfigColumn = res.data.filter(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY);
+                  const userConfig=   userConfigColumn.reduce((p, c) => p.id > c.id ? p : c);
                 
-                   if (userConfigColumn){
-                       let cf = JSON.parse(userConfigColumn.json_content) as ConfigColumnInventory;
+                   if (userConfig){
+                       let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
+                       
                        cf.Columns.forEach(e => {
                          const column = defaultColumns.find(p=>p.dataIndex === e.dataIndex);
                          if (column) {
@@ -629,7 +633,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         isRowSelection
         isLoading={loading}
         dataSource={data.items}
-        scroll={{x: 1500}}
+        scroll={{x: 1200}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         expandedRowKeys={expandRow} 
         onSelectedChange={onSelect} 
@@ -666,7 +670,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
               <CustomTable
                 bordered 
                 dataSource={inventiryVariant.get(record.id) || []}
-                scroll={{x: 2100}}
                 pagination={false}
                 columns={columnsDrill}
               />
@@ -710,7 +713,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
             dataIndex: "store_id",
             align: 'left',
             fixed: true,
-            width: 270,
+            width: "auto",
             render (value) {
               return storeRef.current.get(value);
             }
