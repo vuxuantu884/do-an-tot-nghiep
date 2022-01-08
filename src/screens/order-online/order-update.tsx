@@ -255,8 +255,33 @@ export default function Order(props: PropType) {
 			case OrderStatus.FINISHED:
 				return 5;
 			case OrderStatus.FINALIZED:
-				// thay đổi cứ xác nhận là disable chọn cửa hàng
-				return 4;
+				if (
+					OrderDetail.fulfillments === undefined ||
+					OrderDetail.fulfillments === null ||
+					!OrderDetail.fulfillments.length ||
+					OrderDetail.fulfillments[0].shipment === null
+				) {
+					if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
+						return 2;
+					} else {
+						return 3;
+					}
+				} else {
+					if (
+						OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED
+						|| OrderDetail.fulfillments[0].status === FulFillmentStatus.CANCELLED
+						|| OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNING
+						// || OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+					) {
+						// return 1
+						if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
+							return 2;
+						} else {
+							return 3;
+						}
+					}
+					return 4;
+				}
 			default:
 				return undefined;
 		}
