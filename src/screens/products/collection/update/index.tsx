@@ -282,7 +282,7 @@ const GroupUpdate: React.FC = () => {
 
   const onEnterFilterProduct = useCallback(
     (key: string) => {
-      key = key ? key.toLocaleLowerCase() : "";
+      key = key ? key.toLocaleLowerCase().trim() : "";
       let temps = [...dataTable];
 
       let dataSearch = [

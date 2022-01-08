@@ -18,7 +18,6 @@ export interface CollectionUpdateRequest extends CollectionCreateRequest {
 
 export interface CollectionResponse extends BaseObject {
   name: string,
-  code: string,
   description: string
 }
  

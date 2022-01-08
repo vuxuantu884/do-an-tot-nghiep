@@ -273,7 +273,7 @@ const ListAccountScreen: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-
+    setTableLoading(true);
     dispatch(AccountSearchAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
   return (

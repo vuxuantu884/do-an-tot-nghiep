@@ -121,22 +121,34 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	const dispatch = useDispatch();
 
 	//handle create a new fulfillment for ecommerce order
-	const latestFulfillment = useMemo(() => {
-		const fulfillment = props.OrderDetailAllFullfilment?.fulfillments
-			? props.OrderDetailAllFullfilment.fulfillments[0]
-			: null;
-		return fulfillment;
-	}, [props.OrderDetailAllFullfilment]);
+	const [ecommerceShipment, setEcommerceShipment] = useState<any>();
 
-	const initSelfDelivery = useMemo(() => {
-		const selfDelivery = {
-			shipper_code: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipper_code : null,
-			shipping_fee_paid_to_three_pls: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipping_fee_paid_to_three_pls : null,
-			shipping_fee_informed_to_customer: (isEcommerceOrder && latestFulfillment && latestFulfillment.shipment) ? latestFulfillment.shipment.shipping_fee_informed_to_customer : null,
-		};
+  useEffect(() => {
+		const fulfillment = props.OrderDetailAllFullfilment?.fulfillments ? props.OrderDetailAllFullfilment.fulfillments[0] : null;
 
-		return selfDelivery;
-	}, [isEcommerceOrder, latestFulfillment]);
+    if (isEcommerceOrder && fulfillment && fulfillment.shipment) {
+      const shipment = fulfillment.shipment;
+      let newEcommerceShipment = {
+        cod: shipment.cod,
+        shipping_fee_informed_to_customer: shipment.shipping_fee_informed_to_customer,
+        shipping_fee_paid_to_three_pls: shipment.shipping_fee_paid_to_three_pls,
+        delivery_service_provider_code: shipment.delivery_service_provider_code,
+        delivery_service_provider_id: shipment.delivery_service_provider_id,
+        delivery_service_provider_name: shipment.delivery_service_provider_name,
+        delivery_service_provider_type: shipment.delivery_service_provider_type,
+        delivery_transport_type: shipment.delivery_transport_type,
+        office_time: shipment.office_time,
+        requirements: shipment.requirements,
+        requirements_name: shipment.requirements_name,
+        sender_address: shipment.sender_address,
+        sender_address_id: shipment.sender_address_id,
+        service: shipment.service,
+        tracking_code: shipment.tracking_code,
+      }
+
+      setEcommerceShipment(newEcommerceShipment);
+    }
+	}, [isEcommerceOrder, props.OrderDetailAllFullfilment?.fulfillments]);
 
 	// ffm asc id
 	const newFulfillments = useMemo(() => {
@@ -498,18 +510,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 		delivery_service_provider_code: "",
 		delivery_service_provider_name: "",
 		delivery_transport_type: "",
-		shipper_code: initSelfDelivery.shipper_code,
+		shipper_code: null,
 		shipper_name: "",
 		handover_id: null,
 		service: null,
 		fee_type: "",
 		fee_base_on: "",
 		delivery_fee: null,
-		shipping_fee_paid_to_three_pls: initSelfDelivery.shipping_fee_paid_to_three_pls,
+		shipping_fee_paid_to_three_pls: null,
 		cod: null,
 		expected_received_date: "",
 		reference_status: "",
-		shipping_fee_informed_to_customer: initSelfDelivery.shipping_fee_informed_to_customer,
+		shipping_fee_informed_to_customer: null,
 		reference_status_explanation: "",
 		cancel_reason: "",
 		tracking_code: "",
@@ -603,7 +615,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 			value.cod = totalAmountCustomerNeedToPay;
 		}
 
-		FulFillmentRequest.shipment = value;
+		FulFillmentRequest.shipment = isEcommerceOrder ? ecommerceShipment : value;
 
 		if (props.shippingFeeInformedCustomer !== null) {
 			FulFillmentRequest.shipping_fee_informed_to_customer =
@@ -1788,7 +1800,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 								creating={updateShipment}
 								handleCancelCreateShipment={() => setVisibleShipping(false)}
 								isEcommerceOrder={isEcommerceOrder}
-								initSelfDelivery={initSelfDelivery}
+								ecommerceShipment={ecommerceShipment}
+                OrderDetail={OrderDetail}
 							/>
 						</Form>
 						{/*--- Giao hàng sau ----*/}

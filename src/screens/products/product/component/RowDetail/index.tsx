@@ -1,8 +1,9 @@
+import { ReactNode } from 'react';
 import {StyledComponent} from './style';
 
 type RowDetailProps = {
   title: string,
-  value: string|null,
+  value: ReactNode,
 }
 
 const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {

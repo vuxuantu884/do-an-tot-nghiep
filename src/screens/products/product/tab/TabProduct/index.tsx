@@ -255,9 +255,9 @@ const TabProduct: React.FC = () => {
 
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      width: 80,
+      width: 60,
       title: "Ảnh",
-      align:"left",
+      align:"center",
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
