@@ -222,6 +222,7 @@ export interface ProductWrapperSearchQuery extends BaseQuery {
   status?: string,
   goods?: string,
   product_ids?: Array<number>,
+  collections?: string
 }
 
 export interface VariantPriceRequest {

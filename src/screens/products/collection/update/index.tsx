@@ -12,6 +12,8 @@ import TextArea from "antd/es/input/TextArea";
 import {
   collectionDetailAction,
   collectionUpdateAction,
+  getProductsCollectionAction,
+  updateProductsCollectionAction,
 } from 'domain/actions/product/collection.action';
 import React, {
   createRef,
@@ -41,7 +43,7 @@ import PickManyProductModal from 'component/modal/PickManyProductModal';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import { ProductResponse, VariantResponse } from 'model/product/product.model';
 import CustomAutoComplete from 'component/custom/autocomplete.cusom';
-import { SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import PlusOutline from "assets/icon/plus-outline.svg";
 import { PageResponse } from 'model/base/base-metadata.response';
 import imgDefIcon from "assets/img/img-def.svg";
@@ -51,6 +53,7 @@ import { Link } from 'react-router-dom';
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
 import { formatCurrency } from 'utils/AppUtils';
 import _ from 'lodash';
+import { dangerColor } from 'utils/global-styles/variables';
 
 type CollectionParam = {
   id: string;
@@ -70,22 +73,27 @@ const GroupUpdate: React.FC = () => {
   const isFirstLoad = useRef(true); 
   const [keySearch, setKeySearch] = useState<string>("");
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
   const [resultSearch, setResultSearch] = useState<PageResponse<ProductResponse> | any>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [selected, setSelected] = useState<Array<ProductResponse>>([]);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [loadingSearchProduct,setLoadingSearchProduct] = useState<boolean>(false);
+  const [tableLoading, setTableLoading] = useState(false);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   }); 
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [dataTable, setDataTable] = useState<Array<ProductResponse>>(
     [] as Array<ProductResponse>
-  );
-  const [searchProduct, setSearchProduct] = useState<Array<ProductResponse>>(
-    [] as Array<ProductResponse>
-  );
+  ); 
+  const [dataProductItem, setDataProductItem] = useState<PageResponse<ProductResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -102,10 +110,11 @@ const GroupUpdate: React.FC = () => {
     setLoading(false);
     if (result) {
       setDetail(result);
+      formRef.current?.setFieldsValue(result);
       showSuccess('Sửa nhóm hàng thành công');
       history.push(`${UrlConfig.COLLECTIONS}`);
     }
-  }, [history]);
+  }, [history, formRef]);
   const onFinish = useCallback(
     (values: CollectionUpdateRequest) => {
       setLoading(true);
@@ -161,30 +170,17 @@ const GroupUpdate: React.FC = () => {
     );
   }; 
 
-  const onPickManyProduct = useCallback((result: Array<ProductResponse>) => {
-    const newResult = result?.map((item) => {
-      return {
-        ...item,
-      };
-    });
-    const dataTemp = [...dataTable, ...newResult];
-
-    const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
-    setIsLoadingTable(true);
-    setDataTable(arrayUnique);
-    setSearchProduct(arrayUnique);
-    setIsLoadingTable(false);
-    setVisibleManyProduct(false);   
-  },[dataTable]);
-
   const ActionComponent = useMemo( 
     () => {
-      let Compoment = () => <span>STT</span>;
+      let Compoment = () => <span>Sản phẩm</span>;
       if (selected?.length > 0) {
         Compoment = () => (
-          <Button style={{paddingLeft: 5,paddingRight: 5}} onClick={()=>{setConfirmDelete(true)}}>
-            Xóa
-          </Button>
+          <div>
+            {`Đã chọn ${selected.length} `}
+            <Button icon={<DeleteOutlined/>} type='default' style={{color: dangerColor, paddingLeft: 5,paddingRight: 5}} onClick={()=>{setConfirmDelete(true)}}>
+              Xóa
+            </Button>
+          </div>
         );
       }
       return <Compoment />;
@@ -193,7 +189,7 @@ const GroupUpdate: React.FC = () => {
   const defaultColumns: Array<ICustomTableColumType<ProductResponse>> = useMemo(()=>{ 
     return [
       {
-        title: ActionComponent,
+        title: "STT",
         align: "center",
         width: 60,
         render: (value: string, record: ProductResponse, index: number) => index + 1,
@@ -204,7 +200,7 @@ const GroupUpdate: React.FC = () => {
         render: (record: ProductResponse) => {
           let url = null;
           record.variants.forEach((item) => {
-            item.variant_images.forEach((item1) => {
+            item.variant_images?.forEach((item1) => {
               if (item1.product_avatar) {
                 url = item1.url;
               }
@@ -218,11 +214,7 @@ const GroupUpdate: React.FC = () => {
         },
       },
       {
-        title: ()=>{
-          return <>
-            Sản phẩm {dataTable && `(${dataTable.length})`}
-          </>
-        },
+        title: ActionComponent,
         className: "ant-col-info",
         dataIndex: "name",
         render: (value: string, record: ProductResponse, index: number) => {
@@ -278,46 +270,19 @@ const GroupUpdate: React.FC = () => {
         visible: true,
       },
     ]
-  },[ActionComponent, dataTable]);    
-
-  const onEnterFilterProduct = useCallback(
-    (key: string) => {
-      key = key ? key.toLocaleLowerCase().trim() : "";
-      let temps = [...dataTable];
-
-      let dataSearch = [
-        ...temps.filter((e: ProductResponse) => {
-          return (
-            e.name?.toLocaleLowerCase().includes(key) ||
-            e.code?.toLocaleLowerCase().includes(key) 
-          );
-        }),
-      ];
-
-      setSearchProduct(dataSearch);
-    },
-    [dataTable]
-  );
+  },[ActionComponent]);    
 
   const onClickDelete = useCallback(()=>{
-    setIsLoadingTable(true);
+    setTableLoading(true);
     
     let temps = [...dataTable];
     temps = temps.filter(e=> selectedRowKeys.indexOf(e.id) === -1);
     
     setDataTable(temps);
-    setSearchProduct(temps);
     setSelectedRowKeys([]);
     setSelected([]);
     setConfirmDelete(false);
-  },[selectedRowKeys, dataTable]);
-
-  const debounceSearchVariant = useMemo(()=>
-    _.debounce((code: string)=>{
-      onEnterFilterProduct(code);
-  }, 300),
-  [onEnterFilterProduct]
-  );
+  },[selectedRowKeys, dataTable]); 
 
 const onSelectProduct = useCallback((value: string) => {
   const dataTemp = [...dataTable];
@@ -329,16 +294,9 @@ const onSelectProduct = useCallback((value: string) => {
 
     setDataTable((prev: Array<ProductResponse>) =>
       prev.concat([{...selectedItem, ProductResponse: selectedItem.name}])
-    );
-    setSearchProduct((prev: Array<ProductResponse>) =>
-      prev.concat([{...selectedItem, name: selectedItem.name}])
-    );
+    ); 
   } 
-},[dataTable,resultSearch]);
-
-const onChangeKeySearch = useCallback((code)=>{
-  debounceSearchVariant(code);
-},[debounceSearchVariant]); 
+},[dataTable,resultSearch]); 
 
 const onSelectedChange = useCallback(
   (selectedRow: Array<ProductResponse>) => {
@@ -354,6 +312,86 @@ const onSelectedChange = useCallback(
   []
 );
 
+const onResulProduct = useCallback(
+  (result: PageResponse<ProductResponse>) => {
+    if (result) {
+      setDataProductItem({...result});
+    }
+    setTableLoading(false);
+  },
+  []
+);
+
+const getProductCollection = useCallback((page,size)=>{
+  setTableLoading(true);
+    dispatch(
+      getProductsCollectionAction(
+        {
+          status: "active",
+          limit: size,
+          page: page,
+          collections: detail?.code,
+          info: keySearch?.trim(),
+        },
+        onResulProduct
+      )
+    );
+},[onResulProduct, dispatch, keySearch, detail]);
+
+const onResultUpdateProduct = useCallback((res)=>{
+  if (res) {
+    dispatch(collectionDetailAction(idNumber, onGetDetailSuccess));
+    getProductCollection(dataProductItem.metadata.page,dataProductItem.metadata.limit);
+  }
+},[dispatch,idNumber,onGetDetailSuccess, dataProductItem, getProductCollection]);
+
+const onEnterFilterProduct = useCallback(
+  (key: string) => {
+    key = key ? key.toLocaleLowerCase().trim() : "";
+    getProductCollection(dataProductItem.metadata.page,dataProductItem.metadata.limit);
+  },
+  [dataProductItem, getProductCollection]
+);
+
+const debounceSearchVariant = useMemo(()=>
+_.debounce((code: string)=>{
+  onEnterFilterProduct(code);
+}, 300),
+[onEnterFilterProduct]
+);
+
+const onPickManyProduct = useCallback((result: Array<ProductResponse>) => {
+  const products = result?.map((item) => item.id);
+
+  if (detail && detail.code) {
+    let request= {
+      ...formRef.current?.getFieldsValue(),
+      collection_code: detail.code,
+      add_product_ids: products,
+      remove_product_ids: []
+    } as CollectionUpdateRequest;
+
+   dispatch(updateProductsCollectionAction(request, onResultUpdateProduct))
+ 
+    setVisibleManyProduct(false);   
+  }
+},[detail,dispatch, formRef, onResultUpdateProduct]);
+
+const onPageChange = useCallback(
+  (page, size) => {
+    setDataProductItem({
+      ...dataProductItem,
+      metadata: {...dataProductItem.metadata, page: page, limit: size},
+    });
+    getProductCollection(page,size);
+  },
+  [dataProductItem, getProductCollection]
+);
+
+const onChangeKeySearch = useCallback((code)=>{
+  debounceSearchVariant(code);
+},[debounceSearchVariant]); 
+
 useEffect(() => {
   if (isFirstLoad.current) {
     if (!isNaN(idNumber)) {
@@ -364,6 +402,12 @@ useEffect(() => {
   }
   isFirstLoad.current = false;
 }, [dispatch, idNumber, onGetDetailSuccess]);
+
+useEffect(()=>{
+  if (detail && detail.code) {
+    getProductCollection(1,30);
+   }
+},[detail,getProductCollection])
 
   return (
     <ContentContainer
@@ -470,6 +514,7 @@ useEffect(() => {
              />
             </Input.Group>
               <CustomTable
+                isLoading={tableLoading}
                 isRowSelection
                 bordered
                 style={{marginTop: 20}}
@@ -477,15 +522,17 @@ useEffect(() => {
                 tableLayout="fixed"
                 scroll={{y: 300}}
                 columns={defaultColumns}
-                pagination={false}
-                loading={isLoadingTable}
-                dataSource={
-                  searchProduct && (searchProduct.length > 0 || keySearch !== "")
-                    ? searchProduct
-                    : dataTable
-                }
+                dataSource={dataProductItem.items}
                 onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
                 rowKey={(item: ProductResponse) => item.id}
+                pagination={{
+                  pageSize: dataProductItem.metadata.limit,
+                  total: dataProductItem.metadata.total,
+                  current: dataProductItem.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
               />
         </Card>
           <PickManyProductModal
