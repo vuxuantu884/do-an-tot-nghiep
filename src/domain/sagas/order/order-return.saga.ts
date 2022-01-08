@@ -134,6 +134,7 @@ function* createOrderExchangeSaga(action: YodyAction) {
 			handleData(response.data);
       showSuccess("Tạo đơn đổi hàng thành công!");
 		} else {
+			handleError();
 			yield put(fetchApiErrorAction(response, "Tạo đơn đổi hàng"));
 		}
   } catch (error) {
