@@ -29,7 +29,7 @@ function TextShowMore(props: Props): ReactElement {
         onShowMore, onShowLess } = props;
 
     const [isShowFull, setIsShowFull] = React.useState(false)
-    const [textShow, setTextShow] = React.useState(children)
+    const [textShow, setTextShow] = React.useState<ReactNode>(children)
 
     /**
      * show full text
@@ -86,7 +86,7 @@ function TextShowMore(props: Props): ReactElement {
      * First load : check if text is too long => collapse 
      */
     useEffect(() => {
-        if (children && children.length > maxLength!) {
+        if (typeof children === "string" && children.length > maxLength!) {
             showLessText(children, maxLength!);
         }else{
             setTextShow(children);
