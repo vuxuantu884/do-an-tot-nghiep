@@ -62,6 +62,7 @@ const DiscountPage = () => {
   const [allowCancelPromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CANCEL],
   });
+  const [allowUpdateDiscount] = useAuthorization({acceptPermissions:[PromoPermistion.UPDATE]})
 
   useEffect(() => {
     setTableLoading(true);
@@ -168,6 +169,7 @@ const DiscountPage = () => {
       align: "center",
       render: (id: number) => (
         <Dropdown.Button
+        disabled={!allowUpdateDiscount}
           overlay={
             <Menu>
               <Menu.Item icon={<EditOutlined />} key={1}>

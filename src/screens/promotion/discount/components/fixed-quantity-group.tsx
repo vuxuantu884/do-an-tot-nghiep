@@ -1,6 +1,7 @@
 import { DeleteOutlined } from "@ant-design/icons";
 import {
   Button,
+  Card,
   Col,
   Form,
   FormInstance,
@@ -223,14 +224,9 @@ const FixedAndQuantityGroup = (props: Props) => {
   }, [discountMethod])
 
   return (
-    <div
+    <Card 
       key={name}
-      style={{
-        border: "1px solid rgb(229, 229, 229)",
-        padding: "20px",
-        marginBottom: "20px",
-        borderRadius: "5px",
-      }}
+      style={{boxShadow: "none"}}
     >
       <Row gutter={16}>
         <Col span={8}>
@@ -464,7 +460,7 @@ const FixedAndQuantityGroup = (props: Props) => {
         />
       </div>
 
-    </div>
+    </Card>
   );
 };
 

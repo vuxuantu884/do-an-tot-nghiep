@@ -26,7 +26,7 @@ import DiscountRuleInfo from "../components/discount-rule-info";
 import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants/index";
 import "../discount.scss";
 
-const MAX_LOAD_VARIANT_LIST = 5;
+const MAX_LOAD_VARIANT_LIST = 3;
 const RELOAD_VARIANT_LIST_TIME = 3000;
 export interface ProductParams {
   id: string;
@@ -58,15 +58,9 @@ const PromotionDetailScreen: React.FC = () => {
   const isFirstLoadVariantList = useRef(true);
   const countLoadVariantList = useRef(0);
 
-  //phân quyền
-  const [allowCancelPromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CANCEL],
-  });
+  //phân quyền 
   const [allowUpdatePromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.UPDATE],
-  });
-  const [allowCreatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CREATE],
   });
 
   const onResult = useCallback((result: PriceRule | false) => {
@@ -413,9 +407,8 @@ const PromotionDetailScreen: React.FC = () => {
                     <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>
                   </AuthWrapper>
                 )
-                }
-                {allowCreatePromoCode && <Button disabled>Nhân bản</Button>}
-                {allowCancelPromoCode && RenderActionButton()}
+                } 
+                {allowUpdatePromoCode && RenderActionButton()}
               </Space>
             }
           />

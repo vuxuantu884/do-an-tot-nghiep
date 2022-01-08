@@ -1,26 +1,26 @@
-import {Col, Divider, Form, Row} from "antd";
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
-import {getAllModuleParam} from "config/module.config";
+import { Col, Divider, Form, Row, Skeleton } from "antd";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { getAllModuleParam } from "config/module.config";
 import { AccountPermissions } from "config/permissions/account.permisssion";
-import {getModuleAction} from "domain/actions/auth/module.action";
-import {updateAccountPermissionAction} from "domain/actions/auth/permission.action";
+import { getModuleAction } from "domain/actions/auth/module.action";
+import { updateAccountPermissionAction } from "domain/actions/auth/permission.action";
 import useAuthorization from "hook/useAuthorization";
 import _ from "lodash";
-import {ModuleAuthorize} from "model/auth/module.model";
-import {PermissionsAuthorize, UserPermissionRequest} from "model/auth/permission.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {useCallback, useContext, useEffect, useRef, useState} from "react";
-import {useDispatch} from "react-redux";
-import {CreateRoleStyled} from "screens/settings/account/detail/index.style";
-import {AuthorizeDetailCard} from "screens/settings/roles/card-authorize-detail";
-import {AccountDetailContext} from "../provider/account.detail.provider";
+import { ModuleAuthorize } from "model/auth/module.model";
+import { PermissionsAuthorize, UserPermissionRequest } from "model/auth/permission.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { CreateRoleStyled } from "screens/settings/account/detail/index.style";
+import { AuthorizeDetailCard } from "screens/settings/roles/card-authorize-detail";
+import { AccountDetailContext } from "../provider/account.detail.provider";
 
 type AccountPermissionProps = {
   getAccountData: () => void;
 };
 
 function AccountPermissionTab(props: AccountPermissionProps) {
-  const {getAccountData} = props;
+  const { getAccountData } = props;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const isFirstLoad = useRef(true);
@@ -31,13 +31,14 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   const [activePanel, setActivePanel] = useState<string | string[]>([]);
   const [indeterminateModules, setIndeterminateModules] = useState<string[]>([]);
   const [checkedModules, setCheckedModules] = useState<string[]>([]);
+  const [loadingPermission, setLoadingPermission] = useState(false);
   //phân quyền
   const [allowUpdateAcc] = useAuthorization({
     acceptPermissions: [AccountPermissions.UPDATE],
   });
 
   const detailContext = useContext(AccountDetailContext);
-  const {accountInfo} = detailContext;
+  const { accountInfo } = detailContext;
 
   const getCheckedPermissions = useCallback(() => {
     const permissionForm = form.getFieldsValue(true);
@@ -62,7 +63,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
           role_id: permissionData?.get(id)?.role_id,
         };
       });
-      return {user_id: accountInfo.user_id, permissions};
+      return { user_id: accountInfo.user_id, permissions };
     }
     return {} as UserPermissionRequest;
   }, [getCheckedPermissions, accountInfo?.user_id, permissionData]);
@@ -135,8 +136,11 @@ function AccountPermissionTab(props: AccountPermissionProps) {
 
   const onSetModuleData = useCallback(
     (data: PageResponse<ModuleAuthorize>) => {
-      setModuleData(data);
-      handleDefaultCheckbox(data);
+      if (data) {
+        setModuleData(data);
+        handleDefaultCheckbox(data);
+      }
+      setLoadingPermission(false);
     },
     [handleDefaultCheckbox]
   );
@@ -144,6 +148,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   useEffect(() => {
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
+      setLoadingPermission(true);
       dispatch(getModuleAction(getAllModuleParam, onSetModuleData));
     } else if (moduleData) {
       handleDefaultCheckbox(moduleData);
@@ -168,25 +173,29 @@ function AccountPermissionTab(props: AccountPermissionProps) {
           </Col>
         </Row>
         <h4 className="margin-top-20">PHÂN QUYỀN CHI TIẾT</h4>
-        <Divider style={{marginBottom: 0, borderTop: "1px solid #d9d9d9"}} />
+        <Divider style={{ marginBottom: 0, borderTop: "1px solid #d9d9d9" }} />
       </div>
-      <CreateRoleStyled>
-        <Form form={form}>
-          <AuthorizeDetailCard
-            activePanel={activePanel}
-            setActivePanel={setActivePanel}
-            indeterminateModules={indeterminateModules}
-            setIndeterminateModules={setIndeterminateModules}
-            checkedModules={checkedModules}
-            setCheckedModules={setCheckedModules}
-            moduleData={moduleData}
-            form={form}
-            onChangeCheckboxPermission={onChangeCheckBoxPermission}
-            onChangeCheckboxModule={onChangeCheckBoxModule}
-            disabled={!allowUpdateAcc}
-          />
-        </Form>
-      </CreateRoleStyled>
+      {loadingPermission ? (
+        <Skeleton/>
+      ) : (
+        <CreateRoleStyled>
+          <Form form={form}>
+            <AuthorizeDetailCard
+              activePanel={activePanel}
+              setActivePanel={setActivePanel}
+              indeterminateModules={indeterminateModules}
+              setIndeterminateModules={setIndeterminateModules}
+              checkedModules={checkedModules}
+              setCheckedModules={setCheckedModules}
+              moduleData={moduleData}
+              form={form}
+              onChangeCheckboxPermission={onChangeCheckBoxPermission}
+              onChangeCheckboxModule={onChangeCheckBoxModule}
+              disabled={!allowUpdateAcc}
+            />
+          </Form>
+        </CreateRoleStyled>
+      )}
     </>
   );
 }
