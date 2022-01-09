@@ -137,11 +137,11 @@ export const PO_RETURN_HISTORY = [
   },
   {
     code: "finalized",
-    title: "Đã xác nhận",
+    title: "Xác nhận",
   },
   {
     code: "completed",
-    title: "Đã hoàn thành",
+    title: "Hoàn thành",
   },
   {
     code: "cancelled",
@@ -149,7 +149,7 @@ export const PO_RETURN_HISTORY = [
   },
   {
     code: "finished",
-    title: "Đã kết thúc",
+    title: "Kết thúc",
   },
   {
     code: "stored",
