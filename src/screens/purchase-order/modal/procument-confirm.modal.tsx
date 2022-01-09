@@ -22,7 +22,7 @@ export type ProcumentConfirmProps = {
   now: Moment;
   stores: Array<StoreResponse>;
   onCancel: () => void;
-  item: PurchaseProcument | null;
+  item: PurchaseProcument | null | any;
   items: Array<PurchaseOrderLineItem>;
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
