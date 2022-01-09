@@ -56,6 +56,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   // const product_units = useSelector(
   //   (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   // );
+  const [valuePrice, setValuePrice] = useState(0);
+  const [valueVat, setValueVat] = useState(0);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   // const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
   // const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -868,37 +870,42 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           style={{
                             width: "100%",
                             textAlign: "right",
-                            padding: "7px 14px",
                           }}
                         >
-                          Giá nhập
-                          <span
+                          <div>
+                            Giá nhập
+                            <span
                             style={{
                               color: "#737373",
                               fontSize: "12px",
                               fontWeight: "normal",
+                              }}
+                            >
+                              {" "}
+                              ₫
+                            </span>
+                          </div>
+                          <NumberInput
+                            style={{ width: "80%" }}
+                            min={0}
+                            format={(a: string) => formatCurrency(a ? a : 0, '')}
+                            replace={(a: string) => replaceFormatString(a)}
+                            onPressEnter={(e) => {
+                              setValuePrice(e.target.value || 0);
                             }}
-                          >
-                            {" "}
-                            ₫
-                          </span>
+                          />
                         </div>
                       ),
-                      width: 140,
+                      width: 175,
                       dataIndex: "price",
                       render: (value, item, index) => {
-                        // let type = "percent";
-                        // if (item.discount_value !== null) {
-                        //   type = "money";
-                        // }
                         return (
                           <NumberInput
-                            // style={{ width: "70%" }}
                             className="hide-number-handle"
                             min={0}
                             format={(a: string) => formatCurrency(a ? a : 0)}
                             replace={(a: string) => replaceFormatString(a)}
-                            value={value}
+                            value={valuePrice ?? value}
                             onChange={(inputValue) => {
                               if (inputValue === null) {
                                 onPriceChange(
@@ -926,19 +933,27 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           style={{
                             width: "100%",
                             textAlign: "right",
-                            padding: "7px 14px",
                           }}
                         >
-                          VAT
+                          <div>VAT</div>
+                          <NumberInput
+                            style={{ width: "80%" }}
+                            className="product-item-vat"
+                            prefix={<div>%</div>}
+                            isFloat
+                            onPressEnter={(e) => {
+                              setValueVat(e.target.value || 0);
+                            }}
+                          />
                         </div>
                       ),
-                      width: 90,
+                      width: 175,
                       dataIndex: "tax_rate",
                       render: (value, item, index) => {
                         return (
                           <NumberInput
                             className="product-item-vat"
-                            value={value}
+                            value={valueVat ?? value}
                             prefix={<div>%</div>}
                             isFloat
                             onChange={(v) => onTaxChange(v, index)}
