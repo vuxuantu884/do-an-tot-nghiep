@@ -17,6 +17,7 @@ const POUtils = {
     variants: Array<VariantResponse>,
     position: number
   ): Array<PurchaseOrderLineItem> => {
+    debugger
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant, index) => {
       let newId = `${variant.sku}${new Date().getTime()}`;
