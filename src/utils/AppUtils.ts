@@ -1284,15 +1284,19 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
 
 export function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
 	let result = orderSources;
+	let isHaveDepartment = false;
 	let departmentSources = [];
 	if(departmentIds && departmentIds.length > 0) {
 		for (const departmentId of departmentIds) {
 			let departmentSource = orderSources.findIndex(single=>single.department_id === departmentId)
 			if(departmentSource > -1) {
 				departmentSources.push(orderSources[departmentSource])
+				isHaveDepartment = true;
 			}	
 		}
-		result = [...departmentSources,]
+		if(isHaveDepartment) {
+			result = [...departmentSources]
+		}
 	}
 	return result;
 }
