@@ -145,6 +145,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     (values: any) => {
       let area = areas.find((area: any) => area.id === values.district_id);
       values.full_name = values.full_name.trim();
+
+      let area_shipping_district = areas.find((area: any) => area.id === values.shipping_addresses_district_id);
+      let area_shipping_ward=shippingWards.find((ward:any)=>ward.id===values.shipping_addresses_ward_id)
+
+      let customer_district = areas.find((area: any) => area.id === values.district_id);
+      let customer_ward=wards.find((ward:any)=>ward.id===values.ward_id);
+
       let shipping_addresses: CustomerShippingAddress[] | null = isVisibleShipping === false ? [
         {
           ...new CustomerShippingAddressClass(),
@@ -153,18 +160,25 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           name: values.shipping_addresses_name,
           phone: values.shipping_addresses_phone,
           country_id: VietNamId,
-          district_id: values.shipping_addresses_district_id,
-          ward_id: values.shipping_addresses_ward_id,
           city_id: area ? area.city_id : null,
+          city: area_shipping_district.city_name,
+          district_id: values.shipping_addresses_district_id,
+          district:area_shipping_district.name,
+          ward_id: values.shipping_addresses_ward_id,
+          ward:area_shipping_ward?.name||"",
           full_address: values.shipping_addresses_full_address,
         }
       ] : null;
 
       let piece: any = {
         full_name: values.full_name.trim(),
-        district_id: values.district_id,
         phone: values.phone,
+        city_id: area ? area.city_id : null,
+        city: customer_district.city_name,
+        district_id: values.district_id,
+        district:customer_district.name,
         ward_id: values.ward_id,
+        ward:customer_ward.name,
         card_number: values.card_number,
         full_address: values.full_address,
         gender: values.gender,
@@ -174,7 +188,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           ? new Date(values.wedding_date).toUTCString()
           : null,
         status: "active",
-        city_id: area ? area.city_id : null,
         country_id: VietNamId,
         contacts: [
           {
@@ -191,7 +204,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         CustomerCreateAction({ ...new CustomerModel(), ...piece }, createCustomerCallback)
       );
     },
-    [dispatch, createCustomerCallback, areas, isVisibleShipping]
+    [dispatch, createCustomerCallback, areas, isVisibleShipping,shippingWards,wards]
   );
 
   const onOkPress = useCallback(() => {

@@ -3,33 +3,29 @@ import { Button, Card, Form, Input, Select } from "antd";
 import search from "assets/img/search.svg";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { hideLoading } from "domain/actions/loading.action";
 import {
   bulkDeletePriceRules,
   bulkDisablePriceRulesAction,
-  bulkEnablePriceRulesAction,
-  deletePriceRulesById,
-  getListDiscountAction
+  bulkEnablePriceRulesAction, getListDiscountAction
 } from "domain/actions/promotion/discount/discount.action";
 import useAuthorization from "hook/useAuthorization";
-import { PageResponse } from "model/base/base-metadata.response"; 
+import { PageResponse } from "model/base/base-metadata.response";
 import { PriceRule } from "model/promotion/price-rules.model";
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import NoPermission from "screens/no-permission.screen";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "../../../utils/useQuery"; 
+import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { ACTIONS_PROMO } from "../constants";
 import actionColumn from "./actions/action.column";
 import "./promo-code.scss";
@@ -57,15 +53,11 @@ const PromotionCode = () => {
   const [form] = Form.useForm();
 
   const [params, setParams] = useState<any>(dataQuery);
-  const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
-  const [modalInfo, setModalInfo] = React.useState<any>();
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
-  //phân quyền
   const [actionsPromo, setAcionsPromo] = useState<Array<MenuAction>>(ACTIONS_PROMO);
-  const [allowReadPromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.READ],
-  });
+  //phân quyền
+
   const [allowCreatePromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CREATE],
   });
@@ -109,15 +101,6 @@ const PromotionCode = () => {
     },
     [params]
   );
-
-  const handleUpdate = (item: any) => {
-    console.log(item);
-  };
-
-  const handleShowDeleteModal = (item: any) => {
-    setModalInfo(item);
-    setIsShowDeleteModal(true);
-  };
 
   const statuses = [
     {
@@ -232,7 +215,7 @@ const PromotionCode = () => {
         return <TagStatus type={type}>{status}</TagStatus>;
       },
     },
-    actionColumn(handleUpdate, handleShowDeleteModal),
+    actionColumn(),
   ];
 
   const handleCallback = useCallback(
@@ -278,117 +261,100 @@ const PromotionCode = () => {
   }, []);
 
   return (
-    <>
-      {allowReadPromoCode ? (
-        <ContentContainer
-          title="Danh sách đợt phát hành"
-          breadcrumb={[
-            {
-              name: "Tổng quan",
-              path: UrlConfig.HOME,
-            },
-            {
-              name: "Khuyến mãi",
-              path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
-            },
-            {
-              name: "Đợt phát hành",
-              path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
-            },
-          ]}
-          extra={
-            allowCreatePromoCode && (
-              <ButtonCreate path={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`}>
-                Thêm mới đợt phát hành
-              </ButtonCreate >
-            )
-          }
-        >
-          <Card>
-            <div className="promotion-code__search">
-              <CustomFilter onMenuClick={onMenuClick} menu={actionsPromo}>
-                <Form
-                  onFinish={onFilter}
-                  initialValues={params}
-                  layout="inline"
-                  form={form}
+    <ContentContainer
+      title="Danh sách đợt phát hành"
+      breadcrumb={[
+        {
+          name: "Tổng quan",
+          path: UrlConfig.HOME,
+        },
+        {
+          name: "Khuyến mãi",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
+        },
+        {
+          name: "Đợt phát hành",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
+        },
+      ]}
+      extra={
+        allowCreatePromoCode && (
+          <ButtonCreate path={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`}>
+            Thêm mới đợt phát hành
+          </ButtonCreate >
+        )
+      }
+    >
+      <Card>
+        <div className="promotion-code__search">
+          <CustomFilter onMenuClick={onMenuClick} menu={actionsPromo}>
+            <Form
+              onFinish={onFilter}
+              initialValues={params}
+              layout="inline"
+              form={form}
+            >
+              <Item name="query" className="search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Tìm kiếm theo mã, tên chương trình"
+                  onBlur={(e) => {
+                    form.setFieldsValue({ query: e.target.value?.trim() });
+                  }}
+                />
+              </Item>
+              <Item name="state">
+                <Select
+                  showArrow
+                  showSearch
+                  style={{ minWidth: "200px" }}
+                  optionFilterProp="children"
+                  placeholder="Chọn trạng thái"
+                  allowClear={true}
                 >
-                  <Item name="query" className="search">
-                    <Input
-                      prefix={<img src={search} alt="" />}
-                      placeholder="Tìm kiếm theo mã, tên chương trình"
-                      onBlur={(e) => {
-                        form.setFieldsValue({ query: e.target.value?.trim() });
-                      }}
-                    />
-                  </Item>
-                  <Item name="state">
-                    <Select
-                      showArrow
-                      showSearch
-                      style={{ minWidth: "200px" }}
-                      optionFilterProp="children"
-                      placeholder="Chọn trạng thái"
-                      allowClear={true}
-                    >
-                      {statuses?.map((item) => (
-                        <Option key={item.code} value={item.code}>
-                          {item.value}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                  <Item>
-                    <Button type="primary" htmlType="submit">
-                      Lọc
-                    </Button>
-                  </Item>
-                  <Item>
-                    <Button icon={<FilterOutlined />} onClick={openFilter}>
-                      Thêm bộ lọc
-                    </Button>
-                  </Item>
-                </Form>
-              </CustomFilter>
+                  {statuses?.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.value}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+              <Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>
+                  Thêm bộ lọc
+                </Button>
+              </Item>
+            </Form>
+          </CustomFilter>
 
-              <CustomTable
-                selectedRowKey={selectedRowKey}
-                onChangeRowKey={(rowKey) => {
-                  setSelectedRowKey(rowKey);
-                }}
-                isRowSelection
-                isLoading={tableLoading}
-                sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
-                pagination={{
-                  pageSize: dataSource?.metadata.limit || 0,
-                  total: dataSource?.metadata.total || 0,
-                  current: dataSource?.metadata.page,
-                  showSizeChanger: true,
-                  onChange: onPageChange,
-                  onShowSizeChange: onPageChange,
-                }}
-                dataSource={dataSource?.items}
-                columns={columns}
-                rowKey={(item: any) => item.id}
-              />
-            </div>
-          </Card>
-          <ModalDeleteConfirm
-            onCancel={() => setIsShowDeleteModal(false)}
-            onOk={() => {
-              setIsShowDeleteModal(false);
-              dispatch(showLoading());
-              dispatch(deletePriceRulesById(modalInfo?.id, handleCallback));
+          <CustomTable
+            selectedRowKey={selectedRowKey}
+            onChangeRowKey={(rowKey) => {
+              setSelectedRowKey(rowKey);
             }}
-            title="Xoá mã đợt giảm giá"
-            subTitle="Bạn có chắc xoá mã đợt giảm giá?"
-            visible={isShowDeleteModal}
+            isRowSelection
+            isLoading={tableLoading}
+            sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+            pagination={{
+              pageSize: dataSource?.metadata.limit || 0,
+              total: dataSource?.metadata.total || 0,
+              current: dataSource?.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            dataSource={dataSource?.items}
+            columns={columns}
+            rowKey={(item: any) => item.id}
           />
-        </ContentContainer >
-      ) : (
-        <NoPermission />
-      )}
-    </>
+        </div>
+      </Card>
+    </ContentContainer >
   );
 };
 

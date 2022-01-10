@@ -224,6 +224,7 @@ const ProductDetailScreen: React.FC = () => {
     (imageId: number) => {
       let variants: Array<VariantResponse> = form.getFieldValue("variants");
       variants.forEach((item) => {
+        item.variant_images = item.variant_images === null ? [] : item.variant_images; 
         item.variant_images.forEach((item1) => {
           if (item1.image_id === imageId) {
             item1.product_avatar = true;
@@ -482,12 +483,13 @@ const ProductDetailScreen: React.FC = () => {
 
   const onFinish = useCallback(
     (values: ProductRequest) => {
-      setLoadingButton(true); 
+      setLoadingButton(true);  
       dispatch(productUpdateAction(
         idNumber,
         {
           ...values,
           care_labels: careLabelsString,
+          collections: values.product_collections ?? []
         },
         onResultFinish));
     },
@@ -542,9 +544,10 @@ const ProductDetailScreen: React.FC = () => {
             (data: false | Array<ProductUploadModel>) => {
               let index = fieldList.findIndex((item) => item.uid === uuid);
               if (!!data) {
-                if (index !== -1) {
+                if (index !== -1) { 
                   let variants: Array<VariantResponse> = form.getFieldValue("variants");
                   let hasVariantAvatar = false;
+                  variants[active].variant_images = variants[active].variant_images === null ? [] : variants[active].variant_images;
                   variants[active].variant_images?.forEach((item) => {
                     if (item.variant_avatar) {
                       hasVariantAvatar = true;
@@ -705,6 +708,7 @@ const ProductDetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
+        result.product_collections = result.collections?.map((e)=> {return e.code});
         setData(result);
         setCareLabelsString(result.care_labels);
         setStatus(result.status);
@@ -1094,15 +1098,15 @@ const ProductDetailScreen: React.FC = () => {
                             }
                             className="padding-0"
                           >
-                            <Collapse.Panel
-                              header="Mô tả sản phẩm"
-                              key="prDes"
-                              className="custom-header"
-                            >
-                              <Item name="description">
-                                <CustomEditor />
-                              </Item>
-                            </Collapse.Panel>
+                              <Collapse.Panel
+                                header="Mô tả sản phẩm"
+                                key="prDes"
+                                className="custom-header"
+                              >
+                                <Item name="description">
+                                  <CustomEditor value={form.getFieldValue("description")} />
+                                </Item>
+                              </Collapse.Panel>
                           </Collapse>
                         </Col>
                       </Row>
@@ -1333,14 +1337,14 @@ const ProductDetailScreen: React.FC = () => {
                                           <Col span={24} md={12}>
                                             <Item
                                               name={[name, "sku"]}
-                                              rules={[
+                                              rules={(id === undefined || id === null) ? [
                                                 {required: true},
                                                 {
                                                   min: 10,
                                                   message:
                                                     "Mã sản phẩm tối thiểu 10 kí tự",
                                                 },
-                                              ]}
+                                              ]: []}
                                               label="Mã sản phẩm"
                                             >
                                               <Input

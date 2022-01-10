@@ -13,7 +13,7 @@ const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
   const { data, showCheckBox, checked } = props;
   let url = null;
   data.variants.forEach((item) => {
-    item.variant_images.forEach((item1) => {
+    item.variant_images?.forEach((item1) => {
       if (item1.product_avatar) {
         url = item1.url;
       }
