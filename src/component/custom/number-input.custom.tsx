@@ -10,6 +10,7 @@ interface NumberInputProps {
   onChange?: (v: number | null) => void;
   onBlur?: () => void;
   onKeyPress?: (event: any) => void;
+  onPressEnter?: (event:any) => void;
   style?: CSSProperties;
   placeholder?: string;
   format?: (a: string) => string;
@@ -36,6 +37,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     onChange,
     placeholder,
     onKeyPress,
+    onPressEnter,
     style,
     format,
     onBlur,
@@ -115,6 +117,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       onBlur={onBlurEvent}
       onKeyPress={onKeyPress}
       onChange={onChangeText}
+      onPressEnter={onPressEnter}
       suffix={suffix}
       maxLength={maxLength}
       minLength={minLength}
