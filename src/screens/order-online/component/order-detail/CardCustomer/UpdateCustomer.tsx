@@ -84,7 +84,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
-  const [customerFormLoading, setCustomerFormLoading] = useState(false);
+  //const [customerFormLoading, setCustomerFormLoading] = useState(false);
 
   const handleShippingWards = useCallback(
     (value: number) => {
@@ -277,11 +277,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           }) : []
         }
       }
-      setCustomerFormLoading(true);
+     // setCustomerFormLoading(true);
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
         if (datas) showSuccess("Cập nhật thông tin khách thành công");
         handleChangeCustomer(datas);
-        setCustomerFormLoading(false);
+        //setCustomerFormLoading(false);
       }));
     },
     [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer,shippingWards,wards]
@@ -310,7 +310,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         initialValues={initialFormValueshippingAddress}
         name="customer_update"
       >
-        <Spin tip="Vui lòng chờ..." spinning={customerFormLoading} delay={100}>
+        <Spin tip="Vui lòng chờ..." spinning={false} delay={100}>
           <Row gutter={24}>
             <Col xs={24} lg={12}>
               <Form.Item
