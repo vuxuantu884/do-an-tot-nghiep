@@ -728,6 +728,7 @@ function OrdersTable(props: PropsType) {
 										console.log("newNote", newNote);
 										editNote(newNote, "customer_note", record.id);
 									}}
+									isDisable={record.status===OrderStatus.FINISHED}
 								/>
 							</div>
 							<div className="single">
@@ -739,6 +740,7 @@ function OrdersTable(props: PropsType) {
 										console.log("newNote", newNote);
 										editNote(newNote, "note", record.id);
 									}}
+									isDisable={record.status===OrderStatus.FINISHED}
 								/>
 							</div>
 						</div>

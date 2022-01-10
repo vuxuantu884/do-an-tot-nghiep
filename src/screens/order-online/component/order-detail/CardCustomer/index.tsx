@@ -57,6 +57,7 @@ import CreateCustomer from "./CreateCustomer";
 import { handleDelayActionWhenInsertTextInSearchInput, sortSources } from "utils/AppUtils";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { getSourcesWithParamsService } from "service/order/order.service";
 //#end region
 
 type CustomerCardProps = {
@@ -132,6 +133,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     useState<modalActionType>("create");
 
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
+  const [allSources, setAllSources] = useState<Array<SourceResponse>>([]);
   const [departmentIds, setDepartmentIds] = useState<number[]|null>(null);
 
 	const userReducer = useSelector(
@@ -154,6 +157,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
 
+	const sourceInputRef = useRef()
   //#region Modal
   // const ShowBillingAddress = (e: any) => {
   //   setVisibleBilling(e.target.checked);
@@ -345,6 +349,24 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   //#end region
 
+	const handleSearchOrderSources = useCallback((value:string) => {
+		if(value.length > 1) {
+		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
+			 let query = {
+					name: value
+			 }
+			 getSourcesWithParamsService(query).then((response) => {
+				 console.log('response', response)
+				 setListSource(response.data.items)
+			 }).catch((error) => {
+				 console.log('error', error)
+			 })
+		 })
+		} else {
+			setListSource(initListSource)
+		}
+	}, [initListSource]);
+
   const SearchCustomerSelect = useCallback(
     (value, o) => {
       let index: number = -1;
@@ -388,11 +410,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //   return listSource.filter((item) => item.code !== "POS");
   // }, [listSource]);
 
-	const sortedSources = sortSources(listSource, departmentIds);
-
+	
   useEffect(() => {
-    dispatch(getListSourceRequest(setListSource));
+		dispatch(getListSourceRequest((response) => {
+			setAllSources(response)
+		}));
   }, [dispatch]);
+
+	useEffect(() => {
+		const sortedSources = sortSources(allSources, departmentIds);
+		setInitListSource(sortedSources)
+		setListSource(sortedSources)
+  }, [allSources, departmentIds]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -416,7 +445,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 			dispatch(departmentDetailAction(departmentId, (response) => {
 				if(response && response.parent_id) {
 					department.push(response.parent_id)
-				 setDepartmentIds(department)
+				 	setDepartmentIds(department)
 				}
 			}))
 
@@ -426,6 +455,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   useEffect(() => {
     if (customer) setDistrictId(customer.district_id);
   }, [customer]);
+	
 
   const handleChangeArea = (districtId: string | null) => {
     if (districtId) {
@@ -496,7 +526,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             <CustomSelect
               style={{ width: 300, borderRadius: "6px" }}
               showArrow
+							allowClear
               showSearch
+							onSearch={handleSearchOrderSources}
               placeholder="Nguồn đơn hàng"
               notFoundContent="Không tìm thấy kết quả"
               filterOption={(input, option) => {
@@ -511,7 +543,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               }}
 							disabled={isDisableSelectSource}
             >
-              {sortedSources.filter((x) => {
+              {listSource.filter((x) => {
 								return (
 									x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
 								)

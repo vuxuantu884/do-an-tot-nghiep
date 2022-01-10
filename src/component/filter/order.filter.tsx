@@ -132,6 +132,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			value: 'shipper',
 		},
 		{
+			name: 'Đơn giao 4H',
+			value: 'shipper1',
+		},
+		{
+			name: 'Đơn giao tiêu chuẩn',
+			value: 'shipper2',
+		},
+		{
 			name: 'Nhận tại cửa hàng',
 			value: 'pick_at_store',
 		},
