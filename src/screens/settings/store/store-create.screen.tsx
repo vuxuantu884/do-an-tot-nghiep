@@ -52,6 +52,7 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {RegUtil} from "utils/RegUtils";
+import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
 
 const {Item} = Form;
@@ -134,6 +135,7 @@ const StoreCreateScreen: React.FC = () => {
         return;
       }
       history.push(`${UrlConfig.STORE}/${data.id}`);
+      showSuccess("Thêm mới dữ liệu thành công");
     },
     [history]
   );

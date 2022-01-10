@@ -56,9 +56,11 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   // const product_units = useSelector(
   //   (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   // );
-  const [valuePrice, setValuePrice] = useState(0);
-  const [valueVat, setValueVat] = useState(0);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [listPrice, setListPrice] = useState<Array<Number>>([]);
+  const [listVat, setListVat] = useState<Array<Number>>([]);
+  const [priceValue, setPriceValue] = useState(0);
+  const [vatValue, setVatValue] = useState(0);
   // const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
   // const [splitLine, setSplitLine] = useState<boolean>(false);
   const [data, setData] = useState<Array<VariantResponse>>([]);
@@ -224,8 +226,21 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total: total,
         [POField.procurements]: newProcument,
       });
+
+      const prices = [...listPrice];
+      prices.splice(index, 1);
+      setListPrice(prices);
+
+      const vats = [...listVat];
+      vats.splice(index, 1);
+      setListVat(vats);
+
+      if (vats.length === 0 || prices.length === 0) {
+        setVatValue(0);
+        setPriceValue(0)
+      }
     },
-    [formMain]
+    [formMain, listPrice, listVat]
   );
   const onQuantityChange = useCallback(
     (quantity, index) => {
@@ -377,7 +392,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   );
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
-      console.log(items);
       setVisibleManyProduct(false);
       let old_line_items = formMain.getFieldValue(POField.line_items);
       let trade_discount_rate = formMain.getFieldValue(
@@ -888,10 +902,23 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           <NumberInput
                             style={{ width: "80%" }}
                             min={0}
+                            value={priceValue}
                             format={(a: string) => formatCurrency(a ? a : 0, '')}
                             replace={(a: string) => replaceFormatString(a)}
                             onPressEnter={(e) => {
-                              setValuePrice(e.target.value || 0);
+                              const newPrice = e.target.value || 0;  
+                              const prices = [];   
+                              setPriceValue(newPrice);                       
+                              for (let index = 0; index < items.length; index++) {
+                                prices.push(newPrice);
+                                onPriceChange(
+                                  newPrice,
+                                  DiscountType.money,
+                                  0,
+                                  index
+                                );
+                              }
+                              setListPrice(prices);
                             }}
                           />
                         </div>
@@ -905,8 +932,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             min={0}
                             format={(a: string) => formatCurrency(a ? a : 0)}
                             replace={(a: string) => replaceFormatString(a)}
-                            value={valuePrice ?? value}
+                            value={listPrice[index] > 0 ? listPrice[index] : value}
                             onChange={(inputValue) => {
+                              const newList = [...listPrice];
+                              newList[index] = inputValue || 0;
+                              setListPrice(newList);
+                              
                               if (inputValue === null) {
                                 onPriceChange(
                                   0,
@@ -941,8 +972,19 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             className="product-item-vat"
                             prefix={<div>%</div>}
                             isFloat
+                            value={vatValue}
                             onPressEnter={(e) => {
-                              setValueVat(e.target.value || 0);
+                              const newVat = e.target.value || 0;    
+                              const vats = []; 
+                              setVatValue(newVat);                         
+                              for (let index = 0; index < items.length; index++) {
+                                vats.push(newVat);
+                                onTaxChange(
+                                  newVat,
+                                  index
+                                );
+                              }
+                              setListVat(vats);
                             }}
                           />
                         </div>
@@ -953,10 +995,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         return (
                           <NumberInput
                             className="product-item-vat"
-                            value={valueVat ?? value}
+                            value={ listVat[index] > 0 ? listVat[index] : value}
                             prefix={<div>%</div>}
                             isFloat
-                            onChange={(v) => onTaxChange(v, index)}
+                            onChange={(v) => {
+                              const newList = [...listVat];
+                              newList[index] = v || 0;
+                              setListVat(newList);
+
+                              onTaxChange(v, index)
+                            }}
                             min={0}
                             maxLength={3}
                             max={100}
