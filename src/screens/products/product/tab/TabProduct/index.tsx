@@ -15,7 +15,6 @@ import {
   variantUpdateAction,
   variantUpdateManyAction
 } from "domain/actions/product/products.action";
-import { sizeGetAll } from "domain/actions/product/size.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
@@ -26,7 +25,6 @@ import {
   VariantSearchQuery,
   VariantUpdateRequest
 } from "model/product/product.model";
-import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   useCallback,
