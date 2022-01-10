@@ -1,14 +1,14 @@
-import {YodyAction} from "base/base.action";
-import {HttpStatus} from "config/http-status.config";
-import {unauthorizedAction} from "domain/actions/auth/auth.action";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {Dispatch} from "react";
-import {call, put} from "redux-saga/effects";
-import {showError} from "./ToastUtils";
+import { YodyAction } from "base/base.action";
+import { HttpStatus } from "config/http-status.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { Dispatch } from "react";
+import { call, put } from "redux-saga/effects";
+import { showError } from "./ToastUtils";
 
 /**
  * ## Thông báo lỗi khi call api
- * @param error 
+ * @param error
  */
 export const catcherError = (error: any) => {
   if (typeof error === "string") {
@@ -31,7 +31,12 @@ export const catcherError = (error: any) => {
 export const callApiSaga = function* <
   Fn extends (...args: any[]) => any,
   R extends ReturnType<Fn>
->(hasLoading: boolean, callbackDataFn: R, fn: Fn, ...args: Parameters<Fn>) {
+>(
+  hasLoading: boolean,
+  callbackDataFn: (data: any) => any,
+  fn: Fn,
+  ...args: Parameters<Fn>
+) {
   if (hasLoading) yield put(showLoading());
 
   try {
@@ -40,9 +45,9 @@ export const callApiSaga = function* <
     switch (response.code) {
       case HttpStatus.SUCCESS:
         if (response.data) {
-          callbackDataFn(response.data);
+         yield callbackDataFn(response.data);
         } else {
-          callbackDataFn(response);
+          yield callbackDataFn(response);
         }
         break;
 
@@ -59,7 +64,7 @@ export const callApiSaga = function* <
   } catch (error: any) {
     console.log("error at", fn.name, error);
     catcherError(error);
-    callbackDataFn(null);
+    yield callbackDataFn(null);
   } finally {
     if (hasLoading) yield put(hideLoading());
   }
