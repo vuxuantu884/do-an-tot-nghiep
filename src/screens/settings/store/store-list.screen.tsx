@@ -128,6 +128,15 @@ const StoreListScreen: React.FC = () => {
       width: 120,
       dataIndex: "code",
       visible: true,
+      render: (value, record) => {
+        return (
+          <div 
+            className="data-hover"
+            onClick={() => history.push(`${UrlConfig.STORE}/${record.id}`)}>
+            {value}
+          </div>
+        )
+      }
     },
     {
       title: "Tên cửa hàng",
@@ -415,7 +424,6 @@ const StoreListScreen: React.FC = () => {
               onClickOpen={() => setShowSettingColumn(true)}
             />
             <CustomTable
-              className="tr-hover"
               selectedRowKey={rowKey}
               onChangeRowKey={(rowKey) => setRowKey(rowKey)}
               isRowSelection
@@ -436,13 +444,13 @@ const StoreListScreen: React.FC = () => {
               dataSource={data.items}
               columns={columnFinal}
               rowKey={(item: StoreResponse) => item.id}
-              onRow={(record: StoreResponse) => {
-                return {
-                  onClick: (event) => {
-                    history.push(`${UrlConfig.STORE}/${record.id}`);
-                  },
-                };
-              }}
+              // onRow={(record: StoreResponse) => {
+              //   return {
+              //     onClick: (event) => {
+              //       history.push(`${UrlConfig.STORE}/${record.id}`);
+              //     },
+              //   };
+              // }}
             />
             <ModalSettingColumn
               visible={showSettingColumn}

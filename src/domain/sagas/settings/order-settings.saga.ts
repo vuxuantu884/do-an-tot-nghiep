@@ -235,6 +235,7 @@ function* updateConfigurationShippingServiceAndShippingFeeSaga(
       params
     );
 		if (isFetchApiSuccessful(response)) {
+			showSuccess("Cập nhật cài đặt thành công!")
 			handleData(response.data);
 		} else {
 			yield put(fetchApiErrorAction(response, "Cập nhật cấu hình phí ship và phí vận chuyển"));

@@ -21,8 +21,12 @@ export interface PostProductEcommerceQuery {
 export interface PostEcommerceOrderQuery {
   ecommerce_id: number | null;
   shop_id: number | null;
-  create_time_from: number | null;
-  create_time_to: number | null;
+  update_time_from: number | null;
+  update_time_to: number | null;
+}
+
+export interface ExitProgressDownloadEcommerceQuery {
+  processId: number | null;
 }
 
 export interface GetOrdersMappingQuery extends BaseQuery {

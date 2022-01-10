@@ -181,10 +181,19 @@ function OrdersTable(props: PropsType) {
 			);
 			return (
 				<div className="singlePayment">
-					<Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
-						<img src={selectedPayment?.icon} alt="" />
-						<span className="amount">{formatCurrency(payment.paid_amount)}</span>
-					</Tooltip>
+					{ payment.paid_amount < 0 ? 
+						(
+							<Tooltip title="Hoàn tiền">
+								<img src={selectedPayment?.icon} alt="" />
+								<span className="amount">{formatCurrency(payment.paid_amount)}</span>
+							</Tooltip>
+						) : (
+							<Tooltip title="{selectedPayment?.tooltip || payment.payment_method}">
+								<img src={selectedPayment?.icon} alt="" />
+								<span className="amount">{formatCurrency(payment.paid_amount)}</span>
+							</Tooltip>
+						)
+					}
 				</div>
 			);
 		});
@@ -728,6 +737,7 @@ function OrdersTable(props: PropsType) {
 										console.log("newNote", newNote);
 										editNote(newNote, "customer_note", record.id);
 									}}
+									isDisable={record.status===OrderStatus.FINISHED}
 								/>
 							</div>
 							<div className="single">
@@ -739,6 +749,7 @@ function OrdersTable(props: PropsType) {
 										console.log("newNote", newNote);
 										editNote(newNote, "note", record.id);
 									}}
+									isDisable={record.status===OrderStatus.FINISHED}
 								/>
 							</div>
 						</div>

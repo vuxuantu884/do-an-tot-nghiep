@@ -310,9 +310,6 @@ const ListCode = () => {
     ActionColumn(handleUpdate, handleDelete, handleStatus),
   ];
 
-
-
-
   const onMenuClick = useCallback(
     async (index: number) => {
       if (selectedRowKey.length === 0) {

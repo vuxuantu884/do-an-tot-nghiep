@@ -615,7 +615,7 @@ export const Products = {
   },
   convertAvatarToFileList: (arrImg: Array<VariantImage>) => {
     let arr: Array<UploadFile> = [];
-    arrImg.forEach((item, index) => {
+    arrImg?.forEach((item, index) => {
       arr.push({
         uid: item.image_id.toString(),
         name: item.image_id.toString(),
@@ -1284,17 +1284,19 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
 
 export function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
 	let result = orderSources;
-	let abc = [...orderSources];
+	let isHaveDepartment = false;
 	let departmentSources = [];
 	if(departmentIds && departmentIds.length > 0) {
 		for (const departmentId of departmentIds) {
-			let ddd = orderSources.findIndex(single=>single.department_id === departmentId)
-			if(ddd > -1) {
-				abc.splice(ddd, 1);
-				departmentSources.push(orderSources[ddd])
+			let departmentSource = orderSources.findIndex(single=>single.department_id === departmentId)
+			if(departmentSource > -1) {
+				departmentSources.push(orderSources[departmentSource])
+				isHaveDepartment = true;
 			}	
 		}
-		result = [...departmentSources, ...abc]
+		if(isHaveDepartment) {
+			result = [...departmentSources]
+		}
 	}
 	return result;
 }

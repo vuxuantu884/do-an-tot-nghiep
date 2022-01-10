@@ -59,10 +59,10 @@ export interface ProductResponse extends BaseObject {
   unit_name:string,
   product_type:string,
   code:string,
-  collections: Array<CollectionResponse>,
   specifications: string,
   variants: Array<VariantResponse>
   on_hand:number,
+  collections: Array<CollectionResponse>,
   product_collections: Array<string>
 }
 
@@ -157,6 +157,7 @@ export interface VariantResponse extends BaseObject {
   variant_images:Array<VariantImage>,
   transfer_quantity: number,
   variant_id: number,
+  variant_name?: string
 }
 
 export interface VariantView extends BaseObject {
@@ -222,6 +223,7 @@ export interface ProductWrapperSearchQuery extends BaseQuery {
   status?: string,
   goods?: string,
   product_ids?: Array<number>,
+  collections?: string
 }
 
 export interface VariantPriceRequest {
@@ -300,8 +302,9 @@ export interface ProductRequest {
   unit: string|null,
   material_id:number|null,
   supplier_id:number|null,
+  material: string|null,
   collections:Array<string>,
-  material: string|null
+  product_collections?: Array<string>,
 }
 
 export interface VariantRequestView {

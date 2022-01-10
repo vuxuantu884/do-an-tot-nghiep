@@ -471,7 +471,13 @@ const tab= document.getElementById("tab");
                         </div>
                       </Col>
                       <Col span={24} md={12}>
-                        <RowDetail title="Nhóm hàng" value={data.product_collections?.toString()}></RowDetail>
+                        <div className="row-detail">
+                          <div className="row-detail-left title">Nhóm hàng</div>
+                          <div className="dot data">:</div>
+                          <div className="row-detail-right data">{data.collections?.map((e)=>{
+                            return e.name;
+                          }).toString()}</div>
+                        </div>
                       </Col>
                     </Row>
                     <Row>

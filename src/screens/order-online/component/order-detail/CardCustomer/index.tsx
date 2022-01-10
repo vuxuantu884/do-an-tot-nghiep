@@ -57,13 +57,14 @@ import CreateCustomer from "./CreateCustomer";
 import { handleDelayActionWhenInsertTextInSearchInput, sortSources } from "utils/AppUtils";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { getSourcesWithParamsService } from "service/order/order.service";
 //#end region
 
 type CustomerCardProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress|null) => void;
   BillingAddressChange: (items: BillingAddress|null) => void;
-  setVisibleCustomer: (item: boolean) => void;
+  setVisibleCustomer?: (item: boolean) => void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
@@ -72,7 +73,7 @@ type CustomerCardProps = {
   isDisableSelectSource?: boolean;
   isVisibleCustomer: boolean;
   shippingAddress: ShippingAddress | any;
-  setModalAction: (item: modalActionType) => void;
+  setModalAction?: (item: modalActionType) => void;
   modalAction: modalActionType;
   setOrderSourceId?: (value: number) => void;
 };
@@ -132,6 +133,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     useState<modalActionType>("create");
 
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
+  const [allSources, setAllSources] = useState<Array<SourceResponse>>([]);
   const [departmentIds, setDepartmentIds] = useState<number[]|null>(null);
 
 	const userReducer = useSelector(
@@ -154,6 +157,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
 
+	const sourceInputRef = useRef()
   //#region Modal
   // const ShowBillingAddress = (e: any) => {
   //   setVisibleBilling(e.target.checked);
@@ -167,13 +171,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, []);
 
   const OkConfirmCustomerCreate = () => {
-    setModalAction("create");
-    setVisibleCustomer(true);
+    if(setModalAction)setModalAction("create");
+    if(setVisibleCustomer)setVisibleCustomer(true);
     //setKeySearchCustomer("");
   };
   const OkConfirmCustomerEdit = () => {
-    setModalAction("edit");
-    setVisibleCustomer(true);
+    if(setModalAction)setModalAction("edit");
+    if(setVisibleCustomer)setVisibleCustomer(true);
   };
 
   const ShowAddressModalAdd = () => {
@@ -339,11 +343,29 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
     props.ShippingAddressChange(null);
-    setVisibleCustomer(false);
+    if(setVisibleCustomer)setVisibleCustomer(false);
     setKeySearchCustomer("");
   };
 
   //#end region
+
+	const handleSearchOrderSources = useCallback((value:string) => {
+		if(value.length > 1) {
+		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
+			 let query = {
+					name: value
+			 }
+			 getSourcesWithParamsService(query).then((response) => {
+				 console.log('response', response)
+				 setListSource(response.data.items)
+			 }).catch((error) => {
+				 console.log('error', error)
+			 })
+		 })
+		} else {
+			setListSource(initListSource)
+		}
+	}, [initListSource]);
 
   const SearchCustomerSelect = useCallback(
     (value, o) => {
@@ -388,11 +410,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //   return listSource.filter((item) => item.code !== "POS");
   // }, [listSource]);
 
-	const sortedSources = sortSources(listSource, departmentIds);
-
+	
   useEffect(() => {
-    dispatch(getListSourceRequest(setListSource));
+		dispatch(getListSourceRequest((response) => {
+			setAllSources(response)
+		}));
   }, [dispatch]);
+
+	useEffect(() => {
+		const sortedSources = sortSources(allSources, departmentIds);
+		setInitListSource(sortedSources)
+		setListSource(sortedSources)
+  }, [allSources, departmentIds]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -416,7 +445,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 			dispatch(departmentDetailAction(departmentId, (response) => {
 				if(response && response.parent_id) {
 					department.push(response.parent_id)
-				 setDepartmentIds(department)
+				 	setDepartmentIds(department)
 				}
 			}))
 
@@ -426,6 +455,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   useEffect(() => {
     if (customer) setDistrictId(customer.district_id);
   }, [customer]);
+	
 
   const handleChangeArea = (districtId: string | null) => {
     if (districtId) {
@@ -463,71 +493,78 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     }
   };
 
+  const renderSelectOrderSource = () => {
+		return(
+      <div>
+      <span
+        style={{
+          float: "left",
+          lineHeight: "40px",
+          marginRight: "10px",
+        }}
+      >
+        Nguồn <span className="text-error">*</span>
+      </span>
+      <Form.Item
+        name="source_id"
+        style={{ margin: "0px" }}
+        rules={[
+          {
+            required: true,
+            message: "Vui lòng chọn nguồn đơn hàng",
+          },
+        ]}
+      >
+        <CustomSelect
+          style={{ width: 300, borderRadius: "6px" }}
+          showArrow
+          allowClear
+          showSearch
+          onSearch={handleSearchOrderSources}
+          placeholder="Nguồn đơn hàng"
+          notFoundContent="Không tìm thấy kết quả"
+          filterOption={(input, option) => {
+            if (option) {
+              return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+            }
+            return false;
+          }}
+          onChange={(value) => {
+            setOrderSourceId && setOrderSourceId(value);
+            console.log(value)
+          }}
+          disabled={isDisableSelectSource}
+        >
+          {listSource.filter((x) => {
+            return (
+              x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
+            )
+          }).map((item, index) => (
+            <CustomSelect.Option
+              style={{ width: "100%" }}
+              key={index.toString()}
+              value={item.id}
+            >
+              {item.name}
+            </CustomSelect.Option>
+          ))}
+        </CustomSelect>
+      </Form.Item>
+    </div>
+		)
+	};
+
   const rankName = loyaltyUsageRules.find(
     (x) =>
       x.rank_id ===
       (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
   )?.rank_name;
 
+  console.log("isVisibleCustomer",isVisibleCustomer)
   return (
     <Card
       title="THÔNG TIN KHÁCH HÀNG"
-      extra={
-        <div>
-          <span
-            style={{
-              float: "left",
-              lineHeight: "40px",
-              marginRight: "10px",
-            }}
-          >
-            Nguồn <span className="text-error">*</span>
-          </span>
-          <Form.Item
-            name="source_id"
-            style={{ margin: "0px" }}
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng chọn nguồn đơn hàng",
-              },
-            ]}
-          >
-            <CustomSelect
-              style={{ width: 300, borderRadius: "6px" }}
-              showArrow
-              showSearch
-              placeholder="Nguồn đơn hàng"
-              notFoundContent="Không tìm thấy kết quả"
-              filterOption={(input, option) => {
-                if (option) {
-                  return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-                }
-                return false;
-              }}
-              onChange={(value) => {
-                setOrderSourceId && setOrderSourceId(value);
-                console.log(value)
-              }}
-							disabled={isDisableSelectSource}
-            >
-              {sortedSources.filter((x) => {
-								return (
-									x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
-								)
-							}).map((item, index) => (
-                <CustomSelect.Option
-                  style={{ width: "100%" }}
-                  key={index.toString()}
-                  value={item.id}
-                >
-                  {item.name}
-                </CustomSelect.Option>
-              ))}
-            </CustomSelect>
-          </Form.Item>
-        </div>
-      }
+      extra={	renderSelectOrderSource()}
     >
       {customer === null && isVisibleCustomer !== true && (
         <div>

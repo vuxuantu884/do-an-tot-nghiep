@@ -1,50 +1,51 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
-import {ApiConfig} from "config/api.config";
-import {BaseQuery} from "model/base/base.query";
-import {OrderModel, OrderSearchQuery} from "model/order/order.model";
-import {ReturnModel, ReturnSearchQuery} from "model/order/return.model";
-import {ShipmentModel, ShipmentSearchQuery} from "model/order/shipment.model";
+import { ApiConfig } from "config/api.config";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
+import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
-  ConfirmDraftOrderRequest,
-  CreateShippingOrderRequest,
-  GetFeesRequest,
-  GHNFeeRequest,
-  OrderRequest,
-  ShippingGHTKRequest,
-  SplitOrderRequest,
-  UpdateFulFillmentStatusRequest,
-  UpdateLineFulFillment,
-  UpdatePaymentRequest,
-  VTPFeeRequest,
+	ConfirmDraftOrderRequest,
+	CreateShippingOrderRequest,
+	GetFeesRequest,
+	GHNFeeRequest,
+	OrderRequest,
+	ShippingGHTKRequest,
+	SplitOrderRequest,
+	UpdateFulFillmentStatusRequest,
+	UpdateLineFulFillment,
+	UpdatePaymentRequest,
+	VTPFeeRequest
 } from "model/request/order.request";
 import {
-  createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
-  updateConfigReQuestModel,
+	createDeliveryMappedStoreReQuestModel,
+	deleteDeliveryMappedStoreReQuestModel,
+	updateConfigReQuestModel
 } from "model/request/settings/third-party-logistics-settings.resquest";
+import { SourceSearchQuery } from "model/request/source.request";
 import {
-  ChannelModel,
-  ChannelTypeModel,
-  OrderSourceCompanyModel,
-  OrderSourceModel,
-  OrderSourceResponseModel,
+	ChannelModel,
+	ChannelTypeModel,
+	OrderSourceCompanyModel,
+	OrderSourceModel,
+	OrderSourceResponseModel
 } from "model/response/order/order-source.response";
 import {
-  DeliveryMappedStoreType,
-  DeliveryServiceResponse,
-  DeliveryTransportTypesResponse,
-  ErrorLogResponse,
-  GHNFeeResponse,
-  OrderResponse,
-  ShippingGHTKResponse,
-  TrackingLogFulfillmentResponse,
-  VTPFeeResponse,
+	DeliveryMappedStoreType,
+	DeliveryServiceResponse,
+	DeliveryTransportTypesResponse,
+	ErrorLogResponse,
+	GHNFeeResponse,
+	OrderResponse,
+	ShippingGHTKResponse,
+	TrackingLogFulfillmentResponse,
+	VTPFeeResponse
 } from "model/response/order/order.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import {SourceEcommerceResponse, SourceResponse} from "model/response/order/source.response";
-import {ChannelResponse} from "model/response/product/channel.response";
-import {generateQuery} from "utils/AppUtils";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { SourceEcommerceResponse, SourceResponse } from "model/response/order/source.response";
+import { ChannelResponse } from "model/response/product/channel.response";
+import { generateQuery } from "utils/AppUtils";
 
 export const getDetailOrderApi = (orderId: any): Promise<BaseResponse<OrderResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/${orderId}`);
@@ -216,8 +217,8 @@ export const updateDeliveryConnectService = (
  */
 
 export const getSourcesWithParamsService = (
-  query: BaseQuery,
-): Promise<BaseResponse<SourceResponse>> => {
+  query: SourceSearchQuery,
+): Promise<BaseResponse<PageResponse<SourceResponse>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.CORE}/sources?${queryString}`);
 };

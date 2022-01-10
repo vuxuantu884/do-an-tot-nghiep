@@ -265,14 +265,26 @@ const CreateInventoryAdjustment: FC = () => {
       (variant: VariantResponse) => variant.id.toString() === value
     );
 
+    const variantPrice = selectedItem &&
+                         selectedItem.variant_prices &&
+                         selectedItem.variant_prices[0] &&
+                         selectedItem.variant_prices[0].retail_price;
+
+    const item = {...selectedItem, 
+      variant_name: selectedItem.name ?? selectedItem.variant_name, 
+      real_on_hand: 0,
+      on_hand: selectedItem.on_hand ?? 0,
+      price: variantPrice ?? 0
+    }
+
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      drawColumns(dataTable.concat([{...selectedItem, variant_name: selectedItem.name, real_on_hand: 0}]));
+      drawColumns(dataTable.concat([{...item}]));
 
       setDataTable((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
+        prev.concat([{...item}])
       );
       setSearchVariant((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
+        prev.concat([{...item}])
       );
       setHasError(false); 
     } 
@@ -280,13 +292,21 @@ const CreateInventoryAdjustment: FC = () => {
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
+      const variantPrice =
+      item &&
+      item.variant_prices &&
+      item.variant_prices[0] &&
+      item.variant_prices[0].retail_price;
+
       return {
         ...item,
         variant_id: item.id,
-        variant_name: item.name,
+        variant_name: item.variant_name ?? item.name,
         real_on_hand: 0,
         on_hand_adj: 0 - (item.on_hand ?? 0),
         on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString(),
+        on_hand: item.on_hand ?? 0,
+        price: variantPrice ?? 0
       };
     });
     const dataTemp = [...dataTable, ...newResult];

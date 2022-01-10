@@ -8,12 +8,13 @@ type EditNoteProps = {
   note: any;
 	title?: string;
 	color?: string;
+	isDisable?: boolean;
   onOk: (newNote: string) => void;
 };
 const EditNote: React.FC<EditNoteProps> = (
   props: EditNoteProps
 ) => {
-  const { note, title, onOk } = props;
+  const { note, title, onOk, isDisable=false } = props;
   const [visible, setVisible] = useState(false);
   const [newNote, setNewNote] = useState(note); 
   const handleVisibleChange = (visible: boolean) => {
@@ -30,7 +31,7 @@ const EditNote: React.FC<EditNoteProps> = (
 			<Popover
 				content={
 					<div>
-						<Input.TextArea value={newNote} onChange={(e) => onChangeNote(e)} style={{ width: 300}}/>
+						<Input.TextArea value={newNote} onChange={(e) => onChangeNote(e)} style={{ width: 300}} disabled={isDisable}/>
 						<div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
 							<Button
 								type="primary"
@@ -39,6 +40,7 @@ const EditNote: React.FC<EditNoteProps> = (
 									onOk(newNote)
 									setVisible(false);
 								}}
+								disabled={isDisable}
 							>Lưu</Button>
 							<Button onClick={() => {
 								setNewNote(note);

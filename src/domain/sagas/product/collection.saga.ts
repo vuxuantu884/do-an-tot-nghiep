@@ -12,7 +12,10 @@ import {
   updateCollectionApi,
   collectionDeleteApi,
   collectionDeleteProductApi,
+  collectionUpdateProductsApi,
+  getProductsCollectionApi,
 } from 'service/product/collection.service';
+import { callApiSaga } from 'utils/ApiUtils';
 import {showError} from 'utils/ToastUtils';
 
 function* getCollectionSaga(action: YodyAction) {
@@ -159,6 +162,16 @@ function* collectionDeleteProductSaga(action: YodyAction) {
   }
 }
 
+function* updateProductsCollectionSaga(action: YodyAction) {
+  const {request, onResult} = action.payload;
+  yield callApiSaga(true, onResult, collectionUpdateProductsApi, request);
+}
+
+function* getProductsCollectionSaga(action: YodyAction) {
+  const {query, onResult} = action.payload;
+  yield callApiSaga(false, onResult, getProductsCollectionApi, query);
+}
+
 export function* collectionSaga() {
   yield takeLatest(CollectionType.GET_COLLECTION_REQUEST, getCollectionSaga);
   yield takeLatest(CollectionType.CREATE_COLLECTION_REQUEST, createCollectionSaga);
@@ -166,4 +179,6 @@ export function* collectionSaga() {
   yield takeLatest(CollectionType.UPDATE_COLLECTION_REQUEST, collectionUpdateSaga);
   yield takeLatest(CollectionType.DELETE_COLLECTION_REQUEST, collectionDeleteSaga);
   yield takeLatest(CollectionType.DELETE_PRODUCT_COLLECTION_REQUEST, collectionDeleteProductSaga);
+  yield takeLatest(CollectionType.UPDATE_PRODUCT_COLLECTION_REQUEST, updateProductsCollectionSaga);
+  yield takeLatest(CollectionType.GET_PRODUCT_COLLECTION_REQUEST, getProductsCollectionSaga);
 }

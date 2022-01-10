@@ -15,7 +15,6 @@ import {
   variantUpdateAction,
   variantUpdateManyAction
 } from "domain/actions/product/products.action";
-import { sizeGetAll } from "domain/actions/product/size.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
@@ -26,7 +25,6 @@ import {
   VariantSearchQuery,
   VariantUpdateRequest
 } from "model/product/product.model";
-import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   useCallback,
@@ -97,7 +95,6 @@ const TabProduct: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [listCountry, setCountry] = useState<Array<CountryResponse>>();  
-  const [listSize, setSize] = useState<Array<SizeResponse>>();
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
   const [selected, setSelected] = useState<Array<VariantResponse>>([]); 
@@ -399,7 +396,6 @@ const TabProduct: React.FC = () => {
 
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountry)); 
-    dispatch(sizeGetAll(setSize));
     setTableLoading(true);
   }, [dispatch]);
   useEffect(() => {
@@ -416,7 +412,6 @@ const TabProduct: React.FC = () => {
         params={params}
         listStatus={listStatus}
         listBrands={listBrands} 
-        listSize={listSize} 
         listCountries={listCountry}
         onClickOpen={() => setShowSettingColumn(true)}
       />
