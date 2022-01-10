@@ -64,7 +64,7 @@ type CustomerCardProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress|null) => void;
   BillingAddressChange: (items: BillingAddress|null) => void;
-  setVisibleCustomer: (item: boolean) => void;
+  setVisibleCustomer?: (item: boolean) => void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
@@ -73,7 +73,7 @@ type CustomerCardProps = {
   isDisableSelectSource?: boolean;
   isVisibleCustomer: boolean;
   shippingAddress: ShippingAddress | any;
-  setModalAction: (item: modalActionType) => void;
+  setModalAction?: (item: modalActionType) => void;
   modalAction: modalActionType;
   setOrderSourceId?: (value: number) => void;
 };
@@ -171,13 +171,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, []);
 
   const OkConfirmCustomerCreate = () => {
-    setModalAction("create");
-    setVisibleCustomer(true);
+    if(setModalAction)setModalAction("create");
+    if(setVisibleCustomer)setVisibleCustomer(true);
     //setKeySearchCustomer("");
   };
   const OkConfirmCustomerEdit = () => {
-    setModalAction("edit");
-    setVisibleCustomer(true);
+    if(setModalAction)setModalAction("edit");
+    if(setVisibleCustomer)setVisibleCustomer(true);
   };
 
   const ShowAddressModalAdd = () => {
@@ -343,7 +343,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
     props.ShippingAddressChange(null);
-    setVisibleCustomer(false);
+    if(setVisibleCustomer)setVisibleCustomer(false);
     setKeySearchCustomer("");
   };
 
@@ -493,73 +493,78 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     }
   };
 
+  const renderSelectOrderSource = () => {
+		return(
+      <div>
+      <span
+        style={{
+          float: "left",
+          lineHeight: "40px",
+          marginRight: "10px",
+        }}
+      >
+        Nguồn <span className="text-error">*</span>
+      </span>
+      <Form.Item
+        name="source_id"
+        style={{ margin: "0px" }}
+        rules={[
+          {
+            required: true,
+            message: "Vui lòng chọn nguồn đơn hàng",
+          },
+        ]}
+      >
+        <CustomSelect
+          style={{ width: 300, borderRadius: "6px" }}
+          showArrow
+          allowClear
+          showSearch
+          onSearch={handleSearchOrderSources}
+          placeholder="Nguồn đơn hàng"
+          notFoundContent="Không tìm thấy kết quả"
+          filterOption={(input, option) => {
+            if (option) {
+              return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+            }
+            return false;
+          }}
+          onChange={(value) => {
+            setOrderSourceId && setOrderSourceId(value);
+            console.log(value)
+          }}
+          disabled={isDisableSelectSource}
+        >
+          {listSource.filter((x) => {
+            return (
+              x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
+            )
+          }).map((item, index) => (
+            <CustomSelect.Option
+              style={{ width: "100%" }}
+              key={index.toString()}
+              value={item.id}
+            >
+              {item.name}
+            </CustomSelect.Option>
+          ))}
+        </CustomSelect>
+      </Form.Item>
+    </div>
+		)
+	};
+
   const rankName = loyaltyUsageRules.find(
     (x) =>
       x.rank_id ===
       (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
   )?.rank_name;
 
+  console.log("isVisibleCustomer",isVisibleCustomer)
   return (
     <Card
       title="THÔNG TIN KHÁCH HÀNG"
-      extra={
-        <div>
-          <span
-            style={{
-              float: "left",
-              lineHeight: "40px",
-              marginRight: "10px",
-            }}
-          >
-            Nguồn <span className="text-error">*</span>
-          </span>
-          <Form.Item
-            name="source_id"
-            style={{ margin: "0px" }}
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng chọn nguồn đơn hàng",
-              },
-            ]}
-          >
-            <CustomSelect
-              style={{ width: 300, borderRadius: "6px" }}
-              showArrow
-							allowClear
-              showSearch
-							onSearch={handleSearchOrderSources}
-              placeholder="Nguồn đơn hàng"
-              notFoundContent="Không tìm thấy kết quả"
-              filterOption={(input, option) => {
-                if (option) {
-                  return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-                }
-                return false;
-              }}
-              onChange={(value) => {
-                setOrderSourceId && setOrderSourceId(value);
-                console.log(value)
-              }}
-							disabled={isDisableSelectSource}
-            >
-              {listSource.filter((x) => {
-								return (
-									x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
-								)
-							}).map((item, index) => (
-                <CustomSelect.Option
-                  style={{ width: "100%" }}
-                  key={index.toString()}
-                  value={item.id}
-                >
-                  {item.name}
-                </CustomSelect.Option>
-              ))}
-            </CustomSelect>
-          </Form.Item>
-        </div>
-      }
+      extra={	renderSelectOrderSource()}
     >
       {customer === null && isVisibleCustomer !== true && (
         <div>
