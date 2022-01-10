@@ -2,6 +2,7 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import {
+  ExitProgressDownloadEcommerceQuery,
   PostEcommerceOrderQuery,
   PostProductEcommerceQuery,
 } from "model/query/ecommerce.query";
@@ -133,6 +134,18 @@ const postEcommerceOrderApi = (
   return BaseAxios.post(link, requestBody);
 };
 
+//get progress download ecommerce orders
+const getProgressDownloadEcommerceApi = (process_id: any): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/orders/download-process/${process_id}`;
+  return BaseAxios.get(requestUrl);
+};
+
+//get progress download ecommerce orders
+const exitProgressDownloadEcommerceApi = (query: ExitProgressDownloadEcommerceQuery): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/orders/download-process/${query.processId}`;
+  return BaseAxios.put(requestUrl);
+};
+
 //get order mapping list api
 const getOrderMappingListApi = (query: any) => {
   let params = generateQuery(query);
@@ -157,6 +170,8 @@ export {
   ecommerceGetCategoryListApi,
   ecommercePutConnectItemApi,
   postEcommerceOrderApi,
+  getProgressDownloadEcommerceApi,
+  exitProgressDownloadEcommerceApi,
   getFpageCustomer,
   addFpagePhone,
   deleteFpagePhone,
