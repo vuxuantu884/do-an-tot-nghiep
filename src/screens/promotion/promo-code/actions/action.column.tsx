@@ -1,46 +1,29 @@
 import { Button, Dropdown, Menu } from "antd";
-import threeDot from "assets/icon/three-dot.svg";
 import editIcon from "assets/icon/edit.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
-import { StyledMenu, StyledDropDown } from "./styles";
+import threeDot from "assets/icon/three-dot.svg";
+import { Link } from "react-router-dom";
+import { StyledDropDown, StyledMenu } from "./styles";
 
-const actionColumn = (handleUpdate: any, handleDelete: any) => {
+const ActionColumnIssue = () => {
   const _actionColumn = {
     title: "",
     visible: true,
     width: "5%",
     className: "saleorder-product-card-action ",
-    render: (l: any, item: any, index: number) => {
+    dataIndex: "id",
+    render: (id: any) => {
       const menu = (
         <StyledMenu>
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-          <Menu.Item key="3">
+          <Menu.Item key="0">
+            <Link to={`/promotion/codes/${id}`}>
             <Button
-              disabled
               icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
               type="text"
-              className=""
-              onClick={() => handleUpdate(item)}
             >
               Chỉnh sửa
             </Button>
-          </Menu.Item>
-
-          <Menu.Item key="4">
-            <Button
-              disabled
-              icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
-              type="text"
-              className=""
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "red",
-              }}
-              onClick={() => handleDelete(item)}
-            >
-              Xóa
-            </Button>
+            </Link>
           </Menu.Item>
         </Menu>
         </StyledMenu>
@@ -78,4 +61,4 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
   return _actionColumn;
 };
 
-export default actionColumn;
+export default ActionColumnIssue;
