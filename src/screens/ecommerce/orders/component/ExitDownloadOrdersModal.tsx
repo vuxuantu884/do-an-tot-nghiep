@@ -33,7 +33,7 @@ const ExitDownloadOrdersModal: React.FC<ExitDownloadOrdersModalType> = (
         <img src={DeleteIcon} alt="" />
         <div style={{ marginLeft: 15 }}>
           <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải đơn hàng về không?</strong>
-          <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải đơn về, các đơn hàng đã tải thành công sẽ được hiển thị ở màn hình “Quản lý đơn hàng”</div>
+          <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải đơn về, các đơn hàng đã tải thành công sẽ được hiển thị ở màn hình "Đồng bộ đơn hàng"</div>
         </div>
       </div>
     </Modal>
