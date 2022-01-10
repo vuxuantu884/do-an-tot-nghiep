@@ -91,12 +91,12 @@ const TabProductWrapper: React.FC = () => {
   const [columns, setColumn] = useState<Array<ICustomTableColumType<ProductResponse>>>([
     {
       title: "Ảnh",
-      align: "left",
-      width: 80,
+      align: "center",
+      width: 70,
       render: (value: ProductResponse) => {
         let url = null;
-        value.variants.forEach((item) => {
-          item.variant_images.forEach((item1) => {
+        value.variants?.forEach((item) => {
+          item.variant_images?.forEach((item1) => {
             if (item1.product_avatar) {
               url = item1.url;
             }

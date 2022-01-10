@@ -13,12 +13,14 @@ export interface CollectionCreateRequest {
 }
 
 export interface CollectionUpdateRequest extends CollectionCreateRequest {
- version: number
+ version: number,
+ collection_code: string,
+ add_product_ids?: Array<string>,
+ remove_product_ids?: Array<string>,
 }
 
 export interface CollectionResponse extends BaseObject {
   name: string,
-  code: string,
   description: string
 }
  

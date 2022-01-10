@@ -24,7 +24,7 @@ type PickManyProductModalType = {
 let initQuery = {
   info: "",
   page: 1,
-  limit: 10,
+  limit: 30,
 };
 
 const PickManyProductModal: React.FC<PickManyProductModalType> = (

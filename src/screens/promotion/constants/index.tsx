@@ -497,16 +497,14 @@ export const ACTIONS_DISCOUNT: Array<MenuAction> = [
 ];
 
 export const ACTIONS_PROMO_CODE: Array<MenuAction> = [
-  // {
-  //     id: 1,
-  //     name: "Đã tặng",
-  // },
   {
     id: 2,
     name: "Áp dụng",
+    disabled: false,
   },
   {
     id: 3,
     name: "Ngừng áp dụng",
+    disabled: false,
   },
 ];

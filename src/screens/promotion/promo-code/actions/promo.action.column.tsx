@@ -6,8 +6,10 @@ import deleteIcon from "assets/icon/deleteIcon.svg";
 import { StyledMenu, StyledDropDown } from "./styles";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import useAuthorization from "hook/useAuthorization";
 
-const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) => {
+const ActionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) => {
+  const [allowUpdateAndCancelPromo] = useAuthorization({ acceptPermissions: [PromoPermistion.UPDATE, PromoPermistion.CANCEL] });
   const _actionColumn = {
     title: "",
     visible: true,
@@ -16,55 +18,55 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
     render: (_: any, item: any) => {
       const menu = (
         <StyledMenu>
-        <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
 
-          { handleStatus &&
-            <Menu.Item key="2">
-            <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
-              <Button
-                icon={<img style={{ marginRight: 12 }} alt="" src={closeIcon} />}
-                type="text"
-                className=""
-                onClick={() => handleStatus(item)}
-              >
-                Ngừng áp dụng
-              </Button>
+            {handleStatus &&
+              <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
+                <Menu.Item key="2">
+                  <Button
+                    icon={<img style={{ marginRight: 12 }} alt="" src={closeIcon} />}
+                    type="text"
+                    className=""
+                    onClick={() => handleStatus(item)}
+                  >
+                    Ngừng áp dụng
+                  </Button>
+                </Menu.Item>
               </AuthWrapper>
-            </Menu.Item>
-          }
+            }
 
-          <Menu.Item key="3">
-          <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
-            <Button
-              icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
-              type="text"
-              className=""
-              onClick={() => handleUpdate(item)}
-            >
-              Chỉnh sửa
-            </Button>
+            <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
+              <Menu.Item key="3">
+                <Button
+                  icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
+                  type="text"
+                  className=""
+                  onClick={() => handleUpdate(item)}
+                >
+                  Chỉnh sửa
+                </Button>
+              </Menu.Item>
             </AuthWrapper>
-          </Menu.Item>
 
-          <Menu.Item key="4">
             <AuthWrapper acceptPermissions={[PromoPermistion.CANCEL]}>
-            <Button
-              icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
-              type="text"
-              className=""
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "red",
-              }}
-              onClick={() => handleDelete(item)}
-            >
-              Huỷ
-            </Button>
+              <Menu.Item key="4">
+                <Button
+                  icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
+                  type="text"
+                  className=""
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "red",
+                  }}
+                  onClick={() => handleDelete(item)}
+                >
+                  Huỷ
+                </Button>
+              </Menu.Item>
             </AuthWrapper>
-          </Menu.Item>
-          
-        </Menu>
+
+          </Menu>
         </StyledMenu>
       );
       return (
@@ -85,11 +87,12 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
               overlay={menu}
               trigger={["click"]}
               placement="bottomRight"
+              disabled={!allowUpdateAndCancelPromo}
             >
               <Button
                 type="text"
                 className="p-0 ant-btn-custom"
-                icon={<img src={threeDot} alt="" style={{verticalAlign: 'super'}}/>}
+                icon={<img src={threeDot} alt="" style={{ verticalAlign: 'super' }} />}
               ></Button>
             </Dropdown>
           </div>
@@ -100,4 +103,4 @@ const actionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
   return _actionColumn;
 };
 
-export default actionColumn;
+export default ActionColumn;

@@ -11,6 +11,7 @@ import ZaloIcon from "assets/icon/zalo.svg";
 import { AppConfig } from "config/app.config";
 import { useQuery } from "utils/useQuery";
 import { getYdpageSource, setYdpageSource } from "utils/LocalStorageUtils";
+import { useEffect } from "react";
 
 const YDPAGE_URL = AppConfig.ydPageUrl;
 const allSource = {
@@ -51,6 +52,15 @@ const YDpage: React.FC = () => {
   const fbCode = queryString.get("code");
 
   const [source, setSource] = useState<String | null>(getYdpageSource());
+
+  useEffect(() => {
+    const iframe: HTMLIFrameElement | null = document.querySelector('[name="ydpage-callback-iframe"]');
+    iframe?.addEventListener('load', function () {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('code');
+      window.history.pushState({}, '', url.toString());
+    });
+  }, [source]);
 
   return (
     <StyledYDpage>
@@ -114,6 +124,7 @@ const YDpage: React.FC = () => {
       )}
       {source === allSource.FACEBOOK && fbCode && (
         <iframe
+          name="ydpage-callback-iframe"
           className="ydpage-iframe"
           title="ydpage"
           src={`${YDPAGE_URL}auth/facebook/callback?code=${fbCode}`}

@@ -13,6 +13,8 @@ import {StyledComponent} from "./style";
 import CustomFilter from "../../../../component/table/custom.filter";
 import {checkFixedDate, DATE_FORMAT} from "../../../../utils/DateUtils";
 import {SearchVariantField, SearchVariantMapping} from "../../../../model/promotion/promotion-mapping";
+import useAuthorization from "hook/useAuthorization";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
 
 type DiscountFilterProps = {
   params: DiscountSearchQuery;
@@ -112,10 +114,11 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     formAvd.submit();
   }, [formAvd])
 
+  const [allowUpdateDiscount] = useAuthorization({acceptPermissions:[PromoPermistion.UPDATE]})
   return (
     <StyledComponent>
       <div className="discount-filter">
-        <CustomFilter onMenuClick={onActionClick} menu={actions}>
+        <CustomFilter onMenuClick={onActionClick} menu={actions} actionDisable={!allowUpdateDiscount}>
           <Form onFinish={onFinish} initialValues={params} layout="inline" form={form}>
             <Item name="query" className="search">
               <Input
