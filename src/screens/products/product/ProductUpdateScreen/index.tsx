@@ -488,6 +488,7 @@ const ProductDetailScreen: React.FC = () => {
         {
           ...values,
           care_labels: careLabelsString,
+          collections: values.product_collections ?? []
         },
         onResultFinish));
     },
@@ -705,6 +706,7 @@ const ProductDetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
+        result.product_collections = result.collections?.map((e)=> {return e.code});
         setData(result);
         setCareLabelsString(result.care_labels);
         setStatus(result.status);

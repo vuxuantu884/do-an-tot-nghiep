@@ -12,6 +12,7 @@ import { AppConfig } from "config/app.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getColorAction} from "domain/actions/product/color.action";
+import { sizeSearchAction } from "domain/actions/product/size.action";
 import {AccountResponse} from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import {BaseBootstrapResponse} from "model/content/bootstrap.model";
@@ -35,8 +36,7 @@ var isMainColors = false;
 type ProductFilterProps = {
   params: VariantSearchQuery;
   listStatus?: Array<BaseBootstrapResponse>;
-  listBrands?: Array<BaseBootstrapResponse>; 
-  listSize?: Array<SizeResponse>;
+  listBrands?: Array<BaseBootstrapResponse>;  
   listCountries?: Array<CountryResponse>;  
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
@@ -53,8 +53,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   const {
     params,
     listStatus,
-    listBrands,
-    listSize, 
+    listBrands, 
     listCountries,
     onFilter,
     onClickOpen,
@@ -63,6 +62,12 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  const [lstSize, setLstSize] = useState<PageResponse<SizeResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
   const [colors, setColors] = useState<PageResponse<ColorResponse>>(
     {
       items: [],
@@ -194,6 +199,20 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     );
   }, [dispatch, setDataColors]);
 
+  const setDataSizes = (res: PageResponse<SizeResponse>) => {
+    if (res) {
+     setLstSize(res);
+    }
+   }
+  const getSizes = useCallback((code: string, page: number)=>{
+    dispatch(
+      sizeSearchAction(
+        { code: code, page: page },
+        setDataSizes
+      )
+    );
+  },[]);
+
   const getSuppliers = useCallback((key: string, page: number) => {
     dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier(data);
@@ -204,7 +223,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     getAccounts("",1,true,true);
     getColors('', 1,true,true);
     getSuppliers('', 1);
-  },[getAccounts, getColors, getSuppliers]);
+    getSizes("",1);
+  },[getAccounts, getColors,getSizes, getSuppliers]);
 
   return (
     <StyledComponent>
@@ -234,7 +254,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
           mainColors={mainColors}
           colors={colors}
           suppliers={suppliers}
-          listSize={listSize}
+          lstSize={lstSize}
           listCountries={listCountries}
           listStatus={listStatus}
           resetField={resetField}
@@ -316,13 +336,24 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.size:
                     component = (
-                      <Select showSearch optionFilterProp="children" allowClear placeholder="Chọn kích thước">
-                        {listSize?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.code}
-                          </Option>
+                      <SelectPaging
+                        metadata={colors.metadata}
+                        notFoundContent={"Không có dữ liệu"}
+                        showSearch={false}
+                        searchPlaceholder="Tìm kiếm kích thước"
+                        maxTagCount="responsive"
+                        showArrow
+                        allowClear
+                        onSearch={(key) => getSizes(key, 1)}
+                        onPageChange={(key, page) => getSizes(key, page)}
+                        placeholder="Chọn kích thước"
+                      >
+                        {lstSize.items.map((item) => (
+                          <SelectPaging.Option key={item.id} value={item.id}>
+                            {`${item.code} - ${item.code}`}
+                          </SelectPaging.Option>
                         ))}
-                      </Select>
+                      </SelectPaging> 
                     );
                     break;
                   case SearchVariantField.color:
@@ -433,7 +464,7 @@ const FilterList = ({
   mainColors,
   suppliers,
   listCountries,
-  listSize,
+  lstSize,
   designers,
   wins,
   listBrands,
@@ -468,15 +499,14 @@ const FilterList = ({
             renderTxt = `${SearchVariantMapping[filterKey]} : ${mainColor.name}`;
             break;
           case SearchVariantField.supplier:
-            const supplier = suppliers.items.find((e: ColorResponse)=>e.id === value);
+            const supplier = suppliers.items.find((e: SupplierResponse)=>e.id === value);
             if (!supplier) return null;  
             renderTxt = `${SearchVariantMapping[filterKey]} : ${supplier.name}`;
             break;
           case SearchVariantField.size:
-            let index3 = listSize.findIndex(
-              (item: SupplierResponse) => item.id === value
-            );
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${listSize[index3].code}`;
+            const size = lstSize.items.find((e: SizeResponse)=>e.id === value);
+            if (!size) return null;  
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${size.code}`;
             break;
           case SearchVariantField.made_in:
             let index4 = listCountries.findIndex(

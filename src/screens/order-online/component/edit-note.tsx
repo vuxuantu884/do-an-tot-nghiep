@@ -40,6 +40,7 @@ const EditNote: React.FC<EditNoteProps> = (
 									onOk(newNote)
 									setVisible(false);
 								}}
+								disabled={isDisable}
 							>Lưu</Button>
 							<Button onClick={() => {
 								setNewNote(note);
