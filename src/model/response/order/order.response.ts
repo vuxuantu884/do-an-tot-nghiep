@@ -160,6 +160,8 @@ export interface FulFillmentResponse {
   created_date: string | null;
   cancel_date: string | null;
   return_status: string | null;
+  reason_name?: string;
+  sub_reason_name?: string;
 }
 
 export interface EcommerceDeliveryResponse {

@@ -311,9 +311,10 @@ export interface UpdateFulFillmentStatusRequest {
   status: string | null;
   // cancel_reason?: string | null;
   action?: string | null;
-  cancel_reason_id?: number;
+  cancel_reason_id?: string;
   sub_cancel_reason_id?: number;
   reason?: string;
+  other_reason?: string;
 }
 
 export interface ShippingGHTKRequest {

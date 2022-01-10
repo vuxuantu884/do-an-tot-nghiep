@@ -384,7 +384,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 					value.action = FulFillmentStatus.CANCELLED;
 					value.cancel_reason_id = dataCancelFFM.reasonID
 					value.sub_cancel_reason_id = dataCancelFFM.reasonSubID
-					value.reason = dataCancelFFM.reason
+					value.reason = dataCancelFFM.reason;
+					if(value.cancel_reason_id === "1") {
+						value.reason = "";
+						value.other_reason = dataCancelFFM.reason
+					}
 					setCancelShipment(true);
 					dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
 					break;
@@ -1284,6 +1288,25 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 														</Col>
 													</Row>
 												</Col>
+												{fulfillment?.reason_name && (
+													<Col md={12}>
+														<Row gutter={30}>
+															<Col span={10}>
+																<p className="text-field">Lý do hủy:</p>
+															</Col>
+															<Col span={14}>
+																<b className="text-field">
+																	{fulfillment?.reason_name}
+																	{fulfillment?.sub_reason_name && (
+																		<span>
+																		{" "}- {fulfillment?.sub_reason_name}
+																		</span>
+																	)}
+																</b>
+															</Col>
+														</Row>
+													</Col>
+												)}
 
 												{requirementNameView && (	
 													<Col md={12}>
