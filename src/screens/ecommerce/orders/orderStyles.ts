@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {borderColor} from "utils/global-styles/variables";
+import {borderColor, dangerColor} from "utils/global-styles/variables";
 export const nameQuantityWidth = 295;
 const quantityWidth = 50;
 const priceWidth = 85;
@@ -197,6 +197,58 @@ export const StyledDownloadOrderData = styled.div`
       margin-right: 0 !important;
     }
   }
+`;
+
+export const StyledProgressDownloadEcommerceOrder = styled.div`
+  .progress-body {
+    width: 80%;
+    margin: 0 auto;
+    .progress-count {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+      .total-count {
+        font-weight: 700;
+        color: "#2222222";
+      }
+      .total-created {
+        font-weight: 700;
+        color: #FCAF17;
+      }
+      .total-updated {
+        font-weight: 700;
+        color: #27AE60;
+      }
+      .total-error {
+        font-weight: 700;
+        color: #E24343;
+      }
+    }
+  }
+
+  .error-orders {
+    .title {
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .custom-table {
+      height: 300px;
+      overflow-y: scroll;
+    }
+  }
+  
+`;
+
+export const StyledProgressDownloadFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  .ant-btn-dangerous {
+    &:hover {
+      color: white;
+      background-color: ${dangerColor};
+    }
+  }
+  
 `;
 
 export const StyledEcommerceOrderBaseFilter = styled.div`

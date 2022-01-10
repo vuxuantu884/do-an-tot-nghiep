@@ -183,3 +183,17 @@ export const getOrderMappingListAction = (
     setData,
   });
 };
+
+// exit Progress Download Ecommerce Action
+export const exitProgressDownloadEcommerceAction = (
+  processId: number | null,
+  callback: (response: PageResponse<any> | false) => void
+) => {
+  const query = {
+    processId: processId
+  }
+  return BaseAction(EcommerceType.EXIT_PROGRESS_DOWNLOAD_ECOMMERCE, {
+    query,
+    callback
+  });
+};
