@@ -54,6 +54,7 @@ import { ConvertUtcToLocalDate } from 'utils/DateUtils';
 import { formatCurrency } from 'utils/AppUtils';
 import _ from 'lodash';
 import { dangerColor } from 'utils/global-styles/variables';
+import CustomPagination from 'component/table/CustomPagination';
 
 type CollectionParam = {
   id: string;
@@ -82,10 +83,7 @@ const GroupUpdate: React.FC = () => {
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   }); 
-  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const [dataTable, setDataTable] = useState<Array<ProductResponse>>(
-    [] as Array<ProductResponse>
-  ); 
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false); 
   const [dataProductItem, setDataProductItem] = useState<PageResponse<ProductResponse>>({
     metadata: {
       limit: 30,
@@ -270,33 +268,7 @@ const GroupUpdate: React.FC = () => {
         visible: true,
       },
     ]
-  },[ActionComponent]);    
-
-  const onClickDelete = useCallback(()=>{
-    setTableLoading(true);
-    
-    let temps = [...dataTable];
-    temps = temps.filter(e=> selectedRowKeys.indexOf(e.id) === -1);
-    
-    setDataTable(temps);
-    setSelectedRowKeys([]);
-    setSelected([]);
-    setConfirmDelete(false);
-  },[selectedRowKeys, dataTable]); 
-
-const onSelectProduct = useCallback((value: string) => {
-  const dataTemp = [...dataTable];
-  const selectedItem = resultSearch?.items?.find(
-    (product: ProductResponse) => product.id.toString() === value
-  );
-
-  if (!dataTemp.some((product: ProductResponse) => product.id === selectedItem.id)) {
-
-    setDataTable((prev: Array<ProductResponse>) =>
-      prev.concat([{...selectedItem, ProductResponse: selectedItem.name}])
-    ); 
-  } 
-},[dataTable,resultSearch]); 
+  },[ActionComponent]);       
 
 const onSelectedChange = useCallback(
   (selectedRow: Array<ProductResponse>) => {
@@ -322,7 +294,7 @@ const onResulProduct = useCallback(
   []
 );
 
-const getProductCollection = useCallback((page,size)=>{
+const getProductCollection = useCallback((key,page,size)=>{
   setTableLoading(true);
     dispatch(
       getProductsCollectionAction(
@@ -331,7 +303,7 @@ const getProductCollection = useCallback((page,size)=>{
           limit: size,
           page: page,
           collections: detail?.code,
-          info: keySearch?.trim(),
+          info: (key || key ==="")  ? key.trim() : keySearch?.trim(),
         },
         onResulProduct
       )
@@ -339,16 +311,32 @@ const getProductCollection = useCallback((page,size)=>{
 },[onResulProduct, dispatch, keySearch, detail]);
 
 const onResultUpdateProduct = useCallback((res)=>{
+  setTableLoading(false);
   if (res) {
     dispatch(collectionDetailAction(idNumber, onGetDetailSuccess));
-    getProductCollection(dataProductItem.metadata.page,dataProductItem.metadata.limit);
+    getProductCollection(null,dataProductItem.metadata.page,dataProductItem.metadata.limit);
   }
 },[dispatch,idNumber,onGetDetailSuccess, dataProductItem, getProductCollection]);
 
+const onSelectProduct = useCallback((value: string) => {
+  setTableLoading(true);
+
+    if (detail && detail.code) {
+      let request= {
+        ...formRef.current?.getFieldsValue(),
+        collection_code: detail.code,
+        add_product_ids: [parseInt(value)],
+        remove_product_ids: []
+      } as CollectionUpdateRequest;
+  
+     dispatch(updateProductsCollectionAction(request, onResultUpdateProduct))
+    }
+  
+},[dispatch, onResultUpdateProduct, detail, formRef]); 
+
 const onEnterFilterProduct = useCallback(
   (key: string) => {
-    key = key ? key.toLocaleLowerCase().trim() : "";
-    getProductCollection(dataProductItem.metadata.page,dataProductItem.metadata.limit);
+    getProductCollection(key,dataProductItem.metadata.page,dataProductItem.metadata.limit);
   },
   [dataProductItem, getProductCollection]
 );
@@ -372,10 +360,29 @@ const onPickManyProduct = useCallback((result: Array<ProductResponse>) => {
     } as CollectionUpdateRequest;
 
    dispatch(updateProductsCollectionAction(request, onResultUpdateProduct))
- 
+    
     setVisibleManyProduct(false);   
   }
 },[detail,dispatch, formRef, onResultUpdateProduct]);
+
+const onClickDelete = useCallback(()=>{
+  setTableLoading(true);
+
+  if (detail && detail.code) {
+    let request= {
+      ...formRef.current?.getFieldsValue(),
+      collection_code: detail.code,
+      add_product_ids: [],
+      remove_product_ids: selectedRowKeys
+    } as CollectionUpdateRequest;
+
+   dispatch(updateProductsCollectionAction(request, onResultUpdateProduct))
+  }
+  showSuccess("Xóa thành công");
+  setSelectedRowKeys([]);
+  setSelected([]);
+  setConfirmDelete(false); 
+},[selectedRowKeys, detail, formRef, dispatch, onResultUpdateProduct]);
 
 const onPageChange = useCallback(
   (page, size) => {
@@ -383,7 +390,7 @@ const onPageChange = useCallback(
       ...dataProductItem,
       metadata: {...dataProductItem.metadata, page: page, limit: size},
     });
-    getProductCollection(page,size);
+    getProductCollection(null, page,size);
   },
   [dataProductItem, getProductCollection]
 );
@@ -405,7 +412,7 @@ useEffect(() => {
 
 useEffect(()=>{
   if (detail && detail.code) {
-    getProductCollection(1,30);
+    getProductCollection(null,1,30);
    }
 },[detail,getProductCollection])
 
@@ -467,7 +474,7 @@ useEffect(()=>{
             </Row>
           </Card>
           <Card title="Thông tin sản phẩm" bordered={false} className='product'>
-          <Input.Group className="display-flex">
+            <Input.Group className="display-flex">
              <CustomAutoComplete
                loading={loadingSearchProduct}
                dropdownClassName="product"
@@ -507,7 +514,9 @@ useEffect(()=>{
                placeholder="Tìm kiếm sản phẩm trong phiếu"
                addonAfter={
                  <SearchOutlined
-                   onClick={onChangeKeySearch}
+                   onClick={()=>{
+                    onChangeKeySearch(null);
+                   }}
                    style={{color: "#2A2A86"}}
                  />
                }
@@ -525,18 +534,21 @@ useEffect(()=>{
                 dataSource={dataProductItem.items}
                 onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
                 rowKey={(item: ProductResponse) => item.id}
-                pagination={{
-                  pageSize: dataProductItem.metadata.limit,
-                  total: dataProductItem.metadata.total,
-                  current: dataProductItem.metadata.page,
-                  showSizeChanger: true,
-                  onChange: onPageChange,
-                  onShowSizeChange: onPageChange,
-                }}
+                pagination={false}
               />
-        </Card>
+              <CustomPagination
+               pagination={{
+                showSizeChanger: true,
+                pageSize: dataProductItem.metadata.limit,
+                current: dataProductItem.metadata.page,
+                total: dataProductItem.metadata.total,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
+              }}
+               />
+          </Card>
           <PickManyProductModal
-            selected={dataTable}
+            selected={dataProductItem.items}
             onSave={onPickManyProduct}
             onCancel={() => setVisibleManyProduct(false)}
             visible={visibleManyProduct}
