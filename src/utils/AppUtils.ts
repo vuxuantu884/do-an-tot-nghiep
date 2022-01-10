@@ -615,7 +615,7 @@ export const Products = {
   },
   convertAvatarToFileList: (arrImg: Array<VariantImage>) => {
     let arr: Array<UploadFile> = [];
-    arrImg.forEach((item, index) => {
+    arrImg?.forEach((item, index) => {
       arr.push({
         uid: item.image_id.toString(),
         name: item.image_id.toString(),

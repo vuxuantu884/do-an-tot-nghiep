@@ -1337,14 +1337,14 @@ const ProductDetailScreen: React.FC = () => {
                                           <Col span={24} md={12}>
                                             <Item
                                               name={[name, "sku"]}
-                                              rules={[
+                                              rules={(id === undefined || id === null) ? [
                                                 {required: true},
                                                 {
                                                   min: 10,
                                                   message:
                                                     "Mã sản phẩm tối thiểu 10 kí tự",
                                                 },
-                                              ]}
+                                              ]: []}
                                               label="Mã sản phẩm"
                                             >
                                               <Input
