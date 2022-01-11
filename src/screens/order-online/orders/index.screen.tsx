@@ -71,7 +71,8 @@ function OrdersScreen(props: PropTypes) {
     customer_note: null,
     tags: [],
     reference_code: null,
-    search_term: ""
+    search_term: "",
+		services: [],
   };
 
   return (
