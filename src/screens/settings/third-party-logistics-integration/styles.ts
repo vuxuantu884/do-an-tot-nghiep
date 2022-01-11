@@ -1,16 +1,17 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   display: block;
   .ant-card-body {
-    border-left: 1px solid #e5e5e5;
-    border-top: 1px solid #e5e5e5;
+    border-left: 1px solid ${borderColor};
+    border-top: 1px solid ${borderColor};
     padding: 0;
   }
   .singleThirdParty {
     align-items: center;
-    border-bottom: 1px solid #e5e5e5;
-    border-right: 1px solid #e5e5e5;
+    border-bottom: 1px solid ${borderColor};
+    border-right: 1px solid ${borderColor};
     display: flex;
     height: 100%;
     justify-content: space-between;

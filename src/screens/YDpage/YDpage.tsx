@@ -31,7 +31,7 @@ const YDpage: React.FC = () => {
 
   function getYdPageUrl() {
     const pathParam = new URLSearchParams(window.location.search).get('path');
-    const path = (pathParam) ? pathParam : '/';
+    const path = (pathParam) ? pathParam : '/chat';
     return new URL(YDPAGE_URL || '').origin + '/#' + path;
   }
 
@@ -42,6 +42,13 @@ const YDpage: React.FC = () => {
     switch (cmd) {
       case 'save_route_path':
         setYdpagePath(route.path);
+        break;
+      case 'hide_sidebar_menu':
+        const settingApp = JSON.parse(localStorage.setting_app);
+        if (!settingApp.collapse) {
+          const toggleSideBtn: HTMLElement | null = document.querySelector('header button');
+          toggleSideBtn?.click();
+        }
         break;
       default:
         break;

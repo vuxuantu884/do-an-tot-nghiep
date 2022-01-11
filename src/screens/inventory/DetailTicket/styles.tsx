@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 import { STATUS_INVENTORY_TRANSFER } from "../ListTicket/constants";
 import { BG_COLOR_TAG } from "../ListTicket/ListTicketTab/InventoryTransfer/styles";
 
@@ -187,7 +188,7 @@ export const StyledWrapper = styled.div`
     }
 
     .ant-timeline-item-head-blue {
-      background: #e5e5e5;
+      background: ${borderColor};
       border: none;
     }
   }

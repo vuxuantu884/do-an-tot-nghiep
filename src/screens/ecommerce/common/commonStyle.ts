@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { dangerColor } from "utils/global-styles/variables";
 
 export const StyledSelectDateFilter = styled.div`
   .select-connection-date {
@@ -68,4 +69,55 @@ export const StyledStatus = styled.div`
     padding: 5px 15px;
     margin: 0px auto;
   }
+`;
+
+export const StyledModalFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  .ant-btn-dangerous {
+    &:hover {
+      color: white;
+      background-color: ${dangerColor};
+    }
+  }
+`;
+
+export const StyledProgressDownloadModal = styled.div`
+  .progress-body {
+    width: 80%;
+    margin: 0 auto;
+    .progress-count {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+      .total-count {
+        font-weight: 700;
+        color: "#2222222";
+      }
+      .total-created {
+        font-weight: 700;
+        color: #FCAF17;
+      }
+      .total-updated {
+        font-weight: 700;
+        color: #27AE60;
+      }
+      .total-error {
+        font-weight: 700;
+        color: #E24343;
+      }
+    }
+  }
+
+  .error-orders {
+    .title {
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .custom-table {
+      height: 300px;
+      overflow-y: scroll;
+    }
+  }
+  
 `;

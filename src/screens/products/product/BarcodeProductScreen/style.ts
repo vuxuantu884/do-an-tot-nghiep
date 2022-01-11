@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .product {
@@ -11,7 +12,7 @@ export const StyledComponent = styled.div`
       column-gap: 5px;
       background-color: white;
       color: #222222;
-      border: 1px solid #e5e5e5;
+      border: 1px solid ${borderColor};
   }
   .avatar {
     width: 45px;

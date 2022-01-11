@@ -4,15 +4,15 @@ import { Button, Modal } from "antd";
 import notificationIcon from "assets/icon/notification.svg";
 
 
-type ConflictDownloadOrdersModalType = {
+type ConflictDownloadModalType = {
   visible: boolean;
   onOk: (data: any) => void;
   onCancel: () => void;
 };
 
 
-const ConflictDownloadOrdersModal: React.FC<ConflictDownloadOrdersModalType> = (
-  props: ConflictDownloadOrdersModalType
+const ConflictDownloadModal: React.FC<ConflictDownloadModalType> = (
+  props: ConflictDownloadModalType
 ) => {
   const { visible, onOk, onCancel } = props;
 
@@ -42,4 +42,4 @@ const ConflictDownloadOrdersModal: React.FC<ConflictDownloadOrdersModalType> = (
   );
 };
 
-export default ConflictDownloadOrdersModal;
+export default ConflictDownloadModal;

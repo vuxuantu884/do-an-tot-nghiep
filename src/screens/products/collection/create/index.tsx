@@ -27,8 +27,8 @@ import UrlConfig from 'config/url.config';
 import {RegUtil} from 'utils/RegUtils';
 import BottomBarContainer from 'component/container/bottom-bar.container'; 
 import { createCollectionAction } from 'domain/actions/product/collection.action';
-import { TiTick } from 'react-icons/ti';
 import { successColor } from 'utils/global-styles/variables';
+import { CheckOutlined } from '@ant-design/icons';
 
 let initialRequest: CollectionCreateRequest = {
   code: '',
@@ -168,11 +168,11 @@ const AddCollection: React.FC = () => {
             style={{
               color: "white",
               backgroundColor: successColor,
-              fontSize: "45px",
+              fontSize: 35,
             }}
             className="modal-confirm-icon"
           >
-            <TiTick /> 
+            <CheckOutlined/> 
           </div>
         </div>
         <div className="modal-confirm-right margin-left-20">

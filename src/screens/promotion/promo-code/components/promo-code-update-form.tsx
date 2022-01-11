@@ -2,12 +2,12 @@ import { CloseOutlined } from "@ant-design/icons";
 import { Card, Checkbox, Col, Form, Input, InputNumber, Row, Select, Table } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import CustomInput from "component/custom/custom-input";
 import NumberInput from "component/custom/number-input.custom";
 import UrlConfig from "config/url.config";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
+import { PriceRuleMethod } from "model/promotion/price-rules.model";
 import React, {
   createRef,
   ReactElement,
@@ -21,10 +21,10 @@ import { Link } from "react-router-dom";
 import { IssueContext } from "screens/promotion/issue/components/issue-provider";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
-import { showError } from "utils/ToastUtils"; 
+import { showError } from "utils/ToastUtils";
 import "../promo-code.scss";
 import ChooseDiscount from "./choose-discount.create";
-const {Option} = Select;
+const { Option } = Select;
 
 interface Props {
   form: FormInstance;
@@ -45,7 +45,7 @@ function PromoCodeUpdateForm({
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const [product, setProduct] = useState<string>("PRODUCT");
-  const [type, setType] = useState("SALE_CODE");
+  const [, setType] = useState("SALE_CODE");
   // const [isProduct, setIsProduct] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [data, setData] = useState<Array<VariantResponse>>([]);
@@ -103,7 +103,7 @@ function PromoCodeUpdateForm({
     }
     if (selectedItem) {
       const entitlements = form.getFieldValue("entitlements");
-      
+
       entitlements.unshift({
         entitled_variant_ids: [selectedItem.id],
         prerequisite_quantity_ranges: [
@@ -152,7 +152,7 @@ function PromoCodeUpdateForm({
         prerequisite_subtotal_ranges: null,
       }];
       form.setFieldsValue({ entitlements: entitlements });
-    }else{
+    } else {
       form.setFieldsValue({ entitlements: [] });
     }
   }, [form, isAllProduct]);
@@ -165,71 +165,69 @@ function PromoCodeUpdateForm({
           </div>
         }
       >
-        <Row gutter={30} style={{padding: "0px 16px"}}>
-          {/* Tên đợt phát hàng */}
+        <Row gutter={30}  >
           <Col span={12}>
-            <CustomInput
+            <Form.Item
               name="title"
-              label={<b>Tên đợt phát hành: </b>}
-              form={form}
-              message="Cần nhập tên khuyến mại"
-              placeholder="Nhập tên đợt phát hàng"
-              isRequired={true}
-              maxLength={255}
-            />
-          </Col>
-          {/* Mã đợt phát hàng */}
-          <Col span={12}>
+              label={"Tên đợt phát hành"}
+              rules={[
+                {
+                  required: true,
+                  message: "Cần nhập tên khuyến mại",
+                },
+                {
+                  max: 255,
+                  message: "Tên khuyến mại không vượt quá 255 ký tự",
+                },
+              ]}
+            >
+              <Input placeholder="Nhập tên đợt phát hành" />
+            </Form.Item>
             <Form.Item
               name="discount_code"
               label="Mã đợt phát hành:"
-              // rules={[
-              //   {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
-              // ]}
               normalize={(value) => nonAccentVietnamese(value)}
             >
               <Input maxLength={20} disabled={true} />
             </Form.Item>
           </Col>
-          {/* Mô tả */}
-          <Col span={24}>
-            <CustomInput
-              type="textarea"
-              name="description"
-              label={<b>Mô tả: </b>}
-              form={form}
-              placeholder="Nhập mô tả cho đợt phát hàng"
-              maxLength={500}
-              autoFocus
-            />
+
+          <Col span={12} >
+            <Form.Item name="description" label='Mô tả' rules={[{
+              max: 500,
+              message: 'Mô tả không được vượt quá 500 ký tự',
+            }]}>
+              <Input.TextArea
+                placeholder="Nhập mô tả cho đợt phát hành"
+                autoSize={{ minRows: 5, maxRows: 5 }}
+              />
+            </Form.Item>
           </Col>
         </Row>
       </Card>
       <Card>
-        <Row gutter={30} style={{padding: "0px 16px"}}>
+        <Row gutter={30}  >
           {/* Loại khuyến mãi */}
           <Col span={24}>
-            <Form.Item name="sale_type" label={<b>Loại khuyến mãi</b>}>
+            <Form.Item label={"Loại khuyến mãi"}>
               <Select
                 showArrow
                 placeholder="Chọn loại mã khuyến mãi"
                 onChange={(value: string) => setType(value)}
               >
-                <Option key="SALE_CODE" value={"SALE_CODE"}>
-                  Mã giảm giá
+                <Option key={PriceRuleMethod.ORDER_THRESHOLD} value={PriceRuleMethod.ORDER_THRESHOLD}>
+                  Khuyến mãi theo đơn hàng
                 </Option>
-                {/* <Option value={"GIFT_CODE"}>Mã quà tặng</Option> */}
               </Select>
             </Form.Item>
           </Col>
-          {type === "SALE_CODE" && (
-            <ChooseDiscount
-              form={form}
-              isUnlimitUsage={isUnlimitUsage}
-              isUnlimitUsagePerUser={isUnlimitUsagePerUser}
-              typeUnit={typeUnit}
-            />
-          )}
+
+          <ChooseDiscount
+            form={form}
+            isUnlimitUsage={isUnlimitUsage}
+            isUnlimitUsagePerUser={isUnlimitUsagePerUser}
+            typeUnit={typeUnit}
+          />
         </Row>
       </Card>
       <Card
@@ -239,7 +237,7 @@ function PromoCodeUpdateForm({
           </div>
         }
       >
-        <Row gutter={30} style={{padding: "0px 16px"}}>
+        <Row gutter={30} style={{ padding: "0px 16px" }}>
           <Col span={12}>
             <Form.Item
               label="Đơn hàng có giá trị từ:"
@@ -280,7 +278,7 @@ function PromoCodeUpdateForm({
                     placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
                     onSearch={onSearch}
                     dropdownMatchSelectWidth={456}
-                    style={{width: "100%"}}
+                    style={{ width: "100%" }}
                     onSelect={onSelectProduct}
                     options={renderResult}
                     ref={productSearchRef}
@@ -298,7 +296,7 @@ function PromoCodeUpdateForm({
                       setSelectedProduct([]);
                     }}
                   >
-                    Tất cả sản phẩm 
+                    Tất cả sản phẩm
                   </Checkbox>
                 </Form.Item>
               </Col>
@@ -376,7 +374,7 @@ function PromoCodeUpdateForm({
                             <CloseOutlined
                               onClick={() => onDeleteItem(index)}
                               className="product-item-delete"
-                              style={{fontSize: "22px"}}
+                              style={{ fontSize: "22px" }}
                             />
                           </Row>
                         ),

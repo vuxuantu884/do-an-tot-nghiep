@@ -28,7 +28,11 @@ export const globalCssCustomTable = css`
         & > tr.ant-table-row-selected > td {
           // background-color: inherit;
         }
+				>tr>td {
+					border-bottom: 1px solid ${borderColor};
+				}
       }
+			
       .ant-table-cell-with-append {
         display: flex;
         flex-direction: row-reverse;
