@@ -15,7 +15,7 @@ import { exitProgressDownloadEcommerceAction } from "domain/actions/ecommerce/ec
 import BaseResponse from "base/base.response";
 import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
 
-import ConflictDownloadOrdersModal from "screens/ecommerce/orders/component/ConflictDownloadOrdersModal";
+import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import { showSuccess } from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
@@ -108,7 +108,7 @@ const OrdersMapping: React.FC = () => {
     setProgressData(null);
   }
 
-  const closeConflictDownloadOrdersModal = () => {
+  const closeConflictDownloadModal = () => {
     setIsVisibleConflictModal(false);
   }
 
@@ -227,10 +227,10 @@ const OrdersMapping: React.FC = () => {
         }
 
         {isVisibleConflictModal &&
-          <ConflictDownloadOrdersModal
+          <ConflictDownloadModal
             visible={isVisibleConflictModal}
-            onCancel={closeConflictDownloadOrdersModal}
-            onOk={closeConflictDownloadOrdersModal}
+            onCancel={closeConflictDownloadModal}
+            onOk={closeConflictDownloadModal}
           />
         }
 
