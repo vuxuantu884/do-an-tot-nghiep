@@ -516,6 +516,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
+      
       formMain.setFieldsValue({
         line_items: [...data],
         tax_lines: tax_lines,
