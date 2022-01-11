@@ -852,20 +852,6 @@ const ProductDetailScreen: React.FC = () => {
                     <Row gutter={50}>
                       <Col span={24} md={12} sm={24}>
                           <Item
-                            rules={[
-                              {
-                                required: true,
-                                message: "Vui lòng nhập mã sản phẩm",
-                              },
-                              {
-                                len: 7,
-                                message: "Mã sản phẩm bao gồm 7 kí tự",
-                              },
-                              {
-                                pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                                message: "Mã sản phẩm chỉ gồm chữ và số",
-                              },
-                            ]}
                             tooltip={{
                               title:
                                 "Mã sản phẩm bao gồm 3 kí tự đầu mã danh mục và 4 kí tự tiếp theo do người dùng nhập",
