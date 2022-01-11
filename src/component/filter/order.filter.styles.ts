@@ -71,7 +71,7 @@ export const StyledComponent = styled.div`
     }
   }
   .order-filter-tags {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     .tag {
       padding: 10px 10px;
       margin-bottom: 15px;

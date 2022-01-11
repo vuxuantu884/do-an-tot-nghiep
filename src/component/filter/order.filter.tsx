@@ -128,18 +128,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 	const serviceType = useMemo(() => [
 		{
-			name: 'Tự vận chuyển',
-			value: 'shipper',
-		},
-		{
-			name: 'Đơn giao 4H',
-			value: 'shipper1',
-		},
-		{
-			name: 'Đơn giao tiêu chuẩn',
-			value: 'shipper2',
-		},
-		{
 			name: 'Nhận tại cửa hàng',
 			value: 'pick_at_store',
 		},
@@ -148,6 +136,25 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			value: 'external_service',
 		},
 	], []);
+
+	const serviceVariables = {
+		deliver4h: "4h_delivery",
+		deliverStandard: "standard_delivery",
+	}
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const serviceListVariables = [
+		{
+			title: "Đơn giao 4H",
+			value: serviceVariables.deliver4h
+		},
+		{
+			title: "Đơn giao thường",
+			value: serviceVariables.deliverStandard
+		}
+	]
+
+	
 	const formRef = createRef<FormInstance>();
 	const formSearchRef = createRef<FormInstance>();
 	const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string }[]>([]);
@@ -288,6 +295,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				case 'reference_code':
 					onFilter && onFilter({ ...params, reference_code: "" });
 					break;
+				case 'services':
+					onFilter && onFilter({ ...params, services: "" });
+					break;
 				default: break
 			}
 			// const tags = filters.filter((tag: any) => tag.key !== key);
@@ -327,9 +337,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
 			account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
 			delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
+			services: Array.isArray(params.services) ? params.services : [params.services],
 		}
 	}, [params])
 	console.log('initialValues', initialValues)
+	const [services, setServices] = useState<any[]>([]);
 	const onFinish = useCallback(
 		(values) => {
 			let error = false;
@@ -346,6 +358,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 			if (!error) {
 				setVisible(false);
+				values.services = services;
 				if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
 					values = {
 						...values,
@@ -353,11 +366,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						price_max: values?.price_min,
 					}
 				}
+				console.log('values', values)
 				onFilter && onFilter(values);
 				setRerender(false)
 			}
 		},
-		[formRef, onFilter]
+		[formRef, onFilter, services]
 	);
 	let filters = useMemo(() => {
 
@@ -547,6 +561,23 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				value: text,
 			})
 		}
+console.log('services', services)
+		if (initialValues.services.length) {
+			let text = "";
+			for (let i = 0; i < services.length; i++) {
+				let abc = serviceListVariables.find(single=>single.value === services[i])
+				if (i < services.length - 1) {
+					text = text + abc?.title + splitCharacter
+				} else {
+					text = text + abc?.title;
+				}
+			}
+			list.push({
+				key: 'services',
+        name: 'Đơn tự giao hàng',
+				value: <React.Fragment>{text}</React.Fragment>
+			})
+    }
 
 		if (initialValues.account_codes.length) {
 			let text = getFilterString(accountFound, "full_name", UrlConfig.ACCOUNTS, "code", "account_codes");
@@ -648,7 +679,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 		// console.log('filters list', list);
 		return list
-	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
+	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
 
 	const widthScreen = () => {
 		if (window.innerWidth >= 1600) {
@@ -661,6 +692,34 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	}
 
 	console.log('optionsVariant', optionsVariant)
+
+	const handleSelectServices = useCallback((service) => {
+    let cloneServices = [...services]
+    
+    switch (service) {
+      case serviceVariables.deliver4h:
+        const index1 = cloneServices.indexOf(serviceVariables.deliver4h);
+        if (index1 > -1) {
+          cloneServices.splice(index1, 1);
+        } else {
+          cloneServices.push(serviceVariables.deliver4h)
+        }
+        break;
+      case serviceVariables.deliverStandard:
+        const index2 = cloneServices.indexOf(serviceVariables.deliverStandard);
+        if (index2 > -1) {
+          cloneServices.splice(index2, 1);
+        } else {
+          cloneServices.push(serviceVariables.deliverStandard)
+        }
+        break;
+      
+			default: 
+				break;  
+    }
+    console.log('cloneServices', cloneServices)
+    setServices(cloneServices)
+  }, [serviceVariables.deliver4h, serviceVariables.deliverStandard, services]);
 
 	const clearFilter = () => {
 		onClearFilter && onClearFilter();
@@ -718,6 +777,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			setAccountData(accounts)
 		}
 	}, [accounts])
+
+	useEffect(() => {
+	 setServices(initialValues.services);
+	}, [initialValues.services])
 
 	const renderFilterTag = (filter: ListFilterTagTypes) => {
 		return (
@@ -1170,20 +1233,37 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 									</CustomSelect>
 								</Item>
 							</Col>
+							<Col span={8} xxl={8}>
+                <p>Đơn tự giao hàng</p>
+                <div className="button-option-1">
+									{serviceListVariables.map(single=> (
+										<Button
+											key={single.value}
+											onClick={() => handleSelectServices(single.value)}
+											className={services.includes(single.value) ? 'active' : 'deactive'}
+										>
+											{single.title}
+										</Button>
+									))}
+                </div>
+              </Col>
 						</Row>
 					</Form>}
 				</BaseFilter>
 			</div>
-			<div className="order-filter-tags">
-				{filters && filters.map((filter, index) => {
-					return (
-						<Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
-							<span className="tagLabel">{filter.name}:</span>
-							{renderFilterTag(filter)}
-						</Tag>
-					)
-				})}
-			</div>
+			{filters && filters.length > 0 && (
+				<div className="order-filter-tags">
+					{filters.map((filter, index) => {
+						return (
+							<Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
+								<span className="tagLabel">{filter.name}:</span>
+								{renderFilterTag(filter)}
+							</Tag>
+						)
+					})}
+				</div>
+
+			)}
 		</StyledComponent>
 	);
 };

@@ -165,6 +165,7 @@ export interface OrderSearchQuery {
   tags: [];
   reference_code: string | null;
   search_term?: string | null;
+	services?: [];
 }
 
 export interface OrderSearchQueryModel {

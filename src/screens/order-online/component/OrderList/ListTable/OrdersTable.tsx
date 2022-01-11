@@ -371,7 +371,7 @@ function OrdersTable(props: PropsType) {
 													<span>{formatCurrency(item.price)}</span>
 												</Tooltip>
 
-												{item?.discount_items && item.discount_items[0]?.value && (
+												{item?.discount_items && item.discount_items[0]?.value ? (
 													<Tooltip title="Khuyến mại sản phẩm">
 														<div className="itemDiscount" style={{ color: dangerColor }}>
 															<span>
@@ -382,7 +382,7 @@ function OrdersTable(props: PropsType) {
 														</div>
 													</Tooltip>
 
-												)}
+												): null}
 											</div>
 										</div>
 									</div>
