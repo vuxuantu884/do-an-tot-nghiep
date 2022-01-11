@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Menu } from "antd";
+import { Button, Card } from "antd";
 import { DownloadOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -652,7 +652,7 @@ const EcommerceOrders: React.FC = () => {
     }
   }, [selectedRowKeys, token, data?.items]);
 
-  const onMenuClick = useCallback(
+  const printAction = useCallback(
     (printType: string) => {
       let params = {
         action: "print",
@@ -667,23 +667,29 @@ const EcommerceOrders: React.FC = () => {
     [selectedRowKeys]
   );
 
-  const actionList = (
-    <Menu>
-      <Menu.Item key="1" disabled={selectedRowKeys?.length < 1}>
-        <div>
-          <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={handlePrintDeliveryNote}>In phiếu giao hàng</span>
-        </div>
-      </Menu.Item>
-
-      <Menu.Item key="2" disabled={selectedRowKeys?.length < 1}>
-        <div>
-          <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={() => onMenuClick("stock_export")}>In phiếu xuất kho</span>
-        </div>
-      </Menu.Item>
-    </Menu>
-  );
+  const actions = [
+    {
+      id: 1,
+      name: "In phiếu giao hàng Shopee",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length,
+      onClick: handlePrintDeliveryNote
+    },
+    {
+      id: 2,
+      name: "In phiếu giao hàng",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length,
+      onClick: () => printAction("shipment")
+    },
+    {
+      id: 3,
+      name: "In phiếu xuất kho",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length,
+      onClick: () => printAction("stock_export")
+    },
+  ];
   // end handle action button
 
   const setSearchResult = useCallback(
@@ -917,7 +923,7 @@ const EcommerceOrders: React.FC = () => {
           {(allowed: boolean) => (allowed ?
             <Card>
               <EcommerceOrderFilter
-                actions={actionList}
+                actions={actions}
                 onFilter={onFilter}
                 isLoading={tableLoading}
                 params={params}
