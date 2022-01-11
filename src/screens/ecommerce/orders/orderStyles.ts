@@ -181,7 +181,7 @@ export const StyledDownloadOrderData = styled.div`
       display: flex;
       align-items: center;
       background-color: #ffffff;
-      border: 1px solid #e5e5e5;
+      border: 1px solid ${borderColor};
       img {
         margin-right: 10px;
       }
@@ -238,20 +238,20 @@ export const StyledEcommerceOrderBaseFilter = styled.div`
 export const StyledUpdateConnectionModal = styled.div`
   .not-connected-item-list {
     .ant-table.ant-table-middle .ant-table-tbody > tr > td {
-      border-right: 1px solid #e5e5e5;
+      border-right: 1px solid ${borderColor};
       padding: 10px 10px;
     }
 
     .ant-table.ant-table-middle .ant-table-tbody > tr > td:first-child {
-      border-left: 1px solid #e5e5e5;
+      border-left: 1px solid ${borderColor};
     }
 
     .ant-table.ant-table-middle .ant-table-thead > tr > th {
-      border-right: 1px solid #e5e5e5;
+      border-right: 1px solid ${borderColor};
     }
 
     .ant-table.ant-table-middle .ant-table-thead > tr > th:first-child {
-      border-left: 1px solid #e5e5e5;
+      border-left: 1px solid ${borderColor};
     }
   }
 `;

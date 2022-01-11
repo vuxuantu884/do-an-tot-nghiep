@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
@@ -6,12 +7,12 @@ export const StyledComponent = styled.div`
     margin-top: 20px;
     .card-container {
       .left {
-        border-right: 1px solid #e5e5e5;
+        border-right: 1px solid ${borderColor};
       }
       .right {
         .header-view {
           padding: 16px 20px;
-          border-bottom: 1px solid #e5e5e5;
+          border-bottom: 1px solid ${borderColor};
           justify-content: space-between;
           display: flex;
           flex-direction: row;

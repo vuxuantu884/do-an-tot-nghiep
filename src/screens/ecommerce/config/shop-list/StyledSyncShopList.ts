@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledHeader = styled.div`
   margin: 20px 0;
@@ -10,7 +11,7 @@ export const StyledHeader = styled.div`
     display: flex;
     align-items: center;
     background-color: #ffffff;
-    border: 1px solid #e5e5e5;
+    border: 1px solid ${borderColor};
     img {
       margin-right: 10px;
     }

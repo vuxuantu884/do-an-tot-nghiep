@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   position: relative;
@@ -130,7 +131,7 @@ export const StyledComponent = styled.div`
       justify-content: space-between;
       flex-direction: row;
       .action-button {
-        border: 1px solid #e5e5e5;
+        border: 1px solid ${borderColor};
         padding: 6px 15px;
         border-radius: 5px;
         flex-direction: row;
@@ -139,15 +140,15 @@ export const StyledComponent = styled.div`
         align-items: center;
         color: #666666;
         &:hover {
-          border: 1px solid #e5e5e5;
+          border: 1px solid ${borderColor};
           color: #666666;
-          border: 1px solid #e5e5e5;
+          border: 1px solid ${borderColor};
           background-color: #f5f5f5;
         }
         &:focus {
-          border: 1px solid #e5e5e5;
+          border: 1px solid ${borderColor};
           color: #666666;
-          border: 1px solid #e5e5e5;
+          border: 1px solid ${borderColor};
           background-color: #f5f5f5;
         }
         &.ant-btn-primary {
