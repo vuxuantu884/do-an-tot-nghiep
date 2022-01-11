@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .get-products-button {
@@ -23,7 +24,7 @@ export const StyledUpdateProductDataModal = styled.div`
       display: flex;
       align-items: center;
       background-color: #ffffff;
-      border: 1px solid #e5e5e5;
+      border: 1px solid ${borderColor};
       img {
         margin-right: 10px;
       }

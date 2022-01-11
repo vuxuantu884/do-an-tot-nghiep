@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledConfig = styled.div`
   .shop-column {
@@ -6,7 +7,7 @@ export const StyledConfig = styled.div`
   }
 
   .ecommerce-user-detail{
-    border: 1px solid #e5e5e5;
+    border: 1px solid ${borderColor};
     padding: 7px 15px;
     margin-bottom: 20px;
     .ant-col{
