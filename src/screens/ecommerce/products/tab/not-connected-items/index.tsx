@@ -20,6 +20,8 @@ import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 
+
+
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -37,6 +39,7 @@ import {
   deleteEcommerceItem,
   putConnectEcommerceItem,
   getProductEcommerceList,
+  // postSyncStockEcommerceProduct,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 
@@ -48,7 +51,6 @@ import ResultConnectProductModal from "screens/ecommerce/products/tab/not-connec
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import filterIcon from "assets/icon/filter.svg";
 import saveIcon from "assets/icon/save.svg";
-import closeIcon from "assets/icon/X_close.svg";
 import imgdefault from "assets/icon/img-default.svg";
 
 import {
@@ -59,6 +61,7 @@ import {
 import { StyledProductFilter } from "screens/ecommerce/products/styles";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
+import ConnectedItemActionColumn from "../connected-items/ConnectedItemActionColumn";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -91,6 +94,9 @@ const NotConnectedItems: React.FC = () => {
   const [isVisibleConfirmConnectItemsModal, setIsVisibleConfirmConnectItemsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
+
+
+
 
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
@@ -159,12 +165,6 @@ const NotConnectedItems: React.FC = () => {
 
   const reloadPage = () => {
     getProductUpdated(query);
-  };
-
-  //handle delete item
-  const handleDeleteItem = (item: any) => {
-    setIsShowDeleteItemModal(true);
-    setIdsItemSelected([item.id]);
   };
 
   const cancelDeleteItemModal = () => {
@@ -248,6 +248,7 @@ const NotConnectedItems: React.FC = () => {
     const closeResultConnectionModal = () => {
       setIsShowResultConnectionModal(false);
       reloadPage();
+      history.replace(`${history.location.pathname}#connected-item`);
     };
 
     const updateNotConnectedProductList = useCallback((data) => {
@@ -551,27 +552,11 @@ const NotConnectedItems: React.FC = () => {
     );
   };
 
-  const RenderDeleteItemColumn = (l: any, item: any, index: number) => {
-    const [allowProductsDelete] = useAuthorization({
-      acceptPermissions: productsDeletePermission,
-      not: false,
-    });
-
-    const isShowAction = item.connect_status === "waiting" && allowProductsDelete;
-
-    return (
-      <>
-        {isShowAction &&
-          <img
-            src={closeIcon}
-            className="delete-item-icon"
-            alt=""
-            onClick={() => handleDeleteItem(l)}
-          />
-        }
-      </>
-    );
-  }
+  //handle delete item
+  const handleDeleteItem = (item: any) => {
+    setIsShowDeleteItemModal(true);
+    setIdsItemSelected([item.id]);
+  };
 
   const [columns] = useState<any>([
     {
@@ -638,10 +623,10 @@ const NotConnectedItems: React.FC = () => {
         );
       },
     },
-    {
-      width: "60px",
-      render: (l: any, item: any, index: number) => RenderDeleteItemColumn(l, item, index)
-    },
+
+    ConnectedItemActionColumn(
+      handleDeleteItem,
+    ),
   ]);
 
   const onSearch = (value: ProductEcommerceQuery) => {

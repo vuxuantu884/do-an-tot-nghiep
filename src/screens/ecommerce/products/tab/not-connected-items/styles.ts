@@ -25,6 +25,10 @@ export const StyledComponent = styled.div`
       }
     }
   }
+
+  .ecommerce-product-action-column {
+    text-align: center;
+  }
 `;
 
 export const StyledYodyProductColumn = styled.div`

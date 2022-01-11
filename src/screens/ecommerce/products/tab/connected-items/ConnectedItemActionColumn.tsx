@@ -8,7 +8,9 @@ const productsUpdateStockPermission = [EcommerceProductPermission.products_updat
 const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
 
 
-const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, handleDisconnectItem: any) => {
+const ConnectedItemActionColumn = (handleDeleteItem: any, handleSyncStock?: any, handleDisconnectItem?: any) => {
+
+
   const RenderActionColumn = (l: any, item: any, index: number) => {
     const [allowProductsDelete] = useAuthorization({
       acceptPermissions: productsDeletePermission,
@@ -24,22 +26,23 @@ const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, 
       acceptPermissions: productsDisconnectPermission,
       not: false,
     });
-    
+
     const isShowAction = (item.connect_status === "connected" && (allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect)) ||
-      (item.connect_status === "waiting" && allowProductsDelete);
-    
+      (item.connect_status === "waiting" && allowProductsDelete)
+
+
     const menu = (
       <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-        {item.connect_status === "connected" &&
+        {
           <>
-            {allowProductsUpdateStock &&
+            {allowProductsUpdateStock && item.connect_status === "connected" &&
               <Menu.Item key="1">
                 <Button type="text" onClick={() => handleSyncStock(item)}>
                   Đồng bộ tồn kho lên sàn
                 </Button>
               </Menu.Item>
             }
-            
+
             {allowProductsDelete &&
               <Menu.Item key="2">
                 <Button type="text" onClick={() => handleDeleteItem(item)}>
@@ -47,8 +50,9 @@ const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, 
                 </Button>
               </Menu.Item>
             }
-          
-            {allowProductsDisconnect &&
+
+
+            {allowProductsDisconnect && item.connect_status === "connected" &&
               <Menu.Item key="3">
                 <Button type="text" onClick={() => handleDisconnectItem(item)}>
                   Hủy liên kết
@@ -73,17 +77,18 @@ const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, 
               className="p-0 ant-btn-custom"
               icon={<img src={threeDot} alt=""></img>}
             ></Button>
+
           </Dropdown>
         }
       </>
     );
   }
-  
+
   const _actionColumn = {
     title: "",
     visible: true,
-    width: "5%",
-    className: "saleorder-product-card-action ",
+    width: "80px",
+    className: "ecommerce-product-action-column",
     render: (l: any, item: any, index: number) => RenderActionColumn(l, item, index)
   };
 

@@ -124,7 +124,6 @@ export default function Order() {
 		isAlreadyShow: false,
 	})
 	const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-	const [officeTime, setOfficeTime] = useState<boolean>(false);
 
 	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 	// const [listOrderConfigs, setListOrderConfigs] =
@@ -325,7 +324,7 @@ export default function Order() {
 			note_to_shipper: "",
 			requirements: value.requirements,
 			sender_address: null,
-			office_time: officeTime,
+			office_time: form.getFieldValue("office_time"),
 		};
 
 		switch (shipmentMethod) {
@@ -573,6 +572,8 @@ export default function Order() {
 						!thirdPL.service
 					) {
 						showError("Vui lòng chọn đơn vị vận chuyển!");
+						const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
+						scrollAndFocusToDomElement(element)
 						setCreating(false);
 					} else {
 						if (typeButton === OrderStatus.DRAFT) {
@@ -810,12 +811,6 @@ export default function Order() {
 										break;
 								}
 								setShipmentMethod(newShipmentMethod);
-								if (
-									response.fulfillments[0] &&
-									response.fulfillments[0]?.shipment?.office_time
-								) {
-									setOfficeTime(true);
-								}
 							}
 						}
 					})
@@ -828,13 +823,11 @@ export default function Order() {
 				setItems([]);
 				setItemGifts([]);
 				setPayments([]);
-				setOfficeTime(false);
 				setStoreId(null);
 				setTags("");
 				setIsLoadForm(true);
 				setShippingFeeInformedToCustomer(0);
 				setPromotion(null)
-				setOfficeTime(false);
 				setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
 				form.resetFields();
 			}

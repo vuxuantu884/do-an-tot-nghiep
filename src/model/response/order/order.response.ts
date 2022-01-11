@@ -160,12 +160,26 @@ export interface FulFillmentResponse {
   created_date: string | null;
   cancel_date: string | null;
   return_status: string | null;
+  reason_name?: string;
+  sub_reason_name?: string;
 }
 
-export interface SelfDeliveryData {
-  shipper_code: string | null;
-  shipping_fee_paid_to_three_pls: number | null;
-  shipping_fee_informed_to_customer: number | null;
+export interface EcommerceDeliveryResponse {
+  cod: number | null,
+  shipping_fee_informed_to_customer: number | null,
+  shipping_fee_paid_to_three_pls: number | null,
+  delivery_service_provider_code: string | null;
+  delivery_service_provider_id: number | null,
+  delivery_service_provider_name: string | null,
+  delivery_service_provider_type: string | null,
+  delivery_transport_type: string | null,
+  office_time: string | null;
+  requirements: string | null;
+  requirements_name: string | null;
+  sender_address_id: number | null;
+  sender_address?: StoreResponse;
+  service: string | null;
+  tracking_code: string | null;
 }
 
 export interface OrderDiscountResponse {

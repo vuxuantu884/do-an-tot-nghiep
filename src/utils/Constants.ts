@@ -79,6 +79,12 @@ export const ShipmentMethod = {
   EXTERNAL_SERVICE: "external_service",
   EMPLOYEE: "employee",
   EXTERNAL_SHIPPER: "external_shipper",
+  SHOPEE: "shopee",
+};
+
+export const SHIPPING_TYPE = {
+  DELIVERY_4H: "4h_delivery",
+  ROAD: "road",
 };
 
 export const TRANSPORTS = {
@@ -131,11 +137,11 @@ export const PO_RETURN_HISTORY = [
   },
   {
     code: "finalized",
-    title: "Đã xác nhận",
+    title: "Xác nhận",
   },
   {
     code: "completed",
-    title: "Đã hoàn thành",
+    title: "Hoàn thành",
   },
   {
     code: "cancelled",
@@ -143,7 +149,7 @@ export const PO_RETURN_HISTORY = [
   },
   {
     code: "finished",
-    title: "Đã kết thúc",
+    title: "Kết thúc",
   },
   {
     code: "stored",

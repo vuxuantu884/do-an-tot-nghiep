@@ -97,7 +97,6 @@ const TabProduct: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [listCountry, setCountry] = useState<Array<CountryResponse>>();  
-  const [listSize, setSize] = useState<Array<SizeResponse>>();
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
   const [selected, setSelected] = useState<Array<VariantResponse>>([]); 
@@ -255,9 +254,9 @@ const TabProduct: React.FC = () => {
 
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      width: 80,
+      width: 60,
       title: "Ảnh",
-      align:"left",
+      align:"center",
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
@@ -399,7 +398,6 @@ const TabProduct: React.FC = () => {
 
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountry)); 
-    dispatch(sizeGetAll(setSize));
     setTableLoading(true);
   }, [dispatch]);
   useEffect(() => {
@@ -416,7 +414,6 @@ const TabProduct: React.FC = () => {
         params={params}
         listStatus={listStatus}
         listBrands={listBrands} 
-        listSize={listSize} 
         listCountries={listCountry}
         onClickOpen={() => setShowSettingColumn(true)}
       />

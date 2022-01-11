@@ -1245,7 +1245,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       }
 
       let queryParams = generateQuery(params);
-      window.open(`${BASE_NAME_ROUTER}${UrlConfig.CUSTOMER}/point-adjustments/create?${queryParams}`, "_blank");
+      window.open(`${BASE_NAME_ROUTER}${UrlConfig.CUSTOMER2}-adjustments/create?${queryParams}`, "_blank");
     }
   }
 

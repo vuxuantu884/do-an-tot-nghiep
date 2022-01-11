@@ -105,7 +105,7 @@ export const StyledComponent = styled.div`
   .care-label {
     font-size: 20px;
     vertical-align: -0.125em;
-    margin: 6px 8px 15px 0;
+    margin: 2px 4px 15px 6px;
   }
 
   .row-detail {

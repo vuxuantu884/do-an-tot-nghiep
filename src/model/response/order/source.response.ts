@@ -1,6 +1,7 @@
 import { BaseObject } from "model/base/base.response";
 
 export interface SourceResponse extends BaseObject {
+	active: boolean,
   name: string,
   reference_url: string | null;
   department_id: number | null;

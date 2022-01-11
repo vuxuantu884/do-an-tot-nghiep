@@ -470,6 +470,15 @@ const tab= document.getElementById("tab");
                           })}</div>
                         </div>
                       </Col>
+                      <Col span={24} md={12}>
+                        <div className="row-detail">
+                          <div className="row-detail-left title">Nhóm hàng</div>
+                          <div className="dot data">:</div>
+                          <div className="row-detail-right data">{data.collections?.map((e)=>{
+                            return e.name;
+                          }).toString()}</div>
+                        </div>
+                      </Col>
                     </Row>
                     <Row>
                       <Col span={24} style={{ display: "contents" }}>
@@ -593,7 +602,7 @@ const tab= document.getElementById("tab");
                               </Col>
                               <Col className="view-right" span={24} md={10}>
                                 <div className="image-view">
-                                  {currentVariant.variant_images.length === 0 ? (
+                                  {currentVariant.variant_images?.length === 0 ? (
                                     <img
                                       className="item-default"
                                       src={variantdefault}
@@ -601,7 +610,7 @@ const tab= document.getElementById("tab");
                                     />
                                   ) : (
                                     <React.Fragment>
-                                      {currentVariant.variant_images.length === 1 ? (
+                                      {currentVariant.variant_images?.length === 1 ? (
                                         <Image
                                           src={currentVariant.variant_images[0].url}
                                           alt=""
@@ -617,7 +626,7 @@ const tab= document.getElementById("tab");
                                             arrows={false}
                                             className={classNames("image-slider")}
                                           >
-                                            {currentVariant.variant_images.map(
+                                            {currentVariant.variant_images?.map(
                                               (item, index) => (
                                                 <Image
                                                   key={index}
@@ -632,7 +641,7 @@ const tab= document.getElementById("tab");
                                             ref={(slider2) => setNav2(slider2)}
                                             infinite={true}
                                             slidesToShow={
-                                              currentVariant.variant_images.length < 3
+                                              currentVariant.variant_images?.length < 3
                                                 ? currentVariant.variant_images.length
                                                 : 3
                                             }
@@ -641,11 +650,11 @@ const tab= document.getElementById("tab");
                                             focusOnSelect={true}
                                             className={classNames(
                                               "image-thumbnail",
-                                              currentVariant.variant_images.length ===
+                                              currentVariant.variant_images?.length ===
                                                 2 && "image-2"
                                             )}
                                           >
-                                            {currentVariant.variant_images.map(
+                                            {currentVariant.variant_images?.map(
                                               (item, index) => (
                                                 <img key={index} src={item.url} alt="" />
                                               )

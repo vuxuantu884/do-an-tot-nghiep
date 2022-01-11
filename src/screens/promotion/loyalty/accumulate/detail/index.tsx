@@ -133,11 +133,11 @@ const LoyaltyAccumulateDetail = () => {
         },
         {
           name: "Tích điểm",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
+          path: `${UrlConfig.LOYALTY}`,
         },
         {
           name: "Chi tiết chương trình tích điểm",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${id}`,
+          path: `${UrlConfig.LOYALTY}/accumulation/${id}`,
         },
       ]}
     >
@@ -151,7 +151,7 @@ const LoyaltyAccumulateDetail = () => {
                   </span>
                   {allowUpdateProgram &&
                     <Link
-                      to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${id}/update`}
+                      to={`${UrlConfig.LOYALTY}/accumulation/${id}/update`}
                       style={{color: '#5656A2', fontSize: '14px'}}
                     >
                       Cập nhật

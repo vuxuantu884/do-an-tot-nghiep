@@ -76,7 +76,7 @@ export const CustomizedYAxisTickRankUserImcome = (props: any) => {
     console.log(props)
     return (
         <g transform={`translate(${x - 70},${y - 10})`} >
-            {userRanks[0].label === value && <image xlinkHref={Top1SVG} transform={`translate(${x - 20},${y - 96})`} />}
+            {userRanks[0].label === value && <image xlinkHref={Top1SVG} transform={`translate(${x - 20},${y - 85})`} />}
             <text textAnchor="start" fontFamily={"sans-serif"} fill={ChartColor.black} fontSize="14px"
             >
                 {value}

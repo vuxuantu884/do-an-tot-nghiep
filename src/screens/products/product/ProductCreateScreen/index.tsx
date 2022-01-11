@@ -32,6 +32,7 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
+import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { getColorAction } from "domain/actions/product/color.action";
 import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
 import { productCheckDuplicateCodeAction, productCreateAction } from "domain/actions/product/products.action";
@@ -41,6 +42,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
+import { CollectionResponse } from "model/product/collection.model";
 import { ColorResponse } from "model/product/color.model";
 import { MaterialResponse } from "model/product/material.model";
 import {
@@ -86,6 +88,7 @@ const initialRequest: ProductRequestView = {
   goods: null,
   category_id: null,
   collections: [],
+  product_collections: [],
   code: "",
   name: "",
   width: null,
@@ -118,7 +121,7 @@ const initialRequest: ProductRequestView = {
   ],
   material_id: null,
   supplier_id: null,
-  material: null
+  material: null,
 };
 
 const ProductCreateScreen: React.FC = () => {
@@ -222,6 +225,12 @@ const ProductCreateScreen: React.FC = () => {
   const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
+  const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
   //end category
   //end state
 
@@ -686,6 +695,19 @@ const ProductCreateScreen: React.FC = () => {
     form.setFieldsValue({ length_unit: 'cm' });
   }, [form]);
 
+  const getCollections = useCallback((code: string, page: number) => {
+    dispatch(
+      getCollectionRequestAction(
+        { condition: code, page: page},
+        setCollections
+      )
+    );
+  }, [dispatch, setCollections]);
+
+  useEffect(()=>{
+    getCollections("",1);
+  },[getCollections]);
+
   return (
     <Form
       form={form}
@@ -744,12 +766,46 @@ const ProductCreateScreen: React.FC = () => {
                 }
               >
                 <Row gutter={50}>
+                  
+                </Row>
+                <Row gutter={50}>
+                <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập mã sản phẩm",
+                        },
+                        {
+                          len: 7,
+                          message: "Mã sản phẩm bao gồm 7 kí tự",
+                        },
+                        {
+                          pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                          message: "Mã sản phẩm chỉ gồm chữ và số",
+                        },
+                      ]}
+                      tooltip={{
+                        title:
+                          "Mã sản phẩm bao gồm 3 kí tự đầu mã danh mục và 4 kí tự tiếp theo do người dùng nhập",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="code"
+                      label="Mã sản phẩm"
+                    >
+                      <Input
+                        maxLength={7}
+                        placeholder="Nhập mã sản phẩm"
+                        onChange={onCodeChange}
+                      />
+                    </Item>
+                  </Col>
                   <Col span={24} md={12} sm={24}>
                     <Item
                       rules={[
                         {
                           required: true,
-                          message: "Vui lòng chọn loại sản phẩm",
+                          message: "Vui lòng chọn ngành hàng",
                         },
                       ]}
 
@@ -769,6 +825,36 @@ const ProductCreateScreen: React.FC = () => {
                           </CustomSelect.Option>
                         ))}
                       </CustomSelect>
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập tên sản phẩm",
+                        },
+                        {
+                          pattern: RegUtil.STRINGUTF8,
+                          message:
+                            "Tên sản phẩm không báo gồm kí tự đặc biệt",
+                        },
+                      ]}
+                      tooltip={{
+                        title:
+                          "Tên mã cha, không bao gồm màu sắc và kích cỡ",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="name"
+                      label="Tên sản phẩm"
+                    >
+                      <Input
+                        onChange={onNameChange}
+                        maxLength={120}
+                        placeholder="Nhập tên sản phẩm"
+                      />
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
@@ -806,67 +892,6 @@ const ProductCreateScreen: React.FC = () => {
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
-                    <Item
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập mã sản phẩm",
-                        },
-                        {
-                          len: 7,
-                          message: "Mã sản phẩm bao gồm 7 kí tự",
-                        },
-                        {
-                          pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                          message: "Mã sản phẩm chỉ gồm chữ và số",
-                        },
-                      ]}
-                      tooltip={{
-                        title:
-                          "Mã sản phẩm bao gồm 3 kí tự đầu mã danh mục và 4 kí tự tiếp theo do người dùng nhập",
-                        icon: <InfoCircleOutlined />,
-                      }}
-                      name="code"
-                      label="Mã sản phẩm"
-                    >
-                      <Input
-                        maxLength={7}
-                        placeholder="Nhập mã sản phẩm"
-                        onChange={onCodeChange}
-                      />
-                    </Item>
-                  </Col>
-                  <Col span={24} md={12} sm={24}>
-                    <Item
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập tên sản phẩm",
-                        },
-                        {
-                          pattern: RegUtil.STRINGUTF8,
-                          message:
-                            "Tên sản phẩm không báo gồm kí tự đặc biệt",
-                        },
-                      ]}
-                      tooltip={{
-                        title:
-                          "Tên mã cha, không bao gồm màu sắc và kích cỡ",
-                        icon: <InfoCircleOutlined />,
-                      }}
-                      name="name"
-                      label="Tên sản phẩm"
-                    >
-                      <Input
-                        onChange={onNameChange}
-                        maxLength={120}
-                        placeholder="Nhập tên sản phẩm"
-                      />
-                    </Item>
-                  </Col>
-                </Row>
-                <Row gutter={50}>
-                  <Col span={24} md={12} sm={24}>
                     <Item name="brand" label="Thương hiệu">
                       <CustomSelect placeholder="Chọn thương hiệu">
                         {brandList?.map((item) => (
@@ -881,18 +906,26 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
-                    <Item name="made_in_id" label="Xuất xứ">
-                      <CustomSelect
-                        showSearch
-                        optionFilterProp="children"
-                        placeholder="Chọn xuất xứ"
-                      >
-                        {listCountry?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id}>
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
+                    <Item label="Nhóm hàng" name="product_collections">
+                      <SelectPaging
+                          metadata={collections.metadata}
+                          showSearch={false}
+                          mode="multiple"
+                          maxTagCount="responsive"
+                          showArrow
+                          allowClear
+                          searchPlaceholder="Tìm kiếm nhóm hàng"
+                          placeholder="Chọn nhóm hàng"
+                          onPageChange={(key, page) => getCollections(key, page)}
+                          onSearch={(key) => getCollections(key, 1)}
+                        >
+      
+                          {collections.items.map((item) => (
+                            <SelectPaging.Option key={item.code} value={item.code}>
+                              {`${item.code} - ${item.name}`}
+                            </SelectPaging.Option>
+                          ))}
+                        </SelectPaging>
                     </Item>
                   </Col>
                 </Row>
@@ -923,13 +956,14 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
-                    <Item name="unit" label="Đơn vị">
-                      <CustomSelect placeholder="Chọn đơn vị">
-                        {productUnitList?.map((item) => (
-                          <CustomSelect.Option
-                            key={item.value}
-                            value={item.value}
-                          >
+                    <Item name="made_in_id" label="Xuất xứ">
+                      <CustomSelect
+                        showSearch
+                        optionFilterProp="children"
+                        placeholder="Chọn xuất xứ"
+                      >
+                        {listCountry?.map((item) => (
+                          <CustomSelect.Option key={item.id} value={item.id}>
                             {item.name}
                           </CustomSelect.Option>
                         ))}
@@ -938,6 +972,20 @@ const ProductCreateScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                      <Item name="unit" label="Đơn vị">
+                        <CustomSelect placeholder="Chọn đơn vị">
+                          {productUnitList?.map((item) => (
+                            <CustomSelect.Option
+                              key={item.value}
+                              value={item.value}
+                            >
+                              {item.name}
+                            </CustomSelect.Option>
+                          ))}
+                        </CustomSelect>
+                      </Item>
+                  </Col>
                   <Col span={24} md={12} sm={24}>
                     <Item name="supplier_id" label="Nhà cung cấp">
                       <SelectPaging
@@ -957,27 +1005,12 @@ const ProductCreateScreen: React.FC = () => {
                       </SelectPaging>
                     </Item>
                   </Col>
-                  <Col span={24} md={12} sm={24}>
-                    <Item
-                      tooltip={{
-                        title: "Thẻ ngày giúp tìm kiếm các sản phẩm",
-                        icon: <InfoCircleOutlined />,
-                      }}
-                      name="tags"
-                      label="Từ khóa"
-                    >
-                      <HashTag />
-                    </Item>
-                  </Col>
+                 {/* tuwf k */}
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item
-                      label="Kích thước (dài, rộng, cao)"
-                      tooltip={{
-                        title: "Thông tin kích thước khi đóng gói sản phẩm",
-                        icon: <InfoCircleOutlined />,
-                      }}
+                      label="Kích thước đóng gói (dài, rộng, cao)"
                     >
                       <Input.Group compact>
                         <Item name="length" noStyle>
@@ -1074,40 +1107,53 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                 </Row>
-                <Row>
-                  <Col span={24} style={{ display: "contents" }}>
-                    <span className="care-title">Thông tin bảo quản: </span>
-                    {careLabels.map((item: any) => (
-                      <Popover content={item.name}>
-                        <span className={`care-label ydl-${item.value}`}></span>
-                      </Popover>
-                    ))}
-                    <Button
-                      className={`button-plus`}
-                      icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
-                      onClick={() => setShowCareModal(true)}
-                    />
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      tooltip={{
+                        title: "Thẻ ngày giúp tìm kiếm các sản phẩm",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="tags"
+                      label="Từ khóa"
+                    >
+                      <HashTag />
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item label="Thông tin bảo quản">
+                      {careLabels.map((item: any) => (
+                          <Popover content={item.name}>
+                            <span className={`care-label ydl-${item.value}`}></span>
+                          </Popover>
+                        ))}
+                        <Button
+                          className={`button-plus`}
+                          icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
+                          onClick={() => setShowCareModal(true)}
+                        />
+                    </Item>
                   </Col>
                 </Row>
                 <Row gutter={24}>
-                  <Col span={24}>
-                    <Collapse
-                      ghost
-                      expandIcon={({ isActive }) =>
-                        isActive ? <MinusOutlined /> : <PlusOutlined />
-                      }
-                      className="padding-0"
-                    >
-                      <Collapse.Panel
-                        header="Mô tả sản phẩm"
-                        key="prDes"
-                        className="custom-header"
+                    <Col span={24}>
+                      <Collapse
+                        ghost
+                        expandIcon={({ isActive }) =>
+                          isActive ? <MinusOutlined /> : <PlusOutlined />
+                        }
+                        className="padding-0"
                       >
-                        <Item name="description">
-                          <CustomEditor />
-                        </Item>
-                      </Collapse.Panel>
-                    </Collapse>
+                        <Collapse.Panel
+                          header="Mô tả sản phẩm"
+                          key="prDes"
+                          className="custom-header"
+                        >
+                          <Item name="description">
+                            <CustomEditor />
+                          </Item>
+                        </Collapse.Panel>
+                      </Collapse>
                   </Col>
                 </Row>
               </Card>

@@ -37,6 +37,7 @@ import {
 	OrderResponse,
 	ReturnProductModel
 } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import { ErrorGHTK } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
@@ -502,7 +503,7 @@ export const Products = {
       supplier_id: pr.supplier_id,
       material_id: pr.material_id,
       material: pr.material,
-      collections: pr.collections,
+      collections: pr.product_collections,
     };
     return productRequest;
   },
@@ -553,8 +554,8 @@ export const Products = {
         product_type: variant.product.product_type,
         goods: variant.product.goods,
         category_id: variant.product.category_id,
-        collections: variant.product.product_collections.map(
-          (i) => i.collection
+        collections: variant.product.collections.map(
+          (i) => i.code
         ),
         tags:
           variant.product.tags !== null ? variant.product.tags.split(";") : [],
@@ -602,8 +603,8 @@ export const Products = {
   findAvatarProduct: (product: ProductResponse | null) => {
     let avatar = null;
     if (product) {
-      product.variants.forEach((variant) => {
-        variant.variant_images.forEach((variantImage) => {
+      product.variants?.forEach((variant) => {
+        variant.variant_images?.forEach((variantImage) => {
           if (variantImage.product_avatar) {
             avatar = variantImage.url;
           }
@@ -1279,4 +1280,23 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
       response.errors.forEach((e:any) => showError(e));
       break;
   }
+}
+
+export function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
+	let result = orderSources;
+	let isHaveDepartment = false;
+	let departmentSources = [];
+	if(departmentIds && departmentIds.length > 0) {
+		for (const departmentId of departmentIds) {
+			let departmentSource = orderSources.findIndex(single=>single.department_id === departmentId)
+			if(departmentSource > -1) {
+				departmentSources.push(orderSources[departmentSource])
+				isHaveDepartment = true;
+			}	
+		}
+		if(isHaveDepartment) {
+			result = [...departmentSources]
+		}
+	}
+	return result;
 }

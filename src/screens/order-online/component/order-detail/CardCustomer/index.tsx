@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 //#region Import
 import { CloseOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
@@ -43,7 +42,7 @@ import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
@@ -55,7 +54,10 @@ import UrlConfig from "config/url.config";
 import * as CONSTANTS from "utils/Constants";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
-import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
+import { handleDelayActionWhenInsertTextInSearchInput, sortSources } from "utils/AppUtils";
+import { departmentDetailAction } from "domain/actions/account/department.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { getSourcesWithParamsService } from "service/order/order.service";
 //#end region
 
 type CustomerCardProps = {
@@ -68,6 +70,7 @@ type CustomerCardProps = {
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
+  isDisableSelectSource?: boolean;
   isVisibleCustomer: boolean;
   shippingAddress: ShippingAddress | any;
   setModalAction: (item: modalActionType) => void;
@@ -100,6 +103,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     loyaltyPoint,
     loyaltyUsageRules,
     levelOrder = 0,
+    isDisableSelectSource = false,
     setVisibleCustomer,
     isVisibleCustomer,
     shippingAddress,
@@ -129,6 +133,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     useState<modalActionType>("create");
 
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
+  const [allSources, setAllSources] = useState<Array<SourceResponse>>([]);
+  const [departmentIds, setDepartmentIds] = useState<number[]|null>(null);
+
+	const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
+
   // const [shippingAddress, setShippingAddress] =
   //   useState<ShippingAddress | null>(null);
 
@@ -145,6 +157,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
 
+	const sourceInputRef = useRef()
   //#region Modal
   // const ShowBillingAddress = (e: any) => {
   //   setVisibleBilling(e.target.checked);
@@ -229,9 +242,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, autoCompleteElement, customer]
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handlePressKeyBoards = (event: KeyboardEvent) => {
     let findCustomerInput = document.getElementById("search_customer");
     if (["F4"].indexOf(event.key) !== -1) {
@@ -274,6 +289,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       };
       handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearch());
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, typingTimer, setTypingTimer]
   );
 
@@ -320,6 +336,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
     }
     return options;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, resultSearch]);
 
   //Delete customer
@@ -331,6 +348,24 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   };
 
   //#end region
+
+	const handleSearchOrderSources = useCallback((value:string) => {
+		if(value.length > 1) {
+		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
+			 let query = {
+					name: value
+			 }
+			 getSourcesWithParamsService(query).then((response) => {
+				 console.log('response', response)
+				 setListSource(response.data.items)
+			 }).catch((error) => {
+				 console.log('error', error)
+			 })
+		 })
+		} else {
+			setListSource(initListSource)
+		}
+	}, [initListSource]);
 
   const SearchCustomerSelect = useCallback(
     (value, o) => {
@@ -367,6 +402,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         // }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
 
@@ -374,9 +410,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //   return listSource.filter((item) => item.code !== "POS");
   // }, [listSource]);
 
+	
   useEffect(() => {
-    dispatch(getListSourceRequest(setListSource));
+		dispatch(getListSourceRequest((response) => {
+			setAllSources(response)
+		}));
   }, [dispatch]);
+
+	useEffect(() => {
+		const sortedSources = sortSources(allSources, departmentIds);
+		setInitListSource(sortedSources)
+		setListSource(sortedSources)
+  }, [allSources, departmentIds]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -392,9 +437,25 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
 
+	useEffect(() => {
+		let departmentId = userReducer.account?.account_jobs[0]?.department_id;
+		if(departmentId) {
+			let department:number[] = [];
+			department.push(departmentId)
+			dispatch(departmentDetailAction(departmentId, (response) => {
+				if(response && response.parent_id) {
+					department.push(response.parent_id)
+				 	setDepartmentIds(department)
+				}
+			}))
+
+		}
+	}, [dispatch, userReducer.account?.account_jobs])
+
   useEffect(() => {
     if (customer) setDistrictId(customer.district_id);
   }, [customer]);
+	
 
   const handleChangeArea = (districtId: string | null) => {
     if (districtId) {
@@ -465,7 +526,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
             <CustomSelect
               style={{ width: 300, borderRadius: "6px" }}
               showArrow
+							allowClear
               showSearch
+							onSearch={handleSearchOrderSources}
               placeholder="Nguồn đơn hàng"
               notFoundContent="Không tìm thấy kết quả"
               filterOption={(input, option) => {
@@ -478,8 +541,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 setOrderSourceId && setOrderSourceId(value);
                 console.log(value)
               }}
+							disabled={isDisableSelectSource}
             >
-              {listSource.filter((x) => x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase()).map((item, index) => (
+              {listSource.filter((x) => {
+								return (
+									x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
+								)
+							}).map((item, index) => (
                 <CustomSelect.Option
                   style={{ width: "100%" }}
                   key={index.toString()}

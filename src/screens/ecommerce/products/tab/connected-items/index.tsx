@@ -57,6 +57,8 @@ import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/produc
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 
+import { useHistory } from 'react-router-dom'
+
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
@@ -64,6 +66,9 @@ const productsDisconnectPermission = [EcommerceProductPermission.products_discon
 
 
 const ConnectedItems: React.FC = () => {
+
+  const history = useHistory()
+
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -82,9 +87,9 @@ const ConnectedItems: React.FC = () => {
     acceptPermissions: productsDisconnectPermission,
     not: false,
   });
-  
+
   const isShowAction = allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
-  
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
@@ -108,7 +113,7 @@ const ConnectedItems: React.FC = () => {
     },
     items: [],
   });
-  
+
   const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
@@ -284,13 +289,13 @@ const ConnectedItems: React.FC = () => {
 
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
-
+    
     if (idsItemSelected) {
       dispatch(
         disconnectEcommerceItem({ ids: idsItemSelected }, (result) => {
           if (result) {
             showSuccess("Ngắt kết nối sản phẩm thành công");
-            reloadPage();
+            history.replace(`${history.location.pathname}#not-connected-item`);
           }
         })
       );
@@ -396,7 +401,7 @@ const ConnectedItems: React.FC = () => {
       render: (item: any, v: any, i: any) => {
         return (
           <StyledStatus>
-            {item.connect_status === "connected" && 
+            {item.connect_status === "connected" &&
               <div className="green-status" style={{ width: 120 }}>Thành công</div>
             }
           </StyledStatus>
@@ -449,8 +454,8 @@ const ConnectedItems: React.FC = () => {
     },
 
     ConnectedItemActionColumn(
-      handleSyncStock,
       handleDeleteItem,
+      handleSyncStock,
       handleDisconnectItem
     ),
   ]);

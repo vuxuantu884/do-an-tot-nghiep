@@ -370,7 +370,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                           setVisibleDelete(true);
                         }}
                       >
-                        Huỷ phiếu
+                        Hủy phiếu
                       </Button>
                     </AuthWrapper>
                   )}

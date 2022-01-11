@@ -36,7 +36,7 @@ import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
@@ -54,6 +54,7 @@ import EditNote from "../component/edit-note";
 import MergeOrderModel from "./modal/merge-order.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { getDetailOrderDuplicateAction, putOrderDuplicateCancel, putOrderDuplicateMerge } from "domain/actions/order/order-duplicate.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 const ACTION_ID = {
   mergeOrder: 1,
@@ -354,7 +355,7 @@ const OrderDuplicate: React.FC = () => {
       dataIndex: "status",
       key: "status",
       render: (status_value: string) => {
-        const status = status_order.find((status) => status.value === status_value);
+        const status = status_order?.find((status) => status.value === status_value);
         return (
           <div>
             {status?.name === "Nháp" && (
@@ -696,16 +697,11 @@ const OrderDuplicate: React.FC = () => {
     items: [],
   }
 
-  const status_order = [
-    { name: "Nháp", value: "draft" },
-    { name: "Đóng gói", value: "packed" },
-    { name: "Xuất kho", value: "shipping" },
-    { name: "Đã xác nhận", value: "finalized" },
-    { name: "Hoàn thành", value: "completed" },
-    { name: "Kết thúc", value: "finished" },
-    { name: "Đã huỷ", value: "cancelled" },
-    { name: "Đã hết hạn", value: "expired" },
-  ];
+	const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+
+  const status_order = bootstrapReducer.data?.order_main_status.filter(single => single.value !== "splitted");
 
   //arrow function
   const renderCustomerAddress = (orderDetail: OrderResponse) => {

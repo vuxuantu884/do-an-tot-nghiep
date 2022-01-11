@@ -23,6 +23,7 @@ import { Link } from "react-router-dom";
 import CustomModal from "component/modal/CustomModal";
 import MeContact from "./components/me-contact";
 import { showSuccess } from "utils/ToastUtils";
+import TextShowMore from "component/container/show-more/text-show-more";
 
 type OrtherInfoType ={
   departments: string|null,
@@ -133,7 +134,7 @@ const AccountMeScreen: React.FC = () => {
               <RowDetail title="Phòng ban" value={(objOrther?.departments && objOrther.departments?.length > 0) ? objOrther.departments : "---"}/>
               <RowDetail title="Vị trí" value={(objOrther?.jobs && objOrther.jobs?.length > 0) ? objOrther?.jobs : "---"}/>
               <RowDetail title="Nhóm quyền" value={objOrther?.permissions?.role_name ?? "---"}/>
-              <RowDetail title="Cửa hàng" value={(objOrther?.stores && objOrther.stores?.length > 0) ? objOrther.stores : "---"}/>
+              <RowDetail title="Cửa hàng" value={(objOrther?.stores && objOrther.stores?.length > 0) ? <TextShowMore>{objOrther.stores}</TextShowMore> : "---"}/>
             </Card>
           </Col>
         </Row>

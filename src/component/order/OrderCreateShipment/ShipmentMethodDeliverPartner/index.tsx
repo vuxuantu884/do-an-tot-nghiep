@@ -303,7 +303,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             });
                                           }}
                                           disabled={
-                                            fee.total_fee === 0 || levelOrder > 3
+                                            // fee.total_fee === 0 || levelOrder > 3
+                                            levelOrder > 3
                                           }
                                         />
                                         <span className="checkmark"></span>
