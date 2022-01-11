@@ -19,7 +19,7 @@ import {PROMO_TYPE} from "./Constants";
 import {DATE_FORMAT} from "./DateUtils";
 import {showError} from "./ToastUtils";
 
-//refacor
+
 /**
  * Đóng modal xác nhận thêm mã cha
  */
@@ -371,30 +371,7 @@ export const getDayOptions = () => {
   return days;
 };
 
-// export const handleSearchProduct = _.debounce(
-//   (
-//     dispatch: Dispatch<YodyAction>,
-//     value: string,
-//     onSetData: (data: Array<ProductResponse>) => void
-//   ) => {
-//     dispatch(
-//       searchProductWrapperRequestAction(
-//         {
-//           status: "active",
-//           limit: 200,
-//           page: 1,
-//           info: value.trim(),
-//         },
-//         (response: PageResponse<ProductResponse> | false) => {
-//           if (response) {
-//             onSetData(response.items);
-//           }
-//         }
-//       )
-//     );
-//   },
-//   500
-// );
+ 
 
 /**
  * chọn sp chiết khấu
@@ -504,20 +481,22 @@ export const onSelectVariantOfDiscount = (
 };
 
 export const parseSelectProductToTableData = (selectedItem: ProductResponse) => {
-  return { 
+  return {
     cost: 0,
-    open_quantity: selectedItem.on_hand || 0,  
+    open_quantity: selectedItem.on_hand || 0,
     variant_title: selectedItem.name,
     product_id: selectedItem.id, // id của sp cha
     sku: selectedItem.code,
     isParentProduct: true,
-
   };
 };
 export const parseSelectVariantToTableData = (selectedItem: VariantResponse) => {
-  return { 
-    cost: Array(selectedItem.variant_prices) && selectedItem.variant_prices?.length > 0 ? selectedItem.variant_prices[0]?.import_price : 0,
-    open_quantity: selectedItem.on_hand || 0,  
+  return {
+    cost:
+      Array(selectedItem.variant_prices) && selectedItem.variant_prices?.length > 0
+        ? selectedItem.variant_prices[0]?.import_price
+        : 0,
+    open_quantity: selectedItem.on_hand || 0,
     variant_title: selectedItem.name,
     product_id: selectedItem.product_id, // id của sp cha
     variant_id: selectedItem.id, // id của sp variant
@@ -602,11 +581,11 @@ export const getEntilementValue = (
   }
 };
 
-export const transformData = (values: any) => {
+export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC) => {
   let body: any = values;
   body.entitlements = getEntilementValue(values.entitlements, values.entitled_method);
 
-  body.type = PROMO_TYPE.AUTOMATIC;
+  body.type = priceRuleType;
   body.starts_date = values.starts_date.format();
   body.ends_date = values.ends_date?.format() || null;
 

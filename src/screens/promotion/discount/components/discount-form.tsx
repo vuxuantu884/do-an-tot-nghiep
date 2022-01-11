@@ -5,7 +5,7 @@ import { handleChangeDiscountMethod } from 'utils/PromotionUtils';
 import { priorityOptions } from '../../constants';
 import { DiscountContext } from './discount-provider';
 import GroupDiscountList from './group-discount-list';
-import OrderThreshold from './order-threshold';
+import DiscountTypeOrderThreshold from './discount-type-order-threshold';
 const { Option } = Select;
 interface Props {
     form: FormInstance;
@@ -18,7 +18,7 @@ function DiscountUpdateForm({
 }: Props): ReactElement {
     const discountUpdateContext = useContext(DiscountContext);
 
-    const { discountMethod, setDiscountMethod } = discountUpdateContext;
+    const { discountMethod, setDiscountMethod, } = discountUpdateContext;
 
     const [unlimitedQuantity, setUnlimitedQuantity] = useState<boolean>(false);
 
@@ -144,7 +144,7 @@ function DiscountUpdateForm({
                     </Col>
                     {/* Phương thức chiết khấu */}
                     {discountMethod === PriceRuleMethod.ORDER_THRESHOLD ? (
-                        <OrderThreshold form={form} />
+                        <DiscountTypeOrderThreshold form={form} />
                     ) : (
                         <GroupDiscountList form={form} />
                     )}
