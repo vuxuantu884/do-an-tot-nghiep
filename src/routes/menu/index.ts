@@ -127,7 +127,7 @@ const menu: Array<RouteMenu> = [
   {
     path: UrlConfig.YDPAGE,
     exact: true,
-    title: "Social",
+    title: "Kênh social",
     icon: 'icon-YDpage',
     component: YDpage,
     key: "YDpage",
