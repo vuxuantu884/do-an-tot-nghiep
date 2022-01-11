@@ -594,7 +594,20 @@ const ProductDetailScreen: React.FC = () => {
     if (isChangePrice) {
       setVisiblePrice(true);
     } else {
-      form.submit();
+      form
+      .validateFields()
+      .then(() => {
+        form.submit();
+      })
+      .catch((error) => {
+        const element: any = document.getElementById(
+          error.errorFields[0].name.join("")
+        );
+        element?.focus();
+        const y =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      });
     }
   }, [form, isChangePrice]);
 
@@ -952,6 +965,7 @@ const ProductDetailScreen: React.FC = () => {
                             label="Danh mục"
                           >
                             <CustomSelect
+                              allowClear
                               optionFilterProp="children"
                               showSearch
                               // onChange={onCategoryChange}
