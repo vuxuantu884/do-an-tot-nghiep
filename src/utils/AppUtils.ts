@@ -1177,6 +1177,29 @@ export const isNullOrUndefined = (value: any) => {
 };
 
 export const convertActionLogDetailToText = (data?: string, dateFormat: string = "HH:mm DD/MM/YYYY") => {
+  const renderAddress = (dataJson: any) => {
+    let result = "-";
+    let textFullAddress = null;
+    let textWard = null;
+    let textDistrict = null;
+    let textCity = null;
+    if(dataJson.shipping_address?.full_address) {
+      textFullAddress = dataJson.shipping_address?.full_address;
+    }
+    if(dataJson.shipping_address?.ward) {
+      textWard = `${dataJson.shipping_address?.ward},`;
+    }
+    if(dataJson.shipping_address?.district) {
+      textDistrict = `${dataJson.shipping_address?.district},`;
+    }
+    if(dataJson.shipping_address?.city) {
+      textCity = `${dataJson.shipping_address?.city},`;
+    }
+    if(dataJson.shipping_address?.full_address || dataJson.shipping_address?.ward || dataJson.shipping_address?.district || dataJson.shipping_address?.city) {
+      result = `${textFullAddress} ${textWard} ${textDistrict} ${textCity}`
+    }
+    return result;
+  };
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
@@ -1206,18 +1229,18 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 			.join("<br/>")}
 		<br/>
 		<span style="color:red">Phiếu đóng gói: </span><br/> 
-		- Địa chỉ giao hàng: ${`${dataJson.shipping_address?.full_address}, ${dataJson.shipping_address?.ward}, ${dataJson.shipping_address?.district}, ${dataJson.shipping_address?.city}`} <br/>
-		- Địa chỉ nhận hóa đơn: ${`${dataJson.shipping_address?.full_address}, ${dataJson.shipping_address?.ward}, ${dataJson.shipping_address?.district}, ${dataJson.shipping_address?.city}`} <br/>
+		- Địa chỉ giao hàng: ${renderAddress(dataJson)} <br/>
+		- Địa chỉ nhận hóa đơn: ${renderAddress(dataJson)} <br/>
 		- Phương thức giao hàng: ${
-			dataJson.fulfillments && dataJson.fulfillments[0].shipment && dataJson.fulfillments[0].shipment.delivery_service_provider ? dataJson.fulfillments && dataJson.fulfillments[0].shipment.delivery_service_provider : '-'
+			dataJson.fulfillments && dataJson.fulfillments[0]?.shipment && dataJson.fulfillments[0]?.shipment.delivery_service_provider ? dataJson.fulfillments && dataJson.fulfillments[0].shipment.delivery_service_provider : '-'
 		} <br/>
-		- Trạng thái: ${dataJson.fulfillments[0].status} <br/>
+		- Trạng thái: ${dataJson.fulfillments[0]?.status} <br/>
 		<br/>
 		<span style="color:red">Thanh toán: </span><br/>  
 		${
-			dataJson.payments.length <= 0
+			dataJson.payments?.length <= 0
 				? `- Chưa thanh toán`
-				: dataJson.payments
+				: dataJson?.payments && dataJson?.payments
 						.map((singlePayment: any, index: number) => {
 							return `
 							- ${singlePayment.payment_method}: ${singlePayment.paid_amount}
