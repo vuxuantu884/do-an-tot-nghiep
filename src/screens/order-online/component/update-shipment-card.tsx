@@ -166,8 +166,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	const [cancelShipment, setCancelShipment] = useState(false);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
-	console.log(setTakeMoneyHelper)
+	const [takeMoneyHelper] = useState<number | null>(null);
 
 	const [trackingLogFulfillment, setTrackingLogFulfillment] =
 		useState<Array<TrackingLogFulfillmentResponse> | null>(null);

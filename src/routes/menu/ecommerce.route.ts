@@ -75,7 +75,7 @@ const ecommerce: Array<RouteMenu> = [
   //   subMenu: [],
   // },
   {
-    path: `${UrlConfig.ECOMMERCE}-config`,
+    path: `${UrlConfig.ECOMMERCE}-configs`,
     exact: true,
     title: "Cấu hình",
     icon: "icon-dot",
