@@ -173,7 +173,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
 			// nhận tại cửa hàng
 			case ShipmentMethod.PICK_AT_STORE:
 				result = filterStatus(STATUS_ORDER_AT_STORE);
-				break
+				break 
 			default:
 				result = filterStatus(STATUS_ORDER_OTHER);
 				break;
