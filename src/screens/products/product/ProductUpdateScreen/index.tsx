@@ -33,7 +33,7 @@ import {CountryGetAllAction} from "domain/actions/content/content.action";
 import {SupplierGetAllAction} from "domain/actions/core/supplier.action";
 import {getCategoryRequestAction} from "domain/actions/product/category.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
-import {listColorAction} from "domain/actions/product/color.action";
+import {getColorAction} from "domain/actions/product/color.action";
 import {
   detailMaterialAction,
   materialSearchAll,
@@ -43,7 +43,7 @@ import {
   productUpdateAction,
   productUploadAction,
 } from "domain/actions/product/products.action";
-import {sizeGetAll} from "domain/actions/product/size.action";
+import {sizeSearchAction} from "domain/actions/product/size.action";
 import useAuthorization from "hook/useAuthorization";
 import {AccountResponse} from "model/account/account.model";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -130,9 +130,7 @@ const ProductDetailScreen: React.FC = () => {
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
-  const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
-  const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
-  const [listColor, setListColor] = useState<Array<ColorResponse>>([]); 
+  const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]); 
   const [status, setStatus] = useState<string>("inactive");
   const [active, setActive] = useState<number>(tempActive);
   const [isChange, setChange] = useState<boolean>(false);
@@ -146,6 +144,16 @@ const ProductDetailScreen: React.FC = () => {
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
+  const [colors, setColors] = useState<PageResponse<ColorResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 }
+  });
+  const [sizes, setSizes] = useState<PageResponse<SizeResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
     {
       items: [],
@@ -720,6 +728,14 @@ const ProductDetailScreen: React.FC = () => {
     [form]
   );
 
+  const getColors = useCallback((info: string, page: number) => {
+    dispatch(getColorAction({ info: info, is_main_color: 0, page: page }, setColors));
+  }, [dispatch]);
+
+  const getSizes = useCallback((code: string, page: number) => {
+    dispatch(sizeSearchAction({ code: code, page: page }, setSizes));
+  }, [dispatch]);
+
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
@@ -727,7 +743,7 @@ const ProductDetailScreen: React.FC = () => {
   useEffect(() => {
     if (data) {
       let fieldList = Products.convertAvatarToFileList(
-        data.variants[active].variant_images ?? []
+        data.variants[active]?.variant_images ?? []
       );
       setFieldList(fieldList);
     }
@@ -749,10 +765,10 @@ const ProductDetailScreen: React.FC = () => {
     dispatch(SupplierGetAllAction(setListSupplier));
     dispatch(materialSearchAll(setListMaterial));
     dispatch(CountryGetAllAction(setListCountry));
-    dispatch(sizeGetAll(setListSize));
-    dispatch(listColorAction({is_main_color: 0}, setListColor));
+    getColors("",1);
+    getSizes("",1);
     getAccounts("",1,true,true);
-  }, [dispatch,getAccounts,setDataCategory]);
+  }, [dispatch,getAccounts,setDataCategory,getColors,getSizes]);
 
   const getCollections = useCallback((code: string, page: number) => {
     dispatch(
@@ -1596,43 +1612,50 @@ const ProductDetailScreen: React.FC = () => {
                                   <Row gutter={50}>
                                     <Col span={24} sm={12}>
                                       <Item label="Màu sắc" name={[name, "color_id"]}>
-                                        <CustomSelect
+                                        <SelectPaging
                                           onChange={onChange}
+                                          metadata={colors.metadata}
                                           notFoundContent={"Không có dữ liệu"}
-                                          showSearch
-                                          optionFilterProp="children"
+                                          showSearch={false}
+                                          searchPlaceholder="Tìm kiếm màu sắc"
                                           maxTagCount="responsive"
                                           showArrow
+                                          allowClear 
+                                          onSearch={(key) => getColors(key, 1)}
+                                          onPageChange={(key, page) => getColors(key, page)}
                                           placeholder="Chọn màu sắc"
                                         >
-                                          {listColor?.map((item) => (
-                                            <CustomSelect.Option
-                                              key={item.id}
-                                              value={item.id}
-                                            >
-                                              {item.name}
-                                            </CustomSelect.Option>
+                                          {colors.items.map((item) => (
+                                            <SelectPaging.Option key={item.id} value={item.id}>
+                                              {`${item.code} - ${item.name}`}
+                                            </SelectPaging.Option>
                                           ))}
-                                        </CustomSelect>
+                                        </SelectPaging>
                                       </Item>
                                       <Item name={[name, "size_id"]} label="Kích cỡ">
-                                        <CustomSelect
+                                        <SelectPaging
                                           onChange={onChange}
+                                          metadata={sizes.metadata}
+                                          showSearch={false}
                                           notFoundContent={"Không có dữ liệu"}
                                           placeholder="Chọn kích cỡ"
                                           maxTagCount="responsive"
                                           optionFilterProp="children"
-                                          showSearch
+                                          allowClear
+                                          showArrow
+                                          onSearch={(key) => getSizes(key, 1)}
+                                          onPageChange={(key, page) => getSizes(key, page)}
+                                          searchPlaceholder="Tìm kiếm kích cỡ"
                                         >
-                                          {listSize?.map((item) => (
-                                            <CustomSelect.Option
+                                          {sizes.items.map((item) => (
+                                            <SelectPaging.Option
                                               key={item.code}
                                               value={item.id}
                                             >
                                               {item.code}
-                                            </CustomSelect.Option>
+                                            </SelectPaging.Option>
                                           ))}
-                                        </CustomSelect>
+                                        </SelectPaging>
                                       </Item>
                                       <Item
                                         label="Kích thước (dài, rộng, cao)"
