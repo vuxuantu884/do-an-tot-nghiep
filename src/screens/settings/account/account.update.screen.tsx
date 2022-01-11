@@ -54,6 +54,7 @@ import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { convertDistrict } from "utils/AppUtils";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { PASSWORD_RULES } from "./account.rules";
 
 const { Item } = Form;
@@ -137,12 +138,15 @@ const AccountUpdateScreen: React.FC = () => {
     },
     [cityViews, formRef]
   );
+
   const onUpdateSuccess = useCallback(
     (data: AccountResponse) => {
+      showSuccess("Cập nhật thành công")
       history.push(UrlConfig.ACCOUNTS + "/" + userCode);
     },
     [history, userCode]
   );
+  
   const onFinish = useCallback(
     (values: AccountRequest) => {
       if (idNumber.current !== 0) {
@@ -390,8 +394,8 @@ const AccountUpdateScreen: React.FC = () => {
               </Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item name="store_ids" style={{minWidth: 220}}>
-                <TreeStore name="store_ids" listStore={listStore} />
+              <Form.Item name="store_ids" style={{minWidth: 220}} label="Chọn cửa hàng">
+                <TreeStore name="store_ids" listStore={listStore}/>
             </Form.Item>
             </Col>
           </Row>

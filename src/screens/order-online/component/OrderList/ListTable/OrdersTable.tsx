@@ -613,6 +613,41 @@ function OrdersTable(props: PropsType) {
 										</Tooltip>
 
 									</React.Fragment>)
+								case ShipmentMethod.SHOPEE:
+									return (<React.Fragment>
+										<div className="single">
+											Shopee
+										</div>
+										<Tooltip title="Tổng khối lượng">
+											<div className="single">
+												<img
+													src={iconWeight}
+													alt=""
+												/>
+												<span>{record.total_weight || 0} gr</span>
+											</div>
+										</Tooltip>
+										<Tooltip title="Phí ship báo khách">
+											<div className="single">
+												<img
+													src={iconShippingFeeInformedToCustomer}
+													alt=""
+												/>
+												<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+											</div>
+										</Tooltip>
+
+										<Tooltip title="Phí vận chuyển">
+											<div className="single">
+												<img
+													src={iconShippingFeePay3PL}
+													alt=""
+												/>
+												{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+											</div>
+										</Tooltip>
+
+									</React.Fragment>)
 								default:
 									return (
 										<React.Fragment>

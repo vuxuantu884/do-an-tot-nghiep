@@ -519,6 +519,7 @@ const CustomerDetail = () => {
                   <TabPane tab="Lịch sử mua hàng" key="history">
                     <PurchaseHistory
                       orderData={orderHistory}
+                      setOrderHistory={setOrderHistory}
                       onPageChange={onPageChange}
                       tableLoading={tableLoading}
                     />

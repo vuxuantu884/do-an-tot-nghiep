@@ -1,3 +1,4 @@
+import { callApiSaga } from "utils/ApiUtils";
 import { showSuccess } from "./../../../utils/ToastUtils";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
@@ -28,6 +29,7 @@ import {
   deleteFpagePhone,
   setFpageDefaultPhone,
   getOrderMappingListApi,
+  exitProgressDownloadEcommerceApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -566,6 +568,11 @@ function* getOrderMappingListSaga(action: YodyAction) {
   }
 }
 
+function* exitProgressDownloadEcommerceSaga(action: YodyAction) {
+  const { query, callback } = action.payload;
+  yield callApiSaga(true, callback, exitProgressDownloadEcommerceApi, query);
+}
+
 
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
@@ -627,5 +634,8 @@ export function* ecommerceSaga() {
 
   //ecommerce get order mapping list
   yield takeLatest(EcommerceType.GET_ORDER_MAPPING_LIST_REQUEST, getOrderMappingListSaga);
+
+  // exit Progress Download Ecommerce
+  yield takeLatest(EcommerceType.EXIT_PROGRESS_DOWNLOAD_ECOMMERCE, exitProgressDownloadEcommerceSaga);
 
 }

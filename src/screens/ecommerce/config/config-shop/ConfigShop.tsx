@@ -572,7 +572,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 <li>
                   <span>
                     Kiểu đồng bộ đơn hàng để xác định khi có đơn hàng mới sẽ được
-                    tải về “Tự động” hay “Thủ công”.{" "}
+                    tải về "Tự động" hay "Thủ công".{" "}
                   </span>
                 </li>
                 <li>

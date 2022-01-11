@@ -1,25 +1,30 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Tabs, Button, Modal } from "antd";
+import { Tabs, Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons"
 
-import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import { showSuccess } from "utils/ToastUtils";
+import ContentContainer from "component/container/content.container";
 import TotalItemsEcommerce from "screens/ecommerce/products/tab/total-items-ecommerce";
 import ConnectedItems from "screens/ecommerce/products/tab/connected-items";
 import NotConnectedItems from "screens/ecommerce/products/tab/not-connected-items";
 import UpdateProductDataModal from "screens/ecommerce/products/component/UpdateProductDataModal";
 
-import {
-  postProductEcommerceList,
-} from "domain/actions/ecommerce/ecommerce.actions";
+import { HttpStatus } from "config/http-status.config";
+import BaseResponse from "base/base.response";
+import { exitProgressDownloadEcommerceAction } from "domain/actions/ecommerce/ecommerce.actions";
+import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
+import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
+import ProgressDownloadProductsModal from "screens/ecommerce/products/component/ProgressDownloadProductsModal";
+import ExitDownloadProductsModal from "screens/ecommerce/products/component/ExitDownloadProductsModal";
+
+import { postProductEcommerceList, } from "domain/actions/ecommerce/ecommerce.actions";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
-
-import checkCircleIcon from "assets/icon/check-circle.svg";
 
 import { StyledComponent } from "screens/ecommerce/products/styles";
 
@@ -55,11 +60,8 @@ const Products: React.FC = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isReloadPage, setIsReloadPage] = useState(false);
   const [isShowGetProductModal, setIsShowGetProductModal] = useState(false);
-  const [isShowResultGetItemModal, setIsShowResultGetItemModal] = useState(false);
-  const [totalGetItem, setTotalGetItem] = useState(0);
-  const [itemsNotConnected, setItemsNotConnected] = useState(0);
-
 
   useEffect(() => {
     switch (history.location.hash) {
@@ -77,6 +79,94 @@ const Products: React.FC = () => {
 
   }, [history.location.hash]);
 
+  // handle progress download orders
+  const [isVisibleConflictModal, setIsVisibleConflictModal] = useState<boolean>(false);
+  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
+  const [isVisibleExitDownloadProductsModal, setIsVisibleExitDownloadProductsModal] = useState<boolean>(false);
+  const [processId, setProcessId] = useState(null);
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [progressData, setProgressData] = useState(null);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  
+  const resetProgress = () => {
+    setProcessId(null);
+    setProgressPercent(0);
+    setProgressData(null);
+  }
+
+  const closeConflictDownloadModal = () => {
+    setIsVisibleConflictModal(false);
+  }
+
+  // handle progress download modal
+  const onCancelProgressDownloadOrder = () => {
+    setIsVisibleExitDownloadProductsModal(true);
+  }
+
+  const onOKProgressDownloadOrder = () => {
+    resetProgress();
+    redirectToNotConnectedItems();
+    setIsVisibleProgressModal(false);
+  }
+  // end
+
+  // handle exit download modal
+  const onCancelExitDownloadProductsModal = () => {
+    setIsVisibleExitDownloadProductsModal(false);
+  }
+
+  const onOkExitDownloadProductsModal = () => {
+    resetProgress();
+    dispatch(
+      exitProgressDownloadEcommerceAction(processId, (responseData) => {
+        if (responseData) {
+          showSuccess(responseData);
+          setIsVisibleExitDownloadProductsModal(false);
+          resetProgress();
+          setIsVisibleProgressModal(false);
+          redirectToTotalProducts();
+        }
+      })
+    );
+  }
+  // end
+
+  const getProgress = useCallback(() => {
+    let getProgressPromises: Promise<BaseResponse<any>> = getProgressDownloadEcommerceApi(processId);
+
+    Promise.all([getProgressPromises]).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS && response.data && response.data.total > 0) {
+          setProgressData(response.data);
+          const progressCount = response.data.total_created + response.data.total_updated + response.data.total_error;
+          if (progressCount >= response.data.total) {
+            setProgressPercent(100);
+            setProcessId(null);
+            showSuccess("Tải đơn hàng thành công!");
+            setIsDownloading(false);
+          } else {
+            const percent = Math.floor(progressCount / response.data.total * 100);
+            setProgressPercent(percent);
+          }
+        }
+      });
+    });
+  }, [processId]);
+
+  useEffect(() => {
+    if (progressPercent === 100 || !processId) {
+      return;
+    }
+
+    getProgress();
+    
+    const getFileInterval = setInterval(getProgress, 3000);
+    return () => clearInterval(getFileInterval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProgress,  ]);
+  // end progress download orders
+
+
   // handle get product from ecommerce
   const handleGetProductsFromEcommerce = () => {
     setIsShowGetProductModal(true);
@@ -90,23 +180,33 @@ const Products: React.FC = () => {
     setIsLoading(false);
     if (data) {
       setIsShowGetProductModal(false);
-      setIsShowResultGetItemModal(true);
-
-      setTotalGetItem(data.total);
-      setItemsNotConnected(data.create_total);
+      if (typeof data === "string") {
+        setIsVisibleConflictModal(true);
+      } else {
+        setProcessId(data.process_id);
+        setIsVisibleProgressModal(true);
+        setIsDownloading(true);
+      }
     }
   }, []);
 
-   const getProductsFromEcommerce = (params: any) => {
+  const getProductsFromEcommerce = (params: any) => {
     setIsLoading(true);
+    setIsReloadPage(false);
     dispatch(postProductEcommerceList(params, updateEcommerceList));
   };
   // end handle get product from ecommerce
 
   const redirectToNotConnectedItems = () => {
-    setIsShowResultGetItemModal(false);
+    setIsReloadPage(true);
     handleOnchangeTab("not-connected-item");
     setActiveTab("not-connected-item");
+  };
+
+  const redirectToTotalProducts = () => {
+    setIsReloadPage(true);
+    handleOnchangeTab("total-item");
+    setActiveTab("total-item");
   };
 
   const handleOnchangeTab = (active: any) => {
@@ -156,7 +256,7 @@ const Products: React.FC = () => {
               </Tabs>
               
               {activeTab === PRODUCT_TAB.total.key &&
-                <TotalItemsEcommerce />
+                <TotalItemsEcommerce isReloadPage={isReloadPage} />
               }
               
               {activeTab === PRODUCT_TAB.connected.key &&
@@ -164,7 +264,7 @@ const Products: React.FC = () => {
               }
               
               {activeTab === PRODUCT_TAB.notConnected.key &&
-                <NotConnectedItems />
+                <NotConnectedItems isReloadPage={isReloadPage} />
               }
             </>
           : <NoPermission />)}
@@ -180,21 +280,32 @@ const Products: React.FC = () => {
         />
       }
 
-      <Modal
-        width="600px"
-        className=""
-        visible={isShowResultGetItemModal}
-        title={"Có " + totalGetItem + " sản phẩm được cập nhật thành công"}
-        okText="Đóng"
-        onOk={redirectToNotConnectedItems}
-        onCancel={redirectToNotConnectedItems}
-        cancelButtonProps={{ style: { display: 'none' } }}
-      >
-        <div>
-          <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
-          <span>Có <p style={{ color: "orange", display: "inline-block" }}>{itemsNotConnected}</p> sản phẩm được tải mới về để ghép</span>
-        </div>
-      </Modal>
+      {isVisibleProgressModal &&
+        <ProgressDownloadProductsModal
+          visible={isVisibleProgressModal}
+          onCancel={onCancelProgressDownloadOrder}
+          onOk={onOKProgressDownloadOrder}
+          progressData={progressData}
+          progressPercent={progressPercent}
+          isDownloading={isDownloading}
+        />
+      }
+
+      {isVisibleConflictModal &&
+        <ConflictDownloadModal
+          visible={isVisibleConflictModal}
+          onCancel={closeConflictDownloadModal}
+          onOk={closeConflictDownloadModal}
+        />
+      }
+
+      {isVisibleExitDownloadProductsModal &&
+        <ExitDownloadProductsModal
+          visible={isVisibleExitDownloadProductsModal}
+          onCancel={onCancelExitDownloadProductsModal}
+          onOk={onOkExitDownloadProductsModal}
+        />
+      }
 
     </StyledComponent>
   );

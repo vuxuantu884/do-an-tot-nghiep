@@ -157,6 +157,7 @@ export interface VariantResponse extends BaseObject {
   variant_images:Array<VariantImage>,
   transfer_quantity: number,
   variant_id: number,
+  variant_name?: string
 }
 
 export interface VariantView extends BaseObject {

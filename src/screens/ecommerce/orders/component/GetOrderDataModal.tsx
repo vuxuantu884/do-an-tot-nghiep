@@ -173,12 +173,12 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     onOk(data);
   }, [onOk]);
 
-  const postEcommerceOrder = () => {
+  const handleDownloadEcommerceOrders = () => {
     const params = {
       ecommerce_id: ecommerceSelected,
       shop_id: shopIdSelected,
-      create_time_from: startDate,
-      create_time_to: endDate,
+      update_time_from: startDate,
+      update_time_to: endDate,
     }
 
     setIsLoading(true);
@@ -213,7 +213,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
       okText="Tải dữ liệu"
       cancelText="Hủy"
       onCancel={cancelGetOrderModal}
-      onOk={postEcommerceOrder}
+      onOk={handleDownloadEcommerceOrders}
       okButtonProps={{ disabled: isDisableOkButton() }}
       cancelButtonProps={{ disabled: isLoading }}
       closable={!isLoading}

@@ -278,16 +278,23 @@ const DetailInvetoryAdjustment: FC = () => {
         (variant: VariantResponse) => variant.id.toString() === value
       );
 
-      if (
-        !dataTemp.some((variant: LineItemAdjustment) => variant.id === selectedItem.id)
-      ) {
+      if ( !dataTemp.some((variant: LineItemAdjustment) => variant.id === selectedItem.id)
+      ) { 
+        const variantPrice =
+        selectedItem &&
+        selectedItem.variant_prices &&
+        selectedItem.variant_prices[0] &&
+        selectedItem.variant_prices[0].retail_price;
+
         selectedItem = {
           ...selectedItem,
           variant_id: selectedItem.id,
-          variant_name: selectedItem.name,
+          variant_name: selectedItem.variant_name ?? selectedItem.name,
           real_on_hand: 0,
           on_hand_adj: 0 - (selectedItem.on_hand ?? 0),
           on_hand_adj_dis: (0 - (selectedItem.on_hand ?? 0)).toString(),
+          price: variantPrice ?? 0,
+          on_hand: selectedItem.on_hand ?? 0
         };
 
         setHasError(false);
@@ -311,15 +318,23 @@ const DetailInvetoryAdjustment: FC = () => {
   );
 
   const onPickManyProduct = useCallback(
-    (result: Array<VariantResponse>) => {
+    (result: Array<VariantResponse>) => { 
       const newResult = result?.map((item) => {
+        const variantPrice =
+        item &&
+        item.variant_prices &&
+        item.variant_prices[0] &&
+        item.variant_prices[0].retail_price;
+        
         return {
           ...item,
           variant_id: item.id,
-          variant_name: item.name,
+          variant_name: item.variant_name ?? item.name,
           real_on_hand: 0,
           on_hand_adj: 0 - (item.on_hand ?? 0),
           on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString(),
+          on_hand: item.on_hand ?? 0,
+          price: variantPrice
         };
       });
       const dataTemp = [...dataLinesItem.items, ...newResult];

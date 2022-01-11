@@ -279,7 +279,7 @@ const TabList: React.FC = () => {
               render: (value, record, index) => {
                 return (
                   <div
-                    className={ !record?.is_cancelled? "procurement-code" : "procurement-code--disable"}
+                    className={ !record?.is_cancelled || record?.status === 'cancelled' ? "procurement-code" : "procurement-code--disable"}
                     onClick={!record?.is_cancelled? () => handleClickProcurement(record) : () => {}}
                   >
                     {value}

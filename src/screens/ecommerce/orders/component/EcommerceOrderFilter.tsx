@@ -13,6 +13,7 @@ import {
   Checkbox,
   Tooltip,
   Dropdown,
+  Menu,
 } from "antd";
 import { SettingOutlined, FilterOutlined, DownOutlined } from "@ant-design/icons";
 
@@ -41,7 +42,7 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 
 type EcommerceOrderFilterProps = {
   params: OrderSearchQuery;
-  actions: any;
+  actions: Array<any>;
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
@@ -795,7 +796,24 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     setShopIdSelected([]);
   },[]);
    // end handle Select Ecommerce
-  
+
+  const actionDropdown = () => {
+    return (
+      <Menu>
+        {actions?.map((item: any) => (
+          <Menu.Item
+            disabled={item.disabled}
+            key={item.id}
+            onClick={item.onClick}
+            icon={item.icon}
+          >
+            {item.name}
+          </Menu.Item>
+          ))}
+      </Menu>
+    )
+  }
+
 
   return (
     <StyledOrderFilter>
@@ -807,7 +825,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         >
           <Form.Item className="action-dropdown">
             <Dropdown
-              overlay={actions}
+              overlay={actionDropdown}
               trigger={["click"]}
               disabled={isLoading}
             >

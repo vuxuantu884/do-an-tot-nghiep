@@ -9,6 +9,7 @@ import {
   LineItemAdjustment,
   StoreStatus,
 } from "model/inventoryadjustment";
+import { VariantResponse } from "model/product/product.model";
 import {PrinterInventoryTransferResponseModel} from "model/response/printer.response";
 
 const inventoryGetSenderStoreAction = (
@@ -110,6 +111,16 @@ const updateInventoryAdjustmentAction = (
   });
 };
 
+const getVariantHasOnHandByStoreAction = (
+  store_id: number,
+  onResult: (result: BaseResponse<PageResponse<VariantResponse>>) => void
+) => {
+  return BaseAction(InventoryType.GET_VARIANT_HAS_ON_HAND_BY_STORE, {
+    store_id,
+    onResult
+  });
+};
+
 export {
   getListInventoryAdjustmentAction,
   createInventoryAdjustmentAction,
@@ -120,5 +131,6 @@ export {
   adjustInventoryAction,
   InventoryAdjustmentGetPrintContentAction,
   getLinesItemAdjustmentAction,
-  updateInventoryAdjustmentAction
+  updateInventoryAdjustmentAction,
+  getVariantHasOnHandByStoreAction
 };

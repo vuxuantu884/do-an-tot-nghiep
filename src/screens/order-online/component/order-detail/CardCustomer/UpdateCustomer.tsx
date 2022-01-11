@@ -84,7 +84,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
-  const [customerFormLoading, setCustomerFormLoading] = useState(false);
+  //const [customerFormLoading, setCustomerFormLoading] = useState(false);
 
   const handleShippingWards = useCallback(
     (value: number) => {
@@ -208,17 +208,21 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         _shippingAddress.splice(index, 1);
       }
 
-      let area_shipping = areas.find((area: any) => area.id === value.shipping_addresses_district_id);
-      let area_customer = areas.find((area: any) => area.id === value.district_id);
+      let shipping_district = areas.find((area: any) => area.id === value.shipping_addresses_district_id);
+      let shipping_ward=shippingWards.find((ward:any)=>ward.id===value.shipping_addresses_ward_id)
+      let customer_district = areas.find((area: any) => area.id === value.district_id);
+      let customer_ward=wards.find((ward:any)=>ward.id===value.ward_id);
 
       let paramShipping = {
         ...shippingAddress,
         name: value.shipping_addresses_name.trim(),
         district_id: value.shipping_addresses_district_id,
-        city_id: area_shipping.city_id,
-        city: area_shipping.city_name,
+        district:shipping_district.name,
+        city_id: shipping_district.city_id,
+        city: shipping_district.city_name,
         phone: value.shipping_addresses_phone.trim(),
         ward_id: value.shipping_addresses_ward_id,
+        ward:shipping_ward?.name,
         full_address: value.shipping_addresses_full_address,
         is_default: true,
         default: true,
@@ -244,11 +248,13 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           }),
           country_id: customerItem.country_id || VietNamId,
           full_name: value.full_name,
-          city_id: area_customer.city_id,
-          city: area_customer.city_name,
+          city_id: customer_district.city_id,
+          city: customer_district.city_name,
           district_id: value.district_id,
+          district:customer_district.name,
           phone: value.phone,
           ward_id: value.ward_id,
+          ward:customer_ward.name,
           card_number: value.card_number,
           full_address: value.full_address,
           gender: value.gender,
@@ -271,14 +277,14 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           }) : []
         }
       }
-      setCustomerFormLoading(true);
+     // setCustomerFormLoading(true);
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
         if (datas) showSuccess("Cập nhật thông tin khách thành công");
         handleChangeCustomer(datas);
-        setCustomerFormLoading(false);
+        //setCustomerFormLoading(false);
       }));
     },
-    [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer]
+    [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer,shippingWards,wards]
   );
 
   const onOkPress = useCallback(() => {
@@ -304,7 +310,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         initialValues={initialFormValueshippingAddress}
         name="customer_update"
       >
-        <Spin tip="Vui lòng chờ..." spinning={customerFormLoading} delay={100}>
+        <Spin tip="Vui lòng chờ..." spinning={false} delay={100}>
           <Row gutter={24}>
             <Col xs={24} lg={12}>
               <Form.Item

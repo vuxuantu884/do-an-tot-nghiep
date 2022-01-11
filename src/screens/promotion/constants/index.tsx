@@ -9,6 +9,62 @@ import { formatCurrency } from "utils/AppUtils";
 import { formatDiscountValue, renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 const { Item } = Form;
 
+export const MAX_FIXED_DISCOUNT_VALUE = 999999999;
+
+export const PRICE_RULE_FIELDS = {
+  activated_by: "activated_by",
+  activated_date: "activated_date",
+  activated_name: "activated_name",
+  async_allocation_count: "async_allocation_count",
+  async_usage_count: "async_usage_count",
+  cancelled_by: "cancelled_by",
+  cancelled_date: "cancelled_date",
+  cancelled_name: "cancelled_name",
+  code: "code",
+  customer_selection: "customer_selection",
+  description: "description",
+  disabled_by: "disabled_by",
+  disabled_date: "disabled_date",
+  disabled_name: "disabled_name",
+  discount_codes: "discount_codes",
+  ends_date: "ends_date",
+  entitled_method: "entitled_method",
+  entitlements: "entitlements",
+  number_of_discount_codes: "number_of_discount_codes",
+  number_of_entitlements : "number_of_entitlements",
+  prerequisite_assignee_codes: "prerequisite_assignee_codes",
+  prerequisite_birthday_duration: "prerequisite_birthday_duration",
+  prerequisite_customer_group_ids: "prerequisite_customer_group_ids",
+  prerequisite_customer_loyalty_level_ids: "prerequisite_customer_loyalty_level_ids",
+  prerequisite_customer_type_ids : "prerequisite_customer_type_ids",
+  prerequisite_genders: "prerequisite_genders",
+  prerequisite_order_source_ids: "prerequisite_order_source_ids",
+  prerequisite_sales_channel_names: "prerequisite_sales_channel_names",
+  prerequisite_store_ids: "prerequisite_store_ids",
+  prerequisite_subtotal_range: "prerequisite_subtotal_range",
+  prerequisite_time_duration: "prerequisite_time_duration",
+  prerequisite_wedding_duration: "prerequisite_wedding_duration",
+  prerequisite_weekdays: "prerequisite_weekdays",
+  priority: "priority",
+  quantity_limit: "quantity_limit",
+  rule: "rule",
+  starts_date: "starts_date",
+  state: "state",
+  title: "title",
+  total_usage_count: "total_usage_count",
+  type: "type",
+  value: "value",
+  value_type: "value_type",
+  usage_limit: "usage_limit",
+  usage_limit_per_customer: "usage_limit_per_customer",
+  conditions: "conditions",
+}
+
+export const DiscountUnitType = {
+  PERCENTAGE: { value: "PERCENTAGE", label: "%" },
+  FIXED_PRICE: { value: "FIXED_PRICE", label: "đ" },
+  FIXED_AMOUNT: { value: "FIXED_AMOUNT", label: "đ" },
+};
 export const newEntitlements: EntilementFormModel = {
   entitled_variant_ids: [],
   entitled_product_ids: [],
@@ -25,12 +81,6 @@ export const newEntitlements: EntilementFormModel = {
     }
   ],
 }
-export const DiscountUnitType = {
-  PERCENTAGE: { value: "PERCENTAGE", label: "%" },
-  FIXED_PRICE: { value: "FIXED_PRICE", label: "đ" },
-  FIXED_AMOUNT: { value: "FIXED_AMOUNT", label: "đ" },
-};
-
 export const FieldSelectOptions = [
   {
     label: "Tên sản phẩm",
@@ -461,10 +511,10 @@ export const OperatorSelectOptions = [
 ];
 
 // promo code 
-export const STATUS_PROMO_CODE: any = [ 
+export const STATUS_PROMO_CODE: any = [
   {
     disabled: false,
-    Component:  <TagStatus type="primary">Đang áp dụng</TagStatus>,
+    Component: <TagStatus type="primary">Đang áp dụng</TagStatus>,
   },
   {
     disabled: true,
@@ -484,15 +534,15 @@ export const statuses = [
 ];
 
 export const ACTIONS_PROMO: Array<MenuAction> = [
-  {id: 1, name: "Kích hoạt"},
-  {id: 2, name: "Tạm ngừng"},
-  {id: 3, name: "Xuất Excel", disabled: true},
-  {id: 4, name: "Xoá", disabled: true},
+  { id: 1, name: "Kích hoạt" },
+  { id: 2, name: "Tạm ngừng" },
+  { id: 3, name: "Xuất Excel", disabled: true },
+  { id: 4, name: "Xoá", disabled: true },
 ];
 
 export const ACTIONS_DISCOUNT: Array<MenuAction> = [
-  {id: 1, name: "Kích hoạt"},
-  {id: 2, name: "Tạm ngừng"},
+  { id: 1, name: "Kích hoạt" },
+  { id: 2, name: "Tạm ngừng" },
   // { id: 3, name: "Xuất Excel", disabled: true },
 ];
 
