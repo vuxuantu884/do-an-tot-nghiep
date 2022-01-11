@@ -537,7 +537,12 @@ function OrdersTable(props: PropsType) {
 								case ShipmentMethod.EXTERNAL_SHIPPER:
 									return (<React.Fragment>
 										<div className="single">
-											Đối tác {" - "}
+											{sortedFulfillments[0]?.shipment.service ==="4h_delivery" ? (
+												"Đơn giao 4H"
+											):(
+												"Đơn giao thường"
+											)}
+											{" - "}
 											<span style={{ color: primaryColor }}>{sortedFulfillments[0].shipment.shipper_code}-{sortedFulfillments[0].shipment.shipper_name}</span>
 										</div>
 										<Tooltip title="Tổng khối lượng">
