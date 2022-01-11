@@ -280,7 +280,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 									<span className="label">Tổng SL: </span>
 									<span className="value">{record.total_quantity}</span>
 								</p>
-								{record.shipment?.shipping_fee_paid_to_three_pls && <p>
+								{record.shipment?.shipping_fee_paid_to_three_pls >= 0 && <p>
 									<span className="label">Phí giao: </span>
 									<span className="value">
 										<NumberFormat
@@ -326,6 +326,38 @@ const ShipmentsScreen: React.FC = (props: any) => {
 								</p>}
 							</div>
 						);
+						case ShipmentMethod.SHOPEE:
+							return (
+								<div className="shipment-details">
+									<p>{record.shipment.delivery_service_provider_name}</p>
+									<p>
+										<span className="label">Tiền COD: </span>
+										<span className="value">
+											<NumberFormat
+												value={record.shipment?.cod}
+												className="foo"
+												displayType={"text"}
+												thousandSeparator={true}
+											/>
+										</span>
+									</p>
+									<p>
+										<span className="label">Tổng SL: </span>
+										<span className="value">{record.total_quantity}</span>
+									</p>
+									{record.shipment?.shipping_fee_paid_to_three_pls >= 0 && <p>
+										<span className="label">Phí giao: </span>
+										<span className="value">
+											<NumberFormat
+												value={record.shipment?.shipping_fee_paid_to_three_pls}
+												className="foo"
+												displayType={"text"}
+												thousandSeparator={true}
+											/>
+										</span>
+									</p>}
+								</div>
+							);	
 					case ShipmentMethod.PICK_AT_STORE:
 						return (
 							<div className="shipment-details">
@@ -345,17 +377,6 @@ const ShipmentsScreen: React.FC = (props: any) => {
 									<span className="label">Tổng SL: </span>
 									<span className="value">{record.total_quantity}</span>
 								</p>
-								{record.shipment?.shipping_fee_paid_to_three_pls && <p>
-									<span className="label">Phí giao: </span>
-									<span className="value">
-										<NumberFormat
-											value={record.shipment?.shipping_fee_paid_to_three_pls}
-											className="foo"
-											displayType={"text"}
-											thousandSeparator={true}
-										/>
-									</span>
-								</p>}
 							</div>
 						);
 					default: return ""
