@@ -14,11 +14,11 @@ type BaseFilterProps = {
   onCancel?: () => void;
   onFilter?: () => void;
   onClearFilter?: () => void;
-  onSaveFilter?:()=> void;
+  onSaveFilter?: () => void;
 };
 
 const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
-  const { visible, allowSave, width, className, children, onFilter, onClearFilter, onCancel,onSaveFilter, confirmButtonTitle, deleteButtonTitle, footerStyle } = props;
+  const { visible, allowSave, width, className, children, onFilter, onClearFilter, onCancel, onSaveFilter, confirmButtonTitle, deleteButtonTitle, footerStyle } = props;
   return (
     <Drawer
       placement="right"
@@ -31,11 +31,11 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
       footer={
         <Row style={footerStyle} justify="end">
           <Space size="middle">
-            <Button style={{ color: '#E24343'}} icon={<DeleteOutlined />} onClick={onClearFilter}>
+            <Button style={{ color: '#E24343' }} icon={<DeleteOutlined />} onClick={onClearFilter}>
               {deleteButtonTitle || "Xóa bộ lọc"}
             </Button>
             {
-              allowSave && 
+              allowSave &&
               <Button icon={<StarOutlined />} onClick={onSaveFilter}>
                 Lưu bộ lọc
               </Button>
