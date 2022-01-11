@@ -51,7 +51,6 @@ function UpdatePaymentCard(props: PropType) {
   } = props;
   console.log("isVisibleUpdatePayment", isVisibleUpdatePayment);
   console.log("form", form);
-  console.log("setPaymentMethod", setPaymentMethod);
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
