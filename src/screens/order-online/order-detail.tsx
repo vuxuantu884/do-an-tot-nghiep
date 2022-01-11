@@ -95,7 +95,7 @@ const OrderDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
-  const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
+  const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
     useState<OrderResponse | null>(null);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
@@ -287,7 +287,7 @@ const OrderDetail = (props: PropType) => {
       );
 
       setOrderDetail(_data);
-      setOrderDetailAllFullfilment(data);
+      setOrderDetailAllFulfillment(data);
       setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
       if (_data.sub_status_code) {
         setSubStatusCode(_data.sub_status_code);
@@ -573,7 +573,7 @@ const OrderDetail = (props: PropType) => {
       extra={
         <CreateBillStep
           status={stepsStatusValue}
-          orderDetail={OrderDetailAllFullfilment}
+          orderDetail={OrderDetailAllFulfillment}
         />
       }
     >
@@ -974,7 +974,7 @@ const OrderDetail = (props: PropType) => {
                 officeTime={officeTime}
                 shipmentMethod={shipmentMethod}
                 isVisibleShipping={isVisibleShipping}
-                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
+                OrderDetailAllFullfilment={OrderDetailAllFulfillment}
                 orderSettings={orderSettings}
                 onReload={() => setReload(true)}
                 disabledActions={disabledActions}
@@ -1018,6 +1018,7 @@ const OrderDetail = (props: PropType) => {
                 status={OrderDetail?.status}
                 orderId={OrderId}
                 fulfillments={OrderDetail?.fulfillments}
+                OrderDetailAllFulfillment={OrderDetailAllFulfillment}
                 handleUpdateSubStatus={handleUpdateSubStatus}
                 setReload={setReload}
               />
@@ -1037,7 +1038,7 @@ const OrderDetail = (props: PropType) => {
             isVisibleActionsButtons={true}
             stepsStatusValue={stepsStatusValue}
             orderActionsClick={orderActionsClick}
-            orderDetail={OrderDetailAllFullfilment}
+            orderDetail={OrderDetailAllFulfillment}
             onConfirmOrder={onConfirmOrder}
             isShowConfirmOrderButton={isShowConfirmOrderButton}
             disabledBottomActions={disabledBottomActions}

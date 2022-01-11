@@ -371,7 +371,7 @@ function OrdersTable(props: PropsType) {
 													<span>{formatCurrency(item.price)}</span>
 												</Tooltip>
 
-												{item?.discount_items && item.discount_items[0]?.value && (
+												{item?.discount_items && item.discount_items[0]?.value ? (
 													<Tooltip title="Khuyến mại sản phẩm">
 														<div className="itemDiscount" style={{ color: dangerColor }}>
 															<span>
@@ -382,7 +382,7 @@ function OrdersTable(props: PropsType) {
 														</div>
 													</Tooltip>
 
-												)}
+												): null}
 											</div>
 										</div>
 									</div>
@@ -577,6 +577,41 @@ function OrdersTable(props: PropsType) {
 											<Link target="_blank" to={`${UrlConfig.STORE}/${record?.store_id}`}>
 												{record.store}
 											</Link>
+										</div>
+										<Tooltip title="Tổng khối lượng">
+											<div className="single">
+												<img
+													src={iconWeight}
+													alt=""
+												/>
+												<span>{record.total_weight || 0} gr</span>
+											</div>
+										</Tooltip>
+										<Tooltip title="Phí ship báo khách">
+											<div className="single">
+												<img
+													src={iconShippingFeeInformedToCustomer}
+													alt=""
+												/>
+												<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+											</div>
+										</Tooltip>
+
+										<Tooltip title="Phí vận chuyển">
+											<div className="single">
+												<img
+													src={iconShippingFeePay3PL}
+													alt=""
+												/>
+												{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+											</div>
+										</Tooltip>
+
+									</React.Fragment>)
+								case ShipmentMethod.SHOPEE:
+									return (<React.Fragment>
+										<div className="single">
+											Shopee
 										</div>
 										<Tooltip title="Tổng khối lượng">
 											<div className="single">
