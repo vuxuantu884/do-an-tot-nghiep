@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal, Progress } from "antd";
 
-import NumberFormat from "react-number-format";
-import { isNullOrUndefined } from "utils/AppUtils";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 
+import NumberFormat from "react-number-format";
+import { isNullOrUndefined } from "utils/AppUtils";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 
-type ProgressDownloadOrdersModalType = {
+
+type ProgressDownloadProductsModalType = {
   visible: boolean;
   isDownloading: boolean;
   onOk: () => void;
@@ -18,10 +19,17 @@ type ProgressDownloadOrdersModalType = {
 };
 
 
-const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
-  props: ProgressDownloadOrdersModalType
+const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType> = (
+  props: ProgressDownloadProductsModalType
 ) => {
-  const { visible, isDownloading, onOk, onCancel, progressData, progressPercent } = props;
+  const {
+    visible,
+    isDownloading,
+    onOk,
+    onCancel,
+    progressData,
+    progressPercent
+    } = props;
 
   const [errorData, setErrorData] = useState<Array<any>>([]);
 
@@ -47,7 +55,7 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
       },
     },
     {
-      title: "Mã đơn hàng",
+      title: "SKU",
       dataIndex: "order_sn",
       width: 155,
     },
@@ -70,7 +78,7 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
       width="600px"
       centered
       visible={visible}
-      title="Tải đơn hàng"
+      title="Tải sản phẩm"
       okText="Xác nhận"
       cancelText="Hủy"
       onCancel={cancelProgressDownloadModal}
@@ -113,7 +121,7 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
             </div>
             
             <div>
-              <div>ĐH mới</div>
+              <div>SP mới</div>
               <div className="total-created">
                 {isNullOrUndefined(progressData?.total_created) ?
                   "--" :
@@ -127,7 +135,7 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
             </div>
             
             <div>
-              <div>ĐH cập nhật</div>
+              <div>SP cập nhật</div>
               <div className="total-updated">
                 {isNullOrUndefined(progressData?.total_updated) ?
                   "--" :
@@ -181,4 +189,4 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
   );
 };
 
-export default ProgressDownloadOrdersModal;
+export default ProgressDownloadProductsModal;

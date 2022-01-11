@@ -68,11 +68,17 @@ const productsConnectPermission = [EcommerceProductPermission.products_update];
 
 let connectedYodyProductsRequest: object;
 
-const NotConnectedItems: React.FC = () => {
+type NotConnectedItemsPropsType = {
+  isReloadPage: boolean;
+};
+
+const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConnectedItemsPropsType) => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
   const history = useHistory();
+
+  const {isReloadPage} = props;
 
   const [allowProductsConnect] = useAuthorization({
     acceptPermissions: productsConnectPermission,
@@ -161,7 +167,7 @@ const NotConnectedItems: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     getProductUpdated(query);
-  }, [getProductUpdated, query]);
+  }, [getProductUpdated, query, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);

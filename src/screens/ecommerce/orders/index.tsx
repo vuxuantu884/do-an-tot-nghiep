@@ -73,7 +73,7 @@ import { generateQuery } from "utils/AppUtils";
 import BaseResponse from "base/base.response";
 import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
 
-import ConflictDownloadOrdersModal from "screens/ecommerce/orders/component/ConflictDownloadOrdersModal";
+import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 
@@ -810,7 +810,7 @@ const EcommerceOrders: React.FC = () => {
     setProgressData(null);
   }
 
-  const closeConflictDownloadOrdersModal = () => {
+  const closeConflictDownloadModal = () => {
     setIsVisibleConflictModal(false);
   }
 
@@ -980,10 +980,10 @@ const EcommerceOrders: React.FC = () => {
         }
 
         {isVisibleConflictModal &&
-          <ConflictDownloadOrdersModal
+          <ConflictDownloadModal
             visible={isVisibleConflictModal}
-            onCancel={closeConflictDownloadOrdersModal}
-            onOk={closeConflictDownloadOrdersModal}
+            onCancel={closeConflictDownloadModal}
+            onOk={closeConflictDownloadModal}
           />
         }
 
