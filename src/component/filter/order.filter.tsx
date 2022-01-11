@@ -147,6 +147,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			name: 'Hãng vận chuyển',
 			value: 'external_service',
 		},
+		{
+			name: 'Shopee',
+			value: 'shopee',
+		},
 	], []);
 	const formRef = createRef<FormInstance>();
 	const formSearchRef = createRef<FormInstance>();
