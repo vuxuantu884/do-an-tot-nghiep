@@ -631,7 +631,7 @@ function* cancelOrderSaga(action: YodyAction) {
 	}
 }
 
-function* configOrderSaga(action: YodyAction) {
+function* orderConfigSaga(action: YodyAction) {
 	const { setData } = action.payload;
 	yield put(showLoading());
 	try {
@@ -866,7 +866,7 @@ export function* OrderOnlineSaga() {
 	yield takeLatest(OrderType.GET_LIST_CHANNEL_REQUEST, getAllChannelSaga);
 	yield takeLatest(OrderType.GET_LIST_REASON_REQUEST, getListReasonSaga);
 	yield takeLatest(OrderType.CANCEL_ORDER_REQUEST, cancelOrderSaga);
-	yield takeLatest(OrderType.GET_ORDER_CONFIG, configOrderSaga);
+	yield takeLatest(OrderType.GET_ORDER_CONFIG, orderConfigSaga);
 	yield takeLatest(OrderType.GET_FULFILLMENTS, getFulfillmentsSaga);
 	yield takeLatest(OrderType.GET_FULFILLMENTS_PACK, putFulfillmentsSagaPack);
 	yield takeLatest(OrderType.GET_FULFILLMENTS_PACKED, getFulfillmentsPackedSaga);

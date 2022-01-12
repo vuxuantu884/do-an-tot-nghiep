@@ -13,12 +13,9 @@ import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
+import ShipmentMethodEcommerce from "component/order/OrderCreateShipment/ShipmentMethodEcommerce";
 import { ExternalShipperGetListAction } from "domain/actions/account/account.action";
 import { DeliveryServicesGetList, getFeesAction } from "domain/actions/order/order.action";
-import {
-	actionGetOrderConfig,
-	actionListConfigurationShippingServiceAndShippingFee
-} from "domain/actions/settings/order-settings.action";
 import { DeliverPartnerResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -36,7 +33,6 @@ import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
-import ShipmentMethodEcommerce from "component/order/OrderCreateShipment/ShipmentMethodEcommerce";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
@@ -59,6 +55,7 @@ type PropType = {
   totalAmountCustomerNeedToPay?: number;
   form: FormInstance<any>;
   thirdPL?: thirdPLModel;
+	shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
   isShowButtonCreateShipment?: boolean;
   onSelectShipment: (value: number) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
@@ -69,6 +66,7 @@ type PropType = {
   ecommerceShipment? : EcommerceDeliveryResponse | null;
   isEcommerceOrder?: boolean;
 	OrderDetail?: OrderResponse | null;
+	orderConfig:  OrderConfigResponseModel | null;
 };
 
 /**
@@ -119,6 +117,8 @@ function OrderCreateShipment(props: PropType) {
     isCancelValidateDelivery,
     thirdPL,
     isShowButtonCreateShipment = false,
+		shippingServiceConfig,
+		orderConfig,
     setThirdPL,
     onSelectShipment,
     setShippingFeeInformedToCustomer,
@@ -135,10 +135,6 @@ function OrderCreateShipment(props: PropType) {
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
   const [listExternalShippers, setListExternalShippers] = useState<Array<DeliverPartnerResponse> | null>(null);
-  const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
-  const [shippingServiceConfig, setShippingServiceConfig] = useState<
-    ShippingServiceConfigDetailResponseModel[]
-  >([]);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
 
@@ -326,24 +322,8 @@ function OrderCreateShipment(props: PropType) {
 
   useEffect(() => {
     dispatch(
-      actionListConfigurationShippingServiceAndShippingFee((response) => {
-        setShippingServiceConfig(response);
-      })
-    );
-    dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setDeliveryServices(response);
-      })
-    );
-  }, [dispatch]);
-
-  /**
-   * orderSettings: cấu hình đơn hàng để set yêu cầu cho xem hàng
-   */
-  useEffect(() => {
-    dispatch(
-      actionGetOrderConfig((response) => {
-        setOrderConfig(response);
       })
     );
   }, [dispatch]);

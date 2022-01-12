@@ -6,7 +6,7 @@ import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 
 import {
-  configOrderSaga,
+  orderConfigSaga,
   DeliveryServicesGetList,
   OrderDetailAction, orderYDPpageCreateAction,
   PaymentMethodGetList,
@@ -1015,7 +1015,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   useEffect(() => {
     dispatch(
-      configOrderSaga((data: OrderConfig) => {
+      orderConfigSaga((data: OrderConfig) => {
         setConfigOrder(data);
       })
     );

@@ -14,12 +14,14 @@ import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
 	cancelOrderRequest,
+	orderConfigSaga,
 	confirmDraftOrderAction,
 	getListReasonRequest,
 	OrderDetailAction,
 	PaymentMethodGetList,
 	UpdatePaymentAction
 } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
@@ -33,6 +35,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
@@ -126,6 +129,11 @@ const OrderDetail = (props: PropType) => {
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   console.log("isDisablePostPayment", isDisablePostPayment);
 
+	const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+  >([]);
+
+	const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
@@ -437,6 +445,14 @@ const OrderDetail = (props: PropType) => {
     setPaymentMethod(2);
   }, [dispatch, onGetDetailSuccess, reload, OrderDetail, id]);
 
+	useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        setShippingServiceConfig(response);
+      })
+    );
+  }, [dispatch]);
+
   useLayoutEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListReasonRequest(setReasons));
@@ -550,6 +566,14 @@ const OrderDetail = (props: PropType) => {
       })
     );
   }, [dispatch]);
+
+	useEffect(() => {
+		dispatch(
+			orderConfigSaga((data: OrderConfigResponseModel) => {
+				setOrderConfig(data);
+			})
+		);
+	}, [dispatch]);
 
   return (
     <ContentContainer
@@ -981,6 +1005,8 @@ const OrderDetail = (props: PropType) => {
                 disabledBottomActions={disabledBottomActions}
                 reasons={reasons}
                 isEcommerceOrder={isEcommerceOrder.current}
+								shippingServiceConfig={shippingServiceConfig}
+								orderConfig={orderConfig}
               />
               {/*--- end shipment ---*/}
 
