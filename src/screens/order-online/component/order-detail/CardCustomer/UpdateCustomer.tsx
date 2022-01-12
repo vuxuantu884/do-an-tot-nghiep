@@ -277,11 +277,13 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           }) : []
         }
       }
-     // setCustomerFormLoading(true);
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
-        if (datas) showSuccess("Cập nhật thông tin khách thành công");
-        handleChangeCustomer(datas);
-        //setCustomerFormLoading(false);
+        if (datas) {
+          showSuccess("Cập nhật thông tin khách thành công");
+          setVisibleBtnUpdate(false);
+          handleChangeCustomer(datas);
+        }
+        console.log(datas)
       }));
     },
     [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer,shippingWards,wards]
@@ -289,13 +291,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
-    setVisibleBtnUpdate(false);
-
   }, [customerForm]);
 
   useEffect(() => {
-    if (shippingAddress) customerForm.resetFields();
-  }, [customerForm, shippingAddress]);
+    customerForm.resetFields();
+  }, [customerForm,shippingAddress]);
 
   return (
     <>

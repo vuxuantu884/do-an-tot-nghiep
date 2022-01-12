@@ -141,9 +141,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     (state: RootReducerType) => state.userReducer
   );
 
-  // const [shippingAddress, setShippingAddress] =
-  //   useState<ShippingAddress | null>(null);
-
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
 
@@ -154,14 +151,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const autoCompleteRef = useRef<any>(null);
   const autoCompleteElement: any = document.getElementById("search_customer");
 
-  //const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
 
 	const sourceInputRef = useRef()
   //#region Modal
-  // const ShowBillingAddress = (e: any) => {
-  //   setVisibleBilling(e.target.checked);
-  // };
   const CancelConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
@@ -173,7 +166,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const OkConfirmCustomerCreate = () => {
     if(setModalAction)setModalAction("create");
     if(setVisibleCustomer)setVisibleCustomer(true);
-    //setKeySearchCustomer("");
   };
   const OkConfirmCustomerEdit = () => {
     if(setModalAction)setModalAction("edit");
@@ -253,7 +245,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       event.preventDefault();
       event.stopPropagation();
     }
-    //if (event.target instanceof HTMLBodyElement) {
     switch (event.key) {
       case "F4":
         findCustomerInput?.focus()
@@ -375,19 +366,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           customerResponse.id && customerResponse.id.toString() === value
       );
       if (index !== -1) {
-        OkConfirmCustomerEdit();
+        
         dispatch(
           getCustomerDetailAction(
             resultSearch[index].id,
             (data: CustomerResponse | null) => {
               if (data) {
+                OkConfirmCustomerEdit();
                 handleCustomer(data);
-                // //set Shipping Address
-                // let shipping_addresses_index: number = data.shipping_addresses.findIndex(x => x.default === true);
-                // props.ShippingAddressChange(shipping_addresses_index!==-1?data.shipping_addresses[shipping_addresses_index]:null);
-                // //set Billing Address
-                // let billing_addresses_index=data.billing_addresses.findIndex(x=>x.default===true);
-                // props.BillingAddressChange(billing_addresses_index!==-1?data.billing_addresses[billing_addresses_index]:null);
               }
             }
           )
@@ -396,10 +382,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur)
           autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
-        // if (resultSearch[index].district_id) {
-        //   console.log("districtId", resultSearch[index].district_id)
-        //   setDistrictId(resultSearch[index].district_id);
-        // }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -564,7 +546,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
   )?.rank_name;
 
-  console.log("isVisibleCustomer",isVisibleCustomer)
   return (
     <Card
       title="THÔNG TIN KHÁCH HÀNG"

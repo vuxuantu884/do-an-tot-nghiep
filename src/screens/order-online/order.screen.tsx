@@ -529,6 +529,7 @@ export default function Order() {
 				const element: any = document.getElementById("search_product");
 				element?.focus();
 			} else {
+				// console.log(shippingAddress);
 				if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
 					showError("Vui lòng nhập địa chỉ giao hàng!");
 					const element: any = document.getElementById("shippingAddress_update_full_address");
@@ -732,8 +733,8 @@ export default function Order() {
 								...initialForm,
 								customer_note: response.customer_note,
 								source_id: response.source_id,
-								assignee_code: response?.assignee_code|| null,
-								marketer_code: response?.marketer_code|| undefined,
+								assignee_code: response?.assignee_code || null,
+								marketer_code: response?.marketer_code || undefined,
 								coordinator_code: response?.coordinator_code || undefined,
 								store_id: response.store_id,
 								items: responseItems,
@@ -840,10 +841,11 @@ export default function Order() {
 		if (customer) {
 			dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
 			setVisibleCustomer(true);
-			console.log("customer check", customer)
+			// console.log("customer check", customer)
 			if (customer.shipping_addresses) {
 				let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
-				onChangeShippingAddress(shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null);
+				let item = shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null;
+				onChangeShippingAddress(item);
 			}
 			else
 				onChangeShippingAddress(null)
@@ -852,7 +854,7 @@ export default function Order() {
 				onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
 			}
 			else
-				onChangeShippingAddress(null)
+				onChangeBillingAddress(null)
 		} else {
 			setLoyaltyPoint(null);
 		}
