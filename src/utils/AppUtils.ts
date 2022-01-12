@@ -40,6 +40,7 @@ import {
 } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
+import { getSourcesWithParamsService } from "service/order/order.service";
 import { ErrorGHTK, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { RegUtil } from "./RegUtils";
@@ -1331,21 +1332,32 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
   }
 }
 
-export function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
+export async function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
 	let result = orderSources;
-	let isHaveDepartment = false;
-	let departmentSources = [];
+	let departmentSources:SourceResponse[] = [];
 	if(departmentIds && departmentIds.length > 0) {
 		for (const departmentId of departmentIds) {
-			let departmentSource = orderSources.findIndex(single=>single.department_id === departmentId)
-			if(departmentSource > -1) {
-				departmentSources.push(orderSources[departmentSource])
-				isHaveDepartment = true;
-			}	
+			const query = {
+				department_id: departmentId,
+			}
+			try {
+				let response = await getSourcesWithParamsService(query);
+				if(response.data.items) {
+					for (const item of response.data.items) {
+						let index = departmentSources.findIndex(single => single.id ===item.id);
+						if(index === -1) {
+							departmentSources.push(item)
+						}
+					}
+				}
+				
+			} catch (error) {
+				console.log('error', error)
+			}
 		}
-		if(isHaveDepartment) {
-			result = [...departmentSources]
-		}
+	} 
+	if(departmentSources.length > 0) {
+		result = [...departmentSources]
 	}
 	return result;
 }
