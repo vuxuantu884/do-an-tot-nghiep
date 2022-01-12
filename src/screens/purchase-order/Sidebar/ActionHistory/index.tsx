@@ -20,8 +20,6 @@ function ActionPurchaseOrderHistory(props: PropType) {
   const [actionId, setActionId] = useState<number>();
   const [procumentCode, setProcumentCode] = useState('');
 
-  console.log(actionLog);
-
   const showModal = (actionId: number, prCode: string) => {
     setIsModalVisible(true);
     setActionId(actionId);
