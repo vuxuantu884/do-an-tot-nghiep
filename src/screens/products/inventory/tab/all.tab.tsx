@@ -212,11 +212,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },
        {
-        title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao địch",
+        title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao dịch",
                             InventoryColumnField.committed, 
                             (sortColumn:string)=>{onSortASC(sortColumn)},
                             (sortColumn:string)=>{onSortDESC(sortColumn)}), 
-         titleCustom: "Đang giao địch",
+         titleCustom: "Đang giao dịch",
          visible: true,
          dataIndex: `committed`,
          align: "center",
@@ -354,7 +354,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          },
        },
        {
-         title: "Đang giao địch",
+         title: "Đang giao dịch",
          dataIndex: `committed`,
          align: "center",
          width: 80, render: (value) => {
