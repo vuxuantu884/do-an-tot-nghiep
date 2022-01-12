@@ -158,6 +158,7 @@ export interface FulFillmentResponse {
   items: Array<OrderLineItemResponse>;
   payments: Array<OrderPaymentResponse>;
   created_date: string | null;
+  updated_date: string | null;
   cancel_date: string | null;
   return_status: string | null;
   reason_name?: string;
