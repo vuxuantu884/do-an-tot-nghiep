@@ -375,12 +375,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           customerResponse.id && customerResponse.id.toString() === value
       );
       if (index !== -1) {
-        OkConfirmCustomerEdit();
+        
         dispatch(
           getCustomerDetailAction(
             resultSearch[index].id,
             (data: CustomerResponse | null) => {
               if (data) {
+                OkConfirmCustomerEdit();
                 handleCustomer(data);
                 // //set Shipping Address
                 // let shipping_addresses_index: number = data.shipping_addresses.findIndex(x => x.default === true);
