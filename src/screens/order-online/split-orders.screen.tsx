@@ -20,10 +20,6 @@ function OrdersScreen(props: PropTypes) {
 				path: UrlConfig.HOME,
 			},
 			{
-				name: "Đơn hàng",
-				path: UrlConfig.ORDER,
-			},
-			{
 				name: "Danh sách đơn tách",
 			},
     ]
@@ -76,7 +72,8 @@ function OrdersScreen(props: PropTypes) {
     customer_note: null,
     tags: [],
     reference_code: null,
-    search_term: ""
+    search_term: "",
+		services: [],
   };
 
   return (
