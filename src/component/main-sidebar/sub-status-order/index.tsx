@@ -14,7 +14,7 @@ import { scrollAndFocusToDomElement } from "utils/AppUtils";
 import { OrderStatus, ShipmentMethod } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 
-type PropType = {
+type PropTypes = {
 	subStatusCode?: string | undefined;
 	status?: string | null;
 	orderId?: number;
@@ -24,7 +24,7 @@ type PropType = {
 	setReload: (value: boolean) => void;
 };
 
-function SubStatusOrder(props: PropType): React.ReactElement {
+function SubStatusOrder(props: PropTypes): React.ReactElement {
 	const { status, orderId, fulfillments, OrderDetailAllFulfillment, subStatusCode, handleUpdateSubStatus, setReload } = props;
 	console.log('OrderDetailAllFullfilment', OrderDetailAllFulfillment)
 

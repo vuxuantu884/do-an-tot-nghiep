@@ -90,5 +90,5 @@ export const updateShippingServiceConfigService = (
 export const deleteShippingServiceConfigService = (
   id: number
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
-  return BaseAxios.delete(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config/${id}/delete`);
+  return BaseAxios.delete(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config/${id}`);
 };

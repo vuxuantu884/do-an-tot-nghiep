@@ -39,7 +39,7 @@ import {
 } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
-import { ErrorGHTK } from "./Constants";
+import { ErrorGHTK, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { RegUtil } from "./RegUtils";
 import { showError } from "./ToastUtils";
@@ -1200,6 +1200,30 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
     }
     return result;
   };
+	const renderShipmentMethod = (dataJson: any) => {
+		console.log('dataJson', dataJson)
+		let result = "-";
+		switch (dataJson.fulfillments[0]?.shipment.delivery_service_provider_type) {
+			case ShipmentMethod.EMPLOYEE:
+				result = `${dataJson.fulfillments[0]?.shipment.shipper_code} - ${dataJson.fulfillments[0]?.shipment.shipper_name}` || "Tự giao hàng"
+				break;
+			case ShipmentMethod.EXTERNAL_SERVICE:
+				result = dataJson.fulfillments[0]?.shipment.delivery_service_provider_name || "Hãng vận chuyển"
+				break;
+			case ShipmentMethod.EXTERNAL_SHIPPER:
+				result = `${dataJson.fulfillments[0]?.shipment.shipper_code} - ${dataJson.fulfillments[0]?.shipment.shipper_name}` || "Tự giao hàng"
+				break;
+			case ShipmentMethod.PICK_AT_STORE:
+				result = "Nhận tại cửa hàng"
+				break;
+			case ShipmentMethod.SHOPEE:
+				result = "Shopee"
+				break;
+			default:
+				break;
+		}
+		return result
+	};
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
@@ -1231,14 +1255,12 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		<span style="color:red">Phiếu đóng gói: </span><br/> 
 		- Địa chỉ giao hàng: ${renderAddress(dataJson)} <br/>
 		- Địa chỉ nhận hóa đơn: ${renderAddress(dataJson)} <br/>
-		- Phương thức giao hàng: ${
-			dataJson.fulfillments && dataJson.fulfillments[0]?.shipment && dataJson.fulfillments[0]?.shipment.delivery_service_provider ? dataJson.fulfillments && dataJson.fulfillments[0].shipment.delivery_service_provider : '-'
-		} <br/>
+		- Phương thức giao hàng: ${renderShipmentMethod(dataJson)} <br/>
 		- Trạng thái: ${dataJson.fulfillments[0]?.status} <br/>
 		<br/>
 		<span style="color:red">Thanh toán: </span><br/>  
 		${
-			dataJson.payments?.length <= 0
+			(!(dataJson.payments?.length > 0))
 				? `- Chưa thanh toán`
 				: dataJson?.payments && dataJson?.payments
 						.map((singlePayment: any, index: number) => {
