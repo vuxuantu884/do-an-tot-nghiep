@@ -202,7 +202,7 @@ export class CustomerModel implements CustomerRequest {
   card_number = "";
   phone = "";
   email = "";
-  gender = "Khác";
+  gender = null;
   birthday = "";
   website = "";
   wedding_date = "";
@@ -216,7 +216,7 @@ export class CustomerModel implements CustomerRequest {
   full_address = "";
   customer_type_id = null;
   customer_group_id = null;
-  responsible_staff_code = "";
+  responsible_staff_code = null;
   description = "";
   status = "";
   version = null;
