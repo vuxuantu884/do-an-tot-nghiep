@@ -103,6 +103,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       name: 'Hãng vận chuyển',
       value: 'external_service',
     },
+    {
+			name: 'Shopee',
+			value: 'shopee',
+		},
   ], []);
 
   const controlStatus = useMemo(() => [

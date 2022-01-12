@@ -28,8 +28,11 @@ const promoCodeDetail = React.lazy(
 const promoCodeList = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.list")
 );
+// const PromoCodeUpdate = React.lazy( 
+//   () => import("screens/promotion/promo-code/promo-code.update")
+// );
 const PromoCodeUpdate = React.lazy( 
-  () => import("screens/promotion/promo-code/promo-code.update")
+  () => import("screens/promotion/issue/update/issue-update")
 );
 
 // const GiftCreate = React.lazy(() => import("screens/promotion/gift/gift.create"));

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { primaryColor } from "utils/global-styles/variables";
+import { borderColor, primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .saleorder_shipment_method_btn {
@@ -32,7 +32,7 @@ export const StyledComponent = styled.div`
     width: 100%;
   }
   .saleorder_shipment_button {
-    border: 1px solid #e5e5e5;
+    border: 1px solid ${borderColor};
     padding: 8px 10px;
     border-radius: 3px;
     cursor: pointer;

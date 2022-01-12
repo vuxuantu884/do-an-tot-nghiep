@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const TotalBillDiscountStyle = styled.div`
+export const OrderThresholdStyle = styled.div`
   width: 100%;
   .ant-table-thead {
     box-shadow: none !important;

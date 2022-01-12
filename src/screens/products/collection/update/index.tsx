@@ -187,12 +187,6 @@ const GroupUpdate: React.FC = () => {
   const defaultColumns: Array<ICustomTableColumType<ProductResponse>> = useMemo(()=>{ 
     return [
       {
-        title: "STT",
-        align: "center",
-        width: 60,
-        render: (value: string, record: ProductResponse, index: number) => index + 1,
-      },
-      {
         title: "Ảnh",
         width: "60px",
         render: (record: ProductResponse) => {

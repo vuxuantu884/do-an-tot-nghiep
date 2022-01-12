@@ -135,6 +135,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			name: 'Hãng vận chuyển',
 			value: 'external_service',
 		},
+		{
+			name: 'Shopee',
+			value: 'shopee',
+		},
 	], []);
 
 	const serviceVariables = {
@@ -562,7 +566,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 		}
 console.log('services', services)
-		if (initialValues.services.length) {
+		if (initialValues.services.length > 0) {
 			let text = "";
 			for (let i = 0; i < services.length; i++) {
 				let abc = serviceListVariables.find(single=>single.value === services[i])

@@ -188,7 +188,7 @@ function OrdersTable(props: PropsType) {
 								<span className="amount">{formatCurrency(payment.paid_amount)}</span>
 							</Tooltip>
 						) : (
-							<Tooltip title="{selectedPayment?.tooltip || payment.payment_method}">
+							<Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
 								<img src={selectedPayment?.icon} alt="" />
 								<span className="amount">{formatCurrency(payment.paid_amount)}</span>
 							</Tooltip>
@@ -537,7 +537,12 @@ function OrdersTable(props: PropsType) {
 								case ShipmentMethod.EXTERNAL_SHIPPER:
 									return (<React.Fragment>
 										<div className="single">
-											Đối tác {" - "}
+											{sortedFulfillments[0]?.shipment.service ==="4h_delivery" ? (
+												"Đơn giao 4H"
+											):(
+												"Đơn giao thường"
+											)}
+											{" - "}
 											<span style={{ color: primaryColor }}>{sortedFulfillments[0].shipment.shipper_code}-{sortedFulfillments[0].shipment.shipper_name}</span>
 										</div>
 										<Tooltip title="Tổng khối lượng">
@@ -577,6 +582,41 @@ function OrdersTable(props: PropsType) {
 											<Link target="_blank" to={`${UrlConfig.STORE}/${record?.store_id}`}>
 												{record.store}
 											</Link>
+										</div>
+										<Tooltip title="Tổng khối lượng">
+											<div className="single">
+												<img
+													src={iconWeight}
+													alt=""
+												/>
+												<span>{record.total_weight || 0} gr</span>
+											</div>
+										</Tooltip>
+										<Tooltip title="Phí ship báo khách">
+											<div className="single">
+												<img
+													src={iconShippingFeeInformedToCustomer}
+													alt=""
+												/>
+												<span>{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0)}</span>
+											</div>
+										</Tooltip>
+
+										<Tooltip title="Phí vận chuyển">
+											<div className="single">
+												<img
+													src={iconShippingFeePay3PL}
+													alt=""
+												/>
+												{formatCurrency(sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0)}
+											</div>
+										</Tooltip>
+
+									</React.Fragment>)
+								case ShipmentMethod.SHOPEE:
+									return (<React.Fragment>
+										<div className="single">
+											Shopee
 										</div>
 										<Tooltip title="Tổng khối lượng">
 											<div className="single">

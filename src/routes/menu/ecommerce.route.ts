@@ -20,7 +20,7 @@ const ecommerce: Array<RouteMenu> = [
   {
     path: `${UrlConfig.ECOMMERCE}-orders-mapping`,
     exact: true,
-    title: "Quản lý đơn hàng",
+    title: "Đồng bộ đơn hàng",
     icon: "icon-dot",
     component: OrdersMapping,
     key: "manage_orders",
@@ -75,7 +75,7 @@ const ecommerce: Array<RouteMenu> = [
   //   subMenu: [],
   // },
   {
-    path: `${UrlConfig.ECOMMERCE}-config`,
+    path: `${UrlConfig.ECOMMERCE}-configs`,
     exact: true,
     title: "Cấu hình",
     icon: "icon-dot",

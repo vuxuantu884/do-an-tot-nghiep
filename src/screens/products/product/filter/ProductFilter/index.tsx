@@ -199,11 +199,12 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     );
   }, [dispatch, setDataColors]);
 
-  const setDataSizes = (res: PageResponse<SizeResponse>) => {
+  const setDataSizes = useCallback((res: PageResponse<SizeResponse>) => {
     if (res) {
      setLstSize(res);
     }
-   }
+   },[]);
+
   const getSizes = useCallback((code: string, page: number)=>{
     dispatch(
       sizeSearchAction(
@@ -211,7 +212,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         setDataSizes
       )
     );
-  },[]);
+  },[dispatch, setDataSizes]);
 
   const getSuppliers = useCallback((key: string, page: number) => {
     dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {

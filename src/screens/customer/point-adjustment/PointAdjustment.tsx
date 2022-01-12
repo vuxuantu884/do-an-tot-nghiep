@@ -78,6 +78,11 @@ const PointAdjustment = () => {
       title: "Tên phiếu điều chỉnh",
       dataIndex: "name",
       width: "15%",
+      render: (value: string, item: any) => {
+        return (
+          <Link to={`${UrlConfig.CUSTOMER2}-adjustments/${item.id}`}>{item.name}</Link>
+        )
+      }
     },
     {
       title: "Số KH",

@@ -17,7 +17,6 @@ const POUtils = {
     variants: Array<VariantResponse>,
     position: number
   ): Array<PurchaseOrderLineItem> => {
-    debugger
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant, index) => {
       let newId = `${variant.sku}${new Date().getTime()}`;
@@ -172,6 +171,7 @@ const POUtils = {
         amount_after_discount -
         (amount_after_discount / total) * tradeDiscountValue;
     }
+    item.tax_rate = (tax_rate && tax_rate.toString()  !=="") ? parseInt(tax_rate.toString()) :  item.tax_rate;
     let tax = parseFloat(
       ((amount_after_discount * item.tax_rate) / 100).toFixed(2)
     );

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { primaryColor } from "utils/global-styles/variables";
+import { borderColor, primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .ant-table-tbody > tr > td,
@@ -43,7 +43,7 @@ export const StyledComponent = styled.div`
   td.saleorder-product-card-action {
     padding: 0 5px !important;
     button {
-      border: 1px solid #e5e5e5;
+      border: 1px solid ${borderColor};
       width: 28px;
       height: 28px;
       margin: 2px;

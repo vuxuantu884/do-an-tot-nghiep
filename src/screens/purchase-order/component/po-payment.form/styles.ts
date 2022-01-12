@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .card {
@@ -8,7 +9,7 @@ export const StyledComponent = styled.div`
       }
     }
     &__footer {
-      border-top: 1px solid #e5e5e5;
+      border-top: 1px solid ${borderColor};
       padding: 20px 15px;
       text-align: right;
     }
@@ -25,13 +26,13 @@ export const StyledComponent = styled.div`
     }
   }
   .checkOut {
-    border: 1px solid #e5e5e5;
+    border: 1px solid ${borderColor};
     border-right: none;
     span[role="img"] {
       margin-right: 5px;
     }
     &__column {
-      border-right: 1px solid #e5e5e5;
+      border-right: 1px solid ${borderColor};
       height: 100%;
       padding: 15px 20px;
     }

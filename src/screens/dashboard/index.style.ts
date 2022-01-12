@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 export const ChartColor = {
   primary: "#2A2A86",
   secondary: "#FCAF17",
@@ -71,7 +72,7 @@ export const DashboardContainer = styled.div`
     &__item {
       width: 100%;
       height: 110px;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid ${borderColor};
     }
   }
 
@@ -79,8 +80,8 @@ export const DashboardContainer = styled.div`
     width: 100%;
     height: 110px;
     &__item {
-      border-left: 1px solid #e5e5e5;
-      border-bottom: 1px solid #e5e5e5;
+      border-left: 1px solid ${borderColor};
+      border-bottom: 1px solid ${borderColor};
     }
   }
 
@@ -88,8 +89,8 @@ export const DashboardContainer = styled.div`
     width: 100%;
     height: 330px;
     padding: 20px;
-    border-left: 1px solid #e5e5e5;
-    border-bottom: 1px solid #e5e5e5;
+    border-left: 1px solid ${borderColor};
+    border-bottom: 1px solid ${borderColor};
   }
   .monthly-chart {
     &__info {

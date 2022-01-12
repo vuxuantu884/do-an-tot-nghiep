@@ -52,10 +52,16 @@ const STATUS = {
   CONNECTED: "connected"
 }
 
-const TotalItemsEcommerce: React.FC = () => {
+type TotalItemsEcommercePropsType = {
+  isReloadPage: boolean;
+};
+
+const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: TotalItemsEcommercePropsType) => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
+
+  const {isReloadPage} = props;
   
   const [isLoading, setIsLoading] = useState(false);
 
@@ -123,7 +129,7 @@ const TotalItemsEcommerce: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     getProductUpdated(query);
-  }, [getProductUpdated, query]);
+  }, [getProductUpdated, query, isReloadPage]);
 
   const reloadPage = () => {
     getProductUpdated(query);

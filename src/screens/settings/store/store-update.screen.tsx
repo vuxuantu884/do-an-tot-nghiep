@@ -53,6 +53,7 @@ import { AppConfig } from "config/app.config";
 import TreeDepartment from "../department/component/TreeDepartment";
 import { DepartmentResponse } from "model/account/department.model";
 import { departmentDetailAction } from "domain/actions/account/department.action";
+import { showSuccess } from "utils/ToastUtils";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -115,6 +116,7 @@ const StoreUpdateScreen: React.FC = () => {
   const onUpdateSuccess = useCallback(() => {
     setLoading(false);
     history.push(UrlConfig.STORE);
+    showSuccess("Lưu dữ liệu thành công");
   }, [history]); 
   const onFinish = useCallback(
     (values: StoreUpdateRequest) => {

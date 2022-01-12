@@ -524,10 +524,7 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value, row, index: number) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status || data?.shipment.status === ShipmentStatus.CONFIRMED) {
-          return value ? value : 0;
-        }
-        else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && data.shipment.status === ShipmentStatus.RECEIVED) {
+        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
           return <NumberInput
             isFloat={false}
             id={`item-quantity-${index}`}
@@ -538,6 +535,9 @@ const DetailTicket: FC = () => {
             }}
           />
         }
+        else {
+          return value ? value : 0;
+        } 
       },
     },
     {
@@ -876,8 +876,7 @@ const DetailTicket: FC = () => {
                         )}}
                       />
                       {
-                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status 
-                        &&  data.shipment.status === ShipmentStatus.RECEIVED && (
+                         data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  (
                           <div className="inventory-transfer-action">
                             <AuthWrapper 
                               acceptPermissions={[InventoryTransferPermission.receive]}
@@ -901,7 +900,7 @@ const DetailTicket: FC = () => {
                             </AuthWrapper>
     
                           </div>
-                        )
+                       )
                       }
                     </div>
                   </Card>

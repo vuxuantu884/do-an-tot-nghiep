@@ -137,7 +137,7 @@ const POCreateScreen: React.FC = () => {
           case POStatus.FINALIZED:
             setLoadingSaveButton(true);
             break;
-        }
+        } 
 
         dispatch(PoCreateAction(dataClone, createCallback));
       } else {

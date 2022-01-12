@@ -23,6 +23,7 @@ type SingleLogType = {
 
 function ActionHistoryModal(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
+  const screenHeight = window.screen.height;
 
   const dispatch = useDispatch();
   const [singleLogShorten, setSingleLogShorten] = useState<SingleLogType[]>([]);
@@ -157,6 +158,8 @@ function ActionHistoryModal(props: PropType) {
       footer={false}
       onCancel={handleCancel}
       width="1200px"
+      centered
+      bodyStyle={{maxHeight: screenHeight*0.6, overflow: "auto"}}
     >
       <StyledComponent>
         <div className="sectionButton">
