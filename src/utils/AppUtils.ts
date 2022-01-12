@@ -31,6 +31,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+	FulFillmentResponse,
 	// DeliveryServiceResponse,
 	OrderLineItemResponse,
 	OrderPaymentResponse,
@@ -1201,17 +1202,20 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
     return result;
   };
 	const renderShipmentMethod = (dataJson: any) => {
-		console.log('dataJson', dataJson)
+		console.log('dataJson', dataJson);
+		const sortedFulfillments = dataJson?.fulfillments.sort((a:FulFillmentResponse, b:FulFillmentResponse) =>
+			moment(b.updated_date).diff(moment(a.updated_date))
+		);
 		let result = "-";
-		switch (dataJson.fulfillments[0]?.shipment.delivery_service_provider_type) {
+		switch (sortedFulfillments[0]?.shipment.delivery_service_provider_type) {
 			case ShipmentMethod.EMPLOYEE:
-				result = `${dataJson.fulfillments[0]?.shipment.shipper_code} - ${dataJson.fulfillments[0]?.shipment.shipper_name}` || "Tự giao hàng"
+				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}` 
 				break;
 			case ShipmentMethod.EXTERNAL_SERVICE:
-				result = dataJson.fulfillments[0]?.shipment.delivery_service_provider_name || "Hãng vận chuyển"
+				result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment.delivery_service_provider_name}` 
 				break;
 			case ShipmentMethod.EXTERNAL_SHIPPER:
-				result = `${dataJson.fulfillments[0]?.shipment.shipper_code} - ${dataJson.fulfillments[0]?.shipment.shipper_name}` || "Tự giao hàng"
+				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
 				break;
 			case ShipmentMethod.PICK_AT_STORE:
 				result = "Nhận tại cửa hàng"
