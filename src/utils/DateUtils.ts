@@ -3,6 +3,7 @@ import moment, { Moment } from "moment";
 export const DATE_FORMAT = {
   DDMMYYY: "DD/MM/YYYY",
   DDMMYY_HHmm: "DD/MM/YYYY HH:mm",
+  HHmm_DDMMYYYY: "HH:mm DD/MM/YYYY",
   DDMM: "DD/MM",
 	fullDate: "DD/MM/YY HH:mm",
 };
