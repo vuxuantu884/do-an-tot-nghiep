@@ -727,6 +727,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
       <AddAddressModal
         customer={customer}
+        areas={areas}
         handleChangeCustomer={handleChangeCustomer}
         formItem={singleShippingAddress}
         visible={isVisibleAddress}

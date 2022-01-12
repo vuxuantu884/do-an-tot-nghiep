@@ -12,60 +12,61 @@ import { getCustomerDetailAction } from "domain/actions/customer/customer.action
 import { hideLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
-  actionCreateOrderExchange,
-  actionCreateOrderReturn,
-  actionGetOrderReturnReasons
+	actionCreateOrderExchange,
+	actionCreateOrderReturn,
+	actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import { configOrderSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { orderConfigSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  BillingAddress,
-  ExchangeRequest,
-  FulFillmentRequest,
-  OrderDiscountRequest,
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-  OrderRequest,
-  ReturnRequest,
-  ShipmentRequest
+	BillingAddress,
+	ExchangeRequest,
+	FulFillmentRequest,
+	OrderDiscountRequest,
+	OrderLineItemRequest,
+	OrderPaymentRequest,
+	OrderRequest,
+	ReturnRequest,
+	ShipmentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  OrderConfig,
-  OrderLineItemResponse,
-  OrderResponse,
-  OrderReturnReasonModel,
-  ReturnProductModel,
-  ShippingAddress,
-  StoreCustomResponse
+	OrderLineItemResponse,
+	OrderResponse,
+	OrderReturnReasonModel,
+	ReturnProductModel,
+	ShippingAddress,
+	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
 import {
 
-  getAmountPayment,
-  getAmountPaymentRequest,
-  getListItemsCanReturn,
-  getTotalAmountAfterDiscount,
-  scrollAndFocusToDomElement,
-  totalAmount
+	getAmountPayment,
+	getAmountPaymentRequest,
+	getListItemsCanReturn,
+	getTotalAmountAfterDiscount,
+	scrollAndFocusToDomElement,
+	totalAmount
 } from "utils/AppUtils";
 import {
-  ADMIN_ORDER,
-  DEFAULT_COMPANY,
-  FulFillmentStatus,
-  OrderStatus,
-  PaymentMethodCode,
-  PaymentMethodOption, POS, ShipmentMethod,
-  ShipmentMethodOption,
-  TaxTreatment
+	ADMIN_ORDER,
+	DEFAULT_COMPANY,
+	FulFillmentStatus,
+	OrderStatus,
+	PaymentMethodCode,
+	PaymentMethodOption, POS, ShipmentMethod,
+	ShipmentMethodOption,
+	TaxTreatment
 } from "utils/Constants";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
@@ -179,7 +180,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-  const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
+  const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
   //Store
   const [storeReturn, setStoreReturn] = useState<StoreResponse | null>(null);
@@ -192,6 +193,9 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   // const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
+	const [shippingServiceConfig, setShippingServiceConfig] = useState<
+ShippingServiceConfigDetailResponseModel[]
+>([]);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -1127,13 +1131,12 @@ const ScreenReturnCreate = (props: PropType) => {
                     setItems={setListExchangeProducts}
                     inventoryResponse={null}
                     setInventoryResponse={() => { }}
-                    orderConfig={null}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     returnOrderInformation={{
                       totalAmountReturn: totalAmountReturnProducts,
                       totalAmountExchangePlusShippingFee
                     }}
-                    configOrder={configOrder}
+                    orderConfig={orderConfig}
                     coupon={coupon}
                     setCoupon={setCoupon}
                     promotion={promotion}
@@ -1182,6 +1185,8 @@ const ScreenReturnCreate = (props: PropType) => {
                       thirdPL={thirdPL}
                       setThirdPL={setThirdPL}
                       form={form}
+											shippingServiceConfig={shippingServiceConfig}
+											orderConfig={orderConfig}
                     />
                   </Card>
                 )}
@@ -1307,8 +1312,8 @@ const ScreenReturnCreate = (props: PropType) => {
     * lấy cấu hình bán tồn kho
     */
     dispatch(
-      configOrderSaga((data: OrderConfig) => {
-        setConfigOrder(data);
+      orderConfigSaga((data: OrderConfigResponseModel) => {
+        setOrderConfig(data);
       })
     );
   }, [dispatch]);
@@ -1322,6 +1327,13 @@ const ScreenReturnCreate = (props: PropType) => {
   //     cauHinhInNhieuLienHoaDon: 3,
   //   });
   // }, []);
+	useEffect(() => {
+		dispatch(
+			actionListConfigurationShippingServiceAndShippingFee((response) => {
+				setShippingServiceConfig(response);
+			})
+		);
+	}, [dispatch]);
 
   useEffect(() => {
     dispatch(getListStoresSimpleAction((data: StoreResponse[]) => {
