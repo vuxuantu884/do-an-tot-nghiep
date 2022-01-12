@@ -406,9 +406,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
 
-  // const listSources = useMemo(() => {
-  //   return listSource.filter((item) => item.code !== "POS");
-  // }, [listSource]);
+	const getOrderSources = useCallback(async() => {
+		let result:SourceResponse[]  = []
+		result= await sortSources(allSources, departmentIds)
+		return result
+	}, [allSources, departmentIds]);
 
 	
   useEffect(() => {
@@ -418,10 +420,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [dispatch]);
 
 	useEffect(() => {
-		const sortedSources = sortSources(allSources, departmentIds);
-		setInitListSource(sortedSources)
-		setListSource(sortedSources)
-  }, [allSources, departmentIds]);
+		getOrderSources().then((response) => {
+			const sortedSources =  response;
+			setInitListSource(sortedSources)
+			setListSource(sortedSources)
+		});
+  }, [getOrderSources]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
