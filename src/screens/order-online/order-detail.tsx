@@ -1018,7 +1018,6 @@ const OrderDetail = (props: PropType) => {
                 status={OrderDetail?.status}
                 orderId={OrderId}
                 fulfillments={OrderDetail?.fulfillments}
-                OrderDetailAllFulfillment={OrderDetailAllFulfillment}
                 handleUpdateSubStatus={handleUpdateSubStatus}
                 setReload={setReload}
               />
