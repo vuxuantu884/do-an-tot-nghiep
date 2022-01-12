@@ -277,15 +277,13 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           }) : []
         }
       }
-     // setCustomerFormLoading(true);
       dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
         if (datas) {
           showSuccess("Cập nhật thông tin khách thành công");
           setVisibleBtnUpdate(false);
+          handleChangeCustomer(datas);
         }
-        handleChangeCustomer(datas);
         console.log(datas)
-        //setCustomerFormLoading(false);
       }));
     },
     [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer,shippingWards,wards]
