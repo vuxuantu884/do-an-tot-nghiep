@@ -1,4 +1,5 @@
 import { Col, Modal, Popover, Row } from "antd";
+import { CareLabelItem } from "model/product/product.model";
 import { useCallback, useEffect, useState } from "react";
 import { careInformation } from "./care-value";
 import { StyledComponent } from "./style";
@@ -177,7 +178,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
       visible={visible}
     >
       <StyledComponent>
-        <p className="label">Giặt</p>
+        <p className="label">GIẶT</p>
         <Row gutter={24}>
           {careInformationState.washing.map((item: any) => (
             <Col span={3} style={{ marginBottom: '20px'}}>
@@ -189,7 +190,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
         </Row>
         <Row gutter={24}>
           <Col span={12}>
-            <p className="label">Tẩy</p>
+            <p className="label">CHẤT TẨY</p>
             <Row gutter={24}>
               {careInformationState.beleaching.map((item: any) => (
                 <Col span={6} style={{ marginBottom: '20px'}}>
@@ -201,7 +202,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
             </Row>
           </Col>
           <Col span={12}>
-            <p className="label">Ủi</p>
+            <p className="label">ỦI</p>
             <Row gutter={24}>
               {careInformationState.ironing.map((item: any) => (
                 <Col span={6} style={{ marginBottom: '20px'}}>
@@ -214,9 +215,18 @@ const ModalCares: React.FC<ModalCaresProps> = (
           </Col>
         </Row>
 
-        <p className="label">Phơi/Sấy</p>
+        <p className="label">SẤY - PHƠI</p>
         <Row gutter={24}>
-          {careInformationState.drying.map((item: any) => (
+          {careInformationState.drying.filter((e: CareLabelItem)=>e.type===1).map((item: any) => (
+            <Col span={3} style={{ marginBottom: '20px'}}>
+              <Popover content={item.name}>
+                <span onClick={() => onSelect(item.value, 'drying')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
+              </Popover>
+            </Col>
+          ))}
+        </Row>
+        <Row gutter={24}>
+          {careInformationState.drying.filter((e: CareLabelItem)=>e.type===2).map((item: any) => (
             <Col span={3} style={{ marginBottom: '20px'}}>
               <Popover content={item.name}>
                 <span onClick={() => onSelect(item.value, 'drying')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
@@ -225,9 +235,17 @@ const ModalCares: React.FC<ModalCaresProps> = (
           ))}
         </Row>
 
-        <p className="label">Giặt khô/ướt chuyên nghiệp</p>
+        <p className="label">GIẶT KHÔ/ƯỚT CHUYÊN NGHIỆP</p>
         <Row gutter={24}>
-          {careInformationState.professionalCare.map((item: any) => (
+          {careInformationState.professionalCare.filter((e: CareLabelItem)=>e.type===1).map((item: any) => (
+            <Col span={3} style={{ marginBottom: '20px'}}>
+              <Popover content={item.name}>
+                <span onClick={() => onSelect(item.value, 'professionalCare')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
+              </Popover>
+            </Col>
+          ))}
+        </Row><Row gutter={24}>
+          {careInformationState.professionalCare.filter((e: CareLabelItem)=>e.type===2).map((item: any) => (
             <Col span={3} style={{ marginBottom: '20px'}}>
               <Popover content={item.name}>
                 <span onClick={() => onSelect(item.value, 'professionalCare')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
