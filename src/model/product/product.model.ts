@@ -431,3 +431,10 @@ export interface ProductBarcodeItem {
   product_id: number,
   quantity_req: number,
 }
+
+export interface CareLabelItem{
+  value: string,
+  name: string,
+  active: boolean,
+  type?:number
+}

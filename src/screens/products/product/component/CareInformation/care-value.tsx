@@ -75,61 +75,77 @@ export const careInformation: any = {
     {
       value: "no-dry",
       name: "Không được sấy",
-      active: false
+      active: false,
+      type: 1
     },
     {
       value: "dry-60",
       name: "Có thể sấy khô, nhiệt độ tối đa 60 độ C",
-      active: false
+      active: false,
+      type: 1
     },
     {
       value: "dry-80",
       name: "Có thể sấy khô, nhiệt độ tối đa 80 độ C",
-      active: false
+      active: false,
+      type: 1
     },
     
     {
       value: "dry-line",
       name: "Phơi dây",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "dry-line-shade",
       name: "Phơi dây, trong bóng râm",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "dry-line-drip",
       name: "Phơi dây, không vắt",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "dry-line-drip-shade",
       name: "Phơi dây, không vắt, trong bóng râm",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "dry-flat",
       name: "Phơi trải phẳng",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "dry-flat-shade",
       name: "Phơi trải phẳng, trong bóng râm",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "dry-flat-drip",
       name: "Phơi trải phẳng, không vắt",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "dry-flat-drip-shade",
       name: "Phơi trải phẳng, không vắt, trong bóng râm",
-      active: false
+      active: false,
+      type: 2
     },
   ],
   beleaching: [
+    {
+      value: "no-bleach",
+      name: "Không được tẩy",
+      active: false
+    },
     {
       value: "bleach-any",
       name: "Có thể sử dụng chất tẩy",
@@ -139,82 +155,85 @@ export const careInformation: any = {
       value: "bleach-non-chlorine",
       name: "Có thể sử dụng chất tẩy không có clo",
       active: false
-    },
-    {
-      value: "no-bleach",
-      name: "Không được tẩy",
-      active: false
-    },
+    }, 
   ],
   professionalCare: [
     {
       value: "no-clean-dry",
       name: "Không được giặt khô",
-      active: false
-    },
-    {
-      value: "clean-dry-f",
-      name: "Giặt khô trong hydrocacbon",
-      active: false
-    },
-    {
-      value: "clean-dry-f-mild",
-      name: "Giặt khô nhẹ nhàng trong hydrocacbon",
-      active: false
+      active: false,
+      type: 1
     },
     {
       value: "clean-dry-p",
       name: "Giặt khô trong tetracloetylen",
-      active: false
+      active: false,
+      type: 1
     },
     {
       value: "clean-dry-p-mild",
       name: "Giặt khô nhẹ nhàng trong tetracloetylen",
-      active: false
+      active: false,
+      type: 1
     },
-
+    {
+      value: "clean-dry-f",
+      name: "Giặt khô trong hydrocacbon",
+      active: false,
+      type: 1
+    },
+    {
+      value: "clean-dry-f-mild",
+      name: "Giặt khô nhẹ nhàng trong hydrocacbon",
+      active: false,
+      type: 1
+    }, 
     {
       value: "no-clean-wet",
-      name: "Không được giặt khô",
-      active: false
+      name: "Không được giặt ướt",
+      active: false,
+      type: 2
     },
     {
       value: "clean-wet",
       name: "Giặt ướt chuyên nghiệp",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "clean-wet-mild",
       name: "Giặt ướt chuyên nghiệp, nhẹ nhàng",
-      active: false
+      active: false,
+      type: 2
     },
     {
       value: "clean-wet-very-mild",
       name: "Giặt ướt chuyên nghiệp, rất nhẹ nhàng",
-      active: false
+      active: false,
+      type: 2
     },
   ],
   
   ironing: [
     {
-      value: "iron-200",
-      name: "Có thể ủi, nhiệt độ tối đa 200 độ C",
-      active: false
-    },
-    {
-      value: "iron-150",
-      name: "Có thể ủi, nhiệt độ tối đa 150 độ C",
+      value: "no-iron",
+      name: "Không được ủi",
       active: false
     },
     {
       value: "iron-110",
       name: "Có thể ủi, nhiệt độ tối đa 110 độ C",
       active: false
-    },
+    }, 
     {
-      value: "no-iron",
-      name: "Không được ủi",
+      value: "iron-150",
+      name: "Có thể ủi, nhiệt độ tối đa 150 độ C",
       active: false
-    },
+    }, 
+    {
+      value: "iron-200",
+      name: "Có thể ủi, nhiệt độ tối đa 200 độ C",
+      active: false
+    }, 
   ]
 };
