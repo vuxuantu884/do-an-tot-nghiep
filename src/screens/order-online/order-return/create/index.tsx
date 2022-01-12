@@ -591,6 +591,12 @@ const ScreenReturnCreate = (props: PropType) => {
           element?.focus();
           return;
         }
+				if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+					showError("Vui lòng nhập địa chỉ giao hàng!");
+					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
+					scrollAndFocusToDomElement(element);
+					return;
+				}
         if (checkIfNotHavePaymentsWhenReceiveAtStorePOS()) {
           const element: any = document.getElementsByClassName("create-order-payment")[0] as HTMLElement;
           scrollAndFocusToDomElement(element);
