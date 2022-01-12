@@ -100,11 +100,11 @@ export const StyledComponent = styled.div`
     }
   }
   .care-title {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     color: #666666;
   } 
   .care-label {
-    font-size: 20px;
+    font-size: 28px;
     vertical-align: -0.125em;
     margin: 2px 4px 15px 6px;
   }

@@ -478,11 +478,12 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   const onResultFinish = useCallback(
-    (data) => {
+    (data) => { 
       setLoadingVariant(false);
       setLoadingButton(false);
       if (!data) {
       } else {
+        showSuccess("Cập nhật thành công");
         history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
       }
     },
@@ -490,18 +491,19 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   const onFinish = useCallback(
-    (values: ProductRequest) => {
+    (values: ProductRequest) => {  
       setLoadingButton(true);  
       dispatch(productUpdateAction(
         idNumber,
         {
           ...values,
+          description: form.getFieldValue("description"),
           care_labels: careLabelsString,
           collections: values.product_collections ?? []
         },
         onResultFinish));
     },
-    [careLabelsString, dispatch, idNumber, onResultFinish]
+    [careLabelsString, dispatch, idNumber, onResultFinish, form]
   );
 
   const beforeUpload = useCallback((file: RcFile) => {
@@ -1108,6 +1110,7 @@ const ProductDetailScreen: React.FC = () => {
                       <Row gutter={24}>
                         <Col span={24}>
                           <Collapse
+                            key="description"
                             ghost
                             expandIcon={({isActive}) =>
                               isActive ? <MinusOutlined /> : <PlusOutlined />
