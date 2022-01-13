@@ -23,8 +23,8 @@ import {
 import { showError, showInfo, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionDetail from "../../shared/general-condition.detail";
 import DiscountRuleInfo from "../components/discount-rule-info";
-import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants/index";
-import "../discount.scss";
+import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants/index"; 
+import { DiscountStyled } from "../discount-style";
 
 const MAX_LOAD_VARIANT_LIST = 3;
 const RELOAD_VARIANT_LIST_TIME = 3000;
@@ -260,7 +260,7 @@ const PromotionDetailScreen: React.FC = () => {
       ]}
     >
       {dataDiscount && (
-        <React.Fragment>
+        <DiscountStyled>
           <Row gutter={24}>
             <Col span={24} md={18}>
               <Card
@@ -412,7 +412,7 @@ const PromotionDetailScreen: React.FC = () => {
               </Space>
             }
           />
-        </React.Fragment>
+        </DiscountStyled>
       )}
     </ContentContainer>
   );

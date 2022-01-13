@@ -1,3 +1,6 @@
+
+import styled from "styled-components";
+export const IssueStyled = styled.div`
 .input-number {
     width: 100%;
   }
@@ -9,4 +12,6 @@
 .col-no-padding {
     padding: 0 !important;
   }
+`
+
  

@@ -23,7 +23,8 @@ import { showSuccess } from "../../../utils/ToastUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery"; 
 import DiscountFilter from "./components/DiscountFilter";
 import { ACTIONS_DISCOUNT, DISCOUNT_STATUS } from "../constants";
-import "./discount.scss";
+import "./discount-style.ts";
+import { DiscountStyled } from "./discount-style";
 
 
 const DiscountPage = () => {
@@ -240,8 +241,6 @@ const DiscountPage = () => {
     };
 
   return (
-
-
     <ContentContainer
       title="Chiết khấu"
       breadcrumb={[
@@ -272,12 +271,9 @@ const DiscountPage = () => {
 
       }
     >
+      <DiscountStyled>
       <Card
-        title={
-          <div className="d-flex">
-            <span className="tab-label">Danh sách chiết khấu</span>
-          </div>
-        }
+        title={"Danh sách chiết khấu"}
       >
         <DiscountFilter
           onMenuClick={onMenuClick}
@@ -305,6 +301,7 @@ const DiscountPage = () => {
         />
 
       </Card>
+      </DiscountStyled> 
     </ContentContainer>
 
 

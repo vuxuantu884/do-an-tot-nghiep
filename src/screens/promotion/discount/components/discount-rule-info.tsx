@@ -1,7 +1,6 @@
 import { PriceRule } from 'model/promotion/price-rules.model';
 import React, { ReactElement } from 'react'
 import { formatCurrency } from 'utils/AppUtils';
-import "../discount.scss";
 
 interface Props {
     dataDiscount: PriceRule
