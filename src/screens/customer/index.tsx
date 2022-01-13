@@ -51,6 +51,8 @@ import { generateQuery } from "utils/AppUtils";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 
+import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
+
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -333,6 +335,7 @@ const Customer = () => {
 
   // handle export file
   const [isVisibleExportModal, setIsVisibleExportModal] = useState(false);
+  const [isVisibleWarningExportModal, setIsVisibleWarningExportModal] = useState(false);
   const [exportAll, setExportAll] = useState(true);
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
   
@@ -345,11 +348,25 @@ const Customer = () => {
     setExportAll(e.target.value);
   }
 
+  // warning export 10k customers
+  const onOkWarningExportModal = () => {
+    setIsVisibleWarningExportModal(false);
+  }
+
+  const onCancelWarningExportModal = () => {
+    setIsVisibleWarningExportModal(false);
+    cancelExportModal();
+  }
+  
+  const onOkExportModal = () => {
+    if (exportAll && data?.metadata.total >= 10000) {
+      setIsVisibleWarningExportModal(true);
+    } else {
+      okExportModal();
+    }
+  }
+
   const okExportModal = () => {
-    setExportAll(true);
-    setIsVisibleExportModal(false);
-    setIsVisibleProgressModal(true);
-    
     let newParams = { ...params };
     if (exportAll) {
       newParams.limit = undefined;
@@ -363,6 +380,8 @@ const Customer = () => {
     })
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
+          setIsVisibleProgressModal(true);
+          cancelExportModal();
           setExportCodeList([...exportCodeList, response.data.code]);
         }
       })
@@ -521,13 +540,15 @@ const Customer = () => {
 
         {/* Export customer data */}
         <Modal
+          centered
           width="600px"
           visible={isVisibleExportModal}
           title="Xuất excel dữ liệu khách hàng"
           okText="Xuất dữ liệu"
           cancelText="Đóng"
           onCancel={cancelExportModal}
-          onOk={okExportModal}
+          onOk={onOkExportModal}
+          maskClosable={false}
         >
           <Radio.Group onChange={onChangeExportOption} value={exportAll}>
             <Space direction="vertical">
@@ -535,6 +556,30 @@ const Customer = () => {
               <Radio value={true}>Tải tất cả các trang</Radio>
             </Space>
           </Radio.Group>
+        </Modal>
+
+        {/* Warning export customer data */}
+        <Modal
+          centered
+          width="600px"
+          visible={isVisibleWarningExportModal}
+          title=""
+          closable={false}
+          maskClosable={false}
+          footer={
+            <StyledModalFooter>
+              <Button danger onClick={onCancelWarningExportModal}>
+                Thoát
+              </Button>
+    
+              <Button type="primary" onClick={onOkWarningExportModal}>
+                Đồng ý
+              </Button>
+            </StyledModalFooter>
+          }
+        >
+          <div>Để đảm bảo hệ thống và tốc độ tải dữ liệu, xin vui lòng xuất dưới <b>10.000</b> khách hàng.</div>
+          <div>Xin cảm ơn!</div>
         </Modal>
 
         {/* Progress export customer data */}
