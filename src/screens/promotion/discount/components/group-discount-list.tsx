@@ -12,7 +12,6 @@ import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
 import { DiscountUnitType, newEntitlements } from "../../constants";
-import "../discount.scss";
 import { DiscountContext } from "./discount-provider";
 import FixedAndQuantityGroup from "./fixed-quantity-group";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";

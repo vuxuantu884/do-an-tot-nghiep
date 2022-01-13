@@ -8,10 +8,10 @@ import { Rule } from "antd/lib/form";
 import { SelectValue } from "antd/lib/select";
 import _ from "lodash";
 import { DiscountConditionRule, PriceRule } from "model/promotion/price-rules.model";
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement, useCallback, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
-import { DiscountUnitType, FieldSelectOptions, OperatorSelectOptions, PRICE_RULE_FIELDS } from "../constants";
+import { DiscountUnitType, FIELD_SELECT_OPTIONS, OPERATOR_SELECT_OPTIONS, PRICE_RULE_FIELDS } from "../constants";
 import { OrderThresholdStyle } from "../discount/components/order-threshold.style";
 const rule = PRICE_RULE_FIELDS.rule;
 const conditions = PRICE_RULE_FIELDS.conditions;
@@ -93,8 +93,8 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
 
 
   function handleChangeFieldSelect(value: SelectValue, index: number): void {
-    //set state value component
-    const currentValueComponent = _.find(FieldSelectOptions, [
+    // Change input value component
+    const currentValueComponent = _.find(FIELD_SELECT_OPTIONS, [
       "value",
       value,
     ])?.valueComponent;
@@ -108,7 +108,28 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
     //reset value at index
     const discountList: Array<any> = form.getFieldValue(rule)?.conditions;
     discountList[index].value = null;
+    discountList[index].operator = 'EQUALS';
+
   }
+
+  const discountList: Array<any> = form.getFieldValue(rule)?.conditions;
+
+  const getIsDisableOptions = useCallback(
+    (operatorOptions: string[], index: number) => {
+      const currentField = discountList[index].field;
+
+      const acceptTypeOfCurrentField = _.find(FIELD_SELECT_OPTIONS, [
+        "value",
+        currentField,
+      ])?.type;
+
+      const allowUseOptions = operatorOptions.some((operator) => {
+        return acceptTypeOfCurrentField?.includes(operator);
+      });
+      return !allowUseOptions;
+    },
+    [discountList]
+  );
 
   // init data in create case
   useEffect(() => {
@@ -131,7 +152,7 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
     if (priceRuleData?.rule && priceRuleData.rule.conditions?.length > 0) {
       const temp: any[] = [];
       priceRuleData?.rule?.conditions.forEach((element: DiscountConditionRule) => {
-        temp.push(_.find(FieldSelectOptions, ["value", element.field])?.valueComponent);
+        temp.push(_.find(FIELD_SELECT_OPTIONS, ["value", element.field])?.valueComponent);
       });
       setValueComponentList(temp);
     }
@@ -168,7 +189,6 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
 
                 return (<>
 
-                  {/* {fields.map((field, index) => { */}
                   {conditionData?.map((item: any, index) => {
                     return (
 
@@ -184,7 +204,7 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
                             ]}
                           >
                             <Select
-                              options={FieldSelectOptions}
+                              options={FIELD_SELECT_OPTIONS}
                               onChange={(value) => handleChangeFieldSelect(value, index)}
                             />
                           </Form.Item>
@@ -199,7 +219,17 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
                               },
                             ]}
                           >
-                            <Select options={OperatorSelectOptions} />
+                            <Select>
+                              {OPERATOR_SELECT_OPTIONS.map((item: any) => {
+                                return (
+                                  <Select.Option key={item.value} value={item.value} 
+                                  disabled={getIsDisableOptions(item.activeType,index)}
+                                  >
+                                    {item.label}
+                                  </Select.Option>
+                                );
+                              })}
+                            </Select>
                           </Form.Item>
                         </td>
                         <td>

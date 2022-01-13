@@ -33,7 +33,6 @@ import { PoDetailAction } from "domain/actions/po/po.action";
 import { StyledComponent } from './styles';
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
-const TAP_ID = 2;
 const TabList: React.FC = () => {
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const dispatch = useDispatch();
@@ -133,7 +132,7 @@ const TabList: React.FC = () => {
     paramsrUrl.page = page;
     paramsrUrl.limit = size;
     history.replace(
-      `${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify(paramsrUrl)}`
+      `${UrlConfig.PROCUREMENT}?${querystring.stringify(paramsrUrl)}`
     );
   };
 

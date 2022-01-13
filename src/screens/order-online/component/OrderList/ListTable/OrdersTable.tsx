@@ -377,7 +377,7 @@ function OrdersTable(props: PropsType) {
 															<span>
 																{" "}
 																-{" "}
-																{formatCurrency(Math.round(item.discount_items[0].rate*100) /100)}%
+																{formatCurrency((item.discount_items[0].value))}
 															</span>
 														</div>
 													</Tooltip>
@@ -409,7 +409,7 @@ function OrdersTable(props: PropsType) {
 					<React.Fragment>
 						<Tooltip title="Thành tiền">
 							<NumberFormat
-								value={record.total_line_amount_after_line_discount}
+								value={record.total}
 								className="foo"
 								displayType={"text"}
 								thousandSeparator={true}

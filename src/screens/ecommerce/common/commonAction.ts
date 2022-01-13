@@ -13,45 +13,40 @@ export const ECOMMERCE_ICON: any = {
   sendo: sendoIcon,
 };
 
-export const getEcommerceIcon = (ecommerce: any) => {
-  switch (ecommerce?.toLowerCase()) {
-    case "shopee":
-      return ECOMMERCE_ICON.shopee;
-    case "lazada":
-      return ECOMMERCE_ICON.lazada;
-    case "tiki":
-      return ECOMMERCE_ICON.tiki;
-    case "sendo":
-      return ECOMMERCE_ICON.sendo;
-    default:
-      break;
-  }
-};
-
 export const ECOMMERCE_LIST = [
   {
     title: "Sàn Shopee",
     icon: shopeeIcon,
-    id: "shopee",
+    key: "shopee",
     ecommerce_id: 1,
   },
   {
     title: "Sàn Lazada",
     icon: lazadaIcon,
-    id: "lazada",
+    key: "lazada",
     ecommerce_id: 2,
   },
   {
     title: "Sàn Tiki",
     icon: tikiIcon,
-    id: "tiki",
+    key: "tiki",
     ecommerce_id: 3,
   },
   {
     title: "Sàn Sendo",
     icon: sendoIcon,
-    id: "sendo",
+    key: "sendo",
     isActive: false,
     ecommerce_id: 4,
   },
 ];
+
+export const getEcommerceIcon = (ecommerce_key: string) => {
+  const ecommerce = ECOMMERCE_LIST.find(item => item.key.toLowerCase() === ecommerce_key?.toLowerCase());
+  return ecommerce?.icon;
+};
+
+export const getIconByEcommerceId = (ecommerce_id: number) => {
+  const ecommerce = ECOMMERCE_LIST.find(item => item.ecommerce_id === ecommerce_id);
+  return ecommerce?.icon;
+};

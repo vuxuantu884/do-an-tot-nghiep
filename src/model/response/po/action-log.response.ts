@@ -9,6 +9,7 @@ export interface PurchaseOrderActionLogResponse extends BaseObject {
   code: string;
   data?: string;
   root_id?: number;
+  procurement_code: string;
 }
 
 export interface ActionLogDetailSingleType {

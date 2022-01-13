@@ -128,6 +128,7 @@ const StoreListScreen: React.FC = () => {
       width: 120,
       dataIndex: "code",
       visible: true,
+      fixed: "left",
       render: (value, record) => {
         return (
           <div 
@@ -142,6 +143,7 @@ const StoreListScreen: React.FC = () => {
       title: "Tên cửa hàng",
       dataIndex: "name",
       visible: true,
+      fixed: "left",
     },
     {
       title: "Trực thuộc",

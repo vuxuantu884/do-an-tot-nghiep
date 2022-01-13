@@ -23,7 +23,7 @@ import {
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
 import _ from "lodash";
-import { PriceRule } from "model/promotion/price-rules.model";
+import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
@@ -36,6 +36,8 @@ import CustomTable from "../../../component/table/CustomTable";
 import { AppConfig } from "../../../config/app.config";
 import { formatCurrency } from "../../../utils/AppUtils";
 import { getToken } from "../../../utils/LocalStorageUtils";
+import { columnDiscountByRule } from "../constants";
+import DiscountRuleInfo from "../discount/components/discount-rule-info";
 import GeneralConditionDetail from "../shared/general-condition.detail";
 import CustomModal from "./components/CustomModal";
 import "./promo-code.scss";
@@ -140,9 +142,9 @@ const PromotionDetailScreen: React.FC = () => {
     "error" | "success" | "done" | "uploading" | "removed" | undefined
   >(undefined);
   const [dataVariants, setDataVariants] = useState<any | null>(null);
-  const [entitlements, setEntitlements] = useState<Array<any>>([]);
-  const [minOrderSubtotal, setMinOrderSubtotal] = useState(0);
-  const [applyFor, setApplyFor] = useState("Sản phẩm");
+  const [, setEntitlements] = useState<Array<any>>([]);
+  const [, setMinOrderSubtotal] = useState(0);
+  const [, setApplyFor] = useState("Sản phẩm");
 
   //phân quyền
   const [allowCancelPromoCode] = useAuthorization({
@@ -247,17 +249,6 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
-  // section DELETE by Id
-  // function onDelete() {
-  //   dispatch(showLoading());
-  //   dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
-  // }
-  // const onDeleteSuccess = useCallback(() => {
-  //   dispatch(hideLoading());
-  //   showSuccess("Xóa thành công");
-  //   history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
-  // }, [dispatch, history]);
-
 
   const onEdit = useCallback(() => {
     history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}/update`);
@@ -270,7 +261,6 @@ const PromotionDetailScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch(getPriceRuleAction(idNumber, onResult));
-    return () => { };
   }, [dispatch, idNumber, onResult]);
 
   const promoDetail: Array<any> | undefined = React.useMemo(() => {
@@ -404,35 +394,35 @@ const PromotionDetailScreen: React.FC = () => {
     }
   };
 
-  const columns: Array<any> = [
-    {
-      title: "STT",
-      align: "center",
-      width: "5%",
-      render: (value: any, item: any, index: number) => index + 1,
-    },
-    {
-      title: "Sản phẩm",
-      dataIndex: "sku",
-      align: "left",
-      width: "40%",
-      render: (value: string, item: any, index: number) => {
-        return (
-          <div>
-            <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
-              {value}
-            </Link>
-            <div>{item.title}</div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Số lượng tối thiểu",
-      align: "center",
-      dataIndex: "minimum",
-    },
-  ];
+  // const columns: Array<any> = [
+  //   {
+  //     title: "STT",
+  //     align: "center",
+  //     width: "5%",
+  //     render: (value: any, item: any, index: number) => index + 1,
+  //   },
+  //   {
+  //     title: "Sản phẩm",
+  //     dataIndex: "sku",
+  //     align: "left",
+  //     width: "40%",
+  //     render: (value: string, item: any, index: number) => {
+  //       return (
+  //         <div>
+  //           <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
+  //             {value}
+  //           </Link>
+  //           <div>{item.title}</div>
+  //         </div>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: "Số lượng tối thiểu",
+  //     align: "center",
+  //     dataIndex: "minimum",
+  //   },
+  // ];
 
   return (
     <ContentContainer
@@ -670,15 +660,10 @@ const PromotionDetailScreen: React.FC = () => {
                 )}
               </Card>
               <Card
-                className="card"
-                title={
-                  <div style={{ alignItems: "center" }}>
-                    <span className="title-card">Điều kiện mua hàng</span>
-                  </div>
-                }
+                title={"Điều kiện mua hàng"}
               >
                 <Space size={"large"} direction={"vertical"} style={{ width: "100%" }}>
-                  <Row>
+                  {/* <Row>
                     <Col span={12}>
                       <span style={{ fontWeight: 500 }}>
                         Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}₫
@@ -700,7 +685,17 @@ const PromotionDetailScreen: React.FC = () => {
                     />
                   ) : (
                     ""
-                  )}
+                  )} */}
+                      {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD &&
+                  <>
+                    <DiscountRuleInfo dataDiscount={data} />
+                    <CustomTable
+                      columns={columnDiscountByRule}
+                      dataSource={data.rule?.conditions}
+                      pagination={false}
+                      rowKey="id"
+                    />
+                  </>}
                 </Space>
               </Card>
             </Col>
@@ -713,7 +708,6 @@ const PromotionDetailScreen: React.FC = () => {
         rightComponent={
           <Space>
             {data?.state !== 'CANCELLED' && <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}><Button onClick={onEdit}>Sửa</Button></AuthWrapper>}
-            {/* {allowCreatePromoCode ? <Button disabled>Nhân bản</Button> : null} */}
             {allowCancelPromoCode ? renderActionButton() : null}
           </Space>
         }
