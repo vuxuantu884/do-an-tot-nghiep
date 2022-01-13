@@ -19,22 +19,21 @@ const detailDiscountPage = React.lazy(
 const DiscountUpdate = React.lazy(
   () => import("screens/promotion/discount/update/discount.update")
 );
-const createPromoCodePage = React.lazy(
-  () => import("screens/promotion/promo-code/promo-code.create")
-);
+
 const promoCodeDetail = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.detail")
 );
 const promoCodeList = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.list")
 );
-// const PromoCodeUpdate = React.lazy( 
-//   () => import("screens/promotion/promo-code/promo-code.update")
-// );
+
 const PromoCodeUpdate = React.lazy( 
   () => import("screens/promotion/issue/update/issue-update")
 );
 
+const CreatePromoCodePage = React.lazy(
+  () => import("screens/promotion/issue/create/issue-create")
+);
 // const GiftCreate = React.lazy(() => import("screens/promotion/gift/gift.create"));
 // const GiftList = React.lazy(() => import("screens/promotion/gift/gift.list"));
 
@@ -186,7 +185,7 @@ const promotion: Array<RouteMenu> = [
         exact: true,
         title: "Tạo khuyến mãi",
         icon: "icon-dot",
-        component: createPromoCodePage,
+        component: CreatePromoCodePage,
         key: "submenu1071",
         isShow: true,
         header: null,
