@@ -9,6 +9,8 @@ import {
 } from "model/inventoryadjustment";
 import {PrinterInventoryTransferResponseModel} from "model/response/printer.response";
 import {VariantResponse} from "model/product/product.model";
+import { InventoryQuery } from "model/inventory";
+import { PageResponse } from "model/base/base-metadata.response";
 
 const getListInventoryAdjustmentApi = (
   query: InventoryAdjustmentSearchQuery
@@ -79,10 +81,11 @@ const updateInventorAdjustmentApi = (
 };
 
 const getVariantHasOnHandByStoreApi = (
-  store_id: number
-): Promise<BaseResponse<VariantResponse>> => {
+  query: InventoryQuery
+): Promise<PageResponse<VariantResponse>> => {
+  let params = generateQuery(query);
   return BaseAxios.get(
-    `${ApiConfig.PRODUCT}/variants?store_ids=${store_id}`
+    `${ApiConfig.INVENTORY}/inventories/detail?${params}`
   );
 };
 

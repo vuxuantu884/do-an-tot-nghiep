@@ -242,8 +242,8 @@ function* updateInventoryAdjustmentSaga(action: YodyAction) {
 
 
 function* getVariantHasOnHandByStoreSaga(action: YodyAction) {
-  let {store_id, onResult} = action.payload;
-  yield callApiSaga(true,onResult, getVariantHasOnHandByStoreApi,store_id); 
+  let {query, onResult} = action.payload;
+  yield callApiSaga(true,onResult, getVariantHasOnHandByStoreApi,query); 
 }
 
 export function* inventoryAdjustmentSaga() {

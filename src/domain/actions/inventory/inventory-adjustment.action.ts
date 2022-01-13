@@ -3,6 +3,7 @@ import BaseResponse from "base/base.response";
 import {InventoryType} from "domain/types/inventory.type";
 import {PageResponse} from "model/base/base-metadata.response";
 import {StoreResponse} from "model/core/store.model";
+import { InventoryQuery } from "model/inventory";
 import {
   InventoryAdjustmentDetailItem,
   InventoryAdjustmentSearchQuery,
@@ -112,11 +113,11 @@ const updateInventoryAdjustmentAction = (
 };
 
 const getVariantHasOnHandByStoreAction = (
-  store_id: number,
-  onResult: (result: BaseResponse<PageResponse<VariantResponse>>) => void
+  query: InventoryQuery,
+  onResult: (result: PageResponse<VariantResponse>) => void
 ) => {
   return BaseAction(InventoryType.GET_VARIANT_HAS_ON_HAND_BY_STORE, {
-    store_id,
+    query,
     onResult
   });
 };

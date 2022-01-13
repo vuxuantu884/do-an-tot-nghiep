@@ -27,7 +27,6 @@ import {showSuccess, showWarning} from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
 import {
   DeleteOutlined,
-  EditOutlined,
   ExportOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
@@ -41,12 +40,7 @@ import {modalActionType} from "model/modal/modal.model";
 import FormSize from "./conponents";
 import CustomModal from "component/modal/CustomModal";
 
-const actionsDefault: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "Chỉnh sửa",
-    icon: <EditOutlined />,
-  },
+const actionsDefault: Array<MenuAction> = [ 
   {
     id: 2,
     name: "Xóa",
