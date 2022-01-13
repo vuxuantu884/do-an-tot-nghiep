@@ -24,10 +24,7 @@ import {
 import { AllOrdersMappingFilterStyled, StyledRenderShopList } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 
-import tikiIcon from "assets/icon/e-tiki.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
+import { getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 
 
 type AllOrdersMappingFilterProps = {
@@ -223,20 +220,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     }
   };
 
-  const getEcommerceIcon = (shop: any) => {
-    switch (shop) {
-      case "shopee":
-        return shopeeIcon;
-      case "lazada":
-        return lazadaIcon;
-      case "tiki":
-        return tikiIcon;
-      case "sendo":
-        return sendoIcon;
-      default:
-        break;
-    }
-  };
 
   const renderShopList = () => {
     return (
@@ -249,21 +232,21 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                 checked={item.isSelected}
               >
                 <span className="check-box-name">
-                  <span>
+                  {getEcommerceIcon(item.ecommerce) &&
                     <img
                       src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
-                  </span>
+                  }
 
-                  {item.name && item.name.length > 31 &&
-                    <Tooltip title={item.name} color="#1890ff" placement="right">
+                  {item.name && item.name.length > 25 &&
+                    <Tooltip title={item.name} color="#1890ff" placement="top">
                       <span className="name">{item.name}</span>
                     </Tooltip>
                   }
 
-                  {item.name && item.name.length <= 31 &&
+                  {item.name && item.name.length <= 25 &&
                     <span className="name">{item.name}</span>
                   }
                 </span>
