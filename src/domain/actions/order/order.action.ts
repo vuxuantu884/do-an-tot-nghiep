@@ -392,7 +392,7 @@ export const cancelOrderRequest = (
   return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, reason_id, sub_reason_id, reason, onSuccess, onError });
 };
 
-export const configOrderSaga = (setData: (data: OrderConfigResponseModel) => void) => {
+export const orderConfigSaga = (setData: (data: OrderConfigResponseModel) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
 

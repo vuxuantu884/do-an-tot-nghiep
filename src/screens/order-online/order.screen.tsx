@@ -17,10 +17,12 @@ import {
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-	configOrderSaga, orderCreateAction,
+	orderConfigSaga,
+	orderCreateAction,
 	OrderDetailAction,
 	PaymentMethodGetList
 } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -40,11 +42,11 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-	OrderConfig,
 	OrderResponse,
 	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -139,7 +141,7 @@ export default function Order() {
 
 	const [inventoryResponse, setInventoryResponse] =
 		useState<Array<InventoryResponse> | null>(null);
-	const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
+	const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
 	const [isVisibleCustomer, setVisibleCustomer] = useState(false);
 	const [modalAction, setModalAction] = useState<modalActionType>("edit");
@@ -166,6 +168,10 @@ export default function Order() {
 
 	const [coupon, setCoupon] = useState<string>("");
 	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+
+	const [shippingServiceConfig, setShippingServiceConfig] = useState<
+ShippingServiceConfigDetailResponseModel[]
+>([]);
 
 	const onChangeInfoProduct = (
 		_items: Array<OrderLineItemRequest>,
@@ -529,9 +535,10 @@ export default function Order() {
 				const element: any = document.getElementById("search_product");
 				element?.focus();
 			} else {
+				// console.log(shippingAddress);
 				if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
 					showError("Vui lòng nhập địa chỉ giao hàng!");
-					const element: any = document.getElementById("shippingAddress_update_full_address");
+					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
 					scrollAndFocusToDomElement(element);
 					return;
 				}
@@ -732,8 +739,8 @@ export default function Order() {
 								...initialForm,
 								customer_note: response.customer_note,
 								source_id: response.source_id,
-								assignee_code: response?.assignee_code|| null,
-								marketer_code: response?.marketer_code|| undefined,
+								assignee_code: response?.assignee_code || null,
+								marketer_code: response?.marketer_code || undefined,
 								coordinator_code: response?.coordinator_code || undefined,
 								store_id: response.store_id,
 								items: responseItems,
@@ -840,10 +847,11 @@ export default function Order() {
 		if (customer) {
 			dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
 			setVisibleCustomer(true);
-			console.log("customer check", customer)
+			// console.log("customer check", customer)
 			if (customer.shipping_addresses) {
 				let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
-				onChangeShippingAddress(shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null);
+				let item = shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null;
+				onChangeShippingAddress(item);
 			}
 			else
 				onChangeShippingAddress(null)
@@ -852,7 +860,7 @@ export default function Order() {
 				onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
 			}
 			else
-				onChangeShippingAddress(null)
+				onChangeBillingAddress(null)
 		} else {
 			setLoyaltyPoint(null);
 		}
@@ -872,6 +880,14 @@ export default function Order() {
 	//     })
 	//   );
 	// }, [dispatch]);
+
+	useEffect(() => {
+		dispatch(
+			actionListConfigurationShippingServiceAndShippingFee((response) => {
+				setShippingServiceConfig(response);
+			})
+		);
+	}, [dispatch]);
 
 	const checkPointFocus = useCallback(
 		(value: any) => {
@@ -952,7 +968,7 @@ export default function Order() {
 		if (items && items != null) {
 			items.forEach(function (value) {
 				let available = value.available === null ? 0 : value.available;
-				if (available <= 0 && configOrder?.sellable_inventory !== true) {
+				if (available <= 0 && orderConfig?.sellable_inventory !== true) {
 					status = false;
 					//setCreating(false);
 				}
@@ -987,8 +1003,8 @@ export default function Order() {
 
 	useEffect(() => {
 		dispatch(
-			configOrderSaga((data: OrderConfig) => {
-				setConfigOrder(data);
+			orderConfigSaga((data: OrderConfigResponseModel) => {
+				setOrderConfig(data);
 			})
 		);
 	}, [dispatch]);
@@ -1102,9 +1118,8 @@ export default function Order() {
 											customer={customer}
 											setInventoryResponse={setInventoryResponse}
 											totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-											orderConfig={null}
+											orderConfig={orderConfig}
 											orderSourceId={orderSourceId}
-											configOrder={configOrder}
 											loyaltyPoint={loyaltyPoint}
 										/>
 										<Card title="THANH TOÁN">
@@ -1135,6 +1150,8 @@ export default function Order() {
 												thirdPL={thirdPL}
 												setThirdPL={setThirdPL}
 												form={form}
+												shippingServiceConfig={shippingServiceConfig}
+												orderConfig={orderConfig}
 											/>
 										</Card>
 									</Col>

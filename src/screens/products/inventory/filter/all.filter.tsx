@@ -159,9 +159,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
 
           let value = filters[filterKey];
 
-          if (!value) return null;
+          if (!value && value !==0) return null;
           if (value && Array.isArray(value)  && value.length === 0) return null;
-          if (!AllInventoryMappingField[filterKey] || filterKey === AvdAllFilter.to_price) return null; 
+          if (!AllInventoryMappingField[filterKey]) return null; 
           
           switch (filterKey) {
             case AvdAllFilter.category:
@@ -220,10 +220,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
               break
             case AvdAllFilter.from_price:
-              renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : Từ ${formatCurrency(advanceFilters.from_price)}`;
-              if (advanceFilters.from_price && advanceFilters.to_price) {
-                renderTxt = `${AllInventoryMappingField[AvdAllFilter.variant_prices]} : ${formatCurrency(advanceFilters.from_price)} ~ ${formatCurrency(advanceFilters.to_price)}`;
-              }
+                renderTxt = `Giá bán từ: ${formatCurrency(advanceFilters.from_price)}`;
+              break
+            case AvdAllFilter.to_price:
+                renderTxt = `Giá bán đến: ${formatCurrency(advanceFilters.to_price)}`;
               break
             default:
               break;

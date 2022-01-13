@@ -252,24 +252,24 @@ const TabProduct: React.FC = () => {
 
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      width: 60,
+      width: 50,
       title: "Ảnh",
       align:"center",
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
             <ImageProduct
-            path={image !== null ? image.url : null}
-            isUpload={true}
-            onClick={() => {
-              setVariant({
-                name: value.name,
-                sku: value.sku,
-                variant_images: value.variant_images,
-              });
-              variantResponse = value;
-              setUploadVisible(true);
-            }}
+              path={image !== null ? image.url : null}
+              isUpload={true}
+              onClick={() => {
+                setVariant({
+                  name: value.name,
+                  sku: value.sku,
+                  variant_images: value.variant_images,
+                });
+                variantResponse = value;
+                setUploadVisible(true);
+              }}
           />
         );
       },

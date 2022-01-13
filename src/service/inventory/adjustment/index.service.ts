@@ -81,7 +81,7 @@ const updateInventorAdjustmentApi = (
 const getVariantHasOnHandByStoreApi = (
   store_id: number
 ): Promise<BaseResponse<VariantResponse>> => {
-  return BaseAxios.put(
+  return BaseAxios.get(
     `${ApiConfig.PRODUCT}/variants?store_ids=${store_id}`
   );
 };

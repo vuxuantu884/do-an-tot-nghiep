@@ -56,7 +56,7 @@ import {
 } from "model/request/promotion.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { OrderConfig, OrderResponse } from "model/response/order/order.response";
+import { OrderResponse } from "model/response/order/order.response";
 import {
 	ApplyCouponResponseModel,
 	SuggestDiscountResponseModel
@@ -124,7 +124,6 @@ type PropType = {
 	isSplitOrder?: boolean;
 	orderDetail?: OrderResponse | null;
 	customer?: CustomerResponse | null;
-	configOrder: OrderConfig | null;
 	loyaltyPoint: LoyaltyPoint | null;
 	setStoreId: (item: number) => void;
 	setCoupon?: (item: string) => void;
@@ -212,7 +211,6 @@ function OrderCreateProduct(props: PropType) {
 		totalAmountCustomerNeedToPay,
 		orderSourceId,
 		customer,
-		configOrder,
 		loyaltyPoint,
 		promotion,
 		orderAmount,
@@ -1502,7 +1500,7 @@ function OrderCreateProduct(props: PropType) {
 
 		let available = item.available === null ? 0 : item.available;
 
-		if (available <= 0 && configOrder?.sellable_inventory !== true) {
+		if (available <= 0 && orderConfig?.sellable_inventory !== true) {
 			showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
 			return false;
 		}

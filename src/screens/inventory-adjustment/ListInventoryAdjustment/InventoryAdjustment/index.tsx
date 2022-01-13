@@ -275,10 +275,10 @@ const InventoryAdjustment: React.FC = () => {
         return (
           <div>
             <div>
-              <b>{item.created_name ?? ""}</b>
+            {item.created_name ?? ""}
             </div>
             <div>
-              <b>{item.created_by ?? ""}</b>
+            {item.created_by ?? ""}
             </div>
           </div>
         );
@@ -299,10 +299,10 @@ const InventoryAdjustment: React.FC = () => {
         return (
           <div>
             <div>
-            <b>{item.adjusted_code ?? ""}</b>
+              {item.adjusted_code ?? ""}
             </div>
             <div>
-              <b>{item.adjusted_by ?? ""}</b>
+              {item.adjusted_by ?? ""}
             </div>
             <div>{ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DDMMYYY)}</div>
           </div>

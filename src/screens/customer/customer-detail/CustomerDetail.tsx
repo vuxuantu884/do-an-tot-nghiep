@@ -17,10 +17,7 @@ import CustomerNoteInfo from "./customer-note/customer.note";
 import PurchaseHistory from "screens/customer/customer-detail/PurchaseHistory";
 import CustomerCareHistory from "screens/customer/customer-detail/CustomerCareHistory";
 
-import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel } from "model/order/order.model";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { GetListOrderCustomerAction } from "domain/actions/order/order.action";
 import {
   getLoyaltyPoint,
   getLoyaltyUsage,
@@ -77,11 +74,6 @@ const CustomerDetail = () => {
     Array<LoyaltyUsageResponse>
   >([]);
   const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
-  const [queryParams, setQueryParams] = React.useState<any>({
-    limit: 10,
-    page: 1,
-    customer_ids: null,
-  });
 
   const actions: Array<MenuAction> = [
     {
@@ -101,18 +93,6 @@ const CustomerDetail = () => {
     //   name: "Trừ tiền tích lũy",
     // },
   ];
-
-  const [orderHistory, setOrderHistory] = React.useState<PageResponse<OrderModel>>({
-    metadata: {
-      limit: 10,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-
-  const [tableLoading, setTableLoading] = React.useState<boolean>(false);
-  // add and edit contact section;
 
 
   useEffect(() => {
@@ -292,36 +272,6 @@ const CustomerDetail = () => {
 
     setCustomerSpendDetail(_detail);
   }, [customer?.report, loyaltyPoint]);
-
-  const onPageChange = React.useCallback(
-    (page, limit) => {
-      setQueryParams({ ...queryParams, page, limit });
-    },
-    [queryParams, setQueryParams]
-  );
-
-  const setOrderHistoryItems = React.useCallback(
-    (data: PageResponse<OrderModel> | false) => {
-      setTableLoading(false);
-      if (data) {
-        setOrderHistory(data);
-      }
-    },
-    []
-  );
-  
-  React.useEffect(() => {
-    if (!allowViewCustomerDetail) {
-      return;
-    }
-
-    if (params?.id) {
-      queryParams.customer_ids = [params?.id];
-      setTableLoading(true);
-      dispatch(GetListOrderCustomerAction(queryParams, setOrderHistoryItems));
-    }
-  }, [params, dispatch, queryParams, setOrderHistoryItems, allowViewCustomerDetail]);
-  // end
 
   React.useEffect(() => {
     const _detail = [
@@ -518,10 +468,7 @@ const CustomerDetail = () => {
                 >
                   <TabPane tab="Lịch sử mua hàng" key="history">
                     <PurchaseHistory
-                      orderData={orderHistory}
-                      setOrderHistory={setOrderHistory}
-                      onPageChange={onPageChange}
-                      tableLoading={tableLoading}
+                      customerId={params?.id}
                     />
                   </TabPane>
 

@@ -17,8 +17,10 @@ import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.acti
 import CustomInput from "screens/customer/common/customInput";
 
 import { SearchOutlined } from "@ant-design/icons";
+import { GENDER_OPTIONS } from "utils/Constants";
 
 const { Option } = Select;
+
 const CustomerGeneralInfo = (props: any) => {
   const {
     form,
@@ -227,10 +229,17 @@ const CustomerGeneralInfo = (props: any) => {
             // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
             className="left-item"
           >
-            <Select disabled={isLoading} placeholder="Chọn giới tính">
-              <Option value={"male"}>Nam</Option>
-              <Option value={"female"}>Nữ</Option>
-              <Option value={"other"}>Khác</Option>
+            <Select
+              disabled={isLoading}
+              showSearch
+              placeholder="Chọn giới tính"
+              allowClear
+            >
+              {GENDER_OPTIONS.map((gender: any) => (
+                <Option key={gender.value} value={gender.value}>
+                  {gender.label}
+                </Option>
+                ))}
             </Select>
           </Form.Item>
 
