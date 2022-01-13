@@ -14,7 +14,7 @@ stages:
 docker build dev:
   stage: docker_build
   tags:
-  - npd-dev
+  - builder
   only:
     - develop
   variables:
@@ -28,7 +28,7 @@ docker build dev:
 docker build uat:
   stage: docker_build
   tags:
-  - npd-dev
+  - builder
   only:
     - uat
   variables:
@@ -42,7 +42,7 @@ docker build uat:
 docker build production:
   stage: docker_build
   tags:
-  - npd-dev
+  - builder
   only:
     - master
   variables:
