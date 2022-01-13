@@ -744,7 +744,7 @@ function OrderCreateProduct(props: PropType) {
                 <div className="discount-item-popup">
                   <div className="title">
                     Thêm quà tặng
-                </div>
+                  </div>
 
                   <div className="discount-group">
                     <AddGiftModal
@@ -758,13 +758,13 @@ function OrderCreateProduct(props: PropType) {
                       onClick={() => setVisibleGift(false)}
                     >
                       Hủy
-                  </Button>
+                    </Button>
                     <Button type="primary"
                       style={{ marginLeft: 20 }}
                       onClick={onOkConfirm}
                     >
                       Lưu
-                  </Button>
+                    </Button>
                   </div>
 
                 </div>
@@ -1628,7 +1628,7 @@ function OrderCreateProduct(props: PropType) {
               </Select.Option>
             </Select>
           </Col>
-          <Col span={18}>
+          <Col span={17}>
             <Form.Item
               name="store_id"
               rules={[
@@ -1680,7 +1680,7 @@ function OrderCreateProduct(props: PropType) {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6} style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Col span={7} style={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
               style={{ width: "100%", padding: "0 6px" }}
               onClick={() => {
@@ -1761,8 +1761,8 @@ function OrderCreateProduct(props: PropType) {
                     searchProducts ? (
                       <LoadingOutlined style={{ color: "#2a2a86" }} />
                     ) : (
-                        <SearchOutlined style={{ color: "#ABB4BD" }} />
-                      )
+                      <SearchOutlined style={{ color: "#ABB4BD" }} />
+                    )
                   }
                   disabled={levelOrder > 3}
                 />
@@ -1817,8 +1817,8 @@ function OrderCreateProduct(props: PropType) {
                 </Col>
               </Row>
             ) : (
-                <div />
-              )
+              <div />
+            )
           }
         />
 
