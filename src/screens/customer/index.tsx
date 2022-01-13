@@ -42,14 +42,14 @@ import useAuthorization from "hook/useAuthorization";
 
 import "screens/customer/customer.scss";
 
-// Thêm nhập file sau
-// import importIcon from "assets/icon/import.svg";
+import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
 import { StyledCustomer, StyledCustomerExtraButton } from "screens/customer/customerStyled";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { generateQuery } from "utils/AppUtils";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
+import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 
@@ -444,11 +444,16 @@ const Customer = () => {
   }, [checkExportFile, exportProgress, exportCodeList]);
   // end handle export file
   
-  // Thêm nhập file sau
   // handle import file
-  // const handleImportFile = () => {
-  //   showWarning("Sẽ làm chức năng này sau bạn nhé!");
-  // }
+  const [isVisibleImportModal, setIsVisibleImportModal] = useState(false);
+
+  const handleImportFile = () => {
+    setIsVisibleImportModal(true);
+  }
+
+  const closeImportModal = () => {
+    setIsVisibleImportModal(false);
+  }
   // end handle import file
   
 
@@ -459,8 +464,7 @@ const Customer = () => {
         title="Danh sách khách hàng"
         extra={
           <StyledCustomerExtraButton>
-            {/* Thêm nhập file sau */}
-            {/* <Button
+            <Button
               className="import-file-button"
               disabled={isLoading}
               size="large"
@@ -468,7 +472,7 @@ const Customer = () => {
               onClick={handleImportFile}
             >
               Nhập file
-            </Button> */}
+            </Button>
 
             {allowExportCustomer &&
               <Button
@@ -537,6 +541,17 @@ const Customer = () => {
             </Card>
             : <NoPermission />)}
         </AuthWrapper>
+
+        
+        {/* Import customer file */}
+        {isVisibleImportModal &&
+          <ImportCustomerFile
+            isVisibleImportCustomerFile={isVisibleImportModal}
+            setIsVisibleImportCustomerFile={setIsVisibleImportModal}
+            onOk={closeImportModal}
+            onCancel={closeImportModal}
+          />
+        }
 
         {/* Export customer data */}
         <Modal
