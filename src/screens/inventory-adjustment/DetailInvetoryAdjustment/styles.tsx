@@ -185,5 +185,21 @@ export const StyledWrapper = styled.div`
       color: #222222;
       font-weight:500;
     }
+    .item-delete {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+      border: none;
+      color: #222222;
+      box-shadow: none;
+      &:hover {
+        background-color: rgba($primary-color, 0.15);
+      }
+  }
   }
 `;
