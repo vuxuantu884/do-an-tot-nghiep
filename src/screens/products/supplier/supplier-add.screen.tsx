@@ -199,7 +199,7 @@ const CreateSupplierScreen: React.FC = () => {
   const getAccounts = useCallback(
     async (search: string, page: number) => {
       const response: PageResponse<AccountResponse> = await callApiNative(false, dispatch, searchAccountApi, { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page });
-      setAccounts(response || []);
+      setAccounts(response || { items: [], metadata: {}});
     },
     [dispatch]
   );
