@@ -170,6 +170,6 @@ export const CustomerUpdateAction = (
   return BaseAction(CustomerType.UPDATE_CUSTOMER, { id, request, setResult });
 };
 
-export const importCustomerAction = (file: File | undefined, callback: (data: any) => void) => {
-  return BaseAction(CustomerType.IMPORT_CUSTOMER, { file, callback });
+export const importCustomerAction = (file: File, callback: (data: any) => void) => {
+  return BaseAction(CustomerType.IMPORT_CUSTOMER, {file, callback});
 }

@@ -4,10 +4,6 @@ import {
   Input, Menu, Select,
   Tag, Tooltip
 } from "antd";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
 import { syncStockEcommerceProduct } from "domain/actions/ecommerce/ecommerce.actions";

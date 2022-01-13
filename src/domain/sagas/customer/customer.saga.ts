@@ -579,7 +579,7 @@ function* importCustomerSaga(action: YodyAction) {
     const response: BaseResponse<any> = yield call(importCustomerService, file);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        callback(response.data);
+        callback(response);
         break;
       case HttpStatus.UNAUTHORIZED:
         callback(null);

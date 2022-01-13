@@ -451,7 +451,7 @@ const Customer = () => {
     setIsVisibleImportModal(true);
   }
 
-  const closeImportModal = () => {
+  const closeImportCustomerFile = () => {
     setIsVisibleImportModal(false);
   }
   // end handle import file
@@ -546,10 +546,7 @@ const Customer = () => {
         {/* Import customer file */}
         {isVisibleImportModal &&
           <ImportCustomerFile
-            isVisibleImportCustomerFile={isVisibleImportModal}
-            setIsVisibleImportCustomerFile={setIsVisibleImportModal}
-            onOk={closeImportModal}
-            onCancel={closeImportModal}
+            closeImportCustomerFile={closeImportCustomerFile}
           />
         }
 

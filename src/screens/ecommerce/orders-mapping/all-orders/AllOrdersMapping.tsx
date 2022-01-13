@@ -1,8 +1,4 @@
 import { Card } from "antd";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
@@ -101,21 +97,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   const convertDateTimeFormat = (dateTimeData: any) => {
     const formatDateTime = "HH:mm:ss DD/MM/YYYY";
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
-  };
-
-  const getEcommerceIcon = (shop: any) => {
-    switch (shop) {
-      case "shopee":
-        return shopeeIcon;
-      case "lazada":
-        return lazadaIcon;
-      case "tiki":
-        return tikiIcon;
-      case "sendo":
-        return sendoIcon;
-      default:
-        return shopeeIcon;
-    }
   };
 
   const handleSyncOrder = (rowData: any) => {
