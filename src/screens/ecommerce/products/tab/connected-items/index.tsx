@@ -635,13 +635,14 @@ const ConnectedItems: React.FC = () => {
                 checked={item.isSelected}
               >
                 <span className="check-box-name">
-                  <span>
+                  {getEcommerceIcon(item.ecommerce) &&
                     <img
                       src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
-                  </span>
+                  }
+                  
                   <Tooltip title={item.name} color="#1890ff" placement="right">
                     <span
                       className="name"

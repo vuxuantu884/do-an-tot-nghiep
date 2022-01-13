@@ -17,10 +17,7 @@ import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/
 
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
+import { getIconByEcommerceId } from "screens/ecommerce/common/commonAction";
 
 
 const initQuery: GetOrdersMappingQuery = {
@@ -82,21 +79,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
   };
 
-  const getEcommerceIcon = (shop: any) => {
-    switch (shop) {
-      case "shopee":
-        return shopeeIcon;
-      case "lazada":
-        return lazadaIcon;
-      case "tiki":
-        return tikiIcon;
-      case "sendo":
-        return sendoIcon;
-      default:
-        return shopeeIcon;
-    }
-  };
-
   const [columns] = useState<
     Array<ICustomTableColumType<OrderModel>>
   >([
@@ -112,11 +94,13 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
       width: "18%",
       render: (item) => (
         <div>
-          <img
-            src={getEcommerceIcon(item.ecommerce)}
-            alt={item.id}
-            style={{ marginRight: "5px", height: "16px" }}
-          />
+          {getIconByEcommerceId(item.ecommerce_id) &&
+            <img
+              src={getIconByEcommerceId(item.ecommerce_id)}
+              alt={item.id}
+              style={{ marginRight: "5px", height: "16px" }}
+            />
+          }
           <span className="name">{item.shop}</span>
         </div>
       )
