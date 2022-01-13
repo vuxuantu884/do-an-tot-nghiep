@@ -50,14 +50,7 @@ export const DiscountStyled = styled.div`
  .page-filter {   
   padding-top: 0;
  }
-.rule-discount {
-  &__info {
-    margin-bottom: 12px;
-  }
-  &__condition {
-    color: #e24343;
-  }
-}
+
 
 .error-import-file {
   &__circel-check {
