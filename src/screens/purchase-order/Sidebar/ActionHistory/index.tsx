@@ -17,11 +17,13 @@ function ActionPurchaseOrderHistory(props: PropType) {
   const { actionLog } = props;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [actionId, setActionId] = useState<number>(); 
+  const [actionId, setActionId] = useState<number>();
+  const [procumentCode, setProcumentCode] = useState('');
 
-  const showModal = (actionId: number) => {
+  const showModal = (actionId: number, prCode: string) => {
     setIsModalVisible(true);
     setActionId(actionId);
+    setProcumentCode(prCode);
   };
 
   const hideModal = () => {
@@ -106,7 +108,7 @@ function ActionPurchaseOrderHistory(props: PropType) {
                         <h4 
                           className="singleActionHistory__mainStatus"
                           onClick={() => {
-                            showModal(singleActionHistory.id);
+                            showModal(singleActionHistory.id, singleActionHistory.procurement_code);
                           }}
                         >
                           {renderSingleActionLogTitle(singleActionHistory?.action)}
@@ -129,6 +131,7 @@ function ActionPurchaseOrderHistory(props: PropType) {
         isModalVisible={isModalVisible}
         onCancel={hideModal}
         actionId={actionId}
+        procurementCode={procumentCode}
       />
     </StyledComponent>
   );
