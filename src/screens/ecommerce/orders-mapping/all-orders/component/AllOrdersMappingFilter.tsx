@@ -1,28 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { DownOutlined, FilterOutlined } from "@ant-design/icons";
 import {
-  Button,
-  Form,
-  Input,
-  Select,
-  Tag,
-  Dropdown,
-  Menu,
-  Checkbox,
-  Tooltip,
+  Button, Checkbox, Dropdown, Form,
+  Input, Menu, Select,
+  Tag, Tooltip
 } from "antd";
-import { FilterOutlined, DownOutlined } from "@ant-design/icons";
-import moment from "moment";
-import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
-
-import BaseFilter from "component/filter/base.filter";
-import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
-
 import search from "assets/img/search.svg";
-import {
-  StyledEcommerceOrderBaseFilter,
-} from "screens/ecommerce/orders/orderStyles";
-import { AllOrdersMappingFilterStyled, StyledRenderShopList } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
+import BaseFilter from "component/filter/base.filter";
+import { syncStockEcommerceProduct } from "domain/actions/ecommerce/ecommerce.actions";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
+import moment from "moment";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
+import { AllOrdersMappingFilterStyled, StyledRenderShopList } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
+import {
+  StyledEcommerceOrderBaseFilter
+} from "screens/ecommerce/orders/orderStyles";
+import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 
 import { getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 
@@ -35,6 +30,7 @@ type AllOrdersMappingFilterProps = {
   isLoading: boolean;
   onClearFilter?: () => void;
   onFilter?: (values: GetOrdersMappingQuery | Object) => void;
+  rowDataFilter: Array<any>
 };
 
 const { Item } = Form;
@@ -71,7 +67,10 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     onClearFilter,
     onFilter,
     shopList,
+    rowDataFilter
   } = props;
+
+  const dispatch = useDispatch();
 
   const [formFilter] = Form.useForm();
 
@@ -92,24 +91,64 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       shop_ids: Array.isArray(params.shop_ids)
         ? params.shop_ids
         : [params.shop_ids],
-      
+
     };
   }, [params]);
+
+
 
   // action menu
   const onMenuClick = useCallback(
     (index: number) => {
-      console.log("selectedRowKeys: ", selectedRowKeys);
+      const requestSyncStockOrder: any[] = []
+      rowDataFilter.forEach((item: any) => {
+        requestSyncStockOrder.push(
+          {
+            ecommerce_id: item.ecommerce_id,
+            shop_id: item.shop_id,
+            order_sn: item.ecommerce_order_code
+          }
+        )
+      })
+
+      const rowDataFilterObj = {
+        order_list: requestSyncStockOrder
+      }
+
+      if (rowDataFilter && rowDataFilter.length > 0) {
+        dispatch(
+          syncStockEcommerceProduct(rowDataFilterObj, (result) => {
+            if (!!result) {
+              if (result.update_total > 0) {
+                if (result.error_total > 0) {
+                  showWarning(`
+                    Đồng bộ ${result.update_total} đơn hàng thành công. Đồng bộ ${result.error_total} đơn hàng thất bại`)
+                } else {
+                  showSuccess(`Đồng bộ ${result.update_total} đơn hàng thành công`)
+                }
+              } else {
+                showError(`Đồng bộ ${result.error_total} đơn hàng thất bại`)
+
+              }
+            }
+          })
+        );
+      }
+
     },
-    [selectedRowKeys]
+    [dispatch, rowDataFilter]
   );
+
+  const isDisableAction = () => {
+    return !selectedRowKeys || selectedRowKeys.length === 0;
+  };
 
   const actionList = (
     <Menu>
-      <Menu.Item key="1">
-        <span onClick={() => onMenuClick(1)}>ACTION 1</span>
+      <Menu.Item key="1" disabled={isDisableAction()}>
+        <span onClick={() => onMenuClick(1)}>Đồng bộ đơn hàng</span>
       </Menu.Item>
-    </Menu>
+    </Menu >
   );
   // end action menu
 
@@ -303,7 +342,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         value: textOrderCreateDate,
       });
     }
-    
+
     if (initialValues.ecommerce_order_statuses.length) {
       let textStatus = "";
       initialValues.ecommerce_order_statuses.forEach((i) => {
@@ -393,7 +432,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         created_date_from: createdDateFrom,
         created_date_to: createdDateTo,
       };
-      
+
       onFilter && onFilter(formValues);
     },
     [shopIdsSelected, createdDateFrom, createdDateTo, onFilter]
@@ -409,11 +448,10 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           initialValues={initialValues}
           className="default-filter"
         >
-          <Form.Item className="action-dropdown" hidden>
+          <Form.Item className="action-dropdown">
             <Dropdown
               overlay={actionList}
               trigger={["click"]}
-              disabled={isLoading || true}
             >
               <Button className="action-button">
                 <div style={{ marginRight: 10 }}>Thao tác</div>
@@ -459,7 +497,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           <Item className="filter-item">
             <Button
               type="primary"
-              htmlType="submit" 
+              htmlType="submit"
               disabled={isLoading}
             >
               Lọc
@@ -556,7 +594,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           );
         })}
       </div>
-    </AllOrdersMappingFilterStyled>
+    </AllOrdersMappingFilterStyled >
   );
 };
 

@@ -1,24 +1,30 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { Card } from "antd";
-
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-
-import { OrderModel, } from "model/order/order.model";
+import {
+  getOrderMappingListAction,
+  getShopEcommerceList,
+  syncStockEcommerceProduct,
+} from "domain/actions/ecommerce/ecommerce.actions";
+import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import { OrderModel } from "model/order/order.model";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
-import { getOrderMappingListAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
-
-import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable";
-import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/component/AllOrdersMappingFilter";
-
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import TableRowAction from "screens/ecommerce/common/TableRowAction";
 import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import { getIconByEcommerceId } from "screens/ecommerce/common/commonAction";
 
+import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/component/AllOrdersMappingFilter";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 
 const initQuery: GetOrdersMappingQuery = {
   page: 1,
@@ -51,11 +57,12 @@ const ECOMMERCE_ORDER_STATUS = [
 ];
 
 type AllOrdersMappingProps = {
-  isReloadPage: boolean,
-}
+  isReloadPage: boolean;
+};
 
-
-const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappingProps) => {
+const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
+  props: AllOrdersMappingProps
+) => {
   const dispatch = useDispatch();
   const { isReloadPage } = props;
 
@@ -64,6 +71,19 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
   useState<Array<AccountResponse>>();
   const [params, setPrams] = useState<GetOrdersMappingQuery>(initQuery);
   const [allShopList, setAllShopList] = useState<Array<any>>([]);
+
+  const [rowDataFilter, setRowDataFilter] = useState<Array<any>>([]);
+
+  const productsUpdateStockPermission = [
+    EcommerceProductPermission.products_update_stock,
+  ];
+
+  const [allowProductsUpdateStock] = useAuthorization({
+    acceptPermissions: productsUpdateStockPermission,
+    not: false,
+  });
+
+  const isShowAction = allowProductsUpdateStock;
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
@@ -79,9 +99,44 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
   };
 
-  const [columns] = useState<
-    Array<ICustomTableColumType<OrderModel>>
-  >([
+  const handleSyncOrder = (rowData: any) => {
+    const requestSyncStockOrder = {
+      order_list: [
+        {
+          ecommerce_id: rowData.ecommerce_id,
+          shop_id: rowData.shop_id,
+          order_sn: rowData.ecommerce_order_code,
+        },
+      ],
+    };
+
+    dispatch(
+      syncStockEcommerceProduct(requestSyncStockOrder, (result) => {
+        if (!!result) {
+          if (result.update_total > 0) {
+            if (result.error_total > 0) {
+              showWarning(`Đồng bộ ${result.update_total} đơn hàng thành công.
+
+              Đồng bộ ${result.error_total} đơn hàng thất bại`);
+            } else {
+              showSuccess(`Đồng bộ ${result.update_total} đơn hàng thành công`);
+            }
+          } else {
+            showError(`Đồng bộ ${result.error_total} đơn hàng thất bại`);
+          }
+        }
+      })
+    );
+  };
+
+  const tableRowActionList = [
+    {
+      onClick: handleSyncOrder,
+      actionName: "Đồng bộ đơn hàng",
+    },
+  ];
+
+  const [columns] = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "Mã đơn trên sàn",
       dataIndex: "ecommerce_order_code",
@@ -94,16 +149,16 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
       width: "18%",
       render: (item) => (
         <div>
-          {getIconByEcommerceId(item.ecommerce_id) &&
+          {getIconByEcommerceId(item.ecommerce_id) && (
             <img
               src={getIconByEcommerceId(item.ecommerce_id)}
               alt={item.id}
               style={{ marginRight: "5px", height: "16px" }}
             />
-          }
+          )}
           <span className="name">{item.shop}</span>
         </div>
-      )
+      ),
     },
     {
       title: "Trạng thái trên sàn",
@@ -114,11 +169,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
         const ecommerceStatus = ECOMMERCE_ORDER_STATUS.find(
           (status) => status.value === status_value
         );
-        return (
-          <div>
-            {ecommerceStatus?.name || "--"}
-          </div>
-        );
+        return <div>{ecommerceStatus?.name || "--"}</div>;
       },
     },
     {
@@ -126,7 +177,9 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
       key: "core_order_code",
       width: "11%",
       render: (item: any, row: any) => (
-        <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank"><b>{item.core_order_code}</b></Link>
+        <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank">
+          <b>{item.core_order_code}</b>
+        </Link>
       ),
     },
     {
@@ -155,10 +208,14 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
       render: (value: any, item: any, index: any) => {
         return (
           <div>
-            {value === "connected" && <span style={{ color: "#27AE60" }}>Thành công</span>}
+            {value === "connected" && (
+              <span style={{ color: "#27AE60" }}>Thành công</span>
+            )}
 
-            {value !== "connected" &&
-              <span style={{ color: "#E24343" }}>Thất bại</span>
+            {
+              value !== "connected" && (
+                <span style={{ color: "#E24343" }}>Thất bại</span>
+              )
               // <Tooltip title="Sẽ hiển thị lỗi liên kết thất bại ở đây">
               //   <span style={{ color: "#E24343" }}>Thất bại</span>
               // </Tooltip>
@@ -175,7 +232,9 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
       render: (ecommerce_created_date) => (
         <div>{convertDateTimeFormat(ecommerce_created_date)}</div>
       ),
-    }
+    },
+
+    TableRowAction(tableRowActionList),
   ]);
 
   const onSelectTableRow = useCallback((selectedRow) => {
@@ -184,6 +243,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
     });
     const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
     setSelectedRowKeys(selectedRowIds);
+    setRowDataFilter(newSelectedRow);
   }, []);
 
   const onPageChange = useCallback(
@@ -220,12 +280,13 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
 
   const getOrderMappingList = useCallback(() => {
     setIsLoading(true);
-    dispatch(getOrderMappingListAction(params, (result) => {
-      setIsLoading(false);
-      setSearchResult(result);
-    }));
+    dispatch(
+      getOrderMappingListAction(params, (result) => {
+        setIsLoading(false);
+        setSearchResult(result);
+      })
+    );
   }, [dispatch, params, setSearchResult]);
-
 
   useEffect(() => {
     getOrderMappingList();
@@ -238,7 +299,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
     }
   }, [getOrderMappingList, isReloadPage]);
   // end
-
 
   // handle get all shop list
   const updateAllShopList = useCallback((result) => {
@@ -273,24 +333,25 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
           onClearFilter={onClearFilter}
           onFilter={onFilter}
           shopList={allShopList}
+          rowDataFilter={rowDataFilter}
         />
 
         <CustomTable
-          // isRowSelection
           bordered
+          isRowSelection={isShowAction}
           isLoading={isLoading}
           showColumnSetting={true}
           pagination={
             isLoading
               ? false
               : {
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }
           }
           onSelectedChange={onSelectTableRow}
           dataSource={data.items}

@@ -252,7 +252,7 @@ const TabProduct: React.FC = () => {
 
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      width: 50,
+      width: 60,
       title: "Ảnh",
       align:"center",
       render: (value: VariantResponse) => {

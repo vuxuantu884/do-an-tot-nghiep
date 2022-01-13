@@ -1,15 +1,15 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
-import { ApiConfig } from "config/api.config";
+import {ApiConfig} from "config/api.config";
 import {
   ExitProgressDownloadEcommerceQuery,
   PostEcommerceOrderQuery,
   PostProductEcommerceQuery,
 } from "model/query/ecommerce.query";
-import { EcommerceRequest } from "model/request/ecommerce.request";
-import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
-import { generateQuery } from "utils/AppUtils";
+import {EcommerceRequest} from "model/request/ecommerce.request";
+import {EcommerceResponse} from "model/response/ecommerce/ecommerce.response";
+import {YDPageCustomerResponse} from "model/response/ecommerce/fpage.response";
+import {generateQuery} from "utils/AppUtils";
 
 const addFpagePhone = (
   userId: string,
@@ -75,7 +75,9 @@ const ecommerceConnectSyncApi = (ecommerceId: number): Promise<BaseResponse<Stri
   return BaseAxios.get(link);
 };
 
-const ecommerceGetConfigInfoApi = (params: any): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceGetConfigInfoApi = (
+  params: any
+): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/info?${params}`;
   return BaseAxios.get(link);
 };
@@ -115,6 +117,11 @@ const ecommercePostSyncStockItemApi = (requestBody: any): Promise<BaseResponse<a
   return BaseAxios.post(link, requestBody);
 };
 
+const ecommerceSyncStockItemApi = (requestBody: any): Promise<BaseResponse<any>> => {
+  let link = `${ApiConfig.ECOMMERCE}/orders/retry-download`;
+  return BaseAxios.post(link, requestBody);
+};
+
 const ecommerceGetCategoryListApi = (query: any) => {
   let params = generateQuery(query);
   let link = `${ApiConfig.ECOMMERCE}/categories?${params}`;
@@ -141,7 +148,9 @@ const getProgressDownloadEcommerceApi = (process_id: any): Promise<BaseResponse<
 };
 
 //get progress download ecommerce orders
-const exitProgressDownloadEcommerceApi = (query: ExitProgressDownloadEcommerceQuery): Promise<BaseResponse<any>> => {
+const exitProgressDownloadEcommerceApi = (
+  query: ExitProgressDownloadEcommerceQuery
+): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.ECOMMERCE}/orders/download-process/${query.processId}`;
   return BaseAxios.put(requestUrl);
 };
@@ -167,6 +176,7 @@ export {
   ecommerceDeleteItemApi,
   ecommerceDisconnectItemApi,
   ecommercePostSyncStockItemApi,
+  ecommerceSyncStockItemApi,
   ecommerceGetCategoryListApi,
   ecommercePutConnectItemApi,
   postEcommerceOrderApi,

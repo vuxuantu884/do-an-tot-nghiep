@@ -47,8 +47,9 @@ import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
 import {DATE_FORMAT} from "utils/DateUtils";
 import moment from "moment";
-import SelectPaging from "component/custom/SelectPaging";
-import BaseResponse from "base/base.response";
+import SelectPaging from "component/custom/SelectPaging"; 
+import CustomPagination from "component/table/CustomPagination";
+import TextEllipsis from "component/table/TextEllipsis";
 
 const {Option} = Select;
 
@@ -77,6 +78,14 @@ const CreateInventoryAdjustment: FC = () => {
   const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment>>(
     [] as Array<LineItemAdjustment>
   );
+  const [data, setData] = useState<PageResponse<VariantResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
   const [keySearch, setKeySearch] = useState<string>("");
   const history = useHistory();
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -144,7 +153,6 @@ const CreateInventoryAdjustment: FC = () => {
     data.audited_by  = data.audited_by ?? [];
      
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
-    data.line_items = [];
     if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
       const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
 
@@ -153,7 +161,7 @@ const CreateInventoryAdjustment: FC = () => {
         return;
       }
       
-      data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
+    data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
         const variantPrice =
           item &&
           item.variant_prices &&
@@ -181,9 +189,9 @@ const CreateInventoryAdjustment: FC = () => {
     dispatch(createInventoryAdjustmentAction(data, createCallback));
   };
 
-  const onResultGetVariant = useCallback((res: BaseResponse<PageResponse<VariantResponse>>)=>{
+  const onResultGetVariant = useCallback((res: PageResponse<VariantResponse>)=>{
     if (res) {
-      
+      setData(res);
     }
   },[]);
 
@@ -192,7 +200,8 @@ const CreateInventoryAdjustment: FC = () => {
       setAuditType(auditType);
       const storeId = form.getFieldValue("adjusted_store_id") as number;
       if (storeId && auditType ===  INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
-        dispatch(getVariantHasOnHandByStoreAction(storeId, onResultGetVariant));
+
+        dispatch(getVariantHasOnHandByStoreAction({store_adj: storeId}, onResultGetVariant));
       }
     },
     [onResultGetVariant, form, dispatch]
@@ -429,8 +438,11 @@ const CreateInventoryAdjustment: FC = () => {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_images",
-      render: (value: Array<VariantImage>, record: string[]) => {
-        const avatar = findAvatar(value);
+      render: (value: Array<VariantImage>, record: string[]) => { 
+        let avatar = undefined;
+        if (value) {
+          avatar = findAvatar(value);
+        }
         return (
           <div className="product-item-image">
             <img src={!avatar ? imgDefIcon : avatar} alt="" className="" />
@@ -457,7 +469,7 @@ const CreateInventoryAdjustment: FC = () => {
                 </Link>
               </div>
               <div className="product-item-name">
-                <span className="product-item-name-detail">{value}</span>
+                <span><TextEllipsis line={1} value={value ?? record.name}/></span>
               </div>
             </div>
           </div>
@@ -565,7 +577,7 @@ const CreateInventoryAdjustment: FC = () => {
             <Button
               onClick={() => onDeleteItem(row.id)}
               className="product-item-delete"
-              icon={<AiOutlineClose />}
+              icon={<AiOutlineClose  color="red" />}
           />
           }
         </>
@@ -674,6 +686,21 @@ const CreateInventoryAdjustment: FC = () => {
     onSearchVariant(keySearch);
   },[onSearchVariant]);
 
+  const onSearchVariantỌnHand = React.useMemo(()=>
+    _.debounce((key: string) => {
+      setIsLoadingTable(true);
+      const params = {
+        store_adj: form.getFieldValue("adjusted_store_id"), 
+        condition: key ? key.toLocaleLowerCase(): keySearch.toLocaleLowerCase()};
+      dispatch(getVariantHasOnHandByStoreAction(params, onResultGetVariant));
+    }, 300),
+    [dispatch,onResultGetVariant, form,keySearch]
+  )
+
+  const onChangeKeyVariantOnHand = useCallback((keySearch)=>{
+    onSearchVariantỌnHand(keySearch);
+  },[onSearchVariantỌnHand]);
+
   const onChangeStore = useCallback(()=>{
     const storeId = form.getFieldValue("adjusted_store_id");
 
@@ -686,10 +713,22 @@ const CreateInventoryAdjustment: FC = () => {
       drawColumns([]);
       setSearchVariant([]);
     }else{
-      dispatch(getVariantHasOnHandByStoreAction(storeId, onResultGetVariant));
+      dispatch(getVariantHasOnHandByStoreAction({store_adj: storeId}, onResultGetVariant));
     }
     
   },[form,query,auditType, onResultGetVariant,dispatch, drawColumns]); 
+
+  const onPageChange = useCallback(
+    (page, size) => { 
+      const params = {
+        page: page,
+        limit: size,
+        store_adj: form.getFieldValue("adjusted_store_id"), 
+        condition: keySearch.toLocaleLowerCase()};
+      dispatch(getVariantHasOnHandByStoreAction(params, onResultGetVariant));
+    },
+    [keySearch, dispatch, onResultGetVariant, form]
+  );
 
   return (
       <ContentContainer
@@ -835,74 +874,112 @@ const CreateInventoryAdjustment: FC = () => {
                 className={"product-detail"}
               >
                   <>
-                    <Input.Group className="display-flex">
-                    {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY &&
-                      <>
+                  {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ?
+                    <>
+                    <Input.Group className="display-flex"> 
                         <CustomAutoComplete
-                        id="#product_search_variant"
-                        dropdownClassName="product"
-                        placeholder="Thêm sản phẩm vào phiếu kiểm"
-                        onSearch={onSearchProduct}
-                        dropdownMatchSelectWidth={456}
-                        style={{width: "100%"}}
-                        showAdd={true}
-                        textAdd="Thêm mới sản phẩm"
-                        onSelect={onSelectProduct}
-                        options={renderResult}
-                        ref={productSearchRef}
-                        onClickAddNew={() => {
-                          window.open(
-                            `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                            "_blank"
-                          );
-                        }}
-                      />
-                      <Button
-                        onClick={() => {
-                          if (!form.getFieldValue("adjusted_store_id")) {
-                            showError("Vui lòng chọn kho kiểm");
-                            return;
+                          id="#product_search_variant"
+                          dropdownClassName="product"
+                          placeholder="Thêm sản phẩm vào phiếu kiểm"
+                          onSearch={onSearchProduct}
+                          dropdownMatchSelectWidth={456}
+                          style={{width: "100%"}}
+                          showAdd={true}
+                          textAdd="Thêm mới sản phẩm"
+                          onSelect={onSelectProduct}
+                          options={renderResult}
+                          ref={productSearchRef}
+                          onClickAddNew={() => {
+                            window.open(
+                              `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                              "_blank"
+                            );
+                          }}
+                        />
+                        <Button
+                          onClick={() => {
+                            if (!form.getFieldValue("adjusted_store_id")) {
+                              showError("Vui lòng chọn kho kiểm");
+                              return;
+                            }
+                            setVisibleManyProduct(true);
+                          }}
+                          style={{width: 132, marginLeft: 10}}
+                          icon={<img src={PlusOutline} alt="" />}
+                        >
+                          &nbsp;&nbsp; Chọn nhiều
+                        </Button> 
+                        <Input
+                          name="key_search"
+                          value={keySearch}
+                          onChange={(e) => {
+                            setKeySearch(e.target.value);
+                            onChangeKeySearch(e.target.value);
+                          }} 
+                          style={{marginLeft: 8}}
+                          placeholder="Tìm kiếm sản phẩm trong phiếu"
+                          addonAfter={
+                            <SearchOutlined
+                              onClick={onChangeKeySearch}
+                              style={{color: "#2A2A86"}}
+                            />
                           }
-                          setVisibleManyProduct(true);
-                        }}
-                        style={{width: 132, marginLeft: 10}}
-                        icon={<img src={PlusOutline} alt="" />}
-                      >
-                        &nbsp;&nbsp; Chọn nhiều
-                      </Button>
-                      </>}
-                      <Input
-                        name="key_search"
-                        value={keySearch}
-                        onChange={(e) => {
-                          setKeySearch(e.target.value);
-                          onChangeKeySearch(e.target.value);
-                        }} 
-                        style={{marginLeft: 8}}
-                        placeholder="Tìm kiếm sản phẩm trong phiếu"
-                        addonAfter={
-                          <SearchOutlined
-                            onClick={onChangeKeySearch}
-                            style={{color: "#2A2A86"}}
-                          />
+                        />
+                      </Input.Group> 
+                      <CustomTable
+                        className="product-table"
+                        rowClassName="product-table-row"
+                        tableLayout="fixed" 
+                        columns={defaultColumns}
+                        pagination={false}
+                        loading={isLoadingTable}
+                        dataSource={
+                          searchVariant && (searchVariant.length > 0 || keySearch !== "")
+                            ? searchVariant
+                            : dataTable
                         }
+                      /> 
+                    </> : 
+                      <>
+                       <Input.Group className="display-flex">  
+                        <Input
+                          name="key_search"
+                          onChange={(e) => { 
+                            setKeySearch(e.target.value);
+                            onChangeKeyVariantOnHand(e.target.value);
+                          }} 
+                          style={{marginLeft: 8}}
+                          placeholder="Tìm kiếm sản phẩm trong phiếu"
+                          addonAfter={
+                            <SearchOutlined
+                              onClick={()=>{onChangeKeyVariantOnHand(null)}}
+                              style={{color: "#2A2A86"}}
+                            />
+                          }
+                        />
+                      </Input.Group> 
+                        <CustomTable
+                          className="product-table"
+                          rowClassName="product-table-row"
+                          tableLayout="fixed" 
+                          columns={defaultColumns}
+                          pagination={false}
+                          loading={isLoadingTable}
+                          dataSource={data.items}
+                        />
+                        <CustomPagination
+                          pagination={{
+                            showSizeChanger: true,
+                            pageSize: data.metadata.limit,
+                            current: data.metadata.page,
+                            total: data.metadata.total,
+                            onChange: onPageChange,
+                            onShowSizeChange: onPageChange,
+                            pageSizeOptions: ["10","50","100"]
+                          }}
                       />
-                    </Input.Group>
-                    {/*table*/}
-                    <CustomTable
-                      className="product-table"
-                      rowClassName="product-table-row"
-                      tableLayout="fixed"
-                      scroll={{y: 300}}
-                      columns={defaultColumns}
-                      pagination={false}
-                      loading={isLoadingTable}
-                      dataSource={
-                        searchVariant && (searchVariant.length > 0 || keySearch !== "")
-                          ? searchVariant
-                          : dataTable
-                      }
-                    />
+                     </> 
+                  }  
                   </>
                 {!auditType ? (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />

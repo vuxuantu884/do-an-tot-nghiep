@@ -61,8 +61,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const {isReloadPage} = props;
-  
+  const { isReloadPage } = props;
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
@@ -142,6 +142,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
       all: false,
     };
 
+    
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
@@ -314,11 +315,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
       render: (item: any, row: any, index: any) => {
         return (
           <StyledStatus>
-            {item.connect_status === STATUS.CONNECTED && 
+            {item.connect_status === STATUS.CONNECTED &&
               <div className="green-status" style={{ width: 120 }}>Thành công</div>
             }
 
-            {item.connect_status === STATUS.WAITING && 
+            {item.connect_status === STATUS.WAITING &&
               <div className="blue-status" style={{ width: 120 }}>Chưa ghép nối</div>
             }
           </StyledStatus>
@@ -357,13 +358,13 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
                     <div className="green-status" style={{ width: 120 }}>Thành công</div>
                   </Tooltip>
                 )}
-    
+
                 {item.sync_stock_status === "error" && (
                   <Tooltip title="error">
                     <div className="red-status" style={{ width: 120 }}>Thất bại</div>
                   </Tooltip>
                 )}
-    
+
                 {item.sync_stock_status === "in_progress" && (
                   <div className="yellow-status" style={{ width: 120 }}>Đang xử lý</div>
                 )}
@@ -844,19 +845,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("yesterday")}
-                    className={ dateButtonSelected === "yesterday" ? "active-btn" : "" }
+                    className={dateButtonSelected === "yesterday" ? "active-btn" : ""}
                   >
                     Hôm qua
                   </Button>
                   <Button
                     onClick={() => onSelectDate("today")}
-                    className={ dateButtonSelected === "today" ? "active-btn" : "" }
+                    className={dateButtonSelected === "today" ? "active-btn" : ""}
                   >
                     Hôm nay
                   </Button>
                   <Button
                     onClick={() => onSelectDate("thisweek")}
-                    className={ dateButtonSelected === "thisweek" ? "active-btn" : "" }
+                    className={dateButtonSelected === "thisweek" ? "active-btn" : ""}
                   >
                     Tuần này
                   </Button>
@@ -864,19 +865,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("lastweek")}
-                    className={ dateButtonSelected === "lastweek" ? "active-btn" : "" }
+                    className={dateButtonSelected === "lastweek" ? "active-btn" : ""}
                   >
                     Tuần trước
                   </Button>
                   <Button
                     onClick={() => onSelectDate("thismonth")}
-                    className={ dateButtonSelected === "thismonth" ? "active-btn" : "" }
+                    className={dateButtonSelected === "thismonth" ? "active-btn" : ""}
                   >
                     Tháng này
                   </Button>
                   <Button
                     onClick={() => onSelectDate("lastmonth")}
-                    className={ dateButtonSelected === "lastmonth" ? "active-btn" : "" }
+                    className={dateButtonSelected === "lastmonth" ? "active-btn" : ""}
                   >
                     Tháng trước
                   </Button>

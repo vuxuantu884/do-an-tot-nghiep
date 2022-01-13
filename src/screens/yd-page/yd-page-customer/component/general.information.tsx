@@ -180,7 +180,7 @@ const GeneralInformation = (props: any) => {
                     marginBottom: 10,
                   }}
                 >
-                  <Col span={20}>
+                  <Col span={17} style={{ right: '-1px' }}>
                     {customerPhones &&
                       customerPhones.map((p: any, index: any) => (
                         <Tag
