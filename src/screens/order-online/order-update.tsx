@@ -37,7 +37,7 @@ import {
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-	configOrderSaga,
+	orderConfigSaga,
 	DeliveryServicesGetList,
 	getListSubStatusAction,
 	getTrackingLogFulfillmentAction,
@@ -45,6 +45,7 @@ import {
 	orderUpdateAction,
 	PaymentMethodGetList
 } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
@@ -75,7 +76,7 @@ import {
 	TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -161,7 +162,7 @@ export default function Order(props: PropType) {
 
 	const [inventoryResponse, setInventoryResponse] =
 		useState<Array<InventoryResponse> | null>(null);
-	const [configOrder, setConfigOrder] = useState<OrderConfigResponseModel | null>(null);
+	const [orderConfig, setConfigOrder] = useState<OrderConfigResponseModel | null>(null);
 
 	const [isVisibleCustomer, setVisibleCustomer] = useState(true);
 	const [modalAction, setModalAction] = useState<modalActionType>("edit");
@@ -180,6 +181,10 @@ export default function Order(props: PropType) {
 	const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
 		[]
 	);
+
+	const [shippingServiceConfig, setShippingServiceConfig] = useState<
+ShippingServiceConfigDetailResponseModel[]
+>([]);
 
 	const [coupon, setCoupon] = useState<string>("");
 	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
@@ -1122,7 +1127,7 @@ export default function Order(props: PropType) {
 					((value.available ? value.available : 0) <= 0 ||
 						(productItem ? productItem?.quantity : 0) >
 						(value.available ? value.available : 0)) &&
-					configOrder?.sellable_inventory !== true
+					orderConfig?.sellable_inventory !== true
 				) {
 					status = false;
 					//showError(`${value.name} không còn đủ số lượng tồn trong kho`);
@@ -1164,7 +1169,7 @@ export default function Order(props: PropType) {
 
 	useEffect(() => {
 		dispatch(
-			configOrderSaga((data) => {
+			orderConfigSaga((data:OrderConfigResponseModel) => {
 				setConfigOrder(data);
 			})
 		);
@@ -1189,6 +1194,14 @@ export default function Order(props: PropType) {
 		if(OrderDetail?.fulfillments && OrderDetail?.fulfillments[0] )
 		setIsDisableSelectSource(true);
 	}, [OrderDetail?.fulfillments])
+
+	useEffect(() => {
+		dispatch(
+			actionListConfigurationShippingServiceAndShippingFee((response) => {
+				setShippingServiceConfig(response);
+			})
+		);
+	}, [dispatch]);
 
 	return (
 		<React.Fragment>
@@ -1283,7 +1296,7 @@ export default function Order(props: PropType) {
                     isSplitOrder={checkIfOrderCanBeSplit}
                     orderDetail={OrderDetail}
                     fetchData={fetchData}
-                    orderConfig={configOrder}
+                    orderConfig={orderConfig}
                   /> */}
 									<OrderCreateProduct
 										orderAmount={orderAmount}
@@ -1304,7 +1317,6 @@ export default function Order(props: PropType) {
 										customer={customer}
 										setInventoryResponse={setInventoryResponse}
 										totalAmountCustomerNeedToPay={totalAmountOrder}
-										orderConfig={null}
 										orderSourceId={orderSourceId}
 										levelOrder={levelOrder}
 										coupon={coupon}
@@ -1312,7 +1324,7 @@ export default function Order(props: PropType) {
 										promotion={promotion}
 										setPromotion={setPromotion}
 										orderDetail={OrderDetail}
-										configOrder={configOrder}
+										orderConfig={orderConfig}
 										loyaltyPoint={loyaltyPoint}
 									/>
 
@@ -1692,6 +1704,8 @@ export default function Order(props: PropType) {
 												thirdPL={thirdPL}
 												setThirdPL={setThirdPL}
 												form={form}
+												shippingServiceConfig={shippingServiceConfig}
+												orderConfig={orderConfig}
 											/>
 										</Card>
 									)}

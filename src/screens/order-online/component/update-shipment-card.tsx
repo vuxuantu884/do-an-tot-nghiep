@@ -46,6 +46,7 @@ import {
 	ShipmentResponse,
 	TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -82,8 +83,10 @@ type UpdateShipmentCardProps = {
 	setOfficeTime: (value: boolean) => void;
 	onReload?: () => void;
 	disabledActions?: (type: string) => void;
+	shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
 	OrderDetail: OrderResponse | null;
 	storeDetail?: StoreResponse;
+	orderConfig: OrderConfigResponseModel | null;
 	stepsStatusValue?: string;
 	totalPaid?: number;
 	officeTime: boolean | undefined;
@@ -104,6 +107,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	const {
 		isVisibleShipping,
 		shipmentMethod,
+		shippingServiceConfig,
 		setVisibleShipping,
 		setShipmentMethod,
 		onReload,
@@ -112,6 +116,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 		orderSettings,
 		disabledBottomActions,
 		isEcommerceOrder,
+		orderConfig,
 	} = props;
 
 	const history = useHistory();
@@ -1824,6 +1829,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 								isEcommerceOrder={isEcommerceOrder}
 								ecommerceShipment={ecommerceShipment}
                 OrderDetail={OrderDetail}
+								shippingServiceConfig={shippingServiceConfig}
+								orderConfig={orderConfig}
 							/>
 						</Form>
 						{/*--- Giao hàng sau ----*/}

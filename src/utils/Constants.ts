@@ -279,3 +279,18 @@ export const COLUMN_CONFIG_TYPE = {
 export const ACCOUNT_ROLE_ID = {
 	admin: 1,
 }
+
+export const GENDER_OPTIONS = [
+  {
+    label: "Nam",
+    value: "male",
+  },
+  {
+    label: "Nữ",
+    value: "female",
+  },
+  {
+    label: "Khác",
+    value: "other",
+  },
+];

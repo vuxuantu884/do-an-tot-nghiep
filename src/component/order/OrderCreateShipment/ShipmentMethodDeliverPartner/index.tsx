@@ -44,6 +44,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     renderButtonCreateActionHtml,
   } = props;
 
+	console.log('infoFees', infoFees)
+
   const sercivesFee = useMemo(() => {
     let services: any = []
     deliveryServices?.forEach(deliveryService => {

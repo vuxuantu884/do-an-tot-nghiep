@@ -502,11 +502,12 @@ const ProductCreateScreen: React.FC = () => {
 
       let request = Products.convertProductViewToRequest({
         ...values,
+        description: form.getFieldValue("description"),
         care_labels: careLabelsString,
       }, variantsHasProductAvatar, status);
       dispatch(productCreateAction(request, createCallback));
     },
-    [createCallback, dispatch, careLabelsString, status, variants]
+    [createCallback, dispatch, careLabelsString, status, variants, form]
   );
 
   const onCancel = useCallback(() => {
@@ -1138,6 +1139,7 @@ const ProductCreateScreen: React.FC = () => {
                 <Row gutter={24}>
                     <Col span={24}>
                       <Collapse
+                        key="description"
                         ghost
                         expandIcon={({ isActive }) =>
                           isActive ? <MinusOutlined /> : <PlusOutlined />

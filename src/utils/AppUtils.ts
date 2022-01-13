@@ -31,6 +31,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+	FulFillmentResponse,
 	// DeliveryServiceResponse,
 	OrderLineItemResponse,
 	OrderPaymentResponse,
@@ -39,6 +40,7 @@ import {
 } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
+import { getSourcesWithParamsService } from "service/order/order.service";
 import { ErrorGHTK, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { RegUtil } from "./RegUtils";
@@ -1201,17 +1203,20 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
     return result;
   };
 	const renderShipmentMethod = (dataJson: any) => {
-		console.log('dataJson', dataJson)
+		console.log('dataJson', dataJson);
+		const sortedFulfillments = dataJson?.fulfillments.sort((a:FulFillmentResponse, b:FulFillmentResponse) =>
+			moment(b.updated_date).diff(moment(a.updated_date))
+		);
 		let result = "-";
-		switch (dataJson.fulfillments[0]?.shipment.delivery_service_provider_type) {
+		switch (sortedFulfillments[0]?.shipment.delivery_service_provider_type) {
 			case ShipmentMethod.EMPLOYEE:
-				result = `${dataJson.fulfillments[0]?.shipment.shipper_code} - ${dataJson.fulfillments[0]?.shipment.shipper_name}` || "Tự giao hàng"
+				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}` 
 				break;
 			case ShipmentMethod.EXTERNAL_SERVICE:
-				result = dataJson.fulfillments[0]?.shipment.delivery_service_provider_name || "Hãng vận chuyển"
+				result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment.delivery_service_provider_name}` 
 				break;
 			case ShipmentMethod.EXTERNAL_SHIPPER:
-				result = `${dataJson.fulfillments[0]?.shipment.shipper_code} - ${dataJson.fulfillments[0]?.shipment.shipper_name}` || "Tự giao hàng"
+				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
 				break;
 			case ShipmentMethod.PICK_AT_STORE:
 				result = "Nhận tại cửa hàng"
@@ -1327,21 +1332,32 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
   }
 }
 
-export function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
+export async function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
 	let result = orderSources;
-	let isHaveDepartment = false;
-	let departmentSources = [];
+	let departmentSources:SourceResponse[] = [];
 	if(departmentIds && departmentIds.length > 0) {
 		for (const departmentId of departmentIds) {
-			let departmentSource = orderSources.findIndex(single=>single.department_id === departmentId)
-			if(departmentSource > -1) {
-				departmentSources.push(orderSources[departmentSource])
-				isHaveDepartment = true;
-			}	
+			const query = {
+				department_id: departmentId,
+			}
+			try {
+				let response = await getSourcesWithParamsService(query);
+				if(response.data.items) {
+					for (const item of response.data.items) {
+						let index = departmentSources.findIndex(single => single.id ===item.id);
+						if(index === -1) {
+							departmentSources.push(item)
+						}
+					}
+				}
+				
+			} catch (error) {
+				console.log('error', error)
+			}
 		}
-		if(isHaveDepartment) {
-			result = [...departmentSources]
-		}
+	} 
+	if(departmentSources.length > 0) {
+		result = [...departmentSources]
 	}
 	return result;
 }

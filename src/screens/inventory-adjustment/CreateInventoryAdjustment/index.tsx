@@ -81,8 +81,7 @@ const CreateInventoryAdjustment: FC = () => {
   const history = useHistory();
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>); 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
   const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
@@ -145,36 +144,39 @@ const CreateInventoryAdjustment: FC = () => {
     data.audited_by  = data.audited_by ?? [];
      
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
-    const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
+    data.line_items = [];
+    if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
+      const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
 
-    if (dataLineItems && dataLineItems.length === 0) {
-      showError("Vui lòng chọn sản phẩm");
-      return;
+      if (dataLineItems && dataLineItems.length === 0) {
+        showError("Vui lòng chọn sản phẩm");
+        return;
+      }
+      
+      data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
+        const variantPrice =
+          item &&
+          item.variant_prices &&
+          item.variant_prices[0] &&
+          item.variant_prices[0].retail_price;
+        return {
+          sku: item.sku,
+          barcode: item.barcode,
+          variant_name: item.name,
+          variant_id: item.id,
+          variant_image: findAvatar(item.variant_images),
+          product_name: item.product.name,
+          product_id: item.product_id,
+          price: variantPrice,
+          weight: item.weight,
+          weight_unit: item.weight_unit,
+          on_hand: item.on_hand ?? 0,
+          real_on_hand: item.real_on_hand,
+          on_hand_adj: item.on_hand_adj,
+        };
+      });
     }
-    
-    data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
-      const variantPrice =
-        item &&
-        item.variant_prices &&
-        item.variant_prices[0] &&
-        item.variant_prices[0].retail_price;
-      return {
-        sku: item.sku,
-        barcode: item.barcode,
-        variant_name: item.name,
-        variant_id: item.id,
-        variant_image: findAvatar(item.variant_images),
-        product_name: item.product.name,
-        product_id: item.product_id,
-        price: variantPrice,
-        weight: item.weight,
-        weight_unit: item.weight_unit,
-        on_hand: item.on_hand ?? 0,
-        real_on_hand: item.real_on_hand,
-        on_hand_adj: item.on_hand_adj,
-      };
-    });
-
+ 
     setIsLoading(true);
     dispatch(createInventoryAdjustmentAction(data, createCallback));
   };
@@ -189,8 +191,9 @@ const CreateInventoryAdjustment: FC = () => {
     (auditType: string) => {
       setAuditType(auditType);
       const storeId = form.getFieldValue("adjusted_store_id") as number;
-
-      dispatch(getVariantHasOnHandByStoreAction(storeId, onResultGetVariant));
+      if (storeId && auditType ===  INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
+        dispatch(getVariantHasOnHandByStoreAction(storeId, onResultGetVariant));
+      }
     },
     [onResultGetVariant, form, dispatch]
   );
@@ -288,8 +291,7 @@ const CreateInventoryAdjustment: FC = () => {
       );
       setSearchVariant((prev: Array<LineItemAdjustment>) =>
         prev.concat([{...item}])
-      );
-      setHasError(false); 
+      );  
     } 
   },[dataTable,resultSearch,drawColumns]);
 
@@ -320,8 +322,7 @@ const CreateInventoryAdjustment: FC = () => {
     setIsLoadingTable(true);
     setDataTable(arrayUnique);
     setSearchVariant(arrayUnique);
-    setIsLoadingTable(false);
-    setHasError(false);
+    setIsLoadingTable(false); 
     setVisibleManyProduct(false);
     drawColumns(arrayUnique);
   };
@@ -493,7 +494,9 @@ const CreateInventoryAdjustment: FC = () => {
       width: 120,
       render: (value, row: LineItemAdjustment, index: number) => {
         return (
-          <NumberInput
+          <>
+          { auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY && 
+            <NumberInput
             isFloat={false}
             id={`item-real-${index}`}
             min={0}
@@ -507,8 +510,9 @@ const CreateInventoryAdjustment: FC = () => {
               onRealQuantityChange(quantity, row, index);
             }}
           />
-        );
-      },
+        }
+       </>
+      )}
     },
     {
       title: () => {
@@ -670,11 +674,22 @@ const CreateInventoryAdjustment: FC = () => {
     onSearchVariant(keySearch);
   },[onSearchVariant]);
 
-  useEffect(() => {
-    if (dataTable?.length === 0) {
-      setHasError(true);
+  const onChangeStore = useCallback(()=>{
+    const storeId = form.getFieldValue("adjusted_store_id");
+
+    setAdjustStoreIdBak(storeId);
+    setIsShowModalChangeStore(false);
+    setQuery({...query, store_ids: storeId});
+
+    if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
+      setDataTable([]);
+      drawColumns([]);
+      setSearchVariant([]);
+    }else{
+      dispatch(getVariantHasOnHandByStoreAction(storeId, onResultGetVariant));
     }
-  }, [dataTable, objSummaryTable]); 
+    
+  },[form,query,auditType, onResultGetVariant,dispatch, drawColumns]); 
 
   return (
       <ContentContainer
@@ -1012,7 +1027,7 @@ const CreateInventoryAdjustment: FC = () => {
               <Space>
                 <Button
                   loading={isLoading}
-                  disabled={hasError || isLoading}
+                  disabled={isLoading}
                   htmlType={"submit"}
                   type="primary"
                 >
@@ -1058,14 +1073,7 @@ const CreateInventoryAdjustment: FC = () => {
 
                 setQuery({...query, store_ids: adjustStoreIdBak ?? 0});
               }}
-              onOk={() => {
-                setDataTable([]);
-                drawColumns([]);
-                setSearchVariant([]);
-                setAdjustStoreIdBak(form.getFieldValue("adjusted_store_id"));
-                setIsShowModalChangeStore(false);
-                setQuery({...query, store_ids: form.getFieldValue("adjusted_store_id")});
-              }}
+              onOk={onChangeStore}
               okText="Đồng ý"
               cancelText="Hủy"
               title={`Bạn có chắc chắn đổi kho kiểm?`}
