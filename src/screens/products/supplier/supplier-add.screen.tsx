@@ -6,7 +6,6 @@ import SelectPaging from "component/custom/SelectPaging";
 import { AppConfig } from "config/app.config";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
@@ -29,6 +28,9 @@ import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import CustomSelect from "component/custom/select.custom";
+import _ from 'lodash';
+import { searchAccountApi } from "service/accounts/account.service";
+import { callApiNative } from "utils/ApiUtils";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -195,17 +197,9 @@ const CreateSupplierScreen: React.FC = () => {
     return "";
   }, [status, supplier_status]);
   const getAccounts = useCallback(
-    (search: string, page: number) => {
-      dispatch(
-        AccountSearchAction(
-          { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page },
-          (response: PageResponse<AccountResponse> | false) => {
-            if (response) {
-              setAccounts(response);
-            }
-          }
-        )
-      );
+    async (search: string, page: number) => {
+      const response: PageResponse<AccountResponse> = await callApiNative(false, dispatch, searchAccountApi, { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page });
+      setAccounts(response || { items: [], metadata: {}});
     },
     [dispatch]
   );
@@ -390,9 +384,9 @@ const CreateSupplierScreen: React.FC = () => {
                       onPageChange={(key, page) => {
                         getAccounts(key, page);
                       }}
-                      onSearch={(key) => {
+                      onSearch={_.debounce((key) => {
                         getAccounts(key, 1);
-                      }}
+                      }, 300)}
                     >
                       {accounts.items.map((value, index) => (
                         <SelectPaging.Option key={value.id} value={value.code}>

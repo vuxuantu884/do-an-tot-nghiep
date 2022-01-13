@@ -164,6 +164,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
         isModalVisible={isModalVisible}
         onCancel={hideModal}
         actionId={actionId}
+        procurementCode={procumentCode}
       />
     </div>
   )
