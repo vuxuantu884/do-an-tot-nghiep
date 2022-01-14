@@ -1,14 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  Card,
-  Button,
-  Modal,
-  Radio,
-  Space,
-  Progress,
-} from "antd";
+import { Card, Button, Modal, Radio, Space, Progress } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -44,7 +37,10 @@ import "screens/customer/customer.scss";
 
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
-import { StyledCustomer, StyledCustomerExtraButton } from "screens/customer/customerStyled";
+import {
+  StyledCustomer,
+  StyledCustomerExtraButton,
+} from "screens/customer/customerStyled";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { generateQuery } from "utils/AppUtils";
 import { exportFile, getFile } from "service/other/export.service";
@@ -52,7 +48,8 @@ import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
-
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { SourceResponse } from "model/response/order/source.response";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -71,7 +68,6 @@ const Customer = () => {
     not: false,
   });
 
-
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
@@ -89,12 +85,12 @@ const Customer = () => {
       assign_store_ids: [],
       store_ids: [],
       channel_ids: [],
-      day_of_birth_from:undefined,
-      day_of_birth_to:undefined,
-      month_of_birth_from:undefined,
-      month_of_birth_to:undefined,
-      year_of_birth_from:undefined,
-      year_of_birth_to:undefined,
+      day_of_birth_from: undefined,
+      day_of_birth_to: undefined,
+      month_of_birth_from: undefined,
+      month_of_birth_to: undefined,
+      year_of_birth_from: undefined,
+      year_of_birth_to: undefined,
       age_from: null,
       age_to: null,
       city_ids: [],
@@ -132,19 +128,22 @@ const Customer = () => {
     }),
     []
   );
-  
-  const [params, setParams] = useState<CustomerSearchQuery>(initQuery);
-  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Array<any>>([]);
 
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
+  const [params, setParams] = useState<CustomerSearchQuery>(initQuery);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Array<any>>(
+    []
+  );
+
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [groups, setGroups] = useState<Array<any>>([]);
   const [types, setTypes] = useState<Array<any>>([]);
-  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([])
-  
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<any>>
-  >([
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([
     {
       title: "Mã khách hàng",
       dataIndex: "code",
@@ -277,9 +276,9 @@ const Customer = () => {
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  
+
   const onSelectRow = useCallback((selectedRow) => {
-    let selectedRowIds :Array<any> = [];
+    let selectedRowIds: Array<any> = [];
     selectedRow?.forEach((item: any) => {
       if (item) {
         selectedRowIds.push(item.id);
@@ -307,8 +306,7 @@ const Customer = () => {
     }
   }, []);
 
-  const [showSettingColumn, setShowSettingColumn] =
-    useState<boolean>(false);
+  const [showSettingColumn, setShowSettingColumn] = useState<boolean>(false);
 
   React.useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
@@ -316,18 +314,21 @@ const Customer = () => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CustomerTypes(setTypes));
     dispatch(getListChannelRequest(setListChannel));
+    dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
 
   React.useEffect(() => {
     setIsLoading(true);
     dispatch(getCustomerListAction(params, setResult));
   }, [dispatch, params, setResult]);
-  
 
-  const onFilter = useCallback((values: CustomerSearchQuery) => {
-    let newPrams = { ...params, ...values, page: 1 };
-    setParams(newPrams);
-  }, [params]);
+  const onFilter = useCallback(
+    (values: CustomerSearchQuery) => {
+      let newPrams = { ...params, ...values, page: 1 };
+      setParams(newPrams);
+    },
+    [params]
+  );
 
   const onClearAdvancedFilter = useCallback(() => {
     setParams(initQuery);
@@ -335,36 +336,37 @@ const Customer = () => {
 
   // handle export file
   const [isVisibleExportModal, setIsVisibleExportModal] = useState(false);
-  const [isVisibleWarningExportModal, setIsVisibleWarningExportModal] = useState(false);
+  const [isVisibleWarningExportModal, setIsVisibleWarningExportModal] =
+    useState(false);
   const [exportAll, setExportAll] = useState(true);
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
-  
+
   const handleExportFile = () => {
     setExportProgress(0);
     setIsVisibleExportModal(true);
-  }
+  };
 
   const onChangeExportOption = (e: any) => {
     setExportAll(e.target.value);
-  }
+  };
 
   // warning export 10k customers
   const onOkWarningExportModal = () => {
     setIsVisibleWarningExportModal(false);
-  }
+  };
 
   const onCancelWarningExportModal = () => {
     setIsVisibleWarningExportModal(false);
     cancelExportModal();
-  }
-  
+  };
+
   const onOkExportModal = () => {
     if (exportAll && data?.metadata.total >= 10000) {
       setIsVisibleWarningExportModal(true);
     } else {
       okExportModal();
     }
-  }
+  };
 
   const okExportModal = () => {
     let newParams = { ...params };
@@ -388,12 +390,12 @@ const Customer = () => {
       .catch((error) => {
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  }
+  };
 
   const cancelExportModal = () => {
     setIsVisibleExportModal(false);
     setExportAll(true);
-  }
+  };
 
   // process export modal
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
@@ -402,7 +404,7 @@ const Customer = () => {
   const onCancelProgressModal = () => {
     setExportCodeList([]);
     setIsVisibleProgressModal(false);
-  }
+  };
 
   const checkExportFile = useCallback(() => {
     let getFilePromises = exportCodeList.map((code) => {
@@ -411,7 +413,11 @@ const Customer = () => {
 
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && response.data.total > 0) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          response.data.total > 0
+        ) {
           if (!!response.data.url) {
             const newExportCode = exportCodeList.filter((item) => {
               return item !== response.data.code;
@@ -419,13 +425,15 @@ const Customer = () => {
             setExportCodeList(newExportCode);
             setExportProgress(100);
             setIsVisibleProgressModal(false);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!")
+            showSuccess("Xuất file dữ liệu khách hàng thành công!");
             window.open(response.data.url);
           } else {
             if (response.data.num_of_record >= response.data.total) {
               setExportProgress(99);
             } else {
-              const percent = Math.floor(response.data.num_of_record/response.data.total*100);
+              const percent = Math.floor(
+                (response.data.num_of_record / response.data.total) * 100
+              );
               setExportProgress(percent);
             }
           }
@@ -443,20 +451,18 @@ const Customer = () => {
     return () => clearInterval(getFileInterval);
   }, [checkExportFile, exportProgress, exportCodeList]);
   // end handle export file
-  
+
   // handle import file
   const [isVisibleImportModal, setIsVisibleImportModal] = useState(false);
 
   const handleImportFile = () => {
     setIsVisibleImportModal(true);
-  }
+  };
 
   const closeImportCustomerFile = () => {
     setIsVisibleImportModal(false);
-  }
+  };
   // end handle import file
-  
-
 
   return (
     <StyledCustomer>
@@ -469,86 +475,88 @@ const Customer = () => {
               disabled={isLoading}
               size="large"
               icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={handleImportFile}
-            >
+              onClick={handleImportFile}>
               Nhập file
             </Button>
 
-            {allowExportCustomer &&
+            {allowExportCustomer && (
               <Button
                 className="export-file-button"
                 disabled={isLoading}
                 size="large"
-                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                onClick={handleExportFile}
-              >
+                icon={
+                  <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
+                }
+                onClick={handleExportFile}>
                 Xuất file
               </Button>
-            }
+            )}
 
-            {allowCreateCustomer &&
+            {allowCreateCustomer && (
               <Link to={`${UrlConfig.CUSTOMER}/create`}>
                 <Button
                   disabled={isLoading}
                   className="ant-btn-outline ant-btn-primary"
                   size="large"
-                  icon={<PlusOutlined />}
-                >
+                  icon={<PlusOutlined />}>
                   Thêm khách hàng mới
                 </Button>
               </Link>
-            }
+            )}
           </StyledCustomerExtraButton>
-        }
-      >
+        }>
         <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
-          {(allowed: boolean) => (allowed ?
-            <Card>
-              <CustomerListFilter
-                onClearFilter={onClearAdvancedFilter}
-                onFilter={onFilter}
-                isLoading={isLoading}
-                params={params}
-                initQuery={initQuery}
-                selectedCustomerIds={selectedCustomerIds}
-                groups={groups}
-                types={types}
-                setShowSettingColumn={() => setShowSettingColumn(true)}
-                loyaltyUsageRules={loyaltyUsageRules}
-                listStore={listStore}
-                listChannel={listChannel}
-              />
-              
-              <CustomTable
-                isRowSelection
-                bordered
-                isLoading={isLoading}
-                scroll={{ x: 2000 }}
-                sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-                pagination={{
-                  pageSize: data.metadata.limit,
-                  total: data.metadata.total,
-                  current: data.metadata.page,
-                  showSizeChanger: true,
-                  onChange: onPageChange,
-                  onShowSizeChange: onPageChange,
-                }}
-                onSelectedChange={(selectedRows) => onSelectRow(selectedRows)}
-                dataSource={data.items}
-                columns={columnFinal}
-                rowKey={(item: any) => item.id}
-              />
-            </Card>
-            : <NoPermission />)}
+          {(allowed: boolean) =>
+            allowed ? (
+              <Card>
+                <CustomerListFilter
+                  onClearFilter={onClearAdvancedFilter}
+                  onFilter={onFilter}
+                  isLoading={isLoading}
+                  params={params}
+                  initQuery={initQuery}
+                  selectedCustomerIds={selectedCustomerIds}
+                  groups={groups}
+                  types={types}
+                  setShowSettingColumn={() => setShowSettingColumn(true)}
+                  loyaltyUsageRules={loyaltyUsageRules}
+                  listStore={listStore}
+                  listChannel={listChannel}
+                  listSource={listSource}
+                />
+
+                <CustomTable
+                  isRowSelection
+                  bordered
+                  isLoading={isLoading}
+                  scroll={{ x: 2000 }}
+                  sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                  pagination={{
+                    pageSize: data.metadata.limit,
+                    total: data.metadata.total,
+                    current: data.metadata.page,
+                    showSizeChanger: true,
+                    onChange: onPageChange,
+                    onShowSizeChange: onPageChange,
+                  }}
+                  onSelectedChange={(selectedRows) => onSelectRow(selectedRows)}
+                  dataSource={data.items}
+                  columns={columnFinal}
+                  rowKey={(item: any) => item.id}
+                />
+              </Card>
+            ) : (
+              <NoPermission />
+            )
+          }
         </AuthWrapper>
 
-        
         {/* Import customer file */}
-        {isVisibleImportModal &&
+        {isVisibleImportModal && (
           <ImportCustomerFile
             closeImportCustomerFile={closeImportCustomerFile}
           />
-        }
+        )}
 
         {/* Export customer data */}
         <Modal
@@ -560,8 +568,7 @@ const Customer = () => {
           cancelText="Đóng"
           onCancel={cancelExportModal}
           onOk={onOkExportModal}
-          maskClosable={false}
-        >
+          maskClosable={false}>
           <Radio.Group onChange={onChangeExportOption} value={exportAll}>
             <Space direction="vertical">
               <Radio value={false}>Tải trang hiện tại</Radio>
@@ -583,14 +590,16 @@ const Customer = () => {
               <Button danger onClick={onCancelWarningExportModal}>
                 Thoát
               </Button>
-    
+
               <Button type="primary" onClick={onOkWarningExportModal}>
                 Đồng ý
               </Button>
             </StyledModalFooter>
-          }
-        >
-          <div>Để đảm bảo hệ thống và tốc độ tải dữ liệu, xin vui lòng xuất dưới <b>10.000</b> khách hàng.</div>
+          }>
+          <div>
+            Để đảm bảo hệ thống và tốc độ tải dữ liệu, xin vui lòng xuất dưới{" "}
+            <b>10.000</b> khách hàng.
+          </div>
           <div>Xin cảm ơn!</div>
         </Modal>
 
@@ -602,23 +611,19 @@ const Customer = () => {
           centered
           width={600}
           footer={[
-            <Button
-              key="cancel"
-              type="primary"
-              onClick={onCancelProgressModal}
-            >
+            <Button key="cancel" type="primary" onClick={onCancelProgressModal}>
               Thoát
-            </Button>
-            
-          ]}
-        >
+            </Button>,
+          ]}>
           <div style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: 15 }}>Đang tạo file, vui lòng đợi trong giây lát</div>
+            <div style={{ marginBottom: 15 }}>
+              Đang tạo file, vui lòng đợi trong giây lát
+            </div>
             <Progress
               type="circle"
               strokeColor={{
-                '0%': '#108ee9',
-                '100%': '#87d068',
+                "0%": "#108ee9",
+                "100%": "#87d068",
               }}
               percent={exportProgress}
             />
