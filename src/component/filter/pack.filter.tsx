@@ -130,15 +130,12 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
   const initialValues = useMemo(() => {
     return {
       ...params,
-      // ecommerce_ids: Array.isArray(params.ecommerce_ids) ? params.ecommerce_ids : [params.ecommerce_ids],
-      // delivery_service_ids: Array.isArray(params.delivery_service_ids) ? params.delivery_service_ids : [params.delivery_service_ids],
-      // good_receipt_type_ids: Array.isArray(params.good_receipt_type_ids) ? params.good_receipt_type_ids : [params.good_receipt_type_ids],
-      // store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
+       ecommerce_ids: params.ecommerce_ids?(Array.isArray(params.ecommerce_ids) ? params.ecommerce_ids : [params.ecommerce_ids]):[],
+       delivery_service_ids:params.delivery_service_ids?( Array.isArray(params.delivery_service_ids) ? params.delivery_service_ids : [params.delivery_service_ids]):[],
+       good_receipt_type_ids: params.good_receipt_type_ids?(Array.isArray(params.good_receipt_type_ids) ? params.good_receipt_type_ids : [params.good_receipt_type_ids]):[],
+       store_ids: params.store_ids?(Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids]):[],
     };
   }, [params]);
-
-  console.log("params", params);
-  console.log("initialValues", initialValues);
 
   const onFinish = useCallback(
     (values) => {
@@ -187,12 +184,11 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 		};
 
     if (initialValues.store_ids && initialValues.store_ids.length>0) {
-      console.log("initialValues.store_ids,initialValues.store_ids",initialValues.store_ids)
       let mappedStores = listStores?.filter((store) => initialValues.store_ids?.some((single) => single?.toString() === store.id.toString()))
 
       let textStores=mappedStores.map((single, index)=>{
         return (
-          <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+          <Link to={`${UrlConfig.STORE}/${single.id}`} target="_blank" key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappedStores)}
           </Link>
@@ -211,10 +207,10 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 
       let textStores=mappeDeliveryService.map((single, index)=>{
         return (
-          <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+          <span key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappeDeliveryService)}
-          </Link>
+          </span>
         )
       });
 
@@ -227,13 +223,12 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 
     if (initialValues.ecommerce_ids?.length) {
       let mappeEcomerceId = listChannels?.filter((change) => initialValues.ecommerce_ids?.some((single) => single?.toString() === change.id.toString()))
-      console.log("mappeEcomerceId",mappeEcomerceId,listChannels);
       let textStores=mappeEcomerceId.map((single, index)=>{
         return (
-          <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+          <span key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappeEcomerceId)}
-          </Link>
+          </span>
         )
       });
 
@@ -244,26 +239,15 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
       });
     }
 
-    // if (initialValues.good_receipt_type_id) {
-    //   let text = listGoodsReceiptsType.find(
-    //     (x) => x.id === Number(initialValues.good_receipt_type_id)
-    //   )?.name;
-    //   list.push({
-    //     key: "good_receipt_type_id",
-    //     name: "Loại biên bản",
-    //     value: text,
-    //   });
-    // }
-
     if (initialValues.good_receipt_type_ids?.length) {
       let mappeGoodReceiptTypeId = listGoodsReceiptsType?.filter((change) => initialValues.good_receipt_type_ids?.some((single) => single?.toString() === change.id.toString()))
 
       let textStores=mappeGoodReceiptTypeId.map((single, index)=>{
         return (
-          <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+          <span key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappeGoodReceiptTypeId)}
-          </Link>
+          </span>
         )
       });
 
@@ -431,6 +415,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       }}
                       notFoundContent="Không tìm thấy kết quả"
                       maxTagCount="responsive"
+                      // value={[226,227]}
                     >
                       {listStores?.map((item) => (
                         <CustomSelect.Option key={item.id} value={item.id.toString()}>
