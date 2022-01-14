@@ -451,17 +451,17 @@ const Customer = () => {
     return () => clearInterval(getFileInterval);
   }, [checkExportFile, exportProgress, exportCodeList]);
   // end handle export file
-
+  
   // handle import file
   const [isVisibleImportModal, setIsVisibleImportModal] = useState(false);
 
   const handleImportFile = () => {
     setIsVisibleImportModal(true);
-  };
+  }
 
   const closeImportCustomerFile = () => {
     setIsVisibleImportModal(false);
-  };
+  }
   // end handle import file
 
   return (
@@ -551,12 +551,13 @@ const Customer = () => {
           }
         </AuthWrapper>
 
+        
         {/* Import customer file */}
-        {isVisibleImportModal && (
+        {isVisibleImportModal &&
           <ImportCustomerFile
             closeImportCustomerFile={closeImportCustomerFile}
           />
-        )}
+        }
 
         {/* Export customer data */}
         <Modal
