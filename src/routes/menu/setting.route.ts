@@ -144,8 +144,7 @@ const setting: Array<RouteMenu> = [
         key: "account2",
         isShow: true,
         header: null,
-        subMenu: [],
-        permissions: [AccountPermissions.UPDATE],
+        subMenu: [], 
       },
       {
         path: `${UrlConfig.ACCOUNTS}/:code`,

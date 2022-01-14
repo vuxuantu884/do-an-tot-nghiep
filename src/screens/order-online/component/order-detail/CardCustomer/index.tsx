@@ -272,10 +272,20 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const CustomerChangeSearch = useCallback(
     (value) => {
       setKeySearchCustomer(value);
-      setSearchCustomer(true);
+			if(value.length >=3) {
+				setSearchCustomer(true);
+			} else {
+				setSearchCustomer(false);
+			}
       initQueryCustomer.request = value.trim();
       const handleSearch = () => {
-        dispatch(CustomerSearchSo(initQueryCustomer, setResultSearch));
+				
+        dispatch(CustomerSearchSo(initQueryCustomer, (response) => {
+					setResultSearch(response);
+					if(response.length === 0) {
+						showError("Không tìm thấy khách hàng!")
+					}
+				}));
         setSearchCustomer(false);
       };
       handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearch());

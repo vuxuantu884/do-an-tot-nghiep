@@ -142,7 +142,7 @@ export const FIELD_SELECT_OPTIONS = [
     type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} />
+        <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
@@ -152,7 +152,7 @@ export const FIELD_SELECT_OPTIONS = [
     type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Mã SKU" defaultValue={defaultValue} />
+        <Input placeholder="Mã SKU" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
@@ -162,7 +162,7 @@ export const FIELD_SELECT_OPTIONS = [
     type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} />
+        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
@@ -172,7 +172,7 @@ export const FIELD_SELECT_OPTIONS = [
     type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} />
+        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
@@ -182,7 +182,7 @@ export const FIELD_SELECT_OPTIONS = [
     type:["string", "number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} />
+        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
@@ -192,7 +192,7 @@ export const FIELD_SELECT_OPTIONS = [
     type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập màu sắc" defaultValue={defaultValue} />
+        <Input placeholder="Nhập màu sắc" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
@@ -202,7 +202,7 @@ export const FIELD_SELECT_OPTIONS = [
     type:["number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <InputNumber style={{ width: '100%' }} placeholder="Giá trị đơn hàng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} />
+        <InputNumber style={{ width: '100%' }} placeholder="Giá trị đơn hàng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={MAX_FIXED_DISCOUNT_VALUE}/>
       </Item>
     ),
   },
@@ -212,7 +212,7 @@ export const FIELD_SELECT_OPTIONS = [
     type:["number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <InputNumber style={{ width: '100%' }} placeholder="Số lượng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={999999} />
+        <InputNumber style={{ width: '100%' }} placeholder="Số lượng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={MAX_FIXED_DISCOUNT_VALUE} />
       </Item>
     ),
   },

@@ -30,10 +30,12 @@ import {
   setFpageDefaultPhone,
   getOrderMappingListApi,
   exitProgressDownloadEcommerceApi,
+  ecommerceSyncStockItemApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* addFpagePhoneSaga(action: YodyAction) {
   let { userId, phone, setData } = action.payload;
@@ -462,6 +464,35 @@ function* ecommercePostSyncStockItemSaga(action: YodyAction) {
   }
 }
 
+function* ecommerceSyncStockItemSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      ecommerceSyncStockItemApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 function* ecommerceGetCategoryListSaga(action: YodyAction) {
   let { query, setData } = action.payload;
 
@@ -573,41 +604,64 @@ function* exitProgressDownloadEcommerceSaga(action: YodyAction) {
   yield callApiSaga(true, callback, exitProgressDownloadEcommerceApi, query);
 }
 
-
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
-  yield takeLatest(EcommerceType.SET_FPAGE_DEFAULT_PHONE, setFpageDefaultPhoneSaga);
+  yield takeLatest(
+    EcommerceType.SET_FPAGE_DEFAULT_PHONE,
+    setFpageDefaultPhoneSaga
+  );
   yield takeLatest(EcommerceType.GET_FPAGE_CUSTOMER, getFpageCustomerSaga);
 
-  yield takeLatest(EcommerceType.UPDATE_ECOMMERCE_CONFIG_REQUEST, ecommerceUpdateSaga);
-  yield takeLatest(EcommerceType.CREATE_ECOMMERCE_CONFIG_REQUEST, ecommerceCreateSaga);
+  yield takeLatest(
+    EcommerceType.UPDATE_ECOMMERCE_CONFIG_REQUEST,
+    ecommerceUpdateSaga
+  );
+  yield takeLatest(
+    EcommerceType.CREATE_ECOMMERCE_CONFIG_REQUEST,
+    ecommerceCreateSaga
+  );
   yield takeLatest(
     EcommerceType.GET_ECOMMERCE_CONFIG_INFO_REQUEST,
     ecommerceGetConfigInfoSaga
   );
-  yield takeLatest(EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST, ecommerceConnectSaga);
+  yield takeLatest(
+    EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST,
+    ecommerceConnectSaga
+  );
   yield takeLatest(
     EcommerceType.GET_ECOMMERCE_CONFIG_BY_ID_REQUEST,
     ecommerceGetByIdSaga
   );
-  yield takeLatest(EcommerceType.GET_ECOMMERCE_CONFIG_REQUEST, ecommerceGetSaga);
+  yield takeLatest(
+    EcommerceType.GET_ECOMMERCE_CONFIG_REQUEST,
+    ecommerceGetSaga
+  );
 
-  yield takeLatest(EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST, ecommerceDeleteSaga);
+  yield takeLatest(
+    EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST,
+    ecommerceDeleteSaga
+  );
 
   yield takeLatest(
     EcommerceType.GET_ECOMMERCE_VARIANTS_REQUEST,
     ecommerceGetVariantsSaga
   );
 
-  yield takeLatest(EcommerceType.GET_ECOMMERCE_SHOP_REQUEST, ecommerceGetShopSaga);
+  yield takeLatest(
+    EcommerceType.GET_ECOMMERCE_SHOP_REQUEST,
+    ecommerceGetShopSaga
+  );
 
   yield takeLatest(
     EcommerceType.POST_ECOMMERCE_VARIANTS_REQUEST,
     ecommercePostVariantsSaga
   );
 
-  yield takeLatest(EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST, ecommerceDeleteItemSaga);
+  yield takeLatest(
+    EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST,
+    ecommerceDeleteItemSaga
+  );
 
   yield takeLatest(
     EcommerceType.DISCONNECT_ECOMMERCE_ITEM_REQUEST,
@@ -625,17 +679,30 @@ export function* ecommerceSaga() {
   );
 
   yield takeLatest(
+    EcommerceType.SYNC_STOCK_ECOMMERCE_ITEM_REQUEST,
+    ecommerceSyncStockItemSaga
+  );
+
+  yield takeLatest(
     EcommerceType.PUT_CONNECT_ECOMMERCE_ITEM_REQUEST,
     ecommercePutConnectItemSaga
   );
 
   //ecommerce order takeLatest
-  yield takeLatest(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, postEcommerceOrderSaga);
+  yield takeLatest(
+    EcommerceType.POST_ECOMMERCE_ORDER_REQUEST,
+    postEcommerceOrderSaga
+  );
 
   //ecommerce get order mapping list
-  yield takeLatest(EcommerceType.GET_ORDER_MAPPING_LIST_REQUEST, getOrderMappingListSaga);
+  yield takeLatest(
+    EcommerceType.GET_ORDER_MAPPING_LIST_REQUEST,
+    getOrderMappingListSaga
+  );
 
   // exit Progress Download Ecommerce
-  yield takeLatest(EcommerceType.EXIT_PROGRESS_DOWNLOAD_ECOMMERCE, exitProgressDownloadEcommerceSaga);
-
+  yield takeLatest(
+    EcommerceType.EXIT_PROGRESS_DOWNLOAD_ECOMMERCE,
+    exitProgressDownloadEcommerceSaga
+  );
 }

@@ -141,30 +141,32 @@ function OrdersTable(props: PropsType) {
 
 	const renderOrderSource = (orderDetail: OrderModel) => {
 		let html = null;
-		switch (orderDetail.channel_id) {
-			case POS.channel_id:
-				html = (
-					<Tooltip title="Đơn hàng tại quầy">
-						<img src={IconStore} alt="" />
-					</Tooltip>
-				);
-				break;
-			case SHOPEE.channel_id:
-				html = (
-					<Tooltip title="Đơn hàng tại Shopee">
-						<img src={IconShopee} alt="" />
-					</Tooltip>
-				);
-				break;
-			case FACEBOOK.channel_id:
-				html = (
-					<Tooltip title="Đơn hàng từ Facebook">
-						<img src={IconShopee} alt="" />
-					</Tooltip>
-				);
-				break;
-			default:
-				break;
+		if(orderDetail.channel_code === POS.channel_code) {
+			html = (
+				<Tooltip title="Đơn hàng tại quầy">
+					<img src={IconStore} alt="" />
+				</Tooltip>
+			);
+		} else {
+			switch (orderDetail.channel_id) {
+				case SHOPEE.channel_id:
+					html = (
+						<Tooltip title="Đơn hàng tại Shopee">
+							<img src={IconShopee} alt="" />
+						</Tooltip>
+					);
+					break;
+				case FACEBOOK.channel_id:
+					html = (
+						<Tooltip title="Đơn hàng từ Facebook">
+							<img src={IconShopee} alt="" />
+						</Tooltip>
+					);
+					break;
+				default:
+					break;
+			}
+			
 		}
 		return html;
 	};
@@ -229,21 +231,15 @@ function OrdersTable(props: PropsType) {
 	);
 
 	const renderShippingAddress = (orderDetail: OrderModel) => {
-		const sortedFulfillments = orderDetail.fulfillments?.sort(
-			(a: any, b: any) => b.id - a.id
-		);
-		console.log('sortedFulfillments', sortedFulfillments)
-		if (!sortedFulfillments || !sortedFulfillments[0] || !sortedFulfillments[0].shipment?.shipping_address) {
+		let result = "";
+		let shippingAddress = orderDetail?.shipping_address;
+		if(!shippingAddress) {
 			return "";
 		}
-		let shipping_address = sortedFulfillments[0].shipment?.shipping_address;
+		result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
 		return (
 			<React.Fragment>
-				{sortedFulfillments[0].shipment?.shipping_address && (
-					<Tooltip title="Địa chỉ giao hàng">
-						<span style={{ fontSize: "0.86em" }}>{`${shipping_address.full_address}-${shipping_address.ward}-${shipping_address.district}-${shipping_address.city}`}</span>
-					</Tooltip>
-				)}
+				{result}
 			</React.Fragment>
 		)
 	};

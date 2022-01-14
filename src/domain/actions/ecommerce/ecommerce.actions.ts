@@ -157,6 +157,16 @@ export const postSyncStockEcommerceProduct = (
   });
 };
 
+export const syncStockEcommerceProduct = (
+  query: any,
+  setData: (data: any) => void
+) => {
+  return BaseAction(EcommerceType.SYNC_STOCK_ECOMMERCE_ITEM_REQUEST, {
+    query,
+    setData,
+  });
+};
+
 export const getCategoryList = (query: any, setData: (data: any) => void) => {
   return BaseAction(EcommerceType.GET_ECOMMERCE_CATEGORY_REQUEST, { query, setData });
 };

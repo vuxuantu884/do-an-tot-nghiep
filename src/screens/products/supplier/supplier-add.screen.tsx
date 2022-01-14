@@ -416,6 +416,23 @@ const CreateSupplierScreen: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Item
+                    name="phone"
+                    label="Số điện thoại"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập số điện thoại" },
+                      {
+                        validator: validatePhone,
+                      }
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập số điện thoại"
+                      maxLength={255}
+                    />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <Item
                     name="group_product"
                     label="Nhóm hàng"
                   >
