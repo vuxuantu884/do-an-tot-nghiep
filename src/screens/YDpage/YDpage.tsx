@@ -44,7 +44,7 @@ const YDpage: React.FC = () => {
         setYdpagePath(route.path);
         break;
       case 'hide_sidebar_menu':
-        const settingApp = JSON.parse(localStorage.setting_app);
+        const settingApp = JSON.parse(localStorage.setting_app || '{}');
         if (!settingApp.collapse) {
           const toggleSideBtn: HTMLElement | null = document.querySelector('header button');
           toggleSideBtn?.click();
