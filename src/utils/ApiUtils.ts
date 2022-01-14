@@ -6,19 +6,28 @@ import { Dispatch } from "react";
 import { call, put } from "redux-saga/effects";
 import { showError } from "./ToastUtils";
 
+type NotifyActionName = "SHOW_ALL" | "HIDE_ALL" | "USE_CONFIG";
+export interface NotifyConfigApi {
+  notifyAction?: NotifyActionName; // default: USE_CONFIG
+  jobName?: string;
+  isShowLoading?: boolean;
+  isShowError?: boolean;
+}
+
 /**
  * ## Thông báo lỗi khi call api
  * @param error
  */
-export const catcherError = (error: any) => {
+export const catcherError = (error: any, jobName?: string) => {
   if (typeof error === "string") {
-    showError(error);
+    showError(`${error} ${jobName?.toLowerCase()}`);
   } else if (Array.isArray(error)) {
     error.forEach((e: string) => showError(e));
   } else {
     showError("Hệ thống gặp lỗi lạ");
   }
 };
+
 
 /**
  * ## Call api saga and and handle response
@@ -45,7 +54,7 @@ export const callApiSaga = function* <
     switch (response.code) {
       case HttpStatus.SUCCESS:
         if (response.data) {
-         yield callbackDataFn(response.data);
+          yield callbackDataFn(response.data);
         } else {
           yield callbackDataFn(response);
         }
@@ -70,9 +79,10 @@ export const callApiSaga = function* <
   }
 };
 
+
 /**
  * ## Call api trực tiếp từ axios
- * @param hasLoading : Loading khi call api
+ * @param notifyConfig : Loading khi call api
  * @param dispatch : Dispatch
  * @param fn : api service function
  * @param args : Tham số của function fn
@@ -82,12 +92,15 @@ export const callApiNative = async <
   Fn extends (...args: any[]) => any,
   R extends ReturnType<Fn>
 >(
-  hasLoading: boolean,
+  notifyConfig: NotifyConfigApi,
   dispatch: Dispatch<YodyAction>,
   fn: Fn,
   ...args: Parameters<Fn>
-) => {
-  if (hasLoading) dispatch(showLoading());
+) => { 
+
+  const { isShowLoading, isShowError, notifyAction="USE_CONFIG", jobName } = notifyConfig;
+
+  if (notifyAction === "SHOW_ALL" || isShowLoading) dispatch(showLoading());
 
   try {
     const response: R = await fn(...args);
@@ -107,14 +120,17 @@ export const callApiNative = async <
       case HttpStatus.BAD_REQUEST:
         throw response.errors;
 
+      case HttpStatus.NOT_FOUND:
+        throw response.message;
+
       default:
         throw response.message;
     }
   } catch (error: any) {
-    console.log("error at", fn.name, error);
-    catcherError(error);
+    console.log("error at", fn.name, error?.toString());
+    isShowError && catcherError(error, jobName);
     return null;
   } finally {
-    if (hasLoading) dispatch(hideLoading());
+    if (notifyAction === "SHOW_ALL" || isShowLoading) dispatch(hideLoading());
   }
 };

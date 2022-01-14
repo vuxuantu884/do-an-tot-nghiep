@@ -3,6 +3,7 @@ const HttpStatus = {
   UNAUTHORIZED: 40100000,
   BAD_REQUEST: 40000000,
 	FORBIDDEN: 40300000,
+  NOT_FOUND: 40400000,
 };
 
 export {HttpStatus};
