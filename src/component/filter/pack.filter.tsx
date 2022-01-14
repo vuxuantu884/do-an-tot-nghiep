@@ -99,10 +99,13 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
       setRerender(false);
       // console.log("key", tag.key);
       // console.log("params", params);
+      console.log(tag.key)
       switch (tag.key) {
+        
         case "store":
           onFilter && onFilter({...params, store_ids: undefined});
           break;
+
         case "delivery_service_ids":
           onFilter && onFilter({...params, delivery_service_ids: undefined});
           break;
@@ -120,11 +123,10 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
         default:
           break;
       }
-      // const tags = filters.filter((tag: any) => tag.key !== key);
-      // filters = tags
     },
     [onFilter, params]
   );
+
   const [createdClick, setCreatedClick] = useState("");
 
   const initialValues = useMemo(() => {
@@ -184,11 +186,12 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 		};
 
     if (initialValues.store_ids && initialValues.store_ids.length>0) {
+      console.log("initialValues.store_ids,initialValues.store_ids",initialValues.store_ids)
       let mappedStores = listStores?.filter((store) => initialValues.store_ids?.some((single) => single?.toString() === store.id.toString()))
 
       let textStores=mappedStores.map((single, index)=>{
         return (
-          <Link to={`${UrlConfig.STORE}/${single.id}`} target="_blank" key={single.code}>
+          <Link to={`${UrlConfig.STORE}/${single.code}`} target="_blank" key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappedStores)}
           </Link>
@@ -201,7 +204,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
         value: textStores,
       });
     }
-    
+
     if (initialValues.delivery_service_ids&&initialValues.delivery_service_ids?.length>0) {
       let mappeDeliveryService = listThirdPartyLogistics?.filter((store) => initialValues.delivery_service_ids?.some((single) => single?.toString() === store.id.toString()))
 
@@ -213,15 +216,17 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
           </span>
         )
       });
+
       list.push({
         key: "delivery_service_ids",
-        name: "Biên bản sàn",
+        name: "Hãng vận chuyển",
         value: textStores,
       });
     }
 
     if (initialValues.ecommerce_ids?.length) {
       let mappeEcomerceId = listChannels?.filter((change) => initialValues.ecommerce_ids?.some((single) => single?.toString() === change.id.toString()))
+
       let textStores=mappeEcomerceId.map((single, index)=>{
         return (
           <span key={single.code}>
@@ -230,6 +235,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
           </span>
         )
       });
+
       list.push({
         key: "ecommerce_ids",
         name: "Biên bản sàn",
@@ -268,8 +274,11 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
       });
     }
 
+    console.log("initialValues",initialValues)
+    console.log("filters",list)
+
     return list;
-  }, [initialValues.delivery_service_ids, initialValues.ecommerce_ids, initialValues.from_date, initialValues.good_receipt_type_ids, initialValues.store_ids, initialValues.to_date, listChannels, listGoodsReceiptsType, listStores, listThirdPartyLogistics]);
+  }, [initialValues, listChannels, listGoodsReceiptsType, listStores, listThirdPartyLogistics]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -401,7 +410,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
               <Row gutter={20}>
                 <Col span={24}>
                   <p>Kho cửa hàng</p>
-                  <Item name="store_id">
+                  <Item name="store_ids">
                     <CustomSelect
                       mode="multiple"
                       allowClear
@@ -423,7 +432,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                     </CustomSelect>
                   </Item>
                   <p>Hãng vận chuyển</p>
-                  <Item name="delivery_service_id">
+                  <Item name="delivery_service_ids">
                     <CustomSelect
                       mode="multiple"
                       showSearch
@@ -447,7 +456,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                     </CustomSelect>
                   </Item>
                   <p>Loại biên bản</p>
-                  <Item name="good_receipt_type_id">
+                  <Item name="good_receipt_type_ids">
                     <CustomSelect
                       mode="multiple"
                       showSearch
@@ -471,7 +480,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                     </CustomSelect>
                   </Item>
                   <p>Biên bản sàn</p>
-                  <Item name="ecommerce_id">
+                  <Item name="ecommerce_ids">
                     <CustomSelect
                       mode="multiple"
                       showSearch
@@ -515,7 +524,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
         {filters &&
           filters.map((filter: any, index) => {
             return (
-              <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
+              <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)} key={index}>
                 {filter.name}: {filter.value}
               </Tag>
             );
