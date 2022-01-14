@@ -674,7 +674,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 </Space>
               )}
             </Row>
-            <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
+            <Divider  style={{ padding: 0, marginBottom: 0 }} />
           </div>
         )}
       </div>
