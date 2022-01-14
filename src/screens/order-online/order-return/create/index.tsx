@@ -1357,7 +1357,8 @@ ShippingServiceConfigDetailResponseModel[]
       ShipmentMethodOption.SELF_DELIVER,
       ShipmentMethodOption.DELIVER_LATER,
     ]
-    if (isOrderFromPOS(OrderDetail) && isStepExchange) {
+    //isOrderFromPOS(OrderDetail) &&
+    if (isStepExchange) {
       if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
         setIsShowSelectOrderSources(true)
       } else {
