@@ -100,7 +100,7 @@ const ProductDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [form] = Form.useForm();
-  const {id} = useParams<ProductParams>();
+  const {id, variantId} = useParams<ProductParams>();
   const idNumber = parseInt(id);
 
   const goods = useSelector(
@@ -681,11 +681,15 @@ const ProductDetailScreen: React.FC = () => {
   },[form, dataOrigin, resetProductDetail]); 
 
   const onActive = useCallback(
-    (active1: number) => {
+    (activeRow: number) => {
       let variants = form.getFieldValue("variants");
-      if (active1 !== active) {
+      if (activeRow !== active) {
+        //change url when select variant
+        if(variants[activeRow]?.id){
+          history.replace(`${UrlConfig.PRODUCT}/${id}${UrlConfig.VARIANTS}/${variants[activeRow].id}/update`);
+        }
         if (isChange && !isChangePrice) {
-          tempActive = active1;
+          tempActive = activeRow;
           setModalConfirm({
             onOk: () => {
               setModalConfirm({visible: false});
@@ -696,10 +700,10 @@ const ProductDetailScreen: React.FC = () => {
               let variants: Array<VariantResponse> = form.getFieldValue("variants");
               if (variants[active].id) {
                 setModalConfirm({visible: false});
-                setCurrentVariant(active1);
+                setCurrentVariant(activeRow);
               } else {
                 setModalConfirm({visible: false});
-                let idActive = variants[active1].id;
+                let idActive = variants[activeRow].id;
                 variants.splice(active, 1);
                 let index = variants.findIndex((item) => item.id === idActive);
                 form.setFieldsValue({variants: variants});
@@ -715,15 +719,15 @@ const ProductDetailScreen: React.FC = () => {
             subTitle: "Bạn có muốn lưu lại phiên bản này?",
           });
         } else if (isChangePrice && variants.length > 1) {
-          tempActive = active1;
+          tempActive = activeRow;
 
           setVisiblePrice(true);
         } else {
-          setCurrentVariant(active1);
+          setCurrentVariant(activeRow);
         }
       }
     },
-    [active, form, isChange, isChangePrice, setCurrentVariant, resetOnClick]
+    [active, form, isChange, isChangePrice, setCurrentVariant, resetOnClick, history, id]
   );
   const onResult = useCallback(
     (result: ProductResponse | false) => {
@@ -738,9 +742,15 @@ const ProductDetailScreen: React.FC = () => {
         productDetailRef.current = JSON.parse(JSON.stringify(result));
         form.setFieldsValue(result);
         setDataOrigin(form.getFieldsValue());
+
+        //set active variant
+        if(variantId){
+          const index = result.variants.findIndex((item)=>item.id === Number(variantId));
+          setActive(index);
+        }
       }
     },
-    [form]
+    [form, variantId]
   );
 
   const getColors = useCallback((info: string, page: number) => {
