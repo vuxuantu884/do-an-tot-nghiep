@@ -41,7 +41,7 @@ import {
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { ErrorGHTK, ShipmentMethod } from "./Constants";
+import { ErrorGHTK, POS, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { RegUtil } from "./RegUtils";
 import { showError } from "./ToastUtils";
@@ -1361,3 +1361,10 @@ export async function sortSources(orderSources: SourceResponse[], departmentIds:
 	}
 	return result;
 }
+
+export const isOrderFromPOS = (OrderDetail: OrderResponse | null) => {
+	if(OrderDetail?.channel_id === POS.channel_id) {
+		return true;
+	}
+	return false;
+};
