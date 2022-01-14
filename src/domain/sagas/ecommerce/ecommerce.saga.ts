@@ -601,7 +601,7 @@ function* getOrderMappingListSaga(action: YodyAction) {
 
 function* exitProgressDownloadEcommerceSaga(action: YodyAction) {
   const { query, callback } = action.payload;
-  yield callApiSaga(true, callback, exitProgressDownloadEcommerceApi, query);
+  yield callApiSaga({isShowLoading:true}, callback, exitProgressDownloadEcommerceApi, query);
 }
 
 export function* ecommerceSaga() {

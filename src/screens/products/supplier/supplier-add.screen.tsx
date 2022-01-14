@@ -198,7 +198,8 @@ const CreateSupplierScreen: React.FC = () => {
   }, [status, supplier_status]);
   const getAccounts = useCallback(
     async (search: string, page: number) => {
-      const response: PageResponse<AccountResponse> = await callApiNative(false, dispatch, searchAccountApi, { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page });
+      const response: PageResponse<AccountResponse> 
+      = await callApiNative({isShowLoading:false}, dispatch, searchAccountApi, { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page });
       setAccounts(response || { items: [], metadata: {}});
     },
     [dispatch]
@@ -412,6 +413,23 @@ const CreateSupplierScreen: React.FC = () => {
                     ]}
                   >
                     <Input placeholder="Nhập mã số thuế" maxLength={13} />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <Item
+                    name="phone"
+                    label="Số điện thoại"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập số điện thoại" },
+                      {
+                        validator: validatePhone,
+                      }
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập số điện thoại"
+                      maxLength={255}
+                    />
                   </Item>
                 </Col>
                 <Col span={12}>

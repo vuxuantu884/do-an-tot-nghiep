@@ -249,7 +249,7 @@ export const ADMIN_ORDER = {
 export const POS = {
 	channel_id: 1,
   channel_code: "POS",
-	source_id: 18,
+	source_id: 1,
 };
 
 export const SHOPEE = {

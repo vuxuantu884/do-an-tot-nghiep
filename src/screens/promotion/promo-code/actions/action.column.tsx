@@ -1,10 +1,14 @@
 import { Button, Dropdown, Menu } from "antd";
 import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import useAuthorization from "hook/useAuthorization";
 import { Link } from "react-router-dom";
 import { StyledDropDown, StyledMenu } from "./styles";
 
 const ActionColumnIssue = () => {
+  const [allowActiveActionBtn] = useAuthorization({acceptPermissions: [PromoPermistion.UPDATE]});
   const _actionColumn = {
     title: "",
     visible: true,
@@ -15,6 +19,7 @@ const ActionColumnIssue = () => {
       const menu = (
         <StyledMenu>
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+        <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
           <Menu.Item key="0">
             <Link to={`/promotion/codes/${id}`}>
             <Button
@@ -25,6 +30,7 @@ const ActionColumnIssue = () => {
             </Button>
             </Link>
           </Menu.Item>
+        </AuthWrapper>
         </Menu>
         </StyledMenu>
       );
@@ -46,6 +52,7 @@ const ActionColumnIssue = () => {
               overlay={menu}
               trigger={["click"]}
               placement="bottomRight"
+              disabled={!allowActiveActionBtn}
             >
               <Button
                 type="text"
