@@ -327,7 +327,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                   }
                   trigger={["click"]}
                 >
-                  <Button className="action-button">
+                  <Button value="small"  className="action-button">
                     <div style={{marginRight: 10}}>Thao tác </div>
                     <DownOutlined />
                   </Button>
@@ -335,6 +335,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
               </Space>
               <Space size={12} style={{marginLeft: "10px"}}>
                 <ButtonCreate
+                  size="small" 
                   path={`${UrlConfig.PACK_SUPPORT}/report-hand-over-create`}
                   disabled={!allowCreateGoodsReceipt}
                 />

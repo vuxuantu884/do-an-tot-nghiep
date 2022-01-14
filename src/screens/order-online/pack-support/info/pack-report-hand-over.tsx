@@ -177,8 +177,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       title: "",
       key: "14",
       visible: true,
-      width: "5%",
-      className: "saleorder-product-card-action ",
+      width: "80px",
+      className: "saleorder-product-card-action text-center",
       render: (l: any, item: any, index: number) => {
         const menu = (
           <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
@@ -236,7 +236,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         return (
           <div
             style={{
-              display: "flex",
+              //display: "flex",
               justifyContent: "space-between",
               padding: "0 4px",
             }}
@@ -272,6 +272,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       fixed: "left",
+      width:"100px",
       render: (value: number) => {
         return (
           <React.Fragment>
@@ -288,6 +289,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "store_name",
       visible: true,
       align: "center",
+      //width:"200px",
     },
 
     {
@@ -296,6 +298,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "handover_record_type",
       visible: true,
       align: "center",
+      width:"200px",
     },
 
     {
@@ -304,6 +307,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "product_quantity",
       visible: true,
       align: "center",
+      width:"80px",
     },
 
     {
@@ -312,6 +316,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_quantity",
       visible: true,
       align: "center",
+      width:"80px",
     },
 
     {
@@ -320,6 +325,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_send_quantity",
       visible: true,
       align: "center",
+      width:"100px",
     },
 
     {
@@ -328,6 +334,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_transport",
       visible: true,
       align: "center",
+      width:"110px",
     },
 
     {
@@ -336,6 +343,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_have_not_taken",
       visible: true,
       align: "center",
+      width:"110px",
     },
 
     {
@@ -344,6 +352,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_cancel",
       visible: true,
       align: "center",
+      width:"80px",
     },
 
     {
@@ -352,6 +361,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_moving_complete",
       visible: true,
       align: "center",
+      width:"110px",
     },
 
     {
@@ -360,6 +370,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_success",
       visible: true,
       align: "center",
+      width:"110px",
     },
 
     {
@@ -368,6 +379,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_complete",
       visible: true,
       align: "center",
+      width:"80px",
     },
 
     {
@@ -376,6 +388,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "account_create",
       visible: true,
       align: "center",
+      width:"100px",
     },
     actionColumn(handlePrint, handleExportHVC, handleAddPack),
   ]);
@@ -522,7 +535,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630, y: 600 }}
+            scroll={{ x: 1650, y: 520 }}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,

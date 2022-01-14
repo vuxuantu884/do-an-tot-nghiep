@@ -518,7 +518,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         width: 120,
       },
       {
-        title: "Vận chuyển nè",
+        title: "Vận chuyển",
         key: "shipment.type",
         className: "shipmentType",
         render: (value: string, record: OrderModel) => {

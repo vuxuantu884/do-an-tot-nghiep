@@ -75,7 +75,7 @@ function DiscountCreateV2(): ReactElement {
             entitled_category_ids: [],
             prerequisite_quantity_ranges: [
                 {
-                    greater_than_or_equal_to: 0,
+                    greater_than_or_equal_to: 1,
                     less_than_or_equal_to: null,
                     allocation_limit: undefined,
                     value: 0,

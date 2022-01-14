@@ -11,7 +11,8 @@ import NumberFormat from "react-number-format";
 
 
 type ImportCustomerFileType = {
-  closeImportCustomerFile: () => void;
+  onCancel: () => void;
+  onOk: () => void;
 };
 
 const exampleCustomerFile = 'https://np.cdn.yody.io/files/customer.xlsx';
@@ -19,7 +20,7 @@ const exampleCustomerFile = 'https://np.cdn.yody.io/files/customer.xlsx';
 const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
   props: ImportCustomerFileType
 ) => {
-  const { closeImportCustomerFile } = props;
+  const { onOk, onCancel } = props;
   
   const dispatch = useDispatch();
 
@@ -53,7 +54,7 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
       setErrorData(response.errors);
       setIsVisibleResultModal(true);
     } else {
-      closeImportCustomerFile && closeImportCustomerFile();
+      onCancel && onCancel();
     }
   }
   
@@ -67,7 +68,7 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
 
   const onCancelImportModal = () => {
     setIsVisibleImportModal(false);
-    closeImportCustomerFile && closeImportCustomerFile();
+    onCancel && onCancel();
   }
   
   const checkDisableOkButton = useCallback(() => {
@@ -76,15 +77,15 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
   // end upload customer file
 
   // result upload customer file
-  const onOkResultModal = () => {
+  const onCloseResultModal = () => {
     setIsVisibleResultModal(false);
-    closeImportCustomerFile && closeImportCustomerFile();
+    if (uploadResult.error === uploadResult.total_process) {
+      onCancel && onCancel();
+    } else {
+      onOk && onOk();
+    }
   }
 
-  const onCancelResultModal = () => {
-    setIsVisibleResultModal(false);
-    closeImportCustomerFile && closeImportCustomerFile();
-  }
   // end result upload customer file
 
 
@@ -126,8 +127,8 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
         maskClosable={false}
         okText="Xác nhận"
         cancelText="Hủy"
-        onOk={onOkResultModal}
-        onCancel={onCancelResultModal}
+        onOk={onCloseResultModal}
+        onCancel={onCloseResultModal}
       >
         <StyledProgressDownloadModal>
           <div className="progress-body">
@@ -148,7 +149,7 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
               
               <div>
                 <div>Đã xử lý</div>
-                <div className="total-created">
+                <div className="total-count">
                   {isNullOrUndefined(uploadResult?.processed) ?
                     "--" :
                     <NumberFormat
@@ -199,7 +200,7 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
             />
           </div>
 
-          {errorData.length &&
+          {errorData.length ?
             <div className="error-orders">
               <div className="title">Chi tiết lỗi:</div>
               <ul style={{ backgroundColor: "#F5F5F5", padding: "20px 30px", color: "#E24343" }}>
@@ -210,7 +211,8 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
                 ))}
               </ul>
             </div>
-            }
+            : <></>
+          }
         </StyledProgressDownloadModal>
       </Modal>
     </div>
