@@ -37,7 +37,7 @@ const UrlConfig = {
   INVENTORY_ADJUSTMENTS: `/inventory-adjustments`, 
   DEPARTMENT: `/departments`,
   DISCOUNT: `/discounts`,
-  PROMO_CODE: `/codes`,
+  PROMO_CODE: `/issues`,
   GIFT: `/gifts`,
   PACK_SUPPORT:`/orders-pack-support`
 };

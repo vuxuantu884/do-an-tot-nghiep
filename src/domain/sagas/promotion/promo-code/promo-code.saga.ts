@@ -48,7 +48,7 @@ function* checkPromoCodeAtc(action: YodyAction) {
 
 function* getPromoCode(action: YodyAction) {
   const {priceRuleId, query, setData} = action.payload;
-  yield callApiSaga(true, setData, getAllPromoCodeList, priceRuleId, query);
+  yield callApiSaga({notifyAction:"SHOW_ALL"}, setData, getAllPromoCodeList, priceRuleId, query);
 }
 
 function* getPromoCodeByIdAct(action: YodyAction) {

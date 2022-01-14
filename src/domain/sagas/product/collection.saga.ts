@@ -164,12 +164,12 @@ function* collectionDeleteProductSaga(action: YodyAction) {
 
 function* updateProductsCollectionSaga(action: YodyAction) {
   const {request, onResult} = action.payload;
-  yield callApiSaga(true, onResult, collectionUpdateProductsApi, request);
+  yield callApiSaga({isShowLoading:true}, onResult, collectionUpdateProductsApi, request);
 }
 
 function* getProductsCollectionSaga(action: YodyAction) {
   const {query, onResult} = action.payload;
-  yield callApiSaga(false, onResult, getProductsCollectionApi, query);
+  yield callApiSaga({isShowLoading:false}, onResult, getProductsCollectionApi, query);
 }
 
 export function* collectionSaga() {
