@@ -164,7 +164,7 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
           </div>
 
           <Progress
-            status={`${progressPercent === 100 ? "success" : "active"}`}
+            status={`${progressPercent === 100 ? "normal" : "active"}`}
             percent={progressPercent}
             style={{ marginTop: 20 }}
           />
