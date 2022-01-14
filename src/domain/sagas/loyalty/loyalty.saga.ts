@@ -133,9 +133,9 @@ function* getLoyaltyRankingList(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
-      // case HttpStatus.UNAUTHORIZED:
-      //   yield put(unauthorizedAction());
-      //   break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
