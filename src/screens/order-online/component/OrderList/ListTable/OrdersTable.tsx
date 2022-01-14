@@ -231,23 +231,15 @@ function OrdersTable(props: PropsType) {
 	);
 
 	const renderShippingAddress = (orderDetail: OrderModel) => {
-		const sortedFulfillments = orderDetail.fulfillments?.sort(
-			(a: any, b: any) => {
-				return moment(a.created_date).isBefore(b.created_date) ? 1 : -1;
-			}
-		);
-		console.log('sortedFulfillments', sortedFulfillments)
-		if (!sortedFulfillments || !sortedFulfillments[0] || !sortedFulfillments[0].shipment?.shipping_address) {
+		let result = "";
+		let shippingAddress = orderDetail?.shipping_address;
+		if(!shippingAddress) {
 			return "";
 		}
-		let shipping_address = sortedFulfillments[0].shipment?.shipping_address;
+		result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
 		return (
 			<React.Fragment>
-				{sortedFulfillments[0].shipment?.shipping_address && (
-					<Tooltip title="Địa chỉ giao hàng">
-						<span style={{ fontSize: "0.86em" }}>{`${shipping_address.full_address}-${shipping_address.ward}-${shipping_address.district}-${shipping_address.city}`}</span>
-					</Tooltip>
-				)}
+				{result}
 			</React.Fragment>
 		)
 	};

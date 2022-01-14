@@ -29,15 +29,11 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 
 	const renderFulfillmentShippingAddress = (OrderDetail: OrderResponse | null) => {
 		let result = "";
-		if(!OrderDetail?.fulfillments) {
-			return result;
+		let shippingAddress = OrderDetail?.shipping_address;
+		if(!shippingAddress) {
+			return "";
 		}
-		const sortedFulfillments = OrderDetail.fulfillments?.sort((a, b) => {
-			return moment(a.created_date).isBefore(b.created_date) ? 1 : -1;
-		})
-		if(sortedFulfillments[0].shipment) {
-			result = `${OrderDetail.customer} - ${OrderDetail.customer_phone_number} - ${sortedFulfillments[0].shipment?.shipping_address}`
-		}
+		result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
 		return result;
 	};
 
