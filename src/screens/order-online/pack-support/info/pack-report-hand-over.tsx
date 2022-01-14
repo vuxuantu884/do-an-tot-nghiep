@@ -33,14 +33,14 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   page: 1,
   sort_column: "",
   sort_type: "",
-  store_id: null,
-  delivery_service_id: null,
-  ecommerce_id: null,
-  good_receipt_type_id: null,
-  good_receipt_id: null,
-  order_codes: null,
-  from_date: "",
-  to_date: "",
+  ids:null,
+  order_codes:null,
+  store_ids:null,
+  delivery_service_ids:null,
+  ecommerce_ids:null,
+  good_receipt_type_ids:null,
+  from_date:"",
+  to_date:"",
 };
 
 const typePrint = {

@@ -12,7 +12,7 @@ import {
 } from "antd";
 
 import {MenuAction} from "component/table/ActionButton";
-import {
+import React, {
   createRef,
   useCallback,
   useContext,
@@ -32,6 +32,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
+import { Link } from "react-router-dom";
 
 type ReturnFilterProps = {
   params: GoodsReceiptsSearchQuery;
@@ -49,7 +50,6 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
   const {
     params,
     actions,
-    //isLoading,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -98,19 +98,21 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
       setRerender(false);
       // console.log("key", tag.key);
       // console.log("params", params);
+      console.log(tag.key)
       switch (tag.key) {
+        
         case "store":
-          onFilter && onFilter({...params, store_id: undefined});
+          onFilter && onFilter({...params, store_ids: undefined});
           break;
 
-        case "delivery_service_id":
-          onFilter && onFilter({...params, delivery_service_id: undefined});
+        case "delivery_service_ids":
+          onFilter && onFilter({...params, delivery_service_ids: undefined});
           break;
-        case "ecommerce_id":
-          onFilter && onFilter({...params, ecommerce_id: undefined});
+        case "ecommerce_ids":
+          onFilter && onFilter({...params, ecommerce_ids: undefined});
           break;
-        case "good_receipt_type_id":
-          onFilter && onFilter({...params, good_receipt_type_id: undefined});
+        case "good_receipt_type_ids":
+          onFilter && onFilter({...params, good_receipt_type_ids: undefined});
           break;
         case "created":
           setCreatedClick("");
@@ -120,8 +122,6 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
         default:
           break;
       }
-      // const tags = filters.filter((tag: any) => tag.key !== key);
-      // filters = tags
     },
     [onFilter, params]
   );
@@ -130,10 +130,10 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
   const initialValues = useMemo(() => {
     return {
       ...params,
-      // ecommerce_ids: Array.isArray(params.ecommerce_id) ? params.ecommerce_id : [params.ecommerce_id],
-      // delivery_service_ids: Array.isArray(params.delivery_service_id) ? params.delivery_service_id : [params.delivery_service_id],
-      // good_receipt_type_ids: Array.isArray(params.good_receipt_type_id) ? params.good_receipt_type_id : [params.good_receipt_type_id],
-      // store_ids: Array.isArray(params.store_id) ? params.store_id : [params.store_id],
+      // ecommerce_ids: Array.isArray(params.ecommerce_ids) ? params.ecommerce_ids : [params.ecommerce_ids],
+      // delivery_service_ids: Array.isArray(params.delivery_service_ids) ? params.delivery_service_ids : [params.delivery_service_ids],
+      // good_receipt_type_ids: Array.isArray(params.good_receipt_type_ids) ? params.good_receipt_type_ids : [params.good_receipt_type_ids],
+      // store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
     };
   }, [params]);
 
@@ -173,11 +173,32 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 
   let filters = useMemo(() => {
     let list = [];
+    const splitCharacter = ", ";
+    const renderSplitCharacter = (index: number, mappedArray: any[]) => {
+			let result = null;
+			if (index !== mappedArray.length - 1) {
+				result = (
+					<React.Fragment>
+						{splitCharacter}
+					</React.Fragment>
+				)
+			}
+			return result;
+		};
 
-    if (initialValues.store_id) {
-      let textStores = listStores.find(
-        (x) => x.id === Number(initialValues.store_id)
-      )?.name;
+    if (initialValues.store_ids && initialValues.store_ids.length>0) {
+      console.log("initialValues.store_ids,initialValues.store_ids",initialValues.store_ids)
+      let mappedStores = listStores?.filter((store) => initialValues.store_ids?.some((single) => single?.toString() === store.id.toString()))
+
+      let textStores=mappedStores.map((single, index)=>{
+        return (
+          <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+            {single.code} - {single.name}
+            {renderSplitCharacter(index, mappedStores)}
+          </Link>
+        )
+      });
+
       list.push({
         key: "store",
         name: "Cửa hàng",
@@ -185,36 +206,71 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
       });
     }
 
-    if (initialValues.delivery_service_id) {
-      let textDeliveryService = listThirdPartyLogistics.find(
-        (x) => x.id === Number(initialValues.delivery_service_id)
-      )?.name;
+    if (initialValues.delivery_service_ids&&initialValues.delivery_service_ids?.length>0) {
+      let mappeDeliveryService = listThirdPartyLogistics?.filter((store) => initialValues.delivery_service_ids?.some((single) => single?.toString() === store.id.toString()))
+
+      let textStores=mappeDeliveryService.map((single, index)=>{
+        return (
+          <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+            {single.code} - {single.name}
+            {renderSplitCharacter(index, mappeDeliveryService)}
+          </Link>
+        )
+      });
+
       list.push({
-        key: "delivery_service_id",
+        key: "delivery_service_ids",
         name: "Hãng vận chuyển",
-        value: textDeliveryService,
+        value: textStores,
       });
     }
 
-    if (initialValues.ecommerce_id) {
-      let text = listChannels.find(
-        (x) => x.id === Number(initialValues.ecommerce_id)
-      )?.name;
+    if (initialValues.ecommerce_ids?.length) {
+      let mappeEcomerceId = listChannels?.filter((change) => initialValues.ecommerce_ids?.some((single) => single?.toString() === change.id.toString()))
+      console.log("mappeEcomerceId",mappeEcomerceId,listChannels);
+      let textStores=mappeEcomerceId.map((single, index)=>{
+        return (
+          <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+            {single.code} - {single.name}
+            {renderSplitCharacter(index, mappeEcomerceId)}
+          </Link>
+        )
+      });
+
       list.push({
-        key: "ecommerce_id",
+        key: "ecommerce_ids",
         name: "Biên bản sàn",
-        value: text,
+        value: textStores,
       });
     }
 
-    if (initialValues.good_receipt_type_id) {
-      let text = listGoodsReceiptsType.find(
-        (x) => x.id === Number(initialValues.good_receipt_type_id)
-      )?.name;
+    // if (initialValues.good_receipt_type_id) {
+    //   let text = listGoodsReceiptsType.find(
+    //     (x) => x.id === Number(initialValues.good_receipt_type_id)
+    //   )?.name;
+    //   list.push({
+    //     key: "good_receipt_type_id",
+    //     name: "Loại biên bản",
+    //     value: text,
+    //   });
+    // }
+
+    if (initialValues.good_receipt_type_ids?.length) {
+      let mappeGoodReceiptTypeId = listGoodsReceiptsType?.filter((change) => initialValues.good_receipt_type_ids?.some((single) => single?.toString() === change.id.toString()))
+
+      let textStores=mappeGoodReceiptTypeId.map((single, index)=>{
+        return (
+          <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+            {single.code} - {single.name}
+            {renderSplitCharacter(index, mappeGoodReceiptTypeId)}
+          </Link>
+        )
+      });
+
       list.push({
-        key: "good_receipt_type_id",
+        key: "good_receipt_type_ids",
         name: "Loại biên bản",
-        value: text,
+        value: textStores,
       });
     }
 
@@ -231,18 +287,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     }
 
     return list;
-  }, [
-    initialValues.store_id,
-    initialValues.delivery_service_id,
-    initialValues.ecommerce_id,
-    initialValues.good_receipt_type_id,
-    initialValues.from_date,
-    initialValues.to_date,
-    listStores,
-    listChannels,
-    listGoodsReceiptsType,
-    listThirdPartyLogistics,
-  ]);
+  }, [initialValues.delivery_service_ids, initialValues.ecommerce_ids, initialValues.from_date, initialValues.good_receipt_type_ids, initialValues.store_ids, initialValues.to_date, listChannels, listGoodsReceiptsType, listStores, listThirdPartyLogistics]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -374,9 +419,9 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
               <Row gutter={20}>
                 <Col span={24}>
                   <p>Kho cửa hàng</p>
-                  <Item name="store_id">
+                  <Item name="store_ids">
                     <CustomSelect
-                      //mode="multiple"
+                      mode="multiple"
                       allowClear
                       showArrow
                       placeholder="Cửa hàng"
@@ -395,9 +440,9 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                     </CustomSelect>
                   </Item>
                   <p>Hãng vận chuyển</p>
-                  <Item name="delivery_service_id">
+                  <Item name="delivery_service_ids">
                     <CustomSelect
-                      //mode="multiple"
+                      mode="multiple"
                       showSearch
                       placeholder="Chọn hãng vận chuyển"
                       notFoundContent="Không tìm thấy kết quả"
@@ -419,9 +464,9 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                     </CustomSelect>
                   </Item>
                   <p>Loại biên bản</p>
-                  <Item name="good_receipt_type_id">
+                  <Item name="good_receipt_type_ids">
                     <CustomSelect
-                      //mode="multiple"
+                      mode="multiple"
                       showSearch
                       placeholder="Chọn loại biên bản"
                       notFoundContent="Không tìm thấy kết quả"
@@ -443,9 +488,9 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                     </CustomSelect>
                   </Item>
                   <p>Biên bản sàn</p>
-                  <Item name="ecommerce_id">
+                  <Item name="ecommerce_ids">
                     <CustomSelect
-                      //mode="multiple"
+                      mode="multiple"
                       showSearch
                       placeholder="Chọn biên bản sàn"
                       notFoundContent="Không tìm thấy kết quả"
