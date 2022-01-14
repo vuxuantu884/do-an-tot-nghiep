@@ -1227,9 +1227,7 @@ function OrderCreateProduct(props: PropType) {
 					// console.log("result", result);
 					calculateChangeMoney(result, promotionResult)
 					showSuccess("Cập nhật chiết khấu tự động thành công!");
-					setIsCalculateDiscount(false);
 				} else {
-					setIsCalculateDiscount(false);
 					showError("Có lỗi khi áp dụng chiết khấu!");
 				}
       } catch (error) {
@@ -1241,7 +1239,7 @@ function OrderCreateProduct(props: PropType) {
       console.log('error', error)
       showError("Cập nhật chiết khấu tự động thất bại!");
     }).finally (()=>{
-      
+      setIsCalculateDiscount(false);
     });
 		// console.log("checkingDiscountResponse", checkingDiscountResponse);
 		
