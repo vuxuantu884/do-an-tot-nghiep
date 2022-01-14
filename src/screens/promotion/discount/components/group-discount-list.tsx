@@ -18,7 +18,7 @@ import PickManyProductModal from "../../../purchase-order/modal/pick-many-produc
 import { VariantResponse } from "model/product/product.model";
 import { HttpStatus } from "config/http-status.config";
 import { showSuccess, showWarning } from "utils/ToastUtils";
-
+import { ImportFileDiscountStyled} from "../discount-style";
 
 type UploadStatus = "error" | "success" | "done" | "uploading" | "removed" | undefined;
 enum EnumUploadStatus {
@@ -247,6 +247,7 @@ const GroupDiscountList = (props: Props) => {
           </Button>,
         ]}
       >
+        <ImportFileDiscountStyled>
         <div
           style={{
             display:
@@ -417,6 +418,7 @@ const GroupDiscountList = (props: Props) => {
             )}
           </Row>
         </div>
+        </ImportFileDiscountStyled>
       </Modal>
 
       <PickManyProductModal
