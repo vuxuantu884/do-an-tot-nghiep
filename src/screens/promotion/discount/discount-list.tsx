@@ -29,6 +29,8 @@ import { DiscountStyled } from "./discount-style";
 const DiscountPage = () => {
 
   const initQuery: DiscountSearchQuery = {
+    limit: 30,
+    page: 1,
     type: PROMO_TYPE.AUTOMATIC,
     request: "",
     from_created_date: "",
@@ -323,7 +325,7 @@ const DiscountPage = () => {
             pageSize: discounts?.metadata.limit || 0,
             total: discounts?.metadata.total || 0,
             current: discounts?.metadata.page,
-            showSizeChanger: true,
+            showSizeChanger: true, 
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}

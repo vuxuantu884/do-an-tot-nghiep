@@ -2,7 +2,7 @@ import { Card, Col, Form, FormInstance, Input, InputNumber, Row, Select, Space, 
 import { PriceRuleMethod } from 'model/promotion/price-rules.model';
 import React, { ReactElement, useContext, useLayoutEffect, useState } from 'react';
 import { handleChangeDiscountMethod } from 'utils/PromotionUtils';
-import { priorityOptions } from '../../constants';
+import { MAX_FIXED_DISCOUNT_VALUE, priorityOptions } from '../../constants';
 import { DiscountContext } from './discount-provider';
 import GroupDiscountList from './group-discount-list';
 import DiscountTypeOrderThreshold from './discount-type-order-threshold';
@@ -74,7 +74,7 @@ function DiscountUpdateForm({
                                         style={{ borderRadius: "5px", width: "100%" }}
                                         placeholder="Nhập số lượng khuyến mại"
                                         min={1}
-                                        max={999999}
+                                        max={MAX_FIXED_DISCOUNT_VALUE}
                                         step={1}
                                     />
                                 </Form.Item>
