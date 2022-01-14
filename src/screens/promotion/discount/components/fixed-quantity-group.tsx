@@ -31,7 +31,7 @@ import { PageResponse } from "../../../../model/base/base-metadata.response";
 import { ProductResponse, VariantResponse } from "../../../../model/product/product.model";
 import { formatCurrency } from "../../../../utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
-import { DiscountUnitType } from "../../constants";
+import { DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE } from "../../constants";
 import { DiscountContext } from "./discount-provider";
 const Option = Select.Option;
 
@@ -273,7 +273,7 @@ const FixedAndQuantityGroup = (props: Props) => {
               }),
             ]}
           >
-            <InputNumber min={1} max={999999} style={{ width: '100%' }} />
+            <InputNumber min={1} max={MAX_FIXED_DISCOUNT_VALUE} style={{ width: '100%' }} />
           </Form.Item>
         </Col>
 
@@ -302,7 +302,7 @@ const FixedAndQuantityGroup = (props: Props) => {
                   style={{ width: "calc(100% - 70px)" }}
                   min={1}
                   max={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
-                    === DiscountUnitType.PERCENTAGE.value ? 100 : 999999999}
+                    === DiscountUnitType.PERCENTAGE.value ? 100 : MAX_FIXED_DISCOUNT_VALUE}
                   step={form.getFieldValue(['entitlements', name, "prerequisite_quantity_ranges", 0, "value_type"])
                     === DiscountUnitType.PERCENTAGE.value ? 0.01 : 1}
                   formatter={(value) => formatDiscountCurrencyByFormValue(value, form)}
