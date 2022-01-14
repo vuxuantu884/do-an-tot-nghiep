@@ -54,7 +54,7 @@ function IssueUpdate(props: Props): ReactElement {
         updatePriceRuleByIdAction(body, (result: PriceRule) => {
           if (result) {
             showSuccess("Cập nhật thành công");
-            history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE);
+            history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${priceRuleId}`);
             setIsSubmitting(false);
           }
         })

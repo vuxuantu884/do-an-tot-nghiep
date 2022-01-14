@@ -72,6 +72,8 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
 import TextArea from "antd/es/input/TextArea";
+import { AiOutlineClose } from "react-icons/ai";
+import CustomPagination from "component/table/CustomPagination";
 
 const {TabPane} = Tabs;
 
@@ -265,7 +267,7 @@ const DetailInvetoryAdjustment: FC = () => {
             total: total,
           });
         }
-        setTableLoading(false);
+        setTableLoading(false); 
       }
     },
     [drawColumns]
@@ -587,6 +589,22 @@ const DetailInvetoryAdjustment: FC = () => {
         }
       },
     },
+    {
+      title: "",
+      fixed: "right",
+      width: 50,
+      render: (value: string, row) => {
+        return <>
+          {
+            <Button
+              onClick={() => onDeleteItem(row.id)}
+              className="item-delete"
+              icon={<AiOutlineClose color="red" />}
+          />
+          }
+        </>
+      }
+    } 
   ]; 
 
   const onResult = useCallback(
@@ -878,6 +896,13 @@ const onChangeNote = useCallback(
     }
   }, [dispatch, idNumber, listJobImportFile, onResult, statusImport]);
 
+  const onDeleteItem = useCallback(
+    (variantId: number) => {
+     debugger
+    },
+    []
+  );
+
   useEffect(() => {
     if (
       listJobImportFile.length === 0 ||
@@ -1083,9 +1108,14 @@ const onChangeNote = useCallback(
                       <CustomTable
                         isLoading={tableLoading}
                         tableLayout="fixed"
-                        style={{paddingTop: 20}}
-                        scroll={{y: 300}}
+                        style={{paddingTop: 20}} 
                         columns={defaultColumns}
+                        pagination={false}
+                        sticky={{offsetScroll: 5, offsetHeader: 55}} 
+                        dataSource={dataLinesItem.items}
+                        rowKey={(item: LineItemAdjustment) => item.id}
+                      />
+                      <CustomPagination
                         pagination={{
                           pageSize: dataLinesItem.metadata.limit,
                           total: dataLinesItem.metadata.total,
@@ -1094,9 +1124,8 @@ const onChangeNote = useCallback(
                           onChange: onPageChange,
                           onShowSizeChange: onPageChange,
                         }}
-                        dataSource={dataLinesItem.items}
-                        rowKey={(item: LineItemAdjustment) => item.id}
-                      />
+                      >
+                      </CustomPagination>
                     </Card>
                   )
                 }

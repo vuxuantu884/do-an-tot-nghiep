@@ -110,3 +110,11 @@ export const deleteBillingAddress = (id: number, customerId: number): Promise<Ba
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/billing-address/${id}`;
   return BaseAxios.delete(url);
 };
+
+export const importCustomerService = (file: File) => {
+  let formData = new FormData();
+  formData.append("file_upload", file);
+  return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/import`, formData, {
+    headers: { "content-type": "multipart/form-data" },
+  });
+}

@@ -35,10 +35,7 @@ import { StyledOrderFilter } from "screens/ecommerce/orders/orderStyles";
 import 'component/filter/order.filter.scss'
 
 import search from "assets/img/search.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
+import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 
 type EcommerceOrderFilterProps = {
   params: OrderSearchQuery;
@@ -138,43 +135,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       value: 'external_service',
     },
   ], []);
-
-  // ecommerce
-  const ECOMMERCE_LIST = useMemo(
-    () => [
-      {
-        title: "Sàn Shopee",
-        name: "Sàn Shopee",
-        icon: shopeeIcon,
-        id: "shopee",
-        ecommerce_id: 1,
-        source_id: 16,
-      },
-      {
-        title: "Sàn Tiki",
-        icon: tikiIcon,
-        id: "tiki",
-        ecommerce_id: 2,
-        source_id: 100, //todo thai need update
-      },
-      {
-        title: "Sàn Lazada",
-        icon: lazadaIcon,
-        id: "lazada",
-        ecommerce_id: 3,
-        source_id: 19,
-      },
-      {
-        title: "Sàn Sendo",
-        icon: sendoIcon,
-        id: "sendo",
-        isActive: false,
-        ecommerce_id: 4,
-        source_id: 20,
-      },
-    ],
-    []
-  );
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
@@ -370,11 +330,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     if (initialValues.source_ids.length) {
       let textSource = ""
       initialValues.source_ids.forEach(source_id => {
-        const source = listSources?.find(source => source.id.toString() === source_id)
-        textSource = source ? textSource + source.name + "; " : textSource
-        
-        const ecommerce = ECOMMERCE_LIST?.find((item) => item.source_id === source_id);
-        textSource = ecommerce ? textSource + ecommerce.title + "; " : textSource;
+        const source = listSources?.find(source => source.id.toString() === source_id);
+        textSource = source ? textSource + source.name + "; " : textSource;
       })
 
       list.push({
@@ -607,7 +564,48 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       })
     }
     return list
-  }, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes, initialValues.account_codes, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, listStore, listSources, ECOMMERCE_LIST, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, accounts, listPaymentMethod, serviceType, deliveryService]);
+  }, [
+    initialValues.store_ids,
+    initialValues.source_ids,
+    initialValues.issued_on_min,
+    initialValues.issued_on_max,
+    initialValues.finalized_on_min,
+    initialValues.finalized_on_max,
+    initialValues.completed_on_min,
+    initialValues.completed_on_max,
+    initialValues.cancelled_on_min,
+    initialValues.cancelled_on_max,
+    initialValues.expected_receive_on_min,
+    initialValues.expected_receive_on_max,
+    initialValues.order_status,
+    initialValues.sub_status_code,
+    initialValues.fulfillment_status,
+    initialValues.payment_status,
+    initialValues.variant_ids.length,
+    initialValues.assignee_codes,
+    initialValues.account_codes,
+    initialValues.price_min,
+    initialValues.price_max,
+    initialValues.payment_method_ids,
+    initialValues.delivery_types,
+    initialValues.delivery_provider_ids,
+    initialValues.shipper_ids,
+    initialValues.note,
+    initialValues.customer_note,
+    initialValues.tags,
+    initialValues.reference_code,
+    listStore,
+    listSources,
+    status,
+    subStatus,
+    fulfillmentStatus,
+    paymentStatus,
+    optionsVariant,
+    accounts,
+    listPaymentMethod,
+    serviceType,
+    deliveryService
+  ]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -680,20 +678,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     }
   };
 
-  const getEcommerceIcon = (shop: any) => {
-    switch (shop) {
-      case "shopee":
-        return shopeeIcon;
-      case "lazada":
-        return lazadaIcon;
-      case "tiki":
-        return tikiIcon;
-      case "sendo":
-        return sendoIcon;
-      default:
-        break;
-    }
-  };
 
   const renderShopList = () => {
     return (
@@ -706,13 +690,13 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 checked={item.isSelected}
               >
                 <span className="check-box-name">
-                  <span>
+                  {getEcommerceIcon(item.ecommerce) &&
                     <img
                       src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
-                  </span>
+                  }
 
                   {item.name && item.name.length > 31 &&
                     <Tooltip title={item.name} color="#1890ff" placement="right">
@@ -750,14 +734,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   }, [ecommerceShopList]);
   // end handle Select Shop
 
-  const getEcommerceId = (sourceId: any) => {
-    let ecommerceId = null;
-    if (sourceId) {
-      ecommerceId = ECOMMERCE_LIST.find(item => item.source_id === sourceId)?.ecommerce_id;
-    }
-    return ecommerceId;
-  }
-
   // handle Select Ecommerce
   const updateEcommerceShopList = useCallback((result) => {
     const shopList: any[] = [];
@@ -784,11 +760,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     );
   };
 
-  const handleSelectEcommerce = (sourceId: any) => {
+  const handleSelectEcommerce = (ecommerce_id: any) => {
     setIsEcommerceSelected(true);
     setShopIdSelected([]);
-    const ecommerceId = getEcommerceId(sourceId);
-    getEcommerceShopList(ecommerceId);
+    getEcommerceShopList(ecommerce_id);
   };
 
   const handleRemoveEcommerce = useCallback(() => {
@@ -845,19 +820,18 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               onSelect={(value) => handleSelectEcommerce(value)}
               onClear={handleRemoveEcommerce}
             >
-              {ECOMMERCE_LIST &&
-                ECOMMERCE_LIST.map((item: any) => (
-                  <Option key={item.source_id} value={item.source_id}>
-                    <div>
-                      <img
-                        src={item.icon}
-                        alt={item.id}
-                        style={{ marginRight: "10px" }}
-                      />
-                      <span>{item.title}</span>
-                    </div>
-                  </Option>
-                ))}
+              {ECOMMERCE_LIST?.map((item: any) => (
+                <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                  <div>
+                    <img
+                      src={item.icon}
+                      alt={item.id}
+                      style={{ marginRight: "10px" }}
+                    />
+                    <span>{item.title}</span>
+                  </div>
+                </Option>
+              ))}
             </Select>
           </Item>
 

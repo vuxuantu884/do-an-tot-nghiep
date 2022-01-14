@@ -157,7 +157,7 @@ export interface FulFillmentResponse {
   billing_address: BillingAddress | null;
   items: Array<OrderLineItemResponse>;
   payments: Array<OrderPaymentResponse>;
-  created_date: string | null;
+  created_date: string;
   updated_date: string | null;
   cancel_date: string | null;
   return_status: string | null;

@@ -27,6 +27,19 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   
   let customerBirthday = moment(props.customerDetail?.birthday).format("DD/MM/YYYY");
 
+	const renderFulfillmentShippingAddress = (OrderDetail: OrderResponse | null) => {
+		let result = "";
+		if(!OrderDetail?.fulfillments) {
+			return result;
+		}
+		const sortedFulfillments = OrderDetail.fulfillments?.sort((a, b) => {
+			return moment(a.created_date).isBefore(b.created_date) ? 1 : -1;
+		})
+		if(sortedFulfillments[0].shipment) {
+			result = `${OrderDetail.customer} - ${OrderDetail.customer_phone_number} - ${sortedFulfillments[0].shipment?.shipping_address}`
+		}
+		return result;
+	};
 
   const rankName = loyaltyUsageRules.find(
     (x) =>
@@ -108,7 +121,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
         </Row>
         {props.OrderDetail?.shipping_address && (
           <>
-            <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
+            <Divider style={{ padding: 0, marginBottom: 0 }} />
             <div>
               <Row gutter={24}>
                 <Col
@@ -130,12 +143,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                     />
                     Địa chỉ giao hàng:
                     <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                      {props.OrderDetail?.shipping_address?.name} -{" "}
-                      {props.OrderDetail?.shipping_address?.phone} -{" "}
-                      {props.OrderDetail?.shipping_address?.full_address} -{" "}
-                      {props.OrderDetail?.shipping_address?.ward} -{" "}
-                      {props.OrderDetail?.shipping_address?.district} -{" "}
-                      {props.OrderDetail?.shipping_address?.city}
+											{renderFulfillmentShippingAddress(props.OrderDetail)}
                     </span>
                   </div>
                 </Col>
