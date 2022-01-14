@@ -1,6 +1,7 @@
-// import { Card,  Col,  Row } from "antd";
+// import { Card, Col, Row, Tabs } from "antd";
 import { DashboardContainer } from "./index.style";
 import Greeting from "./shared/greeting";
+// import ImcomeGroupTab from "./shared/imcome-group-tab";
 // import { RootReducerType } from "model/reducers/RootReducerType";
 // import CompareMonthlyChartArea from "./chart/compare-monthly-chart-area";
 // import RankHorizontalChart from "./chart/rank-hirizontal-chart";
@@ -8,11 +9,13 @@ import Greeting from "./shared/greeting";
 // import DateFilterSelect from "./shared/date-filter-select";
 // import DepartmentSelect from "./shared/department-select";
 // import IncomeBox from "./shared/income-box";
+
+
+
 const Dashboard = () => {
   return (
-
     <DashboardContainer>
-      <Greeting/>
+      <Greeting />
       {/* <Card >
         <div className="dashboard-filter">
           <h1 className="title">BỘ LỌC</h1>
@@ -60,17 +63,15 @@ const Dashboard = () => {
         </Row>
       </Card>
       <Card title="Doanh thu theo nhóm sản phẩm theo tháng">
-
         <Row>
           <Col span={8}>
+         <ImcomeGroupTab/>
           </Col>
-          <Col span={16}>
-          </Col>
+          <Col span={16}></Col>
         </Row>
-      </Card> */}
+      </Card>*/}
     </DashboardContainer>
-
-  )
-}
+  );
+};
 
 export default Dashboard;
