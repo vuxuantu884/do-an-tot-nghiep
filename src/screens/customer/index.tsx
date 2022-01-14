@@ -277,6 +277,10 @@ const Customer = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const reloadPage = () => {
+    window.location.reload();
+  }
+
   const onSelectRow = useCallback((selectedRow) => {
     let selectedRowIds: Array<any> = [];
     selectedRow?.forEach((item: any) => {
@@ -459,7 +463,12 @@ const Customer = () => {
     setIsVisibleImportModal(true);
   }
 
-  const closeImportCustomerFile = () => {
+  const onOkImportCustomerFile = () => {
+    setIsVisibleImportModal(false);
+    reloadPage();
+  }
+  
+  const onCancelImportCustomerFile = () => {
     setIsVisibleImportModal(false);
   }
   // end handle import file
@@ -555,7 +564,8 @@ const Customer = () => {
         {/* Import customer file */}
         {isVisibleImportModal &&
           <ImportCustomerFile
-            closeImportCustomerFile={closeImportCustomerFile}
+            onCancel={onCancelImportCustomerFile}
+            onOk={onOkImportCustomerFile}
           />
         }
 
