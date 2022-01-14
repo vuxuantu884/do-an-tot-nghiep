@@ -607,6 +607,8 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });
     formAdvanceFilter.setFieldsValue({ ...advanceFilters });
+    console.log(advanceFilters);
+    
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 

@@ -83,12 +83,12 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const fillAll = useCallback(
     (checked: boolean) => {
       if (checked) {
-        if (data) setSelection(data?.items);
+        if (data) setSelection([...selection,...data?.items]);
       } else {
         setSelection([]);
       }
     },
-    [data, setSelection]
+    [data, selection]
   );
 
   useEffect(() => {

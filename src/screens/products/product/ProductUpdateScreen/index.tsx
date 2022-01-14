@@ -2,6 +2,7 @@ import {EditOutlined, InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@an
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Collapse,
   Divider,
@@ -144,6 +145,7 @@ const ProductDetailScreen: React.FC = () => {
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
+  const [isChangeDescription, setIsChangeDescription] = useState(true);
   const [colors, setColors] = useState<PageResponse<ColorResponse>>({
     items: [],
     metadata: { limit: 20, page: 1, total: 0 }
@@ -430,11 +432,13 @@ const ProductDetailScreen: React.FC = () => {
     },
     [form, update]
   );
-  const onMaterialChange = (id: number) => {
-    dispatch(
-      detailMaterialAction(id, (material) => handleChangeMaterial(material, form))
-    );
-  };
+  const onMaterialChange = useCallback((id: number) => {
+    debugger
+    if (isChangeDescription) {
+      dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
+    }
+  },[dispatch, form, isChangeDescription]);
+
   const onAllowSale = useCallback(
     (listSelected: Array<number>) => {
       setModalConfirm({
@@ -1125,12 +1129,19 @@ const ProductDetailScreen: React.FC = () => {
                             expandIcon={({isActive}) =>
                               isActive ? <MinusOutlined /> : <PlusOutlined />
                             }
-                            className="padding-0"
+                            className="padding-0" 
                           >
                               <Collapse.Panel
                                 header="Mô tả sản phẩm"
                                 key="prDes"
                                 className="custom-header"
+                                extra={
+                                  <div>
+                                    <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{  
+                                      setIsChangeDescription(e.target.checked ? true: false)
+                                      }}>Lấy thông tin mô tả từ chất liệu</Checkbox>
+                                  </div>
+                                }
                               >
                                 <Item name="description">
                                   <CustomEditor value={form.getFieldValue("description")} />

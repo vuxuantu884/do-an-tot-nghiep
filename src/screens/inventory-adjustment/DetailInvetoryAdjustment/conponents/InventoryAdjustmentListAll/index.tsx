@@ -336,9 +336,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       {/* Danh sách */}
       <Table
         rowClassName="product-table-row"
-        tableLayout="fixed"
         style={{paddingTop: 16}}
-        scroll={{y: 300}}
         pagination={false}
         columns={defaultColumns}
         dataSource={
@@ -346,6 +344,17 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
             ? searchVariant
             : dataTable
         }
+        // <CustomPagination
+        //                 pagination={{
+        //                   pageSize: dataLinesItem.metadata.limit,
+        //                   total: dataLinesItem.metadata.total,
+        //                   current: dataLinesItem.metadata.page,
+        //                   showSizeChanger: true,
+        //                   onChange: onPageChange,
+        //                   onShowSizeChange: onPageChange,
+        //                 }}
+        //               >
+        //               </CustomPagination>
       />
     </>
   );

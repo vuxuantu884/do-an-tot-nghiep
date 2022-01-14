@@ -115,8 +115,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const {id} = useParams<InventoryParams>();
   const idNumber = parseInt(id);
   const [keySearch, setKeySearch] = useState<string>("");
-  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [objSummary, setObjSummary] = useState<SummaryData>();
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false); 
   const [hasError, setHasError] = useState<boolean>(false);
 
   const [printContent, setPrintContent] = useState("");
@@ -252,21 +251,7 @@ const DetailInvetoryAdjustment: FC = () => {
       if (result) {
         setDatalinesItem({...result});
         drawColumns(result?.items);
-        setHasError(false);
-        if (result?.items && result?.items.length > 0) {
-          let dataDis = 0;
-          result.items.forEach((e: LineItemAdjustment) => {
-            if (e.on_hand_adj !== 0) {
-              dataDis += 1;
-            }
-          });
-          let total = result.items.length;
-
-          setObjSummary({
-            partly: dataDis,
-            total: total,
-          });
-        }
+        setHasError(false); 
         setTableLoading(false); 
       }
     },
@@ -898,7 +883,7 @@ const onChangeNote = useCallback(
 
   const onDeleteItem = useCallback(
     (variantId: number) => {
-     debugger
+     
     },
     []
   );
@@ -1029,21 +1014,21 @@ const onChangeNote = useCallback(
                 </Card>
                 {
                   //case trạng thái
-                  data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
-                  data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status ? (
+                  (data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
+                    data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) ? (
                     <Card>
                       <Tabs
                         style={{overflow: "initial"}}
                         activeKey={activeTab}
                         onChange={(active) => setActiveTab(active)}
                       >
-                        <TabPane tab={`Thừa/Thiếu (${objSummary?.partly})`} key="1">
+                        <TabPane tab={`Thừa/Thiếu (${data?.total_excess + data?.total_missing})`} key="1">
                           <InventoryAdjustmentHistory
                             data={data}
                             dataLinesItem={dataLinesItem.items}
                           />
                         </TabPane>
-                        <TabPane tab={`Tất cả (${objSummary?.total})`} key="2">
+                        <TabPane tab={`Tất cả (${data?.total_variant})`} key="2">
                           <InventoryAdjustmentListAll
                             data={data}
                             dataLinesItem={dataLinesItem.items}
