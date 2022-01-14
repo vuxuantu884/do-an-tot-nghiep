@@ -81,92 +81,138 @@ export const newEntitlements: EntilementFormModel = {
     }
   ],
 }
-export const FieldSelectOptions = [
+
+export const OPERATOR_SELECT_OPTIONS  = [
+  {
+    label: "Bằng",
+    value: "EQUALS",
+    activeType:["string", "number"],
+  },
+  {
+    label: "Không bằng",
+    value: "NOT_EQUAL_TO",
+    activeType:["string", "number"],
+  },
+  {
+    label: "Chứa",
+    value: "CONTAINS",
+    activeType:["string", "number"],
+  },
+  {
+    label: "Không chứa",
+    value: "DOES_NOT_CONTAIN",
+    activeType:["string", "number"],
+  },
+  {
+    label: "Bắt đầu với",
+    value: "STARTS_WITH",
+    activeType:["string", "number"],
+  },
+  {
+    label: "Kết thúc với",
+    value: "ENDS_WITH",
+    activeType:["string", "number"],
+  },
+  {
+    label: "Lớn hơn",
+    value: "GREATER_THAN",
+    activeType:["number"],
+  },
+  {
+    label: "Lớn hơn hoặc bằng",
+    value: "GREATER_THAN_OR_EQUAL_TO",
+    activeType:["number"],
+  },
+  {
+    label: "Nhỏ hơn",
+    value: "LESS_THAN",
+    activeType:["number"],
+  },
+  {
+    label: "Nhỏ hơn hoặc bằng",
+    value: "LESS_THAN_OR_EQUAL_TO",
+    activeType:["number"],
+  },
+];
+
+export const FIELD_SELECT_OPTIONS = [
   {
     label: "Tên sản phẩm",
     value: "product_name",
+    type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} />
+        <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
   {
     label: "Mã SKU",
     value: "sku",
+    type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Mã SKU" defaultValue={defaultValue} />
+        <Input placeholder="Mã SKU" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
   {
     label: "Danh mục sản phẩm",
     value: "category_name",
+    type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      // <CategorySearchSelect
-      //   placeholder="Danh mục sản phẩm"
-      //   name={name}
-      //   rules={rules}
-      //   defaultValue={defaultValue ? Number(defaultValue) : undefined}
-      //   label=""
-      // />
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} />
+        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
   {
     label: "Tag sản phẩm",
     value: "product_tag",
+    type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} />
+        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
   {
     label: "Kích cỡ",
     value: "product_size",
+    type:["string", "number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      // <SizeSearchSelect placeholder="Nhập kích cỡ" name={name} rules={rules} label="" defaultValue={defaultValue} />
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} />
+        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
   {
     label: "Màu sắc",
     value: "option_color",
+    type:["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      // <ColorSelectSearch
-      //   placeholder="Màu sắc"
-      //   name={name}
-      //   rules={rules}
-      //   label=""
-      //   querySearch={{ is_main_color: 0 }}
-      //   defaultValue={defaultValue}
-      // />
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập màu sắc" defaultValue={defaultValue} />
+        <Input placeholder="Nhập màu sắc" defaultValue={defaultValue} maxLength={50}/>
       </Item>
     ),
   },
   {
     label: "Giá trị đơn hàng",
     value: "subtotal",
+    type:["number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <InputNumber style={{ width: '100%' }} placeholder="Giá trị đơn hàng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} />
+        <InputNumber style={{ width: '100%' }} placeholder="Giá trị đơn hàng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={MAX_FIXED_DISCOUNT_VALUE}/>
       </Item>
     ),
   },
   {
     label: "Số lượng",
     value: "quantity",
+    type:["number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <InputNumber style={{ width: '100%' }} placeholder="Số lượng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={999999} />
+        <InputNumber style={{ width: '100%' }} placeholder="Số lượng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={MAX_FIXED_DISCOUNT_VALUE} />
       </Item>
     ),
   },
@@ -439,7 +485,7 @@ export const columnDiscountByRule = [
     visible: true,
     width: "20%",
     render: (field: string) => {
-      return (FieldSelectOptions.find(x => x.value === field)?.label || '');
+      return (FIELD_SELECT_OPTIONS.find(x => x.value === field)?.label || '');
     }
   },
   {
@@ -448,7 +494,7 @@ export const columnDiscountByRule = [
     visible: true,
     width: "20%",
     render: (operator: string) => {
-      return (OperatorSelectOptions.find(x => x.value === operator)?.label || '');
+      return (OPERATOR_SELECT_OPTIONS.find(x => x.value === operator)?.label || '');
     }
   },
   {
@@ -467,48 +513,7 @@ export const columnDiscountByRule = [
 
 
 // update
-export const OperatorSelectOptions = [
-  {
-    label: "Bằng",
-    value: "EQUALS",
-  },
-  {
-    label: "Không bằng",
-    value: "NOT_EQUAL_TO",
-  },
-  {
-    label: "Chứa",
-    value: "CONTAINS",
-  },
-  {
-    label: "Không chứa",
-    value: "DOES_NOT_CONTAIN",
-  },
-  {
-    label: "Bắt đầu với",
-    value: "STARTS_WITH",
-  },
-  {
-    label: "Kết thúc với",
-    value: "ENDS_WITH",
-  },
-  {
-    label: "Lớn hơn",
-    value: "GREATER_THAN",
-  },
-  {
-    label: "Lớn hơn hoặc bằng",
-    value: "GREATER_THAN_OR_EQUAL_TO",
-  },
-  {
-    label: "Nhỏ hơn",
-    value: "LESS_THAN",
-  },
-  {
-    label: "Nhỏ hơn hoặc bằng",
-    value: "LESS_THAN_OR_EQUAL_TO",
-  },
-];
+
 
 // promo code 
 export const STATUS_PROMO_CODE: any = [

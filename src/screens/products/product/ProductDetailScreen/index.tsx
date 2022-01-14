@@ -480,15 +480,18 @@ const tab= document.getElementById("tab");
                         </div>
                       </Col>
                     </Row>
-                    <Row>
-                      <Col span={24} style={{ display: "contents" }}>
-                        <span className="care-title">Thông tin bảo quản: </span>
-                        {careLabels.map((item: any) => (
-                          <Popover key={item.value} content={item.name}>
-                            <span className={`care-label ydl-${item.value}`}></span>
-                          </Popover>
-                        ))}
-                      </Col>
+                    <Row gutter={50}>
+                      <Col span={24} md={12}>
+                        <div className="row-detail">
+                            <div className="row-detail-left title">Thông tin bảo quản</div>
+                            <div className="dot data">:</div>
+                            <div className="row-detail-right data">{careLabels.map((item: any) => (
+                              <Popover key={item.value} content={item.name}>
+                                <span className={`care-label ydl-${item.value}`}></span>
+                              </Popover>
+                            ))}</div>
+                          </div>
+                        </Col>
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={5}>

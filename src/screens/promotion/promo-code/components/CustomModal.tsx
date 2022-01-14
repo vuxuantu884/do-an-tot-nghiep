@@ -1,9 +1,12 @@
-import {PlusOutlined} from "@ant-design/icons";
-import {Button, Col, Form, Input, Modal, Row} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Col, Form, Input, Modal, Row } from "antd";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
-import {useCallback, useEffect, useLayoutEffect} from "react";
-import {checkPromoCode} from "service/promotion/promo-code/promo-code.service";
+import _ from "lodash";
+import { useCallback, useEffect, useLayoutEffect } from "react";
+import { useDispatch } from "react-redux";
+import { checkPromoCode } from "service/promotion/promo-code/promo-code.service";
+import { callApiNative } from "utils/ApiUtils";
 import { RegUtil } from "utils/RegUtils";
 import "./../promo-code.scss";
 
@@ -21,6 +24,7 @@ type ModalProps = {
 const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
   const {type, title, visible, okText, cancelText, valueChange, onCancel, onOk} = props;
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
   useEffect(() => {
     form.setFieldsValue({code: valueChange});
   }, [valueChange, form]);
@@ -64,6 +68,36 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
       .replace(/[^a-z0-9]/gi, "");
   }
 
+  function hasDuplicates(value:string, array: Array<any>) {
+    return array.filter((item) => item.toLowerCase() === value.toLowerCase()).length > 1;
+  }
+
+   function checkCodeLocal(rule: any, value: string, callback: any) {
+    const listCode = form.getFieldValue("listCode");
+    console.log(listCode);
+    if(Array.isArray(listCode) && value && listCode.length>1 && hasDuplicates(value, listCode)) {
+      callback("Mã khuyến mãi đã tồn tại trong danh sách");
+    }else{
+      callback();
+    }
+  }
+
+ async function checkCodeOnline(value: string, name: number) {
+   const result = await callApiNative(
+     { isShowError: false },
+     dispatch,
+     checkPromoCode,
+     value
+   );
+   if (result) {
+     form.setFields([
+       { name: ["listCode", name], errors: ["Mã khuyến mãi đã tồn tại"] },
+     ]);
+   } else {
+     form.setFields([{ name: ["listCode", name], errors: [] }]);
+     console.log("object");
+   }
+ }
   return (
     <Modal
       onOk={onOkClick}
@@ -145,18 +179,19 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                                 message: "Không đúng định dạng CHỮ HOA và SỐ",
                               },
                               ({getFieldValue}) => ({
-                                validator(rule, value) {
-                                  return new Promise((resolve, reject) => {
-                                    const response = checkPromoCode(value);
-                                    response.then((response) => {
-                                      if (response?.code === 20000000) {
-                                        reject("Code đã tồn tại");
-                                      } else {
-                                        resolve("");
-                                      }
-                                    });
-                                  });
-                                },
+                                // validator(rule, value, callback) {
+                                //   return new Promise((resolve, reject) => {
+                                //     const response = checkPromoCode(value);
+                                //     response.then((response) => {
+                                //       if (response?.code === 20000000) {
+                                //         reject("Code đã tồn tại");
+                                //       } else {
+                                //         resolve("");
+                                //       }
+                                //     });
+                                //   });
+                                // },
+                                validator: checkCodeLocal,
                               }),
                             ]}
                             normalize={(value) => nonAccentVietnamese(value)}
@@ -167,6 +202,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                               style={{width: "100%", textTransform: "uppercase"}}
                               maxLength={30}
                               autoFocus
+                              onChange={_.debounce((e:React.ChangeEvent<HTMLInputElement>)=>checkCodeOnline(e.target.value, name), 500)}
                               suffix={
                                 <img
                                   src={CloseIcon}

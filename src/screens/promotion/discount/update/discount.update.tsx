@@ -13,10 +13,10 @@ import { parseDurationToMoment, transformData } from "utils/PromotionUtils";
 import ContentContainer from "../../../../component/container/content.container";
 import UrlConfig from "../../../../config/url.config";
 import { showError, showSuccess } from "../../../../utils/ToastUtils";
-import GeneralConditionForm from "../../shared/general-condition.form";
-import "../discount.scss";
+import GeneralConditionForm from "../../shared/general-condition.form"; 
 import DiscountUpdateForm from "../components/discount-form";
 import DiscountProvider, { DiscountContext } from "../components/discount-provider";
+import { DiscountStyled } from "../discount-style";
 const DiscountUpdate = () => {
 
     const dispatch = useDispatch();
@@ -234,7 +234,8 @@ const DiscountUpdate = () => {
                 },
             ]}
         >
-            <Form
+            <DiscountStyled>
+                <Form
                 form={form}
                 name="discount_update"
                 onFinish={(values: any) => handleSubmit(values)}
@@ -270,6 +271,7 @@ const DiscountUpdate = () => {
                     </Button>}
                 />
             </Form>
+            </DiscountStyled>
         </ContentContainer>
     );
 };

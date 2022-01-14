@@ -8,7 +8,7 @@ import useAuthorization from "hook/useAuthorization";
 import { PriceRule } from "model/promotion/price-rules.model";
 import moment from "moment";
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { RiDeleteBin2Fill } from "react-icons/all";
+import { RiDeleteBin2Fill, FiCheckCircle } from "react-icons/all";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
@@ -19,12 +19,12 @@ import { bulkDisablePriceRulesAction, bulkEnablePriceRulesAction, getListDiscoun
 import { PageResponse } from "../../../model/base/base-metadata.response";
 import { DiscountSearchQuery } from "../../../model/query/discount.query";
 import { DATE_FORMAT } from "../../../utils/DateUtils";
-import { showSuccess } from "../../../utils/ToastUtils";
+import { showError, showSuccess } from "../../../utils/ToastUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery"; 
 import DiscountFilter from "./components/DiscountFilter";
 import { ACTIONS_DISCOUNT, DISCOUNT_STATUS } from "../constants";
-import "./discount.scss";
-
+import "./discount-style.ts";
+import { DiscountStyled } from "./discount-style"; 
 
 const DiscountPage = () => {
 
@@ -94,6 +94,38 @@ const DiscountPage = () => {
     return ACTIONS_DISCOUNT;
 
   }, [allowCancelPromoCode, selectedRowKey]);
+
+  function onChangePriceRuleStatus(numberOfDisabled: number): void {
+    if (numberOfDisabled) {
+      showSuccess(`Cập nhật chiết khấu thành công`);
+      dispatch(getListDiscountAction(params, setDiscounts));
+    } else {
+      showError(`Cập nhật chiết khấu thất bại`);
+    }
+    setTableLoading(false);
+  }
+
+  const handleDeactivatePriceRule = (idNumber: number) => {
+    setTableLoading(true);
+
+    dispatch(
+      bulkDisablePriceRulesAction(
+        { ids: [idNumber] },
+        (numberOfDisabled: number) => onChangePriceRuleStatus(numberOfDisabled)
+      )
+    );
+  };
+
+  const handleActivatePriceRule = (idNumber: number) => {
+    setTableLoading(true);
+     
+    dispatch(
+      bulkEnablePriceRulesAction(
+        { ids: [idNumber] },
+        (numberOfDisabled: number) => onChangePriceRuleStatus(numberOfDisabled)
+      )
+    );
+  };
 
   const columns: Array<ICustomTableColumType<any>> = [
     {
@@ -167,7 +199,7 @@ const DiscountPage = () => {
       visible: true,
       dataIndex: "id",
       align: "center",
-      render: (id: number) => (
+      render: (id: number, item: any) => (
         <Dropdown.Button
         disabled={!allowUpdateDiscount}
           overlay={
@@ -175,23 +207,24 @@ const DiscountPage = () => {
               <Menu.Item icon={<EditOutlined />} key={1}>
                 <Link to={`discounts/${id}/update`}>Chỉnh sửa</Link>
               </Menu.Item>
+              {item.state ==="DISABLED"?(<Menu.Item
+                key={3}
+                icon={<FiCheckCircle />}
+                onClick={() => {
+                  handleActivatePriceRule(id);
+                }}
+              >
+                Kích hoạt
+              </Menu.Item>):(
               <Menu.Item
-                key={2}
+                key={3}
                 icon={<RiDeleteBin2Fill />}
                 onClick={() => {
-                  setTableLoading(true);
-                  dispatch(bulkDisablePriceRulesAction({ ids: [id] }, (numberOfActived: number) => {
-                    if (typeof numberOfActived === "number") {
-                      showSuccess(`Đã tạm ngưng thành công ${numberOfActived} chương trình`);
-                      dispatch(getListDiscountAction(params, setDiscounts));
-                    }
-                  }
-                  ))
-                  setTableLoading(false);
+                  handleDeactivatePriceRule(id);
                 }}
               >
                 Tạm ngừng
-              </Menu.Item>
+              </Menu.Item>)}
             </Menu>
           }
           icon={<img src={threeDot} alt="" style={{ verticalAlign: 'super' }} />}
@@ -240,8 +273,6 @@ const DiscountPage = () => {
     };
 
   return (
-
-
     <ContentContainer
       title="Chiết khấu"
       breadcrumb={[
@@ -272,12 +303,9 @@ const DiscountPage = () => {
 
       }
     >
+      <DiscountStyled>
       <Card
-        title={
-          <div className="d-flex">
-            <span className="tab-label">Danh sách chiết khấu</span>
-          </div>
-        }
+        title={"Danh sách chiết khấu"}
       >
         <DiscountFilter
           onMenuClick={onMenuClick}
@@ -305,6 +333,7 @@ const DiscountPage = () => {
         />
 
       </Card>
+      </DiscountStyled> 
     </ContentContainer>
 
 
@@ -312,3 +341,5 @@ const DiscountPage = () => {
 };
 
 export default DiscountPage;
+
+

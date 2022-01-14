@@ -25,6 +25,7 @@ import {
   updateNote,
   deleteNote,
   getCustomersSo,
+  importCustomerService,
 } from "service/customer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
@@ -571,6 +572,32 @@ function* DeleteNote(action: YodyAction) {
   }
 }
 
+function* importCustomerSaga(action: YodyAction) {
+  const { file, callback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(importCustomerService, file);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        callback(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        callback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+
 export default function* customerSagas() {
   yield takeLatest(
     CustomerType.KEY_SEARCH_CUSTOMER_CHANGE,
@@ -598,4 +625,5 @@ export default function* customerSagas() {
   yield takeLatest(CustomerType.DELETE_BILLING_ADDR, DeleteBillingAddress);
   yield takeLatest(CustomerType.DELETE_SHIPPING_ADDR, DeleteShippingAddress);
   yield takeLatest(CustomerType.DELETE_NOTE, DeleteNote);
+  yield takeLatest(CustomerType.IMPORT_CUSTOMER, importCustomerSaga);
 }

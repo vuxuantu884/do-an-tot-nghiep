@@ -7,10 +7,12 @@ import moment from 'moment';
 import { StyledComponent } from "./styles";
 import { POGetActionLogDetail } from 'domain/actions/po/po.action';
 import { PO_RETURN_HISTORY } from 'utils/Constants';
+import _ from 'lodash';
 
 type PropType = {
   isModalVisible: boolean;
   actionId?: number;
+  procurementCode?: string;
   onCancel: () => void;
 }
 
@@ -94,7 +96,7 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
     },
   ];
 
-  const { onCancel, isModalVisible, actionId } = props;
+  const { onCancel, isModalVisible, actionId, procurementCode } = props;
   const [isShowLogDetail, setIsShowLogDetail] = useState(false);
 
   const handleCancel = () => {
@@ -121,7 +123,7 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
     const renderActionLog = (data?: string) => {
       if (data) {
         const dataJson = JSON.parse(data || '{}');
-        console.log("123", dataJson);
+        const procurementItem = _.find(dataJson.procurements, { code: procurementCode });
         return (
           <div>
             <div>{`Nhân viên: ${dataJson.created_name}`}</div>
@@ -131,18 +133,21 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
             <div>{`Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}`}</div>
             <div>{`Merchandiser: ${dataJson?.merchandiser}`}</div>
             <div>{`Số diện thoại: ${dataJson?.phone}`}</div>
-            <div style={{ color: "red" }}>Thông tin sản phẩm: </div>
+            {procurementCode && <div style={{ color: "red" }}>Thông tin phiếu nhập {procurementCode}: </div>}
             {
-              dataJson.line_items?.map((item: any) => (
-                <div key={item?.id}>
-                  <div style={{ fontWeight: "bold" }}>{`- Tên: ${item.product}`}</div>
-                  <div>{`- Loại: ${item.product_type}`}</div>
-                  <div>{`- SKU: ${item.sku}`}</div>
-                  <div>{`- Số lượng: ${item.quantity}`}</div>
-                  <div>{`- Người tạo: ${item.updated_name}`}</div>
-                  <div>{`- Thời gian: ${moment(item.updated_date).format(dateFormat)}`}</div>
+              procurementItem?.procurement_items.length > 0 ?  (procurementItem?.procurement_items?.map((item: any, index: number) => (
+                <div key={index}>
+                  {item.quantity > 0 && <div>
+                    <div style={{ fontWeight: "bold" }}>{`- Tên: ${item.variant}`}</div>
+                    <div>{`- SKU: ${item.sku}`}</div>
+                    <div>{`- SL nhận được duyệt: ${item.quantity}`}</div>
+                    <div>{`- Người tạo: ${item.updated_name}`}</div>
+                    <div>{`- Thời gian: ${moment(item.updated_date).format(dateFormat)}`}</div>
+                  </div>}
                 </div>
-              ))
+              ))) : (
+                <div>(Không có thông tin phiếu nhập)</div>
+              )
             }
           </div>
           
@@ -201,7 +206,7 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
         })
       );
     }
-  }, [actionId, dispatch]);
+  }, [dispatch, actionId, procurementCode]);
 
   return (
     <Modal

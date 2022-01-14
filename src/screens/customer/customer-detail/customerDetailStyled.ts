@@ -160,7 +160,7 @@ export const StyledPurchaseHistory = styled.div`
 		justify-content: flex-end;
 		padding: 0 10px;
   }
-  .item.custom-td {
+  .custom-td {
     height: 100%;
     display: flex;
     justify-content: space-between;
@@ -181,16 +181,15 @@ export const StyledPurchaseHistory = styled.div`
       white-space: nowrap;
       display: flex;
       align-items: center;
-      position: relative;
       &:before {
         content: "";
         display: block;
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: -999px;
-        bottom: -999px;
-        right: ${quantityWidth}px;
+        top: 0;
+        bottom: 0;
+        right: ${quantityWidth + priceWidth}px;
         background-color: ${borderColor};
       }
     }
@@ -202,15 +201,14 @@ export const StyledPurchaseHistory = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
       &:before {
         content: "";
         display: block;
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: 0px;
-        bottom: 0px;
+        top: 0;
+        bottom: 0;
         right: ${massWidth}px;
         background-color: ${borderColor};
       }
@@ -221,13 +219,13 @@ export const StyledPurchaseHistory = styled.div`
       align-items: center;
 			justify-content: flex-end;
       &:before {
-        // content: "";
+        content: "";
         display: block;
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: -999px;
-        bottom:-999px;
+        top: 0;
+        bottom: 0;
         right: ${priceWidth}px;
         background-color: ${borderColor};
       }
@@ -306,4 +304,13 @@ export const StyledPurchaseHistory = styled.div`
 			}
 		}
 	}
+
+  .expanded-row-render {
+    margin-left: 6px;
+    margin-bottom: 20px;
+    width: 1100px;
+    .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th {
+      background-color: #ffffff;
+    }
+  }
 `;
