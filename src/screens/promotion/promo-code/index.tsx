@@ -34,11 +34,12 @@ const PromotionCode = () => {
   const dispatch = useDispatch();
   const query = useQuery();
   let dataQuery: any = {
-    ...{
-      type: PROMO_TYPE.MANUAL,
-      request: "",
-      state: null,
-    },
+    page: 1,
+    limit: 30,
+    type: PROMO_TYPE.MANUAL,
+    request: "",
+    state: null,
+
     ...getQueryParams(query),
   };
   const [tableLoading, setTableLoading] = useState<boolean>(true);

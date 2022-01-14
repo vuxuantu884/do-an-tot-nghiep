@@ -70,9 +70,9 @@ const ListCode = () => {
   const query = useQuery();
   const [form] = Form.useForm();
   let dataQuery: any = {
-    ...{
-      code: "",
-    },
+    code: "",
+    limit : 30,
+    page: 1,
     ...getQueryParams(query),
   };
   const [tableLoading, setTableLoading] = useState<boolean>(true);
@@ -456,6 +456,7 @@ const ListCode = () => {
                 dataSource={promoCodeList.items}
                 columns={columns}
                 rowKey={(item: any) => item.id}
+                
               />
             </div>
           </Card>
