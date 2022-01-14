@@ -192,14 +192,15 @@ const ViewSupplierScreen: React.FC = () => {
                 <RowDetail title="Loại nhà cung cấp" value={supplier.type_name} />
               </Col>
               <Col span={8}>
+                <RowDetail title="Số điện thoại" value={supplier.phone} />
                 <RowDetail title="Phân cấp" value={supplier.scorecard_name} />
                 <RowDetail
                   title="Nhân viên phụ trách"
                   value={`${supplier.pic_code} - ${supplier.pic}`}
-                />
-                <RowDetail title="Mã số thuế" value={supplier.tax_code} />
+                />                
               </Col>
               <Col span={8}>
+                <RowDetail title="Mã số thuế" value={supplier.tax_code} />
                 <RowDetail
                   title="SL Tối thiểu"
                   value={
