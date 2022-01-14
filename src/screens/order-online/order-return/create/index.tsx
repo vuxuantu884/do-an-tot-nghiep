@@ -1,4 +1,4 @@
-import { Card, Col, Form, Row } from "antd";
+import { Card, Col, Form, FormInstance, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
@@ -55,6 +55,7 @@ import {
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
 	getTotalAmountAfterDiscount,
+	isOrderFromPOS,
 	scrollAndFocusToDomElement,
 	totalAmount
 } from "utils/AppUtils";
@@ -64,7 +65,7 @@ import {
 	FulFillmentStatus,
 	OrderStatus,
 	PaymentMethodCode,
-	PaymentMethodOption, POS, ShipmentMethod,
+	PaymentMethodOption, ShipmentMethod,
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
@@ -467,7 +468,7 @@ ShippingServiceConfigDetailResponseModel[]
       return;
     }
     if (!checkIfHasReturnProduct) {
-      showError("Vui lòng chọn ít nhất 1 sản phẩmm");
+      showError("Vui lòng chọn ít nhất 1 sản phẩm!");
       const element: any = document.getElementById("search_product");
       scrollAndFocusToDomElement(element);
       return;
@@ -569,7 +570,7 @@ ShippingServiceConfigDetailResponseModel[]
 
   const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
     const methods = [ShipmentMethodOption.PICK_AT_STORE]
-    if (totalAmountOrderAfterPayments > 0 && methods.includes(shipmentMethod) && OrderDetail?.source_id === POS.source_id) {
+    if (totalAmountOrderAfterPayments > 0 && methods.includes(shipmentMethod) && isOrderFromPOS(OrderDetail)) {
       return true
     }
     return false
@@ -753,6 +754,12 @@ ShippingServiceConfigDetailResponseModel[]
       });
   };
 
+	const getOrderSource = (form:FormInstance<any>) => {
+		let result = null;
+		result = form.getFieldValue("source_id") ? form.getFieldValue("source_id") : OrderDetail ? OrderDetail.source_id : null;
+		return result;
+	};
+
   const onFinish = (values: ExchangeRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
@@ -789,7 +796,7 @@ ShippingServiceConfigDetailResponseModel[]
     values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
-    values.source_id = form.getFieldValue("source_id") ? form.getFieldValue("source_id") : OrderDetail ? OrderDetail.source_id : null;
+    values.source_id = getOrderSource(form);
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
@@ -1347,9 +1354,10 @@ ShippingServiceConfigDetailResponseModel[]
   useEffect(() => {
     const shipmentMethodsToSelectSource = [
       ShipmentMethodOption.DELIVER_PARTNER,
-      ShipmentMethodOption.SELF_DELIVER
+      ShipmentMethodOption.SELF_DELIVER,
+      ShipmentMethodOption.DELIVER_LATER,
     ]
-    if (OrderDetail?.source_id === POS.source_id) {
+    if (isOrderFromPOS(OrderDetail) && isStepExchange) {
       if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
         setIsShowSelectOrderSources(true)
       } else {
@@ -1359,7 +1367,7 @@ ShippingServiceConfigDetailResponseModel[]
         })
       }
     }
-  }, [OrderDetail?.source_id, form, shipmentMethod])
+  }, [OrderDetail, OrderDetail?.source_id, form, isStepExchange, shipmentMethod])
 
 
   return (
