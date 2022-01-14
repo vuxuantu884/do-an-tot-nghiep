@@ -1524,16 +1524,23 @@ function OrderCreateProduct(props: PropType) {
 			initQueryVariant.info = value;
 			initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
 			// console.log("initQueryVariant", initQueryVariant);
+			if (value.length >=3) {
+				setSearchProducts(true);
+			} else {
+				setSearchProducts(false);
+			}
 			const handleSearchProduct = () => {
 				if (value.trim()) {
 					(async () => {
-						setSearchProducts(true);
 						try {
 							await dispatch(
 								searchVariantsOrderRequestAction(initQueryVariant, (data) => {
 									setResultSearchVariant(data);
 									setSearchProducts(false);
 									setIsShowProductSearch(true);
+									if(data.items.length === 0) {
+										showError("Không tìm thấy sản phẩm!")
+									}
 								}, () => {
 									setSearchProducts(false);
 								})
