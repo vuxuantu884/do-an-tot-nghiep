@@ -40,6 +40,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { primaryColor } from "utils/global-styles/variables";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import TextShowMore from "component/container/show-more/text-show-more";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -153,8 +154,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     let filtersKeys = Object.keys(filters);
     let renderTxt: any = null; 
 
-    return (
-      <div>
+    return ( 
+      <div style={{wordBreak: 'break-word'}}>
         {filtersKeys.map((filterKey) => {
 
           let value = filters[filterKey];
@@ -235,8 +236,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               key={filterKey}
               className="fade"
               closable
-              style={{ marginBottom: 20 }}
-            >{`${renderTxt}`}</Tag>
+              style={{ marginBottom: 20, whiteSpace: 'unset' }}
+            ><TextShowMore>{`${renderTxt}`}</TextShowMore></Tag>
           );
         })}
       </div>

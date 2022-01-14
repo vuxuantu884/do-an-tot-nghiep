@@ -8,6 +8,7 @@ import {
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Collapse,
   Form, Image, Input,
@@ -225,6 +226,7 @@ const ProductCreateScreen: React.FC = () => {
   const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
+  const [changeDescription, setIsChangeDescription] = useState(true);
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
     {
       items: [],
@@ -232,7 +234,7 @@ const ProductCreateScreen: React.FC = () => {
     }
   );
   //end category
-  //end state
+  //end state 
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
@@ -363,9 +365,11 @@ const ProductCreateScreen: React.FC = () => {
     listVariantsFilter(colorSelected, sizeSelected);
   }, [colorSelected, listVariantsFilter, sizeSelected]);
 
-  const onMaterialChange = (id: number) => {
-    dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
-  };
+  const onMaterialChange = useCallback((id: number) => {
+    if (changeDescription) {
+      dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
+    }
+  },[dispatch,form, changeDescription]);
 
   const onSizeSelected = useCallback(
     (value: number, objSize: any) => {
@@ -499,6 +503,7 @@ const ProductCreateScreen: React.FC = () => {
       if (values.saleable) {
         variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
       }
+      setLoadingSaveButton(false);
 
       let request = Products.convertProductViewToRequest({
         ...values,
@@ -675,7 +680,7 @@ const ProductCreateScreen: React.FC = () => {
     dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier(data);
     }));
-  }, [dispatch]);
+  }, [dispatch]); 
 
   useEffect(() => {
     if (!isLoadMaterData.current) {
@@ -1150,6 +1155,13 @@ const ProductCreateScreen: React.FC = () => {
                           header="Mô tả sản phẩm"
                           key="prDes"
                           className="custom-header"
+                          extra={
+                            <div>
+                              <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{ 
+                                setIsChangeDescription(e.target.checked ? true: false)
+                                }}>Lấy thông tin mô tả từ chất liệu</Checkbox>
+                            </div>
+                          }
                         >
                           <Item name="description">
                             <CustomEditor />
