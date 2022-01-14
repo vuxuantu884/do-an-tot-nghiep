@@ -1288,7 +1288,7 @@ ShippingServiceConfigDetailResponseModel[]
         onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
       }
       else
-        onChangeShippingAddress(null)
+        onChangeBillingAddress(null)
     } else {
       setLoyaltyPoint(null);
     }

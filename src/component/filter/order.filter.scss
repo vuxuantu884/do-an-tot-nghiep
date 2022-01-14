@@ -29,6 +29,10 @@
 			.page-filter-left {
 				width: 8%;
 				min-width: 100px;
+				.ant-space {
+					display: inline-flex;
+					vertical-align: middle;
+				}
 			}
 			.page-filter-right {
 				width: 88%;
