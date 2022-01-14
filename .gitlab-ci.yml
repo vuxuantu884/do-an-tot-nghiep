@@ -30,7 +30,7 @@ docker build uat:
   stage: docker_build
   image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
   tags:
-  - builder
+  - npd-dev
   only:
     - uat
   variables:
@@ -45,7 +45,7 @@ docker build production:
   stage: docker_build
   image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
   tags:
-  - builder
+  - npd-dev
   only:
     - master
   variables:

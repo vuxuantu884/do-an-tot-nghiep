@@ -89,7 +89,7 @@ const GeneralInformation = (props: any) => {
       <Row gutter={24}>
         <Col span={24}>
           <Card style={{ padding: "20px 8px" }}>
-            <Col span={24}>
+            <Col span={24} className="customer-info-row">
               <CustomInput
                 name="full_name"
                 label={<span className="customer-field-label">Tên KH:</span>}
@@ -104,7 +104,7 @@ const GeneralInformation = (props: any) => {
                 isDisable={isDisable}
               />
             </Col>
-            <Col span={24}>
+            <Col span={24} className="customer-info-row">
               <Form.Item
                 name="birthday"
                 label={<span className="customer-field-label">Ngày sinh:</span>}
@@ -135,7 +135,7 @@ const GeneralInformation = (props: any) => {
                 />
               </Form.Item>
             </Col>
-            <Col span={24}>
+            <Col span={24} className="customer-info-row">
               <div className="phone-container">
                 <div className="ant-col ant-form-item-label">
                   <span className="customer-field-label">SĐT: <span style={{ color: "#E24343" }}>*</span></span>
@@ -204,8 +204,8 @@ const GeneralInformation = (props: any) => {
                 </Row>
               )}
             </Col>
-            <Row hidden={showDetail} style={{ padding: "0 12px" }}>
-              <Col span={24}>
+            <Row hidden={showDetail} style={{ padding: "0 0px" }}>
+              <Col span={24} className="customer-info-row">
                 <Form.Item
                   name="email"
                   label={<span className="customer-field-label">Email:</span>}
@@ -233,7 +233,7 @@ const GeneralInformation = (props: any) => {
                   </Form.Item>
                 </Col>
               </Col>
-              <Col span={24}>
+              <Col span={24} className="customer-info-row">
                 <Form.Item
                   name="gender"
                   label={<span className="customer-field-label">Giới tính:</span>}
@@ -333,7 +333,7 @@ const GeneralInformation = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={24}>
+              <Col span={24} className="customer-field-label customer-info-row">
                 <Form.Item
                   label={<span className="customer-field-label">Khu vực:</span>}
                   name="district_id"
@@ -357,7 +357,7 @@ const GeneralInformation = (props: any) => {
               <Form.Item label="city" name="city_id" hidden>
                 <Input disabled={isDisable} />
               </Form.Item>
-              <Col span={24}>
+              <Col span={24} className="customer-field-label customer-info-row">
                 <Form.Item
                   label={<span className="customer-field-label">Phường/ Xã:</span>}
                   name="ward_id"
@@ -378,7 +378,7 @@ const GeneralInformation = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={24}>
+              <Col span={24} className="customer-field-label customer-info-row">
                 <CustomInput
                   name="full_address"
                   isDisable={isDisable}
