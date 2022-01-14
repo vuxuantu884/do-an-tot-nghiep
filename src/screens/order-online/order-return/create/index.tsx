@@ -1349,7 +1349,7 @@ ShippingServiceConfigDetailResponseModel[]
       ShipmentMethodOption.DELIVER_PARTNER,
       ShipmentMethodOption.SELF_DELIVER
     ]
-    if (OrderDetail?.channel_code === POS.channel_code) {
+    if (OrderDetail?.source_id === POS.source_id) {
       if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
         setIsShowSelectOrderSources(true)
       } else {
@@ -1359,7 +1359,7 @@ ShippingServiceConfigDetailResponseModel[]
         })
       }
     }
-  }, [OrderDetail?.channel_code, form, shipmentMethod])
+  }, [OrderDetail?.source_id, form, shipmentMethod])
 
 
   return (

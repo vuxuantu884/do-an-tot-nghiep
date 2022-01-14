@@ -1,12 +1,12 @@
 import { BaseQuery } from "../base/base.query";
 
 export interface GoodsReceiptsSearchQuery extends BaseQuery{
-    ids:number[]|null;
-    order_codes:string[]|null;
-    store_ids:number[]|null;
-    delivery_service_ids:string[]|null;
-    ecommerce_ids:number[]|null;
-    good_receipt_type_ids:number[]|null;
+    store_id:number|null;
+    delivery_service_id:string|null;
+    ecommerce_id:number|null;
+    good_receipt_type_id:number|null;
+    good_receipt_id:number|null;
+    order_codes:string|null;
     from_date:string|null;
     to_date:string|null;
 }
