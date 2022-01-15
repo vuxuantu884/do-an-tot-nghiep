@@ -60,6 +60,15 @@ export const deleteGoodsReceiptsService = (
 };
 
 /**
+ * xóa nhiều biên bản bàn giao
+ */
+export const deleteAllGoodsReceipService=(ids:number[]):Promise<GoodsReceiptsResponse>=>{
+  const link=`${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?ids=${ids}`;
+  //const link=`http://localhost:8080/unicorn/order-service/goods-receipt-manager/goods-receipts?ids=${ids}`;
+  return BaseAxios.delete(link);
+}
+
+/**
  * tìm kiếm bản bàn giao
  */
 export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<any>> => {

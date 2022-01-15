@@ -25,6 +25,10 @@ export const deleteGoodsReceipts=(goodsReceiptsId:number,setData:(data:boolean)=
     return BaseAction(GoodsReceiptsType.DELETE_GOODS_RECEIPTS,{goodsReceiptsId,setData});
 }
 
+export const deleteAllGoodsReceipts=(ids:number[],setData:(data:GoodsReceiptsResponse)=>void)=>{
+    return BaseAction(GoodsReceiptsType.DELETE_ALL_GOODS_RECEIPTS,{ids,setData});
+}
+
 export const getByIdGoodsReceipts=(goodsReceiptsId:number,setData:(data:GoodsReceiptsResponse)=>void)=>{
     return BaseAction(GoodsReceiptsType.GETBYID_GOODS_RECEIPTS,{goodsReceiptsId,setData})
 }
