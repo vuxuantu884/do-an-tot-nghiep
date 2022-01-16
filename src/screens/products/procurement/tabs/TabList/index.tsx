@@ -278,7 +278,7 @@ const TabList: React.FC = () => {
               render: (value, record, index) => {
                 return (
                   <div
-                    className={ !record?.is_cancelled || record?.status === 'cancelled' ? "procurement-code" : "procurement-code--disable"}
+                    className={ record?.is_cancelled || record?.status === 'cancelled' ? "procurement-code--disable" : "procurement-code"}
                     onClick={!record?.is_cancelled? () => handleClickProcurement(record) : () => {}}
                   >
                     {value}
@@ -394,7 +394,7 @@ const TabList: React.FC = () => {
             {
               title: "Đã hủy",
               dataIndex: "is_cancelled",
-              render: (value, record, index) => (value ? "Đã hủy" : ""),
+              render: (value, record, index) => ((value || record?.status === 'cancelled') ? "Đã hủy" : ""),
             },
             {
               title: "SL được duyệt",
