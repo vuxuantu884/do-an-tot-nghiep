@@ -27,6 +27,7 @@ import { EcommerceProductPermission } from "config/permissions/ecommerce.permiss
 import useAuthorization from "hook/useAuthorization";
 
 import { StyledComponent } from "screens/ecommerce/products/styles";
+import { isNullOrUndefined } from "utils/AppUtils";
 
 const { TabPane } = Tabs;
 
@@ -136,13 +137,13 @@ const Products: React.FC = () => {
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && response.data.total > 0) {
+        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
           setProgressData(response.data);
           const progressCount = response.data.total_created + response.data.total_updated + response.data.total_error;
-          if (progressCount >= response.data.total) {
+          if (progressCount >= response.data.total || response.data.finish) {
             setProgressPercent(100);
             setProcessId(null);
-            showSuccess("Tải đơn hàng thành công!");
+            showSuccess("Tải sản phẩm thành công!");
             setIsDownloading(false);
           } else {
             const percent = Math.floor(progressCount / response.data.total * 100);
