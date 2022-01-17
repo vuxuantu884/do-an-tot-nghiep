@@ -11,7 +11,7 @@ import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { useDispatch } from "react-redux";
 import {
-  deleteGoodsReceipts,
+  deleteAllGoodsReceipts,
   getGoodsReceiptsSerch,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
@@ -24,9 +24,10 @@ import PackFilter from "component/filter/pack.filter";
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
 import { MenuAction } from "component/table/ActionButton";
 import { Link } from "react-router-dom";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -58,8 +59,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   const { query } = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  const [showSettingColumn, setShowSettingColumn] = useState(false);
-  // const [tableLoading] = useState(true);
 
   let dataQuery: GoodsReceiptsSearchQuery = {
     ...initQueryGoodsReceipts,
@@ -90,9 +89,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
   ];
 
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
   let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(dataQuery);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
+  const [goodsReceipt,setGoodsReceipt]=useState<GoodsReceiptsResponse[]>([]);
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -102,6 +103,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
     items: [],
   });
+
+  const [modalDeleteComfirm, setModalDeleteComfirm] = useState(false);
 
   const handlePrintPack = useCallback((type: string) => {
     let params = {
@@ -125,41 +128,12 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           handlePrintPack(typePrint.simple);
           break;
         case 3:
-          selectedRowKeys.forEach(function (item) {
-            setTimeout(() => {
-              dispatch(
-                deleteGoodsReceipts(item, (_item: boolean) => {
-                  if (_item) {
-                    dispatch(
-                      getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
-                        let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
-
-                        /////
-                        setData({
-                          metadata: {
-                            limit: data.metadata.limit,
-                            page: data.metadata.page,
-                            total: data.metadata.total,
-                          },
-                          items: dataResult,
-                        });
-                        setTableLoading(false);
-                      })
-                    );
-                    setSelectedRowKeys([]);
-                    showSuccess(`Đã xóa biên bản bàn giao`);
-                  } else {
-                    showError(`Xóa biên bản bàn giao thất bại`);
-                  }
-                })
-              );
-            }, 500);
-          });
-
+          if(!selectedRowKeys || selectedRowKeys.length===0)break;
+          setModalDeleteComfirm(true);
           break;
       }
     },
-    [dispatch, selectedRowKeys, params, handlePrintPack]
+    [handlePrintPack,selectedRowKeys]
   );
 
   const handlePrint = () => { };
@@ -430,7 +404,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     if (selectedRow[0]) {
       const selectedRowKeys = selectedRow.map((row: any) => row.id_handover_record);
       setSelectedRowKeys(selectedRowKeys);
-    }
+    }else setSelectedRowKeys([]);
   }, []);
 
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
@@ -498,6 +472,52 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     return dataResult;
   };
 
+  const setLayoutDeleteAllGoodsReceipts=useMemo(()=>{
+    let selectedOrder:GoodsReceiptsResponse[]=goodsReceipt.filter((p)=>selectedRowKeys.some((single:number)=>single.toString()===p.id.toString()));
+    return(
+      <React.Fragment>
+        {selectedOrder.map((value: GoodsReceiptsResponse, index: number) => (
+          <p style={{ lineHeight: "18px" }}>
+            <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value.id}`} key={index}>
+            {value.id}- {value.delivery_service_name}-{" "}
+                  {value.receipt_type_name}- {value.ecommerce_name}
+            </Link>{" "}
+            sẽ được xóa</p>
+        ))}
+      </React.Fragment>
+    )
+  },[goodsReceipt, selectedRowKeys])
+
+  const hanldRemoveGoodsReceiptOk=useCallback(()=>{
+    let request:any={
+      ids:selectedRowKeys
+    }
+    dispatch(
+      deleteAllGoodsReceipts(request, (data:GoodsReceiptsResponse) => {
+        if (data) {
+          dispatch(
+            getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
+              let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+              /////
+              setData({
+                metadata: {
+                  limit: data.metadata.limit,
+                  page: data.metadata.page,
+                  total: data.metadata.total,
+                },
+                items: dataResult,
+              });
+              setTableLoading(false);
+            })
+          );
+          setSelectedRowKeys([]);
+          setModalDeleteComfirm(false);
+          showSuccess(`Đã xóa biên bản bàn giao`);
+        }
+      })
+    );
+  },[dispatch, params, selectedRowKeys]);
+
   useEffect(() => {
     dispatch(
       getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
@@ -511,6 +531,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           },
           items: dataResult,
         });
+
+        setGoodsReceipt(data.items);
         setTableLoading(false);
       })
     );
@@ -578,6 +600,14 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           data={columns}
         />
       )}
+
+        <ModalDeleteConfirm
+          onCancel={() => setModalDeleteComfirm(false)}
+          onOk={hanldRemoveGoodsReceiptOk}
+          title="Bạn chắc chắn xóa biên bản bàn giao?"
+          subTitle={setLayoutDeleteAllGoodsReceipts}
+          visible={modalDeleteComfirm}
+        />
     </>
   );
 };

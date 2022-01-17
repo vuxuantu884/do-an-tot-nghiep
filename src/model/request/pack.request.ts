@@ -11,3 +11,9 @@ export interface GoodsReceiptsRequest extends BaseObject {
     receipt_type_name:string;
     codes:[];
 }
+
+export interface GoodsReceiptsDeleteRequest extends BaseObject{
+    request_id:string;
+    operator_kc_id:string;
+    ids:number[];
+}

@@ -219,10 +219,10 @@ const TabList: React.FC = () => {
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {    
     const { status = '', expect_store_id = 144, code} = record;
-    if (status === 'draft') {
+    if (status === ProcumentStatus.DRAFT) {
       setVisibleDaft(true);
       setItem(record);
-    } else if (status === 'not_received') {
+    } else if (status === ProcumentStatus.NOT_RECEIVED) {
       setProcumentInventory(record);
       setVisibleConfirm(true);
     }
@@ -277,12 +277,13 @@ const TabList: React.FC = () => {
               width: 120,
               render: (value, record, index) => {
                 return (
-                  <div
-                    className={ record?.is_cancelled || record?.status === 'cancelled' ? "procurement-code--disable" : "procurement-code"}
-                    onClick={!record?.is_cancelled? () => handleClickProcurement(record) : () => {}}
-                  >
-                    {value}
-                  </div>
+                  !record?.is_cancelled && (record?.status === ProcumentStatus.DRAFT || record?.status === ProcumentStatus.NOT_RECEIVED)
+                  ?  <div
+                      className="procurement-code"
+                      onClick={() => handleClickProcurement(record)} >
+                      {value}
+                    </div> : 
+                <div> {value}</div>
                 )
               },
             },

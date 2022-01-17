@@ -1,8 +1,14 @@
 import { DownOutlined, FilterOutlined } from "@ant-design/icons";
 import {
-  Button, Checkbox, Dropdown, Form,
-  Input, Menu, Select,
-  Tag, Tooltip
+  Button,
+  Checkbox,
+  Dropdown,
+  Form,
+  Input,
+  Menu,
+  Select,
+  Tag,
+  Tooltip,
 } from "antd";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
@@ -12,15 +18,15 @@ import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
-import { AllOrdersMappingFilterStyled, StyledRenderShopList } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import {
-  StyledEcommerceOrderBaseFilter
-} from "screens/ecommerce/orders/orderStyles";
+  AllOrdersMappingFilterStyled,
+  StyledRenderShopList,
+} from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
+import { StyledEcommerceOrderBaseFilter } from "screens/ecommerce/orders/orderStyles";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 
 import { getEcommerceIcon } from "screens/ecommerce/common/commonAction";
-
 
 type AllOrdersMappingFilterProps = {
   params: GetOrdersMappingQuery;
@@ -30,7 +36,7 @@ type AllOrdersMappingFilterProps = {
   isLoading: boolean;
   onClearFilter?: () => void;
   onFilter?: (values: GetOrdersMappingQuery | Object) => void;
-  rowDataFilter: Array<any>
+  rowDataFilter: Array<any>;
 };
 
 const { Item } = Form;
@@ -67,7 +73,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     onClearFilter,
     onFilter,
     shopList,
-    rowDataFilter
+    rowDataFilter,
   } = props;
 
   const dispatch = useDispatch();
@@ -91,29 +97,24 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       shop_ids: Array.isArray(params.shop_ids)
         ? params.shop_ids
         : [params.shop_ids],
-
     };
   }, [params]);
-
-
 
   // action menu
   const onMenuClick = useCallback(
     (index: number) => {
-      const requestSyncStockOrder: any[] = []
+      const requestSyncStockOrder: any[] = [];
       rowDataFilter.forEach((item: any) => {
-        requestSyncStockOrder.push(
-          {
-            ecommerce_id: item.ecommerce_id,
-            shop_id: item.shop_id,
-            order_sn: item.ecommerce_order_code
-          }
-        )
-      })
+        requestSyncStockOrder.push({
+          ecommerce_id: item.ecommerce_id,
+          shop_id: item.shop_id,
+          order_sn: item.ecommerce_order_code,
+        });
+      });
 
       const rowDataFilterObj = {
-        order_list: requestSyncStockOrder
-      }
+        order_list: requestSyncStockOrder,
+      };
 
       if (rowDataFilter && rowDataFilter.length > 0) {
         dispatch(
@@ -122,19 +123,19 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
               if (result.update_total > 0) {
                 if (result.error_total > 0) {
                   showWarning(`
-                    Đồng bộ ${result.update_total} đơn hàng thành công. Đồng bộ ${result.error_total} đơn hàng thất bại`)
+                    Đồng bộ ${result.update_total} đơn hàng thành công. Đồng bộ ${result.error_total} đơn hàng thất bại`);
                 } else {
-                  showSuccess(`Đồng bộ ${result.update_total} đơn hàng thành công`)
+                  showSuccess(
+                    `Đồng bộ ${result.update_total} đơn hàng thành công`
+                  );
                 }
               } else {
-                showError(`Đồng bộ ${result.error_total} đơn hàng thất bại`)
-
+                showError(`Đồng bộ ${result.error_total} đơn hàng thất bại`);
               }
             }
           })
         );
       }
-
     },
     [dispatch, rowDataFilter]
   );
@@ -148,14 +149,18 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       <Menu.Item key="1" disabled={isDisableAction()}>
         <span onClick={() => onMenuClick(1)}>Đồng bộ đơn hàng</span>
       </Menu.Item>
-    </Menu >
+    </Menu>
   );
   // end action menu
 
   // handle select date
   const [createdDateClick, setCreatedDateClick] = useState("");
-  const [createdDateFrom, setCreatedDateFrom] = useState<any>(initialValues.created_date_from);
-  const [createdDateTo, setCreatedDateTo] = useState<any>(initialValues.created_date_to);
+  const [createdDateFrom, setCreatedDateFrom] = useState<any>(
+    initialValues.created_date_from
+  );
+  const [createdDateTo, setCreatedDateTo] = useState<any>(
+    initialValues.created_date_to
+  );
 
   const clickOptionDate = useCallback(
     (type, value) => {
@@ -172,20 +177,32 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week").add(7, 'h'));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("week").add(7, "h")
+          );
           endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, 'h'));
-          endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("week").subtract(1, "weeks").add(7, "h")
+          );
+          endDateValue = ConvertDateToUtc(
+            moment().endOf("week").subtract(1, "weeks")
+          );
           break;
         case "thismonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month").add(7, 'h'));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("month").add(7, "h")
+          );
           endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, 'h'));
-          endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("month").subtract(1, "months").add(7, "h")
+          );
+          endDateValue = ConvertDateToUtc(
+            moment().endOf("month").subtract(1, "months")
+          );
           break;
         default:
           break;
@@ -259,7 +276,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     }
   };
 
-
   const renderShopList = () => {
     return (
       <StyledRenderShopList>
@@ -268,26 +284,25 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             <div key={item.id} className="shop-name">
               <Checkbox
                 onChange={(e) => onSelectShopChange(item, e)}
-                checked={item.isSelected}
-              >
+                checked={item.isSelected}>
                 <span className="check-box-name">
-                  {getEcommerceIcon(item.ecommerce) &&
+                  {getEcommerceIcon(item.ecommerce) && (
                     <img
                       src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
-                  }
+                  )}
 
-                  {item.name && item.name.length > 25 &&
+                  {item.name && item.name.length > 25 && (
                     <Tooltip title={item.name} color="#1890ff" placement="top">
                       <span className="name">{item.name}</span>
                     </Tooltip>
-                  }
+                  )}
 
-                  {item.name && item.name.length <= 25 &&
+                  {item.name && item.name.length <= 25 && (
                     <span className="name">{item.name}</span>
-                  }
+                  )}
                 </span>
               </Checkbox>
             </div>
@@ -310,7 +325,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     if (initialValues.shop_ids.length) {
       let shopNameList = "";
       initialValues.shop_ids.forEach((shopId: any) => {
-        const findStatus = ecommerceShopList?.find((item) => item.id === shopId);
+        const findStatus = ecommerceShopList?.find(
+          (item) => item.id === shopId
+        );
         shopNameList = findStatus
           ? shopNameList + findStatus.name + "; "
           : shopNameList;
@@ -323,7 +340,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     }
 
     if (initialValues.connected_status) {
-      const connectStatus = CONNECTED_STATUS.find((item) => item.value === initialValues.connected_status);
+      const connectStatus = CONNECTED_STATUS.find(
+        (item) => item.value === initialValues.connected_status
+      );
       list.push({
         key: "connected_status",
         name: "Trạng thái liên kết",
@@ -333,9 +352,13 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
     if (initialValues.created_date_from || initialValues.created_date_to) {
       let textOrderCreateDate =
-        (initialValues.created_date_from ? ConvertUtcToLocalDate(initialValues.created_date_from, "DD/MM/YYYY") : "??") +
+        (initialValues.created_date_from
+          ? ConvertUtcToLocalDate(initialValues.created_date_from, "DD/MM/YYYY")
+          : "??") +
         " ~ " +
-        (initialValues.created_date_to ? ConvertUtcToLocalDate(initialValues.created_date_to, "DD/MM/YYYY") : "??");
+        (initialValues.created_date_to
+          ? ConvertUtcToLocalDate(initialValues.created_date_to, "DD/MM/YYYY")
+          : "??");
       list.push({
         key: "created_date",
         name: "Ngày tạo đơn",
@@ -346,7 +369,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     if (initialValues.ecommerce_order_statuses.length) {
       let textStatus = "";
       initialValues.ecommerce_order_statuses.forEach((i) => {
-        const findStatus = ECOMMERCE_ORDER_STATUS?.find((item) => item.value === i);
+        const findStatus = ECOMMERCE_ORDER_STATUS?.find(
+          (item) => item.value === i
+        );
         textStatus = findStatus
           ? textStatus + findStatus.name + "; "
           : textStatus;
@@ -359,7 +384,14 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     }
 
     return list;
-  }, [initialValues.shop_ids, initialValues.connected_status, initialValues.created_date_from, initialValues.created_date_to, initialValues.ecommerce_order_statuses, ecommerceShopList]);
+  }, [
+    initialValues.shop_ids,
+    initialValues.connected_status,
+    initialValues.created_date_from,
+    initialValues.created_date_to,
+    initialValues.ecommerce_order_statuses,
+    ecommerceShopList,
+  ]);
 
   // close tag filter
   const onCloseTag = useCallback(
@@ -379,7 +411,12 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           setCreatedDateClick("");
           setCreatedDateFrom(null);
           setCreatedDateTo(null);
-          onFilter && onFilter({ ...params, created_date_from: null, created_date_to: null });
+          onFilter &&
+            onFilter({
+              ...params,
+              created_date_from: null,
+              created_date_to: null,
+            });
           break;
         case "ecommerce_order_statuses":
           onFilter && onFilter({ ...params, ecommerce_order_statuses: [] });
@@ -438,7 +475,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     [shopIdsSelected, createdDateFrom, createdDateTo, onFilter]
   );
 
-
   return (
     <AllOrdersMappingFilterStyled>
       <div className="order-filter">
@@ -446,13 +482,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           form={formFilter}
           onFinish={onFinish}
           initialValues={initialValues}
-          className="default-filter"
-        >
+          className="default-filter">
           <Form.Item className="action-dropdown">
-            <Dropdown
-              overlay={actionList}
-              trigger={["click"]}
-            >
+            <Dropdown overlay={actionList} trigger={["click"]}>
               <Button className="action-button">
                 <div style={{ marginRight: 10 }}>Thao tác</div>
                 <DownOutlined />
@@ -495,11 +527,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           </Item>
 
           <Item className="filter-item">
-            <Button
-              type="primary"
-              htmlType="submit"
-              disabled={isLoading}
-            >
+            <Button type="primary" htmlType="submit" disabled={isLoading}>
               Lọc
             </Button>
           </Item>
@@ -508,8 +536,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             <Button
               icon={<FilterOutlined />}
               onClick={openBaseFilter}
-              disabled={isLoading}
-            >
+              disabled={isLoading}>
               Thêm bộ lọc
             </Button>
           </Item>
@@ -520,20 +547,17 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visibleBaseFilter}
-          width={500}
-        >
+          width={500}>
           <StyledEcommerceOrderBaseFilter>
             <Form
               form={formFilter}
               onFinish={onFinish}
               initialValues={params}
-              layout="vertical"
-            >
-              <Form.Item label={<b>Trạng thái liên kết</b>} name="connected_status">
-                <Select
-                  placeholder="Chọn trạng thái"
-                  allowClear
-                >
+              layout="vertical">
+              <Form.Item
+                label={<b>Trạng thái liên kết</b>}
+                name="connected_status">
+                <Select placeholder="Chọn trạng thái" allowClear>
                   {CONNECTED_STATUS.map((item: any) => (
                     <Option key={item.value} value={item.value}>
                       {item.title}
@@ -556,8 +580,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
 
               <Form.Item
                 label={<b>TRẠNG THÁI ĐƠN HÀNG</b>}
-                name="ecommerce_order_statuses"
-              >
+                name="ecommerce_order_statuses">
                 <Select
                   mode="multiple"
                   showArrow
@@ -565,9 +588,8 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                   placeholder="Chọn trạng thái đơn hàng"
                   notFoundContent="Không tìm thấy kết quả"
                   optionFilterProp="children"
-                  maxTagCount='responsive'
-                  getPopupContainer={(trigger) => trigger.parentNode}
-                >
+                  maxTagCount="responsive"
+                  getPopupContainer={(trigger) => trigger.parentNode}>
                   {ECOMMERCE_ORDER_STATUS?.map((item, index) => (
                     <Option key={item.value} value={item.value.toString()}>
                       {item.name}
@@ -587,14 +609,13 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
               key={filter.key}
               className="tag"
               closable={!isLoading}
-              onClose={(e) => onCloseTag(e, filter)}
-            >
+              onClose={(e) => onCloseTag(e, filter)}>
               {filter.name}: {filter.value}
             </Tag>
           );
         })}
       </div>
-    </AllOrdersMappingFilterStyled >
+    </AllOrdersMappingFilterStyled>
   );
 };
 

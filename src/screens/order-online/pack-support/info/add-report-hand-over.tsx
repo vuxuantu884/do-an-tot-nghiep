@@ -38,7 +38,7 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   to_date: "",
 };
 
-const ReportHandOver: React.FC = () => {
+const AddReportHandOver: React.FC = () => {
   const dispatch = useDispatch();
 
   //useState
@@ -314,4 +314,4 @@ const ReportHandOver: React.FC = () => {
   );
 };
 
-export default ReportHandOver;
+export default AddReportHandOver;

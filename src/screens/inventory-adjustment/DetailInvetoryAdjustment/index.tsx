@@ -49,7 +49,7 @@ import {
   updateOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
+import {INVENTORY_AUDIT_TYPE_CONSTANTS, STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
 import {HttpStatus} from "config/http-status.config";
 
 import {UploadRequestOption} from "rc-upload/lib/interface";
@@ -581,10 +581,11 @@ const DetailInvetoryAdjustment: FC = () => {
       render: (value: string, row) => {
         return <>
           {
-            <Button
-              onClick={() => onDeleteItem(row.id)}
-              className="item-delete"
-              icon={<AiOutlineClose color="red" />}
+           data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL &&
+          <Button
+            onClick={() => onDeleteItem(row.id)}
+            className="item-delete"
+            icon={<AiOutlineClose color="red" />}
           />
           }
         </>

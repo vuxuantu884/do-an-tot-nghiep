@@ -411,6 +411,7 @@ const InventoryAdjustment: React.FC = () => {
 
   const onFilter = useCallback(
     (values) => {
+      setTableLoading(true);
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);

@@ -349,7 +349,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                   initialValues={initialValues}
                   layout="inline"
                 >
-                  <Item name="good_receipt_id" style={{width: "30%"}}>
+                  <Item name="ids" style={{width: "30%"}}>
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="ID Biên bản bàn giao"

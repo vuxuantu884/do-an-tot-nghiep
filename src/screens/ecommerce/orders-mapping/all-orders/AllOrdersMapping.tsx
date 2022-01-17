@@ -317,6 +317,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     setAllShopList(shopList);
   }, []);
 
+
   useEffect(() => {
     dispatch(getShopEcommerceList({}, updateAllShopList));
   }, [dispatch, updateAllShopList]);

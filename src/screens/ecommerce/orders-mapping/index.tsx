@@ -19,6 +19,7 @@ import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModa
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import { showSuccess } from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
+import { isNullOrUndefined } from "utils/AppUtils";
 
 
 const { TabPane } = Tabs;
@@ -148,10 +149,10 @@ const OrdersMapping: React.FC = () => {
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && response.data.total > 0) {
+        if (response.code === HttpStatus.SUCCESS && response.data &&  !isNullOrUndefined(response.data.total)) {
           setProgressData(response.data);
           const progressCount = response.data.total_created + response.data.total_updated + response.data.total_error;
-          if (progressCount >= response.data.total) {
+          if (progressCount >= response.data.total || response.data.finish) {
             setProgressPercent(100);
             setProcessId(null);
             showSuccess("Tải đơn hàng thành công!");

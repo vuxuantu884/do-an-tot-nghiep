@@ -1,73 +1,76 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import {
-  Button,
-  Form,
-  Select,
-  Input,
-  Modal,
-  Tooltip,
-  Radio,
-  Space,
-  Dropdown,
-  Menu,
-  Checkbox,
-  DatePicker,
-  Card,
-} from "antd";
-import {
-  SearchOutlined,
   DownOutlined,
+  SearchOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
-
+import {
+  Button,
+  Card,
+  Checkbox,
+  DatePicker,
+  Dropdown,
+  Form,
+  Input,
+  Menu,
+  Modal,
+  Select,
+  Tooltip,
+} from "antd";
+import circleDeleteIcon from "assets/icon/circle-delete.svg";
+import disconnectIcon from "assets/icon/disconnect.svg";
+import filterIcon from "assets/icon/filter.svg";
+import warningCircleIcon from "assets/icon/warning-circle.svg";
+import BaseFilter from "component/filter/base.filter";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import BaseFilter from "component/filter/base.filter";
-import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
-import { formatCurrency } from "utils/AppUtils";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
-import ConnectedItemActionColumn from "screens/ecommerce/products/tab/connected-items/ConnectedItemActionColumn";
-
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { ProductEcommerceQuery } from "model/query/ecommerce.query";
-import { PageResponse } from "model/base/base-metadata.response";
 import {
-  getShopEcommerceList,
   deleteEcommerceItem,
   disconnectEcommerceItem,
-  postSyncStockEcommerceProduct,
   getProductEcommerceList,
+  getShopEcommerceList,
+  postSyncStockEcommerceProduct,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import useAuthorization from "hook/useAuthorization";
-import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
-
-import disconnectIcon from "assets/icon/disconnect.svg";
-import warningCircleIcon from "assets/icon/warning-circle.svg";
-import filterIcon from "assets/icon/filter.svg";
-import circleDeleteIcon from "assets/icon/circle-delete.svg";
-
+import { PageResponse } from "model/base/base-metadata.response";
+import {
+  ProductEcommerceQuery,
+  RequestSyncStockQuery,
+} from "model/query/ecommerce.query";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import moment from "moment";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import {
+  ECOMMERCE_LIST,
+  getEcommerceIcon,
+} from "screens/ecommerce/common/commonAction";
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
+import {
+  StyledProductFilter,
+  StyledProductLink,
+} from "screens/ecommerce/products/styles";
+import ConnectedItemActionColumn from "screens/ecommerce/products/tab/connected-items/ConnectedItemActionColumn";
 import { StyledComponent } from "screens/ecommerce/products/tab/connected-items/styles";
 import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
-import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
-import { StyledStatus } from "screens/ecommerce/common/commonStyle";
-import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
-
-import { useHistory } from 'react-router-dom'
-
+import { formatCurrency } from "utils/AppUtils";
+import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
+import SyncProductModal from "./SyncProductModal";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
-const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
-const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
-
+const productsUpdateStockPermission = [
+  EcommerceProductPermission.products_update_stock,
+];
+const productsDisconnectPermission = [
+  EcommerceProductPermission.products_disconnect,
+];
 
 const ConnectedItems: React.FC = () => {
-
-  const history = useHistory()
+  const history = useHistory();
 
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
@@ -88,7 +91,8 @@ const ConnectedItems: React.FC = () => {
     not: false,
   });
 
-  const isShowAction = allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
+  const isShowAction =
+    allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -96,7 +100,6 @@ const ConnectedItems: React.FC = () => {
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
-  const [syncStockAll, setSyncStockAll] = useState(true);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
 
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
@@ -143,7 +146,6 @@ const ConnectedItems: React.FC = () => {
     connected_date_to: null,
   });
 
-
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
     if (!!result) {
@@ -151,10 +153,13 @@ const ConnectedItems: React.FC = () => {
     }
   }, []);
 
-  const getProductUpdated = useCallback((queryRequest: any) => {
-    setIsLoading(true);
-    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
-  }, [dispatch, updateVariantData]);
+  const getProductUpdated = useCallback(
+    (queryRequest: any) => {
+      setIsLoading(true);
+      dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+    },
+    [dispatch, updateVariantData]
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -168,8 +173,9 @@ const ConnectedItems: React.FC = () => {
   //handle sync stock
   const handleSyncStock = (item: any) => {
     const requestSyncStock = {
+      sync_type: "selected",
       variant_ids: [item.id],
-      all: false,
+      shop_ids: null,
     };
 
     dispatch(
@@ -188,29 +194,38 @@ const ConnectedItems: React.FC = () => {
       selectedRow.forEach((item) => {
         itemSelected.push(item.id);
       });
-      setSyncStockAll(false);
     }
     setIdsItemSelected(itemSelected);
     setIsShowSyncStockModal(true);
   };
 
-  const onChangeSyncOption = (e: any) => {
-    setSyncStockAll(e.target.value);
-  };
-
   const cancelSyncStockModal = () => {
     setIsShowSyncStockModal(false);
-    setSyncStockAll(true);
   };
 
-  const okSyncStockModal = () => {
+  const okSyncStockModal = (item: any, shop_ids: any) => {
     setIsShowSyncStockModal(false);
-    setSyncStockAll(true);
 
-    const requestSyncStock = {
-      variant_ids: idsItemSelected,
-      all: syncStockAll,
+    const requestSyncStock: RequestSyncStockQuery = {
+      sync_type: null,
+      shop_ids: null,
+      variant_ids: null,
     };
+
+    switch (item) {
+      case "selected":
+        requestSyncStock.sync_type = "selected";
+        requestSyncStock.variant_ids = idsItemSelected;
+        requestSyncStock.shop_ids = null;
+        break;
+      case "shop":
+        requestSyncStock.sync_type = "shop";
+        requestSyncStock.variant_ids = null;
+        requestSyncStock.shop_ids = shop_ids;
+        break;
+      default:
+        throw new Error("Not field invalid");
+    }
 
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
@@ -289,7 +304,7 @@ const ConnectedItems: React.FC = () => {
 
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
-    
+
     if (idsItemSelected) {
       dispatch(
         disconnectEcommerceItem({ ids: idsItemSelected }, (result) => {
@@ -318,8 +333,7 @@ const ConnectedItems: React.FC = () => {
           <img
             src={item.ecommerce_image_url}
             style={{ height: "40px" }}
-            alt=""
-          ></img>
+            alt=""></img>
         );
       },
     },
@@ -366,8 +380,7 @@ const ConnectedItems: React.FC = () => {
           <StyledProductLink>
             <Link
               target="_blank"
-              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
-            >
+              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}>
               {item.core_variant}
             </Link>
             <div>{item.core_sku}</div>
@@ -401,9 +414,11 @@ const ConnectedItems: React.FC = () => {
       render: (item: any, v: any, i: any) => {
         return (
           <StyledStatus>
-            {item.connect_status === "connected" &&
-              <div className="green-status" style={{ width: 120 }}>Thành công</div>
-            }
+            {item.connect_status === "connected" && (
+              <div className="green-status" style={{ width: 120 }}>
+                Thành công
+              </div>
+            )}
           </StyledStatus>
         );
       },
@@ -416,13 +431,8 @@ const ConnectedItems: React.FC = () => {
             <Tooltip
               overlay="Kết quả đồng bộ tồn kho lần gần nhất"
               placement="top"
-              color="blue"
-            >
-              <img
-                src={warningCircleIcon}
-                style={{ marginLeft: 5 }}
-                alt=""
-              />
+              color="blue">
+              <img src={warningCircleIcon} style={{ marginLeft: 5 }} alt="" />
             </Tooltip>
           </div>
         );
@@ -435,18 +445,24 @@ const ConnectedItems: React.FC = () => {
           <StyledStatus>
             {item.sync_stock_status === "done" && (
               <Tooltip title={convertDateTimeFormat(item.updated_date)}>
-                <div className="green-status" style={{ width: 120 }}>Thành công</div>
+                <div className="green-status" style={{ width: 120 }}>
+                  Thành công
+                </div>
               </Tooltip>
             )}
 
             {item.sync_stock_status === "error" && (
               <Tooltip title="error">
-                <div className="red-status" style={{ width: 120 }}>Thất bại</div>
+                <div className="red-status" style={{ width: 120 }}>
+                  Thất bại
+                </div>
               </Tooltip>
             )}
 
             {item.sync_stock_status === "in_progress" && (
-              <div className="yellow-status" style={{ width: 120 }}>Đang xử lý</div>
+              <div className="yellow-status" style={{ width: 120 }}>
+                Đang xử lý
+              </div>
             )}
           </StyledStatus>
         );
@@ -514,7 +530,8 @@ const ConnectedItems: React.FC = () => {
         updateEcommerceShopList
       )
     );
-  }
+  };
+
   //end handle select ecommerce
 
   //handle select ecommerce
@@ -577,25 +594,25 @@ const ConnectedItems: React.FC = () => {
 
   const actionList = (
     <Menu>
-      {allowProductsUpdateStock &&
+      {allowProductsUpdateStock && (
         <Menu.Item key="1">
           <span onClick={handleSyncStockItemsSelected}>
             Đồng bộ tồn kho lên sàn
           </span>
         </Menu.Item>
-      }
+      )}
 
-      {allowProductsDelete &&
+      {allowProductsDelete && (
         <Menu.Item key="2" disabled={isDisableAction()}>
           <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
         </Menu.Item>
-      }
+      )}
 
-      {allowProductsDisconnect &&
+      {allowProductsDisconnect && (
         <Menu.Item key="3" disabled={isDisableAction()}>
           <span onClick={handleDisconnectItemsSelected}>Hủy liên kết</span>
         </Menu.Item>
-      }
+      )}
     </Menu>
   );
 
@@ -632,22 +649,20 @@ const ConnectedItems: React.FC = () => {
             <div key={item.id} className="shop-name">
               <Checkbox
                 onChange={(e) => onCheckedChange(item, e)}
-                checked={item.isSelected}
-              >
+                checked={item.isSelected}>
                 <span className="check-box-name">
-                  {getEcommerceIcon(item.ecommerce) &&
+                  {getEcommerceIcon(item.ecommerce) && (
                     <img
                       src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
-                  }
-                  
+                  )}
+
                   <Tooltip title={item.name} color="#1890ff" placement="right">
                     <span
                       className="name"
-                      style={isNewFilter ? { width: 270 } : { width: 90 }}
-                    >
+                      style={isNewFilter ? { width: 270 } : { width: 90 }}>
                       {item.name}
                     </span>
                   </Tooltip>
@@ -700,20 +715,32 @@ const ConnectedItems: React.FC = () => {
           endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week").add(7, 'h'));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("week").add(7, "h")
+          );
           endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, 'h'));
-          endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("week").subtract(1, "weeks").add(7, "h")
+          );
+          endDateValue = ConvertDateToUtc(
+            moment().endOf("week").subtract(1, "weeks")
+          );
           break;
         case "thismonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month").add(7, 'h'));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("month").add(7, "h")
+          );
           endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, 'h'));
-          endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("month").subtract(1, "months").add(7, "h")
+          );
+          endDateValue = ConvertDateToUtc(
+            moment().endOf("month").subtract(1, "months")
+          );
           break;
         default:
           break;
@@ -746,45 +773,46 @@ const ConnectedItems: React.FC = () => {
       <Card>
         <StyledProductFilter>
           <div className="filter">
-            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
-              {isShowAction &&
+            <Form
+              form={formAdvance}
+              onFinish={onSearch}
+              initialValues={initialFormValues}>
+              {isShowAction && (
                 <div className="action-dropdown">
                   <Dropdown
                     overlay={actionList}
                     trigger={["click"]}
-                    disabled={isLoading}
-                  >
+                    disabled={isLoading}>
                     <Button className="action-button">
                       <div style={{ marginRight: 10 }}>Thao tác</div>
                       <DownOutlined />
                     </Button>
                   </Dropdown>
                 </div>
-              }
+              )}
 
-              <Form.Item name="ecommerce_id" className="select-channel-dropdown">
+              <Form.Item
+                name="ecommerce_id"
+                className="select-channel-dropdown">
                 <Select
                   showSearch
                   disabled={isLoading}
                   placeholder="Chọn sàn"
                   allowClear
                   onSelect={(value) => handleSelectEcommerce(value)}
-                  onClear={removeEcommerce}
-                >
-                  {
-                    ECOMMERCE_LIST?.map((item: any) => (
-                      <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                        <div>
-                          <img
-                            src={item.icon}
-                            alt={item.id}
-                            style={{ marginRight: "10px" }}
-                          />
-                          <span>{item.title}</span>
-                        </div>
-                      </Option>
-                    ))
-                  }
+                  onClear={removeEcommerce}>
+                  {ECOMMERCE_LIST?.map((item: any) => (
+                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                      <div>
+                        <img
+                          src={item.icon}
+                          alt={item.id}
+                          style={{ marginRight: "10px" }}
+                        />
+                        <span>{item.title}</span>
+                      </div>
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
 
@@ -872,44 +900,38 @@ const ConnectedItems: React.FC = () => {
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleFilter}
-        width={400}
-      >
+        width={400}>
         <StyledBaseFilter>
           <Form
             form={formAdvance}
             onFinish={onSearch}
             initialValues={initialFormValues}
-            layout="vertical"
-          >
+            layout="vertical">
             <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
               <Select
                 showSearch
                 placeholder="Chọn sàn"
                 allowClear
                 onSelect={(value) => handleSelectEcommerce(value)}
-                onClear={removeEcommerce}
-              >
-                {
-                  ECOMMERCE_LIST?.map((item: any) => (
-                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                      <div>
-                        <img
-                          src={item.icon}
-                          alt={item.id}
-                          style={{ marginRight: "10px" }}
-                        />
-                        <span>{item.title}</span>
-                      </div>
-                    </Option>
-                  ))
-                }
+                onClear={removeEcommerce}>
+                {ECOMMERCE_LIST?.map((item: any) => (
+                  <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                    <div>
+                      <img
+                        src={item.icon}
+                        alt={item.id}
+                        style={{ marginRight: "10px" }}
+                      />
+                      <span>{item.title}</span>
+                    </div>
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
 
             <Form.Item
               className="select-store-dropdown"
-              label={<b>CHỌN GIAN HÀNG</b>}
-            >
+              label={<b>CHỌN GIAN HÀNG</b>}>
               {isEcommerceSelected && (
                 <Select
                   showSearch
@@ -937,13 +959,11 @@ const ConnectedItems: React.FC = () => {
 
             <Form.Item
               name="update_stock_status"
-              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}
-            >
+              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}>
               <Select
                 showSearch
                 placeholder="Chọn trạng thái đồng bộ tồn kho"
-                allowClear
-              >
+                allowClear>
                 {STOCK_STATUS &&
                   STOCK_STATUS.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -960,8 +980,7 @@ const ConnectedItems: React.FC = () => {
                     onClick={() => onSelectDate("yesterday")}
                     className={
                       dateButtonSelected === "yesterday" ? "active-btn" : ""
-                    }
-                  >
+                    }>
                     Hôm qua
                   </Button>
 
@@ -969,8 +988,7 @@ const ConnectedItems: React.FC = () => {
                     onClick={() => onSelectDate("today")}
                     className={
                       dateButtonSelected === "today" ? "active-btn" : ""
-                    }
-                  >
+                    }>
                     Hôm nay
                   </Button>
 
@@ -978,8 +996,7 @@ const ConnectedItems: React.FC = () => {
                     onClick={() => onSelectDate("thisweek")}
                     className={
                       dateButtonSelected === "thisweek" ? "active-btn" : ""
-                    }
-                  >
+                    }>
                     Tuần này
                   </Button>
                 </div>
@@ -989,8 +1006,7 @@ const ConnectedItems: React.FC = () => {
                     onClick={() => onSelectDate("lastweek")}
                     className={
                       dateButtonSelected === "lastweek" ? "active-btn" : ""
-                    }
-                  >
+                    }>
                     Tuần trước
                   </Button>
 
@@ -998,8 +1014,7 @@ const ConnectedItems: React.FC = () => {
                     onClick={() => onSelectDate("thismonth")}
                     className={
                       dateButtonSelected === "thismonth" ? "active-btn" : ""
-                    }
-                  >
+                    }>
                     Tháng này
                   </Button>
 
@@ -1007,8 +1022,7 @@ const ConnectedItems: React.FC = () => {
                     onClick={() => onSelectDate("lastmonth")}
                     className={
                       dateButtonSelected === "lastmonth" ? "active-btn" : ""
-                    }
-                  >
+                    }>
                     Tháng trước
                   </Button>
                 </div>
@@ -1045,8 +1059,7 @@ const ConnectedItems: React.FC = () => {
         okText="Đồng ý"
         cancelText="Hủy"
         onCancel={cancelDisconnectModal}
-        onOk={okDisconnectModal}
-      >
+        onOk={okDisconnectModal}>
         <div>
           <img src={disconnectIcon} style={{ marginRight: 20 }} alt="" />
           <span>Bạn có chắc chắn muốn hủy liên kết sản phẩm không?</span>
@@ -1059,30 +1072,22 @@ const ConnectedItems: React.FC = () => {
         okText="Đồng ý"
         cancelText="Hủy"
         onCancel={cancelDeleteItemModal}
-        onOk={okDeleteItemModal}
-      >
+        onOk={okDeleteItemModal}>
         <div>
           <img src={circleDeleteIcon} style={{ marginRight: 20 }} alt="" />
           <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
         </div>
       </Modal>
 
-      <Modal
+      <SyncProductModal
         width="600px"
         visible={isShowSyncStockModal}
         title="Đồng bộ tồn kho"
         okText="Đồng bộ"
         cancelText="Hủy"
-        onCancel={cancelSyncStockModal}
-        onOk={okSyncStockModal}
-      >
-        <Radio.Group onChange={onChangeSyncOption} value={syncStockAll}>
-          <Space direction="vertical">
-            <Radio value={false}>Đồng bộ các sản phẩm đã chọn</Radio>
-            <Radio value={true}>Đồng bộ tất cả sản phẩm</Radio>
-          </Space>
-        </Radio.Group>
-      </Modal>
+        onCancel={() => cancelSyncStockModal()}
+        onOk={(item, shop_ids) => okSyncStockModal(item, shop_ids)}
+      />
     </StyledComponent>
   );
 };

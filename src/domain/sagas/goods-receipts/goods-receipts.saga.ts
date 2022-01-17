@@ -20,6 +20,7 @@ import {
   getOrderGoodsReceiptsService,
   updateGoodsReceiptsService,
   getPrintGoodsReceiptsService,
+  deleteAllGoodsReceipService,
 } from "service/order/order-pack.service";
 import {unauthorizedAction} from "./../../actions/auth/auth.action";
 import {showError} from "utils/ToastUtils";
@@ -160,6 +161,36 @@ function* deleteGoodsReceiptsSaga(action: YodyAction) {
     showError("Có lỗi xảy ra vui lòng thử lại");
   }
 }
+/**
+ * xóa nhiều biên bản bàn giao
+ * @param action 
+ */
+function* deleteAllGoodsReceipSaga(action: YodyAction)
+{
+  let {request,setData}=action.payload;
+  yield put(showLoading());
+  try{
+    let response : BaseResponse<GoodsReceiptsResponse>=yield call(deleteAllGoodsReceipService, request);
+    switch(response.code){
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any)=>showError(e));
+        break;
+    }
+  }
+  catch(e){
+    console.log(e);
+    showError("Có lỗi xảy ra, Xóa nhiều biên bản bàn giao");
+  }
+  finally {
+    yield put(hideLoading());
+  }
+}
 
 /**
  * lấy thông tin biên bản bàn giao
@@ -271,4 +302,5 @@ export function* GoodsReceiptsSaga() {
   );
   yield takeLatest(GoodsReceiptsType.GET_ORDER_GOODS_RECEIPTS_ADD,getOrderGoodsReceiptsSaga)
   yield takeLatest(GoodsReceiptsType.GET_PRINT_GOODS_RECEIPTS, getPrintGoodsReceiptsSaga)
+  yield takeLatest(GoodsReceiptsType.DELETE_ALL_GOODS_RECEIPTS,deleteAllGoodsReceipSaga)
 }
