@@ -14,6 +14,7 @@ import CustomFilter from "component/table/custom.filter";
 import { AppConfig } from "config/app.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { createConfigPoAction, deleteConfigPoAction, getConfigPoAction, updateConfigPoAction } from "domain/actions/po/po.action";
+import { unset } from "lodash";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -492,10 +493,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   const FilterConfigCom = (props: any)=>{
     return (
-      <span style={{marginRight: 20, display: "inline-flex"}}>
+      <div style={{marginRight: 20, display: "inline-flex"}}>
           <Tag onClick={(e)=>{
               onSelectFilterConfig(props.index, props.id);  
-              }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
+              }} style={{cursor: "pointer",
+                  wordBreak: "break-all", whiteSpace: "unset" , backgroundColor: tagAcitve === props.index ? primaryColor: '',
                     color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />} 
                     closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
                       e.preventDefault();
@@ -504,7 +506,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                     }}>
               {props.name}  
             </Tag> 
-      </span>
+      </div>
     )
   }
 
@@ -606,9 +608,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });
-    formAdvanceFilter.setFieldsValue({ ...advanceFilters });
-    console.log(advanceFilters);
-    
+    formAdvanceFilter.setFieldsValue({ ...advanceFilters });     
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
@@ -778,17 +778,13 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           >
             {
               (lstConfigFilter && lstConfigFilter.length > 0) &&
-              <Row>
-                  <Item>
-                    <Col span={24} className="tag-filter">
-                      {
-                        lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
-                        })
-                      }
-                    </Col>
-                  </Item>
-                </Row>
+              <div> 
+                   {
+                     lstConfigFilter?.map((e, index)=>{
+                       return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
+                     })
+                   }
+              </div>
             } 
             <AdvanceFormItems 
               wins={wins}
