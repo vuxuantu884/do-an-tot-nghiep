@@ -108,26 +108,7 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
   }
 
   //handle select date
-  const [dates, setDates] = useState<any>([]);
-  const [hackValue, setHackValue] = useState<any>();
-  const [value, setValue] = useState<any>();
-
-  const disabledDate = (current: any) => {
-    if (!dates || dates.length === 0) {
-      return false;
-    }
-    return isLoading;
-  };
-
-  const onOpenChange = (open: any) => {
-    if (open) {
-      setHackValue([]);
-      setDates([]);
-    } else {
-      setHackValue(undefined);
-    }
-  };
-
+  const [selectedDateValue, setSelectedDateValue] = useState<any>();
 
   const convertStartDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
@@ -158,7 +139,7 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
     const endDate = convertEndDateToTimestamp(dateStrings[1]);
     setEndDate(endDate);
 
-    setValue(dates);
+    setSelectedDateValue(dates);
   };
   //end handle select date
 
@@ -268,11 +249,8 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
             placeholder={["Từ ngày", "Đến ngày"]}
             style={{ width: "100%" }}
             format={DATE_FORMAT.DDMMYYY}
-            value={hackValue || value}
-            disabledDate={disabledDate}
-            onCalendarChange={val => setDates(val)}
+            value={selectedDateValue}
             onChange={onChangeDate}
-            onOpenChange={onOpenChange}
           />
         </div>
       </StyledUpdateProductDataModal>
