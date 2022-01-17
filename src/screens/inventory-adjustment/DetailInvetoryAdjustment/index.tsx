@@ -356,7 +356,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const printContentCallback = useCallback(
     (printContent) => {
       const textResponse = printContent.map((single: any) => {
-        return "<div class='singleOrderPrint'>" + single.html_content + "</div>";
+        return `<div class='singleOrderPrint'>` + single.html_content + "</div>";
       });
       let textResponseFormatted = textResponse.join(pageBreak);
       //xóa thẻ p thừa
@@ -1026,13 +1026,13 @@ const onChangeNote = useCallback(
                         <TabPane tab={`Thừa/Thiếu (${data?.total_excess + data?.total_missing})`} key="1">
                           <InventoryAdjustmentHistory
                             data={data}
-                            dataLinesItem={dataLinesItem.items}
+                            idNumber={idNumber}
                           />
                         </TabPane>
                         <TabPane tab={`Tất cả (${data?.total_variant})`} key="2">
                           <InventoryAdjustmentListAll
+                            idNumber={idNumber}
                             data={data}
-                            dataLinesItem={dataLinesItem.items}
                           />
                         </TabPane>
                       </Tabs>
