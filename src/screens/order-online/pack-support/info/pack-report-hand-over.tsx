@@ -489,8 +489,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   },[goodsReceipt, selectedRowKeys])
 
   const hanldRemoveGoodsReceiptOk=useCallback(()=>{
+    let request:any={
+      ids:selectedRowKeys
+    }
     dispatch(
-      deleteAllGoodsReceipts(selectedRowKeys, (data:GoodsReceiptsResponse) => {
+      deleteAllGoodsReceipts(request, (data:GoodsReceiptsResponse) => {
         if (data) {
           dispatch(
             getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {

@@ -167,9 +167,9 @@ function* deleteGoodsReceiptsSaga(action: YodyAction) {
  */
 function* deleteAllGoodsReceipSaga(action: YodyAction)
 {
-  let {ids,setData}=action.payload;
+  let {request,setData}=action.payload;
   try{
-    let response : BaseResponse<GoodsReceiptsResponse>=yield call(deleteAllGoodsReceipService, ids);
+    let response : BaseResponse<GoodsReceiptsResponse>=yield call(deleteAllGoodsReceipService, request);
     switch(response.code){
       case HttpStatus.SUCCESS:
         setData(response.data);

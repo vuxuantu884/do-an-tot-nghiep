@@ -8,7 +8,7 @@ import {
   GoodsReceiptsTypeResponse,
   OrderConcernGoodsReceiptsResponse,
 } from "./../../model/response/pack/pack.response";
-import {GoodsReceiptsRequest} from "./../../model/request/pack.request";
+import {GoodsReceiptsDeleteRequest, GoodsReceiptsRequest} from "./../../model/request/pack.request";
 
 /**
  * lấy danh sách loại biên bản
@@ -62,10 +62,9 @@ export const deleteGoodsReceiptsService = (
 /**
  * xóa nhiều biên bản bàn giao
  */
-export const deleteAllGoodsReceipService=(ids:number[]):Promise<GoodsReceiptsResponse>=>{
-  const link=`${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?ids=${ids}`;
-  //const link=`http://localhost:8080/unicorn/order-service/goods-receipt-manager/goods-receipts?ids=${ids}`;
-  return BaseAxios.delete(link);
+export const deleteAllGoodsReceipService=(request:GoodsReceiptsDeleteRequest):Promise<GoodsReceiptsResponse>=>{
+  const link=`${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts`;
+  return BaseAxios.delete(link, {data:request});
 }
 
 /**
