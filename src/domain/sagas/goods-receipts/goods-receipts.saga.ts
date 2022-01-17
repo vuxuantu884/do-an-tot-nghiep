@@ -168,6 +168,7 @@ function* deleteGoodsReceiptsSaga(action: YodyAction) {
 function* deleteAllGoodsReceipSaga(action: YodyAction)
 {
   let {request,setData}=action.payload;
+  yield put(showLoading());
   try{
     let response : BaseResponse<GoodsReceiptsResponse>=yield call(deleteAllGoodsReceipService, request);
     switch(response.code){
@@ -185,6 +186,9 @@ function* deleteAllGoodsReceipSaga(action: YodyAction)
   catch(e){
     console.log(e);
     showError("Có lỗi xảy ra, Xóa nhiều biên bản bàn giao");
+  }
+  finally {
+    yield put(hideLoading());
   }
 }
 
