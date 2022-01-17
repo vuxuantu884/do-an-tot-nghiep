@@ -4,7 +4,7 @@
 const sources = `sources`;
 const channels = `channels`;
 const stores = `stores`;
-const prints_templates = `prints_templates`;
+const prints_templates = `print_templates`;
 
 const SourcePermissions = {
   READ: `${sources}_read`,
