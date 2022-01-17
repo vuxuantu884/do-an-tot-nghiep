@@ -6,7 +6,7 @@ export const getBootstrapAction = () => {
   return BaseAction(BootstrapType.GET_BOOTSTRAP_REQUEST, null);
 }
 
-export const getBootstrapSuccessAction = (data: BootstrapResponse) => {
+export const getBootstrapSuccessAction = (data: Partial<BootstrapResponse>) => {
   return BaseAction(BootstrapType.GET_BOOTSTRAP_SUCESSS, {data: data});
 }
 
