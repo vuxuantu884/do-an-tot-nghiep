@@ -122,7 +122,7 @@ const ecommerceDisconnectItemApi = (ids: any) => {
 const ecommercePostSyncStockItemApi = (
   requestBody: RequestSyncStockQuery
 ): Promise<BaseResponse<any>> => {
-  let link = `${ApiConfig.ECOMMERCE}/variants/sync-stock`;
+  let link = `${ApiConfig.ECOMMERCE}/variants/stock-sync`;
   return BaseAxios.post(link, requestBody);
 };
 
