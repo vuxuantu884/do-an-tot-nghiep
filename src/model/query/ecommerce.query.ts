@@ -38,3 +38,9 @@ export interface GetOrdersMappingQuery extends BaseQuery {
   ecommerce_order_statuses: Array<any> | null;
   shop_ids: Array<any> | null;
 }
+
+export interface RequestSyncStockQuery {
+  sync_type: string | null;
+  shop_ids: Array<number> | null;
+  variant_ids: Array<number> | null;
+}
