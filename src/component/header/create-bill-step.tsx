@@ -3,14 +3,15 @@ import { Steps } from "antd";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import { useEffect, useMemo, useState } from "react";
-import { FulFillmentStatus, OrderStatus, POS } from "utils/Constants";
+import { isOrderFromPOS } from "utils/AppUtils";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 // import { FulFillmentStatus } from "utils/Constants";
 import "./create-bill-step.scss";
 
 type StepStatusProps = {
   status?: string | null | undefined;
-  orderDetail?: OrderResponse | null;
+  orderDetail: OrderResponse | null;
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
@@ -23,7 +24,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   }, [orderDetail?.fulfillments])
 
   const renderStepPackedDescription = () => {
-    if(orderDetail?.source_id === POS.source_id && orderDetail.finished_on) {
+    if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
     let result = undefined;
@@ -40,7 +41,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   const renderStepShippingDescription = () => {
-    if(orderDetail?.source_id === POS.source_id && orderDetail.finished_on) {
+    if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
     let result = undefined;
@@ -57,7 +58,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   const renderStepFinishDescription = () => {
-    if(orderDetail?.source_id === POS.source_id && orderDetail.finished_on) {
+    if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
     if (fulfillments && fulfillments?.length > 0 &&  fulfillments[0].shipped_on) {
