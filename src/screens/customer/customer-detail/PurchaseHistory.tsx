@@ -1191,7 +1191,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         dataSource={orderHistoryList()}
         rowClassName={(record, index) =>
           record?.order_return?.length && showOrderReturned
-            ? "custom-shadow-td-bg"
+            ? "customBackgroundRowOrderReturn"
             : ""
         }
         columns={columnsOrderHistory}
