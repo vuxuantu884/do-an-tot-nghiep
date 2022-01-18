@@ -55,14 +55,18 @@ export const StyledComponent = styled.div`
   }
   .data-content {
     color: #222222;
-    height: 185px;
+    max-height: 144.5px;
     overflow: auto;
-    padding: 10px 5px;
-    border: 1px solid #d9d9d9;
+    padding: 10px 0px;
+    // border: 1px solid #d9d9d9;
+  }
+  .data-content::-webkit-scrollbar {
+    width: 1px;
+    height: 8px;
   }
   .data-empty {
     color: red;
-    height: 185px;
+    height: 144.5px;
   }
   .view-right {
     display: flex;

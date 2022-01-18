@@ -83,5 +83,7 @@ export const StyledComponent = styled.div`
     .anticon {
       vertical-align: 0.125em;
     }
+    width: 28px;
+    height: 28px;
   }
 `;

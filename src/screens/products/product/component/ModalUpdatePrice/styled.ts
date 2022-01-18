@@ -5,7 +5,7 @@ export const StyledComponent = styled.div`
   position: relative;
   .list__variants {
     .ant-list-items {
-      height: 300px;
+      max-height: 300px;
       overflow-y: auto;
       width: 100%;
       display: flex;
@@ -61,6 +61,11 @@ export const StyledComponent = styled.div`
           }
         }
       }
+    }
+
+    .ant-list-items::-webkit-scrollbar {
+      width: 3px;
+      height: 8px;
     }
     .ant-list-header {
       border: none;
