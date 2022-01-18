@@ -39,24 +39,29 @@ import warningCircleIcon from "assets/icon/warning-circle.svg";
 import filterIcon from "assets/icon/filter.svg";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 
+import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
 import {
-  StyledBaseFilter,
-} from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
-import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
-import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
+  StyledProductFilter,
+  StyledProductLink,
+} from "screens/ecommerce/products/styles";
+import {
+  ECOMMERCE_LIST,
+  getEcommerceIcon,
+} from "screens/ecommerce/common/commonAction";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
-
 
 const STATUS = {
   WAITING: "waiting",
-  CONNECTED: "connected"
-}
+  CONNECTED: "connected",
+};
 
 type TotalItemsEcommercePropsType = {
   isReloadPage: boolean;
 };
 
-const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: TotalItemsEcommercePropsType) => {
+const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
+  props: TotalItemsEcommercePropsType
+) => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -113,7 +118,6 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
     connected_date_to: null,
   });
 
-
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
     if (!!result) {
@@ -121,10 +125,13 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
     }
   }, []);
 
-  const getProductUpdated = useCallback((queryRequest: any) => {
-    setIsLoading(true);
-    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
-  }, [dispatch, updateVariantData]);
+  const getProductUpdated = useCallback(
+    (queryRequest: any) => {
+      setIsLoading(true);
+      dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+    },
+    [dispatch, updateVariantData]
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -138,11 +145,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
   //handle sync stock
   const handleSyncStock = (item: any) => {
     const requestSyncStock = {
+      sync_type: "selected",
       variant_ids: [item.id],
-      all: false,
+      shop_ids: null,
     };
 
-    
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
@@ -222,8 +229,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
           <img
             src={l.ecommerce_image_url}
             style={{ height: "40px" }}
-            alt=""
-          ></img>
+            alt=""></img>
         );
       },
     },
@@ -268,17 +274,16 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
       render: (item: any, v: any, i: any) => {
         return (
           <>
-            {item.connect_status === STATUS.CONNECTED &&
+            {item.connect_status === STATUS.CONNECTED && (
               <StyledProductLink>
                 <Link
                   target="_blank"
-                  to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
-                >
+                  to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}>
                   {item.core_variant}
                 </Link>
                 <div>{item.core_sku}</div>
               </StyledProductLink>
-            }
+            )}
           </>
         );
       },
@@ -291,9 +296,9 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
       render: (item: any, row: any, index: any) => {
         return (
           <>
-            {item.connect_status === STATUS.CONNECTED &&
+            {item.connect_status === STATUS.CONNECTED && (
               <span>{formatCurrency(item.core_price)}</span>
-            }
+            )}
           </>
         );
       },
@@ -315,13 +320,17 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
       render: (item: any, row: any, index: any) => {
         return (
           <StyledStatus>
-            {item.connect_status === STATUS.CONNECTED &&
-              <div className="green-status" style={{ width: 120 }}>Thành công</div>
-            }
+            {item.connect_status === STATUS.CONNECTED && (
+              <div className="green-status" style={{ width: 120 }}>
+                Thành công
+              </div>
+            )}
 
-            {item.connect_status === STATUS.WAITING &&
-              <div className="blue-status" style={{ width: 120 }}>Chưa ghép nối</div>
-            }
+            {item.connect_status === STATUS.WAITING && (
+              <div className="blue-status" style={{ width: 120 }}>
+                Chưa ghép nối
+              </div>
+            )}
           </StyledStatus>
         );
       },
@@ -334,13 +343,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
             <Tooltip
               overlay="Kết quả đồng bộ tồn kho lần gần nhất"
               placement="top"
-              color="blue"
-            >
-              <img
-                src={warningCircleIcon}
-                style={{ marginLeft: 5 }}
-                alt=""
-              />
+              color="blue">
+              <img src={warningCircleIcon} style={{ marginLeft: 5 }} alt="" />
             </Tooltip>
           </div>
         );
@@ -351,25 +355,31 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
       render: (item: any, row: any, index: any) => {
         return (
           <>
-            {item.connect_status === STATUS.CONNECTED &&
+            {item.connect_status === STATUS.CONNECTED && (
               <StyledStatus>
                 {item.sync_stock_status === "done" && (
                   <Tooltip title={convertDateTimeFormat(item.updated_date)}>
-                    <div className="green-status" style={{ width: 120 }}>Thành công</div>
+                    <div className="green-status" style={{ width: 120 }}>
+                      Thành công
+                    </div>
                   </Tooltip>
                 )}
 
                 {item.sync_stock_status === "error" && (
                   <Tooltip title="error">
-                    <div className="red-status" style={{ width: 120 }}>Thất bại</div>
+                    <div className="red-status" style={{ width: 120 }}>
+                      Thất bại
+                    </div>
                   </Tooltip>
                 )}
 
                 {item.sync_stock_status === "in_progress" && (
-                  <div className="yellow-status" style={{ width: 120 }}>Đang xử lý</div>
+                  <div className="yellow-status" style={{ width: 120 }}>
+                    Đang xử lý
+                  </div>
                 )}
               </StyledStatus>
-            }
+            )}
           </>
         );
       },
@@ -436,7 +446,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
         updateEcommerceShopList
       )
     );
-  }
+  };
   // end get ecommerce shop list
 
   //handle select ecommerce
@@ -520,8 +530,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
             <div key={item.id} className="shop-name">
               <Checkbox
                 onChange={(e) => onCheckedChange(item, e)}
-                checked={item.isSelected}
-              >
+                checked={item.isSelected}>
                 <span className="check-box-name">
                   <span>
                     <img
@@ -533,8 +542,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
                   <Tooltip title={item.name} color="#1890ff" placement="right">
                     <span
                       className="name"
-                      style={isNewFilter ? { width: 270 } : { width: 120 }}
-                    >
+                      style={isNewFilter ? { width: 270 } : { width: 120 }}>
                       {item.name}
                     </span>
                   </Tooltip>
@@ -588,20 +596,32 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
           endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week").add(7, 'h'));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("week").add(7, "h")
+          );
           endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
-          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, 'h'));
-          endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("week").subtract(1, "weeks").add(7, "h")
+          );
+          endDateValue = ConvertDateToUtc(
+            moment().endOf("week").subtract(1, "weeks")
+          );
           break;
         case "thismonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month").add(7, 'h'));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("month").add(7, "h")
+          );
           endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
-          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, 'h'));
-          endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
+          startDateValue = ConvertDateToUtc(
+            moment().startOf("month").subtract(1, "months").add(7, "h")
+          );
+          endDateValue = ConvertDateToUtc(
+            moment().endOf("month").subtract(1, "months")
+          );
           break;
         default:
           break;
@@ -634,30 +654,32 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
       <Card>
         <StyledProductFilter>
           <div className="filter">
-            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
-              <Form.Item name="ecommerce_id" className="select-channel-dropdown">
+            <Form
+              form={formAdvance}
+              onFinish={onSearch}
+              initialValues={initialFormValues}>
+              <Form.Item
+                name="ecommerce_id"
+                className="select-channel-dropdown">
                 <Select
                   showSearch
                   disabled={isLoading}
                   placeholder="Chọn sàn"
                   allowClear
                   onSelect={(value) => handleSelectEcommerce(value)}
-                  onClear={removeEcommerce}
-                >
-                  {
-                    ECOMMERCE_LIST?.map((item: any) => (
-                      <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                        <div>
-                          <img
-                            src={item.icon}
-                            alt={item.id}
-                            style={{ marginRight: "10px" }}
-                          />
-                          <span>{item.title}</span>
-                        </div>
-                      </Option>
-                    ))
-                  }
+                  onClear={removeEcommerce}>
+                  {ECOMMERCE_LIST?.map((item: any) => (
+                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                      <div>
+                        <img
+                          src={item.icon}
+                          alt={item.id}
+                          style={{ marginRight: "10px" }}
+                        />
+                        <span>{item.title}</span>
+                      </div>
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
 
@@ -744,37 +766,32 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
         onCancel={onCancelFilter}
         visible={visibleFilter}
         width={400}
-        className="order-filter-drawer2"
-      >
+        className="order-filter-drawer2">
         <StyledBaseFilter>
           <Form
             form={formAdvance}
             onFinish={onSearch}
             initialValues={initialFormValues}
-            layout="vertical"
-          >
+            layout="vertical">
             <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
               <Select
                 showSearch
                 placeholder="Chọn sàn"
                 allowClear
                 onSelect={(value) => handleSelectEcommerce(value)}
-                onClear={removeEcommerce}
-              >
-                {
-                  ECOMMERCE_LIST?.map((item: any) => (
-                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                      <div>
-                        <img
-                          src={item.icon}
-                          alt={item.id}
-                          style={{ marginRight: "10px" }}
-                        />
-                        <span>{item.title}</span>
-                      </div>
-                    </Option>
-                  ))
-                }
+                onClear={removeEcommerce}>
+                {ECOMMERCE_LIST?.map((item: any) => (
+                  <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                    <div>
+                      <img
+                        src={item.icon}
+                        alt={item.id}
+                        style={{ marginRight: "10px" }}
+                      />
+                      <span>{item.title}</span>
+                    </div>
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
 
@@ -804,15 +821,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
               )}
             </Form.Item>
 
-            <Form.Item
-              name="connect_status"
-              label={<b>TRẠNG THÁI GHÉP NỐI</b>}
-            >
+            <Form.Item name="connect_status" label={<b>TRẠNG THÁI GHÉP NỐI</b>}>
               <Select
                 showSearch
                 placeholder="Chọn trạng thái ghép nối"
-                allowClear
-              >
+                allowClear>
                 {CONNECT_STATUS &&
                   CONNECT_STATUS.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -824,13 +837,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
 
             <Form.Item
               name="update_stock_status"
-              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}
-            >
+              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}>
               <Select
                 showSearch
                 placeholder="Chọn trạng thái đồng bộ tồn kho"
-                allowClear
-              >
+                allowClear>
                 {STOCK_STATUS &&
                   STOCK_STATUS.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -845,40 +856,46 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("yesterday")}
-                    className={dateButtonSelected === "yesterday" ? "active-btn" : ""}
-                  >
+                    className={
+                      dateButtonSelected === "yesterday" ? "active-btn" : ""
+                    }>
                     Hôm qua
                   </Button>
                   <Button
                     onClick={() => onSelectDate("today")}
-                    className={dateButtonSelected === "today" ? "active-btn" : ""}
-                  >
+                    className={
+                      dateButtonSelected === "today" ? "active-btn" : ""
+                    }>
                     Hôm nay
                   </Button>
                   <Button
                     onClick={() => onSelectDate("thisweek")}
-                    className={dateButtonSelected === "thisweek" ? "active-btn" : ""}
-                  >
+                    className={
+                      dateButtonSelected === "thisweek" ? "active-btn" : ""
+                    }>
                     Tuần này
                   </Button>
                 </div>
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("lastweek")}
-                    className={dateButtonSelected === "lastweek" ? "active-btn" : ""}
-                  >
+                    className={
+                      dateButtonSelected === "lastweek" ? "active-btn" : ""
+                    }>
                     Tuần trước
                   </Button>
                   <Button
                     onClick={() => onSelectDate("thismonth")}
-                    className={dateButtonSelected === "thismonth" ? "active-btn" : ""}
-                  >
+                    className={
+                      dateButtonSelected === "thismonth" ? "active-btn" : ""
+                    }>
                     Tháng này
                   </Button>
                   <Button
                     onClick={() => onSelectDate("lastmonth")}
-                    className={dateButtonSelected === "lastmonth" ? "active-btn" : ""}
-                  >
+                    className={
+                      dateButtonSelected === "lastmonth" ? "active-btn" : ""
+                    }>
                     Tháng trước
                   </Button>
                 </div>
@@ -914,8 +931,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
         okText="Đồng ý"
         cancelText="Hủy"
         onCancel={cancelDisconnectModal}
-        onOk={okDisconnectModal}
-      >
+        onOk={okDisconnectModal}>
         <div>
           <img src={disconnectIcon} style={{ marginRight: 20 }} alt="" />
           <span>Bạn có chắc chắn muốn hủy liên kết sản phẩm không?</span>
@@ -928,8 +944,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (props: Tota
         okText="Đồng ý"
         cancelText="Hủy"
         onCancel={cancelDeleteItemModal}
-        onOk={okDeleteItemModal}
-      >
+        onOk={okDeleteItemModal}>
         <div style={{ margin: "20px 0" }}>
           <img src={circleDeleteIcon} style={{ marginRight: 20 }} alt="" />
           <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>

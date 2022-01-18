@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {
   InventoryAdjustmentDetailItem,
   LineItemAdjustment,
@@ -17,11 +17,15 @@ import {SearchOutlined} from "@ant-design/icons";
 import {ICustomTableColumType} from "component/table/CustomTable";
 import useAuthorization from "hook/useAuthorization";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
+import { PageResponse } from "model/base/base-metadata.response";
+import CustomPagination from "component/table/CustomPagination";
+import { callApiNative } from "utils/ApiUtils";
+import { getLinesItemAdjustmentApi } from "service/inventory/adjustment/index.service";
 const {TextArea} = Input;
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
-  dataLinesItem: Array<LineItemAdjustment>;
+  idNumber: number;
 };
 
 export interface Summary {
@@ -34,12 +38,14 @@ export interface Summary {
 const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   props: propsInventoryAdjustment
 ) => { 
-  const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
-    [] as Array<LineItemAdjustment>
-  );
-  const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment> | any>(
-    [] as Array<LineItemAdjustment>
-  );
+  const [dataLinesItem, setDataLinesItem] = useState<PageResponse<LineItemAdjustment>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });   
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
     TotalMiss: 0,
@@ -51,58 +57,12 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   const [editReason, setEditReason] = useState<boolean | any>(false);
 
   const dispatch = useDispatch();
-  const {data, dataLinesItem} = props;
+  const {data, idNumber} = props;
 
   //phân quyền
   const [allowUpdate] = useAuthorization({
     acceptPermissions: [InventoryAdjustmentPermission.update],
-  });
-
-  const onEnterFilterVariant = useCallback(
-    (lst: Array<LineItemAdjustment> | null) => {
-      let temps = lst ? lst : dataTable;
-      let key = keySearch.toLocaleLowerCase();
-      let dataSearch = [
-        ...temps.filter((e: LineItemAdjustment) => {
-          return (
-            e.on_hand === parseInt(key) ||
-            e.variant_name?.toLocaleLowerCase().includes(key) ||
-            e.sku?.toLocaleLowerCase().includes(key) ||
-            e.code?.toLocaleLowerCase().includes(key) ||
-            e.barcode?.toLocaleLowerCase().includes(key)
-          );
-        }),
-      ];
-
-      setSearchVariant(dataSearch);
-    },
-    [keySearch, dataTable]
-  );
-
-  const onChangeReason = useCallback(
-    (value: string | null, row: LineItemAdjustment, index: number) => {
-      const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
-
-      dataTableClone.forEach((item) => {
-        if (item.id === row.id) {
-          value = value ?? "";
-          item.note = value;
-        }
-      }); 
-
-      let dataEdit =
-        (searchVariant && searchVariant.length > 0) || keySearch !== ""
-          ? [...dataTableClone]
-          : null;
-
-      setDataTable(dataTableClone);
-      setSearchVariant(dataTableClone);
-      setEditReason(true);
-
-      onEnterFilterVariant(dataEdit);
-    },
-    [searchVariant, keySearch, dataTable, onEnterFilterVariant]
-  );
+  }); 
 
   const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
     let totalExcess = 0,
@@ -255,7 +215,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
               maxLength={250}
               value={value ? value : ""}
               onChange={(e) => {
-                onChangeReason(e.target.value, row, index);
+                onChangeReason(e.target.value, row, dataLinesItem);
               }}
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
@@ -296,12 +256,65 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     },
   ];
 
+  const getLinesItemAdjustment= useCallback(async (page: number,size: number, keySearch: string|null)=>{
+
+    const res = await callApiNative(
+      { isShowError: false },
+      dispatch,
+      getLinesItemAdjustmentApi,
+      idNumber,
+      `page=${page}&limit=${size}&condition=${keySearch?.toString()}`
+    );
+    if (res) {
+      setDataLinesItem({...res}); 
+     } 
+  },[idNumber,  dispatch]);
+
+  const onPageChange = useCallback(
+    (page, size) => {
+      getLinesItemAdjustment(page,size, keySearch);
+    },
+    [keySearch, getLinesItemAdjustment]
+  );
+
+  const debounceChangeReason = useMemo(()=>
+      _.debounce((row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>)=>{ 
+
+        dispatch(
+          updateItemOnlineInventoryAction(data?.id, row, (result) => {
+            if (result) {
+              showSuccess("Nhập lý do thành công.");
+              getLinesItemAdjustment(1,30,keySearch);
+            }
+          })
+        );
+        
+    }, 1000),
+    [data, dispatch, getLinesItemAdjustment, keySearch]
+  );
+
+  const onChangeReason = useCallback(
+    (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
+      row.note = value;  
+  
+      dataItems.items.forEach((e)=>{
+        if (e.variant_id === row.id) {
+          e.note = row.note;
+        }
+      }); 
+  
+      setDataLinesItem({...dataItems});
+      debounceChangeReason(row, dataLinesItem);
+    },
+    [debounceChangeReason, dataLinesItem]
+  );
+
   useEffect(() => {
-    const dataDis = dataLinesItem?.filter((e) => e.on_hand_adj !== 0) || [];
-    
-    setDataTable(dataDis);
-    setSearchVariant(dataDis);
-    drawColumns(dataDis);
+    getLinesItemAdjustment(1,30, "");
+  }, [getLinesItemAdjustment]);
+
+  useEffect(() => {
+    drawColumns(dataLinesItem.items);
   }, [dataLinesItem, drawColumns]);
 
   return (
@@ -318,7 +331,6 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
-                  onEnterFilterVariant(null);
                 }
               }}
               style={{marginLeft: 8}}
@@ -326,7 +338,6 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
               addonAfter={
                 <SearchOutlined
                   onClick={() => {
-                    onEnterFilterVariant(null);
                   }}
                   style={{color: "#2A2A86"}}
                 />
@@ -344,12 +355,19 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
         scroll={{y: 300}}
         pagination={false}
         columns={defaultColumns}
-        dataSource={
-          searchVariant && (searchVariant.length > 0 || keySearch !== "")
-            ? searchVariant
-            : dataTable
-        }
+        dataSource={dataLinesItem.items?.filter(e=>e.on_hand_adj !== 0)}
       />
+       <CustomPagination
+        pagination={{
+          pageSize: dataLinesItem.metadata.limit,
+          total: dataLinesItem.metadata.total,
+          current: dataLinesItem.metadata.page,
+          showSizeChanger: true,
+          onChange: onPageChange,
+          onShowSizeChange: onPageChange,
+        }}
+        >
+        </CustomPagination>
     </>
   );
 };

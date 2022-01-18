@@ -82,9 +82,17 @@ const ProductDetailScreen: React.FC = () => {
     },
   });
   const idNumber = parseInt(id);
-  const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PRODUCT}/${idNumber}/update`);
-  }, [history, idNumber]);
+
+  const onEdit =() => {
+    if(variantId){
+      // redirect to edit this variantId
+      history.push(`${UrlConfig.PRODUCT}/${idNumber}/variants/${variantId}/update`);
+    }else{
+      // redirect to edit this product
+      history.push(`${UrlConfig.PRODUCT}/${idNumber}/update`);
+    }
+  };
+
   const onResult = useCallback((result: ProductResponse | false) => {
     setLoading(false);
     if (!result) {
@@ -542,7 +550,7 @@ const tab= document.getElementById("tab");
                         active={active}
                         setActive={(active) => {
                           history.replace(
-                            `${UrlConfig.PRODUCT}/${idNumber}/variants/${data.variants[active].id}`
+                            `${UrlConfig.PRODUCT}/${idNumber}${UrlConfig.VARIANTS}/${data.variants[active].id}`
                           );
                         }}
                         loading={loadingVariant}

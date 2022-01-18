@@ -1,5 +1,5 @@
 import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Col, Collapse, Form, Input, Row, Space, Tag } from "antd";
+import { Button, Collapse, Form, Input, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import HashTag from "component/custom/hashtag";
@@ -492,10 +492,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   const FilterConfigCom = (props: any)=>{
     return (
-      <span style={{marginRight: 20, display: "inline-flex"}}>
+      <div style={{marginRight: 20, display: "inline-flex"}}>
           <Tag onClick={(e)=>{
               onSelectFilterConfig(props.index, props.id);  
-              }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
+              }} style={{cursor: "pointer",
+                  wordBreak: "break-all", whiteSpace: "unset" , backgroundColor: tagAcitve === props.index ? primaryColor: '',
                     color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />} 
                     closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
                       e.preventDefault();
@@ -504,7 +505,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                     }}>
               {props.name}  
             </Tag> 
-      </span>
+      </div>
     )
   }
 
@@ -606,7 +607,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });
-    formAdvanceFilter.setFieldsValue({ ...advanceFilters });
+    formAdvanceFilter.setFieldsValue({ ...advanceFilters });     
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
@@ -776,17 +777,13 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           >
             {
               (lstConfigFilter && lstConfigFilter.length > 0) &&
-              <Row>
-                  <Item>
-                    <Col span={24} className="tag-filter">
-                      {
-                        lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
-                        })
-                      }
-                    </Col>
-                  </Item>
-                </Row>
+              <div> 
+                   {
+                     lstConfigFilter?.map((e, index)=>{
+                       return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
+                     })
+                   }
+              </div>
             } 
             <AdvanceFormItems 
               wins={wins}

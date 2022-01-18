@@ -11,7 +11,7 @@ import "./create-bill-step.scss";
 
 type StepStatusProps = {
   status?: string | null | undefined;
-  orderDetail?: OrderResponse | null;
+  orderDetail: OrderResponse | null;
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {

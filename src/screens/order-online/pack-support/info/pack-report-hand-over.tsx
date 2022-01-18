@@ -11,7 +11,7 @@ import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { useDispatch } from "react-redux";
 import {
-  deleteGoodsReceipts,
+  deleteAllGoodsReceipts,
   getGoodsReceiptsSerch,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
@@ -24,9 +24,10 @@ import PackFilter from "component/filter/pack.filter";
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
 import { MenuAction } from "component/table/ActionButton";
 import { Link } from "react-router-dom";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -58,8 +59,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   const { query } = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  const [showSettingColumn, setShowSettingColumn] = useState(false);
-  // const [tableLoading] = useState(true);
 
   let dataQuery: GoodsReceiptsSearchQuery = {
     ...initQueryGoodsReceipts,
@@ -90,9 +89,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
   ];
 
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
   let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(dataQuery);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
+  const [goodsReceipt,setGoodsReceipt]=useState<GoodsReceiptsResponse[]>([]);
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -102,6 +103,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
     items: [],
   });
+
+  const [modalDeleteComfirm, setModalDeleteComfirm] = useState(false);
 
   const handlePrintPack = useCallback((type: string) => {
     let params = {
@@ -125,41 +128,12 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           handlePrintPack(typePrint.simple);
           break;
         case 3:
-          selectedRowKeys.forEach(function (item) {
-            setTimeout(() => {
-              dispatch(
-                deleteGoodsReceipts(item, (_item: boolean) => {
-                  if (_item) {
-                    dispatch(
-                      getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
-                        let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
-
-                        /////
-                        setData({
-                          metadata: {
-                            limit: data.metadata.limit,
-                            page: data.metadata.page,
-                            total: data.metadata.total,
-                          },
-                          items: dataResult,
-                        });
-                        setTableLoading(false);
-                      })
-                    );
-                    setSelectedRowKeys([]);
-                    showSuccess(`Đã xóa biên bản bàn giao`);
-                  } else {
-                    showError(`Xóa biên bản bàn giao thất bại`);
-                  }
-                })
-              );
-            }, 500);
-          });
-
+          if(!selectedRowKeys || selectedRowKeys.length===0)break;
+          setModalDeleteComfirm(true);
           break;
       }
     },
-    [dispatch, selectedRowKeys, params, handlePrintPack]
+    [handlePrintPack,selectedRowKeys]
   );
 
   const handlePrint = () => { };
@@ -177,8 +151,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       title: "",
       key: "14",
       visible: true,
-      width: "5%",
-      className: "saleorder-product-card-action ",
+      width: "80px",
+      className: "saleorder-product-card-action text-center",
       render: (l: any, item: any, index: number) => {
         const menu = (
           <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
@@ -236,7 +210,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         return (
           <div
             style={{
-              display: "flex",
+              //display: "flex",
               justifyContent: "space-between",
               padding: "0 4px",
             }}
@@ -272,6 +246,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       fixed: "left",
+      width:"100px",
       render: (value: number) => {
         return (
           <React.Fragment>
@@ -288,6 +263,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "store_name",
       visible: true,
       align: "center",
+      //width:"200px",
     },
 
     {
@@ -296,6 +272,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "handover_record_type",
       visible: true,
       align: "center",
+      width:"200px",
     },
 
     {
@@ -304,6 +281,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "product_quantity",
       visible: true,
       align: "center",
+      width:"80px",
     },
 
     {
@@ -312,6 +290,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_quantity",
       visible: true,
       align: "center",
+      width:"80px",
     },
 
     {
@@ -320,6 +299,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_send_quantity",
       visible: true,
       align: "center",
+      width:"100px",
     },
 
     {
@@ -328,6 +308,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_transport",
       visible: true,
       align: "center",
+      width:"110px",
     },
 
     {
@@ -336,6 +317,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_have_not_taken",
       visible: true,
       align: "center",
+      width:"110px",
     },
 
     {
@@ -344,6 +326,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_cancel",
       visible: true,
       align: "center",
+      width:"80px",
     },
 
     {
@@ -352,6 +335,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_moving_complete",
       visible: true,
       align: "center",
+      width:"110px",
     },
 
     {
@@ -360,6 +344,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_success",
       visible: true,
       align: "center",
+      width:"110px",
     },
 
     {
@@ -368,6 +353,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "order_complete",
       visible: true,
       align: "center",
+      width:"80px",
     },
 
     {
@@ -376,6 +362,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       key: "account_create",
       visible: true,
       align: "center",
+      width:"100px",
     },
     actionColumn(handlePrint, handleExportHVC, handleAddPack),
   ]);
@@ -417,7 +404,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     if (selectedRow[0]) {
       const selectedRowKeys = selectedRow.map((row: any) => row.id_handover_record);
       setSelectedRowKeys(selectedRowKeys);
-    }
+    }else setSelectedRowKeys([]);
   }, []);
 
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
@@ -485,6 +472,52 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     return dataResult;
   };
 
+  const setLayoutDeleteAllGoodsReceipts=useMemo(()=>{
+    let selectedOrder:GoodsReceiptsResponse[]=goodsReceipt.filter((p)=>selectedRowKeys.some((single:number)=>single.toString()===p.id.toString()));
+    return(
+      <React.Fragment>
+        {selectedOrder.map((value: GoodsReceiptsResponse, index: number) => (
+          <p style={{ lineHeight: "18px" }}>
+            <Link target="_blank" to={`${UrlConfig.PACK_SUPPORT}/${value.id}`} key={index}>
+            {value.id}- {value.delivery_service_name}-{" "}
+                  {value.receipt_type_name}- {value.ecommerce_name}
+            </Link>{" "}
+            sẽ được xóa</p>
+        ))}
+      </React.Fragment>
+    )
+  },[goodsReceipt, selectedRowKeys])
+
+  const hanldRemoveGoodsReceiptOk=useCallback(()=>{
+    let request:any={
+      ids:selectedRowKeys
+    }
+    dispatch(
+      deleteAllGoodsReceipts(request, (data:GoodsReceiptsResponse) => {
+        if (data) {
+          dispatch(
+            getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
+              let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+              /////
+              setData({
+                metadata: {
+                  limit: data.metadata.limit,
+                  page: data.metadata.page,
+                  total: data.metadata.total,
+                },
+                items: dataResult,
+              });
+              setTableLoading(false);
+            })
+          );
+          setSelectedRowKeys([]);
+          setModalDeleteComfirm(false);
+          showSuccess(`Đã xóa biên bản bàn giao`);
+        }
+      })
+    );
+  },[dispatch, params, selectedRowKeys]);
+
   useEffect(() => {
     dispatch(
       getGoodsReceiptsSerch(params, (data: PageResponse<GoodsReceiptsResponse>) => {
@@ -498,6 +531,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           },
           items: dataResult,
         });
+
+        setGoodsReceipt(data.items);
         setTableLoading(false);
       })
     );
@@ -522,7 +557,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630, y: 600 }}
+            scroll={{ x: 1650, y: 520 }}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
@@ -565,6 +600,14 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           data={columns}
         />
       )}
+
+        <ModalDeleteConfirm
+          onCancel={() => setModalDeleteComfirm(false)}
+          onOk={hanldRemoveGoodsReceiptOk}
+          title="Bạn chắc chắn xóa biên bản bàn giao?"
+          subTitle={setLayoutDeleteAllGoodsReceipts}
+          visible={modalDeleteComfirm}
+        />
     </>
   );
 };

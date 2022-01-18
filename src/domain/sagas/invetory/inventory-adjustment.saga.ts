@@ -243,7 +243,7 @@ function* updateInventoryAdjustmentSaga(action: YodyAction) {
 
 function* getVariantHasOnHandByStoreSaga(action: YodyAction) {
   let {query, onResult} = action.payload;
-  yield callApiSaga(true,onResult, getVariantHasOnHandByStoreApi,query); 
+  yield callApiSaga({notifyAction:"SHOW_ALL"},onResult, getVariantHasOnHandByStoreApi,query); 
 }
 
 export function* inventoryAdjustmentSaga() {

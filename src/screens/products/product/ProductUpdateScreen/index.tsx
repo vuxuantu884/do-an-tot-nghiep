@@ -2,6 +2,7 @@ import {EditOutlined, InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@an
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Collapse,
   Divider,
@@ -100,7 +101,7 @@ const ProductDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [form] = Form.useForm();
-  const {id} = useParams<ProductParams>();
+  const {id, variantId} = useParams<ProductParams>();
   const idNumber = parseInt(id);
 
   const goods = useSelector(
@@ -144,6 +145,7 @@ const ProductDetailScreen: React.FC = () => {
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
+  const [isChangeDescription, setIsChangeDescription] = useState(true);
   const [colors, setColors] = useState<PageResponse<ColorResponse>>({
     items: [],
     metadata: { limit: 20, page: 1, total: 0 }
@@ -430,11 +432,13 @@ const ProductDetailScreen: React.FC = () => {
     },
     [form, update]
   );
-  const onMaterialChange = (id: number) => {
-    dispatch(
-      detailMaterialAction(id, (material) => handleChangeMaterial(material, form))
-    );
-  };
+  const onMaterialChange = useCallback((id: number) => {
+    debugger
+    if (isChangeDescription) {
+      dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
+    }
+  },[dispatch, form, isChangeDescription]);
+
   const onAllowSale = useCallback(
     (listSelected: Array<number>) => {
       setModalConfirm({
@@ -681,11 +685,15 @@ const ProductDetailScreen: React.FC = () => {
   },[form, dataOrigin, resetProductDetail]); 
 
   const onActive = useCallback(
-    (active1: number) => {
+    (activeRow: number) => {
       let variants = form.getFieldValue("variants");
-      if (active1 !== active) {
+      if (activeRow !== active) {
+        //change url when select variant
+        if(variants[activeRow]?.id){
+          history.replace(`${UrlConfig.PRODUCT}/${id}${UrlConfig.VARIANTS}/${variants[activeRow].id}/update`);
+        }
         if (isChange && !isChangePrice) {
-          tempActive = active1;
+          tempActive = activeRow;
           setModalConfirm({
             onOk: () => {
               setModalConfirm({visible: false});
@@ -696,10 +704,10 @@ const ProductDetailScreen: React.FC = () => {
               let variants: Array<VariantResponse> = form.getFieldValue("variants");
               if (variants[active].id) {
                 setModalConfirm({visible: false});
-                setCurrentVariant(active1);
+                setCurrentVariant(activeRow);
               } else {
                 setModalConfirm({visible: false});
-                let idActive = variants[active1].id;
+                let idActive = variants[activeRow].id;
                 variants.splice(active, 1);
                 let index = variants.findIndex((item) => item.id === idActive);
                 form.setFieldsValue({variants: variants});
@@ -715,15 +723,15 @@ const ProductDetailScreen: React.FC = () => {
             subTitle: "Bạn có muốn lưu lại phiên bản này?",
           });
         } else if (isChangePrice && variants.length > 1) {
-          tempActive = active1;
+          tempActive = activeRow;
 
           setVisiblePrice(true);
         } else {
-          setCurrentVariant(active1);
+          setCurrentVariant(activeRow);
         }
       }
     },
-    [active, form, isChange, isChangePrice, setCurrentVariant, resetOnClick]
+    [active, form, isChange, isChangePrice, setCurrentVariant, resetOnClick, history, id]
   );
   const onResult = useCallback(
     (result: ProductResponse | false) => {
@@ -738,9 +746,15 @@ const ProductDetailScreen: React.FC = () => {
         productDetailRef.current = JSON.parse(JSON.stringify(result));
         form.setFieldsValue(result);
         setDataOrigin(form.getFieldsValue());
+
+        //set active variant
+        if(variantId){
+          const index = result.variants.findIndex((item)=>item.id === Number(variantId));
+          setActive(index);
+        }
       }
     },
-    [form]
+    [form, variantId]
   );
 
   const getColors = useCallback((info: string, page: number) => {
@@ -1115,12 +1129,19 @@ const ProductDetailScreen: React.FC = () => {
                             expandIcon={({isActive}) =>
                               isActive ? <MinusOutlined /> : <PlusOutlined />
                             }
-                            className="padding-0"
+                            className="padding-0" 
                           >
                               <Collapse.Panel
                                 header="Mô tả sản phẩm"
                                 key="prDes"
                                 className="custom-header"
+                                extra={
+                                  <div>
+                                    <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{  
+                                      setIsChangeDescription(e.target.checked ? true: false)
+                                      }}>Lấy thông tin mô tả từ chất liệu</Checkbox>
+                                  </div>
+                                }
                               >
                                 <Item name="description">
                                   <CustomEditor value={form.getFieldValue("description")} />

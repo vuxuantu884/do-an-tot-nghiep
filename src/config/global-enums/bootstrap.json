@@ -1,0 +1,1303 @@
+{
+  "shipping_service": [
+    {
+      "name": "Hỏa tốc",
+      "value": "express"
+    },
+    {
+      "name": "Tiêu chuẩn",
+      "value": "standard"
+    },
+    {
+      "name": "Giao hàng 4 giờ",
+      "value": "4h_delivery"
+    }
+  ],
+  "stock_sync_status": [
+    {
+      "name": "Thành công",
+      "value": "done"
+    },
+    {
+      "name": "Đang xử lý",
+      "value": "in_progress"
+    },
+    {
+      "name": "Thất bại",
+      "value": "error"
+    }
+  ],
+  "fulfillment_status": [
+    {
+      "name": "Chưa giao",
+      "value": "unshipped"
+    },
+    {
+      "name": "Đã lấy hàng",
+      "value": "picked"
+    },
+    {
+      "name": "Giao một phần",
+      "value": "partial"
+    },
+    {
+      "name": "Đã đóng gói",
+      "value": "packed"
+    },
+    {
+      "name": "Đang giao",
+      "value": "shipping"
+    },
+    {
+      "name": "Đã giao",
+      "value": "shipped"
+    },
+    {
+      "name": "Đang trả lại",
+      "value": "returning"
+    },
+    {
+      "name": "Đã trả lại",
+      "value": "returned"
+    },
+    {
+      "name": "Đã hủy",
+      "value": "cancelled"
+    },
+    {
+      "name": "Đã tách",
+      "value": "splitted"
+    }
+  ],
+  "gender": [
+    {
+      "name": "Nam",
+      "value": "male"
+    },
+    {
+      "name": "Nữ",
+      "value": "female"
+    },
+    {
+      "name": "Khác",
+      "value": "other"
+    }
+  ],
+  "store_status": [
+    {
+      "name": "Đang hoạt động",
+      "value": "active"
+    },
+    {
+      "name": "Ngừng hoạt động",
+      "value": "inactive"
+    }
+  ],
+  "supplier_type": [
+    {
+      "name": "Cá nhân",
+      "value": "personal"
+    },
+    {
+      "name": "Doanh nghiệp",
+      "value": "enterprise"
+    }
+  ],
+  "shipping_type": [
+    {
+      "name": "Vận chuyển tới khách hàng",
+      "value": "deliver_to_customer"
+    },
+    {
+      "name": "Trả lại hàng",
+      "value": "return"
+    }
+  ],
+  "print_purchase_order": [
+    {
+      "preview_value": "1",
+      "name": "Mã đơn hàng",
+      "value": "{purchase_order_id}"
+    },
+    {
+      "preview_value": "Nguyễn Bảo Quỳnh",
+      "name": "Merchandiser",
+      "value": "{po_merchandiser_name}"
+    },
+    {
+      "preview_value": "Nguyễn Bảo Quỳnh",
+      "name": "Nhà thiết kế",
+      "value": "{po_designer_name}"
+    },
+    {
+      "preview_value": "G096123456",
+      "name": "SĐT Merchandiser",
+      "value": "{merchandiser_phone_numbers}"
+    },
+    {
+      "preview_value": "Quần áo Yody",
+      "name": "Tên nhà cung cấp",
+      "value": "{supplier_name}"
+    },
+    {
+      "preview_value": "An Định",
+      "name": "Địa chỉ nhà cung cấp",
+      "value": "{supplier_address}"
+    },
+    {
+      "preview_value": "Nguyễn Dương",
+      "name": "Đại diện",
+      "value": "{supplier_keycontact_name}"
+    },
+    {
+      "preview_value": "Người đại diện",
+      "name": "Chức vụ",
+      "value": "{supplier_keycontact_position}"
+    },
+    {
+      "preview_value": "G096123456",
+      "name": "Điện thoại",
+      "value": "{supplier_phone_number}"
+    },
+    {
+      "preview_value": "123456789",
+      "name": "TK ngân hàng",
+      "value": "{bank_account_numbers}"
+    },
+    {
+      "preview_value": "123456789",
+      "name": "Tên TK",
+      "value": "{bank_account_name}"
+    },
+    {
+      "preview_value": "Techcombank",
+      "name": "Ngân hàng",
+      "value": "{bank_name}"
+    },
+    {
+      "preview_value": "123456789",
+      "name": "Mã số thuế",
+      "value": "{tax_code}"
+    },
+    {
+      "preview_value": "APN1234",
+      "name": "Mã sản phẩm",
+      "value": "{product_variant_sku}"
+    },
+    {
+      "preview_value": "https://yody-file.s3.ap-southeast-1.amazonaws.com/variant/2021-10-01-14-56-07_151803f7-82c8-4cfb-8120-3e3af8174a70.png",
+      "name": "Hình sản phẩm",
+      "value": "{po_product_variant_image}"
+    },
+    {
+      "preview_value": "2000",
+      "name": "Giá bán",
+      "value": "{po_retail_price}"
+    },
+    {
+      "preview_value": "30",
+      "name": "Số lượng nhập hàng",
+      "value": "{po_orderline_quantity}"
+    },
+    {
+      "preview_value": "30",
+      "name": "Tổng số lượng nhập hàng",
+      "value": "{po_total_quantities}"
+    },
+    {
+      "preview_value": "VNĐ",
+      "name": "Đơn giá nhập",
+      "value": "{po_unit_price}"
+    },
+    {
+      "preview_value": "60000",
+      "name": "Thành tiền",
+      "value": "{po_orderline_price}"
+    },
+    {
+      "preview_value": "6000",
+      "name": "Thuế VAT",
+      "value": "{po_vat_rate}"
+    },
+    {
+      "preview_value": "10%",
+      "name": "Gíá trị VAT",
+      "value": "{po_vat_amount}"
+    },
+    {
+      "preview_value": "Tổng VAT",
+      "name": "Tổng VAT",
+      "value": "{po_vat_total_amount}"
+    },
+    {
+      "preview_value": "Ghi chú nội bộ  ",
+      "name": "Tổng tiền",
+      "value": "{po_total_amount}"
+    },
+    {
+      "preview_value": "Ghi chú Nhà cung cấp",
+      "name": "Ghi chú Nhà cung cấp",
+      "value": "{po_supplier_note}"
+    },
+    {
+      "preview_value": "Ghi chú nội bộ  ",
+      "name": "Ghi chú nội bộ",
+      "value": "{po_internal_note}"
+    },
+    {
+      "preview_value": "",
+      "name": "Bảng kế hoạch nhập kho",
+      "value": "{po_procurement_plan_array}"
+    },
+    {
+      "preview_value": "",
+      "name": "Điều khoản thanh toán",
+      "value": "{po_payment_term}"
+    },
+    {
+      "preview_value": "",
+      "name": "Diễn giải thanh toán",
+      "value": "{po_payment_note}"
+    },
+    {
+      "preview_value": "",
+      "name": "Bảng kế hoạch thanh toán",
+      "value": "{po_payment_plan_array}"
+    }
+  ],
+  "goods": [
+    {
+      "name": "Thời trang",
+      "value": "fashion"
+    }
+  ],
+  "product_status": [
+    {
+      "name": "Hoạt động",
+      "value": "active"
+    },
+    {
+      "name": "Dừng hoạt động",
+      "value": "inactive"
+    }
+  ],
+  "shipping_requirement": [
+    {
+      "name": "Cho xem và thử hàng",
+      "value": "open_try"
+    },
+    {
+      "name": "Cho xem, không thử hàng",
+      "value": "open_no_try"
+    },
+    {
+      "name": "Không cho xem hàng",
+      "value": "no_open"
+    }
+  ],
+  "account_status": [
+    {
+      "name": "Hoạt động",
+      "value": "active"
+    },
+    {
+      "name": "Không hoạt đông",
+      "value": "inactive"
+    }
+  ],
+  "print_type": [
+    {
+      "name": "Hoá đơn bán hàng",
+      "value": "order"
+    },
+    {
+      "name": "Mẫu in phiếu chuyển kho",
+      "value": "inventory_transfer"
+    },
+    {
+      "name": "Mẫu in vận đơn chuyển kho",
+      "value": "inventory_transfer_bill"
+    },
+    {
+      "name": "Mẫu in biên bản xử lý hàng thừa thiếu",
+      "value": "inventory_adjustment"
+    },
+    {
+      "name": "Hoá đơn nhập hàng",
+      "value": "purchase_order"
+    },
+    {
+      "name": "Phiếu giao hàng",
+      "value": "shipment"
+    },
+    {
+      "name": "Phiếu xuất kho",
+      "value": "stock_export"
+    },
+    {
+      "name": "Đơn bán hàng nháp",
+      "value": "order_draft"
+    },
+    {
+      "name": "Biên bản bàn giao vận đơn rút gọn",
+      "value": "goods_receipt_send"
+    },
+    {
+      "name": "Biên bản bàn giao vận đơn đầy đủ",
+      "value": "goods_receipt_send_detail"
+    },
+    {
+      "name": "Biên bản nhận chuyển hoàn từ hãng vận chuyển rút gọn",
+      "value": "goods_receipt_receive"
+    },
+    {
+      "name": "Biên bản nhận chuyển hoàn từ hãng vận chuyển đầy đủ",
+      "value": "goods_receipt_receive_detail"
+    }
+  ],
+  "moq_unit": [
+    {
+      "name": "Cái",
+      "value": "single"
+    },
+    {
+      "name": "Cặp",
+      "value": "couple"
+    },
+    {
+      "name": "Kg",
+      "value": "kg"
+    },
+    {
+      "name": "m",
+      "value": "m"
+    }
+  ],
+  "scorecard": [
+    {
+      "name": "A+",
+      "value": "A+"
+    },
+    {
+      "name": "A",
+      "value": "A"
+    },
+    {
+      "name": "A-",
+      "value": "A-"
+    },
+    {
+      "name": "B+",
+      "value": "B+"
+    },
+    {
+      "name": "B",
+      "value": "B"
+    },
+    {
+      "name": "B-",
+      "value": "B-"
+    },
+    {
+      "name": "C+",
+      "value": "C+"
+    },
+    {
+      "name": "C",
+      "value": "C"
+    },
+    {
+      "name": "C-",
+      "value": "C-"
+    }
+  ],
+  "length_unit": [
+    {
+      "name": "Cm",
+      "value": "cm"
+    },
+    {
+      "name": "Mm",
+      "value": "mm"
+    },
+    {
+      "name": "M",
+      "value": "m"
+    }
+  ],
+  "order_status": [
+    {
+      "name": "Nháp",
+      "value": "draft"
+    },
+    {
+      "name": "Xác nhận",
+      "value": "finalized"
+    },
+    {
+      "name": "Hoàn thành",
+      "value": "completed"
+    },
+    {
+      "name": "Kết thúc",
+      "value": "finished"
+    },
+    {
+      "name": "Hủy",
+      "value": "cancelled"
+    }
+  ],
+  "shipping_fee_type": [
+    {
+      "name": "Phí COD",
+      "value": "cod_fee"
+    },
+    {
+      "name": "Phí vận chuyển",
+      "value": "ship_fee"
+    },
+    {
+      "name": "Phí bảo hiểm",
+      "value": "insurance_fee"
+    },
+    {
+      "name": "Phí hoàn trả",
+      "value": "return_fee"
+    },
+    {
+      "name": "Phí vận chuyển quá tải",
+      "value": "overweight_ship_fee"
+    }
+  ],
+  "supplier_status": [
+    {
+      "name": "Đang hoạt động",
+      "value": "active"
+    },
+    {
+      "name": "Ngừng giao dịch",
+      "value": "inactive"
+    }
+  ],
+  "print_product_variable": [
+    {
+      "preview_value": "APM3681",
+      "name": "Mã sản phẩm",
+      "value": "{variant_code}"
+    },
+    {
+      "preview_value": "TLN1111",
+      "name": "Sku",
+      "value": "{sku}"
+    },
+    {
+      "preview_value": "Áo Polo Nam Coolmax Phối Bo Kẻ",
+      "name": "Tên sản phẩm",
+      "value": "{product_name}"
+    },
+    {
+      "preview_value": "Coolmax",
+      "name": "Thương hiệu sản phẩm",
+      "value": "{product_brand}"
+    },
+    {
+      "preview_value": "2",
+      "name": "Số lượng sản phẩm",
+      "value": "{product_quantity}"
+    },
+    {
+      "preview_value": "Tất lưới",
+      "name": "Quà tặng sản phẩm",
+      "value": "{gift}"
+    },
+    {
+      "preview_value": "<img src=\"https://cdn.yody.io/product_barcode.png\" width=\"100\" height=\"50\">",
+      "name": "Mã vạch sản phẩm",
+      "value": "{variant_barcode}"
+    },
+    {
+      "preview_value": "200g",
+      "name": "Khối lượng sản phẩm (gram)",
+      "value": "{product_weight}"
+    },
+    {
+      "preview_value": "110,000",
+      "name": "Giá sản phẩm (đã bao gồm VAT)",
+      "value": "{product_price_included_vat}"
+    },
+    {
+      "preview_value": "100,000",
+      "name": "Giá sản phẩm (chưa bao gồm VAT)",
+      "value": "{product_price_not_included_vat}"
+    },
+    {
+      "preview_value": "55,000",
+      "name": "Giá sản phẩm (sau Chiết khấu)",
+      "value": "{product_price_after_discount}"
+    },
+    {
+      "preview_value": "220,000",
+      "name": "Tổng tiền sp trước chiết khấu",
+      "value": "{total_money_before_discount}"
+    },
+    {
+      "preview_value": "110,000",
+      "name": "Tổng tiền sp sau chiết khấu",
+      "value": "{total_money_after_discount}"
+    },
+    {
+      "preview_value": "110,000",
+      "name": "Tiền chiết khấu sản phẩm",
+      "value": "{product_discount_money}"
+    },
+    {
+      "preview_value": "50%",
+      "name": "% chiết khấu sản phẩm",
+      "value": "{product_discount_percent}"
+    },
+    {
+      "preview_value": "",
+      "name": "VAT sản phẩm",
+      "value": "{product_vat}"
+    },
+    {
+      "preview_value": "Chiếc",
+      "name": "Đơn vị sản phẩm",
+      "value": "{product_unit}"
+    },
+    {
+      "preview_value": "",
+      "name": "Ảnh sản phẩm",
+      "value": "{product_image}"
+    },
+    {
+      "preview_value": "Việt Nam",
+      "name": "Xuất xứ sản phẩm",
+      "value": "{made_in}"
+    },
+    {
+      "preview_value": "Bảo quản sản phẩm nơi thông thoáng, khô ráo.",
+      "name": "Ghi chú sản phẩm",
+      "value": "{product_note}"
+    },
+    {
+      "preview_value": "APM",
+      "name": "Mã danh mục sản phẩm",
+      "value": "{product_category}"
+    }
+  ],
+  "print_size": [
+    {
+      "name": "Khổ giấy A4 | A5",
+      "value": "a4"
+    },
+    {
+      "name": "Khổ giấy K56 | K80",
+      "value": "k80"
+    }
+  ],
+  "delivery_type": [
+    {
+      "name": "Tự gửi",
+      "value": "pickup"
+    },
+    {
+      "name": "Vận chuyển bên thứ 3",
+      "value": "delivery_by_3pl"
+    },
+    {
+      "name": "Drop shipping",
+      "value": "drop_shipping"
+    }
+  ],
+  "print_order_variable": [
+    {
+      "preview_value": "SO0001",
+      "name": "Mã đơn hàng",
+      "value": "{order_code}"
+    },
+    {
+      "preview_value": "<img src=\"https://cdn.yody.io/order-qr.png\">",
+      "name": "Mã đơn hàng dạng QR code",
+      "value": "{order_qr_code}"
+    },
+    {
+      "preview_value": "<img src=\"https://cdn.yody.io/order_barcode.png\" width=\"100\" height=\"50\">",
+      "name": "Mã đơn hàng dạng mã vạch",
+      "value": "{order_barcode}"
+    },
+    {
+      "preview_value": "30-08-2016",
+      "name": "Ngày cập nhật",
+      "value": "{modified_on}"
+    },
+    {
+      "preview_value": "15:27:59",
+      "name": "Thời gian cập nhật",
+      "value": "{modified_on_time}"
+    },
+    {
+      "preview_value": "30-08-2016",
+      "name": "Ngày hẹn giao hàng từ",
+      "value": "{ship_on_min}"
+    },
+    {
+      "preview_value": "30-08-2016",
+      "name": "Thời gian hẹn giao hàng đến",
+      "value": "{ship_on_max}"
+    },
+    {
+      "preview_value": "Nguyễn Thùy Chi",
+      "name": "Nhân viên bán hàng",
+      "value": "{assignee_name}"
+    },
+    {
+      "preview_value": "0912345678",
+      "name": "SĐT nhân viên bán hàng",
+      "value": "{assignee_phone}"
+    },
+    {
+      "preview_value": "20-08-2016",
+      "name": "Ngày tạo",
+      "value": "{created_on}"
+    },
+    {
+      "preview_value": "Pos",
+      "name": "Nguồn",
+      "value": "{source}"
+    },
+    {
+      "preview_value": "30-08-2016",
+      "name": "Ngày chứng từ",
+      "value": "{issued_on}"
+    },
+    {
+      "preview_value": "Nguyễn Thùy Chi",
+      "name": "Người tạo",
+      "value": "{account_name}"
+    },
+    {
+      "preview_value": "15:27:59",
+      "name": "Thời gian chứng từ",
+      "value": "{issued_on_time}"
+    },
+    {
+      "preview_value": "15:27:59",
+      "name": "Thời gian tạo",
+      "value": "{created_on_time}"
+    },
+    {
+      "preview_value": "SO00001",
+      "name": "Tham chiếu",
+      "value": "{reference}"
+    },
+    {
+      "preview_value": "Giá bán buôn",
+      "name": "Chính sách giá",
+      "value": "{price_list_name}"
+    },
+    {
+      "preview_value": "Hoàn thành",
+      "name": "Trạng thái đơn hàng",
+      "value": "{order_status}"
+    },
+    {
+      "preview_value": "Áo thời trang",
+      "name": "Thẻ Tag",
+      "value": "{tag}"
+    },
+    {
+      "preview_value": "Thanh toán toàn bộ",
+      "name": "Trạng thái thanh toán",
+      "value": "{payment_status}"
+    },
+    {
+      "preview_value": "Tiền mặt",
+      "name": "Thanh toán dự kiến",
+      "value": "{expected_payment_method}"
+    },
+    {
+      "preview_value": "Lazada",
+      "name": "Kênh bán hàng",
+      "value": "{channel}"
+    },
+    {
+      "preview_value": "100,000",
+      "name": "Phí ship báo khách",
+      "value": "{shipping_fee_informed_to_customer}"
+    },
+    {
+      "preview_value": "100,000",
+      "name": "Tổng tiền (giá trị đơn hàng)",
+      "value": "{total}"
+    },
+    {
+      "preview_value": "120,000",
+      "name": "Tổng tiền trước chiết khấu",
+      "value": "{total_before_discount}"
+    },
+    {
+      "preview_value": "10,000",
+      "name": "Tổng giá trị VAT",
+      "value": "{total_vat}"
+    },
+    {
+      "preview_value": "Nguyễn Thùy Chi",
+      "name": "Nhân viên chăm sóc khách hàng",
+      "value": "{customer_care_staff}"
+    },
+    {
+      "preview_value": "S1.A1.17373471",
+      "name": "Mã vạch hãng vận chuyển",
+      "value": "{delivery_code}"
+    },
+    {
+      "preview_value": "<img src=\"https://cdn.yody.io/delivery-barcode.png\" width=\"100\" height=\"50\">",
+      "name": "Mã vạch hãng vận chuyển",
+      "value": "{delivery_barcode}"
+    },
+    {
+      "preview_value": "GHTK",
+      "name": "Hãng vận chuyển",
+      "value": "{delivery_name}"
+    },
+    {
+      "preview_value": "",
+      "name": "Logo hãng vận chuyển",
+      "value": "{delivery_logo}"
+    },
+    {
+      "preview_value": "Nguyễn Thùy Chi",
+      "name": "Nhân viên đóng gói",
+      "value": "{packing_staff}"
+    },
+    {
+      "preview_value": "10,000",
+      "name": "Tiền trả lại khách",
+      "value": "{back_money_to_customer}"
+    },
+    {
+      "preview_value": "90,000",
+      "name": "Tổng tiền sau chiết khấu",
+      "value": "{money_after_discount}"
+    },
+    {
+      "preview_value": "Chín mươi nghìn đồng",
+      "name": "Tổng tiền sau chiết khấu (bằng chữ)",
+      "value": "{order_money_after_discount_by_text}"
+    },
+    {
+      "preview_value": "0",
+      "name": "Tiền chiết khấu đơn hàng",
+      "value": "{order_discount}"
+    },
+    {
+      "preview_value": "0",
+      "name": "Tiêu điểm",
+      "value": "{point}"
+    },
+    {
+      "preview_value": "2",
+      "name": "Tổng số lượng sản phẩm",
+      "value": "{total_quantity_product}"
+    },
+    {
+      "preview_value": "10,000",
+      "name": "Tiền đặt cọc",
+      "value": "{down_payment}"
+    },
+    {
+      "preview_value": "500g",
+      "name": "Khối lượng đơn hàng",
+      "value": "{order_weight}"
+    },
+    {
+      "preview_value": "10%",
+      "name": "Phần trăm chiết khấu đơn hàng",
+      "value": "{discount_percent}"
+    },
+    {
+      "preview_value": "Cho khách xem hàng",
+      "name": "Có cho khách xem hàng",
+      "value": "{references_see}"
+    },
+    {
+      "preview_value": "Tự giao hàng",
+      "name": "Loại dịch vụ vận chuyển",
+      "value": "{type_shipping_service}"
+    },
+    {
+      "preview_value": "CP1234",
+      "name": "Mã Coupon",
+      "value": "{coupon_code}"
+    },
+    {
+      "preview_value": "10,000",
+      "name": "Hỗ trợ cước (Phí vận chuyển + Phí thu tiền hộ - Phí ship báo khách)",
+      "value": "{fee_support}"
+    },
+    {
+      "preview_value": "20,000",
+      "name": "Cước trả HVC (Phí vận chuyển + Phí thu tiền hộ)",
+      "value": "{fee_support_three_pls}"
+    },
+    {
+      "preview_value": "Khách hàng đặt hàng qua Facebook",
+      "name": "Ghi chú đơn hàng",
+      "value": "{order_note}"
+    },
+    {
+      "preview_value": "Khách hàng thích đồ màu đỏ",
+      "name": "Ghi chú của chăm sóc khách hàng",
+      "value": "{order_note_care_staff}"
+    },
+    {
+      "preview_value": "10000",
+      "name": "Mã bưu cục",
+      "value": "{zip_code}"
+    },
+    {
+      "preview_value": "Ship gấp",
+      "name": "Ghi chú vận chuyển",
+      "value": "{shipping_note}"
+    },
+    {
+      "preview_value": "Chu Văn Toàn",
+      "name": "Tên khách hàng",
+      "value": "{customer_name}"
+    },
+    {
+      "preview_value": "0123456789",
+      "name": "SĐT khách hàng",
+      "value": "{customer_phone}"
+    },
+    {
+      "preview_value": "68 Triều Khúc - Tân Triều - Thanh Trì - Hà Nội",
+      "name": "Địa chỉ KH",
+      "value": "{customer_address}"
+    }
+  ],
+  "currency": [
+    {
+      "name": "Việt Nam Đồng",
+      "value": "VNĐ"
+    },
+    {
+      "name": "Thai Baht",
+      "value": "THB"
+    }
+  ],
+  "product_price_type": [
+    {
+      "name": "Giá bán lẻ",
+      "value": "retail_price"
+    },
+    {
+      "name": "Giá vốn",
+      "value": "cogs"
+    },
+    {
+      "name": "Giá nhập",
+      "value": "import_price"
+    },
+    {
+      "name": "Giá bán buôn",
+      "value": "whole_sale_price"
+    }
+  ],
+  "order_main_status": [
+    {
+      "name": "Đặt hàng",
+      "value": "draft"
+    },
+    {
+      "name": "Xác nhận",
+      "value": "finalized"
+    },
+    {
+      "name": "Đóng gói",
+      "value": "packed"
+    },
+    {
+      "name": "Xuất kho",
+      "value": "shipping"
+    },
+    {
+      "name": "Hoàn thành",
+      "value": "completed"
+    },
+    {
+      "name": "Kết thúc",
+      "value": "finished"
+    },
+    {
+      "name": "Hủy đơn",
+      "value": "cancelled"
+    },
+    {
+      "name": "Đã tách",
+      "value": "splitted"
+    }
+  ],
+  "brand": [
+    {
+      "name": "YODY",
+      "value": "yody"
+    },
+    {
+      "name": "ONOFF",
+      "value": "onoff"
+    }
+  ],
+  "date_unit": [
+    {
+      "name": "Ngày",
+      "value": "day"
+    },
+    {
+      "name": "Tháng",
+      "value": "month"
+    },
+    {
+      "name": "Năm",
+      "value": "year"
+    }
+  ],
+  "print_shipment_variable": [
+    {
+      "preview_value": "Trịnh Thị Tí",
+      "name": "Tên người gửi",
+      "value": "{sender_full_name}"
+    },
+    {
+      "preview_value": "0933445566",
+      "name": "Số điện thoại người gửi",
+      "value": "{sender_phone}"
+    },
+    {
+      "preview_value": "Hải Dương",
+      "name": "Địa chỉ người gửi",
+      "value": "{sender_address}"
+    },
+    {
+      "preview_value": "tinatasha@gmail.com",
+      "name": "Email người gửi",
+      "value": "{sender_email}"
+    },
+    {
+      "preview_value": "Lê Văn Cáp",
+      "name": "Tên người nhận",
+      "value": "{shipping_full_name}"
+    },
+    {
+      "preview_value": "0988334881",
+      "name": "Số điện thoại người nhận",
+      "value": "{shipping_phone}"
+    },
+    {
+      "preview_value": "Hà Nội",
+      "name": "Địa chỉ người nhận",
+      "value": "{shipping_address}"
+    },
+    {
+      "preview_value": "steverogers@gmail.com",
+      "name": "Email người nhận",
+      "value": "{shipping_email}"
+    },
+    {
+      "preview_value": "76 Triều Khúc - Tân Triều - Thanh Trì - Hà Nội",
+      "name": "Phường xã, quận huyện, tỉnh thành người nhận",
+      "value": "{shipping_full_address}"
+    },
+    {
+      "preview_value": "Hà Nội",
+      "name": "Tỉnh/thành phố người nhận",
+      "value": "{shipping_province}"
+    },
+    {
+      "preview_value": "Thanh Trì",
+      "name": "Quận huyện người nhận",
+      "value": "{shipping_district}"
+    },
+    {
+      "preview_value": "Tân Triều",
+      "name": "Phường xã người nhận",
+      "value": "{shipping_ward}"
+    },
+    {
+      "preview_value": "1000",
+      "name": "Điểm tích lũy của khách hàng",
+      "value": "{customer_point}"
+    },
+    {
+      "preview_value": "https://www.facebook.com/yody.vn",
+      "name": "Tên fanpage",
+      "value": "{fanpage_name}"
+    }
+  ],
+  "variant_status": [
+    {
+      "name": "Đang bán",
+      "value": "active"
+    },
+    {
+      "name": "Ngừng bán",
+      "value": "inactive"
+    }
+  ],
+  "payment_status": [
+    {
+      "name": "Chưa trả",
+      "value": "unpaid"
+    },
+    {
+      "name": "Đã trả",
+      "value": "paid"
+    },
+    {
+      "name": "Đã trả một phần",
+      "value": "partial_paid"
+    },
+    {
+      "name": "Đang hoàn lại",
+      "value": "refunding"
+    },
+    {
+      "name": "Đã hoàn lại",
+      "value": "refunded"
+    }
+  ],
+  "collection": [
+    {
+      "name": "YODY EVERYDAY WEAR",
+      "value": "yody_everyday_wear"
+    },
+    {
+      "name": "SUMMER",
+      "value": "summer"
+    }
+  ],
+  "media_file_status": [
+    {
+      "name": "Hoạt động",
+      "value": "active"
+    },
+    {
+      "name": "Không hoạt động",
+      "value": "inactive"
+    },
+    {
+      "name": "Vô hiệu hóa",
+      "value": "disable"
+    },
+    {
+      "name": "Đã xóa",
+      "value": "deleted"
+    }
+  ],
+  "print_store_variable": [
+    {
+      "preview_value": "<img src=\"https://cdn.yody.io/yody_official_logo.png\" width=\"150\" height=\"70\">",
+      "name": "Logo doanh nghiệp",
+      "value": "{company_logo}"
+    },
+    {
+      "preview_value": "Công ty cổ phần thời trang YODY",
+      "name": "Tên doanh nghiệp",
+      "value": "{company_name}"
+    },
+    {
+      "preview_value": "An Định, Việt Hoà, Thành phố Hải Dương, Hải Dương 03125",
+      "name": "Địa chỉ doanh nghiệp",
+      "value": "{company_address}"
+    },
+    {
+      "preview_value": "1800 2086",
+      "name": "Số điện thoại doanh nghiệp",
+      "value": "{company_phone}"
+    },
+    {
+      "preview_value": "<img src=\"https://cdn.yody.io/yody_logo.png\" width=\"150\" height=\"70\">\"",
+      "name": "Logo cửa hàng",
+      "value": "{store_logo}"
+    },
+    {
+      "preview_value": "Cửa hàng thời trang YODY",
+      "name": "Tên cửa hàng",
+      "value": "{store_name}"
+    },
+    {
+      "preview_value": "61 Trần Hưng Đạo, P. Trần Hưng Đạo, Thành phố Hải Dương, Hải Dương 170000",
+      "name": "Địa chỉ cửa hàng",
+      "value": "{store_address}"
+    },
+    {
+      "preview_value": "091 415 22 58",
+      "name": "Số điện thoại cửa hàng",
+      "value": "{store_phone}"
+    },
+    {
+      "preview_value": "YODY Hong Quang",
+      "name": "Tên chi nhánh",
+      "value": "{location_name}"
+    },
+    {
+      "preview_value": "45 Hồng Quang, P. Nguyễn Trãi, Thành phố Hải Dương, Hải Dương 170000",
+      "name": "Địa chỉ chi nhánh",
+      "value": "{location_address}"
+    },
+    {
+      "preview_value": "091 426 82 58",
+      "name": "Số điện thoại chi nhánh",
+      "value": "{location_phone}"
+    }
+  ],
+  "product_history_type": [
+    {
+      "name": "Thêm mới sản phẩm",
+      "value": "ADD_PRODUCT"
+    },
+    {
+      "name": "Thêm mới phiên bản",
+      "value": "ADD_VARIANT"
+    },
+    {
+      "name": "Cập nhật thông tin phiên bản",
+      "value": "UPDATE_VARIANT"
+    },
+    {
+      "name": "Xóa phiên bản",
+      "value": "DELETE_VARIANT"
+    },
+    {
+      "name": "Cập nhật thông tin sản phẩm",
+      "value": "UPDATE_PRODUCT"
+    },
+    {
+      "name": "Cập nhật giá phiên bản",
+      "value": "UPDATE_PRICE"
+    },
+    {
+      "name": "Xóa sản phẩm",
+      "value": "DELETE_PRODUCT"
+    }
+  ],
+  "print_goods_receipt_variable": [
+    {
+      "preview_value": "1271810",
+      "name": "ID biên bản bàn giao",
+      "value": "{goods_receipt_id}"
+    },
+    {
+      "preview_value": "18/12/2021",
+      "name": "Ngày tạo biên bản bàn giao",
+      "value": "{goods_receipt_created_on}"
+    },
+    {
+      "preview_value": "Giao hàng nhanh",
+      "name": "Đối tác",
+      "value": "{goods_receipt_quantity_order}"
+    },
+    {
+      "preview_value": "5",
+      "name": "Số lượng đơn",
+      "value": "{goods_receipt_delivery_name}"
+    },
+    {
+      "preview_value": "500,000",
+      "name": "Tiền thu hộ",
+      "value": "{goods_receipt_total}"
+    },
+    {
+      "preview_value": "30-08-2016 15:27:59",
+      "name": "Ngày giờ in",
+      "value": "{goods_receipt_date_print}"
+    }
+  ],
+  "product_unit": [
+    {
+      "name": "Cái",
+      "value": "piece"
+    },
+    {
+      "name": "Cặp",
+      "value": "couple"
+    },
+    {
+      "name": "Bộ",
+      "value": "set"
+    }
+  ],
+  "connect_product_status": [
+    {
+      "name": "Thành công",
+      "value": "connected"
+    },
+    {
+      "name": "Chưa ghép nối",
+      "value": "waiting"
+    }
+  ],
+  "product_type": [
+    {
+      "name": "Sản phẩm",
+      "value": "normal"
+    },
+    {
+      "name": "Combo",
+      "value": "combo"
+    }
+  ],
+  "weight_unit": [
+    {
+      "name": "Gram",
+      "value": "g"
+    },
+    {
+      "name": "Kilogram",
+      "value": "kg"
+    }
+  ],
+  "tax_treatment": [
+    {
+      "name": "Đã tính thuế",
+      "value": "inclusive"
+    },
+    {
+      "name": "Chưa tính thuế",
+      "value": "exclusive"
+    }
+  ],
+  "delivery_service": [
+    {
+      "name": "Giao hàng nhanh",
+      "value": "ghn"
+    },
+    {
+      "name": "Giao hàng tiết kiệm",
+      "value": "ghtk"
+    },
+    {
+      "name": "VietelPost",
+      "value": "vtp"
+    },
+    {
+      "name": "DHL",
+      "value": "dhl"
+    }
+  ],
+  "discount_source": [
+    {
+      "name": "Thủ công",
+      "value": "manual"
+    },
+    {
+      "name": "Khuyến mãi",
+      "value": "promotion"
+    },
+    {
+      "name": "Phiếu giảm giá",
+      "value": "coupon"
+    }
+  ]
+}

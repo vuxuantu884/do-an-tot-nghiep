@@ -34,7 +34,8 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
           procurements !== undefined && procurements !== null
             ? procurements.filter(
                 (item) =>
-                  item.status === ProcumentStatus.NOT_RECEIVED
+                  item.status === ProcumentStatus.NOT_RECEIVED ||
+                  item.status === ProcumentStatus.CANCELLED
               )
             : [];
         return (
@@ -66,7 +67,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                 ),
                 dataIndex: "code",
                 render: (value, item, index) => (
-                  <Button
+                  !item?.is_cancelled ? (<Button
                     type="link"
                     onClick={() => {
                       confirmInventory(item, true, item?.code);
@@ -75,7 +76,9 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                     <div style={{color: "#5D5D8A", textDecoration: "underline"}}>
                       {value}
                     </div>
-                  </Button>
+                  </Button>) : (
+                    <div style={{ cursor: "no-drop" }}>{value}</div>
+                  )
                 ),
               },
               {

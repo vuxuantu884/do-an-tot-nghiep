@@ -6,7 +6,7 @@ import { Dispatch } from "react";
 import { call, put } from "redux-saga/effects";
 import { showError } from "./ToastUtils";
 
-type NotifyActionName = "SHOW_ALL" | "HIDE_ALL" | "USE_CONFIG";
+export type NotifyActionName = "SHOW_ALL" | "HIDE_ALL" | "USE_CONFIG";
 export interface NotifyConfigApi {
   notifyAction?: NotifyActionName; // default: USE_CONFIG
   jobName?: string;
@@ -28,7 +28,6 @@ export const catcherError = (error: any, jobName?: string) => {
   }
 };
 
-
 /**
  * ## Call api saga and and handle response
  *
@@ -41,12 +40,19 @@ export const callApiSaga = function* <
   Fn extends (...args: any[]) => any,
   R extends ReturnType<Fn>
 >(
-  hasLoading: boolean,
+  notifyConfig: NotifyConfigApi,
   callbackDataFn: (data: any) => any,
   fn: Fn,
   ...args: Parameters<Fn>
 ) {
-  if (hasLoading) yield put(showLoading());
+  const {
+    isShowLoading,
+    isShowError,
+    notifyAction = "USE_CONFIG",
+    jobName,
+  } = notifyConfig;
+  
+  if (notifyAction === "SHOW_ALL" || isShowLoading) yield put(showLoading());
 
   try {
     const response: R = yield call(fn, ...args);
@@ -67,18 +73,21 @@ export const callApiSaga = function* <
       case HttpStatus.BAD_REQUEST:
         throw response.errors;
 
+      case HttpStatus.NOT_FOUND:
+        throw response.message;
+
       default:
         throw response.message;
     }
   } catch (error: any) {
     console.log("error at", fn.name, error);
-    catcherError(error);
+    if (notifyAction === "SHOW_ALL" || isShowError)
+      catcherError(error, jobName);
     yield callbackDataFn(null);
   } finally {
-    if (hasLoading) yield put(hideLoading());
+    if (notifyAction === "SHOW_ALL" || isShowLoading) yield put(hideLoading());
   }
 };
-
 
 /**
  * ## Call api trực tiếp từ axios
@@ -96,9 +105,13 @@ export const callApiNative = async <
   dispatch: Dispatch<YodyAction>,
   fn: Fn,
   ...args: Parameters<Fn>
-) => { 
-
-  const { isShowLoading, isShowError, notifyAction="USE_CONFIG", jobName } = notifyConfig;
+) => {
+  const {
+    isShowLoading,
+    isShowError,
+    notifyAction = "USE_CONFIG",
+    jobName,
+  } = notifyConfig;
 
   if (notifyAction === "SHOW_ALL" || isShowLoading) dispatch(showLoading());
 
@@ -128,7 +141,8 @@ export const callApiNative = async <
     }
   } catch (error: any) {
     console.log("error at", fn.name, error?.toString());
-    isShowError && catcherError(error, jobName);
+    if (notifyAction === "SHOW_ALL" || isShowError)
+      catcherError(error, jobName);
     return null;
   } finally {
     if (notifyAction === "SHOW_ALL" || isShowLoading) dispatch(hideLoading());

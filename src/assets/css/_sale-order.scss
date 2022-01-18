@@ -1755,6 +1755,17 @@
   box-shadow: 3px 0px 6px #f5f5f5;
 }
 
+.order-list{
+  .ant-table-wrapper::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+}
+
 .order-list .ant-table.ant-table-middle .ant-table-tbody > tr > td {
   border-right: 1px solid $border-color;
   padding: 10px 10px;

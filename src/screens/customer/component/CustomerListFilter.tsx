@@ -27,7 +27,6 @@ import { VietNamId } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 import BaseFilter from "component/filter/base.filter";
 import SelectDateFilter from "component/filter/SelectDateFilter";
-import CustomNumberInput from "component/custom/customNumberInput";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   AccountResponse,
@@ -53,6 +52,7 @@ import {
   StyledCustomerFilter,
 } from "screens/customer/customerStyled";
 import { SourceResponse } from "model/response/order/source.response";
+import CustomNumberInput from "component/custom/customNumberInput";
 
 type CustomerListFilterProps = {
   isLoading?: boolean;
@@ -1179,6 +1179,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     types,
     listStore,
     listChannel,
+    listSource,
   ]);
 
   // close tag filter
@@ -1864,48 +1865,43 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   </Select>
                 </Form.Item>
 
-                {/* Lọc theo năm sinh */}
                 <div className="right-filter">
                   <div className="title">Điểm</div>
                   <div className="select-scope">
                     <Form.Item
-                      name="year_of_birth_from"
-                      className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                      className="select-item"
+                      name="point_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Điểm chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
-                        onSelect={onSelectFromYear}
-                        onClear={onClearFromYear}>
-                        {fromYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={15}
+                      />
                     </Form.Item>
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="year_of_birth_to" className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                    <Form.Item
+                      className="select-item"
+                      name="point_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Điểm chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
-                        onSelect={onSelectToYear}
-                        onClear={onClearToYear}>
-                        {toYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={15}
+                      />
                     </Form.Item>
                   </div>
                 </div>
@@ -2137,45 +2133,39 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     <div className="title">Tổng đơn hàng</div>
                     <div className="select-scope">
                       <Form.Item
-                        name="year_of_birth_from"
-                        className="select-item">
-                        <Select
-                          showSearch
-                          allowClear
+                        className="select-item"
+                        name="total_finished_order_from"
+                        rules={[
+                          {
+                            pattern: RegUtil.NUMBERREG,
+                            message: "Số đơn hàng chỉ được phép nhập số",
+                          },
+                        ]}>
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
                           placeholder="Từ"
-                          onSelect={onSelectFromYear}
-                          onClear={onClearFromYear}>
-                          {fromYearList.map((item: any) => (
-                            <Option
-                              key={item.key}
-                              value={item.value}
-                              disabled={item.disable}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
+                          maxLength={8}
+                        />
                       </Form.Item>
 
                       <img src={rightArrow} alt="" />
 
                       <Form.Item
-                        name="year_of_birth_to"
-                        className="select-item">
-                        <Select
-                          showSearch
-                          allowClear
+                        className="select-item"
+                        name="total_finished_order_to"
+                        rules={[
+                          {
+                            pattern: RegUtil.NUMBERREG,
+                            message: "Số đơn hàng chỉ được phép nhập số",
+                          },
+                        ]}>
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
                           placeholder="Đến"
-                          onSelect={onSelectToYear}
-                          onClear={onClearToYear}>
-                          {toYearList.map((item: any) => (
-                            <Option
-                              key={item.key}
-                              value={item.value}
-                              disabled={item.disable}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
+                          maxLength={8}
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -2183,48 +2173,42 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                 <div className="right-filter">
                   <div>
-                    <div className="title">Số tiền còn thiếu để thăng hạng</div>
+                    <div className="title">Số tiền còn thiếu để nâng hạng</div>
                     <div className="select-scope">
                       <Form.Item
-                        name="year_of_birth_from"
-                        className="select-item">
-                        <Select
-                          showSearch
-                          allowClear
+                        className="select-item"
+                        name="remain_amount_to_level_up_from"
+                        rules={[
+                          {
+                            pattern: RegUtil.NUMBERREG,
+                            message: "Số tiền chỉ được phép nhập số",
+                          },
+                        ]}>
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
                           placeholder="Từ"
-                          onSelect={onSelectFromYear}
-                          onClear={onClearFromYear}>
-                          {fromYearList.map((item: any) => (
-                            <Option
-                              key={item.key}
-                              value={item.value}
-                              disabled={item.disable}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
+                          maxLength={15}
+                        />
                       </Form.Item>
 
                       <img src={rightArrow} alt="" />
 
                       <Form.Item
-                        name="year_of_birth_to"
-                        className="select-item">
-                        <Select
-                          showSearch
-                          allowClear
+                        className="select-item"
+                        name="remain_amount_to_level_up_to"
+                        rules={[
+                          {
+                            pattern: RegUtil.NUMBERREG,
+                            message: "Số tiền chỉ được phép nhập số",
+                          },
+                        ]}>
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
                           placeholder="Đến"
-                          onSelect={onSelectToYear}
-                          onClear={onClearToYear}>
-                          {toYearList.map((item: any) => (
-                            <Option
-                              key={item.key}
-                              value={item.value}
-                              disabled={item.disable}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
+                          maxLength={15}
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -2261,43 +2245,39 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   <div className="title">Tiền tích lũy</div>
                   <div className="select-scope">
                     <Form.Item
-                      name="year_of_birth_from"
-                      className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                      className="select-item"
+                      name="total_paid_amount_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Tiền tích lũy chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
-                        onSelect={onSelectFromYear}
-                        onClear={onClearFromYear}>
-                        {fromYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={15}
+                      />
                     </Form.Item>
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="year_of_birth_to" className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                    <Form.Item
+                      className="select-item"
+                      name="total_paid_amount_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Tiền tích lũy chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
-                        onSelect={onSelectToYear}
-                        onClear={onClearToYear}>
-                        {toYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={15}
+                      />
                     </Form.Item>
                   </div>
                 </div>
@@ -2306,43 +2286,39 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   <div className="title">Giá trị trung bình</div>
                   <div className="select-scope">
                     <Form.Item
-                      name="year_of_birth_from"
-                      className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                      className="select-item"
+                      name="average_order_amount_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
-                        onSelect={onSelectFromYear}
-                        onClear={onClearFromYear}>
-                        {fromYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={15}
+                      />
                     </Form.Item>
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="year_of_birth_to" className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                    <Form.Item
+                      className="select-item"
+                      name="average_order_amount_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
-                        onSelect={onSelectToYear}
-                        onClear={onClearToYear}>
-                        {toYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={15}
+                      />
                     </Form.Item>
                   </div>
                 </div>
@@ -2393,43 +2369,39 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   <div className="title">Số đơn trả hàng</div>
                   <div className="select-scope">
                     <Form.Item
-                      name="year_of_birth_from"
-                      className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                      className="select-item"
+                      name="total_returned_order_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số đơn trả hàng chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
-                        onSelect={onSelectFromYear}
-                        onClear={onClearFromYear}>
-                        {fromYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={8}
+                      />
                     </Form.Item>
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="year_of_birth_to" className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                    <Form.Item
+                      className="select-item"
+                      name="total_returned_order_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số đơn trả hàng chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
-                        onSelect={onSelectToYear}
-                        onClear={onClearToYear}>
-                        {toYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={8}
+                      />
                     </Form.Item>
                   </div>
                 </div>
@@ -2461,65 +2433,81 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 </Form.Item>
 
                 <div className="right-filter">
-                  <Form.Item
-                    name="store_ids"
-                    label={<b>Tổng giá trị đơn trả</b>}>
-                    <Select
-                      mode="multiple"
-                      showSearch
-                      showArrow
-                      allowClear
-                      placeholder="Chọn cửa hàng"
-                      optionFilterProp="children"
-                      maxTagCount="responsive">
-                      {listStore?.map((item) => (
-                        <Option key={item.id} value={item.id.toString()}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-
-                  <div className="title">Số ngày chưa mua hàng</div>
+                  <div className="title">Tổng giá trị đơn trả</div>
                   <div className="select-scope">
                     <Form.Item
-                      name="year_of_birth_from"
-                      className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                      className="select-item"
+                      name="total_returned_amount_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
-                        onSelect={onSelectFromYear}
-                        onClear={onClearFromYear}>
-                        {fromYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={15}
+                      />
                     </Form.Item>
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="year_of_birth_to" className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
+                    <Form.Item
+                      className="select-item"
+                      name="total_returned_amount_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
-                        onSelect={onSelectToYear}
-                        onClear={onClearToYear}>
-                        {toYearList.map((item: any) => (
-                          <Option
-                            key={item.key}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                        maxLength={15}
+                      />
+                    </Form.Item>
+                  </div>
+
+                  <div className="title">Số ngày chưa mua hàng</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="number_of_days_without_purchase_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số ngày chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Từ"
+                        maxLength={6}
+                      />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="number_of_days_without_purchase_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số ngày chỉ được phép nhập số",
+                        },
+                      ]}>
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrency(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Đến"
+                        maxLength={6}
+                      />
                     </Form.Item>
                   </div>
                 </div>

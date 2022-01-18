@@ -274,9 +274,11 @@ const InventoryAdjustment: React.FC = () => {
       render: (item: InventoryAdjustmentDetailItem) => {
         return (
           <div>
-            <div>
-            {item.created_name ?? ""}
-            </div>
+          {item.created_name ? <div>
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_name}`}> 
+                  {item.created_name} 
+                </Link>  
+            </div> : ""}
             <div>
             {item.created_by ?? ""}
             </div>
@@ -411,6 +413,7 @@ const InventoryAdjustment: React.FC = () => {
 
   const onFilter = useCallback(
     (values) => {
+      setTableLoading(true);
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);

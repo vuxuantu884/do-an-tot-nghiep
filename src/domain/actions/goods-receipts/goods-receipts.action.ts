@@ -1,7 +1,7 @@
 import { PageResponse } from './../../../model/base/base-metadata.response';
 import BaseAction from "base/base.action";
 import { GoodsReceiptsType } from "domain/types/goods-receipts";
-import { GoodsReceiptsRequest } from "model/request/pack.request";
+import { GoodsReceiptsDeleteRequest, GoodsReceiptsRequest } from "model/request/pack.request";
 import { GoodsReceiptsTypeResponse,GoodsReceiptsResponse, OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { OrderResponse } from 'model/response/order/order.response';
 
@@ -23,6 +23,10 @@ export const updateGoodsReceipts=(goodsReceiptsId:number,data:GoodsReceiptsReque
 
 export const deleteGoodsReceipts=(goodsReceiptsId:number,setData:(data:boolean)=>void)=>{
     return BaseAction(GoodsReceiptsType.DELETE_GOODS_RECEIPTS,{goodsReceiptsId,setData});
+}
+
+export const deleteAllGoodsReceipts=(request:GoodsReceiptsDeleteRequest,setData:(data:GoodsReceiptsResponse)=>void)=>{
+    return BaseAction(GoodsReceiptsType.DELETE_ALL_GOODS_RECEIPTS,{request,setData});
 }
 
 export const getByIdGoodsReceipts=(goodsReceiptsId:number,setData:(data:GoodsReceiptsResponse)=>void)=>{

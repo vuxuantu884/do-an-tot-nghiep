@@ -7,6 +7,7 @@ type ButtonCreateProps = {
   disabled?: boolean;
   child?: any;
   children?: ReactNode;
+  size?:any;
 };
 
 const ButtonCreate: React.FC<ButtonCreateProps> = (
@@ -18,7 +19,7 @@ const ButtonCreate: React.FC<ButtonCreateProps> = (
       <Button
         type="primary"
         className="ant-btn-primary"
-        size="large"
+        size={props.size||"large"}
         icon={<GoPlus style={{marginRight: "0.2em"}}/>}
         disabled={props.disabled}
       >

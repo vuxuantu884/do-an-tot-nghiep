@@ -49,7 +49,7 @@ import {
   updateOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
+import {INVENTORY_AUDIT_TYPE_CONSTANTS, STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
 import {HttpStatus} from "config/http-status.config";
 
 import {UploadRequestOption} from "rc-upload/lib/interface";
@@ -115,8 +115,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const {id} = useParams<InventoryParams>();
   const idNumber = parseInt(id);
   const [keySearch, setKeySearch] = useState<string>("");
-  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [objSummary, setObjSummary] = useState<SummaryData>();
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false); 
   const [hasError, setHasError] = useState<boolean>(false);
 
   const [printContent, setPrintContent] = useState("");
@@ -252,21 +251,7 @@ const DetailInvetoryAdjustment: FC = () => {
       if (result) {
         setDatalinesItem({...result});
         drawColumns(result?.items);
-        setHasError(false);
-        if (result?.items && result?.items.length > 0) {
-          let dataDis = 0;
-          result.items.forEach((e: LineItemAdjustment) => {
-            if (e.on_hand_adj !== 0) {
-              dataDis += 1;
-            }
-          });
-          let total = result.items.length;
-
-          setObjSummary({
-            partly: dataDis,
-            total: total,
-          });
-        }
+        setHasError(false); 
         setTableLoading(false); 
       }
     },
@@ -371,7 +356,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const printContentCallback = useCallback(
     (printContent) => {
       const textResponse = printContent.map((single: any) => {
-        return "<div class='singleOrderPrint'>" + single.html_content + "</div>";
+        return `<div class='singleOrderPrint'>` + single.html_content + "</div>";
       });
       let textResponseFormatted = textResponse.join(pageBreak);
       //xóa thẻ p thừa
@@ -596,10 +581,11 @@ const DetailInvetoryAdjustment: FC = () => {
       render: (value: string, row) => {
         return <>
           {
-            <Button
-              onClick={() => onDeleteItem(row.id)}
-              className="item-delete"
-              icon={<AiOutlineClose color="red" />}
+           data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL &&
+          <Button
+            onClick={() => onDeleteItem(row.id)}
+            className="item-delete"
+            icon={<AiOutlineClose color="red" />}
           />
           }
         </>
@@ -898,7 +884,7 @@ const onChangeNote = useCallback(
 
   const onDeleteItem = useCallback(
     (variantId: number) => {
-     debugger
+     
     },
     []
   );
@@ -1029,24 +1015,24 @@ const onChangeNote = useCallback(
                 </Card>
                 {
                   //case trạng thái
-                  data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
-                  data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status ? (
+                  (data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
+                    data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) ? (
                     <Card>
                       <Tabs
                         style={{overflow: "initial"}}
                         activeKey={activeTab}
                         onChange={(active) => setActiveTab(active)}
                       >
-                        <TabPane tab={`Thừa/Thiếu (${objSummary?.partly})`} key="1">
+                        <TabPane tab={`Thừa/Thiếu (${data?.total_excess + data?.total_missing})`} key="1">
                           <InventoryAdjustmentHistory
                             data={data}
-                            dataLinesItem={dataLinesItem.items}
+                            idNumber={idNumber}
                           />
                         </TabPane>
-                        <TabPane tab={`Tất cả (${objSummary?.total})`} key="2">
+                        <TabPane tab={`Tất cả (${data?.total_variant})`} key="2">
                           <InventoryAdjustmentListAll
+                            idNumber={idNumber}
                             data={data}
-                            dataLinesItem={dataLinesItem.items}
                           />
                         </TabPane>
                       </Tabs>

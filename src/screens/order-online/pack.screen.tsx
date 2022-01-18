@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/info/pack-info";
 import PackList from "./pack-support/info/pack-list";
-import ReportHandOver from "./pack-support/info/report-hand-over";
+import AddReportHandOver from "./pack-support/info/add-report-hand-over";
 import {
   DeliveryServicesGetList,
   getChannels,
@@ -153,7 +153,7 @@ const PackSupportScreen: React.FC = () => {
 
             <Row gutter={24}>
               <Col xs={24}>
-                <ReportHandOver />
+                <AddReportHandOver />
               </Col>
             </Row>
           </div>
