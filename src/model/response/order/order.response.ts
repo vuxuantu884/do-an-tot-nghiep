@@ -27,6 +27,7 @@ export interface OrderResponse extends BaseObject {
   coordinator_code: string | null;
   coordinator: string | null;
   channel_id: number | null;
+  channel_code:string|null;
   channel: string | null;
   customer_id: number | null;
   customer: string | null;
@@ -62,7 +63,7 @@ export interface OrderResponse extends BaseObject {
   items: Array<OrderLineItemResponse>;
   discounts: Array<OrderDiscountResponse> | null;
   payments: Array<OrderPaymentResponse> | null;
-  total_paid?: number | null;
+  // total_paid?: number | null;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
@@ -156,9 +157,30 @@ export interface FulFillmentResponse {
   billing_address: BillingAddress | null;
   items: Array<OrderLineItemResponse>;
   payments: Array<OrderPaymentResponse>;
-  created_date: string | null;
+  created_date: string;
+  updated_date: string | null;
   cancel_date: string | null;
   return_status: string | null;
+  reason_name?: string;
+  sub_reason_name?: string;
+}
+
+export interface EcommerceDeliveryResponse {
+  cod: number | null,
+  shipping_fee_informed_to_customer: number | null,
+  shipping_fee_paid_to_three_pls: number | null,
+  delivery_service_provider_code: string | null;
+  delivery_service_provider_id: number | null,
+  delivery_service_provider_name: string | null,
+  delivery_service_provider_type: string | null,
+  delivery_transport_type: string | null,
+  office_time: string | null;
+  requirements: string | null;
+  requirements_name: string | null;
+  sender_address_id: number | null;
+  sender_address?: StoreResponse;
+  service: string | null;
+  tracking_code: string | null;
 }
 
 export interface OrderDiscountResponse {

@@ -10,7 +10,7 @@ export const StyledComponent = styled.div`
     vertical-align: top;
   }
   .orderDetails {
-    max-height: 300px;
-    overflow: auto;
+    /* max-height: 300px; */
+    /* overflow: auto; */
   }
 `;

@@ -20,4 +20,17 @@ export const StyledComponent = styled.div`
     }
   }
 
+  .ecommerce-product-action-column {
+    text-align: center;
+  }
+`;
+
+export const StyledComponentSyncStock = styled.div`
+  .select-store-dropdown-sync-stock {
+    flex-direction: column;
+    margin-top: 10px;
+    .ant-form-item-label {
+      align-self: flex-start;
+    }
+  }
 `;

@@ -42,7 +42,7 @@
 .button-select:focus {
   &:focus {
     color: #37394d;
-    border-color: #e5e5e5;
+    border-color: $border-color;
     background-color: #f5f5f5;
   }
   &.active {

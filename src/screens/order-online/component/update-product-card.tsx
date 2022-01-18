@@ -224,7 +224,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             rowKey={(record) => record.id}
             columns={columns}
             dataSource={props.OrderDetail?.items.filter(
-              (item) => item.type === Type.NORMAL
+              (item) => item.type === Type.NORMAL || item.type === Type.SERVICE
             )}
             className="sale-product-box-table2 w-100"
             tableLayout="fixed"
@@ -362,7 +362,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               <div className="font-weight-500 " style={{color: successColor}}>{OrderDetail?.discounts && OrderDetail?.discounts[0]?.discount_code ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code) : "-"}</div>
             </Row>
 
-            <Row className="payment-row padding-top-10" justify="space-between">
+            <Row className="payment-row" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách:</div>
               <div className="font-weight-500 payment-row-money">
                 {(props.OrderDetail &&

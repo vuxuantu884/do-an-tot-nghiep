@@ -90,6 +90,9 @@ function OrderPrint(props: PropType) {
             queryIdsFormatted,
             queryPrintType,
             (response) => {
+							if(!response || response.data?.length === 0) {
+								return null;
+							}
               const textResponse = response.data.map((single) => {
                 return (
                   "<div class='singleOrderPrint'>" +

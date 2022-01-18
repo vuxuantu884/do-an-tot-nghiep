@@ -99,9 +99,6 @@ const StoreDetailScreen: React.FC = () => {
                   <Col span={24} lg={8} md={12} sm={24}>
                     <RowDetail title="Số điện thoại" value={data.hotline} />
                   </Col>
-                  <Col span={24} lg={8} md={12} sm={24}>
-                    <RowDetail title="Trạng thái" value={status} />
-                  </Col>
                 </Row>
                 <Row style={{marginTop: 10}} gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
@@ -132,7 +129,7 @@ const StoreDetailScreen: React.FC = () => {
                 </Row>
                 <Row style={{marginTop: 10}} gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <RowDetail title="Diện tích cửa hàng (m²)" value={`${data.square ?? ""}`} />
+                  <RowDetail title="Trực thuộc" value={data.department} />
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <RowDetail title="Phân loại" value={data.type_name} />
@@ -180,7 +177,7 @@ const StoreDetailScreen: React.FC = () => {
                     <RowDetail title="Phân cấp" value={data.rank_name} />
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <RowDetail title="Trực thuộc" value={data.department} />
+                    <RowDetail title="VM trực thuộc" value={data.vm} />
                   </Col>
                 </Row>
                 <Row style={{marginTop: 10}} gutter={50}>
@@ -191,10 +188,7 @@ const StoreDetailScreen: React.FC = () => {
                     />
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <RowDetail
-                      title="VM trực thuộc"
-                      value={data.vm}
-                    />
+                    <RowDetail title="Diện tích cửa hàng (m²)" value={`${data.square ?? ""}`} />
                   </Col>
                 </Row>
               </div>

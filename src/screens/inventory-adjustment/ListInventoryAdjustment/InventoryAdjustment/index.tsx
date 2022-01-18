@@ -24,7 +24,7 @@ import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import {HttpStatus} from "config/http-status.config";
 import {Link} from "react-router-dom";
 import UrlConfig from "config/url.config";
-import {generateQuery} from "utils/AppUtils";
+import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {useHistory} from "react-router-dom";
 import {AccountResponse} from "model/account/account.model";
 import {AccountSearchAction} from "domain/actions/account/account.action";
@@ -169,7 +169,7 @@ const InventoryAdjustment: React.FC = () => {
           </Link>
           <br />
           <span style={{fontSize: "12px"}}>
-            Ngày tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+            Ngày tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYYY)}
           </span>
         </>
       ),
@@ -180,6 +180,9 @@ const InventoryAdjustment: React.FC = () => {
       dataIndex: "total_variant",
       visible: true,
       align: "right",
+      render: (value: number) => {
+        return formatCurrency(value,".");
+      },
     },
     {
       title: "Tổng SL",
@@ -188,7 +191,7 @@ const InventoryAdjustment: React.FC = () => {
       visible: true,
       align: "right",
       render: (value: number) => {
-        return value && value !== 0 ? value : "";
+        return formatCurrency(value,".");
       },
     },
     {
@@ -200,11 +203,11 @@ const InventoryAdjustment: React.FC = () => {
         return (
           <Space>
             {!item.total_excess || item.total_excess === 0 ? null : (
-              <div style={{color: "#27AE60"}}>+{item.total_excess}</div>
+              <div style={{color: "#27AE60"}}>+{formatCurrency(item.total_excess,".")}</div>
             )}
             {item.total_excess && item.total_missing ? <Space>/</Space> : null}
             {!item.total_missing || item.total_missing === 0 ? null : (
-              <div style={{color: "red"}}>{item.total_missing}</div>
+              <div style={{color: "red"}}>{formatCurrency(item.total_missing,".")}</div>
             )}
           </Space>
         );
@@ -271,11 +274,13 @@ const InventoryAdjustment: React.FC = () => {
       render: (item: InventoryAdjustmentDetailItem) => {
         return (
           <div>
+          {item.created_name ? <div>
+                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_name}`}> 
+                  {item.created_name} 
+                </Link>  
+            </div> : ""}
             <div>
-              <b>{item.created_name ?? ""}</b>
-            </div>
-            <div>
-              <b>{item.created_by ?? ""}</b>
+            {item.created_by ?? ""}
             </div>
           </div>
         );
@@ -296,10 +301,10 @@ const InventoryAdjustment: React.FC = () => {
         return (
           <div>
             <div>
-            <b>{item.adjusted_code ?? ""}</b>
+              {item.adjusted_code ?? ""}
             </div>
             <div>
-              <b>{item.adjusted_by ?? ""}</b>
+              {item.adjusted_by ?? ""}
             </div>
             <div>{ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DDMMYYY)}</div>
           </div>
@@ -377,8 +382,10 @@ const InventoryAdjustment: React.FC = () => {
       params.page = page;
       params.limit = size;
       setPrams({...params});
+      let queryParam = generateQuery(params);
+      history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
     },
-    [params]
+    [params, history]
   );
 
   const columnFinal = useMemo(
@@ -406,6 +413,7 @@ const InventoryAdjustment: React.FC = () => {
 
   const onFilter = useCallback(
     (values) => {
+      setTableLoading(true);
       let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);

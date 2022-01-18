@@ -10,7 +10,8 @@ export const StyledComponent = styled.div`
   .ant-switch {
     margin-right: 15px;
   }
-  .ant-radio-group {
+  .ant-radio-group,
+	.ant-checkbox-group {
     .single:not(:last-child) {
       margin-bottom: 10px;
     }
@@ -27,7 +28,8 @@ export const StyledComponent = styled.div`
     }
   }
   .selectInNhieuDonHang {
-    width: 255px;
+    width: 330px;
     max-width: 100%;
   }
+  
 `;

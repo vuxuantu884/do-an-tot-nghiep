@@ -4,11 +4,11 @@
 const accounts = `accounts`; 
 
 const AccountPermissions = {
-  READ: `${accounts}_accounts_read`,
-  CREATE: `${accounts}_accounts_create`,
-  EXPORT: `${accounts}_accounts_export`,
-  UPDATE: `${accounts}_accounts_update`,
-  DELETE: `${accounts}_accounts_delete`,
+  READ: `${accounts}_read`,
+  CREATE: `${accounts}_create`,
+  EXPORT: `${accounts}_export`,
+  UPDATE: `${accounts}_update`,
+  DELETE: `${accounts}_delete`,
 };
 
 const DepartmentsPermissions = {

@@ -1,25 +1,26 @@
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/http-status.config";
+import { fetchApiErrorAction } from "domain/actions/app.action";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
-  PrinterInventoryTransferResponseModel,
-  PrinterResponseModel,
-  PrinterVariableResponseModel,
-  PrintFormByOrderIdsResponseModel,
+	PrinterInventoryTransferResponseModel,
+	PrinterResponseModel,
+	PrinterVariableResponseModel,
+	PrintFormByOrderIdsResponseModel
 } from "model/response/printer.response";
 import {
-  createPrinterService,
-  getListPrinterService,
-  getListPrinterVariablesService,
-  getPrinterDetailService,
-  getPrintFormByOrderIdsService,
-  getPrintTicketIdsService,
+	createPrinterService,
+	getListPrinterService,
+	getListPrinterVariablesService,
+	getPrinterDetailService,
+	getPrintFormByOrderIdsService,
+	getPrintTicketIdsService
 } from "service/printer/printer.service";
+import { isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listDataPrinterSaga(action: YodyAction) {
@@ -30,24 +31,14 @@ function* listDataPrinterSaga(action: YodyAction) {
       getListPrinterService,
       queryParams
     );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        /**
-         * call function handleData in payload, variables are taken from the response -> use when dispatch
-         */
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách mẫu in"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy danh sách mẫu in. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -62,24 +53,14 @@ function* getPrinterDetailSaga(action: YodyAction) {
       id,
       queryParams
     );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        /**
-         * call function handleData in payload, variables are taken from the response -> use when dispatch
-         */
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Chi tiết mẫu in"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy chi tiết mẫu in. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -92,22 +73,12 @@ function* createPrinterSaga(action: YodyAction) {
       createPrinterService,
       formValue
     );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        /**
-         * call function handleData in payload, variables are taken from the response -> use when dispatch
-         */
-        showSuccess("Tạo mới mẫu in thành công");
-        handleData();
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			showSuccess("Tạo mới mẫu in thành công!");
+      handleData();
+		} else {
+			yield put(fetchApiErrorAction(response, "Tạo mới mẫu in"));
+		}
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
@@ -122,24 +93,14 @@ function* fetchListPrinterVariablesSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<PrinterVariableResponseModel>> =
       yield call(getListPrinterVariablesService);
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        /**
-         * call function handleData in payload, variables are taken from the response -> use when dispatch
-         */
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách từ khóa"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy danh sách từ khóa. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -151,21 +112,11 @@ function* fetchPrintFormByOrderIdsSaga(action: YodyAction) {
   try {
     let response: BaseResponse<BaseResponse<PrintFormByOrderIdsResponseModel>> =
       yield call(getPrintFormByOrderIdsService, ids, type);
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        /**
-         * call function handleData in payload, variables are taken from the response -> use when dispatch
-         */
-        handleData(response);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response);
+		} else {
+			yield put(fetchApiErrorAction(response, "In nhiều đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi khi kết nối api in nhiều đơn hàng! Vui lòng thử lại sau!");

@@ -8,8 +8,7 @@ import {
   bulkDisablePriceRules,
   getVariantApi,
   updatePriceRuleById
-} from 'service/promotion/discount/discount.service';
-import { DiscountResponse } from 'model/response/promotion/discount/list-discount.response';
+} from 'service/promotion/discount/discount.service'; 
 import { YodyAction } from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
 import {call, put} from "@redux-saga/core/effects";
@@ -17,33 +16,29 @@ import {HttpStatus} from "../../../../config/http-status.config";
 import {unauthorizedAction} from "../../../actions/auth/auth.action";
 import {showError} from "../../../../utils/ToastUtils";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {takeLatest} from "typed-redux-saga";
+import {takeEvery, takeLatest} from "typed-redux-saga";
 import {DiscountType, PriceRuleType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
+import { PriceRule } from 'model/promotion/price-rules.model';
+import { isFetchApiSuccessful } from 'utils/AppUtils';
+import { fetchApiErrorAction } from 'domain/actions/app.action';
 
 function* getDiscounts(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<DiscountResponse>> = yield call(
+    const response: BaseResponse<PageResponse<PriceRule>> = yield call(
       searchDiscountList,
       query
     );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        setData(null);
-        yield put(unauthorizedAction());
-        break;
-      default:
-        setData(null);
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			setData(response.data);
+		} else {
+			setData(null);
+			yield put(fetchApiErrorAction(response, "Thông tin khuyến mại đơn hàng"));
+		}
   } catch (error) {
     setData(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy thông tin khuyến mại đơn hàn. Vui lòng thử lại sau!");
   }
 }
 
@@ -54,22 +49,15 @@ function* getVariantsAct(action: YodyAction) {
       getVariantApi,
       id
     );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        onResult(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        onResult(false);
-        yield put(unauthorizedAction());
-        break;
-      default:
-        onResult(false);
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			onResult(response.data);
+		} else {
+			onResult(false);
+			yield put(fetchApiErrorAction(response, "Danh sách sản phẩm"));
+		}
   } catch (error) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy danh sách sản phẩm. Vui lòng thử lại sau!");
   }
 }
 
@@ -77,7 +65,7 @@ function* getVariantsAct(action: YodyAction) {
 function* deletePriceRuleByIdAct(action: YodyAction) {
   const { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<DiscountResponse> = yield call(
+    let response: BaseResponse<PriceRule> = yield call(
       deletePriceRuleById,
       id
     );
@@ -103,7 +91,7 @@ function* deletePriceRuleByIdAct(action: YodyAction) {
 function* getPromoCodeDetail(action: YodyAction) {
   const { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<DiscountResponse> = yield call(
+    let response: BaseResponse<PriceRule> = yield call(
       getPriceRuleById,
       id
     );
@@ -112,16 +100,16 @@ function* getPromoCodeDetail(action: YodyAction) {
         onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        onResult(false);
+        onResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        onResult(false);
-        response.errors.forEach((e) => showError(e));
+        onResult(null);
+        response.errors?.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    onResult(false);
+    onResult(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -130,7 +118,7 @@ function* addPriceRule(action: YodyAction) {
   console.log('addPriceRule - action : ', action);
   const { body, createCallback } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<PriceRule> = yield call(
       createPriceRule,
       body
     );
@@ -192,16 +180,16 @@ function* bulkDisablePriceRulesSaga(action: YodyAction) {
         disableCallback(response.data.count)
         break;
       case HttpStatus.UNAUTHORIZED:
-        disableCallback(false);
+        disableCallback(null);
         yield put(unauthorizedAction());
         break;
       default:
-        disableCallback(false);
+        disableCallback(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    disableCallback(false);
+    disableCallback(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -210,7 +198,7 @@ function* bulkDeletePriceRulesAct(action: YodyAction) {
   console.log('bulkDeletePriceRulesAct - action : ', action);
   const { body, deleteCallback } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<PriceRule> = yield call(
       bulkDeletePriceRules,
       body
     );
@@ -236,7 +224,7 @@ function* bulkDeletePriceRulesAct(action: YodyAction) {
 function* updatePriceRuleByIdSaga(action: YodyAction) { 
   const { body, onResult } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<PriceRule> = yield call(
       updatePriceRuleById,
       body
     );
@@ -264,7 +252,7 @@ function* updatePriceRuleByIdSaga(action: YodyAction) {
 function* createPriceRuleSaga(action: YodyAction) { 
   const { body, onResult } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    const response: BaseResponse<PriceRule> = yield call(
       createPriceRule,
       body
     );
@@ -291,13 +279,13 @@ function* createPriceRuleSaga(action: YodyAction) {
 export function* discountSaga() {
   yield all([
     takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
-    takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail),
+    takeLatest(DiscountType.GET_PRICE_RULE_DETAIL, getPromoCodeDetail),
     takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct),
     takeLatest(DiscountType.ADD_PRICE_RULE, addPriceRule),
     takeLatest(DiscountType.ENABLE_PRICE_RULE, bulkEnablePriceRulesSaga),
     takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesSaga),
     takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct),
-    takeLatest(DiscountType.GET_VARIANTS, getVariantsAct),
+    takeEvery(DiscountType.GET_VARIANTS, getVariantsAct),
     takeLatest(DiscountType.UPDATE_PRICE_RULE_BY_ID, updatePriceRuleByIdSaga),
     takeLatest(PriceRuleType.CREATE_PRICE_RULE, createPriceRuleSaga)
   ])

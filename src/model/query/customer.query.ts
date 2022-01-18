@@ -2,6 +2,7 @@ import { BaseQuery } from "../base/base.query";
 
 export interface CustomerSearchQuery extends BaseQuery {
   ids?: Array<any> | [];
+  search_type?: string | null;
   is_simple?:number|null;
   request?: string | null;
   gender?: string | null;

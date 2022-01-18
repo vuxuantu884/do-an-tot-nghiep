@@ -13,11 +13,13 @@ import {
   getLinesItemAdjustmentApi,
   getListInventoryAdjustmentApi,
   getPrintTicketIdsService,
+  getVariantHasOnHandByStoreApi,
   updateInventorAdjustmentApi,
   updateItemOnlineInventoryApi,
   updateOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
 import {InventoryAdjustmentDetailItem} from "model/inventoryadjustment";
+import { callApiSaga } from "utils/ApiUtils";
 
 function* getListInventoryAdjustmentSaga(action: YodyAction) {
   let {queryParams, onResult} = action.payload;
@@ -238,6 +240,12 @@ function* updateInventoryAdjustmentSaga(action: YodyAction) {
   }
 }
 
+
+function* getVariantHasOnHandByStoreSaga(action: YodyAction) {
+  let {query, onResult} = action.payload;
+  yield callApiSaga({notifyAction:"SHOW_ALL"},onResult, getVariantHasOnHandByStoreApi,query); 
+}
+
 export function* inventoryAdjustmentSaga() {
   yield takeLatest(
     InventoryType.GET_LIST_INVENTORY_ADJUSTMENT,
@@ -260,4 +268,5 @@ export function* inventoryAdjustmentSaga() {
   yield takeLatest(InventoryType.PRINT_ADJUSTMENT_INVENTORY, printAdjustInventorySaga);
   yield takeLatest(InventoryType.GET_LINES_ITEM_ADJUSTMENT, getLinesItemAdjustmentSaga);
   yield takeLatest(InventoryType.UPDATE_ADJUSTMENT, updateInventoryAdjustmentSaga);
+  yield takeLatest(InventoryType.GET_VARIANT_HAS_ON_HAND_BY_STORE, getVariantHasOnHandByStoreSaga);
 }

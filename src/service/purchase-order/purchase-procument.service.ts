@@ -26,6 +26,26 @@ export const updatePurchaseProcumentService = (
     data
   );
 };
+export const approvalPurchaseProcumentService = (
+  poId: number,
+  procumentId: number,
+  data: PurchaseProcument
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/${procumentId}/approve`,
+    data
+  );
+};
+export const confirmPoProcumentService = (
+  poId: number,
+  procumentId: number,
+  data: PurchaseProcument
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/${procumentId}/confirm`,
+    data
+  );
+};
 export const deletePurchaseProcumentService = (
   poId: number,
   procumentId: number
@@ -67,3 +87,15 @@ export const getJobImport = (
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/excel/job/${code}`);
 };
+
+export const getLogDetailProcurements = (
+  poId: number
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/procurements/log/${poId}`);
+}
+
+export const getLogProcurements = (
+  code: string
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/procurements/${code}/log`);
+}

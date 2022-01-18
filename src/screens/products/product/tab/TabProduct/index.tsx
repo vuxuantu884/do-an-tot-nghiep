@@ -3,27 +3,21 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 import { AppConfig } from "config/app.config";
 import { ProductPermission } from "config/permissions/product.permission";
-import UrlConfig from "config/url.config";
-import { AccountGetListAction } from "domain/actions/account/account.action";
+import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { listColorAction } from "domain/actions/product/color.action";
 import {
   searchVariantsRequestAction,
   variantDeleteManyAction,
   variantUpdateAction,
   variantUpdateManyAction
 } from "domain/actions/product/products.action";
-import { sizeGetAll } from "domain/actions/product/size.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
-import { SupplierResponse } from "model/core/supplier.model";
-import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
 import {
   VariantImage,
   VariantPricesResponse,
@@ -31,7 +25,6 @@ import {
   VariantSearchQuery,
   VariantUpdateRequest
 } from "model/product/product.model";
-import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   useCallback,
@@ -40,9 +33,9 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, Products } from "utils/AppUtils";
+import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ImageProduct from "../../component/image-product.component";
@@ -85,18 +78,7 @@ const initQuery: VariantSearchQuery = {
   main_color: "",
   color: "",
   supplier: "",
-};
-
-const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
-};
-
-const initMainColorQuery: ColorSearchQuery = {
-  is_main_color: 1,
-};
-const initColorQuery: ColorSearchQuery = {
-  is_main_color: 0,
-};
+};  
 
 var variantResponse: VariantResponse | null = null;
 
@@ -112,15 +94,10 @@ const TabProduct: React.FC = () => {
   });
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const [listCountry, setCountry] = useState<Array<CountryResponse>>();
-  const [listMainColor, setMainColor] = useState<Array<ColorResponse>>();
-  const [listColor, setColor] = useState<Array<ColorResponse>>();
-  const [listSize, setSize] = useState<Array<SizeResponse>>();
-  const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
+  const [listCountry, setCountry] = useState<Array<CountryResponse>>();  
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
-  const [selected, setSelected] = useState<Array<VariantResponse>>([]);
-  const [listMerchandiser, setMerchandiser] = useState<Array<AccountResponse>>();
+  const [selected, setSelected] = useState<Array<VariantResponse>>([]); 
   let dataQuery: VariantSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -147,16 +124,19 @@ const TabProduct: React.FC = () => {
   );
   const onFilter = useCallback((values) => {
     let {info} = values;
-    values.info = info.trim();
+    
+    values.info = info && info.trim();
     let newPrams = {...values, page: 1};
     setPrams(newPrams);
-  }, []);
+    let queryParam = generateQuery(newPrams);
+    history.replace(`${ProductTabUrl.VARIANTS}?${queryParam}`);
+  }, [history]);
 
-  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => {
-    setTableLoading(false);
+  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => { 
     if (!!result) {
-      setData(result);
+      setData(result); 
     }
+    setTableLoading(false);
   }, []);
 
   const onResultUpdateSaleable = useCallback(
@@ -210,8 +190,8 @@ const TabProduct: React.FC = () => {
     (isException) => {
       dispatch(hideLoading());
       if (!isException) {
+        showSuccess("Xóa sản phẩm thành công");
         dispatch(searchVariantsRequestAction(params, setSearchResult));
-        showSuccess("Cập nhật thông tin thành công");
         setRowKey([]);
         setSelected([]);
       }
@@ -272,31 +252,31 @@ const TabProduct: React.FC = () => {
 
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      width: 80,
+      width: 60,
       title: "Ảnh",
-      align:"left",
+      align:"center",
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
             <ImageProduct
-            path={image !== null ? image.url : null}
-            isUpload={true}
-            onClick={() => {
-              setVariant({
-                name: value.name,
-                sku: value.sku,
-                variant_images: value.variant_images,
-              });
-              variantResponse = value;
-              setUploadVisible(true);
-            }}
+              path={image !== null ? image.url : null}
+              isUpload={true}
+              onClick={() => {
+                setVariant({
+                  name: value.name,
+                  sku: value.sku,
+                  variant_images: value.variant_images,
+                });
+                variantResponse = value;
+                setUploadVisible(true);
+              }}
           />
         );
       },
       visible: true,
     },
     {
-      title:  "Mã sản phẩm",
+      title:  "Sản phẩm",
       dataIndex: "sku",
       width: 300,
       render: (value: string, i: VariantResponse) => (
@@ -304,7 +284,7 @@ const TabProduct: React.FC = () => {
           <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`}>
             {value}
           </Link>
-          <div>{i.name}</div>
+          <div><TextEllipsis value={i.name} line={1} /></div>
         </div>
       ),
       visible: true,
@@ -325,44 +305,51 @@ const TabProduct: React.FC = () => {
         }
         return 0;
       },
-    },
-    {
-      title: "Nhà thiết kế",
-      render: (value: VariantResponse) => <div> {value?.product?.designer}</div>,
-      visible: true,
-      align: "center",
-    },
-    {
-      title: "Merchandiser",
-      render: (value: VariantResponse) => <div> {value?.product?.merchandiser}</div>,
-      align: "center",
-      visible: true,
-    },
+    }, 
     {
       title: "Có thể bán",
       dataIndex: "available",
       visible: true,
       align: "right",
+      width: 120,
+      render: (value: number, item: VariantResponse) => <div> {formatCurrency(value,".")}</div>,
     },
 
     {
       title: "Trạng thái",
-      dataIndex: "saleable",
+      dataIndex: "saleable",  
+      visible: true,
+      align: "center",
+      width: 100,
       render: (value: string, row: VariantResponse) => (
         <div className={value ? "text-success" : "text-error"}>
           {value ? "Cho phép bán" : "Ngừng  bán"}
         </div>
       ),
-      visible: true,
-      align: "center",
     },
     {
-      title: "Ngày khởi tạo",
-      dataIndex: "created_date",
+      title: "Nhà thiết kế",
       visible: true,
       align: "left",
       width: 120,
-      render: (value, record) => ConvertUtcToLocalDate(record?.product?.created_date),
+      render: (value: VariantResponse) => <div> {value?.product?.designer}</div>,
+    },
+    {
+      title: "Merchandiser",
+      align: "left",
+      width: 120,
+      visible: true,
+      render: (value: VariantResponse) => <div> {value?.product?.merchandiser}</div>,
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "updated_date",
+      visible: true,
+      align: "left",
+      width: 120,
+      render: (value, record) => {
+        return (ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY))
+      },
     },
   ];
 
@@ -410,12 +397,7 @@ const TabProduct: React.FC = () => {
   );
 
   useEffect(() => {
-    dispatch(CountryGetAllAction(setCountry));
-    dispatch(listColorAction(initMainColorQuery, setMainColor));
-    dispatch(listColorAction(initColorQuery, setColor));
-    dispatch(sizeGetAll(setSize));
-    dispatch(SupplierGetAllAction(setSupplier));
-    dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
+    dispatch(CountryGetAllAction(setCountry)); 
     setTableLoading(true);
   }, [dispatch]);
   useEffect(() => {
@@ -431,16 +413,12 @@ const TabProduct: React.FC = () => {
         onFilter={onFilter}
         params={params}
         listStatus={listStatus}
-        listBrands={listBrands}
-        listMerchandisers={listMerchandiser}
-        listSize={listSize}
-        listMainColors={listMainColor}
-        listColors={listColor}
-        listSupplier={listSupplier}
+        listBrands={listBrands} 
         listCountries={listCountry}
         onClickOpen={() => setShowSettingColumn(true)}
       />
       <CustomTable
+        bordered
         selectedRowKey={rowKey}
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection

@@ -13,8 +13,14 @@ const SupplierItem: React.FC<SupplierItemProps> = (props: SupplierItemProps) => 
       <Avatar src={avatarDefault} />
       <div className="supplier-item-title">
         <span className="supplier-item-name">{data.name}</span>
-        <span className="icon-dot supplier-item-dot" />
-        <span className="supplier-item-phone">{data.phone}</span>
+        {
+          data.contacts?.map(contact => (
+            <span key={contact.id} className="supplier-item-phone">
+              <span className="icon-dot supplier-item-dot" />
+              <span>{contact.phone}</span>
+            </span>
+          ))
+        }
       </div>
     </div>
   )

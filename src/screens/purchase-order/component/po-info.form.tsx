@@ -82,7 +82,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
     isWin = win;
     dispatch(
       searchAccountPublicAction(
-        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );

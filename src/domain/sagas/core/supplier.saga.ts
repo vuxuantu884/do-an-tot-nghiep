@@ -5,7 +5,7 @@ import {unauthorizedAction} from "domain/actions/auth/auth.action";
 import {SupplierType} from "domain/types/core.type";
 import {PageResponse} from "model/base/base-metadata.response";
 import {SupplierResponse} from "model/core/supplier.model";
-import {call, put, takeLatest} from "redux-saga/effects";
+import {call, put, takeEvery, takeLatest} from "redux-saga/effects";
 import {
   supplierDeleteApi,
   supplierDetailApi,
@@ -124,7 +124,6 @@ function* supplierCreateSaga(action: YodyAction) {
   const {request, setData} = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(supplierPostApi, request);
-debugger
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -406,7 +405,7 @@ function* deleteContactSaga(action: YodyAction) {
 export function* supplierSagas() {
   yield takeLatest(SupplierType.SEARCH_SUPPLIER_REQUEST, supplierSearchSaga);
   yield takeLatest(SupplierType.CREATE_SUPPLIER_REQUEST, supplierCreateSaga);
-  yield takeLatest(SupplierType.GET_ALL_SUPPLIER_REQUEST, supplierGetAllSaga);
+  yield takeEvery(SupplierType.GET_ALL_SUPPLIER_REQUEST, supplierGetAllSaga);
   yield takeLatest(SupplierType.EDIT_SUPPLIER_REQUEST, supplierUpdateSaga);
   yield takeLatest(SupplierType.DETAIL_SUPPLIER_REQUEST, supplierDetailSaga);
   yield takeLatest(SupplierType.DELETE_SUPPLIER_REQUEST, supplierDeleteSaga);

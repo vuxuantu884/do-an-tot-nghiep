@@ -44,6 +44,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     renderButtonCreateActionHtml,
   } = props;
 
+	console.log('infoFees', infoFees)
+
   const sercivesFee = useMemo(() => {
     let services: any = []
     deliveryServices?.forEach(deliveryService => {
@@ -211,6 +213,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 className="formInputAmount"
                 maxLength={999999999999}
                 minLength={0}
+								disabled
               />
             </Form.Item>
           </Col>
@@ -302,7 +305,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             });
                                           }}
                                           disabled={
-                                            fee.total_fee === 0 || levelOrder > 3
+                                            // fee.total_fee === 0 || levelOrder > 3
+                                            levelOrder > 3
                                           }
                                         />
                                         <span className="checkmark"></span>

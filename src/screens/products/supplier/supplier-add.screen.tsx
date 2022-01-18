@@ -6,25 +6,31 @@ import SelectPaging from "component/custom/SelectPaging";
 import { AppConfig } from "config/app.config";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { SupplierCreateAction } from "domain/actions/core/supplier.action";
+import { SupplierCreateAction, SupplierSearchAction } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { SupplierCreateRequest } from "model/core/supplier.model";
+import { SupplierCreateRequest, SupplierResponse } from "model/core/supplier.model";
+import { CollectionQuery, CollectionResponse } from "model/product/collection.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { useParams } from "react-router-dom";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
+import { getCollectionRequestAction } from "domain/actions/product/collection.action";
+import CustomSelect from "component/custom/select.custom";
+import _ from 'lodash';
+import { searchAccountApi } from "service/accounts/account.service";
+import { callApiNative } from "utils/ApiUtils";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -123,6 +129,17 @@ const CreateSupplierScreen: React.FC = () => {
     acceptPermissions: [SuppliersPermissions.CREATE],
     not: false,
   });
+  const [data, setData] = useState<PageResponse<CollectionResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+  const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
+
+  const params: CollectionQuery = useParams() as CollectionQuery;
 
   const onChangeStatus = useCallback(
     (checked: boolean) => {
@@ -180,21 +197,51 @@ const CreateSupplierScreen: React.FC = () => {
     return "";
   }, [status, supplier_status]);
   const getAccounts = useCallback(
-    (search: string, page: number) => {
-      dispatch(
-        AccountSearchAction(
-          { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page },
-          (response: PageResponse<AccountResponse> | false) => {
-            if (response) {
-              setAccounts(response);
-            }
-          }
-        )
-      );
+    async (search: string, page: number) => {
+      const response: PageResponse<AccountResponse> 
+      = await callApiNative({isShowLoading:false}, dispatch, searchAccountApi, { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page });
+      setAccounts(response || { items: [], metadata: {}});
     },
     [dispatch]
   );
   //end memo
+
+  const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
+    if (results && results.items) {
+      setData(results);
+    }
+  }, []);
+
+  const validatePhone = (rule: any, value: any, callback: any): void => {
+    if (value) {
+      if (!RegUtil.PHONE.test(value)) {
+        callback(`Số điện thoại không đúng định dạng`);
+      } else {
+        listSupplier.forEach((supplier: SupplierResponse) => {
+          supplier?.contacts.forEach(contact => {
+            if (contact?.phone === value) {
+              callback(`Số điện thoại đã tồn tại`);
+            }
+          })
+        })
+        callback();
+      }
+    } else {
+      callback();
+    }
+  };
+
+  useEffect(() => {
+    dispatch(getCollectionRequestAction(params, onGetSuccess));
+    dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
+      if(response){
+      setListSupplier(response.items)
+    } else {
+      setListSupplier([]);
+    }
+    }))
+  }, [dispatch, onGetSuccess, params]);
+
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
@@ -338,9 +385,9 @@ const CreateSupplierScreen: React.FC = () => {
                       onPageChange={(key, page) => {
                         getAccounts(key, page);
                       }}
-                      onSearch={(key) => {
+                      onSearch={_.debounce((key) => {
                         getAccounts(key, 1);
-                      }}
+                      }, 300)}
                     >
                       {accounts.items.map((value, index) => (
                         <SelectPaging.Option key={value.id} value={value.code}>
@@ -366,6 +413,42 @@ const CreateSupplierScreen: React.FC = () => {
                     ]}
                   >
                     <Input placeholder="Nhập mã số thuế" maxLength={13} />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <Item
+                    name="phone"
+                    label="Số điện thoại"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập số điện thoại" },
+                      {
+                        validator: validatePhone,
+                      }
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập số điện thoại"
+                      maxLength={255}
+                    />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <Item
+                    name="group_product"
+                    label="Nhóm hàng"
+                  >
+                    <CustomSelect
+                      showSearch
+                      showArrow 
+                      optionFilterProp="children"
+                      placeholder="Chọn nhóm hàng"
+                    >
+                      {data?.items.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </CustomSelect>
                   </Item>
                 </Col>
               </Row>
@@ -532,14 +615,26 @@ const CreateSupplierScreen: React.FC = () => {
                         <Row>
                           <Col span={24}>
                             <Item
+                              name={[name, "position"]}
+                              label="Chức vụ"
+                            >
+                              <Input
+                                placeholder="Nhập chức vụ"
+                                maxLength={255}
+                              />
+                            </Item>
+                          </Col>
+                        </Row>
+                        <Row>
+                          <Col span={24}>
+                            <Item
                               name={[name, "phone"]}
                               label="Số điện thoại"
                               rules={[
                                 { required: true, message: "Vui lòng nhập số điện thoại" },
                                 {
-                                  pattern: RegUtil.PHONE,
-                                  message: "Số điện thoại không đúng định dạng",
-                                },
+                                  validator: validatePhone,
+                                }
                               ]}
                             >
                               <Input

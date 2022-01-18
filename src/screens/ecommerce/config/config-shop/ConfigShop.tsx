@@ -27,7 +27,7 @@ import { EcommerceConfigPermission } from "config/permissions/ecommerce.permissi
 import useAuthorization from "hook/useAuthorization";
 import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
-import ECOMMERCE_ICON from "screens/ecommerce/common/commonAction";
+import { ECOMMERCE_ICON } from "screens/ecommerce/common/commonAction";
 import { StyledConfig } from "screens/ecommerce/config/config-shop/StyledConfigShop";
 
 const { Option } = Select;
@@ -572,7 +572,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 <li>
                   <span>
                     Kiểu đồng bộ đơn hàng để xác định khi có đơn hàng mới sẽ được
-                    tải về “Tự động” hay “Thủ công”.{" "}
+                    tải về "Tự động" hay "Thủ công".{" "}
                   </span>
                 </li>
                 <li>

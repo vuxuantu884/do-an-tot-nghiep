@@ -8,36 +8,38 @@ const loyaltyPage = React.lazy(() => import("screens/promotion/loyalty/index"));
 const loyaltyAccumulateDetail = React.lazy(
   () => import("screens/promotion/loyalty/accumulate/detail")
 );
-const discountPage = React.lazy(() => import("screens/promotion/discount"));
+const discountPage = React.lazy(() => import("screens/promotion/discount/discount-list"));
 const priceRulesPage = React.lazy(() => import("screens/promotion/promo-code"));
 const createDiscountPage = React.lazy(
   () => import("screens/promotion/discount/create-v2/discount-create-v2")
 );
 const detailDiscountPage = React.lazy(
-  () => import("screens/promotion/discount/discount.detail")
+  () => import("screens/promotion/discount/detail/discount.detail")
 );
 const DiscountUpdate = React.lazy(
   () => import("screens/promotion/discount/update/discount.update")
 );
-const createPromoCodePage = React.lazy(
-  () => import("screens/promotion/promo-code/promo-code.create")
-);
+
 const promoCodeDetail = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.detail")
 );
 const promoCodeList = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.list")
 );
+
 const PromoCodeUpdate = React.lazy( 
-  () => import("screens/promotion/promo-code/promo-code.update")
+  () => import("screens/promotion/issue/update/issue-update")
 );
 
+const CreatePromoCodePage = React.lazy(
+  () => import("screens/promotion/issue/create/issue-create")
+);
 // const GiftCreate = React.lazy(() => import("screens/promotion/gift/gift.create"));
 // const GiftList = React.lazy(() => import("screens/promotion/gift/gift.list"));
 
 const promotion: Array<RouteMenu> = [
   {
-    path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
+    path: `${UrlConfig.LOYALTY}`,
     exact: true,
     title: "Tích điểm",
     icon: "icon-dot",
@@ -47,7 +49,7 @@ const promotion: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
+        path: `${UrlConfig.LOYALTY}`,
         exact: true,
         title: "Cấu hình tích điểm",
         icon: "icon-dot",
@@ -57,7 +59,7 @@ const promotion: Array<RouteMenu> = [
         header: null,
         subMenu: [
           {
-            path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`,
+            path: `${UrlConfig.LOYALTY}/accumulation`,
             exact: true,
             title: "Tạo cấu hình tích điểm",
             icon: "icon-dot",
@@ -68,7 +70,7 @@ const promotion: Array<RouteMenu> = [
             subMenu: [],
           },
           {
-            path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/:id`,
+            path: `${UrlConfig.LOYALTY}/accumulation/:id`,
             exact: true,
             title: "Chi tiết cấu hình tích điểm",
             icon: "icon-dot",
@@ -79,7 +81,7 @@ const promotion: Array<RouteMenu> = [
             subMenu: [],
           },
           {
-            path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/:id/update`,
+            path: `${UrlConfig.LOYALTY}/accumulation/:id/update`,
             exact: true,
             title: "Cập nhật cấu hình tích điểm",
             icon: "icon-dot",
@@ -138,7 +140,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [],
+        permissions: [PromoPermistion.UPDATE],
       },
     ],
   },
@@ -183,7 +185,7 @@ const promotion: Array<RouteMenu> = [
         exact: true,
         title: "Tạo khuyến mãi",
         icon: "icon-dot",
-        component: createPromoCodePage,
+        component: CreatePromoCodePage,
         key: "submenu1071",
         isShow: true,
         header: null,
@@ -200,7 +202,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [],
+        permissions: [PromoPermistion.UPDATE],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id`,

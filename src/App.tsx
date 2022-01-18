@@ -14,6 +14,7 @@ import { GlobalStyle } from "utils/global-styles";
 
 function App() {
   const dispatch = useDispatch();
+
   const isLoad = useSelector(
     (state: RootReducerType) => state.userReducer.isLoad
   );
@@ -29,12 +30,15 @@ function App() {
     }
   }, [dispatch, isLoad]);
 
+  /**
+   * @description: load permission for user
+   */
   useEffect(() => {
     if (user_id) {
       dispatch(profilePermissionAction(user_id));
     }
   }, [dispatch, user_id]);
-  
+
   return (
     <Suspense fallback={<SplashScreen />}>
       <BrowserRouter basename={BASE_NAME_ROUTER}>

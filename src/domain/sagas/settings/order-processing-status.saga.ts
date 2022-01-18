@@ -1,18 +1,18 @@
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/http-status.config";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { fetchApiErrorAction } from "domain/actions/app.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
 import {
-  createOrderProcessingStatusService,
-  deleteOrderProcessingStatusService,
-  editOrderProcessingStatusService,
-  getOrderProcessingStatusService,
+	createOrderProcessingStatusService,
+	deleteOrderProcessingStatusService,
+	editOrderProcessingStatusService,
+	getOrderProcessingStatusService
 } from "service/order/order-processing-status.service";
+import { isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listDataOrderProcessingStatusSaga(action: YodyAction) {
@@ -23,23 +23,14 @@ function* listDataOrderProcessingStatusSaga(action: YodyAction) {
       PageResponse<OrderProcessingStatusResponseModel>
     > = yield call(getOrderProcessingStatusService, queryParams);
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        /**
-         * call function handleData in payload, variables are taken from the response -> use when dispatch
-         */
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách trạng thái xử lý đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy danh sách trạng thái xử lý đơn hàng. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -53,21 +44,15 @@ function* addOrderProcessingStatusSaga(action: YodyAction) {
       PageResponse<OrderProcessingStatusResponseModel>
     > = yield call(createOrderProcessingStatusService, item);
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData();
-        showSuccess("Tạo mới thành công!");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData();
+      showSuccess("Tạo mới thành công!");
+		} else {
+			yield put(fetchApiErrorAction(response, "Tạo mới trạng thái xử lý đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi khi tạo mới, vui lòng thử lại sau");
+		showError("Có lỗi khi tạo mới trạng thái xử lý đơn hàng. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -81,21 +66,15 @@ function* editOrderProcessingStatusSaga(action: YodyAction) {
       PageResponse<OrderProcessingStatusResponseModel>
     > = yield call(editOrderProcessingStatusService, id, item);
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData();
-        showSuccess("Cập nhật thành công");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData();
+      showSuccess("Cập nhật thành công!");
+		} else {
+			yield put(fetchApiErrorAction(response, "Cập nhật trạng thái xử lý đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi cập nhật trạng thái xử lý đơn hàng. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -109,21 +88,15 @@ function* deleteOrderProcessingStatusSaga(action: YodyAction) {
       PageResponse<OrderProcessingStatusResponseModel>
     > = yield call(deleteOrderProcessingStatusService, id);
 
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData();
-        showSuccess("Xóa thành công");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			handleData();
+      showSuccess("Xóa thành công!");
+		} else {
+			yield put(fetchApiErrorAction(response, "Xóa trạng thái xử lý đơn hàng"));
+		}
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+		showError("Có lỗi khi xóa trạng thái xử lý đơn hàng. Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }

@@ -1,5 +1,5 @@
 import { Loading3QuartersOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Image, Row, Spin, Switch, Tabs } from "antd";
+import { Button, Card, Col, Image, Popover, Row, Spin, Switch, Tabs, Tag } from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -26,6 +26,7 @@ import Slider from "react-slick";
 import { Products } from "utils/AppUtils";
 import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
 import { showSuccess } from "utils/ToastUtils";
+import { careInformation } from "../component/CareInformation/care-value";
 import RowDetail from "../component/RowDetail";
 import VariantList from "../component/VariantList";
 import TabProductHistory from "../tab/TabProductHistory";
@@ -81,9 +82,17 @@ const ProductDetailScreen: React.FC = () => {
     },
   });
   const idNumber = parseInt(id);
-  const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PRODUCT}/${idNumber}/update`);
-  }, [history, idNumber]);
+
+  const onEdit =() => {
+    if(variantId){
+      // redirect to edit this variantId
+      history.push(`${UrlConfig.PRODUCT}/${idNumber}/variants/${variantId}/update`);
+    }else{
+      // redirect to edit this product
+      history.push(`${UrlConfig.PRODUCT}/${idNumber}/update`);
+    }
+  };
+
   const onResult = useCallback((result: ProductResponse | false) => {
     setLoading(false);
     if (!result) {
@@ -140,6 +149,64 @@ const ProductDetailScreen: React.FC = () => {
     }
     return avatar;
   }, [data]);
+
+  const [careLabels, setCareLabels] = useState<any[]>([]);
+
+  useEffect(() => {
+    const newSelected = data?.care_labels ? data?.care_labels.split(";") : [];
+    console.log('newSelected', newSelected);
+    let careLabels: any[] = []
+    newSelected.forEach((value: string) => {
+      careInformation.washing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+
+      careInformation.beleaching.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.ironing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.drying.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.professionalCare.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      
+    })
+    setCareLabels(careLabels);
+  }, [data?.care_labels]);
 
   const onAllowSale = useCallback(
     (listSelected: Array<number>) => {
@@ -387,7 +454,6 @@ const tab= document.getElementById("tab");
                     </div>
                   }
                 >
-                  <div className="padding-20">
                     <Row gutter={50}>
                       <Col span={24} md={12}>
                         <RowDetail title="Danh mục" value={data.category} />
@@ -404,8 +470,36 @@ const tab= document.getElementById("tab");
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={12}>
-                        <RowDetail title="Từ khóa" value={data.tags} />
+                        <div className="row-detail">
+                          <div className="row-detail-left title">Từ khóa</div>
+                          <div className="dot data">:</div>
+                          <div className="row-detail-right data">{data.tags?.split(",")?.map((keyword)=>{
+                            return <Tag key={keyword}>{keyword}</Tag>
+                          })}</div>
+                        </div>
                       </Col>
+                      <Col span={24} md={12}>
+                        <div className="row-detail">
+                          <div className="row-detail-left title">Nhóm hàng</div>
+                          <div className="dot data">:</div>
+                          <div className="row-detail-right data">{data.collections?.map((e)=>{
+                            return e.name;
+                          }).toString()}</div>
+                        </div>
+                      </Col>
+                    </Row>
+                    <Row gutter={50}>
+                      <Col span={24} md={12}>
+                        <div className="row-detail">
+                            <div className="row-detail-left title">Thông tin bảo quản</div>
+                            <div className="dot data">:</div>
+                            <div className="row-detail-right data">{careLabels.map((item: any) => (
+                              <Popover key={item.value} content={item.name}>
+                                <span className={`care-label ydl-${item.value}`}></span>
+                              </Popover>
+                            ))}</div>
+                          </div>
+                        </Col>
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={5}>
@@ -428,7 +522,6 @@ const tab= document.getElementById("tab");
                         )}
                       </Col>
                     </Row>
-                  </div>
                 </Card>
               </Col>
               <Col span={24} md={6}>
@@ -438,10 +531,8 @@ const tab= document.getElementById("tab");
                   </div>
                 </Card>
                 <Card title="Phòng win" className="card">
-                  <div className="padding-20">
-                    <RowDetail title="Merchandiser" value={data.merchandiser} />
+                    <RowDetail title="Merchandiser " value={data.merchandiser} />
                     <RowDetail title="Thiết kế" value={data.designer} />
-                  </div>
                 </Card>
               </Col>
             </Row>
@@ -459,7 +550,7 @@ const tab= document.getElementById("tab");
                         active={active}
                         setActive={(active) => {
                           history.replace(
-                            `${UrlConfig.PRODUCT}/${idNumber}/variants/${data.variants[active].id}`
+                            `${UrlConfig.PRODUCT}/${idNumber}${UrlConfig.VARIANTS}/${data.variants[active].id}`
                           );
                         }}
                         loading={loadingVariant}
@@ -522,7 +613,7 @@ const tab= document.getElementById("tab");
                               </Col>
                               <Col className="view-right" span={24} md={10}>
                                 <div className="image-view">
-                                  {currentVariant.variant_images.length === 0 ? (
+                                  {currentVariant.variant_images?.length === 0 ? (
                                     <img
                                       className="item-default"
                                       src={variantdefault}
@@ -530,7 +621,7 @@ const tab= document.getElementById("tab");
                                     />
                                   ) : (
                                     <React.Fragment>
-                                      {currentVariant.variant_images.length === 1 ? (
+                                      {currentVariant.variant_images?.length === 1 ? (
                                         <Image
                                           src={currentVariant.variant_images[0].url}
                                           alt=""
@@ -546,7 +637,7 @@ const tab= document.getElementById("tab");
                                             arrows={false}
                                             className={classNames("image-slider")}
                                           >
-                                            {currentVariant.variant_images.map(
+                                            {currentVariant.variant_images?.map(
                                               (item, index) => (
                                                 <Image
                                                   key={index}
@@ -561,7 +652,7 @@ const tab= document.getElementById("tab");
                                             ref={(slider2) => setNav2(slider2)}
                                             infinite={true}
                                             slidesToShow={
-                                              currentVariant.variant_images.length < 3
+                                              currentVariant.variant_images?.length < 3
                                                 ? currentVariant.variant_images.length
                                                 : 3
                                             }
@@ -570,11 +661,11 @@ const tab= document.getElementById("tab");
                                             focusOnSelect={true}
                                             className={classNames(
                                               "image-thumbnail",
-                                              currentVariant.variant_images.length ===
+                                              currentVariant.variant_images?.length ===
                                                 2 && "image-2"
                                             )}
                                           >
-                                            {currentVariant.variant_images.map(
+                                            {currentVariant.variant_images?.map(
                                               (item, index) => (
                                                 <img key={index} src={item.url} alt="" />
                                               )
@@ -637,7 +728,7 @@ const tab= document.getElementById("tab");
           </React.Fragment>
         )}
         <BottomBarContainer
-          back="Quay lại danh sách"
+          back="Quay lại"
           rightComponent={
             <AuthWrapper acceptPermissions={[ProductPermission.update]}>
               <Button onClick={onEdit}>Sửa sản phẩm</Button>

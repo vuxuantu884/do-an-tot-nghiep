@@ -1,6 +1,6 @@
 //#region Import
 import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
-import bithdayIcon from "assets/img/bithday.svg";
+import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
 import addressIcon from "assets/img/user-pin.svg";
@@ -10,7 +10,6 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
-//import { useState } from "react";
 import { Link } from "react-router-dom";
 //#endregion
 
@@ -25,41 +24,18 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   props: CustomerCardUpdateProps
 ) => {
   const { loyaltyPoint, loyaltyUsageRules } = props;
-  // const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
-  // const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
-  // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  // const [isVisibleAddress, setVisibleAddress] = useState(false);
-  //const [isVisibleBilling, setVisibleBilling] = useState(true);
-
-  // const CancleConfirmAddress = useCallback(() => {
-  //   setVisibleAddress(false);
-  // }, []);
-
-  // const OkConfirmAddress = useCallback(() => {
-  //   setVisibleAddress(false);
-  // }, []);
-
-  // const CancleConfirmCustomer = useCallback(() => {
-  //   setVisibleCustomer(false);
-  // }, []);
-
-  // const OkConfirmCustomer = useCallback(() => {
-  //   setVisibleCustomer(false);
-  // }, []);
-  // const ShowAddressModal = () => {
-  //   // setVisibleAddress(true);
-  //   setVisibleShippingAddress(false);
-  //   // setVisibleBillingAddress(false);
-  // };
-
-  // const ShowBillingAddress = () => {
-  //   setVisibleBilling(!isVisibleBilling);
-  // };
-
-  // const handleVisibleBillingAddressChange = (value: boolean) => {
-  //   // setVisibleBillingAddress(value);
-  // };
+  
   let customerBirthday = moment(props.customerDetail?.birthday).format("DD/MM/YYYY");
+
+	const renderFulfillmentShippingAddress = (OrderDetail: OrderResponse | null) => {
+		let result = "";
+		let shippingAddress = OrderDetail?.shipping_address;
+		if(!shippingAddress) {
+			return "";
+		}
+		result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
+		return result;
+	};
 
   const rankName = loyaltyUsageRules.find(
     (x) =>
@@ -130,7 +106,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 
           <Space className="customer-detail-birthday">
             <span className="customer-detail-icon">
-              <img src={bithdayIcon} alt="" />
+              <img src={birthdayIcon} alt="" />
             </span>
             <span className="customer-detail-text">
               {props.customerDetail?.birthday !== null
@@ -139,83 +115,73 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
             </span>
           </Space>
         </Row>
-        <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
-        <div>
-          <Row gutter={24}>
-            <Col
-              xs={24}
-              style={{
-                paddingTop: "14px",
-              }}
-              className="font-weight-500 customer-info-left"
-            >
-              <div className="title-address">
-                <img
-                  src={addressIcon}
-                  alt=""
+        {props.OrderDetail?.shipping_address && (
+          <>
+            <Divider style={{ padding: 0, marginBottom: 0 }} />
+            <div>
+              <Row gutter={24}>
+                <Col
+                  xs={24}
                   style={{
-                    width: "24px",
-                    height: "24px",
-                    marginRight: "10px",
+                    paddingTop: "14px",
                   }}
-                />
-                Địa chỉ giao hàng:
-                <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                  {props.OrderDetail?.shipping_address?.name} -{" "}
-                  {props.OrderDetail?.shipping_address?.phone} -{" "}
-                  {props.OrderDetail?.shipping_address?.full_address} -{" "}
-                  {props.OrderDetail?.shipping_address?.ward} -{" "}
-                  {props.OrderDetail?.shipping_address?.district} -{" "}
-                  {props.OrderDetail?.shipping_address?.city}
-                </span>
-              </div>
-            </Col>
-          </Row>
-          
+                  className="font-weight-500 customer-info-left"
+                >
+                  <div className="title-address">
+                    <img
+                      src={addressIcon}
+                      alt=""
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        marginRight: "10px",
+                      }}
+                    />
+                    Địa chỉ giao hàng:
+                    <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+											{renderFulfillmentShippingAddress(props.OrderDetail)}
+                    </span>
+                  </div>
+                </Col>
+              </Row>
 
-          <div className="send-order-box" hidden={true}>
-            {/* <Row style={{ marginTop: 15 }}>
-              <Checkbox
-                className="checkbox-style"
-                onChange={ShowBillingAddress}
-                style={{ marginLeft: "3px" }}
-              >
-                Gửi hoá đơn
-              </Checkbox>
-            </Row> */}
-            <Divider style={{ padding: 0, margin: 0 }} />
-            <Row gutter={24}>
-              <Col
-                xs={24}
-                style={{
-                  paddingTop: "14px",
-                }}
-                className="font-weight-500 customer-info-left"
-              >
-                <div className="title-address">
-                  <img
-                    src={addressIcon}
-                    alt=""
+
+              <div className="send-order-box" hidden={true}>
+                <Divider style={{ padding: 0, margin: 0 }} />
+                <Row gutter={24}>
+                  <Col
+                    xs={24}
                     style={{
-                      width: "24px",
-                      height: "24px",
-                      marginRight: "10px",
+                      paddingTop: "14px",
                     }}
-                  />
-                  Địa chỉ nhận hóa đơn:
-                  <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                    {props.OrderDetail?.billing_address?.name} -{" "}
-                    {props.OrderDetail?.billing_address?.phone} -{" "}
-                    {props.OrderDetail?.billing_address?.full_address} -{" "}
-                    {props.OrderDetail?.billing_address?.ward} -{" "}
-                    {props.OrderDetail?.billing_address?.district} -{" "}
-                    {props.OrderDetail?.billing_address?.city}
-                  </span>
-                </div>
-              </Col>
-            </Row>
-          </div>
-        </div>
+                    className="font-weight-500 customer-info-left"
+                  >
+                    <div className="title-address">
+                      <img
+                        src={addressIcon}
+                        alt=""
+                        style={{
+                          width: "24px",
+                          height: "24px",
+                          marginRight: "10px",
+                        }}
+                      />
+                      Địa chỉ nhận hóa đơn:
+                      <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+                        {props.OrderDetail?.billing_address?.name} -{" "}
+                        {props.OrderDetail?.billing_address?.phone} -{" "}
+                        {props.OrderDetail?.billing_address?.full_address} -{" "}
+                        {props.OrderDetail?.billing_address?.ward} -{" "}
+                        {props.OrderDetail?.billing_address?.district} -{" "}
+                        {props.OrderDetail?.billing_address?.city}
+                      </span>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </Card>
   );

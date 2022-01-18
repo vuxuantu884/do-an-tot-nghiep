@@ -12,7 +12,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 
 type TabDraftProps = {
-  confirmDraft: (item: PurchaseProcument, isEdit: boolean) => void;
+  confirmDraft: (item: PurchaseProcument, isEdit: boolean, procumentCode: string) => void;
 };
 const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
   const { confirmDraft } = props;
@@ -28,7 +28,10 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
           POField.procurements
         );
         let items = procurements !== undefined && procurements !== null
-          ? procurements.filter((item) => item.status === ProcumentStatus.DRAFT)
+          ? procurements.filter((item) => (
+              item.status === ProcumentStatus.DRAFT || 
+              item.status === ProcumentStatus.CANCELLED
+            ))
           : [];
         return (
           <Table
@@ -59,16 +62,18 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                 ),
                 dataIndex: "code",
                 render: (value, item, index) => (
-                  <Button
+                  !item?.is_cancelled ? (<Button
                     type="link"
                     onClick={() => {
-                      confirmDraft(item, true);
+                      confirmDraft(item, true, item?.code);
                     }}
                   >
                     <div style={{color: "#5D5D8A", textDecoration: "underline"}}>
                       {value}
                     </div>
-                  </Button>
+                  </Button>) : (
+                    <div style={{ cursor: "no-drop" }}>{value}</div>
+                  )
                 ),
               },
               {
@@ -103,7 +108,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                       <AuthWrapper
                         acceptPermissions={[PurchaseOrderPermission.procurements_approve]}
                       >
-                        <Button onClick={() => confirmDraft(item, false)} type="primary">
+                        <Button onClick={() => {confirmDraft(item, false, item?.code);}} type="primary">
                           Duyệt phiếu
                         </Button>
                       </AuthWrapper>

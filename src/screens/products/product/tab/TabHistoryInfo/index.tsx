@@ -1,10 +1,11 @@
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TextEllipsis from "component/table/TextEllipsis";
 import UrlConfig, {ProductTabUrl} from "config/url.config";
 import {productGetHistoryAction} from "domain/actions/product/products.action";
 import {PageResponse} from "model/base/base-metadata.response";
 import {ProductHistoryQuery, ProductHistoryResponse} from "model/product/product.model";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch} from "react-redux";
 import {useHistory} from "react-router";
 import {Link} from "react-router-dom";
@@ -61,7 +62,6 @@ const TabHistoryInfo: React.FC = () => {
       dataIndex: "history_type",
       visible: true,
       fixed: "left",
-      width: 200,
       render: (value, item) => {
         if (IS_PRODUCT_TYPE.includes(value)) {
           return (
@@ -69,7 +69,7 @@ const TabHistoryInfo: React.FC = () => {
               <Link to={`${UrlConfig.PRODUCT}/${item.product_id}`}>
                 {item.product_code}
               </Link>
-              <div>{item.product_name}</div>
+              <div>{<TextEllipsis value={item.product_name} line={1} />}</div>
             </div>
           );
         }
@@ -80,13 +80,14 @@ const TabHistoryInfo: React.FC = () => {
             >
               {item.sku}
             </Link>
-            <div>{item.variant_name}</div>
+            <div>{<TextEllipsis value={item.variant_name} line={1} />}</div>
           </div>
         );
       },
     },
     {
       title: "Người sửa",
+      width: 200,
       dataIndex: "action_by",
       visible: true,
       align: "left",
@@ -109,7 +110,7 @@ const TabHistoryInfo: React.FC = () => {
       title: "Thao tác",
       dataIndex: "history_type_name",
       visible: true,
-      align: "center",
+      align: "left",
     },
     {
       title: "Thời gian",
@@ -117,9 +118,15 @@ const TabHistoryInfo: React.FC = () => {
       align: "left",
       dataIndex: "created_date",
       render: (value) => ConvertUtcToLocalDate(value),
-      width: 120
+      width: 160
     },
   ]);
+
+  const columnFinal = useMemo(() => {
+    return columns.filter((item) => item.visible === true);
+  }, [columns]);
+
+
   useEffect(() => {
     setLoading(true);
     dispatch(productGetHistoryAction(params, onResult));
@@ -136,7 +143,7 @@ const TabHistoryInfo: React.FC = () => {
           if (to_action_date) {
             values.to_action_date = getEndOfDay(to_action_date);
           }
-          values.to_action_date = condition.trim();
+          values.condition = condition && condition.trim();
           let newParams = {...params, ...values, page: 1};
           setParams(newParams);
           let queryParam = generateQuery(newParams);
@@ -147,9 +154,10 @@ const TabHistoryInfo: React.FC = () => {
         actions={[]}
       />
       <CustomTable
+        bordered
         rowKey={(record) => record.id}
         isRowSelection
-        columns={columns}
+        columns={columnFinal}
         dataSource={data.items}
         isLoading={loading}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}

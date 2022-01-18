@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .sectionSelectShop {
@@ -26,7 +27,7 @@ export const StyledComponent = styled.div`
   .cardShopIsSelected {
     .ant-card-head {
       background: #f5f5f5;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid ${borderColor};
       border-radius: 3px 3px 0px 0px;
       font-size: 1em;
       font-weight: 500;

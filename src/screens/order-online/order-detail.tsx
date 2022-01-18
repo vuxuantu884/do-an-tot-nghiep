@@ -14,12 +14,14 @@ import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
 	cancelOrderRequest,
+	orderConfigSaga,
 	confirmDraftOrderAction,
 	getListReasonRequest,
 	OrderDetailAction,
 	PaymentMethodGetList,
 	UpdatePaymentAction
 } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
@@ -33,9 +35,11 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
+import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
 import {
 	checkPaymentAll,
 	checkPaymentStatusToShow,
@@ -79,6 +83,7 @@ const OrderDetail = (props: PropType) => {
   }
   let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
+  const isEcommerceOrder = useRef(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const dispatch = useDispatch();
@@ -93,7 +98,7 @@ const OrderDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
-  const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
+  const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
     useState<OrderResponse | null>(null);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
@@ -124,6 +129,11 @@ const OrderDetail = (props: PropType) => {
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   console.log("isDisablePostPayment", isDisablePostPayment);
 
+	const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+  >([]);
+
+	const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
@@ -156,13 +166,13 @@ const OrderDetail = (props: PropType) => {
             payment_method: returnMoneyMethod.name,
             amount: -Math.abs(
               customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                totalPaid
             ),
             reference: "",
             source: "",
             paid_amount: -Math.abs(
               customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                totalPaid
             ),
             return_amount: 0.0,
             status: "paid",
@@ -270,6 +280,9 @@ const OrderDetail = (props: PropType) => {
     if (!data) {
       setError(true);
     } else {
+      const orderChannel = data.channel?.toLowerCase() || "";
+      isEcommerceOrder.current = ECOMMERCE_CHANNEL.includes(orderChannel);
+
       let _data = {
         ...data,
         fulfillments: data.fulfillments?.sort((a, b) => b.id - a.id),
@@ -282,7 +295,7 @@ const OrderDetail = (props: PropType) => {
       );
 
       setOrderDetail(_data);
-      setOrderDetailAllFullfilment(data);
+      setOrderDetailAllFulfillment(data);
       setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
       if (_data.sub_status_code) {
         setSubStatusCode(_data.sub_status_code);
@@ -432,6 +445,14 @@ const OrderDetail = (props: PropType) => {
     setPaymentMethod(2);
   }, [dispatch, onGetDetailSuccess, reload, OrderDetail, id]);
 
+	useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        setShippingServiceConfig(response);
+      })
+    );
+  }, [dispatch]);
+
   useLayoutEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListReasonRequest(setReasons));
@@ -498,6 +519,7 @@ const OrderDetail = (props: PropType) => {
   };
 
   const customerNeedToPayValue = customerNeedToPay();
+	const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
   // end
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
@@ -545,6 +567,14 @@ const OrderDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
+	useEffect(() => {
+		dispatch(
+			orderConfigSaga((data: OrderConfigResponseModel) => {
+				setOrderConfig(data);
+			})
+		);
+	}, [dispatch]);
+
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -567,7 +597,7 @@ const OrderDetail = (props: PropType) => {
       extra={
         <CreateBillStep
           status={stepsStatusValue}
-          orderDetail={OrderDetailAllFullfilment}
+          orderDetail={OrderDetailAllFulfillment}
         />
       }
     >
@@ -607,14 +637,14 @@ const OrderDetail = (props: PropType) => {
 
               {OrderDetail?.order_return_origin?.items &&
                 customerNeedToPayValue -
-                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                  totalPaid <
                   0 && (
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}
                     returnMoneyAmount={(
                       customerNeedToPayValue -
-                        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                        totalPaid
                     )}
                     isShowPaymentMethod={true}
                     setIsShowPaymentMethod={() => {}}
@@ -674,7 +704,7 @@ const OrderDetail = (props: PropType) => {
                         <Col span={12}>
                           <span className="text-field margin-right-40">
                             {customerNeedToPayValue -
-                              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) >=
+                              totalPaid >=
                             0
                               ? `Còn phải trả:`
                               : `Hoàn tiền cho khách:`}
@@ -682,8 +712,7 @@ const OrderDetail = (props: PropType) => {
 													<b style={{color: "red"}}>
 														{formatCurrency(
 															Math.abs(
-																customerNeedToPayValue -
-																	(OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+																customerNeedToPayValue - totalPaid
 															)
 														)}
                           </b>
@@ -700,18 +729,18 @@ const OrderDetail = (props: PropType) => {
                             ghost
                           >
                             {OrderDetail.total === SumCOD(OrderDetail) &&
-                            OrderDetail.total === OrderDetail.total_paid ? (
+                            OrderDetail.total === totalPaid ? (
                               ""
                             ) : (
-                              <>
+                              <React.Fragment>
                                 {OrderDetail?.payments
                                   .filter((payment) => {
                                     // nếu là đơn trả thì tính cả cod
-                                    if (OrderDetail.order_return_origin) {
-                                      return true;
-                                    }
+                                    // if (OrderDetail.order_return_origin) {
+                                    //   return true;
+                                    // }
                                     return (
-                                      payment.payment_method !== "cod" && payment.amount
+                                      payment.payment_method !== PaymentMethodCode.COD && payment.amount
                                     );
                                   })
                                   .map((payment: any, index: number) => (
@@ -757,7 +786,7 @@ const OrderDetail = (props: PropType) => {
                                       key={index}
                                     ></Panel>
                                   ))}
-                              </>
+                              </React.Fragment>
                             )}
                             {isShowPaymentPartialPayment && OrderDetail !== null && (
                               <Panel
@@ -965,23 +994,19 @@ const OrderDetail = (props: PropType) => {
                 customerDetail={customerDetail}
                 storeDetail={storeDetail}
                 stepsStatusValue={stepsStatusValue}
-                totalPaid={
-                  OrderDetail?.total_paid
-                    ? OrderDetail?.total_paid
-                    : paymentMethod === 2
-                    ? // ? totalPaid
-                      0
-                    : 0
-                }
+                totalPaid={totalPaid}
                 officeTime={officeTime}
                 shipmentMethod={shipmentMethod}
                 isVisibleShipping={isVisibleShipping}
-                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
+                OrderDetailAllFullfilment={OrderDetailAllFulfillment}
                 orderSettings={orderSettings}
                 onReload={() => setReload(true)}
                 disabledActions={disabledActions}
                 disabledBottomActions={disabledBottomActions}
                 reasons={reasons}
+                isEcommerceOrder={isEcommerceOrder.current}
+								shippingServiceConfig={shippingServiceConfig}
+								orderConfig={orderConfig}
               />
               {/*--- end shipment ---*/}
 
@@ -1038,7 +1063,7 @@ const OrderDetail = (props: PropType) => {
             isVisibleActionsButtons={true}
             stepsStatusValue={stepsStatusValue}
             orderActionsClick={orderActionsClick}
-            orderDetail={OrderDetailAllFullfilment}
+            orderDetail={OrderDetailAllFulfillment}
             onConfirmOrder={onConfirmOrder}
             isShowConfirmOrderButton={isShowConfirmOrderButton}
             disabledBottomActions={disabledBottomActions}

@@ -46,6 +46,9 @@ function YDPageCRM() {
   const [isClearOrderTab, setIsClearOrderTab] = React.useState<boolean>(false);
   const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
+  const [defaultSourceId] = React.useState<number | null>(queryString?.get("defaultSourceId") ? Number(queryString?.get("defaultSourceId")) : null);
+  const [defaultStoreId] = React.useState<number | null>(queryString?.get("defaultStoreId") ? Number(queryString?.get("defaultStoreId")) : null);
+
   const [YDPageCustomerInfo, setYDPageCustomerInfo] = React.useState<YDPageCustomerResponse | null>();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -106,6 +109,9 @@ function YDPageCRM() {
       const { default_phone, phones } = YDPageCustomerInfo;
       if (default_phone) {
         setCustomerPhone(default_phone);
+      }
+      else if(phones && phones.length > 0) {
+        setCustomerPhone(phones[0]);
       }
       setCustomerPhones(phones);
     }
@@ -248,6 +254,8 @@ function YDPageCRM() {
             loyaltyRate={loyaltyRate}
             fbCustomerId={fbCustomerId}
             fbPageId={fbPageId}
+            defaultSourceId={defaultSourceId}
+            defaultStoreId={defaultStoreId}
             customer={customer}
             userId={userId}
             setCustomer={setCustomer}

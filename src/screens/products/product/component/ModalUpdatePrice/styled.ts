@@ -1,10 +1,11 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   position: relative;
   .list__variants {
     .ant-list-items {
-      height: 300px;
+      max-height: 300px;
       overflow-y: auto;
       width: 100%;
       display: flex;
@@ -61,6 +62,11 @@ export const StyledComponent = styled.div`
         }
       }
     }
+
+    .ant-list-items::-webkit-scrollbar {
+      width: 3px;
+      height: 8px;
+    }
     .ant-list-header {
       border: none;
     }
@@ -73,7 +79,7 @@ export const StyledComponent = styled.div`
       justify-content: space-between;
       flex-direction: row;
       .action-button {
-        border: 1px solid #e5e5e5;
+        border: 1px solid ${borderColor};
         padding: 6px 15px;
         border-radius: 5px;
         flex-direction: row;
@@ -82,15 +88,15 @@ export const StyledComponent = styled.div`
         align-items: center;
         color: #666666;
         &:hover {
-          border: 1px solid #e5e5e5;
+          border: 1px solid ${borderColor};
           color: #666666;
-          border: 1px solid #e5e5e5;
+          border: 1px solid ${borderColor};
           background-color: #f5f5f5;
         }
         &:focus {
-          border: 1px solid #e5e5e5;
+          border: 1px solid ${borderColor};
           color: #666666;
-          border: 1px solid #e5e5e5;
+          border: 1px solid ${borderColor};
           background-color: #f5f5f5;
         }
         &.ant-btn-primary {

@@ -25,10 +25,14 @@ import {
   updateNote,
   deleteNote,
   getCustomersSo,
+  importCustomerService,
 } from "service/customer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { isFetchApiSuccessful } from "utils/AppUtils";
+import { fetchApiErrorAction } from "domain/actions/app.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* onKeySearchCustomerChange(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -63,21 +67,14 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
         getCustomersSo,
         query
       );
-      switch (response.code) {
-        case HttpStatus.SUCCESS:
-          setData(response.data.items);
-          
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          response.errors.forEach((e) => showError(e));
-          break;
-      }
+			if (isFetchApiSuccessful(response)) {
+				setData(response.data.items);
+			} else {
+				yield put(fetchApiErrorAction(response, "Tìm kiếm khách hàng"));
+			}
     }
   } catch (error) {
-    showError("Có lỗi khi lấy danh sách khách hàng! Vui lòng thử lại sau!");
+    showError("Có lỗi khi tìm kiếm khách hàng! Vui lòng thử lại sau!");
   }
 }
 
@@ -116,7 +113,6 @@ function* getCustomerByPhone(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
-        console.log(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -160,19 +156,13 @@ function* CustomerGroups(action: YodyAction) {
     const response: BaseResponse<CustomerResponse> = yield call(
       getCustomerGroups
     );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
+		if (isFetchApiSuccessful(response)) {
+			setData(response.data);
+		} else {
+			yield put(fetchApiErrorAction(response, "Danh sách nhóm khách hàng"));
+		}
   } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy danh sách nhóm khách hàng. Vui lòng thử lại sau!");
   }
 }
 
@@ -222,6 +212,7 @@ function* CustomerTypes(action: YodyAction) {
 
 function* CreateCustomer(action: YodyAction) {
   const { request, setResult } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<any> = yield call(createCustomer, request);
     switch (response.code) {
@@ -239,11 +230,14 @@ function* CreateCustomer(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* UpdateCustomer(action: YodyAction) {
   const { id, request, setResult } = action.payload;
+  yield put(showLoading());
   try {
     const response: BaseResponse<any> = yield call(updateCustomer, id, request);
     switch (response.code) {
@@ -261,6 +255,8 @@ function* UpdateCustomer(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
@@ -576,6 +572,32 @@ function* DeleteNote(action: YodyAction) {
   }
 }
 
+function* importCustomerSaga(action: YodyAction) {
+  const { file, callback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(importCustomerService, file);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        callback(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        callback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+
 export default function* customerSagas() {
   yield takeLatest(
     CustomerType.KEY_SEARCH_CUSTOMER_CHANGE,
@@ -603,4 +625,5 @@ export default function* customerSagas() {
   yield takeLatest(CustomerType.DELETE_BILLING_ADDR, DeleteBillingAddress);
   yield takeLatest(CustomerType.DELETE_SHIPPING_ADDR, DeleteShippingAddress);
   yield takeLatest(CustomerType.DELETE_NOTE, DeleteNote);
+  yield takeLatest(CustomerType.IMPORT_CUSTOMER, importCustomerSaga);
 }

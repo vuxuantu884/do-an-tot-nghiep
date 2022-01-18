@@ -9,7 +9,7 @@ import {
   ProductHistoryQuery,
   ProductHistoryResponse
 } from "model/product/product.model";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
@@ -68,7 +68,6 @@ const TabHistoryPrice: React.FC = () => {
       dataIndex: "history_type",
       visible: true,
       fixed: "left",
-      width: 200,
       render: (value, item) => {
         if (IS_PRODUCT_TYPE.includes(value)) {
           return (
@@ -91,8 +90,9 @@ const TabHistoryPrice: React.FC = () => {
     {
       title: "Giá nhập cũ",
       dataIndex: "data_old",
-      visible: true,
-      align: "center",
+      visible: false,
+      align: "right",
+      width: 120,
       render: (value) => {
         if (value) {
           const DATA_CONVERT = JSON.parse(value);
@@ -105,7 +105,8 @@ const TabHistoryPrice: React.FC = () => {
       title: "Giá nhập mới",
       dataIndex: "data_current",
       visible: true,
-      align: "center",
+      align: "right",
+      width: 120,
       render: (value) => {
         const DATA_CONVERT = JSON.parse(value);
         return formatCurrency(DATA_CONVERT.import_price);
@@ -115,7 +116,8 @@ const TabHistoryPrice: React.FC = () => {
       title: "Giá bán cũ",
       dataIndex: "data_old",
       visible: true,
-      align: "center",
+      align: "right",
+      width: 120,
       render: (value) => {
         if (value) {
           const DATA_CONVERT = JSON.parse(value);
@@ -128,7 +130,8 @@ const TabHistoryPrice: React.FC = () => {
       title: "Giá bán mới",
       dataIndex: "data_current",
       visible: true,
-      align: "center",
+      align: "right",
+      width: 120,
       render: (value) => {
         const DATA_CONVERT = JSON.parse(value);
         return formatCurrency(DATA_CONVERT.retail_price);
@@ -138,6 +141,7 @@ const TabHistoryPrice: React.FC = () => {
       title: "Người sửa",
       dataIndex: "action_name",
       visible: true,
+      width: 200,
       render: (value, record) => {
         return (
           <div>
@@ -153,9 +157,14 @@ const TabHistoryPrice: React.FC = () => {
       align: "left",
       dataIndex: "created_date",
       render: (value) => ConvertUtcToLocalDate(value),
-      width: 120
+      width: 160
     },
   ]);
+
+  const columnFinal = useMemo(() => {
+    return columns.filter((item) => item.visible === true);
+  }, [columns]);
+
   useEffect(() => {
     setLoading(true);
     dispatch(productGetHistoryAction(params, onResult));
@@ -173,7 +182,7 @@ const TabHistoryPrice: React.FC = () => {
           if (to_action_date) {
             values.to_action_date = getEndOfDay(to_action_date)
           }
-          values.condition = condition.trim();
+          values.condition = condition && condition.trim();
           let newParams = { ...params, ...values, page: 1 };
 
           setParams(newParams);
@@ -185,10 +194,11 @@ const TabHistoryPrice: React.FC = () => {
         actions={[]}
       />
       <CustomTable
+        bordered
         rowKey={(record) => record.id}
         isRowSelection
         scroll={{ x: 1300 }}
-        columns={columns}
+        columns={columnFinal}
         dataSource={data.items}
         isLoading={loading}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}

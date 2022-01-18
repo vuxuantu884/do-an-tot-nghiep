@@ -5,7 +5,7 @@ import { FormInstance } from 'antd';
 import { StoreResponse } from "model/core/store.model";
  
 interface Props extends TreeSelectProps<string> {
-  form: FormInstance;
+  form?: FormInstance;
   name: string;
   placeholder?: string;
   listStore: Array<StoreResponse> | undefined;
@@ -31,7 +31,7 @@ const TreeStore = (props: Props) => {
     }
 
     const grouped: any = listStore !== undefined ? groupBy(listStore, (store: StoreResponse) => store.department) : [];
-    const newStores = _.filter([...grouped], store => store[0]?.startsWith('ASM'));
+    const newStores = _.filter([...grouped], store => store[0]);
     setStores(newStores);
   }, [listStore]);
 
@@ -65,13 +65,14 @@ const TreeStore = (props: Props) => {
       treeNodeFilterProp='title'
       tagRender={tagRender}
       maxTagCount="responsive"
-      onChange={(value) => {form.setFieldsValue({ [name]: value })}}
+      onChange={(value) => {form?.setFieldsValue({ [name]: value })}}
       {...restProps}
+      filterTreeNode={(search: any, item: any) => {
+        return item?.title.toLowerCase().includes(search.toLowerCase().trim());
+      }}
     >
       {
         stores?.map((departmentItem: any) => {
-          console.log("data", stores);
-
           return (
             <TreeSelect.TreeNode
               key={departmentItem[0]}
@@ -79,7 +80,7 @@ const TreeStore = (props: Props) => {
               title={departmentItem[0]}
             >
               {
-                <React.Fragment>
+                <React.Fragment>  
                   {
                     departmentItem[1].map((storeItem: any) => (
                       <TreeSelect.TreeNode

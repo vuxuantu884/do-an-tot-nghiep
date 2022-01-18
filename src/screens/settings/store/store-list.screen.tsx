@@ -31,7 +31,8 @@ import useAuthorization from "hook/useAuthorization";
 import {StorePermissions} from "config/permissions/setting.permisssion";
 import NoPermission from "screens/no-permission.screen";
 import {DepartmentResponse} from "model/account/department.model";
-import {DepartmentGetListAction} from "domain/actions/account/account.action";
+import { departmentDetailAction } from "domain/actions/account/department.action";
+import { AppConfig } from "config/app.config";
 
 const ACTIONS_INDEX = {
   UPDATE: 1,
@@ -127,14 +128,25 @@ const StoreListScreen: React.FC = () => {
       width: 120,
       dataIndex: "code",
       visible: true,
+      fixed: "left",
+      render: (value, record) => {
+        return (
+          <div 
+            className="data-hover"
+            onClick={() => history.push(`${UrlConfig.STORE}/${record.id}`)}>
+            {value}
+          </div>
+        )
+      }
     },
     {
       title: "Tên cửa hàng",
       dataIndex: "name",
       visible: true,
+      fixed: "left",
     },
     {
-      title: "Bộ phận",
+      title: "Trực thuộc",
       dataIndex: "department",
       visible: true,
       width: 180,
@@ -170,8 +182,9 @@ const StoreListScreen: React.FC = () => {
       align: "center",
       visible: true,
       sorter: (currentRecord, nextRecord) => {
-        const currentRankName = currentRecord.rank_name?.toUpperCase();
-        const nextRankName = nextRecord.rank_name?.toUpperCase();
+        const currentRankName = currentRecord.rank_name?.toUpperCase() || '';
+        const nextRankName = nextRecord.rank_name?.toUpperCase() || '';
+
         if (currentRankName > nextRankName) {
           return 1;
         }
@@ -357,9 +370,19 @@ const StoreListScreen: React.FC = () => {
       })
     );
   }, []);
+
+  const onResDepartment = useCallback((data: DepartmentResponse | false) => {
+    if (data && data.children) {
+      setDepartment(data.children);
+    };
+  }, []);
+
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(DepartmentGetListAction(setDepartment));
+      // dispatch(DepartmentGetListAction(setDepartment));
+      dispatch(
+        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT, onResDepartment)
+      );
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
       dispatch(StoreGetTypeAction(setType));
@@ -367,7 +390,7 @@ const StoreListScreen: React.FC = () => {
     isFirstLoad.current = false;
     setLoading(true);
     dispatch(StoreSearchAction(params, onGetDataSuccess));
-  }, [dispatch, onGetDataSuccess, params]);
+  }, [dispatch, onGetDataSuccess, params, onResDepartment]);
   return (
     <>
       {allowReadStore ? (
@@ -403,7 +426,6 @@ const StoreListScreen: React.FC = () => {
               onClickOpen={() => setShowSettingColumn(true)}
             />
             <CustomTable
-              className="tr-hover"
               selectedRowKey={rowKey}
               onChangeRowKey={(rowKey) => setRowKey(rowKey)}
               isRowSelection
@@ -424,13 +446,13 @@ const StoreListScreen: React.FC = () => {
               dataSource={data.items}
               columns={columnFinal}
               rowKey={(item: StoreResponse) => item.id}
-              onRow={(record: StoreResponse) => {
-                return {
-                  onClick: (event) => {
-                    history.push(`${UrlConfig.STORE}/${record.id}`);
-                  },
-                };
-              }}
+              // onRow={(record: StoreResponse) => {
+              //   return {
+              //     onClick: (event) => {
+              //       history.push(`${UrlConfig.STORE}/${record.id}`);
+              //     },
+              //   };
+              // }}
             />
             <ModalSettingColumn
               visible={showSettingColumn}

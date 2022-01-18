@@ -4,6 +4,8 @@ import { VariantResponse } from "model/product/product.model";
 
 export const handleChangeMaterial = (material: MaterialResponse | false, form: FormInstance) => {
     if (material) {
+      let description = form.getFieldValue("description");
+      
       const formatDescription = `<p>
       <strong style="color: rgb(34, 34, 34)">Thông tin bảo quản: </strong>
       <span style="background-color: transparent"
@@ -20,7 +22,8 @@ export const handleChangeMaterial = (material: MaterialResponse | false, form: F
       <strong style="color: rgb(34, 34, 34)">Ghi chú: </strong>${material.description}
     </p>
     `;
-      form.setFieldsValue({ description: formatDescription });
+     description += formatDescription;
+      form.setFieldsValue({ description: description, material: material.name });
     }
   };
 

@@ -39,4 +39,12 @@ export const globalCssLayoutOutsideComponent = css`
 			}
 		}
 	}
+
+  .yody-modal-price-product .ant-modal-header{
+    padding: 16px 20px 0px 20px;
+  }
+
+  .yody-modal-price-product .ant-modal-body{
+    padding: 5px 20px;
+  }
 `;

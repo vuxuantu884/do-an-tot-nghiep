@@ -78,7 +78,6 @@ const CreateTicket: FC = () => {
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-  const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
 
@@ -144,7 +143,7 @@ const CreateTicket: FC = () => {
   }, [dispatch]);
 
   // validate
-  const validateStore = (rule: any, value: any, callback: any): void => {
+  const validateStore = useCallback((rule: any, value: any, callback: any): void => {
     if (value) {
       const from_store_id = form.getFieldValue("from_store_id");
       const to_store_id = form.getFieldValue("to_store_id");
@@ -165,7 +164,7 @@ const CreateTicket: FC = () => {
         callback();
       }
     }
-  };
+  },[form]);
 
   const [resultSearch, setResultSearch] = useState<
     PageResponse<VariantResponse> | any
@@ -381,7 +380,6 @@ const CreateTicket: FC = () => {
 
     if (countError > 0) {
       showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-      setHasError(true);
       return;
     } 
 
@@ -448,53 +446,50 @@ const CreateTicket: FC = () => {
     if (dataLineItems[index].transfer_quantity === 0) {
       showError("Số lượng phải lớn hơn 0");
       if (thisInput) thisInput.style.borderColor = "red";
-      setHasError(true);
     } else if (
       dataLineItems[index].transfer_quantity >
       (dataLineItems[index].available ? dataLineItems[index].available : 0)
     ) {
       showError("Không đủ tồn kho gửi");
       if (thisInput) thisInput.style.borderColor = "red";
-      setHasError(true);
     } else {
       if (thisInput) thisInput.style.borderColor = "unset";
-      setHasError(false);
     }
     
-    let countError = 0;
-
     dataLineItems?.forEach((element: VariantResponse, index: number) => {
       const thisInput = document.getElementById(`item-quantity-${index}`);
       if (!element.transfer_quantity) {
         if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        setHasError(true);
       } else if (element.transfer_quantity === 0) {
         if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        setHasError(true);
       } else if (
         element.transfer_quantity > (element.available ? element.available : 0)
       ) {
         if (thisInput) thisInput.style.borderColor = "red";
-        countError++;
-        setHasError(true);
       } else {
         if (thisInput) thisInput.style.borderColor = "unset";
-        setHasError(false);
-      }
-    }, () => {
-      if (countError > 0) {
-        setHasError(true);
       }
     });
   };
 
-  useEffect(() => {
+  const isError = useMemo(()=>{ 
+    if (!fromStoreData || !toStoreData || (fromStoreData.id === toStoreData.id))  return true
+    let error = false;
+
     if (dataTable.length === 0) {
-      setHasError(false);
+      return true
     }
+
+    dataTable?.forEach((element: VariantResponse, index: number) => {
+      if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
+        error= true
+      } 
+    });
     
+    return error;
+  },[toStoreData, fromStoreData, dataTable])
+
+  useEffect(() => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
       const thisInput = document.getElementById(`item-quantity-${index}`);
       if (!element.transfer_quantity) {
@@ -507,12 +502,11 @@ const CreateTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "red";
       } else {
         if (thisInput) thisInput.style.borderColor = "unset";
-        setHasError(false);
       }
     });
   
-  }, [dataTable, hasError]);
-
+  }, [dataTable]);
+  
   const columns: ColumnsType<any> = [
     {
       title: "STT",
@@ -826,7 +820,7 @@ const CreateTicket: FC = () => {
                 >
                   <TextArea
                     maxLength={250}
-                    placeholder="Nhập ghi chú"
+                    placeholder="Nhập ghi chú nội bộ"
                     autoSize={{ minRows: 4, maxRows: 6 }}
                   />
                 </Form.Item>
@@ -862,7 +856,7 @@ const CreateTicket: FC = () => {
             }
             rightComponent={
               <Space>
-                <Button loading={isLoading} disabled={hasError || isLoading} htmlType={"submit"} type="primary">
+                <Button loading={isLoading} disabled={isError || isLoading} htmlType={"submit"} type="primary">
                   Tạo phiếu
                 </Button>
               </Space>

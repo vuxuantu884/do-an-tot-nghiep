@@ -23,6 +23,8 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { deleteVariantApi, getVariantByBarcode, updateVariantApi } from "service/product/variant.service";
 import { ProductUploadModel } from "model/product/product-upload.model";
 import { SearchType } from 'domain/types/search.type';
+import { isFetchApiSuccessful } from 'utils/AppUtils';
+import { fetchApiErrorAction } from 'domain/actions/app.action';
 
 function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -100,24 +102,26 @@ function* searchProductWrapperSaga(action: YodyAction) {
 }
 
 function* productWrapperDeleteSaga(action: YodyAction) {
-  const {id, onDeleteSuccess} = action.payload;
-  try {
-    let response: BaseResponse<string> = yield call(productWrapperDeleteApi, id);
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        onDeleteSuccess();
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
+  const {ids, onDeleteSuccess} = action.payload;
+    try {
+      for(let i = 0 ; i< ids.length; i++) {
+        let response: BaseResponse<string> = yield call(productWrapperDeleteApi, ids[i]);
+        switch (response.code) {
+          case HttpStatus.SUCCESS:
+            break;
+          case HttpStatus.UNAUTHORIZED:
+            yield put(unauthorizedAction());
+            break;
+          default:
+            response.errors.forEach((e) => showError(e));
+            break;
+        }
+      }
+      onDeleteSuccess(true);
+    } catch (error) {
+      onDeleteSuccess(false);
+      showError("Có lỗi vui lòng thử lại sau");
     }
-  } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
-  }
 }
 
 function* productWrapperUpdateSaga(action: YodyAction) {
@@ -157,24 +161,17 @@ function* searchVariantOrderSaga(action: YodyAction) {
         searchVariantsApi,
         query
       );
-      switch (response.code) {
-        case HttpStatus.SUCCESS:
-          let data = { ...response.data };
-          data.items = data.items.filter((item) => item.status === "active");
-          setData(data);
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          response.errors.forEach((e) => showError(e));
-          handleError && handleError();
-          break;
-      }
+			if (isFetchApiSuccessful(response)) {
+				let data = { ...response.data };
+				data.items = data.items.filter((item) => item.status === "active");
+				setData(data);
+			} else {
+				yield put(fetchApiErrorAction(response, "Tìm kiếm sản phẩm"));
+			}
     }
   } catch (error) {
     handleError && handleError();
-		showError("Có lỗi khi lấy dữ liệu tồn kho sản phẩm! Vui lòng thử lại sau!");
+		showError("Có lỗi khi tìm kiếm sản phẩm! Vui lòng thử lại sau!");
   }
 }
 
@@ -443,12 +440,13 @@ function* variantDeleteSaga(action: YodyAction) {
         variants[i].product_id,
         variants[i].variant_id);
       switch (response.code) {
-        case HttpStatus.SUCCESS:
+        case HttpStatus.SUCCESS: 
           break;
         case HttpStatus.UNAUTHORIZED:
           yield put(unauthorizedAction());
           break;
         default:
+          response.errors.forEach((e) => showError(e));
           break;
       }
     }
@@ -463,6 +461,7 @@ function* searchBarCodeSaga(action: YodyAction) {
   let {barcode,setData} = action.payload;
   try {
     let response: BaseResponse<VariantResponse> = yield call(getVariantByBarcode, barcode);
+    
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -472,7 +471,8 @@ function* searchBarCodeSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Không tìm thấy sản phẩm')
+    console.log(error);
+    showError('Không tìm thấy sản phẩm 11112')
   }
 }
 

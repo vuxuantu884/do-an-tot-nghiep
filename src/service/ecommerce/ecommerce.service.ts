@@ -2,8 +2,10 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import {
+  ExitProgressDownloadEcommerceQuery,
   PostEcommerceOrderQuery,
   PostProductEcommerceQuery,
+  RequestSyncStockQuery,
 } from "model/query/ecommerce.query";
 import { EcommerceRequest } from "model/request/ecommerce.request";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -58,23 +60,31 @@ const ecommerceGetApi = (): Promise<BaseResponse<EcommerceResponse>> => {
   return BaseAxios.get(link);
 };
 
-const ecommerceGetByIdApi = (id: number): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceGetByIdApi = (
+  id: number
+): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.get(link);
 };
 
-const ecommerceDeleteApi = (id: number): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceDeleteApi = (
+  id: number
+): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.delete(link);
 };
 // end
 // config sync connect screen
-const ecommerceConnectSyncApi = (ecommerceId: number): Promise<BaseResponse<String>> => {
+const ecommerceConnectSyncApi = (
+  ecommerceId: number
+): Promise<BaseResponse<String>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/connect/${ecommerceId}`;
   return BaseAxios.get(link);
 };
 
-const ecommerceGetConfigInfoApi = (params: any): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceGetConfigInfoApi = (
+  params: any
+): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/info?${params}`;
   return BaseAxios.get(link);
 };
@@ -109,8 +119,17 @@ const ecommerceDisconnectItemApi = (ids: any) => {
   return BaseAxios.put(link, ids);
 };
 
-const ecommercePostSyncStockItemApi = (requestBody: any): Promise<BaseResponse<any>> => {
-  let link = `${ApiConfig.ECOMMERCE}/variants/stockSync`;
+const ecommercePostSyncStockItemApi = (
+  requestBody: RequestSyncStockQuery
+): Promise<BaseResponse<any>> => {
+  let link = `${ApiConfig.ECOMMERCE}/variants/stock-sync`;
+  return BaseAxios.post(link, requestBody);
+};
+
+const ecommerceSyncStockItemApi = (
+  requestBody: any
+): Promise<BaseResponse<any>> => {
+  let link = `${ApiConfig.ECOMMERCE}/orders/retry-download`;
   return BaseAxios.post(link, requestBody);
 };
 
@@ -131,6 +150,22 @@ const postEcommerceOrderApi = (
 ): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ECOMMERCE}/orders`;
   return BaseAxios.post(link, requestBody);
+};
+
+//get progress download ecommerce orders
+const getProgressDownloadEcommerceApi = (
+  process_id: any
+): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/orders/download-process/${process_id}`;
+  return BaseAxios.get(requestUrl);
+};
+
+//get progress download ecommerce orders
+const exitProgressDownloadEcommerceApi = (
+  query: ExitProgressDownloadEcommerceQuery
+): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/orders/download-process/${query.processId}`;
+  return BaseAxios.put(requestUrl);
 };
 
 //get order mapping list api
@@ -154,9 +189,12 @@ export {
   ecommerceDeleteItemApi,
   ecommerceDisconnectItemApi,
   ecommercePostSyncStockItemApi,
+  ecommerceSyncStockItemApi,
   ecommerceGetCategoryListApi,
   ecommercePutConnectItemApi,
   postEcommerceOrderApi,
+  getProgressDownloadEcommerceApi,
+  exitProgressDownloadEcommerceApi,
   getFpageCustomer,
   addFpagePhone,
   deleteFpagePhone,

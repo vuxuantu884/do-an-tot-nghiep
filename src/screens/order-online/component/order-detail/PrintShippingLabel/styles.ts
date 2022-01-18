@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   display: block !important;
@@ -7,7 +8,7 @@ export const StyledComponent = styled.div`
   button {
     background: none;
     color: #222;
-    border-color: #e5e5e5;
+    border-color: ${borderColor};
     img {
       margin-right: 10px;
     }

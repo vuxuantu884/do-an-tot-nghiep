@@ -4,7 +4,7 @@ import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
 import ActionButton from "component/table/ActionButton";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { formatCurrency, Products } from "utils/AppUtils";
 import { StyledComponent } from "./style";
 
@@ -20,9 +20,12 @@ interface VariantListProps {
 }
 
 const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
+  const {active, productData} = props;
   const [listSelected, setListSelected] = useState<Array<number>>([]);
   const [checkedAll, setCheckedAll] = useState<boolean>(false);
-  const productName = props?.productData?.name;
+
+  const firstScrollRef = useRef(true)
+  const productName = productData?.name;
   const onMenuClick = useCallback(
     (action) => {
       switch (action) {
@@ -39,6 +42,15 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
     },
     [listSelected, props]
   );
+
+  useLayoutEffect(() => {
+    // scroll to active varriant
+    if(firstScrollRef.current && active){
+      firstScrollRef.current = false;
+      document.getElementById("variantIndex"+active)?.scrollIntoView({behavior: "smooth", block: "center"});
+    }
+  }, [active])
+
   return (
     <StyledComponent>
       <List
@@ -98,6 +110,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
           return (
             <List.Item
               className={classNames(index === props.active && "active")}
+              id={"variantIndex"+index}
             >
               <div className="line-item">
                 <Checkbox
@@ -153,8 +166,8 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                   </div>
                   <div className="variant-price">
                     {`${
-                      item.variant_prices[0]?.retail_price
-                        ? formatCurrency(item.variant_prices[0]?.retail_price)
+                     (item && item.variant_prices != null && item.variant_prices[0]?.retail_price)
+                        ? formatCurrency(item.variant_prices[0].retail_price)
                         : "-"
                     }`}
                   </div>

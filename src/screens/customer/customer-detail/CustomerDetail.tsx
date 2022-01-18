@@ -17,10 +17,7 @@ import CustomerNoteInfo from "./customer-note/customer.note";
 import PurchaseHistory from "screens/customer/customer-detail/PurchaseHistory";
 import CustomerCareHistory from "screens/customer/customer-detail/CustomerCareHistory";
 
-import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel } from "model/order/order.model";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { GetListOrderCustomerAction } from "domain/actions/order/order.action";
 import {
   getLoyaltyPoint,
   getLoyaltyUsage,
@@ -77,11 +74,6 @@ const CustomerDetail = () => {
     Array<LoyaltyUsageResponse>
   >([]);
   const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
-  const [queryParams, setQueryParams] = React.useState<any>({
-    limit: 10,
-    page: 1,
-    customer_ids: null,
-  });
 
   const actions: Array<MenuAction> = [
     {
@@ -101,18 +93,6 @@ const CustomerDetail = () => {
     //   name: "Trừ tiền tích lũy",
     // },
   ];
-
-  const [orderHistory, setOrderHistory] = React.useState<PageResponse<OrderModel>>({
-    metadata: {
-      limit: 10,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-
-  const [tableLoading, setTableLoading] = React.useState<boolean>(false);
-  // add and edit contact section;
 
 
   useEffect(() => {
@@ -293,39 +273,18 @@ const CustomerDetail = () => {
     setCustomerSpendDetail(_detail);
   }, [customer?.report, loyaltyPoint]);
 
-  const onPageChange = React.useCallback(
-    (page, limit) => {
-      setQueryParams({ ...queryParams, page, limit });
-    },
-    [queryParams, setQueryParams]
-  );
-
-  const setOrderHistoryItems = React.useCallback(
-    (data: PageResponse<OrderModel> | false) => {
-      setTableLoading(false);
-      if (data) {
-        setOrderHistory(data);
-      }
-    },
-    []
-  );
-  
-  React.useEffect(() => {
-    if (!allowViewCustomerDetail) {
-      return;
-    }
-
-    if (params?.id) {
-      queryParams.customer_ids = [params?.id];
-      setTableLoading(true);
-      dispatch(GetListOrderCustomerAction(queryParams, setOrderHistoryItems));
-    }
-  }, [params, dispatch, queryParams, setOrderHistoryItems, allowViewCustomerDetail]);
-  // end
-
   React.useEffect(() => {
     const _detail = [
-      { name: "Điểm hiện tại", value: loyaltyPoint?.point || null },
+      {
+        name: "Điểm hiện tại",
+        value: 
+          loyaltyPoint?.point ? 
+            <NumberFormat
+              value={loyaltyPoint.point}
+              displayType={"text"}
+              thousandSeparator={true}
+            /> : null
+      },
       {
         name: "Hạng thẻ",
         value:
@@ -419,12 +378,12 @@ const CustomerDetail = () => {
       switch (menuId) {
         case 1:
           history.replace(
-            `${UrlConfig.CUSTOMER}/point-adjustments/create?type=ADD&customer_ids=${customer?.id}`
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=ADD&customer_ids=${customer?.id}`
           );
           break;
         case 2:
           history.replace(
-            `${UrlConfig.CUSTOMER}/point-adjustments/create?type=SUBTRACT&customer_ids=${customer?.id}`
+            `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT&customer_ids=${customer?.id}`
           );
           break;
         // case 3:
@@ -509,9 +468,7 @@ const CustomerDetail = () => {
                 >
                   <TabPane tab="Lịch sử mua hàng" key="history">
                     <PurchaseHistory
-                      orderData={orderHistory}
-                      onPageChange={onPageChange}
-                      tableLoading={tableLoading}
+                      customerId={params?.id}
                     />
                   </TabPane>
 

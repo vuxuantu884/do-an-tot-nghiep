@@ -40,7 +40,7 @@
         justify-content: space-between;
         margin-top: 0.75rem;
         margin-left: -30px;
-        height: 55px;
+        height: 70px;
         width: 100%;
         box-shadow: 0px -1px 8px rgba(0, 0, 0, 0.1);
         align-items: center;
@@ -150,5 +150,8 @@
         overflow-wrap: break-word;
         word-break: break-word;
         white-space: pre-wrap;
+    }
+    .customer-info-row {
+        padding: 0 3px !important;
     }
 }

@@ -11,6 +11,7 @@ import {
 import { CreateShippingServiceConfigReQuestFormModel } from "model/request/settings/order-settings.resquest";
 import moment from "moment";
 import { useState } from "react";
+import { DATE_FORMAT } from "utils/DateUtils";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import { StyledComponent } from "./styles";
 
@@ -21,7 +22,7 @@ type PropType = {
 
 function OrderSettingInformation(props: PropType) {
   const datePickerPlaceholder = "dd/mm/yyyy hh:mm";
-  const datePickerFormat = "DD-MM-YYYY HH:mm";
+  const datePickerFormat = DATE_FORMAT.fullDate;
   const { form, initialFormValue } = props;
   const [isActive, setIsActive] = useState(
     initialFormValue.status === ORDER_SETTINGS_STATUS.active ? true : false

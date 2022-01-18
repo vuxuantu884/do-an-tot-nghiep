@@ -1,5 +1,6 @@
 import {
   Card,
+  Checkbox,
   Col,
   Radio,
   RadioChangeEvent,
@@ -41,6 +42,8 @@ function CardGeneralSettings(props: PropType) {
         allow_choose_item: listOrderConfigs.allow_choose_item,
         order_config_action: listOrderConfigs.order_config_action,
         order_config_print_id: listOrderConfigs.order_config_print.id,
+        hide_gift: listOrderConfigs.hide_gift,
+        hide_bonus_item: listOrderConfigs.hide_bonus_item
       };
     }
     return result;
@@ -50,8 +53,13 @@ function CardGeneralSettings(props: PropType) {
     forAllOrders: "chonChoTatCaDonHang",
   };
 
-  const [valueCustomerCanViewOrder, setValueCustomerCanViewOrder] =
-    useState("");
+  const valueApplyPrintOrderOption = {
+    hideGift: "inHoaDonKhongHienThiQuaTang",
+    hideBonusItem: "inHoaDonKhongCoSanPhamTangKem"
+  }
+
+  const [valueCustomerCanViewOrder, setValueCustomerCanViewOrder] = useState("");
+  const [invoicePrintingConfiguration, setInvoicePrintingConfiguration] = useState([]);
 
   const onChangeCustomerCanViewOrder = (e: RadioChangeEvent) => {
     let initParams = getInitParams();
@@ -102,19 +110,19 @@ function CardGeneralSettings(props: PropType) {
     onUpdateOrderConfig(params);
   };
 
-  const onChangeAllowChooseItemBeforeChooseStore = (checked: boolean) => {
-    let initParams = getInitParams();
-    if (!listOrderConfigs || !initParams) {
-      return;
-    }
-    const allow_choose_item = checked;
-    listOrderConfigs.allow_choose_item = checked;
-    const params: OrderConfigRequestModel = {
-      ...initParams,
-      allow_choose_item,
-    };
-    onUpdateOrderConfig(params);
-  };
+  // const onChangeAllowChooseItemBeforeChooseStore = (checked: boolean) => {
+  //   let initParams = getInitParams();
+  //   if (!listOrderConfigs || !initParams) {
+  //     return;
+  //   }
+  //   const allow_choose_item = checked;
+  //   listOrderConfigs.allow_choose_item = checked;
+  //   const params: OrderConfigRequestModel = {
+  //     ...initParams,
+  //     allow_choose_item,
+  //   };
+  //   onUpdateOrderConfig(params);
+  // };
 
   const onChangeAllowToSellWhenNotAvailableStock = (checked: boolean) => {
     let initParams = getInitParams();
@@ -140,16 +148,46 @@ function CardGeneralSettings(props: PropType) {
         valueCustomerCanViewOrderOption.forSingleOrder
       );
     }
+
   }, [
     listOrderConfigs,
     valueCustomerCanViewOrderOption.forAllOrders,
     valueCustomerCanViewOrderOption.forSingleOrder,
   ]);
 
+  useEffect(() => {
+    let config: any = [];
+    if (listOrderConfigs?.hide_gift === true)
+      config.push(valueApplyPrintOrderOption.hideGift)
+    if (listOrderConfigs?.hide_bonus_item === true)
+      config.push(valueApplyPrintOrderOption.hideBonusItem)
+    setInvoicePrintingConfiguration(config)
+  }, [
+    listOrderConfigs,
+    valueApplyPrintOrderOption.hideBonusItem,
+    valueApplyPrintOrderOption.hideGift
+  ]);
+
+  const onChangeApplyPrint = (value:any) => {
+
+    let initParams = getInitParams();
+    if (!listOrderConfigs || !initParams) {
+      return;
+    }
+
+    const params: OrderConfigRequestModel = {
+      ...initParams,
+      hide_gift: value.findIndex((x:any) => x === valueApplyPrintOrderOption.hideGift) !== -1 ? true : false,
+      hide_bonus_item: value.findIndex((x:any) => x === valueApplyPrintOrderOption.hideBonusItem) !== -1 ? true : false,
+    };
+    setInvoicePrintingConfiguration(value);
+    onUpdateOrderConfig(params);
+  }
+
   return (
     <StyledComponent>
       <Card title="Cài đặt chung">
-        <Row gutter={30}>
+        <Row style={{ padding: "0px 30px" }} >
           <Col span={12}>
             <div className="singleSetting">
               <h4 className="title">Cho khách hàng xem hàng</h4>
@@ -202,10 +240,71 @@ function CardGeneralSettings(props: PropType) {
           </Col>
           <Col span={12}>
             <div className="singleSetting">
+              <h4 className="title">
+                Chọn in hóa đơn
+              </h4>
+              <div className="singleSetting__content">
+                <Checkbox.Group
+                  key={Math.random()}
+                  onChange={onChangeApplyPrint}
+
+                  value={invoicePrintingConfiguration}
+                >
+                  <div className="single">
+                    <Checkbox
+                      value={valueApplyPrintOrderOption.hideGift}
+                    >
+                      In hóa đơn không hiển thị quà tặng
+                    </Checkbox>
+                  </div>
+                  <div className="single">
+                    <Checkbox value={valueApplyPrintOrderOption.hideBonusItem}>
+                      In hóa đơn không có sản phẩm tặng kèm
+                    </Checkbox>
+                  </div>
+                </Checkbox.Group>
+                {/* <TreeSelect
+                  key={Math.random()}
+                  onChange={onChangeApplyPrint}
+                  treeCheckable={true}
+                  showCheckedStrategy={SHOW_PARENT}
+                  placeholder="Chọn in hóa đơn"
+                  className="selectInNhieuDonHang"
+                  maxTagCount="responsive"
+                  defaultValue={invoicePrintingConfiguration}
+                >
+                  <TreeNode value={valueApplyPrintOrderOption.hideGift} title="In hóa đơn không hiển thị quà tặng"></TreeNode>
+                  <TreeNode value={valueApplyPrintOrderOption.hideBonusItem} title="In hóa đơn không có sản phẩm tặng kèm"></TreeNode>
+                </TreeSelect> */}
+                {/* <Select
+                  key={Math.random()}
+                  placeholder="Chọn in hóa đơn"
+                  onChange={onChangeSelectSettingPrinter}
+                  className="selectInNhieuDonHang"
+                  defaultValue={
+                    listOrderConfigs?.order_config_print.id.toString() ||
+                    undefined
+                  }
+                >
+                  <Select.Option value={1} key={1}>
+                      In hóa đơn không hiển thị quà tặng
+                  </Select.Option>
+                   <Select.Option value={1} key={1}>
+                      In hóa đơn không hiển thị quà tặng
+                  </Select.Option>
+                </Select> */}
+              </div>
+            </div>
+          </Col>
+        </Row>
+
+        <Row style={{ marginTop: "10px", padding: "0px 30px" }}>
+          <Col span={12}>
+            <div className="singleSetting">
               <h4 className="title">Cài đặt khác</h4>
               <div className="singleSetting__content">
                 <Space direction="vertical" size={15}>
-                  <div>
+                  {/* <div>
                     <Switch
                       key={Math.random()}
                       defaultChecked={listOrderConfigs?.allow_choose_item}
@@ -213,7 +312,7 @@ function CardGeneralSettings(props: PropType) {
                       className="ant-switch-primary"
                     />
                     Cài đặt chọn cửa hàng trước mới cho chọn sản phẩm
-                  </div>
+                  </div> */}
                   <div>
                     <Switch
                       key={Math.random()}
@@ -226,9 +325,12 @@ function CardGeneralSettings(props: PropType) {
                 </Space>
               </div>
             </div>
+
+          </Col>
+          <Col span={12}>
             <div className="singleSetting">
               <h4 className="title">
-                Cấu hình cho phép in nhiều liên đơn hàng cho hóa đơn bán lẻ
+                Cấu hình cho phép in nhiều liên đơn hàng
               </h4>
               <div className="singleSetting__content">
                 <Select

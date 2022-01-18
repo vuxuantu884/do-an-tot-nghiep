@@ -1,5 +1,5 @@
-import {CheckCircleOutlined, LoadingOutlined} from "@ant-design/icons";
-import {Button, Card, Col, Divider, message, Modal, Row, Space} from "antd";
+import { CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, message, Modal, Row, Space } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import DiscountIcon from "assets/icon/discount.svg";
 import UserIcon from "assets/icon/user-icon.svg";
@@ -7,36 +7,37 @@ import CloseIcon from "assets/icon/x-close-red.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import VoucherIcon from "assets/img/voucher.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   bulkDisablePriceRulesAction,
-  bulkEnablePriceRulesAction,
-  getVariants,
-  promoGetDetail,
+  bulkEnablePriceRulesAction, getPriceRuleAction, getVariantsAction
 } from "domain/actions/promotion/discount/discount.action";
 import {
   addPromoCode,
-  getListPromoCode,
+  getListPromoCode
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
 import _ from "lodash";
-import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
-import React, {useCallback, useEffect, useState} from "react";
-import {VscError} from "react-icons/all";
-import {RiUpload2Line} from "react-icons/ri";
-import {useDispatch} from "react-redux";
-import {useHistory, useParams} from "react-router";
-import {Link} from "react-router-dom";
-import {showSuccess} from "utils/ToastUtils";
-import {getQueryParams, useQuery} from "utils/useQuery";
+import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
+import React, { useCallback, useEffect, useState } from "react";
+import { VscError } from "react-icons/all";
+import { RiUpload2Line } from "react-icons/ri";
+import { useDispatch } from "react-redux";
+import { useHistory, useParams } from "react-router";
+import { Link } from "react-router-dom";
+import { showSuccess } from "utils/ToastUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import CustomTable from "../../../component/table/CustomTable";
-import {AppConfig} from "../../../config/app.config";
-import {formatCurrency} from "../../../utils/AppUtils";
-import {getToken} from "../../../utils/LocalStorageUtils";
+import { AppConfig } from "../../../config/app.config";
+import { formatCurrency } from "../../../utils/AppUtils";
+import { getToken } from "../../../utils/LocalStorageUtils";
+import { columnDiscountByRule } from "../constants";
+import DiscountRuleInfo from "../discount/components/discount-rule-info";
 import GeneralConditionDetail from "../shared/general-condition.detail";
 import CustomModal from "./components/CustomModal";
 import "./promo-code.scss";
@@ -122,7 +123,7 @@ const PromotionDetailScreen: React.FC = () => {
   const history = useHistory();
   const token = getToken() || "";
 
-  const {id} = useParams() as any;
+  const { id } = useParams() as any;
   const idNumber = parseInt(id);
 
   const [error, setError] = useState(false);
@@ -131,7 +132,7 @@ const PromotionDetailScreen: React.FC = () => {
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<DiscountResponse | null>(null);
+  const [data, setData] = useState<PriceRule | null>(null);
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
@@ -141,19 +142,13 @@ const PromotionDetailScreen: React.FC = () => {
     "error" | "success" | "done" | "uploading" | "removed" | undefined
   >(undefined);
   const [dataVariants, setDataVariants] = useState<any | null>(null);
-  const [entitlements, setEntitlements] = useState<Array<any>>([]);
-  const [minOrderSubtotal, setMinOrderSubtotal] = useState(0);
-  const [applyFor, setApplyFor] = useState("Sản phẩm");
+  const [, setEntitlements] = useState<Array<any>>([]);
+  const [, setMinOrderSubtotal] = useState(0);
+  const [, setApplyFor] = useState("Sản phẩm");
 
   //phân quyền
   const [allowCancelPromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CANCEL],
-  });
-  const [allowCreatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CREATE],
-  });
-  const [allowUpdatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.UPDATE],
   });
 
   const handleResponse = useCallback((result: any | false) => {
@@ -166,7 +161,7 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getVariants(idNumber, handleResponse));
+    dispatch(getVariantsAction(idNumber, handleResponse));
   }, [dispatch, handleResponse, idNumber]);
 
   const checkIsHasPromo = useCallback((data: any) => {
@@ -188,16 +183,16 @@ const PromotionDetailScreen: React.FC = () => {
 
   const onActivate = () => {
     dispatch(showLoading());
-    dispatch(bulkEnablePriceRulesAction({ids: [idNumber]}, onActivateSuccess));
+    dispatch(bulkEnablePriceRulesAction({ ids: [idNumber] }, onActivateSuccess));
   };
 
   const onDeactivate = () => {
     dispatch(showLoading());
-    dispatch(bulkDisablePriceRulesAction({ids: [idNumber]}, onActivateSuccess));
+    dispatch(bulkDisablePriceRulesAction({ ids: [idNumber] }, onActivateSuccess));
   };
 
   // section handle call api GET DETAIL
-  const onResult = useCallback((result: DiscountResponse | false) => {
+  const onResult = useCallback((result: PriceRule | false) => {
     setLoading(false);
     if (!result) {
       setError(true);
@@ -251,21 +246,10 @@ const PromotionDetailScreen: React.FC = () => {
 
   const onActivateSuccess = useCallback(() => {
     dispatch(hideLoading());
-    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
-  // section DELETE by Id
-  // function onDelete() {
-  //   dispatch(showLoading());
-  //   dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
-  // }
-  // const onDeleteSuccess = useCallback(() => {
-  //   dispatch(hideLoading());
-  //   showSuccess("Xóa thành công");
-  //   history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
-  // }, [dispatch, history]);
 
-  
   const onEdit = useCallback(() => {
     history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}/update`);
   }, [history, idNumber]);
@@ -276,8 +260,7 @@ const PromotionDetailScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(promoGetDetail(idNumber, onResult));
-    return () => {};
+    dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
   const promoDetail: Array<any> | undefined = React.useMemo(() => {
@@ -356,7 +339,7 @@ const PromotionDetailScreen: React.FC = () => {
     };
     (value.listCode as Array<string>).forEach((element) => {
       if (!element) return;
-      (body.discount_codes as Array<any>).push({code: element});
+      (body.discount_codes as Array<any>).push({ code: element });
     });
     dispatch(showLoading());
     dispatch(addPromoCode(idNumber, body, addCallBack));
@@ -386,7 +369,7 @@ const PromotionDetailScreen: React.FC = () => {
     [dispatch, idNumber, dataQuery, checkIsHasPromo]
   );
 
-  const renderStatus = (data: DiscountResponse) => {
+  const renderStatus = (data: PriceRule) => {
     const status = promoStatuses.find((status) => status.code === data.state);
     return <span style={status?.style}>{status?.value}</span>;
   };
@@ -411,35 +394,35 @@ const PromotionDetailScreen: React.FC = () => {
     }
   };
 
-  const columns: Array<any> = [
-    {
-      title: "STT",
-      align: "center",
-      width: "5%",
-      render: (value: any, item: any, index: number) => index + 1,
-    },
-    {
-      title: "Sản phẩm",
-      dataIndex: "sku",
-      align: "left",
-      width: "40%",
-      render: (value: string, item: any, index: number) => {
-        return (
-          <div>
-            <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
-              {value}
-            </Link>
-            <div>{item.title}</div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Số lượng tối thiểu",
-      align: "center",
-      dataIndex: "minimum",
-    },
-  ];
+  // const columns: Array<any> = [
+  //   {
+  //     title: "STT",
+  //     align: "center",
+  //     width: "5%",
+  //     render: (value: any, item: any, index: number) => index + 1,
+  //   },
+  //   {
+  //     title: "Sản phẩm",
+  //     dataIndex: "sku",
+  //     align: "left",
+  //     width: "40%",
+  //     render: (value: string, item: any, index: number) => {
+  //       return (
+  //         <div>
+  //           <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
+  //             {value}
+  //           </Link>
+  //           <div>{item.title}</div>
+  //         </div>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: "Số lượng tối thiểu",
+  //     align: "center",
+  //     dataIndex: "minimum",
+  //   },
+  // ];
 
   return (
     <ContentContainer
@@ -467,7 +450,7 @@ const PromotionDetailScreen: React.FC = () => {
               <Card
                 className="card"
                 title={
-                  <div style={{alignItems: "center"}}>
+                  <div style={{ alignItems: "center" }}>
                     <span className="title-card">THÔNG TIN CHUNG</span>
                     {renderStatus(data)}
                   </div>
@@ -497,10 +480,10 @@ const PromotionDetailScreen: React.FC = () => {
                                 padding: "0 4px 0 0",
                               }}
                             >
-                              <span style={{color: "#666666"}}>{detail.name}</span>
-                              <span style={{color: detail.color}}>:</span>
+                              <span style={{ color: "#666666" }}>{detail.name}</span>
+                              <span style={{ color: detail.color }}>:</span>
                             </Col>
-                            <Col span={12} style={{paddingLeft: 0}}>
+                            <Col span={12} style={{ paddingLeft: 0 }}>
                               <span
                                 style={{
                                   wordWrap: "break-word",
@@ -535,10 +518,10 @@ const PromotionDetailScreen: React.FC = () => {
                                 padding: "0 4px 0 0",
                               }}
                             >
-                              <span style={{color: "#666666"}}>{detail.name}</span>
-                              <span style={{fontWeight: 600}}>:</span>
+                              <span style={{ color: "#666666" }}>{detail.name}</span>
+                              <span style={{ fontWeight: 600 }}>:</span>
                             </Col>
-                            <Col span={12} style={{paddingLeft: 0}}>
+                            <Col span={12} style={{ paddingLeft: 0 }}>
                               <span
                                 style={{
                                   wordWrap: "break-word",
@@ -555,21 +538,21 @@ const PromotionDetailScreen: React.FC = () => {
                 <Row gutter={30}>
                   <Col span={24}>
                     <img src={CloseIcon} alt="" />
-                    <span style={{marginLeft: 14}}>
+                    <span style={{ marginLeft: 14 }}>
                       Không được áp dụng chung với các khuyến mại khác
                     </span>
                   </Col>
-                  <Col span={24} style={{marginTop: 15}}>
+                  <Col span={24} style={{ marginTop: 15 }}>
                     <img src={UserIcon} alt="" />
-                    <span style={{marginLeft: 14}}>
+                    <span style={{ marginLeft: 14 }}>
                       {data.usage_limit_per_customer
                         ? `Khách hàng có ${data.usage_limit_per_customer} lần sử dụng mã`
                         : `Khách hàng không bị giới hạn số lần sử dụng mã`}
                     </span>
                   </Col>
-                  <Col span={24} style={{marginTop: 15}}>
+                  <Col span={24} style={{ marginTop: 15 }}>
                     <img src={DiscountIcon} alt="" />
-                    <span style={{marginLeft: 14}}>
+                    <span style={{ marginLeft: 14 }}>
                       {data.usage_limit
                         ? `Mỗi mã được sử dụng ${data.usage_limit} lần`
                         : `Mỗi mã được sử dụng không bị giới số lần`}
@@ -577,16 +560,12 @@ const PromotionDetailScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <hr />
-                <Row gutter={30}>
-                  <Col span={24} style={{textAlign: "right"}}>
-                    <Link to={``}>Xem lịch sử chỉnh sửa</Link>
-                  </Col>
-                </Row>
+
               </Card>
               <Card
                 className="card"
                 title={
-                  <div style={{alignItems: "center"}}>
+                  <div style={{ alignItems: "center" }}>
                     <span className="title-card">Mã giảm giá</span>
                   </div>
                 }
@@ -603,7 +582,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </Row>
                 )}
                 {!checkPromoCode && (
-                  <Row gutter={30} style={{gap: 15}}>
+                  <Row gutter={30} style={{ gap: 15 }}>
                     <Col
                       span={24}
                       style={{
@@ -633,7 +612,7 @@ const PromotionDetailScreen: React.FC = () => {
                           src={VoucherIcon}
                           alt=""
                         />
-                        <p style={{fontWeight: 500}}>Thêm mã thủ công</p>
+                        <p style={{ fontWeight: 500 }}>Thêm mã thủ công</p>
                         <p>
                           Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp
                           dụng 1 mã nhiều lần
@@ -651,7 +630,7 @@ const PromotionDetailScreen: React.FC = () => {
                           src={AddListCouponIcon}
                           alt=""
                         />
-                        <p style={{fontWeight: 500}}>Thêm mã ngẫu nhiên</p>
+                        <p style={{ fontWeight: 500 }}>Thêm mã ngẫu nhiên</p>
                         <p>
                           Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và
                           phát cho mỗi khách hàng 1 mã
@@ -669,7 +648,7 @@ const PromotionDetailScreen: React.FC = () => {
                           src={AddImportCouponIcon}
                           alt=""
                         />
-                        <p style={{fontWeight: 500}}>Nhập file Excel</p>
+                        <p style={{ fontWeight: 500 }}>Nhập file Excel</p>
                         <p>
                           Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần
                           mềm
@@ -681,22 +660,17 @@ const PromotionDetailScreen: React.FC = () => {
                 )}
               </Card>
               <Card
-                className="card"
-                title={
-                  <div style={{alignItems: "center"}}>
-                    <span className="title-card">Điều kiện mua hàng</span>
-                  </div>
-                }
+                title={"Điều kiện mua hàng"}
               >
-                <Space size={"large"} direction={"vertical"} style={{width: "100%"}}>
-                  <Row>
+                <Space size={"large"} direction={"vertical"} style={{ width: "100%" }}>
+                  {/* <Row>
                     <Col span={12}>
-                      <span style={{fontWeight: 500}}>
+                      <span style={{ fontWeight: 500 }}>
                         Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}₫
                       </span>
                     </Col>
                     <Col span={12}>
-                      <span style={{fontWeight: 500}}>Áp dụng cho : {applyFor}</span>
+                      <span style={{ fontWeight: 500 }}>Áp dụng cho : {applyFor}</span>
                     </Col>
                   </Row>
                   {entitlements.length > 0 ? (
@@ -711,7 +685,17 @@ const PromotionDetailScreen: React.FC = () => {
                     />
                   ) : (
                     ""
-                  )}
+                  )} */}
+                      {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD &&
+                  <>
+                    <DiscountRuleInfo dataDiscount={data} />
+                    <CustomTable
+                      columns={columnDiscountByRule}
+                      dataSource={data.rule?.conditions}
+                      pagination={false}
+                      rowKey="id"
+                    />
+                  </>}
                 </Space>
               </Card>
             </Col>
@@ -723,14 +707,7 @@ const PromotionDetailScreen: React.FC = () => {
         back="Quay lại danh sách đợt phát hành"
         rightComponent={
           <Space>
-            {/* {allowCancelPromoCode ? (
-              <Button disabled onClick={onDelete} style={{color: "#E24343"}}>
-                Xoá
-              </Button>
-            ) : null} */}
-            {allowUpdatePromoCode && data?.state!=='DISABLED' ? <Button onClick={onEdit}>Sửa</Button> : null}
-
-            {allowCreatePromoCode ? <Button disabled>Nhân bản</Button> : null}
+            {data?.state !== 'CANCELLED' && <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}><Button onClick={onEdit}>Sửa</Button></AuthWrapper>}
             {allowCancelPromoCode ? renderActionButton() : null}
           </Space>
         }
@@ -843,9 +820,9 @@ const PromotionDetailScreen: React.FC = () => {
                   return true;
                 }}
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/${idNumber}/discount-codes/read-file`}
-                headers={{Authorization: `Bearer ${token}`}}
+                headers={{ Authorization: `Bearer ${token}` }}
                 onChange={(info) => {
-                  const {status} = info.file;
+                  const { status } = info.file;
                   if (status === "done") {
                     const response = info.file.response;
                     if (response.code === 20000000) {
@@ -887,9 +864,9 @@ const PromotionDetailScreen: React.FC = () => {
             style={{
               display:
                 uploadStatus === "done" ||
-                uploadStatus === "uploading" ||
-                uploadStatus === "success" ||
-                uploadStatus === "error"
+                  uploadStatus === "uploading" ||
+                  uploadStatus === "success" ||
+                  uploadStatus === "error"
                   ? ""
                   : "none",
             }}
@@ -900,8 +877,8 @@ const PromotionDetailScreen: React.FC = () => {
                   <Row justify={"center"}>
                     {/*<Col span={24}>*/}
                     <Space size={"large"}>
-                      <LoadingOutlined style={{fontSize: "78px"}} />
-                      <h2 style={{padding: "10px 30px"}}>Đang upload file...</h2>
+                      <LoadingOutlined style={{ fontSize: "78px" }} />
+                      <h2 style={{ padding: "10px 30px" }}>Đang upload file...</h2>
                     </Space>
                     {/*</Col>*/}
                   </Row>
@@ -913,8 +890,8 @@ const PromotionDetailScreen: React.FC = () => {
                 <Col span={24}>
                   <Row justify={"center"}>
                     <Space size={"large"}>
-                      <VscError style={{fontSize: "78px", color: "#E24343"}} />
-                      <h2 style={{padding: "10px 30px"}}>
+                      <VscError style={{ fontSize: "78px", color: "#E24343" }} />
+                      <h2 style={{ padding: "10px 30px" }}>
                         <li>{uploadError || "Máy chủ đang bận"}</li>
                       </h2>
                     </Space>
@@ -926,12 +903,12 @@ const PromotionDetailScreen: React.FC = () => {
               {uploadStatus === "done" ? (
                 <Col span={24}>
                   <Row justify={"center"}>
-                    <CheckCircleOutlined style={{fontSize: "78px", color: "#27AE60"}} />
+                    <CheckCircleOutlined style={{ fontSize: "78px", color: "#27AE60" }} />
                   </Row>
                   <Row justify={"center"}>
-                    <h2 style={{padding: "10px 30px"}}>
+                    <h2 style={{ padding: "10px 30px" }}>
                       Xử lý file nhập toàn tất:{" "}
-                      <strong style={{color: "#2A2A86"}}>
+                      <strong style={{ color: "#2A2A86" }}>
                         {successCount} / {importTotal}
                       </strong>{" "}
                       mã giảm giá thành công
@@ -941,10 +918,10 @@ const PromotionDetailScreen: React.FC = () => {
                   {codeErrorsResponse.length > 0 ? (
                     <div>
                       <Row justify={"start"}>
-                        <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
+                        <h3 style={{ color: "#E24343" }}>Danh sách lỗi: </h3>
                       </Row>
                       <Row justify={"start"}>
-                        <li style={{padding: "10px 30px"}}>
+                        <li style={{ padding: "10px 30px" }}>
                           {codeErrorsResponse?.map((error: any, index) => (
                             <ul key={index}>
                               <span>

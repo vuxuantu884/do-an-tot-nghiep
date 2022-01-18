@@ -1,0 +1,150 @@
+@font-face {
+  font-family: 'laundry';
+  src:  url('fonts/laundry.eot?3innsm');
+  src:  url('fonts/laundry.eot?3innsm#iefix') format('embedded-opentype'),
+    url('fonts/laundry.ttf?3innsm') format('truetype'),
+    url('fonts/laundry.woff?3innsm') format('woff'),
+    url('fonts/laundry.svg?3innsm#laundry') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="ydl-"], [class*=" ydl-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'laundry' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ydl-bleach-any:before {
+  content: "\e900";
+}
+.ydl-bleach-non-chlorine:before {
+  content: "\e901";
+}
+.ydl-clean-dry-f:before {
+  content: "\e902";
+}
+.ydl-clean-dry-f-mild:before {
+  content: "\e903";
+}
+.ydl-clean-dry-p:before {
+  content: "\e904";
+}
+.ydl-clean-dry-p-mild:before {
+  content: "\e905";
+}
+.ydl-clean-wet:before {
+  content: "\e906";
+}
+.ydl-clean-wet-mild:before {
+  content: "\e907";
+}
+.ydl-clean-wet-very-mild:before {
+  content: "\e908";
+}
+.ydl-dry-60:before {
+  content: "\e909";
+}
+.ydl-dry-80:before {
+  content: "\e90a";
+}
+.ydl-dry-flat:before {
+  content: "\e90b";
+}
+.ydl-dry-flat-drip:before {
+  content: "\e90c";
+}
+.ydl-dry-flat-drip-shade:before {
+  content: "\e90d";
+}
+.ydl-dry-flat-shade:before {
+  content: "\e90e";
+}
+.ydl-dry-line:before {
+  content: "\e90f";
+}
+.ydl-dry-line-drip:before {
+  content: "\e910";
+}
+.ydl-dry-line-drip-shade:before {
+  content: "\e911";
+}
+.ydl-dry-line-shade:before {
+  content: "\e912";
+}
+.ydl-iron-110:before {
+  content: "\e913";
+}
+.ydl-iron-150:before {
+  content: "\e914";
+}
+.ydl-iron-200:before {
+  content: "\e915";
+}
+.ydl-no-bleach:before {
+  content: "\e916";
+}
+.ydl-no-clean-dry:before {
+  content: "\e917";
+}
+.ydl-no-clean-wet:before {
+  content: "\e918";
+}
+.ydl-no-dry:before {
+  content: "\e919";
+}
+.ydl-no-iron:before {
+  content: "\e91a";
+}
+.ydl-no-wash:before {
+  content: "\e91b";
+}
+.ydl-wash-30:before {
+  content: "\e91c";
+}
+.ydl-wash-30-mild:before {
+  content: "\e91d";
+}
+.ydl-wash-30-very-mild:before {
+  content: "\e91e";
+}
+.ydl-wash-40:before {
+  content: "\e91f";
+}
+.ydl-wash-40-mild:before {
+  content: "\e920";
+}
+.ydl-wash-40-very-mild:before {
+  content: "\e921";
+}
+.ydl-wash-50:before {
+  content: "\e922";
+}
+.ydl-wash-50-mild:before {
+  content: "\e923";
+}
+.ydl-wash-60:before {
+  content: "\e924";
+}
+.ydl-wash-60-mild:before {
+  content: "\e925";
+}
+.ydl-wash-70:before {
+  content: "\e926";
+}
+.ydl-wash-95:before {
+  content: "\e927";
+}
+.ydl-wash-hand:before {
+  content: "\e928";
+}

@@ -1,29 +1,25 @@
 import {FormInstance} from "antd";
 import {YodyAction} from "base/base.action";
-import {
-  productGetDetail,
-  searchProductWrapperRequestAction,
-} from "domain/actions/product/products.action";
+import {productGetDetail} from "domain/actions/product/products.action";
 import _ from "lodash";
-import {PageResponse} from "model/base/base-metadata.response";
 import {ProductResponse, VariantResponse} from "model/product/product.model";
 import {
-  DiscountFormModel,
   EntilementFormModel,
+  IgnoreVariant,
+  PriceRuleMethod,
   ProductEntitlements,
   VariantEntitlementsFileImport,
-  DiscountMethod,
-  IgnoreVariant,
-} from "model/promotion/discount.create.model";
+} from "model/promotion/price-rules.model";
 import moment from "moment";
 import {Dispatch} from "redux";
+import {DiscountUnitType} from "screens/promotion/constants";
 import {CustomerFilterField} from "screens/promotion/shared/cusomer-condition.form";
 import {formatCurrency} from "./AppUtils";
 import {PROMO_TYPE} from "./Constants";
 import {DATE_FORMAT} from "./DateUtils";
 import {showError} from "./ToastUtils";
 
-//refacor
+
 /**
  * Đóng modal xác nhận thêm mã cha
  */
@@ -279,56 +275,6 @@ export const shareDiscountImportedProduct = (
   form.setFieldsValue({entitlements: cleanEntilementList});
 };
 
-// need to remove
-export const shareDiscount = (
-  oldDiscountList: Array<DiscountFormModel>,
-  newVariantList: Array<VariantEntitlementsFileImport>,
-  form: FormInstance
-) => {
-  const discountMap = new Map<number, DiscountFormModel>();
-  const ignoreVariantMap = new Map<number, VariantEntitlementsFileImport>();
-
-  oldDiscountList.forEach((item) => {
-    if (item["prerequisite_quantity_ranges.value"]) {
-      discountMap.set(item["prerequisite_quantity_ranges.value"], item);
-    }
-
-    item?.variants?.forEach((child) => {
-      ignoreVariantMap.set(child.variant_id, child);
-    });
-  });
-
-  newVariantList.forEach((item, index) => {
-    let discount = discountMap.get(item.discount_value);
-    console.log("parent", typeof discount?.variants);
-    if (!discount) {
-      const discount = {
-        variants: [item],
-        entitled_variant_ids: [item.variant_id],
-        "prerequisite_quantity_ranges.value": item.discount_value,
-        "prerequisite_quantity_ranges.allocation_limit": item.limit,
-        "prerequisite_quantity_ranges.greater_than_or_equal_to": item.min_quantity,
-        "prerequisite_quantity_ranges.value_type":
-          form.getFieldValue("entitled_method") === "FIXED_PRICE"
-            ? "FIXED_AMOUNT"
-            : item.discount_type,
-      };
-
-      oldDiscountList.push(discount);
-      discountMap.set(item.discount_value, discount);
-    } else if (discount && !ignoreVariantMap.get(item.variant_id)) {
-      discount.variants.push(item);
-      discount.entitled_variant_ids.push(item.variant_id);
-
-      ignoreVariantMap.set(item.variant_id, item);
-    }
-  });
-
-  form.setFieldsValue({entitlements: oldDiscountList});
-
-  return oldDiscountList.map((item) => item.variants);
-};
-
 export function nonAccentVietnamese(str: string) {
   str = str.toLowerCase();
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
@@ -425,43 +371,20 @@ export const getDayOptions = () => {
   return days;
 };
 
-export const handleSearchProduct = _.debounce(
-  (
-    dispatch: Dispatch<YodyAction>,
-    value: string,
-    onSetData: (data: Array<ProductResponse>) => void
-  ) => {
-    dispatch(
-      searchProductWrapperRequestAction(
-        {
-          status: "active",
-          limit: 200,
-          page: 1,
-          info: value.trim(),
-        },
-        (response: PageResponse<ProductResponse> | false) => {
-          if (response) {
-            onSetData(response.items);
-          }
-        }
-      )
-    );
-  },
-  500
-);
+ 
 
 /**
- *
+ * chọn sp chiết khấu
  * @param value : selected product
  * @param selectedProductParentRef : ref of selected product parent
- * @param variantIdOfSelectedProdcutRef : ref of selected product parent
+ * @param variantIdOfSelectedProdcutRef : save variant id of selected product => remove another variant if exist
  * @param setIsVisibleConfirmModal : variant id of selected product
  * @param form : form
  * @param name : number of discount group
  * @param dispatch  : dispatch
  * @returns : none
  */
-export const onSelectVariantAndProduct = (
+export const onSelectVariantOfDiscount = (
   value: string,
   selectedProductParentRef: any,
   variantIdOfSelectedProdcutRef: any,
@@ -470,7 +393,7 @@ export const onSelectVariantAndProduct = (
   name: number, // index of a group entilement
   dispatch: Dispatch<YodyAction>
 ) => {
-  let entitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+  const entitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
 
   const currentProductList: Array<ProductEntitlements> =
     entitlements[name].selectedProducts || [];
@@ -559,9 +482,8 @@ export const onSelectVariantAndProduct = (
 
 export const parseSelectProductToTableData = (selectedItem: ProductResponse) => {
   return {
-    ...selectedItem,
     cost: 0,
-    open_quantity: selectedItem.on_hand || 0, // tạm thời chưa có trường on_hand của sp trong api variant
+    open_quantity: selectedItem.on_hand || 0,
     variant_title: selectedItem.name,
     product_id: selectedItem.id, // id của sp cha
     sku: selectedItem.code,
@@ -570,67 +492,17 @@ export const parseSelectProductToTableData = (selectedItem: ProductResponse) => 
 };
 export const parseSelectVariantToTableData = (selectedItem: VariantResponse) => {
   return {
-    ...selectedItem,
-    cost: selectedItem.variant_prices[0]?.import_price || 0,
-    open_quantity: selectedItem.on_hand || 0, // tạm thời chưa có trường on_hand của sp trong api variant
+    cost:
+      Array(selectedItem.variant_prices) && selectedItem.variant_prices?.length > 0
+        ? selectedItem.variant_prices[0]?.import_price
+        : 0,
+    open_quantity: selectedItem.on_hand || 0,
     variant_title: selectedItem.name,
     product_id: selectedItem.product_id, // id của sp cha
     variant_id: selectedItem.id, // id của sp variant
     sku: selectedItem.sku,
     isParentProduct: false,
   };
-};
-
-//TODO: need to remove
-export const onSelectProduct = (
-  value: string,
-  isVariant: boolean,
-  dataSearchVariant: Array<VariantResponse>,
-  selectedProductParentRef: any,
-  setIsVisibleConfirmModal: (isVisible: boolean) => void,
-  selectedProduct: Array<any>,
-  setSelectedProduct: (selectedProduct: Array<any>) => void
-) => {
-  let selectedItem: any;
-  //check is variant or product
-  if (isVariant) {
-    selectedItem = dataSearchVariant.find((e) => e.id === Number(value));
-  } else {
-    selectedItem = JSON.parse(value);
-  }
-  /**
-   *  if selected item is not exist in selected product
-   */
-  const checkExist = selectedProduct.some((e) => e.id === selectedItem.id);
-  if (checkExist) {
-    showError("Sản phẩm đã được chọn!");
-    return;
-  }
-  /**
-   * Trường hợp trên ds đã có mã cha
-   * → tìm kiếm sp variant thì thông báo lỗi đã đưa mã cha vào ds
-   * → Nếu muốn thay đổi thì xóa mã cha
-   */
-  if (isVariant && selectedProduct.some((e) => selectedItem?.sku?.includes(e?.code))) {
-    showError("Sản phẩm đã được chọn mã cha");
-    return;
-  }
-
-  /**
-   * Trường hợp trên ds đã có mã variant
-   * → tìm kiếm sp  cha thì thông báo đã có mã variant vào ds
-   * → popup thông báo sẽ áp dụng các variant còn lại của mã này
-   * → Bấm XÁC NHẬN/ HỦY
-   */
-  if (!isVariant && selectedProduct.some((e) => e?.sku?.startsWith(selectedItem?.code))) {
-    selectedProductParentRef.current = selectedItem;
-    setIsVisibleConfirmModal(true);
-    return;
-  }
-
-  if (selectedItem) {
-    setSelectedProduct([selectedItem].concat(selectedProduct));
-  }
 };
 
 export const addProductFromSelectToForm = (
@@ -688,7 +560,7 @@ export const getEntilementValue = (
   entitlements: EntilementFormModel[],
   entitlementMethod: string
 ) => {
-  if (entitlementMethod === DiscountMethod.ORDER_THRESHOLD.toString()) {
+  if (entitlementMethod === PriceRuleMethod.ORDER_THRESHOLD.toString()) {
     return [];
   } else {
     if (!entitlements || !Array.isArray(entitlements)) {
@@ -709,11 +581,11 @@ export const getEntilementValue = (
   }
 };
 
-export const transformData = (values: any) => {
+export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC) => {
   let body: any = values;
   body.entitlements = getEntilementValue(values.entitlements, values.entitled_method);
 
-  body.type = PROMO_TYPE.AUTOMATIC;
+  body.type = priceRuleType;
   body.starts_date = values.starts_date.format();
   body.ends_date = values.ends_date?.format() || null;
 
@@ -794,4 +666,65 @@ export const transformData = (values: any) => {
   }
 
   return body;
+};
+
+/**
+ *
+ * @param value
+ * @param form
+ * @param setDiscountMethod
+ */
+export const handleChangeDiscountMethod = (
+  value: PriceRuleMethod,
+  form: FormInstance,
+  setDiscountMethod: (discountMethod: PriceRuleMethod) => void
+) => {
+  if (value) {
+    setDiscountMethod(value);
+    const formData = form.getFieldsValue(true);
+    const isFixedPriceMethod = value === PriceRuleMethod.FIXED_PRICE;
+    const isQuantityMethod = value === PriceRuleMethod.QUANTITY;
+
+    const valueType = isFixedPriceMethod
+      ? DiscountUnitType.FIXED_PRICE.value
+      : DiscountUnitType.PERCENTAGE.value;
+    if (
+      (isFixedPriceMethod || isQuantityMethod) &&
+      Array.isArray(formData?.entitlements) &&
+      formData?.entitlements.length > 0
+    ) {
+      formData?.entitlements?.forEach((item: EntilementFormModel) => {
+        const temp = {
+          prerequisite_quantity_ranges: [
+            {
+              value_type: valueType,
+              greater_than_or_equal_to: 1,
+              value: 0,
+            },
+          ],
+        };
+        _.merge(item, temp);
+      });
+    } else if (isFixedPriceMethod || isQuantityMethod) {
+      formData.entitlements = [
+        {
+          entitled_category_ids: [],
+          entitled_product_ids: [],
+          entitled_variant_ids: [],
+          prerequisite_variant_ids: [],
+          selectedProducts: [],
+          prerequisite_quantity_ranges: [
+            {
+              value_type: valueType,
+              greater_than_or_equal_to: 1,
+              value: 0,
+            },
+          ],
+        },
+      ];
+    }
+    form.setFieldsValue({
+      entitlements: _.cloneDeep(formData?.entitlements),
+    });
+  }
 };

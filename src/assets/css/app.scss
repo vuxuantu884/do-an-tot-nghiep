@@ -138,51 +138,51 @@ label {
 @for $i from 0 through 5 {
     .margin {
         &-#{$i * 10} {
-            margin: $i * 10px;
+            margin: $i * 10px !important;
         }
         &-top {
             &-#{$i * 10} {
-                margin-top: $i * 10px;
+                margin-top: $i * 10px !important;
             }
         }
         &-bottom {
             &-#{$i * 10} {
-                margin-bottom: $i * 10px;
+                margin-bottom: $i * 10px !important;
             }
         }
         &-left {
             &-#{$i * 10} {
-                margin-left: $i * 10px;
+                margin-left: $i * 10px !important;
             }
         }
         &-right {
             &-#{$i * 10} {
-                margin-right: $i * 10px;
+                margin-right: $i * 10px !important;
             }
         }
     }
     .padding {
         &-#{$i * 10} {
-            padding: $i * 10px;
+            padding: $i * 10px !important;
         }
         &-top {
             &-#{$i * 10} {
-                padding-top: $i * 10px;
+                padding-top: $i * 10px !important;
             }
         }
         &-bottom {
             &-#{$i * 10} {
-                padding-bottom: $i * 10px;
+                padding-bottom: $i * 10px !important;
             }
         }
         &-left {
             &-#{$i * 10} {
-                padding-left: $i * 10px;
+                padding-left: $i * 10px !important;
             }
         }
         &-right {
             &-#{$i * 10} {
-                padding-right: $i * 10px;
+                padding-right: $i * 10px !important;
             }
         }
     }
@@ -529,4 +529,22 @@ label {
     text-overflow: ellipsis;
     word-break: break-word;
   }
+}
+
+.t-success{
+    color: #27AE60;
+    font-weight: 500;
+  }
+.t-red{
+  color: rgb(226, 67, 67);
+  font-weight: 500;
+}
+
+.t-black{
+  color: #222222;
+  font-weight: 500;
+}
+.t-primary {
+  color: #2A2A86;
+  font-weight: 500;
 }

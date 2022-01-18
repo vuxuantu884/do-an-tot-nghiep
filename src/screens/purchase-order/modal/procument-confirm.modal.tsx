@@ -13,20 +13,23 @@ import { Moment } from "moment";
 
 import ProcumentCommonModal from "./procument.common.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { formatCurrency } from "utils/AppUtils";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
-type ProcumentConfirmProps = {
+export type ProcumentConfirmProps = {
   visible: boolean;
   isEdit: boolean;
   now: Moment;
   stores: Array<StoreResponse>;
   onCancel: () => void;
-  item: PurchaseProcument | null;
+  item: PurchaseProcument | null | any;
   items: Array<PurchaseOrderLineItem>;
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
   onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
+  poData: PurchaseOrder | any;
+  procumentCode: string;
 };
 
 const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
@@ -35,7 +38,9 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
   const {
     visible,
     now,
+    poData ,
     stores,
+    procumentCode,
     onCancel,
     item,
     defaultStore,
@@ -54,7 +59,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     item: PurchaseProcumentLineItem,
     lineIndex: number
   ) => {
-    setMessage(`Bạn chắc chắn xoá ${item.sku}`);
+    setMessage(`Bạn chắc chắn huỷ ${item.sku}`);
     setRemoveIndex(lineIndex);
     setIsShowConfirmDeleteLineItem(true);
   };
@@ -73,13 +78,15 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         isEdit={isEdit}
         item={item}
         items={items}
-        onCancle={onCancel}
+        onCancel={onCancel}
         now={now}
+        procumentCode={procumentCode}
         stores={stores}
         defaultStore={defaultStore}
         visible={visible}
         cancelText="Hủy"
         onOk={onOk}
+        poData={poData}
         onDelete={onDelete}
         loading={loading}
         isConfirmModal={isEdit}
@@ -92,6 +99,8 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         okText={isEdit ? "Lưu phiếu duyệt" : "Duyệt phiếu nháp"}
       >
         {(onQuantityChange, onRemove, line_items) => {
+          const listItems = line_items.filter(item => item.quantity > 0);
+
           return (
             <Table
               className="product-table"
@@ -99,7 +108,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                 record.line_item_id
               }
               rowClassName="product-table-row"
-              dataSource={line_items}
+              dataSource={listItems}
               tableLayout="fixed"
               scroll={{ y: 250, x: 845 }}
               pagination={false}
@@ -245,6 +254,10 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                       onChange={(quantity: number | null) => {
                         onQuantityChange(quantity, index);
                       }}
+                      format={(a: string) => formatCurrency(a)}
+                      replace={(a: string) =>
+                        replaceFormatString(a)
+                      }
                     />
                   ),
                 },

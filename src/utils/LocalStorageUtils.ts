@@ -15,6 +15,10 @@ const removeToken = () => {
   localStorage.removeItem(ACCESS_TOKEN);
 };
 
+export const clearLocalStorage = () => {
+	localStorage.clear();
+};
+
 const setAppSetting = (appSeting: any) => {
   let data: string = JSON.stringify(appSeting);
   localStorage.setItem(SETTING_APP, data);

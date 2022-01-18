@@ -17,8 +17,10 @@ import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.acti
 import CustomInput from "screens/customer/common/customInput";
 
 import { SearchOutlined } from "@ant-design/icons";
+import { GENDER_OPTIONS } from "utils/Constants";
 
 const { Option } = Select;
+
 const CustomerGeneralInfo = (props: any) => {
   const {
     form,
@@ -35,7 +37,7 @@ const CustomerGeneralInfo = (props: any) => {
 
   const dispatch = useDispatch();
   const autoCompleteRef = createRef<RefSelectProps>();
-  
+
   const [keySearchCard, setKeySearchCard] = useState("");
   const [isInputSearchCardFocus, setIsInputSearchCardFocus] = useState(false);
 
@@ -49,7 +51,7 @@ const CustomerGeneralInfo = (props: any) => {
       items: [],
     }
   );
-  
+
   const customerCardParams = {
     status: "ACTIVE",
     card_number: "",
@@ -103,7 +105,7 @@ const CustomerGeneralInfo = (props: any) => {
   };
 
   const handleDateChange = (e: any) => { };
-  
+
   return (
     <div className="customer-info">
       <Card
@@ -149,7 +151,7 @@ const CustomerGeneralInfo = (props: any) => {
           />
 
           <Form.Item
-            label={<b>Thẻ khách hàng:</b>}
+            label={<b>Thẻ KH:</b>}
             name="card_number"
             className="right-item"
           >
@@ -168,7 +170,7 @@ const CustomerGeneralInfo = (props: any) => {
               open={isInputSearchCardFocus}
               onFocus={onInputSearchCardFocus}
               onBlur={onInputSearchCardBlur}
-              dropdownRender={(menu) => <div style={{padding: 10}}>{menu}</div>}
+              dropdownRender={(menu) => <div style={{ padding: 10 }}>{menu}</div>}
             >
               <Input
                 maxLength={255}
@@ -227,13 +229,20 @@ const CustomerGeneralInfo = (props: any) => {
             // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
             className="left-item"
           >
-            <Select disabled={isLoading} placeholder="Chọn giới tính">
-              <Option value={"male"}>Nam</Option>
-              <Option value={"female"}>Nữ</Option>
-              <Option value={"other"}>Khác</Option>
+            <Select
+              disabled={isLoading}
+              showSearch
+              placeholder="Chọn giới tính"
+              allowClear
+            >
+              {GENDER_OPTIONS.map((gender: any) => (
+                <Option key={gender.value} value={gender.value}>
+                  {gender.label}
+                </Option>
+                ))}
             </Select>
           </Form.Item>
-          
+
           <Form.Item
             name="birthday"
             label={<b>Ngày sinh:</b>}
@@ -286,7 +295,7 @@ const CustomerGeneralInfo = (props: any) => {
           >
             <Input disabled={isLoading} maxLength={255} placeholder="Nhập tên đơn vị" />
           </Form.Item>
-          
+
           <Form.Item
             label={<b>Mã số thuế:</b>}
             name="tax_code"
@@ -359,7 +368,7 @@ const CustomerGeneralInfo = (props: any) => {
               allowClear
               optionFilterProp="children"
               placeholder="Chọn phường/xã"
-              // onChange={handleChangeWard}
+            // onChange={handleChangeWard}
             >
               {wards.map((ward: any) => (
                 <Option key={ward.id} value={ward.id}>
@@ -368,7 +377,7 @@ const CustomerGeneralInfo = (props: any) => {
               ))}
             </Select>
           </Form.Item>
-          
+
           <CustomInput
             disabled={isLoading}
             name="full_address"
@@ -382,7 +391,7 @@ const CustomerGeneralInfo = (props: any) => {
           />
         </div>
       </Card>
-      
+
       <Card
         title={
           <span className="card-title">THÔNG TIN KHÁC</span>

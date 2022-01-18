@@ -1,4 +1,4 @@
-import { Card, Col, Form, Row } from "antd";
+import { Card, Col, Form, FormInstance, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
@@ -16,7 +16,8 @@ import {
 	actionCreateOrderReturn,
 	actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import { configOrderSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { orderConfigSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -35,23 +36,26 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-	OrderConfig,
 	OrderLineItemResponse,
 	OrderResponse,
 	OrderReturnReasonModel,
 	ReturnProductModel,
+	ShippingAddress,
 	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import moment from "moment";
+import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
 import {
-	checkIfOrderHasReturnedAll,
+
+	getAmountPayment,
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
 	getTotalAmountAfterDiscount,
+	isOrderFromPOS,
 	scrollAndFocusToDomElement,
 	totalAmount
 } from "utils/AppUtils";
@@ -61,8 +65,7 @@ import {
 	FulFillmentStatus,
 	OrderStatus,
 	PaymentMethodCode,
-	PaymentMethodOption,
-	ShipmentMethod,
+	PaymentMethodOption, POS, ShipmentMethod,
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
@@ -134,12 +137,15 @@ const ScreenReturnCreate = (props: PropType) => {
     OrderLineItemRequest[]
   >([]);
 
-	console.log('listExchangeProducts', listExchangeProducts)
+  console.log('listExchangeProducts', listExchangeProducts)
+  console.log('payments', payments)
 
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+
+  const [isReturnAll, setIsReturnAll] = useState(true)
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -175,14 +181,22 @@ const ScreenReturnCreate = (props: PropType) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-  const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
+  const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
   //Store
-  const [storeReturn,setStoreReturn]= useState<StoreResponse|null>(null);
-  const [listStoreReturn, setListStoreReturn]=useState<StoreResponse[]>([]);
+  const [storeReturn, setStoreReturn] = useState<StoreResponse | null>(null);
+  const [listStoreReturn, setListStoreReturn] = useState<StoreResponse[]>([]);
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+
+  const [isShowSelectOrderSources, setIsShowSelectOrderSources] = useState(false)
+
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+  // const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
+	const [shippingServiceConfig, setShippingServiceConfig] = useState<
+ShippingServiceConfigDetailResponseModel[]
+>([]);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -196,7 +210,7 @@ const ScreenReturnCreate = (props: PropType) => {
     delivery_fee: null,
     shipping_fee_informed_to_customer: null,
     shipping_fee_paid_to_three_pls: null,
-    dating_ship: moment(),
+    dating_ship: undefined,
     requirements: null,
     source_id: null,
     note: "",
@@ -219,7 +233,7 @@ const ScreenReturnCreate = (props: PropType) => {
     billing_address: null,
     payments: [],
     channel_id: null,
-		automatic_discount: true,
+    automatic_discount: true,
   };
 
   let listPaymentMethodsReturnToCustomer = listPaymentMethods.find((single) => {
@@ -249,17 +263,21 @@ const ScreenReturnCreate = (props: PropType) => {
   const totalAmountExchangePlusShippingFee =
     totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0);
 
-/**
- * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
- */
-const totalAmountOrder = useMemo(() => {
-  return (
-    orderAmount +
-    (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-    (promotion?.value || 0)
-  );
-}, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
-console.log('totalAmountOrder', totalAmountOrder)
+  /**
+   * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
+   */
+  const totalAmountOrder = useMemo(() => {
+    return (
+      orderAmount +
+      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+      (promotion?.value || 0)
+    );
+  }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
+  console.log('totalAmountOrder', totalAmountOrder)
+
+
+  const totalAmountPayment = getAmountPayment(payments);
+  console.log('totalAmountPayment', totalAmountPayment)
 
   /**
    * if return > exchange: positive
@@ -269,6 +287,11 @@ console.log('totalAmountOrder', totalAmountOrder)
     let result = totalAmountOrder - totalAmountReturnProducts;
     return result;
   }, [totalAmountOrder, totalAmountReturnProducts]);
+
+  let totalAmountOrderAfterPayments = useMemo(() => {
+    let result = totalAmountCustomerNeedToPay - totalAmountPayment;
+    return result;
+  }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     console.log("1");
@@ -291,18 +314,22 @@ console.log('totalAmountOrder', totalAmountOrder)
         setIsOrderFinished(true);
       }
       let listItemCanReturn = getListItemsCanReturn(_data);
+      console.log('listItemCanReturn', listItemCanReturn)
+      if (listItemCanReturn.length > 0) {
+        setIsReturnAll(false);
+      }
       setListItemCanBeReturn(listItemCanReturn);
       let returnProduct: ReturnProductModel[] = listItemCanReturn.map((single) => {
         return {
           ...single,
           maxQuantityCanBeReturned: single.quantity,
           quantity: 0,
-					discount_items: single.discount_items.map((discount) => {
-						return {
-							...discount,
-							amount: 0,
-						}
-					})
+          discount_items: single.discount_items.map((discount) => {
+            return {
+              ...discount,
+              amount: 0,
+            }
+          })
         };
       });
       console.log("returnProduct", returnProduct);
@@ -329,7 +356,7 @@ console.log('totalAmountOrder', totalAmountOrder)
           setDiscountRate(discountRate);
         }
       }
-      dispatch(StoreDetailAction(_data.store_id?_data.store_id:0, setStoreReturn))
+      dispatch(StoreDetailAction(_data.store_id ? _data.store_id : 0, setStoreReturn))
     }
   }, [dispatch]);
 
@@ -351,22 +378,22 @@ console.log('totalAmountOrder', totalAmountOrder)
   };
 
   const onChangeInfoProduct = (
-		_items: Array<OrderLineItemRequest>,
-		_promotion?: OrderDiscountRequest | null,
-	) => {
-		setListExchangeProducts(_items);
-		let amount = totalAmount(_items);
-		setOrderAmount(amount);
-		if(_promotion !== undefined) {
-			setPromotion(_promotion);
-		}
-	};
+    _items: Array<OrderLineItemRequest>,
+    _promotion?: OrderDiscountRequest | null,
+  ) => {
+    setListExchangeProducts(_items);
+    let amount = totalAmount(_items);
+    setOrderAmount(amount);
+    if (_promotion !== undefined) {
+      setPromotion(_promotion);
+    }
+  };
 
   const handleSubmitFormReturn = () => {
     let formValue = form.getFieldsValue();
-   
+
     if (OrderDetail && listReturnProducts) {
-  
+
       let items = listReturnProducts.map((single) => {
         const { maxQuantityCanBeReturned, ...rest } = single;
         return rest;
@@ -401,11 +428,11 @@ console.log('totalAmountOrder', totalAmountOrder)
       }
       let orderDetailResult: ReturnRequest = {
         ...OrderDetail,
-        store_id:storeReturn?storeReturn.id:null,
-        store:storeReturn?storeReturn.name:"",
-        store_code:storeReturn?storeReturn.code:"",
-        store_full_address:storeReturn?storeReturn.address:"",
-        store_phone_number:storeReturn?storeReturn.hotline:"",
+        store_id: storeReturn ? storeReturn.id : null,
+        store: storeReturn ? storeReturn.name : "",
+        store_code: storeReturn ? storeReturn.code : "",
+        store_full_address: storeReturn ? storeReturn.address : "",
+        store_phone_number: storeReturn ? storeReturn.hotline : "",
         action: "",
         delivery_service_provider_id: null,
         delivery_fee: null,
@@ -418,7 +445,7 @@ console.log('totalAmountOrder', totalAmountOrder)
         payments: payments,
         reason_id: form.getFieldValue("reason_id"),
         reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
-				reason: form.getFieldValue("reason"),
+        reason: form.getFieldValue("reason"),
         sub_reason_id: form.getFieldValue("sub_reason_id") || null,
         received: isReceivedReturnProducts,
         order_returns: [],
@@ -436,12 +463,12 @@ console.log('totalAmountOrder', totalAmountOrder)
     let checkIfHasReturnProduct = listReturnProducts.some((single) => {
       return single.quantity > 0;
     });
-    if(!storeReturn){
+    if (!storeReturn) {
       showError("Vui lòng chọn cửa hàng để trả!");
       return;
     }
     if (!checkIfHasReturnProduct) {
-      showError("Vui lòng chọn ít nhất 1 sản phẩmm");
+      showError("Vui lòng chọn ít nhất 1 sản phẩm!");
       const element: any = document.getElementById("search_product");
       scrollAndFocusToDomElement(element);
       return;
@@ -504,6 +531,51 @@ console.log('totalAmountOrder', totalAmountOrder)
     })
   };
 
+  const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
+    // khách cần trả
+    /**
+     * tổng số tiền đã trả
+     */
+    if (totalAmountOrderAfterPayments < 0) {
+      let returnAmount = Math.abs(totalAmountOrderAfterPayments);
+      let _payments = [...payments];
+      let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
+      if (paymentCashIndex > -1) {
+        _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount - returnAmount;
+        _payments[paymentCashIndex].return_amount = returnAmount;
+      } else {
+        let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+        newPaymentCash = {
+          code: PaymentMethodCode.CASH,
+          payment_method_id: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+          amount: 0,
+          paid_amount: -returnAmount,
+          return_amount: returnAmount,
+          status: "",
+          payment_method: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
+          reference: '',
+          source: '',
+          customer_id: 1,
+          note: '',
+          type: '',
+        };
+        _payments.push(newPaymentCash)
+      }
+      return _payments;
+    }
+    return payments;
+  };
+
+  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+
+  const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
+    const methods = [ShipmentMethodOption.PICK_AT_STORE]
+    if (totalAmountOrderAfterPayments > 0 && methods.includes(shipmentMethod) && isOrderFromPOS(OrderDetail)) {
+      return true
+    }
+    return false
+  };
+
   const onReturnAndExchange = async () => {
     form
       .validateFields()
@@ -511,7 +583,7 @@ console.log('totalAmountOrder', totalAmountOrder)
         let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
           return single.quantity > 0;
         });
-        if(!storeReturn){
+        if (!storeReturn) {
           showError("Vui lòng chọn cửa hàng để trả!");
           return;
         }
@@ -522,6 +594,18 @@ console.log('totalAmountOrder', totalAmountOrder)
             element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
           window.scrollTo({ top: offsetY, behavior: "smooth" });
           element?.focus();
+          return;
+        }
+				if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+					showError("Vui lòng nhập địa chỉ giao hàng!");
+					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
+					scrollAndFocusToDomElement(element);
+					return;
+				}
+        if (checkIfNotHavePaymentsWhenReceiveAtStorePOS()) {
+          const element: any = document.getElementsByClassName("create-order-payment")[0] as HTMLElement;
+          scrollAndFocusToDomElement(element);
+          showError("Vui lòng thanh toán đủ số tiền!");
           return;
         }
         if (OrderDetail && listReturnProducts) {
@@ -563,11 +647,11 @@ console.log('totalAmountOrder', totalAmountOrder)
           }
           let orderDetailResult: ReturnRequest = {
             ...OrderDetail,
-            store_id:storeReturn?storeReturn.id:null,
-            store:storeReturn?storeReturn.name:"",
-            store_code:storeReturn?storeReturn.code:"",
-            store_full_address:storeReturn?storeReturn.address:"",
-            store_phone_number:storeReturn?storeReturn.hotline:"",
+            store_id: storeReturn ? storeReturn.id : null,
+            store: storeReturn ? storeReturn.name : "",
+            store_code: storeReturn ? storeReturn.code : "",
+            store_full_address: storeReturn ? storeReturn.address : "",
+            store_phone_number: storeReturn ? storeReturn.hotline : "",
             action: "",
             delivery_service_provider_id: null,
             delivery_fee: null,
@@ -579,9 +663,9 @@ console.log('totalAmountOrder', totalAmountOrder)
             fulfillments: [],
             payments: payments,
             reason_id: form.getFieldValue("reason_id"),
-						reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
-						reason: form.getFieldValue("reason"),
-						sub_reason_id: form.getFieldValue("sub_reason_id") || null,
+            reason_name: listOrderReturnReason.find((single) => single.id === form.getFieldValue("reason_id"))?.name || "",
+            reason: form.getFieldValue("reason"),
+            sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
             channel_id: ADMIN_ORDER.channel_id,
           };
@@ -592,7 +676,9 @@ console.log('totalAmountOrder', totalAmountOrder)
           values.company_id = DEFAULT_COMPANY.company_id;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
-							valuesResult.order_return_id = orderReturnId;
+              console.log('valuesResult', valuesResult)
+              valuesResult.order_return_id = orderReturnId;
+              valuesResult.payments = valuesResult.payments ? reCalculatePaymentReturn(valuesResult.payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0)) : null;
               if (isErrorExchange) {
                 // showWarning("Đã tạo đơn đổi hàng không thành công!");
                 dispatch(
@@ -646,6 +732,8 @@ console.log('totalAmountOrder', totalAmountOrder)
                     !thirdPL.service
                   ) {
                     showError("Vui lòng chọn đơn vị vận chuyển!");
+                    const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
+                    scrollAndFocusToDomElement(element)
                   } else {
                     handleCreateOrderExchangeByValue(valuesResult);
                   }
@@ -661,19 +749,22 @@ console.log('totalAmountOrder', totalAmountOrder)
           document.getElementById(error.errorFields[0].name.join("")) ||
           document.getElementById(error.errorFields[0].name.join("_"));
         if (element) {
-					scrollAndFocusToDomElement(element);
+          scrollAndFocusToDomElement(element);
         }
       });
   };
+
+	const getOrderSource = (form:FormInstance<any>) => {
+		let result = null;
+		result = form.getFieldValue("source_id") ? form.getFieldValue("source_id") : OrderDetail ? OrderDetail.source_id : null;
+		return result;
+	};
 
   const onFinish = (values: ExchangeRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
       getTotalAmountAfterDiscount(listExchangeProducts);
-
-
-
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     if (totalAmountCustomerNeedToPay > 0) {
@@ -698,14 +789,14 @@ console.log('totalAmountOrder', totalAmountOrder)
     values.tags = tags;
     values.items = listExchangeProducts;
     values.discounts = lstDiscount;
-    values.shipping_address = OrderDetail?.shipping_address || null;
+    values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
-    values.source_id = OrderDetail ? OrderDetail.source_id : null;
+    values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
@@ -890,50 +981,62 @@ console.log('totalAmountOrder', totalAmountOrder)
   };
 
   const createDiscountRequest = () => {
-		let objDiscount: OrderDiscountRequest = {
-			rate: promotion?.rate,
-			value: promotion?.value,
-			amount: promotion?.value,
-			promotion_id: null,
-			reason: "",
-			source: "",
-			discount_code: coupon,
-			order_id: null,
-		};
-		let listDiscountRequest = [];
-		if (coupon) {
-			listDiscountRequest.push({
-				discount_code: coupon,
-				rate: promotion?.rate,
-				value: promotion?.value,
-				amount: promotion?.value,
-				promotion_id: null,
-				reason: "",
-				source: "",
-				order_id: null,
-			});
-		} else if (promotion?.promotion_id) {
-			listDiscountRequest.push({
-				discount_code: null,
-				rate: promotion?.rate,
-				value: promotion?.value,
-				amount: promotion?.value,
-				promotion_id: promotion?.promotion_id,
-				reason: promotion.reason,
-				source: "",
-				order_id: null,
-			});
-		} else if (!promotion) {
-			return null;
-		} else {
-			listDiscountRequest.push(objDiscount);
-		}
+    let objDiscount: OrderDiscountRequest = {
+      rate: promotion?.rate,
+      value: promotion?.value,
+      amount: promotion?.value,
+      promotion_id: null,
+      reason: "",
+      source: "",
+      discount_code: coupon,
+      order_id: null,
+    };
+    let listDiscountRequest = [];
+    if (coupon) {
+      listDiscountRequest.push({
+        discount_code: coupon,
+        rate: promotion?.rate,
+        value: promotion?.value,
+        amount: promotion?.value,
+        promotion_id: null,
+        reason: "",
+        source: "",
+        order_id: null,
+      });
+    } else if (promotion?.promotion_id) {
+      listDiscountRequest.push({
+        discount_code: null,
+        rate: promotion?.rate,
+        value: promotion?.value,
+        amount: promotion?.value,
+        promotion_id: promotion?.promotion_id,
+        reason: promotion.reason,
+        source: "",
+        order_id: null,
+      });
+    } else if (!promotion) {
+      return null;
+    } else {
+      listDiscountRequest.push(objDiscount);
+    }
 
-		return listDiscountRequest;
-	};
+    return listDiscountRequest;
+  };
 
   const handleCancel = () => {
     history.push(`${UrlConfig.ORDER}/${orderId}`);
+  };
+
+  const handleCustomer = (_objCustomer: CustomerResponse | null) => {
+    setCustomer(_objCustomer);
+  };
+
+  const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
+    setShippingAddress(_objShippingAddress);
+  };
+
+  const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
+    setBillingAddress(_objBillingAddress);
   };
 
   /**
@@ -953,7 +1056,7 @@ console.log('totalAmountOrder', totalAmountOrder)
       totalAmountCustomerNeedToPay,
       setStoreReturn,
       storeReturn,
-			listExchangeProducts,
+      listExchangeProducts,
     },
     isExchange,
     isStepExchange,
@@ -965,7 +1068,7 @@ console.log('totalAmountOrder', totalAmountOrder)
   };
 
   const renderIfOrderFinished = () => {
-    if (checkIfOrderHasReturnedAll(OrderDetail)) {
+    if (isReturnAll) {
       return <p>Đơn hàng đã đổi trả hết!</p>;
     }
     return (
@@ -979,12 +1082,35 @@ console.log('totalAmountOrder', totalAmountOrder)
           >
             <Row gutter={24} style={{ marginBottom: "70px" }}>
               <Col md={18}>
-                <UpdateCustomerCard
-                  OrderDetail={OrderDetail}
-                  customerDetail={customer}
-                  loyaltyPoint={loyaltyPoint}
-                  loyaltyUsageRules={loyaltyUsageRules}
-                />
+                {!isShowSelectOrderSources  && (
+                  <UpdateCustomerCard
+                    OrderDetail={OrderDetail}
+                    customerDetail={customer}
+                    loyaltyPoint={loyaltyPoint}
+                    loyaltyUsageRules={loyaltyUsageRules}
+                    // isShowSelectOrderSources={false}
+                  />
+                )}
+
+                {isShowSelectOrderSources && (
+                  <CustomerCard
+                    customer={customer}
+                    handleCustomer={handleCustomer}
+                    loyaltyPoint={loyaltyPoint}
+                    loyaltyUsageRules={loyaltyUsageRules}
+                    ShippingAddressChange={onChangeShippingAddress}
+                    shippingAddress={shippingAddress}
+                    BillingAddressChange={onChangeBillingAddress}
+                    isVisibleCustomer={true}
+                    modalAction={"edit"}
+                    levelOrder={3}
+                    OrderDetail={OrderDetail}
+                    // setOrderSourceId={setOrderSourceId}
+                    //isDisableSelectSource={true}
+                  />
+                )}
+
+
                 <CardReturnOrder
                   isDetailPage={false}
                   isExchange={isExchange}
@@ -1013,13 +1139,12 @@ console.log('totalAmountOrder', totalAmountOrder)
                     setItems={setListExchangeProducts}
                     inventoryResponse={null}
                     setInventoryResponse={() => { }}
-                    orderConfig={null}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     returnOrderInformation={{
                       totalAmountReturn: totalAmountReturnProducts,
-											totalAmountExchangePlusShippingFee
+                      totalAmountExchangePlusShippingFee
                     }}
-                    configOrder={configOrder}
+                    orderConfig={orderConfig}
                     coupon={coupon}
                     setCoupon={setCoupon}
                     promotion={promotion}
@@ -1042,11 +1167,15 @@ console.log('totalAmountOrder', totalAmountOrder)
                     listPaymentMethods={listPaymentMethods}
                     payments={payments}
                     setPayments={setPayments}
+                    totalAmountOrder={totalAmountOrder}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     isExchange={isExchange}
                     isStepExchange={isStepExchange}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
+                    returnOrderInformation={{
+                      totalAmountReturn: totalAmountReturnProducts
+                    }}
                   />
                 )}
                 {isExchange && isStepExchange && (
@@ -1058,12 +1187,14 @@ console.log('totalAmountOrder', totalAmountOrder)
                       customer={customer}
                       items={listExchangeProducts}
                       isCancelValidateDelivery={false}
-                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                      totalAmountCustomerNeedToPay={totalAmountOrderAfterPayments}
                       setShippingFeeInformedToCustomer={ChangeShippingFeeInformedToCustomer}
                       onSelectShipment={onSelectShipment}
                       thirdPL={thirdPL}
                       setThirdPL={setThirdPL}
                       form={form}
+											shippingServiceConfig={shippingServiceConfig}
+											orderConfig={orderConfig}
                     />
                   </Card>
                 )}
@@ -1144,12 +1275,24 @@ console.log('totalAmountOrder', totalAmountOrder)
   }, [dispatch, OrderDetail]);
 
   useEffect(() => {
-    if (customer != null) {
+    if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+      console.log("customer check", customer)
+      if (customer.shipping_addresses) {
+        let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
+        onChangeShippingAddress(shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null);
+      }
+      else
+        onChangeShippingAddress(null)
+      if (customer.billing_addresses) {
+        let billing_addresses_index = customer.billing_addresses.findIndex(x => x.default === true);
+        onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
+      }
+      else
+        onChangeBillingAddress(null)
     } else {
       setLoyaltyPoint(null);
     }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customer]);
 
   useEffect(() => {
@@ -1164,29 +1307,21 @@ console.log('totalAmountOrder', totalAmountOrder)
         setListOrderReturnReason(response);
       })
     );
-  }, [dispatch]);
 
-  useEffect(() => {
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+
     dispatch(
       PaymentMethodGetList((response) => {
         let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethods(result);
       })
     );
-    // dispatch(
-    //   DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-    //     setDeliveryServices(response);
-    //   })
-    // );
-  }, [dispatch]);
-
-  /**
-  * lấy cấu hình bán tồn kho
-  */
-  useEffect(() => {
+    /**
+    * lấy cấu hình bán tồn kho
+    */
     dispatch(
-      configOrderSaga((data: OrderConfig) => {
-        setConfigOrder(data);
+      orderConfigSaga((data: OrderConfigResponseModel) => {
+        setOrderConfig(data);
       })
     );
   }, [dispatch]);
@@ -1200,15 +1335,39 @@ console.log('totalAmountOrder', totalAmountOrder)
   //     cauHinhInNhieuLienHoaDon: 3,
   //   });
   // }, []);
+	useEffect(() => {
+		dispatch(
+			actionListConfigurationShippingServiceAndShippingFee((response) => {
+				setShippingServiceConfig(response);
+			})
+		);
+	}, [dispatch]);
 
   useEffect(() => {
-    dispatch(getListStoresSimpleAction((data:StoreResponse[])=>{
-      console.log("Store Data",data)
+    dispatch(getListStoresSimpleAction((data: StoreResponse[]) => {
       setListStoreReturn(data);
     }))
   }, [dispatch])
 
-  console.log("storeReturn index",storeReturn);
+  useEffect(() => {
+    const shipmentMethodsToSelectSource = [
+      ShipmentMethodOption.DELIVER_PARTNER,
+      ShipmentMethodOption.SELF_DELIVER,
+      ShipmentMethodOption.DELIVER_LATER,
+    ]
+    //isOrderFromPOS(OrderDetail) &&
+    if (isStepExchange) {
+      if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
+        setIsShowSelectOrderSources(true)
+      } else {
+        setIsShowSelectOrderSources(false);
+        form.setFieldsValue({
+          source_id: undefined
+        })
+      }
+    }
+  }, [OrderDetail, OrderDetail?.source_id, form, isStepExchange, shipmentMethod])
+
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

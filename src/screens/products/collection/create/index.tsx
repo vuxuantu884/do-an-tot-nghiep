@@ -7,11 +7,13 @@ import {
   FormInstance,
   Input,
   Row,
+  Modal,
 } from 'antd';
 import TextArea from "antd/es/input/TextArea"; 
 import React, {
   createRef,
   useCallback,
+  useMemo,
   useState,
 } from 'react';
 import {useDispatch} from 'react-redux';
@@ -23,9 +25,10 @@ import {
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/url.config';
 import {RegUtil} from 'utils/RegUtils';
-import { showSuccess } from 'utils/ToastUtils';
 import BottomBarContainer from 'component/container/bottom-bar.container'; 
 import { createCollectionAction } from 'domain/actions/product/collection.action';
+import { successColor } from 'utils/global-styles/variables';
+import { CheckOutlined } from '@ant-design/icons';
 
 let initialRequest: CollectionCreateRequest = {
   code: '',
@@ -37,11 +40,15 @@ const AddCollection: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>(); 
   const [loading, setLoading] = useState<boolean>(false); 
+  const [isShowConfirmSuccess,setIsShowConfirmSuccess] = useState<boolean>(false);
+  const [collectionId,setCollectionId] = useState<number|null>(null);
 
   const onSuccess = useCallback((result: CollectionResponse) => {
-    showSuccess('Thêm nhóm hàng thành công');
-    history.push(`${UrlConfig.COLLECTIONS}`);
-  }, [history]);
+    if (result) {
+      setIsShowConfirmSuccess(true);
+      setCollectionId(result.id);
+    }
+  }, []);
 
   const onFinish = useCallback(
     (values: CollectionCreateRequest) => {
@@ -51,6 +58,49 @@ const AddCollection: React.FC = () => {
     },
     [dispatch, onSuccess]
   );  
+
+  const onResetForm = useCallback(() => {
+    let fields = formRef.current?.getFieldsValue(true);
+    for (let key in fields) {
+      if(fields[key] instanceof Array) {
+        fields[key] = [];
+      } else {
+        fields[key] = undefined;
+      }
+    }
+    formRef.current?.setFieldsValue(fields);
+    setIsShowConfirmSuccess(false);
+  }, [formRef]); 
+
+  const footerConfirm = useMemo(()=>{
+    return <>
+       <Button
+            key="cancel"
+            type="default"
+            onClick={()=>{
+              history.goBack();
+            }}
+          >
+            Không, quay lại danh sách
+      </Button>
+      <Button
+            key="create"
+            type="default"
+            onClick={onResetForm}
+          >
+            Tạo bst, nhóm khác
+      </Button>
+      <Button
+            key="add"
+            type="primary"
+            onClick={()=>{
+              history.push(`${UrlConfig.COLLECTIONS}/${collectionId}`);
+            }}
+          >
+            Thêm sp
+      </Button>
+    </>;
+  },[onResetForm,history, collectionId])
 
   return (
     <ContentContainer
@@ -105,6 +155,32 @@ const AddCollection: React.FC = () => {
             </Col>
           </Row>
         </Card>
+        <Modal
+            closable={false}
+            title={false}
+            visible={isShowConfirmSuccess}
+            width={550}
+            footer={footerConfirm}
+          >
+            <div className="modal-confirm-container">
+        <div>
+          <div
+            style={{
+              color: "white",
+              backgroundColor: successColor,
+              fontSize: 35,
+            }}
+            className="modal-confirm-icon"
+          >
+            <CheckOutlined/> 
+          </div>
+        </div>
+        <div className="modal-confirm-right margin-left-20">
+          <div className="modal-confirm-title">Thêm nhóm hàng thành công</div>
+            <div className="modal-confirm-sub-title">Bạn có muốn thêm sản phẩm vào nhóm hàng này không?</div>
+        </div>
+      </div>
+        </Modal>
         <BottomBarContainer
           back={"Quay lại danh sách"}
           rightComponent={

@@ -7,7 +7,6 @@ import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import {SearchOutlined, UploadOutlined} from "@ant-design/icons";
-import {ColumnsType} from "antd/lib/table/interface";
 import TextArea from "antd/es/input/TextArea";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -30,7 +29,7 @@ import ProductItem from "../../purchase-order/component/product-item";
 import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import {UploadRequestOption} from "rc-upload/lib/interface";
 import {UploadFile} from "antd/es/upload/interface";
-import {findAvatar} from "utils/AppUtils";
+import {findAvatar, formatCurrency, replaceFormatString} from "utils/AppUtils";
 import {useHistory} from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import {ConvertFullAddress} from "utils/ConvertAddress";
@@ -39,17 +38,18 @@ import {AccountSearchAction} from "domain/actions/account/account.action";
 import {AccountResponse} from "model/account/account.model";
 import NumberInput from "component/custom/number-input.custom";
 import _, {parseInt} from "lodash";
-import {createInventoryAdjustmentAction} from "domain/actions/inventory/inventory-adjustment.action";
+import {createInventoryAdjustmentAction, getVariantHasOnHandByStoreAction} from "domain/actions/inventory/inventory-adjustment.action";
 import {Link} from "react-router-dom";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import CustomDatePicker from "component/custom/date-picker.custom";
 import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "../constants";
-import CustomPagination from "component/table/CustomPagination";
 import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
 import {DATE_FORMAT} from "utils/DateUtils";
 import moment from "moment";
-import SelectPaging from "component/custom/SelectPaging";
+import SelectPaging from "component/custom/SelectPaging"; 
+import CustomPagination from "component/table/CustomPagination";
+import TextEllipsis from "component/table/TextEllipsis";
 
 const {Option} = Select;
 
@@ -78,12 +78,19 @@ const CreateInventoryAdjustment: FC = () => {
   const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment>>(
     [] as Array<LineItemAdjustment>
   );
+  const [data, setData] = useState<PageResponse<VariantResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
   const [keySearch, setKeySearch] = useState<string>("");
   const history = useHistory();
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>); 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
   const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
@@ -110,9 +117,7 @@ const CreateInventoryAdjustment: FC = () => {
       name: "Một phần",
     },
   ];
-
-  const [dataVariantByStoreId, setVariantByStoreId] =
-    useState<PageResponse<VariantResponse> | null>(null);
+ 
   const [query, setQuery] = useState<SearchQueryVariant>({
     status: "active",
     page: 1,
@@ -138,63 +143,68 @@ const CreateInventoryAdjustment: FC = () => {
 
 
   const onFinish = (data: InventoryAdjustmentDetailItem) => {
-    debugger
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );
     data.audited_by  = data.audited_by ?? [];
      
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
-    const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
+    if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
+      const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
 
-    if (dataLineItems && dataLineItems.length === 0) {
-      showError("Vui lòng chọn sản phẩm");
-      return;
-    }
-    
+      if (dataLineItems && dataLineItems.length === 0) {
+        showError("Vui lòng chọn sản phẩm");
+        return;
+      }
+      
     data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
-      const variantPrice =
-        item &&
-        item.variant_prices &&
-        item.variant_prices[0] &&
-        item.variant_prices[0].retail_price;
-      return {
-        sku: item.sku,
-        barcode: item.barcode,
-        variant_name: item.name,
-        variant_id: item.id,
-        variant_image: findAvatar(item.variant_images),
-        product_name: item.product.name,
-        product_id: item.product_id,
-        price: variantPrice,
-        weight: item.weight,
-        weight_unit: item.weight_unit,
-        on_hand: item.on_hand ?? 0,
-        real_on_hand: item.real_on_hand,
-        on_hand_adj: item.on_hand_adj,
-      };
-    });
-
+        const variantPrice =
+          item &&
+          item.variant_prices &&
+          item.variant_prices[0] &&
+          item.variant_prices[0].retail_price;
+        return {
+          sku: item.sku,
+          barcode: item.barcode,
+          variant_name: item.name,
+          variant_id: item.id,
+          variant_image: findAvatar(item.variant_images),
+          product_name: item.product.name,
+          product_id: item.product_id,
+          price: variantPrice,
+          weight: item.weight,
+          weight_unit: item.weight_unit,
+          on_hand: item.on_hand ?? 0,
+          real_on_hand: item.real_on_hand,
+          on_hand_adj: item.on_hand_adj,
+        };
+      });
+    }
+ 
     setIsLoading(true);
     dispatch(createInventoryAdjustmentAction(data, createCallback));
   };
 
+  const onResultGetVariant = useCallback((res: PageResponse<VariantResponse>)=>{
+    if (res) {
+      setData(res);
+    }
+  },[]);
+
   const onChangeAuditType = useCallback(
     (auditType: string) => {
       setAuditType(auditType);
+      //const storeId = form.getFieldValue("adjusted_store_id") as number;
+      if (auditType ===  INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
+        setAuditType(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
+        //dispatch(getVariantHasOnHandByStoreAction({store_adj: storeId}, onResultGetVariant));
+      }
     },
     []
   );
 
   // get store
   useEffect(() => {
-    if (form.getFieldValue("adjusted_store_id")) {
-      dispatch(
-        inventoryGetVariantByStoreAction(query, (res) => {
-          setVariantByStoreId(res);
-        })
-      );
-    }
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(inventoryGetSenderStoreAction({status: "active", simple: true}, setStores));
   }, [dispatch, auditType, setDataAccounts, query, form]);
@@ -266,28 +276,47 @@ const CreateInventoryAdjustment: FC = () => {
       (variant: VariantResponse) => variant.id.toString() === value
     );
 
+    const variantPrice = selectedItem &&
+                         selectedItem.variant_prices &&
+                         selectedItem.variant_prices[0] &&
+                         selectedItem.variant_prices[0].retail_price;
+
+    const item = {...selectedItem, 
+      variant_name: selectedItem.name ?? selectedItem.variant_name, 
+      real_on_hand: 0,
+      on_hand: selectedItem.on_hand ?? 0,
+      price: variantPrice ?? 0
+    }
+
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      drawColumns(dataTable.concat([{...selectedItem, variant_name: selectedItem.name, real_on_hand: 0}]));
+      drawColumns(dataTable.concat([{...item}]));
 
       setDataTable((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
+        prev.concat([{...item}])
       );
       setSearchVariant((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
-      );
-      setHasError(false); 
+        prev.concat([{...item}])
+      );  
     } 
   },[dataTable,resultSearch,drawColumns]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
+      const variantPrice =
+      item &&
+      item.variant_prices &&
+      item.variant_prices[0] &&
+      item.variant_prices[0].retail_price;
+
       return {
         ...item,
         variant_id: item.id,
-        variant_name: item.name,
+        variant_name: item.variant_name ?? item.name,
         real_on_hand: 0,
         on_hand_adj: 0 - (item.on_hand ?? 0),
         on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString(),
+        on_hand: item.on_hand ?? 0,
+        price: variantPrice ?? 0
       };
     });
     const dataTemp = [...dataTable, ...newResult];
@@ -298,8 +327,7 @@ const CreateInventoryAdjustment: FC = () => {
     setIsLoadingTable(true);
     setDataTable(arrayUnique);
     setSearchVariant(arrayUnique);
-    setIsLoadingTable(false);
-    setHasError(false);
+    setIsLoadingTable(false); 
     setVisibleManyProduct(false);
     drawColumns(arrayUnique);
   };
@@ -368,7 +396,7 @@ const CreateInventoryAdjustment: FC = () => {
       if (result) {
         setIsLoading(false);
         if (result) {
-          showSuccess("Thêm mới dữ liệu thành công");
+          showSuccess("Tạo phiếu kiểm thành công");
           history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}/${result.id}`);
         }
       } else {
@@ -377,20 +405,23 @@ const CreateInventoryAdjustment: FC = () => {
     },
     [history]
   );
+ 
+  const ColumnProductName = useMemo(()=>{
+    const data = searchVariant && (searchVariant.length > 0 || keySearch !== "")
+    ? searchVariant
+    : dataTable;
 
-  const onPageChange = useCallback(
-    (page, size) => {
-      setQuery({...query, page: page, limit: size});
-    },
-    [query]
-  );
+    let Compoment = () => <span>Sản phẩm</span>;
+    if (data?.length > 0) {
+      Compoment = () => (
+        <div>
+          {`Sản phẩm ${data ? `(${formatCurrency(data.length)})`: ''}`} 
+        </div>
+      );
+    }
+    return <Compoment />;
 
-  // useEffect(() => {
-  //   if (dataTable?.length === 0) {
-  //     setHasError(true);
-  //   }
-
-  // }, [dataTable, hasError]);
+  },[dataTable, searchVariant, keySearch]);
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
@@ -403,8 +434,11 @@ const CreateInventoryAdjustment: FC = () => {
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_images",
-      render: (value: Array<VariantImage>, record: string[]) => {
-        const avatar = findAvatar(value);
+      render: (value: Array<VariantImage>, record: string[]) => { 
+        let avatar = undefined;
+        if (value) {
+          avatar = findAvatar(value);
+        }
         return (
           <div className="product-item-image">
             <img src={!avatar ? imgDefIcon : avatar} alt="" className="" />
@@ -413,7 +447,7 @@ const CreateInventoryAdjustment: FC = () => {
       },
     },
     {
-      title: "Sản phẩm",
+      title: ColumnProductName,
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
@@ -431,7 +465,7 @@ const CreateInventoryAdjustment: FC = () => {
                 </Link>
               </div>
               <div className="product-item-name">
-                <span className="product-item-name-detail">{value}</span>
+                <span><TextEllipsis line={1} value={value ?? record.name}/></span>
               </div>
             </div>
           </div>
@@ -443,7 +477,7 @@ const CreateInventoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>{objSummaryTable.TotalOnHand}</div>
+            <div>{formatCurrency(objSummaryTable.TotalOnHand)}</div>
           </>
         );
       },
@@ -459,7 +493,7 @@ const CreateInventoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn thực tế</div>
-            <div>{objSummaryTable.TotalRealOnHand}</div>
+            <div>{formatCurrency(objSummaryTable.TotalRealOnHand)}</div>
           </>
         );
       },
@@ -468,18 +502,25 @@ const CreateInventoryAdjustment: FC = () => {
       width: 120,
       render: (value, row: LineItemAdjustment, index: number) => {
         return (
-          <NumberInput
+          <>
+          { auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY && 
+            <NumberInput
             isFloat={false}
             id={`item-real-${index}`}
             min={0}
             maxLength={12}
             value={value}
+            format={(a: string) => formatCurrency(a)}
+            replace={(a: string) =>
+              replaceFormatString(a)
+            }
             onChange={(quantity) => {
               onRealQuantityChange(quantity, row, index);
             }}
           />
-        );
-      },
+        }
+       </>
+      )}
     },
     {
       title: () => {
@@ -490,7 +531,7 @@ const CreateInventoryAdjustment: FC = () => {
               {objSummaryTable.TotalExcess === 0 ? (
                 ""
               ) : (
-                <div style={{color: "#27AE60"}}>+{objSummaryTable.TotalExcess}</div>
+                <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTable.TotalExcess)}</div>
               )}
               {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
                 <Space>/</Space>
@@ -502,7 +543,7 @@ const CreateInventoryAdjustment: FC = () => {
               {objSummaryTable.TotalMiss === 0 ? (
                 ""
               ) : (
-                <div style={{color: "red"}}>-{objSummaryTable.TotalMiss}</div>
+                <div style={{color: "red"}}>-{formatCurrency(objSummaryTable.TotalMiss)}</div>
               )}
             </Row>
           </>
@@ -515,9 +556,9 @@ const CreateInventoryAdjustment: FC = () => {
           return null;
         }
         if (item.on_hand_adj && item.on_hand_adj < 0) {
-          return <div style={{color: "red"}}>{item.on_hand_adj_dis}</div>;
+          return <div style={{color: "red"}}>{formatCurrency(item.on_hand_adj_dis)}</div>;
         } else {
-          return <div style={{color: "green"}}>{item.on_hand_adj_dis}</div>;
+          return <div style={{color: "green"}}>{formatCurrency(item.on_hand_adj_dis)}</div>;
         }
       },
     },
@@ -525,13 +566,18 @@ const CreateInventoryAdjustment: FC = () => {
       title: "",
       fixed: dataTable?.length !== 0 && "right",
       width: 50,
-      render: (_: string, row) => (
-        <Button
-          onClick={() => onDeleteItem(row.id)}
-          className="product-item-delete"
-          icon={<AiOutlineClose />}
-        />
-      ),
+      render: (value: string, row) => {
+        return <>
+          {
+            auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY &&
+            <Button
+              onClick={() => onDeleteItem(row.id)}
+              className="product-item-delete"
+              icon={<AiOutlineClose  color="red" />}
+          />
+          }
+        </>
+      } 
     },
   ];  
 
@@ -624,79 +670,61 @@ const CreateInventoryAdjustment: FC = () => {
     [dataTable, keySearch, form, searchVariant, onEnterFilterVariant]
   );
 
-  const onSearchVariant =useCallback(()=>{
-    _.debounce(()=>{
+  const onSearchVariant = React.useMemo(()=>
+    _.debounce((keySearch: string) => {
       setIsLoadingTable(true);
       onEnterFilterVariant(null);
-    }, 300)
-  },[onEnterFilterVariant]);
+    }, 300),
+    [onEnterFilterVariant]
+  )
 
-  const onChangeKeySearch = useCallback(()=>{
-    onSearchVariant();
+  const onChangeKeySearch = useCallback((keySearch)=>{
+    onSearchVariant(keySearch);
   },[onSearchVariant]);
 
-  useEffect(() => {
-    if (dataTable?.length === 0) {
-      setHasError(true);
-    }
-  }, [dataTable, objSummaryTable]);
+  const onSearchVariantỌnHand = React.useMemo(()=>
+    _.debounce((key: string) => {
+      setIsLoadingTable(true);
+      const params = {
+        store_adj: form.getFieldValue("adjusted_store_id"), 
+        condition: key ? key.toLocaleLowerCase(): keySearch.toLocaleLowerCase()};
+      dispatch(getVariantHasOnHandByStoreAction(params, onResultGetVariant));
+    }, 300),
+    [dispatch,onResultGetVariant, form,keySearch]
+  )
 
-  const columnsAuditTotal: ColumnsType<any> = [
-    {
-      title: "STT",
-      align: "center",
-      width: "50px",
-      render: (value: string, record: VariantResponse, index: number) => index + 1,
+  const onChangeKeyVariantOnHand = useCallback((keySearch)=>{
+    onSearchVariantỌnHand(keySearch);
+  },[onSearchVariantỌnHand]);
+
+  const onChangeStore = useCallback(()=>{
+    const storeId = form.getFieldValue("adjusted_store_id");
+
+    setAdjustStoreIdBak(storeId);
+    setIsShowModalChangeStore(false);
+    setQuery({...query, store_ids: storeId});
+
+    if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
+      setDataTable([]);
+      drawColumns([]);
+      setSearchVariant([]);
+    }else{
+      dispatch(getVariantHasOnHandByStoreAction({store_adj: storeId}, onResultGetVariant));
+    }
+    
+  },[form,query,auditType, onResultGetVariant,dispatch, drawColumns]); 
+
+  const onPageChange = useCallback(
+    (page, size) => { 
+      const params = {
+        page: page,
+        limit: size,
+        store_adj: form.getFieldValue("adjusted_store_id"), 
+        condition: keySearch.toLocaleLowerCase()};
+      dispatch(getVariantHasOnHandByStoreAction(params, onResultGetVariant));
     },
-    {
-      title: "Ảnh",
-      width: "60px",
-      dataIndex: "variant_images",
-      render: (value: Array<VariantImage>, record: string[]) => {
-        const avatar = findAvatar(value);
-        return (
-          <div className="product-item-image">
-            <img src={!avatar ? imgDefIcon : avatar} alt="" className="" />
-          </div>
-        );
-      },
-    },
-    {
-      title: "Sản phẩm",
-      width: "200px",
-      className: "ant-col-info",
-      dataIndex: "name",
-      render: (value: string, record: VariantResponse, index: number) => {
-        const storeId = form.getFieldValue("adjusted_store_id");
-        return (
-          <div>
-            <div>
-              <div className="product-item-sku">
-                <Link
-                  target="_blank"
-                  to={`${InventoryTabUrl.HISTORIES}?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
-                >
-                  {record.sku}
-                </Link>
-              </div>
-              <div className="product-item-name">
-                <span className="product-item-name-detail">{value}</span>
-              </div>
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Tồn trong kho",
-      dataIndex: "on_hand",
-      align: "right",
-      width: 120,
-      render: (value) => {
-        return value || 0;
-      },
-    },
-  ];
+    [keySearch, dispatch, onResultGetVariant, form]
+  );
 
   return (
       <ContentContainer
@@ -718,7 +746,10 @@ const CreateInventoryAdjustment: FC = () => {
           <InventoryAdjustmentTimeLine status={"daft"} inventoryAdjustmentDetail={null} />
         }
       >
-        <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
+        <Form  
+         form={form}
+         onFinish={onFinish} 
+         scrollToFirstError={true}>
           <Row gutter={24}>
             <Col span={18}>
               <Card
@@ -750,7 +781,7 @@ const CreateInventoryAdjustment: FC = () => {
                           optionFilterProp="children"
                           showSearch={false}
                           allowClear={true}
-                          defaultValue={INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY}
+                          value={auditType}
                           onChange={(value: string) => {
                             onChangeAuditType(value);
                           }}
@@ -822,16 +853,13 @@ const CreateInventoryAdjustment: FC = () => {
                   </Col>
                 </Row>
                 {formStoreData && (
-                  <Row>
+                  <Row gutter={24}>
                     <Col span={3}></Col>
-                    <Col span={31}>
-                      <>
-                        <span>
-                          <b>{formStoreData.name}:</b>
-                        </span>{" "}
-                        {formStoreData.code} - {formStoreData.hotline} -{" "}
-                        {ConvertFullAddress(formStoreData)}
-                      </>
+                    <Col span={21}>
+                      <div style={{ wordBreak: "break-word"}}>
+                        <strong>{formStoreData.name}: </strong>
+                        <span>{formStoreData.code} - {formStoreData.hotline} - {ConvertFullAddress(formStoreData)}</span>
+                      </div>
                     </Col>
                   </Row>
                 )}
@@ -842,105 +870,114 @@ const CreateInventoryAdjustment: FC = () => {
                 bordered={false}
                 className={"product-detail"}
               >
-                {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ? (
                   <>
-                    <Input.Group className="display-flex">
-                      <CustomAutoComplete
-                        id="#product_search_variant"
-                        dropdownClassName="product"
-                        placeholder="Thêm sản phẩm vào phiếu kiểm"
-                        onSearch={onSearchProduct}
-                        dropdownMatchSelectWidth={456}
-                        style={{width: "100%"}}
-                        showAdd={true}
-                        textAdd="Thêm mới sản phẩm"
-                        onSelect={onSelectProduct}
-                        options={renderResult}
-                        ref={productSearchRef}
-                        onClickAddNew={() => {
-                          window.open(
-                            `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                            "_blank"
-                          );
-                        }}
-                      />
-                      <Button
-                        onClick={() => {
-                          if (!form.getFieldValue("adjusted_store_id")) {
-                            showError("Vui lòng chọn kho kiểm");
-                            return;
+                  {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ?
+                    <>
+                    <Input.Group className="display-flex"> 
+                        <CustomAutoComplete
+                          id="#product_search_variant"
+                          dropdownClassName="product"
+                          placeholder="Thêm sản phẩm vào phiếu kiểm"
+                          onSearch={onSearchProduct}
+                          dropdownMatchSelectWidth={456}
+                          style={{width: "100%"}}
+                          showAdd={true}
+                          textAdd="Thêm mới sản phẩm"
+                          onSelect={onSelectProduct}
+                          options={renderResult}
+                          ref={productSearchRef}
+                          onClickAddNew={() => {
+                            window.open(
+                              `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                              "_blank"
+                            );
+                          }}
+                        />
+                        <Button
+                          onClick={() => {
+                            if (!form.getFieldValue("adjusted_store_id")) {
+                              showError("Vui lòng chọn kho kiểm");
+                              return;
+                            }
+                            setVisibleManyProduct(true);
+                          }}
+                          style={{width: 132, marginLeft: 10}}
+                          icon={<img src={PlusOutline} alt="" />}
+                        >
+                          &nbsp;&nbsp; Chọn nhiều
+                        </Button> 
+                        <Input
+                          name="key_search"
+                          value={keySearch}
+                          onChange={(e) => {
+                            setKeySearch(e.target.value);
+                            onChangeKeySearch(e.target.value);
+                          }} 
+                          style={{marginLeft: 8}}
+                          placeholder="Tìm kiếm sản phẩm trong phiếu"
+                          addonAfter={
+                            <SearchOutlined
+                              onClick={onChangeKeySearch}
+                              style={{color: "#2A2A86"}}
+                            />
                           }
-                          setVisibleManyProduct(true);
-                        }}
-                        style={{width: 132, marginLeft: 10}}
-                        icon={<img src={PlusOutline} alt="" />}
-                      >
-                        &nbsp;&nbsp; Chọn nhiều
-                      </Button>
-                      <Input
-                        name="key_search"
-                        value={keySearch}
-                        onChange={(e) => {
-                          setKeySearch(e.target.value);
-                          onChangeKeySearch();
-                        }} 
-                        style={{marginLeft: 8}}
-                        placeholder="Tìm kiếm sản phẩm trong phiếu"
-                        addonAfter={
-                          <SearchOutlined
-                            onClick={onChangeKeySearch}
-                            style={{color: "#2A2A86"}}
-                          />
+                        />
+                      </Input.Group> 
+                      <CustomTable
+                        className="product-table"
+                        rowClassName="product-table-row"
+                        tableLayout="fixed" 
+                        columns={defaultColumns}
+                        pagination={false}
+                        loading={isLoadingTable}
+                        dataSource={
+                          searchVariant && (searchVariant.length > 0 || keySearch !== "")
+                            ? searchVariant
+                            : dataTable
                         }
-                      />
-                    </Input.Group>
-                    {/*table*/}
-                    <CustomTable
-                      className="product-table"
-                      rowClassName="product-table-row"
-                      tableLayout="fixed"
-                      scroll={{y: 300}}
-                      columns={defaultColumns}
-                      pagination={false}
-                      loading={isLoadingTable}
-                      dataSource={
-                        searchVariant && (searchVariant.length > 0 || keySearch !== "")
-                          ? searchVariant
-                          : dataTable
-                      }
-                    />
-                  </>
-                ) : null}
-                {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL ? (
-                  <>
-                    {" "}
-                    {dataVariantByStoreId ? (
+                      /> 
+                    </> : 
                       <>
+                       <Input.Group className="display-flex">  
+                        <Input
+                          name="key_search"
+                          onChange={(e) => { 
+                            setKeySearch(e.target.value);
+                            onChangeKeyVariantOnHand(e.target.value);
+                          }} 
+                          style={{marginLeft: 8}}
+                          placeholder="Tìm kiếm sản phẩm trong phiếu"
+                          addonAfter={
+                            <SearchOutlined
+                              onClick={()=>{onChangeKeyVariantOnHand(null)}}
+                              style={{color: "#2A2A86"}}
+                            />
+                          }
+                        />
+                      </Input.Group> 
                         <CustomTable
                           className="product-table"
                           rowClassName="product-table-row"
-                          tableLayout="fixed"
-                          scroll={{y: 300}}
-                          columns={columnsAuditTotal}
+                          tableLayout="fixed" 
+                          columns={defaultColumns}
                           pagination={false}
                           loading={isLoadingTable}
-                          dataSource={dataVariantByStoreId.items}
+                          dataSource={data.items}
                         />
                         <CustomPagination
                           pagination={{
-                            showSizeChanger: false,
-                            pageSize: dataVariantByStoreId.metadata.limit,
-                            current: dataVariantByStoreId.metadata.page,
-                            total: dataVariantByStoreId.metadata.total,
+                            showSizeChanger: true,
+                            pageSize: data.metadata.limit,
+                            current: data.metadata.page,
+                            total: data.metadata.total,
                             onChange: onPageChange,
+                            onShowSizeChange: onPageChange,
+                            pageSizeOptions: ["10","50","100"]
                           }}
-                        />
-                      </>
-                    ) : (
-                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-                    )}
+                      />
+                     </> 
+                  }  
                   </>
-                ) : null}
                 {!auditType ? (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
                 ) : null}
@@ -1025,7 +1062,7 @@ const CreateInventoryAdjustment: FC = () => {
                   labelCol={{span: 24, offset: 0}}
                   rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                 >
-                  <TextArea placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
+                  <TextArea placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
                 </Form.Item>
 
                 <Form.Item
@@ -1064,7 +1101,7 @@ const CreateInventoryAdjustment: FC = () => {
               <Space>
                 <Button
                   loading={isLoading}
-                  disabled={hasError || isLoading}
+                  disabled={isLoading}
                   htmlType={"submit"}
                   type="primary"
                 >
@@ -1110,15 +1147,7 @@ const CreateInventoryAdjustment: FC = () => {
 
                 setQuery({...query, store_ids: adjustStoreIdBak ?? 0});
               }}
-              onOk={() => {
-                setDataTable([]);
-                drawColumns([]);
-                setSearchVariant([]);
-                setAdjustStoreIdBak(form.getFieldValue("adjusted_store_id"));
-                setIsShowModalChangeStore(false);
-                setVariantByStoreId(null);
-                setQuery({...query, store_ids: form.getFieldValue("adjusted_store_id")});
-              }}
+              onOk={onChangeStore}
               okText="Đồng ý"
               cancelText="Hủy"
               title={`Bạn có chắc chắn đổi kho kiểm?`}

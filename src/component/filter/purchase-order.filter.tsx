@@ -1,17 +1,21 @@
 import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Col, Collapse, Form, Input, Row, Space, Tag } from "antd";
+import { Button, Collapse, Form, Input, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import HashTag from "component/custom/hashtag";
 import CustomSelect from "component/custom/select.custom";
+import SelectPaging from "component/custom/SelectPaging";
 import CustomRangepicker from "component/filter/component/range-picker.custom";
 import CustomModal from "component/modal/CustomModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
+import { AppConfig } from "config/app.config";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { createConfigPoAction, deleteConfigPoAction, getConfigPoAction, updateConfigPoAction } from "domain/actions/po/po.action";
 import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { modalActionType } from "model/modal/modal.model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
@@ -32,6 +36,9 @@ import CustomSelectOne from "./component/select-one.custom";
 
 const { Panel } = Collapse;
 const { Item } = Form;
+
+var isWin = false;
+var isQC = false;
 
 type PurchaseOrderFilterProps = {
   params: PurchaseOrderQuery;
@@ -134,8 +141,8 @@ const FilterList = ({ filters, resetField }: any) => {
           case filterFields.cancelled_date:
           case filterFields.expected_import_date:
             let [from, to] = value;
-            let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
-              formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
+            let formatedFrom = moment(from).utc().format(DATE_FORMAT.DDMMYYY),
+              formatedTo = moment(to).utc().format(DATE_FORMAT.DDMMYYY);
             let fixedDate = checkFixedDate(from, to);
             if (fixedDate)
               renderTxt = `${filterFieldsMapping[filterKey]} : ${fixedDate}`;
@@ -196,18 +203,20 @@ function tagRender(props: any) {
   );
 }
 
-type AdvanceFormItemProps = {
-  listSupplierAccount: PurchaseOrderFilterProps["listSupplierAccount"];
-  listRdAccount: PurchaseOrderFilterProps["listRdAccount"];
+type AdvanceFormItemProps = { 
+  wins: PageResponse<AccountResponse>,
+  lstQC: PageResponse<AccountResponse>,
   listStore: PurchaseOrderFilterProps["listStore"];
   tempAdvanceFilters: any;
+  getAccounts: (code: string, page: number, qc: boolean, win: boolean) => void
 };
 
-const AdvanceFormItems = ({
-  listSupplierAccount,
-  listRdAccount,
+const AdvanceFormItems = ({ 
+  wins,
+  lstQC,
   listStore,
   tempAdvanceFilters,
+  getAccounts
 }: AdvanceFormItemProps) => {
   return (
     <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
@@ -255,25 +264,25 @@ const AdvanceFormItems = ({
             break;
           case filterFields.merchandiser:
             collapseChildren = (
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 hoặc nhiều merchandiser"
-                mode="multiple"
-                allowClear
-                optionFilterProp="children"
-                tagRender={tagRender}
-                style={{
-                  width: "100%",
-                }}
-                notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive"
-              >
-                {listSupplierAccount?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.full_name}>
-                    {`${item.code} - ${item.full_name}`}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+              <SelectPaging 
+                    metadata={wins.metadata}
+                    placeholder="Chọn Merchandiser"
+                    showSearch={false}
+                    showArrow
+                    allowClear
+                    tagRender={tagRender} 
+                    mode="multiple"
+                    maxTagCount="responsive" 
+                    searchPlaceholder="Tìm kiếm Merchandiser"
+                    onPageChange={(key, page) => getAccounts(key, page, false, true)}
+                    onSearch={(key) => getAccounts(key, 1, false, true)}
+                  >
+                    {wins.items?.map((item) => (
+                      <SelectPaging.Option key={item.id} value={item.code}>
+                      {`${item.code} - ${item.full_name}`}
+                      </SelectPaging.Option>
+                          ))}
+                </SelectPaging>
             );
             break;
           case filterFields.qc:
@@ -291,11 +300,11 @@ const AdvanceFormItems = ({
                 notFoundContent="Không tìm thấy kết quả"
                 maxTagCount="responsive"
               >
-                {listRdAccount?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.full_name}>
-                    {`${item.code} - ${item.full_name}`}
-                  </CustomSelect.Option>
-                ))}
+              {lstQC.items?.map((item) => (
+                   <SelectPaging.Option key={item.id} value={item.code}>
+                   {`${item.code} - ${item.full_name}`}
+                   </SelectPaging.Option>
+                       ))}
               </CustomSelect>
             );
             break;
@@ -372,9 +381,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   props: PurchaseOrderFilterProps
 ) => {
   const {
-    params,
-    listSupplierAccount,
-    listRdAccount,
+    params, 
     listStore, 
     onFilter,
     onMenuClick,
@@ -390,7 +397,20 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const [showModalSaveFilter, setShowModalSaveFilter] = useState(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {account} = userReducer;
-  const [modalAction, setModalAction] = useState<modalActionType>("create");
+  const [modalAction, setModalAction] = useState<modalActionType>("create");  
+  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+
+  const [lstQC, setlstQC] = useState<PageResponse<AccountResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
 
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
@@ -431,17 +451,19 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setVisible(false);
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
+
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
+
   const onCancelFilter = useCallback(() => {
     formAdvanceFilter.resetFields();
     setTempAdvanceFilters({ ...advanceFilters });
     setVisible(false);
   }, [formAdvanceFilter, advanceFilters]);
+
   const onResetFilter = useCallback(() => {
     let fields = formAdvanceFilter.getFieldsValue(true);
-    console.log(fields);
     for (let key in fields) {
       if(fields[key] instanceof Array) {
         fields[key] = [];
@@ -450,8 +472,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
       }
     }
     formAdvanceFilter.setFieldsValue(fields);
-    setVisible(false);
     formAdvanceFilter.submit();
+    setVisible(false);
+    setTagActive(null);
   }, [formAdvanceFilter]);
 
   const onSelectFilterConfig = useCallback((index: number, id: number)=>{
@@ -469,10 +492,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   const FilterConfigCom = (props: any)=>{
     return (
-      <span style={{marginRight: 20, display: "inline-flex"}}>
+      <div style={{marginRight: 20, display: "inline-flex"}}>
           <Tag onClick={(e)=>{
               onSelectFilterConfig(props.index, props.id);  
-              }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
+              }} style={{cursor: "pointer",
+                  wordBreak: "break-all", whiteSpace: "unset" , backgroundColor: tagAcitve === props.index ? primaryColor: '',
                     color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />} 
                     closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
                       e.preventDefault();
@@ -481,7 +505,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                     }}>
               {props.name}  
             </Tag> 
-      </span>
+      </div>
     )
   }
 
@@ -490,7 +514,10 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
      const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_PO);
      setLstConfigFilter(configFilters);
     }
-  },[]);
+    else{
+      setLstConfigFilter([]);
+     }
+  },[]); 
 
   const getConfigPo = useCallback(()=>{
     if (account && account.code) {
@@ -552,9 +579,35 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     
   }, [dispatch,formAdvanceFilter, onResult, lstConfigFilter]);
 
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return false;
+      }
+      if (isWin) {
+        setWins(data);
+      }
+      if (isQC) {
+        setlstQC(data);
+      }
+    },
+    []
+  );
+
+  const getAccounts = useCallback((code: string, page: number, qc: boolean, win: boolean) => {
+    isQC = qc;
+    isWin = win;
+    dispatch(
+      searchAccountPublicAction(
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        setDataAccounts
+      )
+    );
+  }, [dispatch, setDataAccounts]);
+
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });
-    formAdvanceFilter.setFieldsValue({ ...advanceFilters });
+    formAdvanceFilter.setFieldsValue({ ...advanceFilters });     
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
@@ -563,8 +616,12 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   }, [params]);  
 
   useEffect(() => {
-    getConfigPo()
+    getConfigPo();
   }, [getConfigPo]); 
+
+  useEffect(()=>{
+    getAccounts('', 1, true, true); 
+  },[getAccounts]);
 
   return (
     <div className="purchase-order-form">
@@ -633,25 +690,26 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                   placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT nhà cung cấp"
                 />
               </Item>
-              <Item name={filterFields.merchandiser}>
-                <CustomSelect
-                  showArrow
-                  placeholder="Merchandise"
-                  mode="multiple"
-                  allowClear
-                  tagRender={tagRender}
-                  style={{
-                    width: 150,
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
-                  maxTagCount="responsive"
-                >
-                  {listSupplierAccount?.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.full_name}>
+              <Item name={filterFields.merchandiser} style={{width: 250}}>
+                <SelectPaging 
+                    metadata={wins.metadata}
+                    placeholder="Chọn Merchandiser"
+                    showSearch={false}
+                    showArrow
+                    allowClear
+                    tagRender={tagRender} 
+                    mode="multiple"
+                    maxTagCount="responsive" 
+                    searchPlaceholder="Tìm kiếm Merchandiser"
+                    onPageChange={(key, page) => getAccounts(key, page, false, true)}
+                    onSearch={(key) => getAccounts(key, 1, false, true)}
+                  >
+                    {wins.items?.map((item) => (
+                      <SelectPaging.Option key={item.id} value={item.code}>
                       {`${item.code} - ${item.full_name}`}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
+                      </SelectPaging.Option>
+                          ))}
+                </SelectPaging>
               </Item>
               <Item name={filterFields.status}>
                 <CustomSelect
@@ -719,23 +777,20 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           >
             {
               (lstConfigFilter && lstConfigFilter.length > 0) &&
-              <Row>
-                  <Item>
-                    <Col span={24} className="tag-filter">
-                      {
-                        lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom id={e.id} index={index} name={e.name} />
-                        })
-                      }
-                    </Col>
-                  </Item>
-                </Row>
+              <div> 
+                   {
+                     lstConfigFilter?.map((e, index)=>{
+                       return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
+                     })
+                   }
+              </div>
             } 
-            <AdvanceFormItems
-              listSupplierAccount={listSupplierAccount}
+            <AdvanceFormItems 
+              wins={wins}
+              lstQC={lstQC}
               listStore={listStore}
-              listRdAccount={listRdAccount}
               tempAdvanceFilters={tempAdvanceFilters}
+              getAccounts={getAccounts}
             />
              <CustomModal
               createText="Lưu lại"

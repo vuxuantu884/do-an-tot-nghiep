@@ -25,9 +25,14 @@
       }
       &-phone {
         color: #737373;
+        display: inline-flex;
+        align-items: center;
       }
       &:hover {
         background-color: #f7f7ff;
+      }
+      &:hover .supplier-item-name {
+        color: $primary-color;
       }
     }
   }

@@ -32,8 +32,9 @@ export interface InventoryResponse extends BaseObject {
 export interface InventoryQuery extends BaseQuery {
   condition?: string,
   store_id?: number|Array<number>, 
-  variant_id?: number
-  status?: string;
+  variant_id?: number,
+  status?: string,
+  store_adj?: number;
 } 
 export interface InventoryVariantListQuery extends InventoryQuery {
   variant_ids?: Array<number>;

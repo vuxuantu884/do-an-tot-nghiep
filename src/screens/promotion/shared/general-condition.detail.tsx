@@ -2,8 +2,8 @@ import { Card, Col, Row } from "antd";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";
+import { PriceRule } from "model/promotion/price-rules.model";
 import { SourceResponse } from "model/response/order/source.response";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import React, { ReactElement, useEffect, useState } from "react";
 import Countdown from "react-countdown";
@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import CustomerConditionDetail from "./customer-condition.detail";
 interface Props {
-  data: DiscountResponse;
+  data: PriceRule;
 }
 
 export default function GeneralConditionDetail(props: Props): ReactElement {
@@ -110,17 +110,23 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       <Card className="card" title="Cửa hàng áp dụng">
         <Row>
           <Col span={24}>
-            {data?.prerequisite_store_ids.length > 0 ? (
-              <ul
-                style={{
-                  padding: "0 16px",
-                }}
-              >
-                {listStore &&
-                  data.prerequisite_store_ids.map((id) => (
-                    <li>{listStore.find((store) => store.id === id)?.name}</li>
-                  ))}
-              </ul>
+            {Array.isArray(data.prerequisite_store_ids) && data.prerequisite_store_ids.length > 0 ? (
+              <>
+                <p>{data?.prerequisite_store_ids.length} cửa hàng </p>
+                <ul
+                  style={{
+                    padding: "0 16px",
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                    width: '100%'
+                  }}
+                >
+                  {listStore &&
+                    data.prerequisite_store_ids.map((id) => (
+                      <li>{listStore.find((store) => store.id === id)?.name}</li>
+                    ))}
+                </ul>
+              </>
             ) : (
               "Áp dụng toàn bộ"
             )}
@@ -131,7 +137,7 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       <Card className="card" title="Kênh bán áp dụng">
         <Row>
           <Col span={24}>
-            {data?.prerequisite_sales_channel_names.length > 0 ? (
+            {Array.isArray(data?.prerequisite_sales_channel_names) && data.prerequisite_sales_channel_names.length > 0 ? (
               <ul
                 style={{
                   padding: "0 16px",
@@ -152,7 +158,7 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       <Card className="card" title="Nguồn đơn hàng áp dụng">
         <Row>
           <Col span={24}>
-            {data?.prerequisite_order_source_ids.length > 0 ? (
+            {Array.isArray(data?.prerequisite_order_source_ids) && data?.prerequisite_order_source_ids.length > 0 ? (
               <ul
                 style={{
                   padding: "0 16px",
@@ -171,6 +177,6 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       </Card>
       {/* khách hàng áp dụng */}
       <CustomerConditionDetail {...data} />
-    </Col>
+    </Col >
   );
 }

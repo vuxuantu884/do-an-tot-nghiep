@@ -9,7 +9,7 @@ import moment from "moment";
 import React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import "./scss/shipment-detail.scss";
@@ -18,6 +18,7 @@ import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
 import { UpdateFulFillmentStatusRequest } from "model/request/order.request";
 import { showSuccess } from "utils/ToastUtils";
 import { Link } from "react-router-dom";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 type ShipmentParam = {
   code: string;
@@ -59,15 +60,11 @@ const ShipmentDetail: React.FC = () => {
     }
   }, [fulfillmentDetail.shipment?.delivery_service_provider_type]);
 
-  const shipping_requirement = useMemo(() => {
-    return [
-      { name: "Cho xem và thử hàng", value: "open_try" },
-      { name: "Cho xem, không thử hàng", value: "open_no_try" },
-      { name: "Không cho xem hàng", value: "no_open" }
-    ]
-  }, []);
+	const shipping_requirement = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
+  ); 
   const requirement = useMemo(() => {
-    const findRequirement = shipping_requirement.find(item => item.value === fulfillmentDetail?.shipment?.requirements)
+    const findRequirement = shipping_requirement?.find(item => item.value === fulfillmentDetail?.shipment?.requirements)
     return findRequirement ? findRequirement.name : ""
   }, [fulfillmentDetail?.shipment?.requirements, shipping_requirement]);
   const [columnsItems, setColumnsItems] = useState<Array<any>>([

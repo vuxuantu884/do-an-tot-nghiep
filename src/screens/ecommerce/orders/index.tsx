@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Menu } from "antd";
+import { Button, Card } from "antd";
 import { DownloadOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -35,7 +35,7 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
-import ResultGetOrderDataModal from "screens/ecommerce/orders/component/ResultGetOrderDataModal";
+import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
 import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
 
 // todo thai: handle later
@@ -56,10 +56,7 @@ import DollarCircleIcon from "assets/icon/dollar-circle.svg";
 // import SuccessIcon from "assets/icon/success.svg";
 // import ErrorIcon from "assets/icon/error.svg";
 
-import {
-  nameQuantityWidth,
-  StyledComponent,
-} from "screens/ecommerce/orders/orderStyles";
+import { nameQuantityWidth, StyledComponent, } from "screens/ecommerce/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
 import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -68,11 +65,17 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { getToken } from "utils/LocalStorageUtils";
 import axios from "axios";
 import { AppConfig } from "config/app.config";
+import { HttpStatus } from "config/http-status.config";
 import { FulFillmentStatus } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { exitProgressDownloadEcommerceAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import { generateQuery, isNullOrUndefined } from "utils/AppUtils";
+import BaseResponse from "base/base.response";
+import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
+
+import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
+import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
-import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
-import { generateQuery } from "utils/AppUtils";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -147,13 +150,7 @@ const EcommerceOrders: React.FC = () => {
   // todo thai: handle later
   // const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] =
   //   useState(false);
-  const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] = useState(false);
-  const [downloadOrderData, setDownloadOrderData] = useState<any>({
-    total: 0,
-    create_total: 0,
-    update_total: 0,
-    error_total: 0,
-  });
+
 
   // todo thai: handle later
   // const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
@@ -580,9 +577,13 @@ const EcommerceOrders: React.FC = () => {
     // },
   ]);
 
-  const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row?.id);
-    setSelectedRowKeys(selectedRowKeys);
+  const onSelectTableRow = useCallback((selectedRow) => {
+    const newSelectedRow = selectedRow.filter((row: any) => {
+      return row !== undefined;
+    });
+
+    const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
+    setSelectedRowKeys(selectedRowIds);
   }, []);
 
   const onPageChange = useCallback(
@@ -651,7 +652,7 @@ const EcommerceOrders: React.FC = () => {
     }
   }, [selectedRowKeys, token, data?.items]);
 
-  const onMenuClick = useCallback(
+  const printAction = useCallback(
     (printType: string) => {
       let params = {
         action: "print",
@@ -666,23 +667,29 @@ const EcommerceOrders: React.FC = () => {
     [selectedRowKeys]
   );
 
-  const actionList = (
-    <Menu>
-      <Menu.Item key="1" disabled={selectedRowKeys?.length < 1}>
-        <div>
-          <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={handlePrintDeliveryNote}>In phiếu giao hàng</span>
-        </div>
-      </Menu.Item>
-
-      <Menu.Item key="2" disabled={selectedRowKeys?.length < 1}>
-        <div>
-          <PrinterOutlined style={{ marginRight: 5 }} />
-          <span onClick={() => onMenuClick("stock_export")}>In phiếu xuất kho</span>
-        </div>
-      </Menu.Item>
-    </Menu>
-  );
+  const actions = [
+    {
+      id: 1,
+      name: "In phiếu giao hàng Shopee",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length,
+      onClick: handlePrintDeliveryNote
+    },
+    {
+      id: 2,
+      name: "In phiếu giao hàng",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length,
+      onClick: () => printAction("shipment")
+    },
+    {
+      id: 3,
+      name: "In phiếu xuất kho",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length,
+      onClick: () => printAction("stock_export")
+    },
+  ];
   // end handle action button
 
   const setSearchResult = useCallback(
@@ -719,11 +726,19 @@ const EcommerceOrders: React.FC = () => {
     setIsShowGetOrderModal(false);
   };
 
-  const updateOrderList = (data: any) => {
+  const callbackDownloadEcommerceOrders = (data: any) => {
     if (data) {
-      setDownloadOrderData(data);
-      setIsShowGetOrderModal(false);
-      setIsShowResultGetOrderModal(true);
+      if (typeof data === "string") {
+        setIsShowGetOrderModal(false);
+        setIsVisibleConflictModal(true);
+      } else {
+        setIsShowGetOrderModal(false);
+        setProcessId(data.process_id);
+        setIsVisibleProgressModal(true);
+
+        setIsDownloading(true);
+      }
+      
     }
   };
 
@@ -744,11 +759,6 @@ const EcommerceOrders: React.FC = () => {
     if (allowOrdersView) {
       getEcommerceOrderList();
     }
-  };
-
-  const closeResultGetOrderModal = () => {
-    setIsShowResultGetOrderModal(false);
-    reloadPage();
   };
   // end
 
@@ -789,6 +799,93 @@ const EcommerceOrders: React.FC = () => {
     }
   }, [allowOrdersView, dispatch, setAllShopListId, setDataAccounts]);
 
+    
+  // handle progress download orders
+  const [isVisibleConflictModal, setIsVisibleConflictModal] = useState<boolean>(false);
+  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
+  const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] = useState<boolean>(false);
+  const [processId, setProcessId] = useState(null);
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [progressData, setProgressData] = useState(null);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  
+
+  const resetProgress = () => {
+    setProcessId(null);
+    setProgressPercent(0);
+    setProgressData(null);
+  }
+
+  const closeConflictDownloadModal = () => {
+    setIsVisibleConflictModal(false);
+  }
+
+  // handle progress download orders modal
+  const onCancelProgressDownloadOrder = () => {
+    setIsVisibleExitDownloadOrdersModal(true);
+  }
+
+  const onOKProgressDownloadOrder = () => {
+    resetProgress();
+    reloadPage();
+    setIsVisibleProgressModal(false);
+  }
+  // end
+
+  // handle exit download orders modal
+  const onCancelExitDownloadOrdersModal = () => {
+    setIsVisibleExitDownloadOrdersModal(false);
+  }
+
+  const onOkExitDownloadOrdersModal = () => {
+    resetProgress();
+    dispatch(
+      exitProgressDownloadEcommerceAction(processId, (responseData) => {
+        if (responseData) {
+          showSuccess(responseData);
+          setIsVisibleExitDownloadOrdersModal(false);
+          onOKProgressDownloadOrder();
+        }
+      })
+    );
+  }
+  // end
+
+  const getProgress = useCallback(() => {
+    let getProgressPromises: Promise<BaseResponse<any>> = getProgressDownloadEcommerceApi(processId);
+
+    Promise.all([getProgressPromises]).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+          setProgressData(response.data);
+          const progressCount = response.data.total_created + response.data.total_updated + response.data.total_error;
+          if (progressCount >= response.data.total || response.data.finish) {
+            setProgressPercent(100);
+            setProcessId(null);
+            showSuccess("Tải đơn hàng thành công!");
+            setIsDownloading(false);
+          } else {
+            const percent = Math.floor(progressCount / response.data.total * 100);
+            setProgressPercent(percent);
+          }
+        }
+      });
+    });
+  }, [processId]);
+
+  useEffect(() => {
+    if (progressPercent === 100 || !processId) {
+      return;
+    }
+
+    getProgress();
+    
+    const getFileInterval = setInterval(getProgress, 3000);
+    return () => clearInterval(getFileInterval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProgress,  ]);
+// end progress download orders
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -826,7 +923,7 @@ const EcommerceOrders: React.FC = () => {
           {(allowed: boolean) => (allowed ?
             <Card>
               <EcommerceOrderFilter
-                actions={actionList}
+                actions={actions}
                 onFilter={onFilter}
                 isLoading={tableLoading}
                 params={params}
@@ -859,7 +956,7 @@ const EcommerceOrders: React.FC = () => {
                       onShowSizeChange: onPageChange,
                     }
                 }
-                onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+                onSelectedChange={onSelectTableRow}
                 dataSource={data.items}
                 columns={columnFinal}
                 rowKey={(item: OrderModel) => item.id}
@@ -869,22 +966,40 @@ const EcommerceOrders: React.FC = () => {
             : <NoPermission />)}
         </AuthWrapper>
 
-        {isShowGetOrderModal && (
+        {isShowGetOrderModal &&
           <GetOrderDataModal
             visible={isShowGetOrderModal}
             onCancel={cancelGetOrderModal}
-            onOk={updateOrderList}
+            onOk={callbackDownloadEcommerceOrders}
           />
-        )}
+        }
 
-        {isShowResultGetOrderModal && (
-          <ResultGetOrderDataModal
-            visible={isShowResultGetOrderModal}
-            onCancel={closeResultGetOrderModal}
-            onOk={closeResultGetOrderModal}
-            downloadOrderData={downloadOrderData}
+        {isVisibleProgressModal &&
+          <ProgressDownloadOrdersModal
+            visible={isVisibleProgressModal}
+            onCancel={onCancelProgressDownloadOrder}
+            onOk={onOKProgressDownloadOrder}
+            progressData={progressData}
+            progressPercent={progressPercent}
+            isDownloading={isDownloading}
           />
-        )}
+        }
+
+        {isVisibleConflictModal &&
+          <ConflictDownloadModal
+            visible={isVisibleConflictModal}
+            onCancel={closeConflictDownloadModal}
+            onOk={closeConflictDownloadModal}
+          />
+        }
+
+        {isVisibleExitDownloadOrdersModal &&
+          <ExitDownloadOrdersModal
+            visible={isVisibleExitDownloadOrdersModal}
+            onCancel={onCancelExitDownloadOrdersModal}
+            onOk={onOkExitDownloadOrdersModal}
+          />
+        }
 
         {/* // todo thai: handle later
         {isShowUpdateConnectionModal && (

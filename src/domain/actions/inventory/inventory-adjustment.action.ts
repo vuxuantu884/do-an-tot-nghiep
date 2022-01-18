@@ -3,12 +3,14 @@ import BaseResponse from "base/base.response";
 import {InventoryType} from "domain/types/inventory.type";
 import {PageResponse} from "model/base/base-metadata.response";
 import {StoreResponse} from "model/core/store.model";
+import { InventoryQuery } from "model/inventory";
 import {
   InventoryAdjustmentDetailItem,
   InventoryAdjustmentSearchQuery,
   LineItemAdjustment,
   StoreStatus,
 } from "model/inventoryadjustment";
+import { VariantResponse } from "model/product/product.model";
 import {PrinterInventoryTransferResponseModel} from "model/response/printer.response";
 
 const inventoryGetSenderStoreAction = (
@@ -110,6 +112,16 @@ const updateInventoryAdjustmentAction = (
   });
 };
 
+const getVariantHasOnHandByStoreAction = (
+  query: InventoryQuery,
+  onResult: (result: PageResponse<VariantResponse>) => void
+) => {
+  return BaseAction(InventoryType.GET_VARIANT_HAS_ON_HAND_BY_STORE, {
+    query,
+    onResult
+  });
+};
+
 export {
   getListInventoryAdjustmentAction,
   createInventoryAdjustmentAction,
@@ -120,5 +132,6 @@ export {
   adjustInventoryAction,
   InventoryAdjustmentGetPrintContentAction,
   getLinesItemAdjustmentAction,
-  updateInventoryAdjustmentAction
+  updateInventoryAdjustmentAction,
+  getVariantHasOnHandByStoreAction
 };

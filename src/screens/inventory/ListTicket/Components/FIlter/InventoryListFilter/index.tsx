@@ -510,6 +510,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   <Panel header="Trạng thái" key="1" className="header-filter">
                     <Item name="status" style={{ margin: "10px 0px" }}>
                       <CustomSelect
+                        maxTagCount="responsive" 
                         mode="multiple"
                         style={{ width: '100%'}}
                         showArrow
@@ -629,6 +630,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   <Panel header="Người tạo" key="1" className="header-filter">
                     <Item name="created_by">
                       <Select
+                        maxTagCount="responsive"
                         mode="multiple" showSearch placeholder="Chọn người tạo"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"

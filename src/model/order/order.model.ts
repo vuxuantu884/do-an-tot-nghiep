@@ -114,6 +114,7 @@ export interface OrderModel extends BaseObject {
   ecommerce_shop_name: string | null;
 	automatic_discount?: boolean;
   total_weight: number | null;
+  channel_code: string;
 }
 
 export interface OrderSearchQuery {
@@ -165,6 +166,7 @@ export interface OrderSearchQuery {
   tags: [];
   reference_code: string | null;
   search_term?: string | null;
+	services?: [];
 }
 
 export interface OrderSearchQueryModel {

@@ -631,7 +631,7 @@
   background-color: #fff;
   color: rgba(0, 0, 0, 0.85);
   background-color: #fff;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid $border-color;
   display: flex;
   padding: 11px 0 11px 0;
 }
@@ -923,7 +923,7 @@
 }
 
 .saleorder_shipment_button {
-  border: 1px solid #e5e5e5;
+  border: 1px solid $border-color;
   padding: 10px;
   border-radius: 3px;
   cursor: pointer;
@@ -1023,7 +1023,7 @@
       .ant-select-selector {
         margin: 0;
         outline: none;
-        border: 1px solid #e5e5e5;
+        border: 1px solid $border-color;
         background: #ffffff;
       }
     }
@@ -1174,7 +1174,7 @@
   }
   .btn-list-method .ant-btn-default {
     background: #ffff;
-    border: 1px solid #e5e5e5;
+    border: 1px solid $border-color;
     border-radius: 3px;
     span {
       font-size: 14px;
@@ -1201,7 +1201,7 @@
 
 .orders-dot-status {
   &::after {
-    background-color: #e5e5e5 !important;
+    background-color: $border-color !important;
   }
 }
 
@@ -1376,7 +1376,7 @@
   // .ant-card-head {
   //   border: none;
   //   .ant-card-head-wrapper {
-  //     border-bottom: 1px solid #e5e5e5;
+  //     border-bottom: 1px solid $border-color;
   //   }
   // }
   // .ant-collapse-content-box {
@@ -1510,7 +1510,7 @@
   .saleorder-input-group-wrapper {
     height: 28px;
     button {
-      border: 1px solid #e5e5e5;
+      border: 1px solid $border-color;
       width: 34px;
       height: 28px;
     }
@@ -1563,7 +1563,7 @@
 //     border: none;
 //   }
 //   .ant-card-head-wrapper {
-//     border-bottom: 1px solid #e5e5e5;
+//     border-bottom: 1px solid $border-color;
 //   }
 // }
 
@@ -1673,12 +1673,12 @@
   .ant-collapse-header {
     overflow: hidden;
     background-color: #f5f5f5;
-    border: 1px solid #e5e5e5;
+    border: 1px solid $border-color;
     padding: 0 !important;
     height: 40px;
   }
   .ant-collapse-content-box {
-    border: 1px solid #e5e5e5;
+    border: 1px solid $border-color;
     padding: 0 !important;
   }
   .ant-col {
@@ -1696,7 +1696,7 @@
       width: 100%;
       display: flex;
       justify-content: space-between;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid $border-color;
       padding: 12px 0;
       .orders-shipment-item-name {
         display: flex;
@@ -1755,8 +1755,19 @@
   box-shadow: 3px 0px 6px #f5f5f5;
 }
 
+.order-list{
+  .ant-table-wrapper::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+}
+
 .order-list .ant-table.ant-table-middle .ant-table-tbody > tr > td {
-  border-right: 1px solid #e5e5e5;
+  border-right: 1px solid $border-color;
   padding: 10px 10px;
 }
 

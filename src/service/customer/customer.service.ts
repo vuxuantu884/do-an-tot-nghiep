@@ -15,7 +15,6 @@ export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<
 };
 
 export const getCustomersSo = (query : CustomerSearchQuery): Promise<BaseResponse<CustomerResponse>> => {
-  query.is_simple=1;
   let params = generateQuery(query);
   let link = `${ApiConfig.CUSTOMER}/customers?${params}`;
   return BaseAxios.get(link);
@@ -111,3 +110,11 @@ export const deleteBillingAddress = (id: number, customerId: number): Promise<Ba
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/billing-address/${id}`;
   return BaseAxios.delete(url);
 };
+
+export const importCustomerService = (file: File) => {
+  let formData = new FormData();
+  formData.append("file_upload", file);
+  return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/import`, formData, {
+    headers: { "content-type": "multipart/form-data" },
+  });
+}

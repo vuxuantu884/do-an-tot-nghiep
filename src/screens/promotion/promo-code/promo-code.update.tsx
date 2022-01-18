@@ -4,14 +4,11 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
-  getVariants,
-  promoGetDetail,
+  getVariantsAction,
+  getPriceRuleAction,
   updatePriceRuleByIdAction
 } from "domain/actions/promotion/discount/discount.action";
-import { ProductEntitlements } from "model/promotion/discount.create.model";
-import {
-  DiscountResponse
-} from "model/response/promotion/discount/list-discount.response";
+import { PriceRule, ProductEntitlements } from "model/promotion/price-rules.model"; 
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -22,10 +19,10 @@ import { parseDurationToMoment } from "utils/PromotionUtils";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import { showError, showSuccess } from "../../../utils/ToastUtils";
+import IssueProvider, { IssueContext } from "../issue/components/issue-provider";
 import { CustomerFilterField } from "../shared/cusomer-condition.form";
 import GeneralConditionForm from "../shared/general-condition.form";
-import PromoCodeUpdateForm from "./components/promo-code-update-form";
-import IssuingProvider, { IssuingContext } from "./issuing-provider";
+import PromoCodeUpdateForm from "./components/promo-code-update-form"; 
 import "./promo-code.scss";
 
 const PromoCodeUpdate = () => {
@@ -36,7 +33,7 @@ const PromoCodeUpdate = () => {
   const idNumber = parseInt(id);
 
   const [loading, setLoading] = useState(true);
-  const [dataDiscount, setDataDiscount] = useState<DiscountResponse>();
+  const [dataDiscount, setDataDiscount] = useState<PriceRule>();
 
   const [isAllStore, setIsAllStore] = useState(true);
   const [isAllCustomer, setIsAllCustomer] = useState(true);
@@ -49,8 +46,8 @@ const PromoCodeUpdate = () => {
   const [dataVariants, setDataVariants] = useState<ProductEntitlements[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [typeUnit, setTypeUnit] = useState<string>("PERCENTAGE");
-  
-  const { isAllProduct, setIsAllProduct } = useContext(IssuingContext);
+
+  const { isAllProduct, setIsAllProduct } = useContext(IssueContext);
 
   const transformData = (values: any) => {
     let body: any = values;
@@ -166,7 +163,7 @@ const PromoCodeUpdate = () => {
     return body;
   };
 
-  const updateCallback = (data: DiscountResponse) => {
+  const updateCallback = (data: PriceRule) => {
     if (data) {
       setTimeout(() => {
         showSuccess("Thêm thành công");
@@ -176,7 +173,7 @@ const PromoCodeUpdate = () => {
     } else dispatch(hideLoading());
   };
 
-  const onFinish = (values: any) => { 
+  const onFinish = (values: any) => {
     if (!isAllProduct && (values.entitlements.length === 0 || values.entitlements[0].entitled_variant_ids.length === 0)) {
       showError("Vui lòng chọn sản phẩm để áp dụng");
       return;
@@ -189,7 +186,7 @@ const PromoCodeUpdate = () => {
   };
 
   const parseDataToForm = useCallback(
-    (result: DiscountResponse) => {
+    (result: PriceRule) => {
       const formValue: any = {
         title: result.title,
         discount_code: result.code,
@@ -234,9 +231,11 @@ const PromoCodeUpdate = () => {
         ends_wedding_day: parseDurationToMoment(result.prerequisite_wedding_duration?.ends_mmdd_key)
       };
       //đơn vị khuyến mãi
-      setTypeUnit(result.entitlements.length > 0
-        ? result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type
-        : null)
+      if (result.entitlements?.length > 0 && result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type) {
+        setTypeUnit(
+          result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type
+        )
+      }
       //set default checked Loại khuyến mãi
       setIsUnlimitUsage(typeof result.usage_limit !== "number");
       setIsUnlimitUsagePerUser(typeof result.usage_limit_per_customer !== "number");
@@ -247,14 +246,14 @@ const PromoCodeUpdate = () => {
       setIsAllSource(result.prerequisite_order_source_ids?.length === 0);
 
       setIsAllCustomer(result.customer_selection.toLocaleUpperCase() === "ALL");
-      
+
       form.setFieldsValue(formValue);
     },
     [form]
   );
 
   const onResult = useCallback(
-    (result: DiscountResponse | false) => {
+    (result: PriceRule | false) => {
       setLoading(false);
       if (result) {
         setDataDiscount(result);
@@ -299,11 +298,11 @@ const PromoCodeUpdate = () => {
   useEffect(() => {
     if (dataVariants && dataDiscount && dataDiscount.entitlements.length > 0) {
       // if (dataDiscount.prerequisite_subtotal_range?.greater_than_or_equal_to) {
-        const flattenData: Array<any> = spreadVariantData(dataDiscount);
-        const listEntitlements: Array<any> = mergeVariants(flattenData);
+      const flattenData: Array<any> = spreadVariantData(dataDiscount);
+      const listEntitlements: Array<any> = mergeVariants(flattenData);
 
-        setSelectedProduct(listEntitlements);
-        setIsAllProduct && setIsAllProduct(listEntitlements.length === 0) 
+      setSelectedProduct(listEntitlements);
+      setIsAllProduct && setIsAllProduct(listEntitlements.length === 0)
       // }
     }
   }, [dataVariants, dataDiscount, mergeVariants, setIsAllProduct]);
@@ -311,15 +310,14 @@ const PromoCodeUpdate = () => {
   // Action: Lấy thông tin khuyến mãi
   useEffect(() => {
     setLoading(true);
-    dispatch(getVariants(idNumber, setDataVariants));
-    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getVariantsAction(idNumber, setDataVariants));
+    dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
   return (
     <ContentContainer
       isLoading={loading}
       isError={
-        dataDiscount?.entitled_method !== "QUANTITY" ||
         dataDiscount?.state === "CANCELLED"
       }
       title="Sửa khuyến mãi"
@@ -329,7 +327,7 @@ const PromoCodeUpdate = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mại",
+          name: "Khuyến mãi",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
@@ -379,9 +377,9 @@ const PromoCodeUpdate = () => {
 
 const UpdatePromoWithProvider = () => {
   return (
-    <IssuingProvider>
+    <IssueProvider>
       <PromoCodeUpdate />
-    </IssuingProvider>
+    </IssueProvider>
   );
 }
 

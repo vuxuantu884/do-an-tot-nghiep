@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
@@ -6,12 +7,12 @@ export const StyledComponent = styled.div`
     margin-top: 20px;
     .card-container {
       .left {
-        border-right: 1px solid #e5e5e5;
+        border-right: 1px solid ${borderColor};
       }
       .right {
         .header-view {
           padding: 16px 20px;
-          border-bottom: 1px solid #e5e5e5;
+          border-bottom: 1px solid ${borderColor};
           justify-content: space-between;
           display: flex;
           flex-direction: row;
@@ -64,5 +65,25 @@ export const StyledComponent = styled.div`
         object-fit: contain;
       }
     }
+  }
+  .care-title {
+    font-weight: 500;
+    font-size: 1rem;
+    margin: 6px 8px 15px 0;
+  } 
+  .care-label {
+    font-size: 28px;
+    margin: 0px 4px;
+    line-height: 32px;
+  }
+  .button-plus {
+    border: 1px solid #E5E5E5;
+    background: #FFFFFF;
+    color: #757575;
+    .anticon {
+      vertical-align: 0.125em;
+    }
+    width: 28px;
+    height: 28px;
   }
 `;

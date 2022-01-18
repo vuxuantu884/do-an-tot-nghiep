@@ -16,11 +16,11 @@ const UrlConfig = {
   STORE: `/stores`,
   ROLES: `/roles`,
   ORDER: `/orders`,
-  ORDERS_RETURN: `/orders-return`,
+  ORDERS_RETURN: `/order-returns`,
   SPLIT_ORDERS: `/split-orders`,
   ORDER_PROCESSING_STATUS: `/order-processing-status`,
   ORDER_SOURCES: `/order-sources`,
-  ORDERS_DUPLICATE: `/orders-duplicate`,
+  ORDERS_DUPLICATE: `/duplicate-orders`,
   PRINTER: `/prints-templates`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   ORDER_SETTINGS: `/${SETTINGS}/orders`,
@@ -37,7 +37,7 @@ const UrlConfig = {
   INVENTORY_ADJUSTMENTS: `/inventory-adjustments`, 
   DEPARTMENT: `/departments`,
   DISCOUNT: `/discounts`,
-  PROMO_CODE: `/codes`,
+  PROMO_CODE: `/issues`,
   GIFT: `/gifts`,
   PACK_SUPPORT:`/orders-pack-support`
 };
@@ -68,8 +68,15 @@ export const InventoryTabUrl = {
 
 export const ProcurementTabUrl = {
   TODAY: UrlConfig.PROCUREMENT + "/today",
-  ALL: UrlConfig.PROCUREMENT
+  ALL: UrlConfig.PROCUREMENT,
+  LOGS: UrlConfig.PROCUREMENT+'/logs'
 };
+
+export const PurchaseOrderTabUrl = {
+  INVENTORY: UrlConfig.PURCHASE_ORDERS +  "/inventories",
+  HISTORY: UrlConfig.PURCHASE_ORDERS +  "/procurement-histories",
+}
+
 export const BASE_NAME_ROUTER = "/admin";
 // export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;
 export default UrlConfig;

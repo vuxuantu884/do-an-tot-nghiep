@@ -1,5 +1,6 @@
  import { BaseQuery } from 'model/base/base.query';
 import { BaseObject } from 'model/base/base.response';
+import { CollectionResponse } from './collection.model';
 
 
 export interface ProductCollectionsResponse  {
@@ -53,15 +54,16 @@ export interface ProductResponse extends BaseObject {
   tags:string|null,
   status:string,
   status_name:string,
-  preservation:string,
+  care_labels:string,
   unit:string,
   unit_name:string,
   product_type:string,
   code:string,
-  product_collections: Array<ProductCollectionsResponse>,
   specifications: string,
   variants: Array<VariantResponse>
   on_hand:number,
+  collections: Array<CollectionResponse>,
+  product_collections: Array<string>
 }
 
 export interface ProductWrapperResponse extends BaseObject {
@@ -85,10 +87,10 @@ export interface ProductWrapperResponse extends BaseObject {
   tags:string|null,
   status:string,
   status_name:string,
-  preservation:string,
+  care_labels:string,
   unit:string,
   product_type:string,
-  product_collections: Array<ProductCollectionsResponse>,
+  collections: Array<CollectionResponse>,
   specifications: string,
   variants: Array<VariantResponse>,
 }
@@ -114,10 +116,10 @@ export interface ProductWrapperUpdateRequest{
   tags:string|null,
   status:string,
   status_name:string | null,
-  preservation:string | null,
+  care_labels:string | null,
   unit:string | null,
   product_type:string | null,
-  product_collections: Array<ProductCollectionsResponse>,
+  collections: Array<CollectionResponse>,
   specifications: string | null,
   variants: Array<VariantResponse>,
 }
@@ -155,6 +157,7 @@ export interface VariantResponse extends BaseObject {
   variant_images:Array<VariantImage>,
   transfer_quantity: number,
   variant_id: number,
+  variant_name?: string
 }
 
 export interface VariantView extends BaseObject {
@@ -206,6 +209,8 @@ export interface VariantSearchQuery extends BaseQuery {
   saleable?: boolean
   store_id?: number,
   store_ids?: number|null,
+  sort_column?: string,
+  sort_type?: string
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,
@@ -218,6 +223,7 @@ export interface ProductWrapperSearchQuery extends BaseQuery {
   status?: string,
   goods?: string,
   product_ids?: Array<number>,
+  collections?: string
 }
 
 export interface VariantPriceRequest {
@@ -287,7 +293,7 @@ export interface ProductRequest {
   made_in_id: number|null,
   merchandiser_code: string|null,
   name: string,
-  preservation: string,
+  care_labels: string,
   specifications: string,
   product_type: string|null,
   status: string,
@@ -296,7 +302,9 @@ export interface ProductRequest {
   unit: string|null,
   material_id:number|null,
   supplier_id:number|null,
+  material: string|null,
   collections:Array<string>,
+  product_collections?: Array<string>,
 }
 
 export interface VariantRequestView {
@@ -318,11 +326,11 @@ export interface VariantPriceViewRequest {
   currency: string,
   tax_percent: number|"",
 }
+
 export interface ProductRequestView {
   product_type?: string|null,
   goods: string|null,
   category_id: number|null,
-  collections: Array<string>,
   code: string,
   name: string,
   width: number|null,
@@ -339,21 +347,22 @@ export interface ProductRequestView {
   designer_code: string|null,
   made_in_id: number|null,
   merchandiser_code: string|null,
-  preservation: string,
+  care_labels: string,
   specifications: string,
   status: string,
   variant_prices: Array<VariantPriceViewRequest>,
   saleable: boolean,
   material_id:number|null,
   supplier_id:number|null,
-
+  material: string|null,
+  collections: Array<CollectionResponse>,
+  product_collections: Array<string>
 }
 
 export interface ProductUpdateView {
   product_type?: string|null,
   goods: string|null,
   category_id: number|null,
-  collections: Array<string>,
   tags: Array<string>,
   product_unit: string|null,
   brand: string|null,
@@ -362,9 +371,10 @@ export interface ProductUpdateView {
   designer_code: string|null,
   made_in_id: number|null,
   merchandiser_code: string|null,
-  preservation: string,
+  care_labels: string,
   specifications: string,
   material_id: number,
+  collections: Array<string>
 }
 
 export interface VariantUpdateView {
@@ -420,4 +430,11 @@ export interface ProductBarcodeRequest {
 export interface ProductBarcodeItem {
   product_id: number,
   quantity_req: number,
+}
+
+export interface CareLabelItem{
+  value: string,
+  name: string,
+  active: boolean,
+  type?:number
 }

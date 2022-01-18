@@ -57,6 +57,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   //   (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   // );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [listPrice, setListPrice] = useState<Array<Number>>([]);
+  const [listVat, setListVat] = useState<Array<Number>>([]);
+  const [priceValue, setPriceValue] = useState(0);
+  const [vatValue, setVatValue] = useState(0);
   // const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
   // const [splitLine, setSplitLine] = useState<boolean>(false);
   const [data, setData] = useState<Array<VariantResponse>>([]);
@@ -222,8 +226,21 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total: total,
         [POField.procurements]: newProcument,
       });
+
+      const prices = [...listPrice];
+      prices.splice(index, 1);
+      setListPrice(prices);
+
+      const vats = [...listVat];
+      vats.splice(index, 1);
+      setListVat(vats);
+
+      if (vats.length === 0 || prices.length === 0) {
+        setVatValue(0);
+        setPriceValue(0)
+      }
     },
-    [formMain]
+    [formMain, listPrice, listVat]
   );
   const onQuantityChange = useCallback(
     (quantity, index) => {
@@ -375,7 +392,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   );
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
-      console.log(items);
       setVisibleManyProduct(false);
       let old_line_items = formMain.getFieldValue(POField.line_items);
       let trade_discount_rate = formMain.getFieldValue(
@@ -500,6 +516,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
+      
       formMain.setFieldsValue({
         line_items: [...data],
         tax_lines: tax_lines,
@@ -868,38 +885,60 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           style={{
                             width: "100%",
                             textAlign: "right",
-                            padding: "7px 14px",
                           }}
                         >
-                          Giá nhập
-                          <span
+                          <div>
+                            Giá nhập
+                            <span
                             style={{
                               color: "#737373",
                               fontSize: "12px",
                               fontWeight: "normal",
+                              }}
+                            >
+                              {" "}
+                              ₫
+                            </span>
+                          </div>
+                          <NumberInput
+                            style={{ width: "80%" }}
+                            min={0}
+                            value={priceValue}
+                            format={(a: string) => formatCurrency(a ? a : 0, '')}
+                            replace={(a: string) => replaceFormatString(a)}
+                            onPressEnter={(e) => {
+                              const newPrice = e.target.value || 0;  
+                              const prices = [];   
+                              setPriceValue(newPrice);                       
+                              for (let index = 0; index < items.length; index++) {
+                                prices.push(newPrice);
+                                onPriceChange(
+                                  newPrice,
+                                  DiscountType.money,
+                                  0,
+                                  index
+                                );
+                              }
+                              setListPrice(prices);
                             }}
-                          >
-                            {" "}
-                            ₫
-                          </span>
+                          />
                         </div>
                       ),
-                      width: 140,
+                      width: 175,
                       dataIndex: "price",
                       render: (value, item, index) => {
-                        // let type = "percent";
-                        // if (item.discount_value !== null) {
-                        //   type = "money";
-                        // }
                         return (
                           <NumberInput
-                            // style={{ width: "70%" }}
                             className="hide-number-handle"
                             min={0}
                             format={(a: string) => formatCurrency(a ? a : 0)}
                             replace={(a: string) => replaceFormatString(a)}
-                            value={value}
+                            value={listPrice[index] > 0 ? listPrice[index] : value}
                             onChange={(inputValue) => {
+                              const newList = [...listPrice];
+                              newList[index] = inputValue || 0;
+                              setListPrice(newList);
+                              
                               if (inputValue === null) {
                                 onPriceChange(
                                   0,
@@ -926,22 +965,47 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           style={{
                             width: "100%",
                             textAlign: "right",
-                            padding: "7px 14px",
                           }}
                         >
-                          VAT
+                          <div>VAT</div>
+                          <NumberInput
+                            style={{ width: "80%" }}
+                            className="product-item-vat"
+                            prefix={<div>%</div>}
+                            isFloat
+                            value={vatValue}
+                            onPressEnter={(e) => {
+                              const newVat = e.target.value || 0;    
+                              const vats = []; 
+                              setVatValue(newVat);                         
+                              for (let index = 0; index < items.length; index++) {
+                                vats.push(newVat);
+                                onTaxChange(
+                                  newVat,
+                                  index
+                                );
+                              }
+                              setListVat(vats);
+                            }}
+                          />
                         </div>
                       ),
-                      width: 90,
+                      width: 175,
                       dataIndex: "tax_rate",
                       render: (value, item, index) => {
                         return (
                           <NumberInput
                             className="product-item-vat"
-                            value={value}
+                            value={ listVat[index] > 0 ? listVat[index] : value}
                             prefix={<div>%</div>}
                             isFloat
-                            onChange={(v) => onTaxChange(v, index)}
+                            onChange={(v) => {
+                              const newList = [...listVat];
+                              newList[index] = v || 0;
+                              setListVat(newList);
+
+                              onTaxChange(v, index)
+                            }}
                             min={0}
                             maxLength={3}
                             max={100}
@@ -1068,7 +1132,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               <div className="product-item-name">
                                 <span className="product-item-name-detail">
                                   {value}
-                                </span>
+                                </span>                              
+                              </div>
+                              <div className="product-item-name">
+                                <span className="product-item-name-detail">
+                                  {item.note}
+                                </span>                             
                               </div>
                             </div>
                           </div>

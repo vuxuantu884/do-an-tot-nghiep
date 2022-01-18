@@ -111,8 +111,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
 
   // check disable select date
   const [dates, setDates] = useState<any>([]);
-  const [hackValue, setHackValue] = useState<any>();
-  const [value, setValue] = useState<any>();
+  const [selectedDateValue, setSelectedDateValue] = useState<any>();
 
   const disabledDate = (current: any) => {
     if (!dates || dates.length === 0) {
@@ -123,15 +122,15 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     return tooEarly || tooLate;
   };
 
-  const onOpenChange = (open: any) => {
+  const onOpenChange = (open: boolean) => {
     if (open) {
-      setHackValue([]);
       setDates([]);
-    } else {
-      setHackValue(undefined);
     }
   };
 
+  const onCalendarChange = (dates: any, dateStrings: any, info: any) => {
+    setDates(dates);
+  };
 
   const convertStartDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
@@ -162,7 +161,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     const endDateValue = convertEndDateToTimestamp(dateStrings[1]);
     setEndDate(endDateValue);
 
-    setValue(dates);
+    setSelectedDateValue(dates);
   };
 
   //end handle select date
@@ -173,12 +172,12 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     onOk(data);
   }, [onOk]);
 
-  const postEcommerceOrder = () => {
+  const handleDownloadEcommerceOrders = () => {
     const params = {
       ecommerce_id: ecommerceSelected,
       shop_id: shopIdSelected,
-      create_time_from: startDate,
-      create_time_to: endDate,
+      update_time_from: startDate,
+      update_time_to: endDate,
     }
 
     setIsLoading(true);
@@ -213,7 +212,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
       okText="Tải dữ liệu"
       cancelText="Hủy"
       onCancel={cancelGetOrderModal}
-      onOk={postEcommerceOrder}
+      onOk={handleDownloadEcommerceOrders}
       okButtonProps={{ disabled: isDisableOkButton() }}
       cancelButtonProps={{ disabled: isLoading }}
       closable={!isLoading}
@@ -285,10 +284,10 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
               placeholder={["Từ ngày", "Đến ngày"]}
               style={{ width: "100%" }}
               format={DATE_FORMAT.DDMMYYY}
-              value={hackValue || value}
+              value={selectedDateValue}
               disabledDate={disabledDate}
-              onCalendarChange={val => setDates(val)}
               onChange={onChangeDate}
+              onCalendarChange={onCalendarChange}
               onOpenChange={onOpenChange}
             />
           </Form.Item>

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .ant-card-head-title {
@@ -28,7 +29,7 @@ export const StyledComponent = styled.div`
       padding-top: 0;
     }
     &:not(:last-child) {
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid ${borderColor};
     }
     &__title {
       font-size: 1em;

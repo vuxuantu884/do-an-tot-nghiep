@@ -24,6 +24,9 @@ export const StyledPointAdjustment = styled.div`
       .ant-select-selector {
         width: 100%;
       }
+      .ant-select-selection-overflow {
+        flex-wrap: nowrap;
+      }
     }
 
     div:not(:last-child) {
@@ -52,5 +55,66 @@ export const StyledPointAdjustment = styled.div`
 export const StyledPointAdjustmentDetail = styled.div`
   .page-header {
     height: auto;
+  }
+`;
+
+export const StyledCreatePointAdjustment= styled.div`
+  .create-point-adjustments {
+    .ant-form-item {
+      margin: 0 0 20px;
+    }
+    .row {
+      margin-bottom: 4px;
+      &-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+    }
+    .footer-controller {
+      margin-left: -50px;
+      margin-right: -12px;
+      position: fixed;
+      text-align: right;
+      height: 55px;
+      bottom: 0%;
+      background-color: rgb(255, 255, 255);
+      z-index: 2;
+      width: 100%;
+      padding-right: 250px;
+      row-gap: 0px;
+      box-shadow: 5px 5px 10px 10px #0000001a;
+      .back {
+        display: flex;
+        align-items: center;
+        padding-left: 24px !important;
+        cursor: pointer;
+        .back-wrapper {
+          display: flex;
+          align-items: center;
+        }
+        a {
+          color: #737373;
+        }
+        svg {
+          margin-right: 8px;
+        }
+      }
+      .action-group {
+        padding-right: 30px !important;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        .save-btn {
+          margin-left: 30px;
+        }
+        .cancel-btn {
+          background-color: white;
+          &:hover {
+            color: #222222;
+            background-color: white;
+          }
+        }
+      }
+    }
   }
 `;

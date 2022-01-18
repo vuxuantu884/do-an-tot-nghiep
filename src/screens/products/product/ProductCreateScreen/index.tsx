@@ -8,9 +8,11 @@ import {
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Collapse,
   Form, Image, Input,
+  Popover,
   Row,
   Select,
   Space,
@@ -26,11 +28,12 @@ import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config"; 
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
+import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { getColorAction } from "domain/actions/product/color.action";
 import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
 import { productCheckDuplicateCodeAction, productCreateAction } from "domain/actions/product/products.action";
@@ -40,6 +43,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
+import { CollectionResponse } from "model/product/collection.model";
 import { ColorResponse } from "model/product/color.model";
 import { MaterialResponse } from "model/product/material.model";
 import {
@@ -69,6 +73,8 @@ import { VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { careInformation } from "../component/CareInformation/care-value";
+import CareModal from "../component/CareInformation/CareModal";
 import ImageProduct from "../component/image-product.component";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import UploadImageModal, {
@@ -83,6 +89,7 @@ const initialRequest: ProductRequestView = {
   goods: null,
   category_id: null,
   collections: [],
+  product_collections: [],
   code: "",
   name: "",
   width: null,
@@ -99,13 +106,13 @@ const initialRequest: ProductRequestView = {
   designer_code: null,
   made_in_id: null,
   merchandiser_code: null,
-  preservation: "",
+  care_labels: "",
   specifications: "",
   status: "active",
   saleable: true,
   variant_prices: [
     {
-      retail_price: "",
+      retail_price: 0,
       currency: AppConfig.currency,
       import_price: "",
       wholesale_price: "",
@@ -115,6 +122,7 @@ const initialRequest: ProductRequestView = {
   ],
   material_id: null,
   supplier_id: null,
+  material: null,
 };
 
 const ProductCreateScreen: React.FC = () => {
@@ -217,8 +225,16 @@ const ProductCreateScreen: React.FC = () => {
   const [isVisibleUpload, setVisibleUpload] = useState<boolean>(false);
   const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
+  const [showCareModal, setShowCareModal] = useState(false);
+  const [changeDescription, setIsChangeDescription] = useState(true);
+  const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
   //end category
-  //end state
+  //end state 
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
@@ -242,9 +258,7 @@ const ProductCreateScreen: React.FC = () => {
       }
     },
     []
-  );
-
-
+  ); 
 
   const onCategoryChange = useCallback(
     (value: number) => {
@@ -351,9 +365,11 @@ const ProductCreateScreen: React.FC = () => {
     listVariantsFilter(colorSelected, sizeSelected);
   }, [colorSelected, listVariantsFilter, sizeSelected]);
 
-  const onMaterialChange = (id: number) => {
-    dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
-  };
+  const onMaterialChange = useCallback((id: number) => {
+    if (changeDescription) {
+      dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
+    }
+  },[dispatch,form, changeDescription]);
 
   const onSizeSelected = useCallback(
     (value: number, objSize: any) => {
@@ -398,6 +414,65 @@ const ProductCreateScreen: React.FC = () => {
     return arr;
   }, [variants]);
 
+  const [careLabels, setCareLabels] = useState<any[]>([]);
+  const [careLabelsString, setCareLabelsString] = useState("");
+
+  useEffect(() => {
+    const newSelected = careLabelsString ? careLabelsString.split(";") : [];
+    console.log('newSelected', newSelected);
+    let careLabels: any[] = []
+    newSelected.forEach((value: string) => {
+      careInformation.washing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+
+      careInformation.beleaching.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.ironing.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.drying.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      careInformation.professionalCare.forEach((item: any) => {
+        if (value === item.value) {
+          console.log(value);
+          careLabels.push({
+            ...item,
+            active: true,
+          })
+        }
+      });
+      
+    })
+    setCareLabels(careLabels);
+  }, [careLabelsString]);
+
   const createCallback = useCallback(
     (result: ProductResponse) => {
       setLoadingSaveButton(false);
@@ -428,11 +503,16 @@ const ProductCreateScreen: React.FC = () => {
       if (values.saleable) {
         variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
       }
+      setLoadingSaveButton(false);
 
-      let request = Products.convertProductViewToRequest(values, variantsHasProductAvatar, status);
+      let request = Products.convertProductViewToRequest({
+        ...values,
+        description: form.getFieldValue("description"),
+        care_labels: careLabelsString,
+      }, variantsHasProductAvatar, status);
       dispatch(productCreateAction(request, createCallback));
     },
-    [createCallback, dispatch, status, variants]
+    [createCallback, dispatch, careLabelsString, status, variants, form]
   );
 
   const onCancel = useCallback(() => {
@@ -589,18 +669,18 @@ const ProductCreateScreen: React.FC = () => {
     isDesigner = designer;
     isWin = win;
     dispatch(
-      AccountSearchAction(
-        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+      searchAccountPublicAction(
+        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
   }, [dispatch, setDataAccounts]);
 
   const getSuppliers = useCallback((key: string, page: number) => {
-    dispatch(SupplierSearchAction({ condition: key }, (data: PageResponse<SupplierResponse>) => {
+    dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier(data);
     }));
-  }, [dispatch]);
+  }, [dispatch]); 
 
   useEffect(() => {
     if (!isLoadMaterData.current) {
@@ -620,6 +700,19 @@ const ProductCreateScreen: React.FC = () => {
     form.setFieldsValue({ made_in_id: VietNamId });
     form.setFieldsValue({ length_unit: 'cm' });
   }, [form]);
+
+  const getCollections = useCallback((code: string, page: number) => {
+    dispatch(
+      getCollectionRequestAction(
+        { condition: code, page: page},
+        setCollections
+      )
+    );
+  }, [dispatch, setCollections]);
+
+  useEffect(()=>{
+    getCollections("",1);
+  },[getCollections]);
 
   return (
     <Form
@@ -679,12 +772,46 @@ const ProductCreateScreen: React.FC = () => {
                 }
               >
                 <Row gutter={50}>
+                  
+                </Row>
+                <Row gutter={50}>
+                <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập mã sản phẩm",
+                        },
+                        {
+                          len: 7,
+                          message: "Mã sản phẩm bao gồm 7 kí tự",
+                        },
+                        {
+                          pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                          message: "Mã sản phẩm chỉ gồm chữ và số",
+                        },
+                      ]}
+                      tooltip={{
+                        title:
+                          "Mã sản phẩm bao gồm 3 kí tự đầu mã danh mục và 4 kí tự tiếp theo do người dùng nhập",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="code"
+                      label="Mã sản phẩm"
+                    >
+                      <Input
+                        maxLength={7}
+                        placeholder="Nhập mã sản phẩm"
+                        onChange={onCodeChange}
+                      />
+                    </Item>
+                  </Col>
                   <Col span={24} md={12} sm={24}>
                     <Item
                       rules={[
                         {
                           required: true,
-                          message: "Vui lòng chọn loại sản phẩm",
+                          message: "Vui lòng chọn ngành hàng",
                         },
                       ]}
 
@@ -704,6 +831,36 @@ const ProductCreateScreen: React.FC = () => {
                           </CustomSelect.Option>
                         ))}
                       </CustomSelect>
+                    </Item>
+                  </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập tên sản phẩm",
+                        },
+                        {
+                          pattern: RegUtil.STRINGUTF8,
+                          message:
+                            "Tên sản phẩm không báo gồm kí tự đặc biệt",
+                        },
+                      ]}
+                      tooltip={{
+                        title:
+                          "Tên mã cha, không bao gồm màu sắc và kích cỡ",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="name"
+                      label="Tên sản phẩm"
+                    >
+                      <Input
+                        onChange={onNameChange}
+                        maxLength={120}
+                        placeholder="Nhập tên sản phẩm"
+                      />
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
@@ -741,67 +898,6 @@ const ProductCreateScreen: React.FC = () => {
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
-                    <Item
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập mã sản phẩm",
-                        },
-                        {
-                          len: 7,
-                          message: "Mã sản phẩm bao gồm 7 kí tự",
-                        },
-                        {
-                          pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                          message: "Mã sản phẩm chỉ gồm chữ và số",
-                        },
-                      ]}
-                      tooltip={{
-                        title:
-                          "Mã sản phẩm bao gồm 3 kí tự đầu mã danh mục và 4 kí tự tiếp theo do người dùng nhập",
-                        icon: <InfoCircleOutlined />,
-                      }}
-                      name="code"
-                      label="Mã sản phẩm"
-                    >
-                      <Input
-                        maxLength={7}
-                        placeholder="Nhập mã sản phẩm"
-                        onChange={onCodeChange}
-                      />
-                    </Item>
-                  </Col>
-                  <Col span={24} md={12} sm={24}>
-                    <Item
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập tên sản phẩm",
-                        },
-                        {
-                          pattern: RegUtil.STRINGUTF8,
-                          message:
-                            "Tên sản phẩm không báo gồm kí tự đặc biệt",
-                        },
-                      ]}
-                      tooltip={{
-                        title:
-                          "Tên mã cha, không bao gồm màu sắc và kích cỡ",
-                        icon: <InfoCircleOutlined />,
-                      }}
-                      name="name"
-                      label="Tên sản phẩm"
-                    >
-                      <Input
-                        onChange={onNameChange}
-                        maxLength={120}
-                        placeholder="Nhập tên sản phẩm"
-                      />
-                    </Item>
-                  </Col>
-                </Row>
-                <Row gutter={50}>
-                  <Col span={24} md={12} sm={24}>
                     <Item name="brand" label="Thương hiệu">
                       <CustomSelect placeholder="Chọn thương hiệu">
                         {brandList?.map((item) => (
@@ -816,23 +912,32 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
-                    <Item name="made_in_id" label="Xuất xứ">
-                      <CustomSelect
-                        showSearch
-                        optionFilterProp="children"
-                        placeholder="Chọn xuất xứ"
-                      >
-                        {listCountry?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id}>
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
+                    <Item label="Nhóm hàng" name="product_collections">
+                      <SelectPaging
+                          metadata={collections.metadata}
+                          showSearch={false}
+                          mode="multiple"
+                          maxTagCount="responsive"
+                          showArrow
+                          allowClear
+                          searchPlaceholder="Tìm kiếm nhóm hàng"
+                          placeholder="Chọn nhóm hàng"
+                          onPageChange={(key, page) => getCollections(key, page)}
+                          onSearch={(key) => getCollections(key, 1)}
+                        >
+      
+                          {collections.items.map((item) => (
+                            <SelectPaging.Option key={item.code} value={item.code}>
+                              {`${item.code} - ${item.name}`}
+                            </SelectPaging.Option>
+                          ))}
+                        </SelectPaging>
                     </Item>
                   </Col>
                 </Row>
                 <Row gutter={50}>
-                  <Col span={24} md={12} sm={24}>
+                  <Col span={24} md={12} sm={24}> 
+                    <Item name="material" hidden={true}></Item>
                     <Item name="material_id" label="Chất liệu">
                       <CustomSelect
                         showSearch
@@ -857,13 +962,14 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
-                    <Item name="unit" label="Đơn vị">
-                      <CustomSelect placeholder="Chọn đơn vị">
-                        {productUnitList?.map((item) => (
-                          <CustomSelect.Option
-                            key={item.value}
-                            value={item.value}
-                          >
+                    <Item name="made_in_id" label="Xuất xứ">
+                      <CustomSelect
+                        showSearch
+                        optionFilterProp="children"
+                        placeholder="Chọn xuất xứ"
+                      >
+                        {listCountry?.map((item) => (
+                          <CustomSelect.Option key={item.id} value={item.id}>
                             {item.name}
                           </CustomSelect.Option>
                         ))}
@@ -872,6 +978,20 @@ const ProductCreateScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                      <Item name="unit" label="Đơn vị">
+                        <CustomSelect placeholder="Chọn đơn vị">
+                          {productUnitList?.map((item) => (
+                            <CustomSelect.Option
+                              key={item.value}
+                              value={item.value}
+                            >
+                              {item.name}
+                            </CustomSelect.Option>
+                          ))}
+                        </CustomSelect>
+                      </Item>
+                  </Col>
                   <Col span={24} md={12} sm={24}>
                     <Item name="supplier_id" label="Nhà cung cấp">
                       <SelectPaging
@@ -891,27 +1011,12 @@ const ProductCreateScreen: React.FC = () => {
                       </SelectPaging>
                     </Item>
                   </Col>
-                  <Col span={24} md={12} sm={24}>
-                    <Item
-                      tooltip={{
-                        title: "Thẻ ngày giúp tìm kiếm các sản phẩm",
-                        icon: <InfoCircleOutlined />,
-                      }}
-                      name="tags"
-                      label="Từ khóa"
-                    >
-                      <HashTag />
-                    </Item>
-                  </Col>
+                 {/* tuwf k */}
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item
-                      label="Kích thước (dài, rộng, cao)"
-                      tooltip={{
-                        title: "Thông tin kích thước khi đóng gói sản phẩm",
-                        icon: <InfoCircleOutlined />,
-                      }}
+                      label="Kích thước đóng gói (dài, rộng, cao)"
                     >
                       <Input.Group compact>
                         <Item name="length" noStyle>
@@ -1008,38 +1113,61 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                 </Row>
-                <Row>
-                  <Col span={24}>
-                    <Item name="care_labels" label={`Thông tin bảo quản `}> 
-                      {
-                        (form.getFieldValue("care_labels") && form.getFieldValue("care_labels").length > 0) ?
-                         <>
-                          <Button className="button-plus" icon={<EditOutlined />} />
-                         </> :
-                         <Button className="button-plus" icon={<PlusOutlined />} />
-                      }
+                <Row gutter={50}>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      tooltip={{
+                        title: "Thẻ ngày giúp tìm kiếm các sản phẩm",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="tags"
+                      label="Từ khóa"
+                    >
+                      <HashTag />
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item label="Thông tin bảo quản">
+                      {careLabels.map((item: any) => (
+                          <Popover content={item.name}>
+                            <span className={`care-label ydl-${item.value}`}></span>
+                          </Popover>
+                        ))}
+                        <Button
+                          className={`button-plus`}
+                          icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
+                          onClick={() => setShowCareModal(true)}
+                        />
                     </Item>
                   </Col>
                 </Row>
                 <Row gutter={24}>
-                  <Col span={24}>
-                    <Collapse
-                      ghost
-                      expandIcon={({ isActive }) =>
-                        isActive ? <MinusOutlined /> : <PlusOutlined />
-                      }
-                      className="padding-0"
-                    >
-                      <Collapse.Panel
-                        header="Mô tả sản phẩm"
-                        key="prDes"
-                        className="custom-header"
+                    <Col span={24}>
+                      <Collapse
+                        key="description"
+                        ghost
+                        expandIcon={({ isActive }) =>
+                          isActive ? <MinusOutlined /> : <PlusOutlined />
+                        }
+                        className="padding-0"
                       >
-                        <Item name="description">
-                          <CustomEditor />
-                        </Item>
-                      </Collapse.Panel>
-                    </Collapse>
+                        <Collapse.Panel
+                          header="Mô tả sản phẩm"
+                          key="prDes"
+                          className="custom-header"
+                          extra={
+                            <div>
+                              <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{ 
+                                setIsChangeDescription(e.target.checked ? true: false)
+                                }}>Lấy thông tin mô tả từ chất liệu</Checkbox>
+                            </div>
+                          }
+                        >
+                          <Item name="description">
+                            <CustomEditor />
+                          </Item>
+                        </Collapse.Panel>
+                      </Collapse>
                   </Col>
                 </Row>
               </Card>
@@ -1098,7 +1226,7 @@ const ProductCreateScreen: React.FC = () => {
                     searchPlaceholder="Tìm kiếm nhân viên"
                     placeholder="Chọn thiết kế"
                     onPageChange={(key, page) => getAccounts(key, page, true, false)}
-                    onSearch={(key) => getAccounts(key, 1, false, true)}
+                    onSearch={(key) => getAccounts(key, 1, true, false)}
                   >
 
                     {designer.items.map((item) => (
@@ -1143,10 +1271,12 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  default={0}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
+                                  maxLength={15}
                                   placeholder="VD: 100,000"
                                 />
                               </Item>
@@ -1172,6 +1302,7 @@ const ProductCreateScreen: React.FC = () => {
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
+                                  maxLength={15}
                                   placeholder="VD: 100,000"
                                 />
                               </Item>
@@ -1192,6 +1323,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  maxLength={15}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
@@ -1219,6 +1351,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
+                                  maxLength={15}
                                   format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
@@ -1237,6 +1370,7 @@ const ProductCreateScreen: React.FC = () => {
                                   isFloat
                                   placeholder="VD: 10"
                                   suffix={<span>%</span>}
+                                  maxLength={15}
                                 />
                               </Item>
                             </Col>
@@ -1469,6 +1603,16 @@ const ProductCreateScreen: React.FC = () => {
               // getFirstProductAvatarCreate(variants)
               setVisibleUpload(false);
             }}
+          />
+          <CareModal
+            onCancel={() => setShowCareModal(false)}
+            onOk={(data) => {
+              console.log('data data', data);
+              setCareLabelsString(data);
+              setShowCareModal(false);
+            }}
+            visible={showCareModal}
+            careLabels={careLabelsString}
           />
         </ContentContainer>
       </StyledComponent>

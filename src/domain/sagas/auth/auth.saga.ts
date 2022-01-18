@@ -9,7 +9,7 @@ import { AuthenRequest } from "model/auth/roles.model";
 import { LoginResponse } from "model/account/account.model";
 import { call } from "redux-saga/effects";
 import { loginApi, logoutApi } from "service/accounts/account.service";
-import { removeToken, setToken } from "utils/LocalStorageUtils";
+import { clearLocalStorage, removeToken, setToken } from "utils/LocalStorageUtils";
 import { showError } from "utils/ToastUtils";
 
 function* loginSaga(action: YodyAction) {
@@ -42,7 +42,7 @@ function* logoutSaga() {
   try {
     yield call(logoutApi); 
   } catch (error) {}
-  yield removeToken();
+  yield clearLocalStorage();
   yield delay(1000);
   yield put(hideLoading());
   yield put(logoutSuccessAction())

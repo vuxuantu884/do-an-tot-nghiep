@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
@@ -6,12 +7,12 @@ export const StyledComponent = styled.div`
     margin-top: 20px;
     .card-container {
       .left {
-        border-right: 1px solid #e5e5e5;
+        border-right: 1px solid ${borderColor};
       }
       .right {
         .header-view {
           padding: 16px 20px;
-          border-bottom: 1px solid #e5e5e5;
+          border-bottom: 1px solid ${borderColor};
           justify-content: space-between;
           display: flex;
           flex-direction: row;
@@ -54,14 +55,18 @@ export const StyledComponent = styled.div`
   }
   .data-content {
     color: #222222;
-    height: 185px;
+    max-height: 144.5px;
     overflow: auto;
-    padding: 10px 5px;
-    border: 1px solid #d9d9d9;
+    padding: 10px 0px;
+    // border: 1px solid #d9d9d9;
+  }
+  .data-content::-webkit-scrollbar {
+    width: 1px;
+    height: 8px;
   }
   .data-empty {
     color: red;
-    height: 185px;
+    height: 144.5px;
   }
   .view-right {
     display: flex;
@@ -95,6 +100,55 @@ export const StyledComponent = styled.div`
         width: 60px !important;
         height: 60px !important;
         cursor: pointer;
+      }
+    }
+  }
+  .care-title {
+    margin-bottom: 10px;
+    color: #666666;
+  } 
+  .care-label {
+    font-size: 28px;
+    vertical-align: -0.125em;
+    margin: 2px 4px 15px 6px;
+  }
+
+  .row-detail {
+    margin-bottom: 15px;
+    font-size: 14px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    &-left {
+      width: 35%;
+    }
+    &-right {
+      width: 65%;
+    }
+    .dot {
+      margin-right: 10px;
+    }
+    .title {
+      color: #666666;
+    }
+    .data {
+      color: #222222;
+      font-weight:500;
+    }
+    .row-detail-right{
+      word-wrap: break-word;
+    }
+    .row-detail-right .ant-tag{
+      margin-top: 0; 
+      font-size: 14px;
+    }
+
+    .button-plus {
+      border: 1px solid #E5E5E5;
+      background: #FFFFFF;
+      color: #757575;
+      .anticon {
+        vertical-align: 0.125em;
       }
     }
   }

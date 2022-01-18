@@ -7,6 +7,8 @@ export interface OrderRequest {
   price_type: string | null;
   tax_treatment: string | null;
   source_id: number | null;
+  source_code?:string|null;
+  source?:string|null;
   note: string | null;
   tags: string | null;
   customer_note: string | null;
@@ -219,7 +221,7 @@ export interface OrderPaymentRequest {
   return_amount: number;
   status: string;
   name?: string;
-  code: string;
+  code?: string;
   point?: number;
   customer_id: number | null;
   type: string;
@@ -311,9 +313,10 @@ export interface UpdateFulFillmentStatusRequest {
   status: string | null;
   // cancel_reason?: string | null;
   action?: string | null;
-  cancel_reason_id?: number;
+  cancel_reason_id?: string;
   sub_cancel_reason_id?: number;
   reason?: string;
+  other_reason?: string;
 }
 
 export interface ShippingGHTKRequest {

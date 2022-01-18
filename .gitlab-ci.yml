@@ -13,6 +13,7 @@ stages:
 
 docker build dev:
   stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
   tags:
   - npd-dev
   only:
@@ -27,6 +28,7 @@ docker build dev:
 
 docker build uat:
   stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
   tags:
   - npd-dev
   only:
@@ -41,6 +43,7 @@ docker build uat:
 
 docker build production:
   stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
   tags:
   - npd-dev
   only:
@@ -60,7 +63,6 @@ deploy to dev:
     - npd-deploy
   only:
     - develop
-  when: manual
   variables:
     PREFIX: dev
     HOST: dev.unicorn.yody.io

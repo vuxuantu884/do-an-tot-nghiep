@@ -39,6 +39,7 @@ export interface CustomerResponse extends BaseObject {
   ward_id: number | null;
   report: any;
   loyalty_level_id: number | null;
+  version:number;
 }
 
 export interface note extends BaseObject {
@@ -77,7 +78,7 @@ export interface ShippingAddress extends BaseObject {
   ward: string;
   zip_code: string;
   full_address: string;
-  
+  version:number;
 }
 
 export interface contact extends BaseObject {

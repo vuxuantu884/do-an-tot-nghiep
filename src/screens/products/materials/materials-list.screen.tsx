@@ -13,7 +13,7 @@ import {
 } from "domain/actions/product/material.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
-import { showWarning } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
@@ -100,6 +100,7 @@ const ListMaterial: React.FC = () => {
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     setSelected([...selected]);
+    showSuccess("Xóa thành công");
     dispatch(getMaterialAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params, selected]);
 

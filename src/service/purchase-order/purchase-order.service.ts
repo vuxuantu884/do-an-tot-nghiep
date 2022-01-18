@@ -1,4 +1,4 @@
-import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
+import { ProcumentLogQuery, PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -11,6 +11,7 @@ import { generateQuery } from "utils/AppUtils";
 import { ImportProcument } from "model/purchase-order/purchase-procument";
 import {ImportResponse } from "model/other/files/export-model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
+import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 
 export const createPurchaseOrder = (
   data: PurchaseOrder
@@ -51,6 +52,7 @@ export const returnPurchaseOrder = (
     data
   );
 };
+
 
 export const getPrintContent = (
   id: number
@@ -122,5 +124,15 @@ export const deletePurchaseOrderConfigService = (
 ): Promise<BaseResponse<Array<FilterConfig>>> => {
   return BaseAxios.delete(
     `${ApiConfig.PURCHASE_ORDER}/config/${id}`,
+  );
+};
+
+export const getProcumentLogsService = (
+  query: ProcumentLogQuery
+): Promise<BaseResponse<PageResponse<PurchaseOrderActionLogResponse>>> => {
+  
+  let params = generateQuery(query);
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/procurements/logs?${params}`,
   );
 };

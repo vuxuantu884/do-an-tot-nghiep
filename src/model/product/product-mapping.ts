@@ -1,5 +1,4 @@
 const SearchVariantField = {
-  inventory: 'inventory',
   made_in: 'made_in',
   designer: 'designer',
   merchandiser: 'merchandiser',
@@ -15,7 +14,6 @@ const SearchVariantField = {
 const SearchVariantMapping = {
   [SearchVariantField.created_date]: "Ngày tạo",
   [SearchVariantField.saleable]: "Cho phép bán",
-  [SearchVariantField.inventory]: "Tồn kho",
   [SearchVariantField.made_in]: "Xuất xứ",
   [SearchVariantField.designer]: "Nhà thiết kế",
   [SearchVariantField.merchandiser]: "Merchandiser",

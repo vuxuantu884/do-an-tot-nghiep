@@ -83,14 +83,9 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const fillAll = useCallback(
     (checked: boolean) => {
       if (checked) {
-        if (data) setSelection(selection.concat(data?.items));
+        if (data) setSelection([...selection,...data?.items]);
       } else {
-        const tempSelection = [...selection];
-        data?.items.forEach(item => {
-          const removedIndex = tempSelection.findIndex(s => s.id === item.id)
-          tempSelection.splice(removedIndex, 1);
-        })
-        setSelection([...tempSelection]);
+        setSelection([]);
       }
     },
     [data, selection]

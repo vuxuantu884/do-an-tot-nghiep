@@ -3,17 +3,19 @@ import moment, { Moment } from "moment";
 export const DATE_FORMAT = {
   DDMMYYY: "DD/MM/YYYY",
   DDMMYY_HHmm: "DD/MM/YYYY HH:mm",
+  HHmm_DDMMYYYY: "HH:mm DD/MM/YYYY",
   DDMM: "DD/MM",
+	fullDate: "DD/MM/YY HH:mm",
 };
 
 export const ConvertUtcToLocalDate = (
-  date?: Date | string | number,
+  date?: Date | string | number | null,
   format?: string
 ) => {
   if (date != null) {
     let localDate = moment.utc(date).toDate();
     let dateFormat = moment(localDate).format(
-      format ? format : "DD/MM/YYYY HH:mm:ss"
+      format ? format : DATE_FORMAT.fullDate
     );
     return dateFormat;
   }

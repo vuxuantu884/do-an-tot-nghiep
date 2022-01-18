@@ -1,11 +1,10 @@
 import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { searchProductWrapperRequestAction } from "domain/actions/product/products.action";
-import { getVariants, promoGetDetail, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
+import { getVariantsAction, getPriceRuleAction, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
-import { EntilementFormModel, ProductEntitlements } from "model/promotion/discount.create.model";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { PriceRule, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model"; 
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -14,10 +13,10 @@ import { parseDurationToMoment, transformData } from "utils/PromotionUtils";
 import ContentContainer from "../../../../component/container/content.container";
 import UrlConfig from "../../../../config/url.config";
 import { showError, showSuccess } from "../../../../utils/ToastUtils";
-import GeneralConditionForm from "../../shared/general-condition.form";
-import "../discount.scss";
-import DiscountUpdateForm from "./discount-update-form";
-import DiscountUpdateProvider, { DiscountUpdateContext } from "./discount-update-provider";
+import GeneralConditionForm from "../../shared/general-condition.form"; 
+import DiscountUpdateForm from "../components/discount-form";
+import DiscountProvider, { DiscountContext } from "../components/discount-provider";
+import { DiscountStyled } from "../discount-style";
 const DiscountUpdate = () => {
 
     const dispatch = useDispatch();
@@ -35,13 +34,13 @@ const DiscountUpdate = () => {
     const [isAllChannel, setIsAllChannel] = useState(true);
     const [isAllSource, setIsAllSource] = useState(true);
     const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const discountUpdateContext = useContext(DiscountUpdateContext);
+    const discountUpdateContext = useContext(DiscountContext);
     const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
 
     const parseDataToForm = useCallback(
-        (result: DiscountResponse) => {
+        (result: PriceRule) => {
             const formValue: any = {
                 title: result.title,
                 discount_code: result.code,
@@ -110,7 +109,7 @@ const DiscountUpdate = () => {
     /**
      * Update discount
      */
-    const updateCallback = (data: DiscountResponse) => {
+    const updateCallback = (data: PriceRule) => {
         if (data) {
             showSuccess("Cập nhật chiết khấu thành công");
             setIsSubmitting(false)
@@ -136,8 +135,8 @@ const DiscountUpdate = () => {
      * 
      */
     const onResult = useCallback(
-        (result: DiscountResponse | false) => {
-            if (result) {
+        (result: PriceRule | false) => {
+            if (result) {                
                 // search data of parent product for entitled_product_ids
                 let product_ids: Array<number> = []
                 result.entitlements.forEach((item: EntilementFormModel) => {
@@ -150,12 +149,13 @@ const DiscountUpdate = () => {
                     product_ids
                 }
                 dispatch(searchProductWrapperRequestAction(query, (data: false | PageResponse<ProductResponse>) => {
-                    if (data)
+                    if (data) {
                         setDataProducts(data.items)
+                    }
                 }));
 
                 parseDataToForm(result);
-
+                setIsLoading(false);
             }
         },
         [dispatch, parseDataToForm]
@@ -210,13 +210,15 @@ const DiscountUpdate = () => {
     }, [discountData, form, mergeVariantsData]);
 
     useEffect(() => {
-        dispatch(getVariants(idNumber, setDataVariants));
-        dispatch(promoGetDetail(idNumber, onResult));
+        setIsLoading(true);
+        dispatch(getVariantsAction(idNumber, setDataVariants));
+        dispatch(getPriceRuleAction(idNumber, onResult));
     }, [dispatch, idNumber, onResult]);
 
     return (
         <ContentContainer
             title={discountData.title}
+            isLoading={isLoading}
             breadcrumb={[
                 {
                     name: "Tổng quan",
@@ -232,14 +234,14 @@ const DiscountUpdate = () => {
                 },
             ]}
         >
-            <Form
+            <DiscountStyled>
+                <Form
                 form={form}
                 name="discount_update"
                 onFinish={(values: any) => handleSubmit(values)}
                 layout="vertical"
                 scrollToFirstError
                 initialValues={discountData}
-                //  onFieldsChange={(changedFields, allFields) => {console.log(changedFields, allFields)}}
             >
                 <Row gutter={24}>
 
@@ -269,11 +271,12 @@ const DiscountUpdate = () => {
                     </Button>}
                 />
             </Form>
+            </DiscountStyled>
         </ContentContainer>
     );
 };
 
-const DiscountUpdateWithProvider = () => (<DiscountUpdateProvider>
+const DiscountUpdateWithProvider = () => (<DiscountProvider>
     <DiscountUpdate />
-</DiscountUpdateProvider>)
+</DiscountProvider>)
 export default DiscountUpdateWithProvider;

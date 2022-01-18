@@ -49,7 +49,7 @@ import {
   updateOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
+import {INVENTORY_AUDIT_TYPE_CONSTANTS, STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
 import {HttpStatus} from "config/http-status.config";
 
 import {UploadRequestOption} from "rc-upload/lib/interface";
@@ -72,6 +72,8 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
 import TextArea from "antd/es/input/TextArea";
+import { AiOutlineClose } from "react-icons/ai";
+import CustomPagination from "component/table/CustomPagination";
 
 const {TabPane} = Tabs;
 
@@ -113,8 +115,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const {id} = useParams<InventoryParams>();
   const idNumber = parseInt(id);
   const [keySearch, setKeySearch] = useState<string>("");
-  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [objSummary, setObjSummary] = useState<SummaryData>();
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false); 
   const [hasError, setHasError] = useState<boolean>(false);
 
   const [printContent, setPrintContent] = useState("");
@@ -250,22 +251,8 @@ const DetailInvetoryAdjustment: FC = () => {
       if (result) {
         setDatalinesItem({...result});
         drawColumns(result?.items);
-        setHasError(false);
-        if (result?.items && result?.items.length > 0) {
-          let dataDis = 0;
-          result.items.forEach((e: LineItemAdjustment) => {
-            if (e.on_hand_adj !== 0) {
-              dataDis += 1;
-            }
-          });
-          let total = result.items.length;
-
-          setObjSummary({
-            partly: dataDis,
-            total: total,
-          });
-        }
-        setTableLoading(false);
+        setHasError(false); 
+        setTableLoading(false); 
       }
     },
     [drawColumns]
@@ -278,16 +265,23 @@ const DetailInvetoryAdjustment: FC = () => {
         (variant: VariantResponse) => variant.id.toString() === value
       );
 
-      if (
-        !dataTemp.some((variant: LineItemAdjustment) => variant.id === selectedItem.id)
-      ) {
+      if ( !dataTemp.some((variant: LineItemAdjustment) => variant.id === selectedItem.id)
+      ) { 
+        const variantPrice =
+        selectedItem &&
+        selectedItem.variant_prices &&
+        selectedItem.variant_prices[0] &&
+        selectedItem.variant_prices[0].retail_price;
+
         selectedItem = {
           ...selectedItem,
           variant_id: selectedItem.id,
-          variant_name: selectedItem.name,
+          variant_name: selectedItem.variant_name ?? selectedItem.name,
           real_on_hand: 0,
           on_hand_adj: 0 - (selectedItem.on_hand ?? 0),
           on_hand_adj_dis: (0 - (selectedItem.on_hand ?? 0)).toString(),
+          price: variantPrice ?? 0,
+          on_hand: selectedItem.on_hand ?? 0
         };
 
         setHasError(false);
@@ -311,15 +305,23 @@ const DetailInvetoryAdjustment: FC = () => {
   );
 
   const onPickManyProduct = useCallback(
-    (result: Array<VariantResponse>) => {
+    (result: Array<VariantResponse>) => { 
       const newResult = result?.map((item) => {
+        const variantPrice =
+        item &&
+        item.variant_prices &&
+        item.variant_prices[0] &&
+        item.variant_prices[0].retail_price;
+        
         return {
           ...item,
           variant_id: item.id,
-          variant_name: item.name,
+          variant_name: item.variant_name ?? item.name,
           real_on_hand: 0,
           on_hand_adj: 0 - (item.on_hand ?? 0),
           on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString(),
+          on_hand: item.on_hand ?? 0,
+          price: variantPrice
         };
       });
       const dataTemp = [...dataLinesItem.items, ...newResult];
@@ -354,7 +356,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const printContentCallback = useCallback(
     (printContent) => {
       const textResponse = printContent.map((single: any) => {
-        return "<div class='singleOrderPrint'>" + single.html_content + "</div>";
+        return `<div class='singleOrderPrint'>` + single.html_content + "</div>";
       });
       let textResponseFormatted = textResponse.join(pageBreak);
       //xóa thẻ p thừa
@@ -385,7 +387,7 @@ const DetailInvetoryAdjustment: FC = () => {
           } else {
             fileList.splice(index, 1);
             showError("Upload ảnh không thành công");
-          }
+          } 
           setFileList([...fileList]);
         })
       );
@@ -438,7 +440,7 @@ const DetailInvetoryAdjustment: FC = () => {
     if (data) {
       let params = {
         ids: data.id,
-        type: "inventory_transfer_bill",
+        store_id: data.adjusted_store_id
       };
       const queryParam = generateQuery(params);
       dispatch(
@@ -524,38 +526,9 @@ const DetailInvetoryAdjustment: FC = () => {
               min={0}
               maxLength={12}
               value={value}
-              onChange={(value) => {
-                onRealQuantityChange(value, row, index);
-              }}
-              onKeyPress={(event) => {
-                if (event.key === "Enter") {
-                  let value = event.target.value;
-                  row.real_on_hand = value ?? 0;
-                  let totalDiff = 0;
-                  totalDiff = value - row.on_hand;
-                  if (totalDiff === 0) {
-                    row.on_hand_adj = null;
-                    row.on_hand_adj_dis = null;
-                  } else if (row.on_hand < value) {
-                    row.on_hand_adj = totalDiff;
-                    row.on_hand_adj_dis = `+${totalDiff}`;
-                  } else if (row.on_hand > value) {
-                    row.on_hand_adj = totalDiff;
-                    row.on_hand_adj_dis = `${totalDiff}`;
-                  }
-                  
-                  dispatch(
-                    updateItemOnlineInventoryAction(data?.id, row, (result: LineItemAdjustment) => {
-                      if (result) {
-                        showSuccess("Nhập tồn thực tế thành công.");
-                        onEnterFilterVariant();
-                        const version = form.getFieldValue('version');
-                        form.setFieldsValue({version: version + 1});
-                      }
-                    })
-                  );
-                }
-              }}
+              onChange={(value) => { 
+                onChangeRealOnHand(row, value ?? 0);
+              }} 
             />
           );
         } else {
@@ -601,6 +574,23 @@ const DetailInvetoryAdjustment: FC = () => {
         }
       },
     },
+    {
+      title: "",
+      fixed: "right",
+      width: 50,
+      render: (value: string, row) => {
+        return <>
+          {
+           data?.audit_type === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL &&
+          <Button
+            onClick={() => onDeleteItem(row.id)}
+            className="item-delete"
+            icon={<AiOutlineClose color="red" />}
+          />
+          }
+        </>
+      }
+    } 
   ]; 
 
   const onResult = useCallback(
@@ -620,13 +610,13 @@ const DetailInvetoryAdjustment: FC = () => {
         dispatch(
           getLinesItemAdjustmentAction(
             idNumber,
-            `page=1&limit=30&condition=${keySearch?.toString()}`,
+            `page=1&limit=30&condition=`,
             onResultDataTable
           )
         );
       }
     },
-    [idNumber, keySearch, form, onResultDataTable, dispatch]
+    [idNumber, form, onResultDataTable, dispatch]
   );
 
   const updateAdjustment = React.useMemo(() =>
@@ -684,19 +674,18 @@ const onChangeNote = useCallback(
   }, [dispatch, data?.id, onResult]);
 
   const onEnterFilterVariant = useCallback(
-    () => {
+    (code: string) => {
       setTableLoading(true);
-      debugger
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,
-          `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+          `page=1&limit=30&condition=${code?.toLocaleLowerCase()}`,
           onResultDataTable
         )
       );
       setTableLoading(false);
     },
-    [keySearch, dispatch, idNumber, onResultDataTable]
+    [dispatch, idNumber, onResultDataTable]
   );
 
   type accountAudit = {
@@ -715,7 +704,7 @@ const onChangeNote = useCallback(
   );
 
   const onRealQuantityChange = useCallback(
-    (quantity: number | any, row: LineItemAdjustment, index: number) => {
+    (quantity: number | any, row: LineItemAdjustment) => {
       const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataLinesItem.items);
 
       dataTableClone.forEach((item) => {
@@ -779,20 +768,16 @@ const onChangeNote = useCallback(
     [dataLinesItem, dispatch, idNumber, keySearch, onResultDataTable]
   );
 
-  const onSearchVariant =useCallback(()=>{
-    _.debounce(()=>{
-      onEnterFilterVariant();
-    }, 300)
-  },[onEnterFilterVariant]);
+  const debounceSearchVariant = useMemo(()=>
+    _.debounce((code: string)=>{
+      onEnterFilterVariant(code);
+   }, 300),
+   [onEnterFilterVariant]
+   );
 
-  const onChangeKeySearch = useCallback(()=>{
-    onSearchVariant();
-  },[onSearchVariant]);
-
-  useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
-  }, [idNumber, onResult, dispatch, setDataAccounts]);
+  const onChangeKeySearch = useCallback((code: string)=>{
+    debounceSearchVariant(code);
+  },[debounceSearchVariant]); 
 
   const onExport = useCallback(() => {
     exportFile({
@@ -897,6 +882,13 @@ const onChangeNote = useCallback(
     }
   }, [dispatch, idNumber, listJobImportFile, onResult, statusImport]);
 
+  const onDeleteItem = useCallback(
+    (variantId: number) => {
+     
+    },
+    []
+  );
+
   useEffect(() => {
     if (
       listJobImportFile.length === 0 ||
@@ -909,6 +901,56 @@ const onChangeNote = useCallback(
     const getFileInterval = setInterval(checkImportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [listJobImportFile, statusImport, checkImportFile]);
+
+  useEffect(() => {
+    dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
+  }, [idNumber, onResult, dispatch]);
+
+  useEffect(()=>{
+    dispatch(AccountSearchAction({}, setDataAccounts));
+  },[dispatch,setDataAccounts]);
+
+  const debounceChangeRealOnHand = useMemo(()=>
+  _.debounce((row: LineItemAdjustment, realOnHand: number)=>{
+      if (row.real_on_hand && row.real_on_hand === realOnHand) {
+        return;
+      }
+      onRealQuantityChange(realOnHand, row);
+      let value = realOnHand;
+      row.real_on_hand = value ?? 0;
+      let totalDiff = 0;
+      totalDiff = value - row.on_hand;
+      if (totalDiff === 0) {
+        row.on_hand_adj = null;
+        row.on_hand_adj_dis = null;
+      } else if (row.on_hand < value) {
+        row.on_hand_adj = totalDiff;
+        row.on_hand_adj_dis = `+${totalDiff}`;
+      } else if (row.on_hand > value) {
+        row.on_hand_adj = totalDiff;
+        row.on_hand_adj_dis = `${totalDiff}`;
+      }
+      if (!data || (data === undefined || !data.id)) {
+        return null;
+      }
+      
+      dispatch(
+        updateItemOnlineInventoryAction(data.id, row, (result: LineItemAdjustment) => {
+          if (result) {
+            showSuccess("Nhập tồn thực tế thành công.");
+            onEnterFilterVariant(keySearch);
+            const version = form.getFieldValue('version');
+            form.setFieldsValue({version: version + 1});
+          }
+        })
+      );
+    },300),
+ [data,dispatch,onRealQuantityChange,onEnterFilterVariant, form, keySearch]
+ );
+
+  const onChangeRealOnHand = useCallback((item: LineItemAdjustment, realOnHand: number)=>{
+    debounceChangeRealOnHand(item, realOnHand);
+  },[debounceChangeRealOnHand]);
 
   return (
     <StyledWrapper>
@@ -973,24 +1015,24 @@ const onChangeNote = useCallback(
                 </Card>
                 {
                   //case trạng thái
-                  data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
-                  data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status ? (
+                  (data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
+                    data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) ? (
                     <Card>
                       <Tabs
                         style={{overflow: "initial"}}
                         activeKey={activeTab}
                         onChange={(active) => setActiveTab(active)}
                       >
-                        <TabPane tab={`Thừa/Thiếu (${objSummary?.partly})`} key="1">
+                        <TabPane tab={`Thừa/Thiếu (${data?.total_excess + data?.total_missing})`} key="1">
                           <InventoryAdjustmentHistory
                             data={data}
-                            dataLinesItem={dataLinesItem.items}
+                            idNumber={idNumber}
                           />
                         </TabPane>
-                        <TabPane tab={`Tất cả (${objSummary?.total})`} key="2">
+                        <TabPane tab={`Tất cả (${data?.total_variant})`} key="2">
                           <InventoryAdjustmentListAll
+                            idNumber={idNumber}
                             data={data}
-                            dataLinesItem={dataLinesItem.items}
                           />
                         </TabPane>
                       </Tabs>
@@ -1036,13 +1078,13 @@ const onChangeNote = useCallback(
                             value={keySearch}
                             onChange={(e) => {
                               setKeySearch(e.target.value);
-                              onChangeKeySearch();
+                              onChangeKeySearch(e.target.value);
                             }} 
                             style={{marginLeft: 8}}
                             placeholder="Tìm kiếm sản phẩm trong phiếu"
                             addonAfter={
                               <SearchOutlined
-                                onClick={onChangeKeySearch}
+                                onClick={()=>{onChangeKeySearch(keySearch)}}
                                 style={{color: "#2A2A86"}}
                               />
                             }
@@ -1052,9 +1094,14 @@ const onChangeNote = useCallback(
                       <CustomTable
                         isLoading={tableLoading}
                         tableLayout="fixed"
-                        style={{paddingTop: 20}}
-                        scroll={{y: 300}}
+                        style={{paddingTop: 20}} 
                         columns={defaultColumns}
+                        pagination={false}
+                        sticky={{offsetScroll: 5, offsetHeader: 55}} 
+                        dataSource={dataLinesItem.items}
+                        rowKey={(item: LineItemAdjustment) => item.id}
+                      />
+                      <CustomPagination
                         pagination={{
                           pageSize: dataLinesItem.metadata.limit,
                           total: dataLinesItem.metadata.total,
@@ -1063,9 +1110,8 @@ const onChangeNote = useCallback(
                           onChange: onPageChange,
                           onShowSizeChange: onPageChange,
                         }}
-                        dataSource={dataLinesItem.items}
-                        rowKey={(item: LineItemAdjustment) => item.id}
-                      />
+                      >
+                      </CustomPagination>
                     </Card>
                   )
                 }
@@ -1111,7 +1157,7 @@ const onChangeNote = useCallback(
                       labelCol={{span: 24, offset: 0}}
                       rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                     >
-                      <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
+                      <TextArea disabled={data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED} onChange={(e)=>{onChangeNote(e.target.value)}} placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
                     </Form.Item> 
                   </Row>  
                   <Row

@@ -13,6 +13,7 @@ import {
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
+import _ from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
@@ -22,7 +23,7 @@ import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
-import { dayOfWeekOptions } from "../discount/constants/index";
+import { dayOfWeekOptions } from "../constants/index";
 import { CustomerContitionFormlStyle } from "./condition.style";
 import CustomerFilter from "./cusomer-condition.form";
 
@@ -73,28 +74,41 @@ function GeneralConditionForm({
           <span>
             Thời gian áp dụng <span className="required-field">*</span>
           </span>
-        }
-      >
+        }>
         <Row gutter={6}>
           <Col span={12}>
             <Form.Item
               name="starts_date"
-              rules={[{ required: true, message: "Vui lòng chọn thời gian áp dụng" }]}
-            >
+              rules={[
+                { required: true, message: "Vui lòng chọn thời gian áp dụng" },
+              ]}>
               <DatePicker
                 style={{ width: "100%" }}
                 placeholder="Từ ngày"
                 showTime={{ format: "HH:mm" }}
                 format={DATE_FORMAT.DDMMYY_HHmm}
-                disabledDate={(currentDate) => {
-                  currentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-                  console.log('currentDate', currentDate);
-                  return currentDate.isBefore(moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 })) ||
+                disabledDate={(date) => {
+                  const currentDate = _.cloneDeep(date);
+                  currentDate.set({
+                    hour: 0,
+                    minute: 0,
+                    second: 0,
+                    millisecond: 0,
+                  });
+                  return (
+                    currentDate.isBefore(
+                      moment().set({
+                        hour: 0,
+                        minute: 0,
+                        second: 0,
+                        millisecond: 0,
+                      })
+                    ) ||
                     (form.getFieldValue("ends_date")
                       ? currentDate.valueOf() > form.getFieldValue("ends_date")
                       : false)
-                }
-                }
+                  );
+                }}
                 showNow={true}
               />
             </Form.Item>
@@ -106,32 +120,46 @@ function GeneralConditionForm({
                 format={DATE_FORMAT.DDMMYY_HHmm}
                 style={{ width: "100%" }}
                 placeholder="Đến ngày"
-                disabledDate={(currentDate) =>
-                  currentDate.isBefore(moment()) ||
-                  (form.getFieldValue("starts_date") &&
-                    currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
-                }
+                disabledDate={(date) => {
+                  const currentDate = _.cloneDeep(date);
+                  return (
+                    currentDate.isBefore(moment()) ||
+                    (form.getFieldValue("starts_date") &&
+                      currentDate.isBefore(
+                        moment(form.getFieldValue("starts_date"))
+                      ))
+                  );
+                }}
                 showNow={false}
+                onClick={() => {
+                  // set time default 23:59
+                  const endDate = form.getFieldValue("ends_date");
+                  if (!endDate) {
+                    form.setFieldsValue({
+                      ends_date: moment().set({ hour: 23, minute: 59 }),
+                    });
+                  }
+                }}
               />
             </Form.Item>
           </Col>
-
         </Row>
         {showTimeAdvance ? (
           <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 label={<b>Chỉ áp dụng trong các khung giờ:</b>}
-                name="prerequisite_time"
-              >
-                <TimeRangePicker placeholder={["Từ", "Đến"]} style={{ width: "100%" }} />
+                name="prerequisite_time">
+                <TimeRangePicker
+                  placeholder={["Từ", "Đến"]}
+                  style={{ width: "100%" }}
+                />
               </Form.Item>
             </Col>
             <Col span={24}>
               <Form.Item
                 label={<b>Chỉ áp dụng các ngày trong tuần:</b>}
-                name="prerequisite_weekdays"
-              >
+                name="prerequisite_weekdays">
                 <Select placeholder="Chọn ngày" mode="multiple">
                   {dayOfWeekOptions.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -145,11 +173,12 @@ function GeneralConditionForm({
               <Form.Item
                 label={<b>Chỉ áp dụng các ngày trong tháng:</b>}
                 name="prerequisite_days"
-                style={{ marginBottom: "5px" }}
-              >
+                style={{ marginBottom: "5px" }}>
                 <Select placeholder="Chọn ngày" mode="multiple">
                   {getDayOptions().map((day) => (
-                    <Option value={day.key} key={day.value}>{day.value}</Option>
+                    <Option value={day.key} key={day.value}>
+                      {day.value}
+                    </Option>
                   ))}
                 </Select>
               </Form.Item>
@@ -160,7 +189,14 @@ function GeneralConditionForm({
       <Card title="Cửa hàng áp dụng">
         <Row gutter={12}>
           <Col span={24}>
-            <Form.Item name="prerequisite_store_ids" rules={[{ required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" }]}>
+            <Form.Item
+              name="prerequisite_store_ids"
+              rules={[
+                {
+                  required: !allStore,
+                  message: "Vui lòng chọn cửa hàng áp dụng",
+                },
+              ]}>
               <TreeStore
                 form={form}
                 name="prerequisite_store_ids"
@@ -192,17 +228,27 @@ function GeneralConditionForm({
             <Form.Item
               name="prerequisite_sales_channel_names"
               rules={[
-                { required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng" },
-              ]}
-            >
+                {
+                  required: !allChannel,
+                  message: "Vui lòng chọn kênh bán hàng áp dụng",
+                },
+              ]}>
               <Select
                 disabled={allChannel}
                 placeholder="Chọn kênh bán hàng"
                 mode="multiple"
                 className="ant-select-selector-min-height"
-              >
+                showSearch
+                allowClear
+                filterOption={(input, option) =>
+                  option?.children
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase().trim()) >= 0
+                }>
                 {listChannel?.map((channel: any) => (
-                  <Option value={channel.name} key={channel.name}>{channel.name}</Option>
+                  <Option value={channel.name} key={channel.name}>
+                    {channel.name}
+                  </Option>
                 ))}
               </Select>
             </Form.Item>
@@ -228,17 +274,27 @@ function GeneralConditionForm({
             <Form.Item
               name="prerequisite_order_source_ids"
               rules={[
-                { required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng" },
-              ]}
-            >
+                {
+                  required: !allSource,
+                  message: "Vui lòng chọn nguồn bán hàng áp dụng",
+                },
+              ]}>
               <Select
                 disabled={allSource}
                 placeholder="Chọn nguồn đơn hàng"
                 mode="multiple"
                 className="ant-select-selector-min-height"
-              >
+                showSearch
+                allowClear
+                filterOption={(input, option) =>
+                  option?.children
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase().trim()) >= 0
+                }>
                 {listSource?.map((source: any) => (
-                  <Option value={source.id} key={source.name}>{source.name}</Option>
+                  <Option value={source.id} key={source.name}>
+                    {source.name}
+                  </Option>
                 ))}
               </Select>
             </Form.Item>

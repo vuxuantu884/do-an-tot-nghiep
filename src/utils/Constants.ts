@@ -11,6 +11,7 @@ export const PaymentMethodCode = {
   BANK_TRANSFER: "bank_transfer",
   QR_CODE: "qr_pay",
   POINT: "point",
+  COD: "cod",
 };
 
 export const OrderStatus = {
@@ -50,6 +51,11 @@ export const FulFillmentStatus = {
   RETURNED: "returned",
 };
 
+export const FulFillmentReturnStatus = {
+  RETURNING: "returning",
+  RETURNED: "returned",
+};
+
 export const MoneyType = {
   MONEY: "money",
   PERCENT: "percent",
@@ -73,6 +79,12 @@ export const ShipmentMethod = {
   EXTERNAL_SERVICE: "external_service",
   EMPLOYEE: "employee",
   EXTERNAL_SHIPPER: "external_shipper",
+  SHOPEE: "shopee",
+};
+
+export const SHIPPING_TYPE = {
+  DELIVERY_4H: "4h_delivery",
+  ROAD: "road",
 };
 
 export const TRANSPORTS = {
@@ -117,6 +129,49 @@ export const POStatus = {
   STORED: "stored",
   STOCK_IN: "stock_in",
 };
+
+export const PO_RETURN_HISTORY = [
+  {
+    code: "draft",
+    title: "Đặt hàng",
+  },
+  {
+    code: "finalized",
+    title: "Xác nhận",
+  },
+  {
+    code: "completed",
+    title: "Hoàn thành",
+  },
+  {
+    code: "cancelled",
+    title: "Đã huỷ",
+  },
+  {
+    code: "finished",
+    title: "Kết thúc",
+  },
+  {
+    code: "stored",
+    title: "Đã nhập kho",
+  },
+  {
+    code: "stock_in",
+    title: "Đã nhập kho",
+  },
+  {
+    code: "draftpo",
+    title: "Phiếu nháp",
+  },
+  {
+    code: "null",
+    title: "Không có dữ liệu",
+  },
+  {
+    code: "Create",
+    title: "Đã tạo",
+  },
+]
 
 export const ProcumentStatus = {
   DRAFT: "draft",
@@ -193,7 +248,10 @@ export const ADMIN_ORDER = {
 
 export const POS = {
 	channel_id: 1,
-  channel_code: "POS"
+  channel_code: "POS",
+  source: "POS",
+	source_id: 125,
+  source_code: "SC000070",
 };
 
 export const SHOPEE = {
@@ -219,3 +277,22 @@ export const COLUMN_CONFIG_TYPE = {
   COLUMN_INVENTORY: "column_inventory",
   COLUMN_PO:  "column_po"
 };
+
+export const ACCOUNT_ROLE_ID = {
+	admin: 1,
+}
+
+export const GENDER_OPTIONS = [
+  {
+    label: "Nam",
+    value: "male",
+  },
+  {
+    label: "Nữ",
+    value: "female",
+  },
+  {
+    label: "Khác",
+    value: "other",
+  },
+];

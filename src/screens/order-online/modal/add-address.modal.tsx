@@ -1,24 +1,25 @@
-import { Col, Input, Modal, Row, Select, Form } from "antd";
+import { Col, Form, Input, Modal, Row, Select } from "antd";
 //import arrowDownIcon from "assets/img/drow-down.svg";
-import { CountryGetAllAction, DistrictGetByCountryAction, WardGetByDistrictAction } from "domain/actions/content/content.action";
+import { CountryGetAllAction, WardGetByDistrictAction } from "domain/actions/content/content.action";
 import { CreateShippingAddress, getCustomerDetailAction, UpdateShippingAddress } from "domain/actions/customer/customer.action";
+import { CountryResponse } from "model/content/country.model";
+import { WardResponse } from "model/content/ward.model";
+import { modalActionType } from "model/modal/modal.model";
 import { CustomerShippingAddress } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { ShippingAddress } from "model/response/order/order.response";
 import React, { useCallback } from "react";
+import { useDispatch } from "react-redux";
+import * as CONSTANTS from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import * as CONSTANTS from "utils/Constants";
-import { useDispatch } from "react-redux";
-import { WardResponse } from "model/content/ward.model";
-import { CountryResponse } from "model/content/country.model";
-import { modalActionType } from "model/modal/modal.model";
 
 type AddAddressModalProps = {
   customer: CustomerResponse | null;
   handleChangeCustomer: any;
   formItem: any;
   visible: boolean;
+	areas: any[];
   modalAction: modalActionType;
   onCancel: () => void;
   onOk: () => void;
@@ -41,6 +42,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
   props: AddAddressModalProps
 ) => {
   const {
+		areas,
     visible,
     onCancel,
     formItem,
@@ -51,11 +53,8 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
 
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-
-  const [areas, setAreas] = React.useState<Array<any>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [districtId, setDistrictId] = React.useState<any>(null);
-  const [countryId] = React.useState<number>(233);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
 
   const onOkPress = useCallback(() => {
@@ -101,10 +100,6 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
       setDistrictId(formItem.district_id);
     }
   }, [formItem]);
-
-  React.useEffect(() => {
-    dispatch(DistrictGetByCountryAction(countryId, setAreas));
-  }, [dispatch, countryId]);
 
   React.useEffect(() => {
     if (districtId) {
@@ -191,7 +186,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
 
   return (
     <Modal
-      title="Thêm địa chỉ"
+      title="Thêm địa chỉ giao hàng"
       visible={visible}
       centered
       okText="Lưu"
@@ -199,6 +194,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
       className="update-shipping"
       onOk={onOkPress}
       onCancel={handleCancel}
+      width={"700px"}
     >
       <Form
         form={form}
@@ -238,7 +234,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
                   ]}
                 >
                   <Input
-                    placeholder="Nhập số điện thoại"
+                    placeholder="Nhập số điện thoại người nhận"
                     style={{ width: "100%" }}
                     minLength={9}
                     maxLength={15}
@@ -350,7 +346,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
               ]}
             >
               <Input
-                placeholder="Nhập địa chỉ chi tiết"
+                placeholder="Nhập địa chỉ chi tiết VD: 90 Nguyễn Tuân"
                 style={{ width: "100%" }}
                 maxLength={255}
               />
