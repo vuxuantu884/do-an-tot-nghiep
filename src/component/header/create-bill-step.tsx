@@ -24,6 +24,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   }, [orderDetail?.fulfillments])
 
   const renderStepPackedDescription = () => {
+		if(!orderDetail) {
+			return null;
+		}
     if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
@@ -41,6 +44,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   const renderStepShippingDescription = () => {
+		if(!orderDetail) {
+			return null;
+		}
     if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
@@ -58,6 +64,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   const renderStepFinishDescription = () => {
+		if(!orderDetail) {
+			return null;
+		}
     if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
