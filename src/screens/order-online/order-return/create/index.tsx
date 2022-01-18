@@ -65,7 +65,7 @@ import {
 	FulFillmentStatus,
 	OrderStatus,
 	PaymentMethodCode,
-	PaymentMethodOption, ShipmentMethod,
+	PaymentMethodOption, POS, ShipmentMethod,
 	ShipmentMethodOption,
 	TaxTreatment
 } from "utils/Constants";
@@ -796,7 +796,7 @@ ShippingServiceConfigDetailResponseModel[]
     values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
     values.currency = OrderDetail ? OrderDetail.currency : null;
     values.account_code = OrderDetail ? OrderDetail.account_code : null;
-    values.source_id = getOrderSource(form);
+    values.source_id =OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()?getOrderSource(form):OrderDetail?.source_id;
     values.order_return_id = order_return_id;
     values.coordinator_code = OrderDetail ? OrderDetail.coordinator_code : null;
     values.marketer_code = OrderDetail ? OrderDetail.marketer_code : null;
@@ -1104,6 +1104,7 @@ ShippingServiceConfigDetailResponseModel[]
                     isVisibleCustomer={true}
                     modalAction={"edit"}
                     levelOrder={3}
+                    OrderDetail={OrderDetail}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
                   />
@@ -1344,12 +1345,9 @@ ShippingServiceConfigDetailResponseModel[]
 
   useEffect(() => {
     dispatch(getListStoresSimpleAction((data: StoreResponse[]) => {
-      console.log("Store Data", data)
       setListStoreReturn(data);
     }))
   }, [dispatch])
-
-  console.log("storeReturn index", storeReturn);
 
   useEffect(() => {
     const shipmentMethodsToSelectSource = [
