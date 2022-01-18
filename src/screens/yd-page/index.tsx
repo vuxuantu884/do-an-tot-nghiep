@@ -110,6 +110,9 @@ function YDPageCRM() {
       if (default_phone) {
         setCustomerPhone(default_phone);
       }
+      else if(phones && phones.length > 0) {
+        setCustomerPhone(phones[0]);
+      }
       setCustomerPhones(phones);
     }
   }, [YDPageCustomerInfo, setCustomerPhone, setCustomerPhones]);
