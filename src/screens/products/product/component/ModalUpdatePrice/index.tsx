@@ -46,6 +46,7 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
         </div>
       }
       visible={props.visible}
+      className="yody-modal-price-product"
     >
       <StyledComponent>
         <List

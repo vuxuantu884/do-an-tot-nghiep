@@ -196,7 +196,7 @@ const ProductDetailScreen: React.FC = () => {
       setChange(false);
       let variants: Array<VariantResponse> = form.getFieldValue("variants");
       let fieldList = Products.convertAvatarToFileList(
-        variants[newActive].variant_images ?? []
+        variants[newActive]?.variant_images ?? []
       );
       setFieldList(fieldList);
     },
@@ -433,8 +433,7 @@ const ProductDetailScreen: React.FC = () => {
     [form, update]
   );
   const onMaterialChange = useCallback((id: number) => {
-    debugger
-    if (isChangeDescription) {
+    if (isChangeDescription&&id) {
       dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
     }
   },[dispatch, form, isChangeDescription]);
@@ -657,7 +656,7 @@ const ProductDetailScreen: React.FC = () => {
     if (productDetailRef.current && typeof active === "number") {
       form.setFieldsValue(productDetailRef.current);
       let fieldList = Products.convertAvatarToFileList(
-        productDetailRef.current.variants[active].variant_images
+        productDetailRef.current.variants[active]?.variant_images
       );
       setFieldList(fieldList);
     }
@@ -984,19 +983,7 @@ const ProductDetailScreen: React.FC = () => {
                               allowClear
                               optionFilterProp="children"
                               showSearch
-                              // onChange={onCategoryChange}
                               placeholder="Chọn danh mục"
-                              suffix={
-                                <Button
-                                  style={{width: 37, height: 37, padding: 0}}
-                                  icon={<PlusOutlined />}
-                                  onClick={() =>
-                                    window.open(
-                                      `${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`
-                                    )
-                                  }
-                                />
-                              }
                             >
                               {categoryFilter.map((item) => (
                                 <CustomSelect.Option key={item.id} value={item.id}>
@@ -1010,7 +997,7 @@ const ProductDetailScreen: React.FC = () => {
                       <Row gutter={50}>
                         <Col span={24} md={12} sm={24}>
                           <Item name="brand" label="Thương hiệu">
-                            <CustomSelect placeholder="Chọn thương hiệu">
+                            <CustomSelect placeholder="Chọn thương hiệu" allowClear>
                               {brandList?.map((item) => (
                                 <CustomSelect.Option key={item.value} value={item.value}>
                                   {item.name}
@@ -1049,6 +1036,7 @@ const ProductDetailScreen: React.FC = () => {
                           <Item name="material_id" label="Chất liệu">
                             <CustomSelect
                               showSearch
+                              allowClear
                               optionFilterProp="children"
                               placeholder="Chọn chất liệu"
                               onChange={onMaterialChange}
@@ -1065,6 +1053,7 @@ const ProductDetailScreen: React.FC = () => {
                           <Item name="made_in_id" label="Xuất xứ">
                             <CustomSelect
                               showSearch
+                              allowClear
                               optionFilterProp="children"
                               placeholder="Chọn xuất xứ"
                             >
@@ -1100,7 +1089,9 @@ const ProductDetailScreen: React.FC = () => {
                                 </Popover>
                               ))}
                               <Button
+
                                 className={`button-plus`}
+                                size="small"
                                 icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
                                 onClick={() => setShowCareModal(true)}
                               />

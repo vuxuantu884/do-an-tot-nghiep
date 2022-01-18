@@ -126,7 +126,8 @@ function CardShowReturnProducts(props: PropType) {
       key: "price",
       render: (value: number, record: ReturnProductModel, index: number) => {
         let discountPerProduct = getProductDiscountPerProduct(record);
-        let discountPerOrder = getProductDiscountPerOrder(OrderDetail?.order_return_origin, record);
+				// nếu là page đổi trả hàng thì có order_return_origin
+        let discountPerOrder = OrderDetail?.order_return_origin ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, record) : getProductDiscountPerOrder(OrderDetail, record);
         return (
           <Popover
             content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}
@@ -153,7 +154,7 @@ function CardShowReturnProducts(props: PropType) {
         index: number
       ) => {
         let discountPerProduct = getProductDiscountPerProduct(record);
-				let discountPerOrder = getProductDiscountPerOrder(OrderDetail?.order_return_origin, record);
+				let discountPerOrder = OrderDetail?.order_return_origin ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, record) : getProductDiscountPerOrder(OrderDetail, record);
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
