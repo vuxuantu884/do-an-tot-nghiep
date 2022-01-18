@@ -132,7 +132,30 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     Array<DeliveryServiceResponse>
   >([]);
 
-  const [showOrderReturned, setShowOrderReturned] = useState(false);
+  const [indexOrderReturned, setIndexOrderReturned] = useState<any>([]);
+
+  const handleChangeBackground = useCallback(
+    (props, event) => {
+      props.onExpand(props.record, event);
+      if(!props.expanded) {
+        const newOpenOrderReturnedList = [...indexOrderReturned];
+        newOpenOrderReturnedList.push(props.record.id);
+        setIndexOrderReturned(newOpenOrderReturnedList);
+      }else {
+        indexOrderReturned.length && indexOrderReturned.splice(indexOrderReturned.indexOf(props.record.id), 1)
+      }
+    },
+    [indexOrderReturned]
+  );
+
+  const checkOpenOrderReturned = useCallback(
+    (orderId) => {
+        return indexOrderReturned.includes(orderId)
+        ? "order-return-background" : ""
+      },
+    [indexOrderReturned]
+  );
+
 
   const dispatch = useDispatch();
 
@@ -1189,11 +1212,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           onShowSizeChange: onPageChange,
         }}
         dataSource={orderHistoryList()}
-        rowClassName={(record, index) =>
-          record?.order_return?.length && showOrderReturned
-            ? "customBackgroundRowOrderReturn"
-            : ""
-        }
+        rowClassName={(record) => checkOpenOrderReturned(record.id)}
         columns={columnsOrderHistory}
         rowKey={(item: OrderModel) => item.id}
         expandable={{
@@ -1209,12 +1228,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   <div
                     style={{ cursor: "pointer" }}
                     onClick={(event) => {
-                      props.onExpand(props.record, event);
-                      setShowOrderReturned(!showOrderReturned);
+                      handleChangeBackground(props, event);
                     }}>
                     {icon}
                   </div>
                 ) : (
+                  
                   <></>
                 )}
               </>
