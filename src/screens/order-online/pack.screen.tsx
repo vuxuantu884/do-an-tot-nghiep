@@ -133,7 +133,6 @@ const PackSupportScreen: React.FC = () => {
                   <PackInfo
                     setFulfillmentsPackedItems={setData}
                     fulfillmentData={data}
-                    listThirdPartyLogistics={listThirdPartyLogistics}
                   ></PackInfo>
                 </TabPane>
                 <TabPane tab="Biên bản bàn giao" key="2" disabled={!allowReadGoodReceipt}>
