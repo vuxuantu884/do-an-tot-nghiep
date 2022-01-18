@@ -847,7 +847,7 @@ const OrderDetail = (props: PropType) => {
                             {OrderDetail?.fulfillments &&
                               OrderDetail?.fulfillments.length > 0 &&
                               OrderDetail?.fulfillments[0].shipment &&
-                              OrderDetail?.fulfillments[0].shipment.cod && (
+                              OrderDetail?.fulfillments[0].shipment.cod > 0 && (
                                 <Panel
                                   className={
                                     OrderDetail?.fulfillments[0].status !== "shipped"

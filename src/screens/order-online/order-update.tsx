@@ -643,15 +643,16 @@ ShippingServiceConfigDetailResponseModel[]
 			let _payments = [...payments];
 			let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
 			if (paymentCashIndex > -1) {
-				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount - returnAmount;
+				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
+				_payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
 				_payments[paymentCashIndex].return_amount = returnAmount;
 			} else {
 				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
 				newPaymentCash = {
 					code: PaymentMethodCode.CASH,
 					payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
-					amount: 0,
-					paid_amount: -returnAmount,
+					amount: -returnAmount,
+					paid_amount: 0,
 					return_amount: returnAmount,
 					status: "",
 					payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
@@ -1461,7 +1462,7 @@ ShippingServiceConfigDetailResponseModel[]
 																	OrderDetail?.fulfillments.length > 0 &&
 																	OrderDetail?.fulfillments[0].shipment &&
 																	!isFulfillmentCancelled(OrderDetail.fulfillments[0]) &&
-																	OrderDetail?.fulfillments[0].shipment.cod && (
+																	OrderDetail?.fulfillments[0].shipment.cod > 0 && (
 																		<Collapse.Panel
 																			className={
 																				OrderDetail?.fulfillments[0].status !== "shipped"
