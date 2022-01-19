@@ -92,3 +92,7 @@ export interface PurchaseOrderPrint {
   html_content: string;
   size: string;
 }
+
+export interface ProcumentLogQuery {
+  condition: string
+}
