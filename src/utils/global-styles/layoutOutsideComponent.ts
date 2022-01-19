@@ -50,4 +50,10 @@ export const globalCssLayoutOutsideComponent = css`
   .yody-table-product-search .ant-image-mask-info{
     font-size: 10px;
   }
+  .yody-text-ellipsis{
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;

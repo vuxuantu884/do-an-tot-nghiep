@@ -6,8 +6,7 @@ type TextConfig = {
 
 const TextEllipsis: React.FC<TextConfig> = (props: TextConfig) => {
   return (
-    <div title={`${props.value}`} style={{overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box",
-        WebkitLineClamp: props.line ?? 4 , WebkitBoxOrient: "vertical" }}>
+    <div title={`${props.value}`} className="yody-text-ellipsis">
           {props.value}
     </div>
   );

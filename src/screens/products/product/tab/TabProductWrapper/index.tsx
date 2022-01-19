@@ -132,7 +132,7 @@ const TabProductWrapper: React.FC = () => {
       width: 110,
       render: (value: Array<VariantResponse>) => (
         <>
-          <div>{value ? value.length : ""}</div>
+          <div>{value ? value.length : "---"}</div>
         </>
       ),
       visible: true,
@@ -143,7 +143,7 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       visible: true,
       width: 120,
-      render: (value: number) => <div> {formatCurrency(value,".")}</div>,
+      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"---"}</div>,
     },
     {
       align: "right",
@@ -151,7 +151,7 @@ const TabProductWrapper: React.FC = () => {
       dataIndex: "available",
       visible: true,
       width: 100,
-      render: (value: number) => <div> {formatCurrency(value,".")}</div>,
+      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"---"}</div>,
     },
     {
       title: "Trạng thái",
@@ -169,7 +169,7 @@ const TabProductWrapper: React.FC = () => {
       title: "Ngày tạo",
       align: "left",
       dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY"),
+      render: (value) => value!==null?ConvertUtcToLocalDate(value, "DD/MM/YYYY"):"---",
       width: 110,
       visible: true,
     },
