@@ -7,6 +7,8 @@ export interface OrderRequest {
   price_type: string | null;
   tax_treatment: string | null;
   source_id: number | null;
+  source_code?:string|null;
+  source?:string|null;
   note: string | null;
   tags: string | null;
   customer_note: string | null;

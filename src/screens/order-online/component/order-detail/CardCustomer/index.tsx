@@ -58,6 +58,7 @@ import { handleDelayActionWhenInsertTextInSearchInput, sortSources } from "utils
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getSourcesWithParamsService } from "service/order/order.service";
+import { OrderResponse } from "model/response/order/order.response";
 //#end region
 
 type CustomerCardProps = {
@@ -76,6 +77,7 @@ type CustomerCardProps = {
   setModalAction?: (item: modalActionType) => void;
   modalAction: modalActionType;
   setOrderSourceId?: (value: number) => void;
+  OrderDetail?: OrderResponse | null;
 };
 
 //Add query for search Customer
@@ -110,6 +112,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setModalAction,
     modalAction,
     setOrderSourceId,
+    OrderDetail
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -282,9 +285,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 				
         dispatch(CustomerSearchSo(initQueryCustomer, (response) => {
 					setResultSearch(response);
-					if(response.length === 0) {
-						showError("Không tìm thấy khách hàng!")
-					}
+					// if(response.length === 0) {
+					// 	showError("Không tìm thấy khách hàng!")
+					// }
 				}));
         setSearchCustomer(false);
       };
@@ -550,6 +553,26 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 		)
 	};
 
+  
+
+  const renderInfoOrderSource=()=>{
+    return(
+      <div className="d-flex align-items-center form-group-with-search">
+          <span
+            style={{
+              float: "left",
+              lineHeight: "40px",
+            }}
+          >
+            <span style={{ marginRight: "10px" }}>Nguồn:</span>
+            <span className="text-error">
+              <span style={{ color: "red" }}>{props.OrderDetail?.source}</span>
+            </span>
+          </span>
+        </div>
+    )
+  }
+
   const rankName = loyaltyUsageRules.find(
     (x) =>
       x.rank_id ===
@@ -559,7 +582,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   return (
     <Card
       title="THÔNG TIN KHÁCH HÀNG"
-      extra={	renderSelectOrderSource()}
+      extra={ OrderDetail? (OrderDetail.source?.toLocaleLowerCase()===CONSTANTS.POS.source.toLocaleLowerCase()
+        ?renderSelectOrderSource():renderInfoOrderSource()) 
+        : renderSelectOrderSource()
+      }
     >
       {customer === null && isVisibleCustomer !== true && (
         <div>

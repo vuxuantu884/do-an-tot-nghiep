@@ -21,7 +21,7 @@ import {
   DeliveryServiceResponse,
   OrderProductListModel,
 } from "model/response/order/order.response";
-import {createRef, useCallback, useContext, useEffect, useMemo, useState} from "react";
+import React, {createRef, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {formatCurrency, haveAccess} from "utils/AppUtils";
@@ -32,14 +32,13 @@ import barcodeIcon from "assets/img/scanbarcode.svg";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
-  listThirdPartyLogistics: DeliveryServiceResponse[];
   fulfillmentData: PageResponse<any>;
 };
 
 var barcode = "";
 
 const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
-  const {setFulfillmentsPackedItems, fulfillmentData, listThirdPartyLogistics} = props;
+  const {setFulfillmentsPackedItems, fulfillmentData} = props;
 
   const dispatch = useDispatch();
 
@@ -68,6 +67,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const orderPackContextData = useContext(OrderPackContext);
 
   const listStores = orderPackContextData?.listStores;
+  const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
 
   const shipName =
     listThirdPartyLogistics.length > 0 && orderResponse.length > 0
@@ -409,13 +409,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             <Form.Item
               label="Cửa hàng"
               name="store_request"
-              // rules={[
-              //   {
-              //     required: true,
-              //     message: "Vui lòng chọn cửa hàng",
-              //   },
-              // ]}
-              style={{width: "85%"}}
+              style={{width: "100%", paddingRight:"30px"}}
             >
               <Select
                 className="select-with-search"
@@ -445,34 +439,65 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             </Form.Item>
           </Col>
 
-          <Col md={8} style={{paddingLeft: 32, paddingRight: 40}}>
-            <Form.Item
-              label="ID đơn hàng/Mã vận đơn:"
-              name="order_request"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập ID đơn hàng hoặc mã vận đơn!",
-                },
-              ]}
+          <Col md={8} >
+            <Form.Item 
+              label={
+                <React.Fragment>
+                  <span>Hãng vận chuyển:</span>
+                  <span>ID đơn hàng/Mã vận đơn:</span>
+                </React.Fragment>
+              }
+       
               style={{width: "100%"}}
-            >
-              <Input
-                className="select-with-search"
-                placeholder="ID đơn hàng/Mã vận đơn"
-                // addonAfter={<ScanOutlined />}
-                addonAfter={<img src={barcodeIcon} alt="" />}
-                onPressEnter={(e: any) => {
-                  onKeyupOrder(e.target.value);
-                }}
-                disabled={disableOrder}
-                id="order_request"
-              />
+             >
+              <Input.Group compact>
+                <Form.Item  
+                  name="delivery_provider_id"
+                  style={{width: "40%", margin:0}} 
+                >
+                  <Select 
+                    style={{width: "100%"}}
+                    showSearch
+                    allowClear
+                    placeholder="Chọn hãng vận chuyển"
+                    notFoundContent="Không tìm thấy kết quả"
+                  >
+                    {
+                      listThirdPartyLogistics.map((item,index)=>(
+                        <Select.Option key={index.toString()} value={item.id}>
+                        {item.name}
+                        </Select.Option>
+                      ))
+                    }
+                  </Select>
+                </Form.Item>
+                
+                <Form.Item noStyle 
+                  name="order_request"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập ID đơn hàng hoặc mã vận đơn!",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="ID đơn hàng/Mã vận đơn"
+                    addonAfter={<img src={barcodeIcon} alt="" />}
+                    onPressEnter={(e: any) => {
+                      onKeyupOrder(e.target.value);
+                    }}
+                    style={{width: "60%"}}
+                    disabled={disableOrder}
+                    id="order_request"
+                  />
+                </Form.Item>
+              </Input.Group>
             </Form.Item>
           </Col>
 
-          <Col md={8} style={{paddingLeft: 53, paddingRight: 15}}>
-            <Form.Item label="Sản phẩm:" style={{width: "100%", float: "right"}}>
+          <Col md={8}>
+            <Form.Item label="Sản phẩm:" style={{width: "100%", paddingLeft:"30px"}}>
               <Input.Group compact className="select-with-search" style={{width: "100%"}}>
                 <Form.Item
                   noStyle

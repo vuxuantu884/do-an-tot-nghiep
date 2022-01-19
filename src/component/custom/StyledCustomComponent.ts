@@ -6,7 +6,7 @@ export const StyledHashTag = styled.div`
     padding: 10px;
 
     .tags-list {
-      margin-bottom: 20px;
+      margin-bottom: 0px;
       .tag {
         box-sizing: border-box;
         margin: 0 8px 10px 0;

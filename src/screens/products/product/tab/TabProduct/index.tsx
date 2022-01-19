@@ -343,11 +343,13 @@ const TabProduct: React.FC = () => {
     },
     {
       title: "Ngày tạo",
-      dataIndex: "created_date",
+      dataIndex: "updated_date",
       visible: true,
       align: "left",
       width: 120,
-      render: (value, record) => ConvertUtcToLocalDate(record?.product?.created_date,DATE_FORMAT.DDMMYYY),
+      render: (value, record) => {
+        return (ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY))
+      },
     },
   ];
 
