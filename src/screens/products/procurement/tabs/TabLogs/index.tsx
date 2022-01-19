@@ -15,7 +15,6 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { ProcumentLogQuery, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { callApiNative } from "utils/ApiUtils";
 import { getProcumentLogsService } from "service/purchase-order/purchase-order.service"; 
-import { generateQuery } from "utils/AppUtils";
 
 const LogsStatus = [
   {key: "draft", value: "Nháp"},
@@ -45,7 +44,6 @@ const TabLogs: React.FC = () => {
   const onPageChange = (page: number, size?: number) => {
     let newPrams = {...params,page:page,limit: size};
     setPrams(newPrams);
-    let queryParam = generateQuery(newPrams); 
   };
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<PurchaseOrderActionLogResponse>>>([

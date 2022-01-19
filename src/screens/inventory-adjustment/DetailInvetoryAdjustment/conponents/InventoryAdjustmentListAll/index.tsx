@@ -287,7 +287,7 @@ const onChangeReason = useCallback(
     (code: string) => {
       getLinesItemAdjustment(1,30,code);
     },
-    [dispatch, getLinesItemAdjustment]
+    [getLinesItemAdjustment]
   );
 
   const debounceSearchVariant = useMemo(()=>

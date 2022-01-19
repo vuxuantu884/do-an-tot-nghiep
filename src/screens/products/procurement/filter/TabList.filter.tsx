@@ -256,6 +256,7 @@ function TabListFilter() {
                     <ProcurementStatusStyle>
                       {Object.keys(ProcurementStatus).map((item) => (
                         <Button
+                          key={item}
                           value={item}
                           onClick={() => handleClickStatus(item)}
                           className={

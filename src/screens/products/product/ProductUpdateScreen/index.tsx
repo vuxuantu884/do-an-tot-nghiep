@@ -28,7 +28,7 @@ import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
 import {AppConfig} from "config/app.config";
 import {ProductPermission} from "config/permissions/product.permission";
-import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
+import UrlConfig from "config/url.config";
 import {AccountSearchAction} from "domain/actions/account/account.action";
 import {CountryGetAllAction} from "domain/actions/content/content.action";
 import {SupplierGetAllAction} from "domain/actions/core/supplier.action";
