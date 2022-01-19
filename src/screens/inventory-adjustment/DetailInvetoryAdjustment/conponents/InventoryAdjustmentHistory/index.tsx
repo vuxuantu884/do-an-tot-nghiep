@@ -313,7 +313,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     (code: string) => {
       getLinesItemAdjustment(1,30,code);
     },
-    [dispatch, getLinesItemAdjustment]
+    [getLinesItemAdjustment]
   );
 
   const debounceSearchVariant = useMemo(()=>
