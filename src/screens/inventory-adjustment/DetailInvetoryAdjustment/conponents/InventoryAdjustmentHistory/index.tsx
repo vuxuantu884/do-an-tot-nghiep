@@ -263,7 +263,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       dispatch,
       getLinesItemAdjustmentApi,
       idNumber,
-      `page=${page}&limit=${size}&condition=${keySearch?.toString()}`
+      `page=${page}&limit=${size}&type=deviant&condition=${keySearch?.toString()}`
     );
     if (res) {
       setDataLinesItem({...res}); 
