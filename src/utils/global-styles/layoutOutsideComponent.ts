@@ -47,4 +47,7 @@ export const globalCssLayoutOutsideComponent = css`
   .yody-modal-price-product .ant-modal-body{
     padding: 5px 20px;
   }
+  .yody-table-product-search .ant-image-mask-info{
+    font-size: 10px;
+  }
 `;

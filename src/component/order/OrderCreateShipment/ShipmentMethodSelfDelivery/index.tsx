@@ -21,6 +21,8 @@ type PropType = {
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   form: FormInstance<any>;
+  setIs4h?:(value:boolean)=>void;
+  is4h?:boolean;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -33,8 +35,10 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     renderButtonCreateActionHtml,
     setThirdPL,
     form,
+    setIs4h,
+    is4h,
   } = props;
-  const [is4h, setIs4h] = useState(false);
+
   const [typeDelivery, setTypeDelivery] = useState('employee');
 
 	const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
@@ -70,8 +74,8 @@ console.log('initYodyAccountData', initYodyAccountData)
 	}, [dispatch, storeId])
 
   const onChange = useCallback((e) => {
-    setIs4h(e.target.checked);
-  }, []);
+    if(setIs4h)setIs4h(e.target.checked);
+  }, [setIs4h]);
 
   const onChangeType = useCallback((e) => {
     setTypeDelivery(e.target.value);
