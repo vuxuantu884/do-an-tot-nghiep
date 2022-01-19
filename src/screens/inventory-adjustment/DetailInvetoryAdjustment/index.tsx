@@ -1023,13 +1023,13 @@ const onChangeNote = useCallback(
                         activeKey={activeTab}
                         onChange={(active) => setActiveTab(active)}
                       >
-                        <TabPane tab={`Thừa/Thiếu (${data?.total_excess + data?.total_missing})`} key="1">
+                        <TabPane tab={`Thừa/Thiếu (${data?.total_variant_deviant ?? 0})`} key="1">
                           <InventoryAdjustmentHistory
                             data={data}
                             idNumber={idNumber}
                           />
                         </TabPane>
-                        <TabPane tab={`Tất cả (${data?.total_variant})`} key="2">
+                        <TabPane tab={`Tất cả (${data?.total_variant ?? 0})`} key="2">
                           <InventoryAdjustmentListAll
                             idNumber={idNumber}
                             data={data}

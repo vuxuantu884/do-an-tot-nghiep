@@ -238,7 +238,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     dispatch(
       getLinesItemAdjustmentAction(
         idNumber,
-        `page=${page}&limit=${size}&condition=${keySearch?.toString()}`,
+        `page=${page}&limit=${size}&type=total&condition=${keySearch?.toString()}`,
         onResultDataTable
       )
     );
