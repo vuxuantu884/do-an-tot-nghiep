@@ -132,28 +132,28 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     Array<DeliveryServiceResponse>
   >([]);
 
-  const [indexOrderReturned, setIndexOrderReturned] = useState<any>([]);
+  const [orderReturnedIdList, setOrderReturnedIdList] = useState<any>([]);
 
   const handleChangeBackground = useCallback(
     (props, event) => {
       props.onExpand(props.record, event);
       if(!props.expanded) {
-        const newOpenOrderReturnedList = [...indexOrderReturned];
+        const newOpenOrderReturnedList = [...orderReturnedIdList];
         newOpenOrderReturnedList.push(props.record.id);
-        setIndexOrderReturned(newOpenOrderReturnedList);
+        setOrderReturnedIdList(newOpenOrderReturnedList);
       }else {
-        indexOrderReturned.length && indexOrderReturned.splice(indexOrderReturned.indexOf(props.record.id), 1)
+        orderReturnedIdList.length && orderReturnedIdList.splice(orderReturnedIdList.indexOf(props.record.id), 1)
       }
     },
-    [indexOrderReturned]
+    [orderReturnedIdList]
   );
 
   const checkOpenOrderReturned = useCallback(
     (orderId) => {
-        return indexOrderReturned.includes(orderId)
+        return orderReturnedIdList.includes(orderId)
         ? "order-return-background" : ""
       },
-    [indexOrderReturned]
+    [orderReturnedIdList]
   );
 
 
