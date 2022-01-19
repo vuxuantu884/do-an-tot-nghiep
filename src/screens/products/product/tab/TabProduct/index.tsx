@@ -33,7 +33,7 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
+import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -275,17 +275,24 @@ const TabProduct: React.FC = () => {
       },
       visible: true,
     },
+
     {
       title:  "Sản phẩm",
       dataIndex: "sku",
-      render: (value: string, i: VariantResponse) => (
-        <div>
-          <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`}>
-            {value}
-          </Link>
-          <div><TextEllipsis value={i.name} line={1} /></div>
-        </div>
-      ),
+      render: (value: string, i: VariantResponse) => {
+        let strName=i.name.toLocaleUpperCase().trim();
+        strName=window.screen.width>=1920?splitEllipsis(strName,68,10)
+          :window.screen.width>=1600?strName=splitEllipsis(strName,55,10)
+          :window.screen.width>=1366?strName=splitEllipsis(strName,50,10):strName;
+        return(
+          <div>
+            <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`} className="yody-text-ellipsis">
+              {value}
+            </Link>
+            <div><TextEllipsis value={strName} line={1} /></div>
+          </div>
+        )
+      },
       visible: true,
     },
     {
@@ -300,6 +307,7 @@ const TabProduct: React.FC = () => {
           AppConfig.currency
         );
         if (prices !== null) {
+         
           return formatCurrency(prices.retail_price);
         }
         return 0;
@@ -311,7 +319,7 @@ const TabProduct: React.FC = () => {
       visible: true,
       align: "right",
       width: 110,
-      render: (value: number, item: VariantResponse) => <div> {formatCurrency(value,".")}</div>,
+      render: (value: number, item: VariantResponse) => <div> {value!==null?formatCurrency(value,"."):"---"}</div>,
     },
 
     {
@@ -331,14 +339,14 @@ const TabProduct: React.FC = () => {
       visible: true,
       align: "left",
       width: 150,
-      render: (value: VariantResponse) => <div> {value?.product?.designer}</div>,
+      render: (value: VariantResponse) => <div> {(value?.product?.designer)!==null?(value?.product?.designer):"---"}</div>,
     },
     {
       title: "Merchandiser",
       align: "left",
       width: 150,
       visible: true,
-      render: (value: VariantResponse) => <div> {value?.product?.merchandiser}</div>,
+      render: (value: VariantResponse) => <div> {(value?.product?.merchandiser)!==null?(value?.product?.merchandiser):"---"}</div>,
     },
     {
       title: "Ngày tạo",
@@ -347,7 +355,7 @@ const TabProduct: React.FC = () => {
       align: "left",
       width: 110,
       render: (value, record) => {
-        return (ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY))
+        return ((record?.updated_date)!==null?ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY):"---")
       },
     },
   ];

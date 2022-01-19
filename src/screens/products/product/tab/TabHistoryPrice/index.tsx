@@ -98,7 +98,7 @@ const TabHistoryPrice: React.FC = () => {
           const DATA_CONVERT = JSON.parse(value);
           return formatCurrency(DATA_CONVERT.import_price);
         }
-        return "";
+        return "---";
       },
     },
     {
@@ -108,8 +108,11 @@ const TabHistoryPrice: React.FC = () => {
       align: "right",
       width: 120,
       render: (value) => {
-        const DATA_CONVERT = JSON.parse(value);
-        return formatCurrency(DATA_CONVERT.import_price);
+        if(value){
+          const DATA_CONVERT = JSON.parse(value);
+          return formatCurrency(DATA_CONVERT.import_price);
+        }
+        return "---";
       },
     },
     {
@@ -123,7 +126,7 @@ const TabHistoryPrice: React.FC = () => {
           const DATA_CONVERT = JSON.parse(value);
           return formatCurrency(DATA_CONVERT.retail_price);
         }
-        return "";
+        return "---";
       },
     },
     {
@@ -133,8 +136,11 @@ const TabHistoryPrice: React.FC = () => {
       align: "right",
       width: 120,
       render: (value) => {
+       if(value){
         const DATA_CONVERT = JSON.parse(value);
         return formatCurrency(DATA_CONVERT.retail_price);
+       }
+       return "---";
       },
     },
     {
@@ -143,12 +149,15 @@ const TabHistoryPrice: React.FC = () => {
       visible: true,
       width: 200,
       render: (value, record) => {
-        return (
-          <div>
-            <span style={{ color: "#2a2a86", textTransform: "uppercase" }}>{value}</span>
-            <div>{record.action_by}</div>
-          </div>
-        );
+        if(value){
+          return (
+            <div>
+              <span style={{ color: "#2a2a86", textTransform: "uppercase" }}>{value}</span>
+              <div>{record.action_by}</div>
+            </div>
+          );
+        }
+        return"---"
       },
     },
     {
@@ -156,7 +165,7 @@ const TabHistoryPrice: React.FC = () => {
       visible: true,
       align: "left",
       dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value),
+      render: (value) => value?ConvertUtcToLocalDate(value):"---",
       width: 160
     },
   ]);

@@ -107,12 +107,15 @@ const ListProductScreen: React.FC = () => {
     <ContentContainer
       title="Quản lý sản phẩm"
       breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
+        // {
+        //   name: "Tổng quan",
+        //   path: UrlConfig.HOME,
+        // },
         {
           name: "Sản phẩm",
+        },
+        {
+          name: "Quản lý sản phẩm",
         },
       ]}
       extra={
