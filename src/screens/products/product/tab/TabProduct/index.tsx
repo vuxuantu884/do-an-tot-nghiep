@@ -281,7 +281,7 @@ const TabProduct: React.FC = () => {
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => {
         let strName=i.name.toLocaleUpperCase().trim();
-        strName=window.screen.width>=1920?splitEllipsis(strName,68,10)
+        strName=window.screen.width>=1920?splitEllipsis(strName,80,10)
           :window.screen.width>=1600?strName=splitEllipsis(strName,55,10)
           :window.screen.width>=1366?strName=splitEllipsis(strName,50,10):strName;
         return(
