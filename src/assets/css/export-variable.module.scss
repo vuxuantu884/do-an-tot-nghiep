@@ -1,0 +1,21 @@
+@import "variable";
+
+:export {
+    primary: $primary-color;
+    secondary: $secondary-color;
+    white : $white;
+    black : $black;
+    grayF5: $gray-f5;
+    grayE5: $gray-e5;
+    red: $red;  
+    green: $green;
+    text-muted: $text-muted;
+    textBodyColor: $text-body-color;
+    textMenuColor: $text-menu-color;
+    labelColor: $label-color;
+    columnHeaderColor: $column-header-color;
+    placeholderColor: $placeholder-color;
+    focusBorderColor: $focus-border-color;
+    borderColor: $border-color;
+    borderSecondaryColor: $border-secondary-color;
+}

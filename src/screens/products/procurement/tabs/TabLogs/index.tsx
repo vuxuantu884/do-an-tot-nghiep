@@ -2,26 +2,31 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import {  useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux"; 
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { useQuery } from "utils/useQuery";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import { StyledComponent } from './styles';
-import querystring from "querystring";
 import { Link } from "react-router-dom";
 import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import CustomPagination from "component/table/CustomPagination";
 import TabLogFilter from "../../filter/TabLog.filter"; 
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { ProcumentLogQuery, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { callApiNative } from "utils/ApiUtils";
-import { getProcumentLogsService } from "service/purchase-order/purchase-order.service";
+import { getProcumentLogsService } from "service/purchase-order/purchase-order.service"; 
+
+const LogsStatus = [
+  {key: "draft", value: "Nháp"},
+  {key: "not_received", value: "Chưa nhận hàng"},
+  {key: "partial_received", value: "Nhận hàng một phần"},
+  {key: "received", value: "Đã nhận hàng"},
+  {key: "finished", value: "Đã kết thúc"},
+  {key: "cancelled", value: "Đã hủy"}, 
+]
 
 const TabLogs: React.FC = () => {
-  const dispatch = useDispatch();
-  const history = useHistory();
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch(); 
   const [data, setData] = useState<PageResponse<PurchaseOrderActionLogResponse>>({
     metadata: {
       limit: 30,
@@ -29,19 +34,16 @@ const TabLogs: React.FC = () => {
       total: 0,
     },
     items: [],
-  });
-  
+  });    
   const [showSettingColumn, setShowSettingColumn] = useState(false);
  
-  const qurery = useQuery();
-  const paramsrUrl: any = Object.fromEntries(qurery.entries());
+  const query = useQuery();
+  let dataQuery: ProcumentLogQuery = {...getQueryParams(query), sort_column:"created_date",sort_type:"desc"};
+  const [params, setPrams] = useState<ProcumentLogQuery>(dataQuery);
 
   const onPageChange = (page: number, size?: number) => {
-    paramsrUrl.page = page;
-    paramsrUrl.limit = size;
-    history.replace(
-      `${UrlConfig.PROCUREMENT}/logs?${querystring.stringify(paramsrUrl)}`
-    );
+    let newPrams = {...params,page:page,limit: size};
+    setPrams(newPrams);
   };
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<PurchaseOrderActionLogResponse>>>([
@@ -109,7 +111,7 @@ const TabLogs: React.FC = () => {
     {
       title: "Thời gian",
       visible: true,
-      dataIndex: "updated_date",
+      dataIndex: "created_date",
       width: 140,
       render: (value: Date)=>{
         return (
@@ -123,7 +125,13 @@ const TabLogs: React.FC = () => {
       title: "Thao tác",
       visible: true, 
       width: 200,
-      dataIndex: "action",
+      render: (record: PurchaseOrderActionLogResponse)=>{ 
+        return (
+          <> 
+            {LogsStatus.find(e=>e.key === record.action)?.value}
+          </>
+        );
+      }
     }, 
     {
       title: "Trạng thái phiếu",
@@ -148,26 +156,38 @@ const TabLogs: React.FC = () => {
     [columns]
   );
 
-  const getProcumentLogs = useCallback(async()=>{
-    const res: PageResponse<PurchaseOrderActionLogResponse> = await callApiNative({isShowLoading: false},dispatch,getProcumentLogsService,{condition: ""});
+  const getProcumentLogs = useCallback(async(params: ProcumentLogQuery)=>{
+    const res: PageResponse<PurchaseOrderActionLogResponse> = await callApiNative({isShowLoading: true},dispatch,getProcumentLogsService,{...params});
     if (res) {
       setData(res);
     }
-    setLoading(false);
   },[dispatch]);
+
+  const onFilter = useCallback(
+    (values) => {
+      if (values.created_date_from) {
+        values.created_date_from = getStartOfDay(values.created_date_from);
+      }
+      if (values.created_date_to) {
+        values.created_date_to = getEndOfDay(values.created_date_to);
+      }
+      let newPrams = {...params, ...values};
+      setPrams(newPrams); 
+    },
+    [params]
+  );
   
   useEffect(()=>{
-    getProcumentLogs()
-    
-  },[getProcumentLogs, history]);
+    getProcumentLogs(params);
+  },[getProcumentLogs,params]);
 
   return (
     <StyledComponent>
       <TabLogFilter 
-       onClickOpen={() => setShowSettingColumn(true)}
+        onFilter={onFilter}
+        onClickOpen={() => setShowSettingColumn(true)}
       />
       <CustomTable
-        isLoading={loading}
         dataSource={data.items}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         columns={columnFinal}

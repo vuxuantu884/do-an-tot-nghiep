@@ -21,7 +21,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         .phone-input {
             flex: 1;
             border-radius: 3px !important;
@@ -153,5 +153,9 @@
     }
     .customer-info-row {
         padding: 0 3px !important;
+    }
+
+    .ant-input, .ant-select-selector, .ant-picker, .phone-container button, .ant-form-item {
+        height: 32px!important;
     }
 }
