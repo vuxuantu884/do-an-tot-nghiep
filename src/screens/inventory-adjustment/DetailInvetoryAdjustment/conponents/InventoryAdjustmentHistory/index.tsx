@@ -140,7 +140,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
           </>
         );
       },
-      width: 120,
+      width: 135,
       align: "center",
       dataIndex: "on_hand",
       render: (value) => {
@@ -158,7 +158,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       },
       dataIndex: "real_on_hand",
       align: "center",
-      width: 110,
+      width: 120,
       render: (value) => {
         return value || 0;
       },
@@ -289,7 +289,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
           })
         );
         
-    }, 1000),
+    }, 500),
     [data, dispatch, getLinesItemAdjustment, keySearch]
   );
 
@@ -309,6 +309,24 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     [debounceChangeReason, dataLinesItem]
   );
 
+  const onEnterFilterVariant = useCallback(
+    (code: string) => {
+      getLinesItemAdjustment(1,30,code);
+    },
+    [dispatch, getLinesItemAdjustment]
+  );
+
+  const debounceSearchVariant = useMemo(()=>
+    _.debounce((code: string)=>{
+      onEnterFilterVariant(code);
+  }, 300),
+  [onEnterFilterVariant]
+ );
+
+  const onChangeKeySearch = useCallback((code: string)=>{
+    debounceSearchVariant(code);
+  },[debounceSearchVariant]); 
+
   useEffect(() => {
     getLinesItemAdjustment(1,30, "");
   }, [getLinesItemAdjustment]);
@@ -327,12 +345,8 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
               value={keySearch}
               onChange={(e) => {
                 setKeySearch(e.target.value);
-              }}
-              onKeyPress={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                }
-              }}
+                onChangeKeySearch(e.target.value);
+              }} 
               style={{marginLeft: 8}}
               placeholder="Tìm kiếm sản phẩm trong phiếu"
               addonAfter={
@@ -350,9 +364,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       {/* Danh sách */}
       <Table
         rowClassName="product-table-row"
-        tableLayout="fixed"
         style={{paddingTop: 16}}
-        scroll={{y: 300}}
         pagination={false}
         columns={defaultColumns}
         dataSource={dataLinesItem.items?.filter(e=>e.on_hand_adj !== 0)}
