@@ -23,7 +23,6 @@ import React, {
   useState,
 } from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {useHistory} from 'react-router';
 import {
   CategoryCreateRequest,
   CategoryResponse,
@@ -31,20 +30,18 @@ import {
 import ContentContainer from 'component/container/content.container';
 import UrlConfig, { BASE_NAME_ROUTER } from 'config/url.config';
 import {RegUtil} from 'utils/RegUtils';
-import { showSuccess } from 'utils/ToastUtils';
 import BottomBarContainer from 'component/container/bottom-bar.container';
 
 let initialRequest: CategoryCreateRequest = {
   code: '',
   parent_id: -1,
-  goods: undefined,
+  goods: "fashion",
   name: '',
 };
 
 const {TreeNode} = TreeSelect;
 
 const AddCategory: React.FC = () => {
-  const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const bootstrapReducer = useSelector(
@@ -74,6 +71,8 @@ const AddCategory: React.FC = () => {
   useLayoutEffect(() => {
     dispatch(getCategoryRequestAction({}, setCategories));
   }, [dispatch]);
+
+  console.log("goods",goods)
   return (
     <ContentContainer
       title="Thêm mới danh mục"

@@ -252,7 +252,7 @@ const TabProduct: React.FC = () => {
 
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      width: 60,
+      width: 70,
       title: "Ảnh",
       align:"center",
       render: (value: VariantResponse) => {
@@ -278,7 +278,6 @@ const TabProduct: React.FC = () => {
     {
       title:  "Sản phẩm",
       dataIndex: "sku",
-      width: 300,
       render: (value: string, i: VariantResponse) => (
         <div>
           <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`}>
@@ -294,7 +293,7 @@ const TabProduct: React.FC = () => {
       dataIndex: "variant_prices",
       align: "right",
       visible: true,
-      width: 120,
+      width: 110,
       render: (value) => {
         let prices: VariantPricesResponse | null = Products.findPrice(
           value,
@@ -311,7 +310,7 @@ const TabProduct: React.FC = () => {
       dataIndex: "available",
       visible: true,
       align: "right",
-      width: 120,
+      width: 110,
       render: (value: number, item: VariantResponse) => <div> {formatCurrency(value,".")}</div>,
     },
 
@@ -320,7 +319,7 @@ const TabProduct: React.FC = () => {
       dataIndex: "saleable",  
       visible: true,
       align: "center",
-      width: 100,
+      width: 120,
       render: (value: string, row: VariantResponse) => (
         <div className={value ? "text-success" : "text-error"}>
           {value ? "Cho phép bán" : "Ngừng  bán"}
@@ -331,13 +330,13 @@ const TabProduct: React.FC = () => {
       title: "Nhà thiết kế",
       visible: true,
       align: "left",
-      width: 120,
+      width: 150,
       render: (value: VariantResponse) => <div> {value?.product?.designer}</div>,
     },
     {
       title: "Merchandiser",
       align: "left",
-      width: 120,
+      width: 150,
       visible: true,
       render: (value: VariantResponse) => <div> {value?.product?.merchandiser}</div>,
     },
@@ -346,7 +345,7 @@ const TabProduct: React.FC = () => {
       dataIndex: "updated_date",
       visible: true,
       align: "left",
-      width: 120,
+      width: 110,
       render: (value, record) => {
         return (ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY))
       },
