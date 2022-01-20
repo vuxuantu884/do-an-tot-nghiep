@@ -12,6 +12,9 @@ import { AppConfig } from "config/app.config";
 import { useQuery } from "utils/useQuery";
 import { getYdpageSource, setYdpageSource } from "utils/LocalStorageUtils";
 import { useEffect } from "react";
+import { Spin } from "antd";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
+import SplashScreen from "screens/splash.screen";
 
 const YDPAGE_URL = AppConfig.ydPageUrl;
 const allSource = {
@@ -42,6 +45,7 @@ const YDpage: React.FC = () => {
     switch (cmd) {
       case 'save_route_path':
         setYdpagePath(route.path);
+        setLoadingYdpage(false);
         break;
       case 'hide_sidebar_menu':
         const settingApp = JSON.parse(localStorage.setting_app || '{}');
@@ -59,6 +63,7 @@ const YDpage: React.FC = () => {
   const fbCode = queryString.get("code");
 
   const [source, setSource] = useState<String | null>(getYdpageSource());
+  const [loadingYdpage, setLoadingYdpage] = useState<Boolean | null>(false);
 
   useEffect(() => {
     const iframe: HTMLIFrameElement | null = document.querySelector('[name="ydpage-callback-iframe"]');
@@ -67,6 +72,10 @@ const YDpage: React.FC = () => {
       url.searchParams.delete('code');
       window.history.pushState({}, '', url.toString());
     });
+
+    if (!iframe) {
+      setLoadingYdpage(true);
+    }
   }, [source]);
 
   return (
@@ -120,6 +129,9 @@ const YDpage: React.FC = () => {
             </div>
           </div>
         </ContentContainer>
+      )}
+      {loadingYdpage && (
+        <SplashScreen />
       )}
       {source === allSource.FACEBOOK && !fbCode && (
         <iframe
