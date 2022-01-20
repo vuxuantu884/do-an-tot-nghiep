@@ -319,7 +319,7 @@ const TabProduct: React.FC = () => {
       visible: true,
       align: "right",
       width: 110,
-      render: (value: number, item: VariantResponse) => <div> {value!==null?formatCurrency(value,"."):"---"}</div>,
+      render: (value: number, item: VariantResponse) => <div> {value?formatCurrency(value,"."):"0"}</div>,
     },
 
     {
