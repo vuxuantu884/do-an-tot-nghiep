@@ -12,11 +12,9 @@ import {
 } from "antd";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
-import { syncStockEcommerceProduct } from "domain/actions/ecommerce/ecommerce.actions";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
 import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
 import {
   AllOrdersMappingFilterStyled,
@@ -24,8 +22,6 @@ import {
 } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import { StyledEcommerceOrderBaseFilter } from "screens/ecommerce/orders/orderStyles";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-
 import { getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 
 type AllOrdersMappingFilterProps = {
@@ -36,7 +32,8 @@ type AllOrdersMappingFilterProps = {
   isLoading: boolean;
   onClearFilter?: () => void;
   onFilter?: (values: GetOrdersMappingQuery | Object) => void;
-  rowDataFilter: Array<any>;
+  setRowDataFilter: (x: any) => void;
+  handleDownloadSelectedOrders: (x: any) => void;
 };
 
 const { Item } = Form;
@@ -73,10 +70,8 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     onClearFilter,
     onFilter,
     shopList,
-    rowDataFilter,
+    handleDownloadSelectedOrders,
   } = props;
-
-  const dispatch = useDispatch();
 
   const [formFilter] = Form.useForm();
 
@@ -100,46 +95,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     };
   }, [params]);
 
-  // action menu
-  const onMenuClick = useCallback(
-    (index: number) => {
-      const requestSyncStockOrder: any[] = [];
-      rowDataFilter.forEach((item: any) => {
-        requestSyncStockOrder.push({
-          ecommerce_id: item.ecommerce_id,
-          shop_id: item.shop_id,
-          order_sn: item.ecommerce_order_code,
-        });
-      });
-
-      const rowDataFilterObj = {
-        order_list: requestSyncStockOrder,
-      };
-
-      if (rowDataFilter && rowDataFilter.length > 0) {
-        dispatch(
-          syncStockEcommerceProduct(rowDataFilterObj, (result) => {
-            if (!!result) {
-              if (result.update_total > 0) {
-                if (result.error_total > 0) {
-                  showWarning(`
-                    Đồng bộ ${result.update_total} đơn hàng thành công. Đồng bộ ${result.error_total} đơn hàng thất bại`);
-                } else {
-                  showSuccess(
-                    `Đồng bộ ${result.update_total} đơn hàng thành công`
-                  );
-                }
-              } else {
-                showError(`Đồng bộ ${result.error_total} đơn hàng thất bại`);
-              }
-            }
-          })
-        );
-      }
-    },
-    [dispatch, rowDataFilter]
-  );
-
   const isDisableAction = () => {
     return !selectedRowKeys || selectedRowKeys.length === 0;
   };
@@ -147,7 +102,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   const actionList = (
     <Menu>
       <Menu.Item key="1" disabled={isDisableAction()}>
-        <span onClick={() => onMenuClick(1)}>Đồng bộ đơn hàng</span>
+        <span onClick={() => handleDownloadSelectedOrders(1)}>Đồng bộ đơn hàng</span>
       </Menu.Item>
     </Menu>
   );

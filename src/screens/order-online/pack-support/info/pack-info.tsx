@@ -18,7 +18,7 @@ import {PageResponse} from "model/base/base-metadata.response";
 import {StoreResponse} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import {
-  DeliveryServiceResponse,
+  // DeliveryServiceResponse,
   OrderProductListModel,
 } from "model/response/order/order.response";
 import React, {createRef, useCallback, useContext, useEffect, useMemo, useState} from "react";
@@ -78,7 +78,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
-    if (listStores && listStores != null) {
+    if (listStores) {
       newData = listStores.filter((store) =>
         haveAccess(
           store.id,
@@ -263,7 +263,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     setFulfillmentsPackedItems,
   ]);
   useEffect(() => {
-    if (disableOrder === true) {
+    if (disableOrder) {
       setDisableProduct(false);
       setDisableQuality(false);
     } else {
@@ -611,7 +611,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             locale={{
               emptyText: (
                 <div className="sale_order_empty_product">
-                  <img src={emptyProduct} alt="empty product"></img>
+                  <img src={emptyProduct} alt="empty product"/>
                   <p>Không có dữ liệu!</p>
                 </div>
               ),

@@ -857,15 +857,22 @@ const EcommerceOrders: React.FC = () => {
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
-          setProgressData(response.data);
-          const progressCount = response.data.total_created + response.data.total_updated + response.data.total_error;
-          if (progressCount >= response.data.total || response.data.finish) {
+          const processData = response.data;
+          setProgressData(processData);
+          const progressCount = processData.total_created + processData.total_updated + processData.total_error;
+          if (progressCount >= processData.total || processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
-            showSuccess("Tải đơn hàng thành công!");
             setIsDownloading(false);
+            if (!processData.api_error){
+              showSuccess("Tải đơn hàng thành công!");
+            }else {
+              resetProgress();
+              setIsVisibleProgressModal(false);
+              showError(processData.api_error);
+            }
           } else {
-            const percent = Math.floor(progressCount / response.data.total * 100);
+            const percent = Math.floor(progressCount / processData.total * 100);
             setProgressPercent(percent);
           }
         }
