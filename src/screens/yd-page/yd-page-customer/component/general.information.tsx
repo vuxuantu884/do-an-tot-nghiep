@@ -107,7 +107,9 @@ const GeneralInformation = (props: any) => {
             <Col span={24} className="customer-info-row">
               <div className="phone-container">
                 <div className="ant-col ant-form-item-label">
-                  <span className="customer-field-label">SĐT: <span style={{ color: "#E24343" }}>*</span></span>
+                  <span className="customer-field-label">
+                    SĐT: <span style={{ color: "#E24343" }}>*</span>
+                  </span>
                 </div>
                 <Form.Item
                   name="phone"
@@ -120,8 +122,7 @@ const GeneralInformation = (props: any) => {
                       pattern: RegUtil.PHONE,
                       message: "Số điện thoại chưa đúng định dạng",
                     },
-                  ]}
-                >
+                  ]}>
                   <Input
                     style={{ borderRadius: 5 }}
                     disabled={isDisable}
@@ -147,16 +148,14 @@ const GeneralInformation = (props: any) => {
                     display: "flex",
                     justifyContent: "flex-end",
                     marginBottom: 10,
-                  }}
-                >
-                  <Col span={17} style={{ right: '-1px' }}>
+                  }}>
+                  <Col span={17} style={{ right: "-1px" }}>
                     {customerPhones &&
                       customerPhones.map((p: any, index: any) => (
                         <Tag
                           key={index}
                           style={{ cursor: "pointer" }}
-                          onClick={() => clickPhone(p)}
-                        >
+                          onClick={() => clickPhone(p)}>
                           {p}
                           <img
                             alt="delete"
@@ -173,6 +172,50 @@ const GeneralInformation = (props: any) => {
                 </Row>
               )}
             </Col>
+            
+            <Col span={24} className="customer-field-label customer-info-row">
+              <Form.Item
+                label={<span className="customer-field-label">Khu vực:</span>}
+                name="district_id">
+                <Select
+                  showSearch
+                  disabled={isDisable}
+                  placeholder="Chọn khu vực"
+                  onChange={handleChangeArea}
+                  allowClear
+                  optionFilterProp="children">
+                  {areas.map((area: any) => (
+                    <Option key={area.id} value={area.id}>
+                      {area.city_name + ` - ${area.name}`}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col span={24} className="customer-field-label customer-info-row">
+              <Form.Item
+                label={
+                  <span className="customer-field-label">Phường/ Xã:</span>
+                }
+                name="ward_id">
+                <Select
+                  showSearch
+                  disabled={isDisable}
+                  allowClear
+                  optionFilterProp="children"
+                  placeholder="Chọn phường/xã"
+                  // onChange={handleChangeWard}
+                >
+                  {wards.map((ward: any) => (
+                    <Option key={ward.id} value={ward.id}>
+                      {ward.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+
             <Col span={24} className="customer-field-label customer-info-row">
               <CustomInput
                 name="full_address"
@@ -185,57 +228,18 @@ const GeneralInformation = (props: any) => {
                 isRequired={false}
               />
             </Col>
-            <Col span={24} className="customer-field-label customer-info-row">
-              <Form.Item
-                label={<span className="customer-field-label">Phường/ Xã:</span>}
-                name="ward_id"
-              >
-                <Select
-                  showSearch
-                  disabled={isDisable}
-                  allowClear
-                  optionFilterProp="children"
-                  placeholder="Chọn phường/xã"
-                // onChange={handleChangeWard}
-                >
-                  {wards.map((ward: any) => (
-                    <Option key={ward.id} value={ward.id}>
-                      {ward.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24} className="customer-field-label customer-info-row">
-              <Form.Item
-                label={<span className="customer-field-label">Khu vực:</span>}
-                name="district_id"
-              >
-                <Select
-                  showSearch
-                  disabled={isDisable}
-                  placeholder="Chọn khu vực"
-                  onChange={handleChangeArea}
-                  allowClear
-                  optionFilterProp="children"
-                >
-                  {areas.map((area: any) => (
-                    <Option key={area.id} value={area.id}>
-                      {area.city_name + ` - ${area.name}`}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
+
             <Form.Item label="city" name="city_id" hidden>
               <Input disabled={isDisable} />
             </Form.Item>
+
             <Row hidden={showDetail} style={{ padding: "0 0px" }}>
               <Col span={24} className="customer-info-row">
                 <Form.Item
                   name="birthday"
-                  label={<span className="customer-field-label">Ngày sinh:</span>}
-                >
+                  label={
+                    <span className="customer-field-label">Ngày sinh:</span>
+                  }>
                   <DatePicker
                     style={{ width: "100%" }}
                     disabled={isDisable}
@@ -247,13 +251,20 @@ const GeneralInformation = (props: any) => {
                           display: "flex",
                           width: "100px",
                           justifyContent: "flex-end",
-                        }}
-                      >
+                        }}>
                         <CalendarOutlined />
-                        <span style={{ color: "#2a2a86", fontWeight: 500, marginLeft: 10 }}>
+                        <span
+                          style={{
+                            color: "#2a2a86",
+                            fontWeight: 500,
+                            marginLeft: 10,
+                          }}>
                           {customer?.birthday &&
                             `${moment().diff(
-                              ConvertUtcToLocalDate(customer?.birthday, "MM/DD/YYYY"),
+                              ConvertUtcToLocalDate(
+                                customer?.birthday,
+                                "MM/DD/YYYY"
+                              ),
                               "years"
                             )} Tuổi`}
                         </span>
@@ -271,8 +282,7 @@ const GeneralInformation = (props: any) => {
                       pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
                       message: "Vui lòng nhập đúng định dạng email",
                     },
-                  ]}
-                >
+                  ]}>
                   <Input
                     disabled={isDisable}
                     maxLength={255}
@@ -281,8 +291,11 @@ const GeneralInformation = (props: any) => {
                   />
                 </Form.Item>
                 <Col span={24}>
-                  <Form.Item name="card_number"
-                    label={<span className="customer-field-label">Thẻ KH:</span>}>
+                  <Form.Item
+                    name="card_number"
+                    label={
+                      <span className="customer-field-label">Thẻ KH:</span>
+                    }>
                     <Input
                       placeholder="Nhập mã thẻ"
                       prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
@@ -293,8 +306,10 @@ const GeneralInformation = (props: any) => {
               <Col span={24} className="customer-info-row">
                 <Form.Item
                   name="gender"
-                  label={<span className="customer-field-label">Giới tính:</span>}
-                // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+                  label={
+                    <span className="customer-field-label">Giới tính:</span>
+                  }
+                  // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                 >
                   <Select placeholder="Chọn giới tính" disabled={isDisable}>
                     <Option value={"male"}>Nam</Option>
@@ -307,14 +322,17 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   hidden
                   name="website"
-                  label={<span className="customer-field-label">Website/Facebook:</span>}
+                  label={
+                    <span className="customer-field-label">
+                      Website/Facebook:
+                    </span>
+                  }
                   rules={[
                     {
                       pattern: RegUtil.WEBSITE_URL_2,
                       message: "Website/Facebook chưa đúng định dạng",
                     },
-                  ]}
-                >
+                  ]}>
                   <Input
                     disabled={isDisable}
                     maxLength={255}
@@ -326,8 +344,9 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   hidden
                   name="wedding_date"
-                  label={<span className="customer-field-label">Ngày cưới:</span>}
-                >
+                  label={
+                    <span className="customer-field-label">Ngày cưới:</span>
+                  }>
                   <DatePicker
                     style={{ width: "100%" }}
                     disabled={isDisable}
@@ -341,8 +360,9 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   hidden
                   name="company"
-                  label={<span className="customer-field-label">Tên đơn vị:</span>}
-                >
+                  label={
+                    <span className="customer-field-label">Tên đơn vị:</span>
+                  }>
                   <Input
                     disabled={isDisable}
                     maxLength={255}
@@ -353,34 +373,39 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item
                   hidden
-                  label={<span className="customer-field-label">Mã số thuế:</span>}
+                  label={
+                    <span className="customer-field-label">Mã số thuế:</span>
+                  }
                   name="tax_code"
                   rules={[
                     {
                       pattern: RegUtil.NUMBERREG,
                       message: "Mã số thuế chỉ được phép nhập số",
                     },
-                  ]}
-                >
-                  <Input disabled={isDisable} maxLength={255} placeholder="Mã số thuế" />
+                  ]}>
+                  <Input
+                    disabled={isDisable}
+                    maxLength={255}
+                    placeholder="Mã số thuế"
+                  />
                 </Form.Item>
               </Col>
 
               <Col span={24}>
                 <Form.Item
                   hidden
-                  label={<span className="customer-field-label">Quốc gia:</span>}
+                  label={
+                    <span className="customer-field-label">Quốc gia:</span>
+                  }
                   name="country_id"
-                  initialValue={233}
-                >
+                  initialValue={233}>
                   <Select
                     placeholder="Quốc gia"
                     disabled
                     // onChange={handleChangeCountry}
                     showSearch
                     allowClear
-                    optionFilterProp="children"
-                  >
+                    optionFilterProp="children">
                     {countries &&
                       countries.map((country: any) => (
                         <Option key={country.id} value={country.id}>
@@ -397,15 +422,13 @@ const GeneralInformation = (props: any) => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-              }}
-            >
+              }}>
               <Col span={7} style={{ cursor: "pointer" }}>
                 <div
                   style={{ flex: 1 }}
                   onClick={() => {
                     setShowDetail(!showDetail);
-                  }}
-                >
+                  }}>
                   <img
                     alt="arrow down"
                     src={arrowDown}
@@ -426,8 +449,7 @@ const GeneralInformation = (props: any) => {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                }}
-              >
+                }}>
                 <div
                   style={{
                     width: "100%",
@@ -447,8 +469,7 @@ const GeneralInformation = (props: any) => {
                 padding: "16px",
                 display: "flex",
                 justifyContent: "flex-end",
-              }}
-            >
+              }}>
               <Col span={24}>
                 <Form.Item label={<b>Ghi chú:</b>} name="note">
                   <Input.TextArea
@@ -465,8 +486,7 @@ const GeneralInformation = (props: any) => {
                   paddingLeft: 0,
                   maxHeight: 150,
                   overflowY: "scroll",
-                }}
-              >
+                }}>
                 <div>
                   {notes &&
                     notes.map((note: any, index: number) => (
@@ -494,15 +514,17 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item
                   name="customer_type_id"
-                  label={<span className="customer-field-label">Loại khách hàng:</span>}
-                >
+                  label={
+                    <span className="customer-field-label">
+                      Loại khách hàng:
+                    </span>
+                  }>
                   <Select
                     disabled={isDisable}
                     showSearch
                     placeholder="Chọn loại khách hàng"
                     allowClear
-                    optionFilterProp="children"
-                  >
+                    optionFilterProp="children">
                     {props.types &&
                       props.types.map((type: any) => (
                         <Option key={type.id} value={type.id}>
@@ -515,20 +537,23 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item
                   name="customer_group_id"
-                  label={<span className="customer-field-label">Nhóm khách hàng:</span>}
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn nhóm khách hàng",
-                //   },
-                // ]}
+                  label={
+                    <span className="customer-field-label">
+                      Nhóm khách hàng:
+                    </span>
+                  }
+                  // rules={[
+                  //   {
+                  //     required: true,
+                  //     message: "Vui lòng chọn nhóm khách hàng",
+                  //   },
+                  // ]}
                 >
                   <Select
                     showSearch
                     placeholder="Chọn nhóm khách hàng"
                     allowClear
-                    optionFilterProp="children"
-                  >
+                    optionFilterProp="children">
                     {props.groups &&
                       props.groups.map((group: any) => (
                         <Option key={group.id} value={group.id}>
@@ -543,23 +568,24 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   name="responsible_staff_code"
                   label={
-                    <span className="customer-field-label">Nhân viên phụ trách:</span>
+                    <span className="customer-field-label">
+                      Nhân viên phụ trách:
+                    </span>
                   }
 
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn cấp độ khách hàng",
-                //   },
-                // ]}
+                  // rules={[
+                  //   {
+                  //     required: true,
+                  //     message: "Vui lòng chọn cấp độ khách hàng",
+                  //   },
+                  // ]}
                 >
                   <Select
                     showSearch
                     placeholder="Chọn nv phụ trách"
                     allowClear
                     optionFilterProp="children"
-                    onSearch={(value) => AccountChangeSearch(value)}
-                  >
+                    onSearch={(value) => AccountChangeSearch(value)}>
                     {props.accounts &&
                       props.accounts.map((c: any) => (
                         <Option key={c.id} value={c.code}>
@@ -572,8 +598,7 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item
                   label={<span className="customer-field-label">Mô tả:</span>}
-                  name="description"
-                >
+                  name="description">
                   <Input.TextArea maxLength={500} placeholder="Nhập mô tả" />
                 </Form.Item>
               </Col>
