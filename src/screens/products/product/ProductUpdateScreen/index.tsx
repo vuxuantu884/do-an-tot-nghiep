@@ -819,11 +819,10 @@ const ProductDetailScreen: React.FC = () => {
         title="Sửa thông tin sản phẩm"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
+            name: "Sản phẩm",
           },
           {
-            name: "Sản phẩm",
+            name: "Quản lý sản phẩm",
             path: `${UrlConfig.VARIANTS}`,
           },
           {
