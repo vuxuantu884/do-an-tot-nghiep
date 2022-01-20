@@ -15,7 +15,7 @@ interface Props extends FormItemProps {
   rules?: any[];
   placeholder?: string;
   querySearch?: ColorSearchQuery;
-  mode?: "multiple" | "tags" | undefined;
+  mode?: "multiple" | "tags" | undefined; // api chưa support get multiple id
   key?: "code" | "id";
   defaultValue?: string | number | string[];
 }
@@ -50,7 +50,7 @@ function ColorSelectSearch({
     isLoading: boolean;
   }>({items: [], isLoading: false});
 
-  const handleChangeAccountSearch = useCallback(
+  const handleColorSearch = useCallback(
     (info: string, codes?: string[]) => {
       if (querySearch) {
         setSizeList((prev) => {
@@ -75,25 +75,19 @@ function ColorSelectSearch({
     [dispatch, querySearch]
   );
   const onSearchAccount = debounce((key: string) => {
-    handleChangeAccountSearch(key);
+    handleColorSearch(key);
   }, 300);
 
+  // const formFieldValie = form?.getFieldValue(name);
   useEffect(() => {
     // let value = defaultValue;
 
-    // if (!defaultValue && form) {
-    //   value = form.getFieldValue(name);
+    // if (!defaultValue && formFieldValie) {
+    //   value = formFieldValie;
     // }
 
-    // if (mode === "multiple" && Array.isArray(value)) {
-    //   handleChangeAccountSearch("", value);
-    // } else if (typeof value === "string") {
-    //   handleChangeAccountSearch("", [value]);
-    // } else {
-    //   handleChangeAccountSearch("");
-    // }
-    handleChangeAccountSearch("");
-  }, [handleChangeAccountSearch, mode, defaultValue, form, name]);
+    handleColorSearch("");
+  }, [handleColorSearch, mode, defaultValue, name]);
 
   return (
     <Form.Item label={label} name={name} rules={rules} {...restFormProps}>
@@ -112,7 +106,7 @@ function ColorSelectSearch({
         notFoundContent="Không có dữ liệu"
       >
         {sizeList?.items?.map((item) => (
-          <Option key={item.name} value={item[key || "id"]}>
+          <Option key={item.name} value={item[key!].toString()}>
             {`${item.name}`}
           </Option>
         ))}
@@ -121,4 +115,11 @@ function ColorSelectSearch({
   );
 }
 
-export default ColorSelectSearch;
+const ColorSelectSearchMemo = React.memo(ColorSelectSearch, (prev, next) => {
+  const {form} = prev;
+  const {form: nextForm} = next;
+  return  (form===nextForm);
+});
+export default ColorSelectSearchMemo;
+
+
