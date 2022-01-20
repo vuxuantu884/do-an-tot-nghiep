@@ -12,8 +12,6 @@ import { AppConfig } from "config/app.config";
 import { useQuery } from "utils/useQuery";
 import { getYdpageSource, setYdpageSource } from "utils/LocalStorageUtils";
 import { useEffect } from "react";
-import { Spin } from "antd";
-import { Loading3QuartersOutlined } from "@ant-design/icons";
 import SplashScreen from "screens/splash.screen";
 
 const YDPAGE_URL = AppConfig.ydPageUrl;
@@ -24,6 +22,8 @@ const YDpage: React.FC = () => {
   const goToFacebookYDpage = () => {
     setSource(allSource.FACEBOOK);
     setYdpageSource(allSource.FACEBOOK);
+    setIsLogining(true);
+    window.location.href = YDPAGE_URL + 'auth/facebook';
   };
 
   function setYdpagePath(path: any) {
@@ -54,6 +54,9 @@ const YDpage: React.FC = () => {
           toggleSideBtn?.click();
         }
         break;
+      case 'ydpage_loaded':
+        setLoadingYdpage(false);
+        break;
       default:
         break;
     }
@@ -64,6 +67,7 @@ const YDpage: React.FC = () => {
 
   const [source, setSource] = useState<String | null>(getYdpageSource());
   const [loadingYdpage, setLoadingYdpage] = useState<Boolean | null>(false);
+  const [isLogining, setIsLogining] = useState<Boolean | null>(false);
 
   useEffect(() => {
     const iframe: HTMLIFrameElement | null = document.querySelector('[name="ydpage-callback-iframe"]');
@@ -73,7 +77,7 @@ const YDpage: React.FC = () => {
       window.history.pushState({}, '', url.toString());
     });
 
-    if (!iframe) {
+    if (!iframe && source) {
       setLoadingYdpage(true);
     }
   }, [source]);
@@ -133,7 +137,7 @@ const YDpage: React.FC = () => {
       {loadingYdpage && (
         <SplashScreen />
       )}
-      {source === allSource.FACEBOOK && !fbCode && (
+      {source === allSource.FACEBOOK && !fbCode && !isLogining && (
         <iframe
           className="ydpage-iframe"
           title="ydpage"
@@ -141,7 +145,7 @@ const YDpage: React.FC = () => {
           style={{ width: "100%", height: "100%" }}
         ></iframe>
       )}
-      {source === allSource.FACEBOOK && fbCode && (
+      {source === allSource.FACEBOOK && fbCode && !isLogining && (
         <iframe
           name="ydpage-callback-iframe"
           className="ydpage-iframe"
