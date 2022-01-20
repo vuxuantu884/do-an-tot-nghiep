@@ -132,7 +132,7 @@ const TabProductWrapper: React.FC = () => {
       width: 110,
       render: (value: Array<VariantResponse>) => (
         <>
-          <div>{value ? value.length : "---"}</div>
+          <div>{value ? value.length : "0"}</div>
         </>
       ),
       visible: true,
@@ -143,7 +143,7 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       visible: true,
       width: 120,
-      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"---"}</div>,
+      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"0"}</div>,
     },
     {
       align: "right",
@@ -151,7 +151,7 @@ const TabProductWrapper: React.FC = () => {
       dataIndex: "available",
       visible: true,
       width: 100,
-      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"---"}</div>,
+      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"0"}</div>,
     },
     {
       title: "Trạng thái",
