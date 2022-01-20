@@ -13,6 +13,7 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getColorAction} from "domain/actions/product/color.action";
 import { sizeSearchAction } from "domain/actions/product/size.action";
+import _ from "lodash";
 import {AccountResponse} from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import {BaseBootstrapResponse} from "model/content/bootstrap.model";
@@ -28,8 +29,8 @@ import { useDispatch } from "react-redux";
 import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
 import {StyledComponent} from "./style";
 
-var isWin = false;
-var isDesigner = false; 
+let isWin = false;
+let isDesigner = false; 
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
@@ -300,7 +301,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         searchPlaceholder="Tìm kiếm nhân viên"
                         placeholder="Chọn thiết kế"
                         onPageChange={(key, page) => getAccounts(key, page, true, false)}
-                        onSearch={(key) => getAccounts(key, 1, true, false)}
+                        onSearch={_.debounce((key) => getAccounts(key, 1, true, false), AppConfig.TYPING_TIME_REQUEST)}
+                        onSelect={()=>{}} // to disable onSearch when select item
                       >
     
                         {designers.items.map((item) => (
@@ -321,7 +323,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         allowClear
                         searchPlaceholder="Tìm kiếm nhân viên"
                         onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                        onSearch={(key) => getAccounts(key, 1, false, true)}
+                        onSearch={_.debounce((key) => getAccounts(key, 1, false, true), AppConfig.TYPING_TIME_REQUEST)}
+                        onSelect={()=>{}} // to disable onSearch when select item
                       >
                         {wins.items.map((item) => (
                           <SelectPaging.Option key={item.code} value={item.code}>
@@ -347,6 +350,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         onSearch={(key) => getSizes(key, 1)}
                         onPageChange={(key, page) => getSizes(key, page)}
                         placeholder="Chọn kích thước"
+                        onSelect={()=>{}} // to disable onSearch when select item
                       >
                         {lstSize.items.map((item) => (
                           <SelectPaging.Option key={item.id} value={item.id}>
@@ -369,6 +373,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         onSearch={(key) => getColors(key, 1,true,false)}
                         onPageChange={(key, page) => getColors(key, page,true,false)}
                         placeholder="Chọn màu sắc"
+                        onSelect={()=>{}} // to disable onSearch when select item
                       >
                         {colors.items.map((item) => (
                           <SelectPaging.Option key={item.id} value={item.id}>
@@ -391,6 +396,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         onSearch={(key) => getColors(key, 1,false,true)}
                         onPageChange={(key, page) => getColors(key, page,false,true)}
                         placeholder="Chọn màu sắc chủ đạo"
+                        onSelect={()=>{}} // to disable onSearch when select item
                       >
                         {mainColors.items.map((item) => (
                           <SelectPaging.Option key={item.id} value={item.id}>
@@ -410,6 +416,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         placeholder="Chọn nhà cung cấp"
                         onSearch={(key) => getSuppliers(key, 1)}
                         onPageChange={(key, page) => getSuppliers(key, page)}
+                        onSelect={()=>{}} // to disable onSearch when select item
                       >
                         {suppliers.items.map((item) => (
                           <SelectPaging.Option key={item.id} value={item.id}>
