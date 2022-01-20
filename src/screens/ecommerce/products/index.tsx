@@ -5,7 +5,7 @@ import { Tabs, Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons"
 
 import UrlConfig from "config/url.config";
-import { showSuccess } from "utils/ToastUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import TotalItemsEcommerce from "screens/ecommerce/products/tab/total-items-ecommerce";
 import ConnectedItems from "screens/ecommerce/products/tab/connected-items";
@@ -137,14 +137,21 @@ const Products: React.FC = () => {
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+        const processData = response.data;
+        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(processData.total)) {
           setProgressData(response.data);
-          const progressCount = response.data.total_created + response.data.total_updated + response.data.total_error;
-          if (progressCount >= response.data.total || response.data.finish) {
+          const progressCount = processData.total_created + processData.total_updated + processData.total_error;
+          if (progressCount >= processData.total || processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
-            showSuccess("Tải sản phẩm thành công!");
             setIsDownloading(false);
+            if (!processData.api_error){
+              showSuccess("Tải sản phẩm thành công!");
+            }else {
+              resetProgress();
+              setIsVisibleProgressModal(false);
+              showError(processData.api_error);
+            }
           } else {
             const percent = Math.floor(progressCount / response.data.total * 100);
             setProgressPercent(percent);
