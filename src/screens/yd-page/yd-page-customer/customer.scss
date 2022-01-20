@@ -155,23 +155,25 @@
         padding: 0 3px !important;
     }
 
-    .ant-input, .ant-select-selector, .ant-picker, .phone-container button, .ant-form-item {
-        height: 32px!important;
-    }
-
-    .ant-select {
-        &-selector {
+    #customer_add {
+        .ant-input, .ant-select-selector, .ant-picker, .phone-container button, .ant-form-item {
             height: 32px!important;
-            padding: 0 14px;
-            .ant-select-selection {
-                &-search-input {
-                    height: 32px!important;
-                }
-                &-item {
-                    line-height: 32px!important;
-                }
-                &-placeholder {
-                    line-height: 32px!important;
+        }
+
+        .ant-select {
+            &-selector {
+                height: 32px!important;
+                padding: 0 14px;
+                .ant-select-selection {
+                    &-search-input {
+                        height: 32px!important;
+                    }
+                    &-item {
+                        line-height: 32px!important;
+                    }
+                    &-placeholder {
+                        line-height: 32px!important;
+                    }
                 }
             }
         }
