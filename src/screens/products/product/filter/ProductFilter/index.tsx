@@ -232,7 +232,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         <Form onFinish={onFinish} initialValues={params} layout="inline">
           <CustomFilter onMenuClick={onMenuClick} menu={actions}>
             <Item name="info" className="search">
-              <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã sản phẩm" />
+              <Input prefix={<img src={search} alt="" />} placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm" />
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">

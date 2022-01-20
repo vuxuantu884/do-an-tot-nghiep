@@ -41,7 +41,7 @@ const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{ width: "100%" }}
-                placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
+                placeholder="Tìm kiếm Tên/Mã sản phẩm"
               />
             </Item>
             <Item name="from_action_date" className="date">
