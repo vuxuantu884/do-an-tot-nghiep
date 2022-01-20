@@ -192,7 +192,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
             <Item name="info" className="search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo mã vạch, Mã sản phẩm, Tên sản phẩm"
+                placeholder="Tìm kiếm theo Tên/Mã sản phẩm"
               />
             </Item>
             <Item>

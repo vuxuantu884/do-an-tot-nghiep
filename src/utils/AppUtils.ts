@@ -1368,3 +1368,21 @@ export const isOrderFromPOS = (OrderDetail: OrderResponse | null) => {
 	}
 	return false;
 };
+
+/**
+ * Ẩn kí tự
+ * value: ki tu can dua vao
+ * length: số kí tự muốn hiển thị
+ * lastLength: số kí tự cuối muốn hiện thị
+ */
+export const splitEllipsis=(value:string,length:number,lastLength:number):string=>{
+
+  if(value.length<=length)
+    return value;
+  let strLength=value.length-(value.length-length+7);// tổng số kí tự cần lấy
+
+  let strFirst = value.substring(0,strLength - lastLength);//lấy kí tự đầu
+  let strLast=value.substring(value.length-lastLength,value.length);//lấy kí tự cuối
+
+  return `${strFirst} [...] ${strLast}`;
+};

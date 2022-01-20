@@ -238,7 +238,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     dispatch(
       getLinesItemAdjustmentAction(
         idNumber,
-        `page=${page}&limit=${size}&condition=${keySearch?.toString()}`,
+        `page=${page}&limit=${size}&type=total&condition=${keySearch?.toString()}`,
         onResultDataTable
       )
     );
@@ -256,7 +256,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       })
     );
     
-}, 1000),
+}, 500),
 [data, dispatch, getLinesItemAdjustment, keySearch]
 );
 
@@ -283,6 +283,24 @@ const onChangeReason = useCallback(
     [keySearch, getLinesItemAdjustment]
   );
 
+  const onEnterFilterVariant = useCallback(
+    (code: string) => {
+      getLinesItemAdjustment(1,30,code);
+    },
+    [getLinesItemAdjustment]
+  );
+
+  const debounceSearchVariant = useMemo(()=>
+    _.debounce((code: string)=>{
+      onEnterFilterVariant(code);
+  }, 300),
+  [onEnterFilterVariant]
+  );
+
+  const onChangeKeySearch = useCallback((code: string)=>{
+    debounceSearchVariant(code);
+  },[debounceSearchVariant]); 
+
   useEffect(() => {
     getLinesItemAdjustment(1,30, "");
   }, [getLinesItemAdjustment]);
@@ -302,7 +320,8 @@ const onChangeReason = useCallback(
               value={keySearch}
               onChange={(e) => {
                 setKeySearch(e.target.value);
-              }}
+                onChangeKeySearch(e.target.value);
+              }} 
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();

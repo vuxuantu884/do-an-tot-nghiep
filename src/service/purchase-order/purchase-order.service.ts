@@ -131,7 +131,7 @@ export const getProcumentLogsService = (
   query: ProcumentLogQuery
 ): Promise<BaseResponse<PageResponse<PurchaseOrderActionLogResponse>>> => {
   
-  let params = generateQuery(query);
+  let params = generateQuery(query); 
   return BaseAxios.get(
     `${ApiConfig.PURCHASE_ORDER}/procurements/logs?${params}`,
   );

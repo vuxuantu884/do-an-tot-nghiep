@@ -29,9 +29,7 @@ import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
 import {StyledComponent} from "./style";
 
 var isWin = false;
-var isDesigner = false;
-var isColors = false;
-var isMainColors = false;
+var isDesigner = false; 
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
@@ -163,7 +161,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   );
 
   const setDataColors = useCallback(
-    (data: PageResponse<ColorResponse>) => {
+    (data: PageResponse<ColorResponse>, isColors: boolean, isMainColors: boolean) => {
       if (!data) {
         return false;
       } 
@@ -188,13 +186,13 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     );
   }, [dispatch, setDataAccounts]);
 
-  const getColors = useCallback((code: string, page: number, isColor: boolean, isMainColor: boolean) => {
-    isColors = isColor;
-    isMainColors = isMainColor;
+  const getColors = useCallback((code: string, page: number, isColor: boolean, isMainColor: boolean) => { 
     dispatch(
       getColorAction(
-        { info: code, page: page, is_main_color: isMainColors ? 1: 0 },
-        setDataColors
+        { info: code, page: page, is_main_color: isMainColor ? 1: 0 },
+        (res)=>{
+          setDataColors(res, isColor, isMainColor);
+        }
       )
     );
   }, [dispatch, setDataColors]);
@@ -222,7 +220,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
 
   useEffect(()=>{
     getAccounts("",1,true,true);
-    getColors('', 1,true,true);
+    getColors('', 1,false,true);
+    getColors('', 1,true,false);
     getSuppliers('', 1);
     getSizes("",1);
   },[getAccounts, getColors,getSizes, getSuppliers]);
@@ -233,7 +232,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         <Form onFinish={onFinish} initialValues={params} layout="inline">
           <CustomFilter onMenuClick={onMenuClick} menu={actions}>
             <Item name="info" className="search">
-              <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã sản phẩm" />
+              <Input prefix={<img src={search} alt="" />} placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm" />
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">

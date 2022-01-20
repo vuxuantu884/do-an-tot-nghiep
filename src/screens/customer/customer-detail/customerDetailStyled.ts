@@ -139,18 +139,18 @@ export const StyledPurchaseHistory = styled.div`
   td {
     position: relative;
   }
-  .customBackgroundRowOrderReturn {
+  .order-return-background {
     background-color: rgb(239, 239, 252); 
     .ant-table-cell-fix-left, .ant-table-cell-fix-right {
       background-color: rgb(239, 239, 252);
     }
   }
 
-  .ant-table-tbody>tr.customBackgroundRowOrderReturn:hover>td {
+  .ant-table-tbody>tr.order-return-background:hover>td {
     background-color: rgb(239, 239, 252);
   }
 
-  .ant-table-tbody>tr.customBackgroundRowOrderReturn>td {
+  .ant-table-tbody>tr.order-return-background>td {
     transition: unset;
   }
 

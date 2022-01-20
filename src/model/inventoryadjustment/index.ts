@@ -67,7 +67,8 @@ export interface LineItemAdjustment {
   real_on_hand: number,
   on_hand_adj: number | null,
   on_hand_adj_dis: string | null,
-  note: string|null
+  note: string|null,
+  total_variant_deviant: number
 }
 
 export interface FileUrl {
@@ -107,6 +108,7 @@ export interface InventoryAdjustmentDetailItem {
   total_real_on_hand: number;
   total_excess: number;
   total_missing: number;
+  total_variant_deviant: number;
   line_items: Array<LineItemAdjustment>;
   store: StoreResponse;
 }; 

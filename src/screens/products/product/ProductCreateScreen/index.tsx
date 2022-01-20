@@ -28,7 +28,7 @@ import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config"; 
+import UrlConfig from "config/url.config"; 
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -879,13 +879,6 @@ const ProductCreateScreen: React.FC = () => {
                         showSearch
                         onChange={onCategoryChange}
                         placeholder="Chọn danh mục"
-                        suffix={
-                          <Button
-                            className="button-plus"
-                            icon={<PlusOutlined />}
-                            onClick={() => window.open(`${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`)}
-                          />
-                        }
                       >
                         {categoryFilter.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id}>
@@ -944,13 +937,7 @@ const ProductCreateScreen: React.FC = () => {
                         optionFilterProp="children"
                         placeholder="Chọn chất liệu"
                         onChange={onMaterialChange}
-                        suffix={
-                          <Button
-                            className="button-plus"
-                            icon={<PlusOutlined />}
-                            onClick={() => window.open(`${BASE_NAME_ROUTER}${UrlConfig.MATERIALS}/create`)}
-                          />
-                        }
+                        allowClear
                       >
                         {listMaterial?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id}>

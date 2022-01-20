@@ -33,7 +33,7 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
+import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -252,7 +252,7 @@ const TabProduct: React.FC = () => {
 
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      width: 60,
+      width: 70,
       title: "Ảnh",
       align:"center",
       render: (value: VariantResponse) => {
@@ -275,18 +275,24 @@ const TabProduct: React.FC = () => {
       },
       visible: true,
     },
+
     {
       title:  "Sản phẩm",
       dataIndex: "sku",
-      width: 300,
-      render: (value: string, i: VariantResponse) => (
-        <div>
-          <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`}>
-            {value}
-          </Link>
-          <div><TextEllipsis value={i.name} line={1} /></div>
-        </div>
-      ),
+      render: (value: string, i: VariantResponse) => {
+        let strName=i.name.toLocaleUpperCase().trim();
+        strName=window.screen.width>=1920?splitEllipsis(strName,80,10)
+          :window.screen.width>=1600?strName=splitEllipsis(strName,55,10)
+          :window.screen.width>=1366?strName=splitEllipsis(strName,50,10):strName;
+        return(
+          <div>
+            <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`} className="yody-text-ellipsis">
+              {value}
+            </Link>
+            <div><TextEllipsis value={strName} line={1} /></div>
+          </div>
+        )
+      },
       visible: true,
     },
     {
@@ -294,13 +300,14 @@ const TabProduct: React.FC = () => {
       dataIndex: "variant_prices",
       align: "right",
       visible: true,
-      width: 120,
+      width: 110,
       render: (value) => {
         let prices: VariantPricesResponse | null = Products.findPrice(
           value,
           AppConfig.currency
         );
         if (prices !== null) {
+         
           return formatCurrency(prices.retail_price);
         }
         return 0;
@@ -311,8 +318,8 @@ const TabProduct: React.FC = () => {
       dataIndex: "available",
       visible: true,
       align: "right",
-      width: 120,
-      render: (value: number, item: VariantResponse) => <div> {formatCurrency(value,".")}</div>,
+      width: 110,
+      render: (value: number, item: VariantResponse) => <div> {value?formatCurrency(value,"."):"0"}</div>,
     },
 
     {
@@ -320,7 +327,7 @@ const TabProduct: React.FC = () => {
       dataIndex: "saleable",  
       visible: true,
       align: "center",
-      width: 100,
+      width: 120,
       render: (value: string, row: VariantResponse) => (
         <div className={value ? "text-success" : "text-error"}>
           {value ? "Cho phép bán" : "Ngừng  bán"}
@@ -331,24 +338,24 @@ const TabProduct: React.FC = () => {
       title: "Nhà thiết kế",
       visible: true,
       align: "left",
-      width: 120,
-      render: (value: VariantResponse) => <div> {value?.product?.designer}</div>,
+      width: 150,
+      render: (value: VariantResponse) => <div> {(value?.product?.designer)!==null?(value?.product?.designer):"---"}</div>,
     },
     {
       title: "Merchandiser",
       align: "left",
-      width: 120,
+      width: 150,
       visible: true,
-      render: (value: VariantResponse) => <div> {value?.product?.merchandiser}</div>,
+      render: (value: VariantResponse) => <div> {(value?.product?.merchandiser)!==null?(value?.product?.merchandiser):"---"}</div>,
     },
     {
       title: "Ngày tạo",
       dataIndex: "updated_date",
       visible: true,
       align: "left",
-      width: 120,
+      width: 110,
       render: (value, record) => {
-        return (ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY))
+        return ((record?.updated_date)!==null?ConvertUtcToLocalDate(record?.updated_date,DATE_FORMAT.DDMMYYY):"---")
       },
     },
   ];
@@ -423,7 +430,6 @@ const TabProduct: React.FC = () => {
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
-        scroll={{x: 1300}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,

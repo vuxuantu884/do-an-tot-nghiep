@@ -198,6 +198,8 @@ const ScreenReturnCreate = (props: PropType) => {
 ShippingServiceConfigDetailResponseModel[]
 >([]);
 
+  const [is4h, setIs4h] = useState(false);
+
   const initialForm: OrderRequest = {
     action: "", //finalized
     store_id: null,
@@ -1196,6 +1198,8 @@ ShippingServiceConfigDetailResponseModel[]
                       form={form}
 											shippingServiceConfig={shippingServiceConfig}
 											orderConfig={orderConfig}
+                      setIs4h={setIs4h}
+                      is4h={is4h}
                     />
                   </Card>
                 )}

@@ -67,7 +67,7 @@ export const updateStatusPO = (
 export const searchProcurementApi = (
   query: ProcurementQuery
 ): Promise<BaseResponse<PageResponse<PurchaseProcument>>> => {
-  const queryString = generateQuery(query);
+  const queryString = generateQuery(query); 
   return BaseAxios.get(
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/procurements?${queryString}`
   );

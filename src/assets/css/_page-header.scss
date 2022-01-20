@@ -23,20 +23,22 @@
       width: 100%;
       .ant-breadcrumb{
         span{
+          .breadcrumb_hover:hover{
+            color: $primary-color;
+          }
           .ant-breadcrumb-link{
             color: #5D5D8A;
               a{
               color: #5D5D8A;
             }
 
-            &:hover{
-              color: $primary-color;
-              a{
-                color: $primary-color;
-              }
-            }
+            // &:hover{
+            //   color: $primary-color;
+            //   a{
+            //     color: $primary-color;
+            //   }
+            // }
           }
-
           &:last-child{
             .ant-breadcrumb-link, a{
               color: #222222;
