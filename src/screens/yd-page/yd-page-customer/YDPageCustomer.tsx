@@ -58,7 +58,7 @@ const YDPageCustomerDetail = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
-    loyaltyCard
+    loyaltyCard,
   } = props;
   const [customerForm] = Form.useForm();
   // const history = useHistory();
@@ -392,7 +392,6 @@ const YDPageCustomerDetail = (props: any) => {
   const isDisableUpdateCustomer = () => {
     return (!allowUpdateCustomer && customer) || (!allowCreateCustomer && !customer);
   };
-
 
   return (
     <div style={{ marginTop: 56 }}>
