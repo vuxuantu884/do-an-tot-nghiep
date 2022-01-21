@@ -1,11 +1,11 @@
-import {Form, FormItemProps, Select} from "antd";
-import {FormInstance} from "antd/es/form/Form";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import _, {debounce} from "lodash";
-import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import React, {ReactElement, useCallback, useEffect} from "react";
-import {useDispatch} from "react-redux";
+import { Form, FormItemProps, Select } from "antd";
+import { FormInstance } from "antd/es/form/Form";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import _, { debounce } from "lodash";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import React, { ReactElement, useCallback, useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 const {Option} = Select;
 interface Props extends FormItemProps {
@@ -63,9 +63,9 @@ function AccountSelect({
         query.condition = key;
         query.codes = codes;
         dispatch(
-          AccountSearchAction(
+          searchAccountPublicAction(
             query,
-            (response: PageResponse<AccountResponse> | false) => {
+            (response: PageResponse<AccountResponse>) => {
               if (response) {
                 setAccountList({
                   items: response.items,

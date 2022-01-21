@@ -142,7 +142,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   > = [
       {
         width: 50,
-        title: "Stt",
+        title: "STT",
         align: "center",
         render: (value, record, index) => index + 1,
       },
@@ -371,26 +371,29 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
             <Table
               className="product-table"
               pagination={false}
-              // scroll={{ y: 300, x: 950 }}
+              scroll={{ y: 400, x: 950 }}
               rowKey={(item) => item.id}
               dataSource={procument_items}
               columns={[
                 {
                   width: 50,
-                  title: "Stt",
+                  title: "STT",
                   align: "center",
+                  fixed: "left",
                   render: (value, record, index) => index + 1,
                 },
                 {
                   width: 150,
                   title: "Cửa hàng nhận",
                   dataIndex: "store",
+                  fixed: "left",
                   render: (value, record, index) => value,
                 },
                 {
-                  width: 150,
+                  width: 110,
                   title: "Ngày nhận dự kiến",
                   dataIndex: "expect_receipt_date",
+                  fixed: "left",
                   render: (value, record, index: number) =>
                     ConvertUtcToLocalDate(value,DATE_FORMAT.DDMMYYY),
                 },
@@ -412,20 +415,15 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                     <Table.Summary.Row>
                       <Table.Summary.Cell
                         index={0}
-                        colSpan={2}
+                        colSpan={3}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: "flex-end", width: '100%' }}>
+                        <div style={{textAlign: "center"}}>
                           <b>TỔNG</b>
                         </div>
-
                       </Table.Summary.Cell>
-                      <Table.Summary.Cell
-                        index={2}
-                        colSpan={1}
-                      ></Table.Summary.Cell>
                       {
                         new_line_items.map((new_line_items, index) => (
-                          <Table.Summary.Cell align="right" index={index + 2}>
+                          <Table.Summary.Cell align="right" index={index + 3}>
                             <div>{formatCurrency(newTotal[new_line_items.sku],".")}</div>
                           </Table.Summary.Cell>
                         ))

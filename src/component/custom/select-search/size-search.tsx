@@ -28,7 +28,7 @@ SizeSelect.defaultProps = {
     info: "",
   },
   mode: undefined,
-  key: "code",
+  key: "id",
   defaultValue: undefined,
 };
 
@@ -50,8 +50,8 @@ function SizeSelect({
     isLoading: boolean;
   }>({items: [], isLoading: false});
 
-  const handleChangeAccountSearch = useCallback(
-    (code: string, codes?: string[]) => {
+  const handleSizeSearch = useCallback(
+    (code: string, ids?: Array<number>) => {
       if (querySearch) {
         setSizeList((prev) => {
           return {items: prev?.items || [], isLoading: true};
@@ -59,6 +59,7 @@ function SizeSelect({
 
         const query = _.cloneDeep(querySearch);
         query.code = code;
+        query.ids = ids;
         dispatch(
           sizeSearchAction(query, (response: PageResponse<SizeResponse>) => {
             if (response) {
@@ -74,25 +75,26 @@ function SizeSelect({
     [dispatch, querySearch]
   );
   const onSearchAccount = debounce((key: string) => {
-    handleChangeAccountSearch(key);
+    handleSizeSearch(key);
   }, 300);
 
   useEffect(() => {
-    // let value = defaultValue;
+    let value : any = defaultValue;
 
-    // if (!defaultValue && form) {
-    //   value = form.getFieldValue(name);
-    // }
+    if (!defaultValue && form) {
+      value = form.getFieldValue(name);
+    }
 
-    // if (mode === "multiple" && Array.isArray(value)) {
-    //   handleChangeAccountSearch("", value);
-    // } else if (typeof value === "string") {
-    //   handleChangeAccountSearch("", [value]);
-    // } else {
-    //   handleChangeAccountSearch("");
-    // }
-    handleChangeAccountSearch("");
-  }, [handleChangeAccountSearch, mode, defaultValue, form, name]);
+    if (mode === "multiple" && Array.isArray(value)) {
+      handleSizeSearch("", value);
+    } else if (typeof value === "number") {
+      handleSizeSearch('', [value]);
+    } else  if (typeof value === "string") {
+      handleSizeSearch(value);
+    } else {
+      handleSizeSearch("");
+    } 
+  }, [handleSizeSearch, mode, defaultValue, form, name]);
 
   return (
     <Form.Item label={label} name={name} rules={rules} {...restFormProps}>
@@ -111,7 +113,7 @@ function SizeSelect({
         notFoundContent="Không có dữ liệu"
       >
         {sizeList?.items?.map((item) => (
-          <Option key={item.code} value={item[key || "code"]}>
+          <Option key={item.code} value={item[key!].toString()}>
             {`${item.code}`}
           </Option>
         ))}
