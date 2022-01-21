@@ -42,6 +42,7 @@ type CreateCustomerProps = {
   handleChangeCustomer: any;
   keySearchCustomer: string;
   ShippingAddressChange: (items: any) => void;
+  CustomerDeleteInfo: () => void;
 };
 
 const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
@@ -53,6 +54,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     handleChangeCustomer,
     ShippingAddressChange,
     keySearchCustomer,
+    CustomerDeleteInfo
   } = props;
 
   const dispatch = useDispatch();
@@ -296,7 +298,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         <Row gutter={12} >
           <Col span={12} >
             <Form.Item
-             
               rules={[
                 {
                   required: true,
@@ -585,20 +586,32 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               checked={isVisibleShipping}
               //disabled={levelOrder > 3}
             >
-              Địa chỉ của khách hàng cũng là địa chỉ giao hàng
+              Thông tin của khách hàng cũng là thông tin giao hàng
             </Checkbox>
           </Col>
-          {isVisibleShipping === true && isVisibleBtnUpdate === true && (
-            <Col md={12} style={{ float: "right", marginTop: "-10px" }}>
+          {isVisibleShipping === true && (
+            <Col md={12} style={{ float: "right", marginTop: "10px" }}>
+              {isVisibleBtnUpdate === true && (
+                <Button
+                  type="primary"
+                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={() => {
+                    onOkPress();
+                  }}
+                >
+                  Thêm mới
+                </Button>
+              )}
+
               <Button
-                type="primary"
                 style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                className="create-button-custom ant-btn-outline fixed-button"
+                type="default"
                 onClick={() => {
-                  onOkPress();
+                  CustomerDeleteInfo();
                 }}
               >
-                Thêm mới
+                Hủy
               </Button>
             </Col>
           )}
@@ -761,6 +774,16 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 Thêm mới
               </Button>
             )}
+
+            <Button
+              style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+              type="default"
+              onClick={() => {
+                CustomerDeleteInfo();
+              }}
+            >
+              Hủy
+            </Button>
           </Col>
         </Row>
       )}
