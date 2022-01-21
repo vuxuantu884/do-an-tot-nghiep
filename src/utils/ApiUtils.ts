@@ -136,6 +136,10 @@ export const callApiNative = async <
       case HttpStatus.NOT_FOUND:
         throw response.message;
 
+      case HttpStatus.SERVER_ERROR:
+        catcherError(response.errors, jobName);
+        throw response.errors;
+
       default:
         throw response.message;
     }
