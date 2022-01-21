@@ -2,11 +2,12 @@ import { FilterOutlined } from "@ant-design/icons";
 import { Button, Collapse, Form, Input, Space, Tag } from "antd";
 import { useForm } from "antd/es/form/Form";
 import search from "assets/img/search.svg";
+import AccountSearchSelect from "component/custom/select-search/account-select";
 import BaseFilter from "component/filter/base.filter";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
-import SelectMerchandisers from "component/filter/component/select-merchandisers";
 // import SelectStoreField from "component/filter/component/select-store-field";
-import SelectSupplierField from "component/filter/component/select-supplier-field";
+import SupplierSearchSelect from "component/filter/component/supplier-select";
+import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
@@ -197,11 +198,25 @@ function TabListFilter() {
               placeholder="Tìm kiếm phiếu nhập kho"
             />
           </Item>
-          <Item name={BaseProcumentField.suppliers} className="suppliers">
-            <SelectSupplierField isMulti />
+          <Item className="suppliers">
+            <SupplierSearchSelect
+                  label=""
+                  name={BaseProcumentField.suppliers}
+                  mode="multiple"
+                  help={false}
+                  maxTagCount="responsive"
+              />
           </Item>
-          <Item name={BaseProcumentField.merchandisers} className="merchandisers">
-            <SelectMerchandisers isMulti allowClear />
+          <Item className="merchandisers">
+            <AccountSearchSelect
+                label=""
+                placeholder="Chọn merchandisers"
+                name={BaseProcumentField.merchandisers}
+                mode="multiple" 
+                queryAccount={{department_ids: [AppConfig.WIN_DEPARTMENT]}}
+                help={false}
+                maxTagCount="responsive"
+              />
           </Item>
           <div className="btn-action">
             <Item>
