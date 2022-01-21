@@ -23,6 +23,21 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     return orderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
   }, [orderDetail?.fulfillments])
 
+	const renderStepFinalizedDescription = () => {
+		if(!orderDetail) {
+			return null;
+		}
+    if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
+      return moment(orderDetail.finished_on).format(formatDate);
+    }
+    let result = undefined;
+    if (props.orderDetail &&
+			props.orderDetail.finalized_on) {
+      result = moment(props.orderDetail.finalized_on).format(formatDate);
+    }
+    return result;
+  };
+
   const renderStepPackedDescription = () => {
 		if(!orderDetail) {
 			return null;
@@ -132,11 +147,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       />
       <Steps.Step
         title="Xác nhận"
-        description={
-          props.orderDetail &&
-          props.orderDetail.finalized_on &&
-          moment(props.orderDetail.finalized_on).format(formatDate)
-        }
+        description={renderStepFinalizedDescription()}
         className={
           props.status === 'draff'
           ? "inactive"
