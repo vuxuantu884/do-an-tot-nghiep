@@ -125,6 +125,7 @@ export interface SupplierQuery extends BaseQuery {
   sort_type?: string,
   status?: string,
   type?: string,
+  codes?: Array<string>;
 }
 
 export interface SupplierCreateRequest {

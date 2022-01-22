@@ -639,10 +639,14 @@ const EcommerceOrders: React.FC = () => {
           }
         })
         .then((response) => {
-          showSuccess("Tạo phiếu giao hàng thành công")
-          let blob = new Blob([response.data], { type: 'application/pdf' })
-          let fileURL = URL.createObjectURL(blob);
-          window.open(fileURL)
+          if(response.data){
+            showSuccess("Tạo phiếu giao hàng thành công")
+            let blob = new Blob([response.data], { type: 'application/pdf' })
+            let fileURL = URL.createObjectURL(blob);
+            window.open(fileURL)
+          }else {
+            showError("Không thể tạo phiếu giao hàng")
+          }
           setTableLoading(false)
         })
         .catch(() => {

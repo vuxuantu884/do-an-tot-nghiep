@@ -48,8 +48,8 @@ import { HttpStatus } from "config/http-status.config";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { SourceResponse } from "model/response/order/source.response";
+// import { getListSourceRequest } from "domain/actions/product/source.action";
+// import { SourceResponse } from "model/response/order/source.response";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -141,7 +141,7 @@ const Customer = () => {
   const [groups, setGroups] = useState<Array<any>>([]);
   const [types, setTypes] = useState<Array<any>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  // const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([
     {
@@ -318,7 +318,7 @@ const Customer = () => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CustomerTypes(setTypes));
     dispatch(getListChannelRequest(setListChannel));
-    dispatch(getListSourceRequest(setListSource));
+    // dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
 
   React.useEffect(() => {
@@ -531,7 +531,6 @@ const Customer = () => {
                   loyaltyUsageRules={loyaltyUsageRules}
                   listStore={listStore}
                   listChannel={listChannel}
-                  listSource={listSource}
                 />
 
                 <CustomTable

@@ -5,7 +5,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
 import {ColorResponse, ColorCreateRequest, ColorSearchQuery, ColorUpdateRequest} from "model/product/color.model";
 
-export const colorSearchApi = (query: ColorSearchQuery): Promise<BaseResponse<PageResponse<ColorResponse>>> => {
+export const colorSearchApi = (query?: ColorSearchQuery): Promise<BaseResponse<PageResponse<ColorResponse>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/colors?${queryString}`);
 }

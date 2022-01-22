@@ -1,14 +1,15 @@
-import { Card, Col, Form, FormInstance, Input, Row } from "antd";
+import { Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { Type } from "config/type.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+// import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 
 import {
   orderConfigSaga,
+  orderCreateAction,
   DeliveryServicesGetList,
-  OrderDetailAction, orderYDPpageCreateAction,
+  OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
@@ -30,9 +31,8 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
-  OrderConfig,
   OrderResponse,
-  StoreCustomResponse,
+  // StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
@@ -40,8 +40,10 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAmountPaymentRequest,
+  getTotalAmount,
   getTotalAmountAfterDiscount,
   scrollAndFocusToDomElement,
+  totalAmount,
 } from "utils/AppUtils";
 import {
   DEFAULT_COMPANY, FACEBOOK,
@@ -59,9 +61,9 @@ import OrderDetailBottomBar from "./component/OrderCreateBottomBar";
 import CardCustomer from "./component/OrderCreateCustomer";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 import CreateOrderSidebar from "./component/CreateOrderSidebar";
-import OrderCreatePayments from "./component/OrderCreatePayments";
+// import OrderCreatePayments from "./component/OrderCreatePayments";
 import OrderCreateProduct from "./component/OrderCreateProduct";
-import OrderCreateShipment from "./component/OrderCreateShipment";
+// import OrderCreateShipment from "./component/OrderCreateShipment";
 import { YDpagePermission } from "config/permissions/fpage.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
@@ -69,6 +71,8 @@ import { LoyaltyPoint } from "../../../model/response/loyalty/loyalty-points.res
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { OrderModel } from "../../../model/order/order.model";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
+import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 
 let typeButton = "";
 
@@ -133,16 +137,17 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const dispatch = useDispatch();
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [isSaveDraft, setIsSaveDraft] = useState(false);
-  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
+  // const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
-  const [discountValue, setDiscountValue] = useState<number>(0);
-  const [discountRate, setDiscountRate] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
+
+	// const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
@@ -174,7 +179,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
-  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+  // const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   // const [listOrderConfigs, setListOrderConfigs] =
@@ -190,47 +195,48 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
-  const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
+  const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
+
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
   const typeParam = queryParams.get("type") || null;
 
-  const ChangeShippingFeeCustomer = (value: number | null) => {
-    form.setFieldsValue({ shipping_fee_informed_to_customer: value });
-    setShippingFeeInformedToCustomer(value);
-  };
+  // const ChangeShippingFeeCustomer = (value: number | null) => {
+  //   form.setFieldsValue({ shipping_fee_informed_to_customer: value });
+  //   setShippingFeeInformedToCustomer(value);
+  // };
 
   const [coupon, setCoupon] = useState<string>("");
-  const [promotionId, setPromotionId] = useState<number | null>(null);
+	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
   const onChangeInfoProduct = (
-    _items: Array<OrderLineItemRequest>,
-    amount: number,
-    discount_rate: number,
-    discount_value: number
-  ) => {
-    setItems(_items);
-    setDiscountRate(discount_rate);
-    setDiscountValue(discount_value);
-    setOrderAmount(amount);
-  };
+		_items: Array<OrderLineItemRequest>,
+		_promotion?: OrderDiscountRequest | null,
+	) => {
+		setItems(_items);
+		let amount = totalAmount(_items);
+		setOrderAmount(amount);
+		if (_promotion !== undefined) {
+			setPromotion(_promotion);
+		}
+	};
 
-  const handlePaymentMethod = (value: number) => {
-    setPaymentMethod(value);
-  };
-  const onSelectShipment = (value: number) => {
-    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      setIsDisablePostPayment(true);
-      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
-        setPaymentMethod(PaymentMethodOption.COD);
-      }
-    } else {
-      setIsDisablePostPayment(false);
-    }
-    setShipmentMethod(value);
-  };
+  // const handlePaymentMethod = (value: number) => {
+  //   setPaymentMethod(value);
+  // };
+  // const onSelectShipment = (value: number) => {
+  //   if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+  //     setIsDisablePostPayment(true);
+  //     if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+  //       setPaymentMethod(PaymentMethodOption.COD);
+  //     }
+  //   } else {
+  //     setIsDisablePostPayment(false);
+  //   }
+  //   setShipmentMethod(value);
+  // };
 
   const [isLoadForm, setIsLoadForm] = useState(false);
 
@@ -271,6 +277,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     billing_address: null,
     payments: [],
     channel_id: null,
+		automatic_discount: true,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -302,8 +309,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
       total_tax: null,
       total_discount: null,
       total_quantity: null,
-      discount_rate: discountRate,
-      discount_value: discountValue,
+      discount_rate: promotion?.rate || null,
+			discount_value: promotion?.value || null,
       discount_amount: null,
       total_line_amount_after_line_discount: null,
       shipment: shipmentRequest,
@@ -360,7 +367,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       note_to_shipper: "",
       requirements: value.requirements,
       sender_address: null,
-      office_time: officeTime,
+			office_time: officeTime,
     };
 
     switch (shipmentMethod) {
@@ -389,7 +396,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
             orderAmount +
             (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
             getAmountPaymentRequest(payments) -
-            discountValue,
+            (promotion?.value || 0),
         };
 
       case ShipmentMethodOption.PICK_AT_STORE:
@@ -427,70 +434,32 @@ export default function Order(props: OrdersCreatePermissionProps) {
   };
 
   const createDiscountRequest = () => {
-    let objDiscount: OrderDiscountRequest = {
-      rate: discountRate,
-      value: discountValue,
-      amount: discountValue,
-      promotion_id: null,
-      reason: "",
-      source: "",
-      discount_code: coupon,
-      order_id: null,
-    };
-    let listDiscountRequest = [];
-    if (coupon) {
-      listDiscountRequest.push({
-        discount_code: coupon,
-        rate: discountRate,
-        value: discountValue,
-        amount: discountValue,
-        promotion_id: null,
-        reason: "",
-        source: "",
-        order_id: null,
-      });
-    } else if (promotionId) {
-      listDiscountRequest.push({
-        discount_code: null,
-        rate: discountRate,
-        value: discountValue,
-        amount: discountValue,
-        promotion_id: promotionId,
-        reason: "",
-        source: "",
-        order_id: null,
-      });
-    } else if (discountRate === 0 && discountValue === 0) {
-      return null;
-    } else {
-      listDiscountRequest.push(objDiscount);
-    }
-
-    return listDiscountRequest;
-  };
+		let listDiscountRequest = [];
+		if (promotion) {
+			listDiscountRequest.push(promotion);
+		}
+		return listDiscountRequest;
+	};
 
   const createOrderCallback = useCallback(
-    (value: OrderResponse) => {
-      setIsSaveDraft(false);
-      setCreating(false);
-      if (value.fulfillments && value.fulfillments.length > 0) {
-        showSuccess("Đơn được lưu và duyệt thành công");
+		(value: OrderResponse) => {
+			setIsSaveDraft(false);
+			setCreating(false);
+			if (value.fulfillments && value.fulfillments.length > 0) {
+				showSuccess("Đơn được lưu và duyệt thành công");
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
         // setIsClearOrderTab(true)
-      } else {
-        showSuccess("Đơn được lưu nháp thành công");
+			} else {
+				showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
         // setIsClearOrderTab(true)
-      }
-    },
-    [customer, handleCustomerById, setActiveTabKey]
-  );
-  const handleLoadingBtn = (isLoading: boolean) => {
-    setCreating(isLoading);
-    setIsSaveDraft(isLoading);
-  }
+			}
+		},
+		[customer, handleCustomerById, setActiveTabKey]
+	);
+  
   const handleTypeButton = (type: string) => {
     typeButton = type;
   };
@@ -514,6 +483,40 @@ export default function Order(props: OrdersCreatePermissionProps) {
       formRef.current?.submit();
     }
   };
+
+  const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
+		if (totalAmountCustomerNeedToPay < 0) {
+			let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
+			let _payments = [...payments];
+			let paymentCashIndex = _payments.findIndex(payment => payment.payment_method_code === PaymentMethodCode.CASH);
+			if (paymentCashIndex > -1) {
+				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
+				_payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
+				_payments[paymentCashIndex].return_amount = returnAmount;
+				
+			} else {
+				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+				newPaymentCash = {
+					code: PaymentMethodCode.CASH,
+					payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+					amount: -returnAmount,
+					paid_amount: 0,
+					return_amount: returnAmount,
+					status: "",
+					payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
+					reference: '',
+					source: '',
+					customer_id: 1,
+					note: '',
+					type: '',
+				};
+				_payments.push(newPaymentCash)
+			}
+			return _payments;
+		}
+		return payments;
+	};
+
   const onFinish = (values: OrderRequest) => {
     values.channel_id = FACEBOOK.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id
@@ -522,6 +525,17 @@ export default function Order(props: OrdersCreatePermissionProps) {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
+    
+    values.tags = tags;
+    values.items = items.concat(itemGifts);
+    values.discounts = lstDiscount;
+    values.shipping_address = shippingAddress;
+    values.billing_address = billingAddress;
+    values.customer_id = customer?.id;
+    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    values.customer_ward = customer?.ward;
+		values.customer_district = customer?.district;
+		values.customer_city = customer?.city;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -532,7 +546,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
       values.shipping_fee_informed_to_customer = 0;
       values.action = OrderStatus.DRAFT;
-      values.total = orderAmount;
+      values.total = getTotalAmount(values.items);
       values.shipping_fee_informed_to_customer = 0;
     } else {
       //Nếu là đơn lưu và duyệt
@@ -540,7 +554,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments.filter((payment) => payment.amount > 0);
-      values.total = orderAmount;
+      values.total = getTotalAmount(values.items);
       if (
         values?.fulfillments &&
         values.fulfillments.length > 0 &&
@@ -550,16 +564,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
           orderAmount +
           (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
           getAmountPaymentRequest(payments) -
-          discountValue;
+          (promotion?.value || 0);;
       }
     }
-    values.tags = tags;
-    values.items = items.concat(itemGifts);
-    values.discounts = lstDiscount;
-    values.shipping_address = shippingAddress;
-    values.billing_address = billingAddress;
-    values.customer_id = customer?.id;
-    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -570,6 +578,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
+        if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
+					showError("Vui lòng nhập địa chỉ giao hàng!");
+					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
+					scrollAndFocusToDomElement(element);
+					return;
+				}
+				let valuesCalculateReturnAmount = {
+					...values,
+					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
+				}
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (typeButton === OrderStatus.DRAFT) {
             setIsSaveDraft(true);
@@ -585,11 +603,15 @@ export default function Order(props: OrdersCreatePermissionProps) {
           } else {
             (async () => {
               try {
-                await dispatch(orderYDPpageCreateAction(values, createOrderCallback, handleLoadingBtn));
-              } catch {
-                setCreating(false);
-                setIsSaveDraft(false);
-              }
+								await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
+									// on error
+									setCreating(false);
+									setIsSaveDraft(false);
+								}));
+							} catch {
+								setCreating(false);
+								setIsSaveDraft(false);
+							}
             })();
             // dispatch(orderCreateAction(values, createOrderCallback));
           }
@@ -598,7 +620,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
             shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
             !thirdPL.service
           ) {
-            showError("Vui lòng chọn đơn vị vận chuyển 3");
+            showError("Vui lòng chọn đơn vị vận chuyển!");
+            const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
+						scrollAndFocusToDomElement(element)
             setCreating(false);
           } else {
             if (typeButton === OrderStatus.DRAFT) {
@@ -610,13 +634,17 @@ export default function Order(props: OrdersCreatePermissionProps) {
               let isPointFocus = checkPointFocus(values);
               if (isPointFocus) {
                 (async () => {
-                  try {
-                    await dispatch(orderYDPpageCreateAction(values, createOrderCallback, handleLoadingBtn));
-                  } catch {
-                    setCreating(false);
-                    setIsSaveDraft(false);
-                  }
-                })();
+									try {
+										await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
+											// on error
+											setCreating(false);
+											setIsSaveDraft(false);
+										}));
+									} catch {
+										setCreating(false);
+										setIsSaveDraft(false);
+									}
+								})();
               }
               // dispatch(orderCreateAction(values, createOrderCallback));
             }
@@ -633,11 +661,11 @@ export default function Order(props: OrdersCreatePermissionProps) {
     setAccounts(data.items);
   }, []);
 
-  useEffect(() => {
-    if (storeId != null) {
-      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
-    }
-  }, [dispatch, storeId]);
+  // useEffect(() => {
+  //   if (storeId != null) {
+  //     dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+  //   }
+  // }, [dispatch, storeId]);
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -732,13 +760,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 setTags(response.tags);
               }
               if (response?.discounts && response?.discounts[0]) {
-                if (response.discounts[0].value) {
-                  setDiscountValue(response.discounts[0].value);
-                }
-                if (response.discounts[0].rate) {
-                  setDiscountRate(response.discounts[0].rate);
-                }
-              }
+								setPromotion(response?.discounts[0])
+							}
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
               let new_payments = initialForm.payments;
@@ -777,6 +800,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 note: response.note,
                 tags: response.tags,
                 channel_id: response.channel_id,
+								automatic_discount: response.automatic_discount,
               });
               form.resetFields();
               // load lại form sau khi set initialValue
@@ -791,7 +815,6 @@ export default function Order(props: OrdersCreatePermissionProps) {
               if (response.payments && response.payments?.length > 0) {
                 setPaymentMethod(PaymentMethodOption.PREPAYMENT);
                 new_payments = response.payments;
-                // console.log("new_payments", new_payments);
                 setPayments(new_payments);
               }
 
@@ -859,8 +882,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         setTags("");
         setIsLoadForm(true);
         setShippingFeeInformedToCustomer(0);
-        setDiscountRate(0);
-        setDiscountValue(0);
+        setPromotion(null)
         setOfficeTime(false);
         setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
         form.resetFields();
@@ -919,7 +941,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       let totalAmountPayable =
         orderAmount +
         (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-        discountValue; //tổng tiền phải trả
+        (promotion?.value || 0); //tổng tiền phải trả
 
       let usageRate =
         loyaltyRate === null || loyaltyRate === undefined ? 0 : loyaltyRate.usage_rate;
@@ -948,7 +970,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
-      if (rank?.block_order_have_discount === true && (discount > 0 || discountValue)) {
+      if (rank?.block_order_have_discount === true && (discount > 0 || promotion)) {
         showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
         return false;
       }
@@ -968,7 +990,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       loyaltyPoint,
       loyaltyUsageRules,
       payments,
-      discountValue,
+      promotion,
       orderAmount,
       shippingFeeInformedToCustomer,
       loyaltyRate,
@@ -981,12 +1003,12 @@ export default function Order(props: OrdersCreatePermissionProps) {
     if (items) {
       items.forEach(function (value) {
         let available = value.available === null ? 0 : value.available;
-        if (available <= 0 && configOrder?.sellable_inventory !== true) {
+        if (available <= 0 && orderConfig?.sellable_inventory !== true) {
           status = false;
           //setCreating(false);
         }
       });
-      if (!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
+      if (!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho!`);
     }
 
     return status;
@@ -1005,21 +1027,22 @@ export default function Order(props: OrdersCreatePermissionProps) {
   //   );
   // }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (items && items != null&& items.length) {
-  //     let variant_id: Array<number> = [];
-  //     items.forEach((element) => variant_id.push(element.variant_id));
-  //     dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-  //   }
-  // }, [dispatch, items]);
+  useEffect(() => {
+		if (items && items != null && items?.length > 0) {
+			let variant_id: Array<number> = [];
+			items.forEach((element) => variant_id.push(element.variant_id));
+			dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, items?.length]);
 
   useEffect(() => {
-    dispatch(
-      orderConfigSaga((data: OrderConfig) => {
-        setConfigOrder(data);
-      })
-    );
-  }, [dispatch]);
+		dispatch(
+			orderConfigSaga((data: OrderConfigResponseModel) => {
+				setOrderConfig(data);
+			})
+		);
+	}, [dispatch]);
 
   // khách cần trả
   const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
@@ -1044,9 +1067,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
     return (
       orderAmount +
       (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-      discountValue
+      (promotion?.value || 0)
     );
-  }, [discountValue, orderAmount, shippingFeeInformedToCustomer]);
+  }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 
   /**
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
@@ -1119,21 +1142,23 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     form={form}
                     items={items}
                     setItems={setItems}
-                    discountRate={discountRate}
-                    setDiscountRate={setDiscountRate}
-                    discountValue={discountValue}
-                    setDiscountValue={setDiscountValue}
+                    orderAmount={orderAmount}
+                    totalAmountOrder={totalAmountOrder}
+                    promotion={promotion}
+                    setPromotion={setPromotion}
                     inventoryResponse={inventoryResponse}
+                    customer={customer}
                     setInventoryResponse={setInventoryResponse}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                    orderConfig={null}
+                    orderConfig={orderConfig}
                     orderSourceId={orderSourceId}
                     coupon={coupon}
                     setCoupon={setCoupon}
-                    setPromotionId={setPromotionId}
-                    configOrder={configOrder}
+                    loyaltyPoint={null}
                   />
-                  <Card>
+
+                  {/* Không cần thanh toán và vận chuyển */}
+                  {/* <Card>
                     <OrderCreatePayments
                       setPaymentMethod={handlePaymentMethod}
                       payments={payments}
@@ -1145,9 +1170,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       isDisablePostPayment={isDisablePostPayment}
                       listPaymentMethod={listPaymentMethod}
                     />
-                  </Card>
+                  </Card> */}
 
-                  <Card>
+                  {/* <Card>
                     <OrderCreateShipment
                       shipmentMethod={shipmentMethod}
                       orderPrice={orderAmount}
@@ -1162,7 +1187,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       setThirdPL={setThirdPL}
                       form={form}
                     />
-                  </Card>
+                  </Card> */}
                 </Col>
                 <Col span={24}>
                   <CreateOrderSidebar

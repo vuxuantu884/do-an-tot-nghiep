@@ -2,9 +2,9 @@ import React, {useLayoutEffect} from "react";
 import {Card, Row, Tabs, Col} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import PackInfo from "./pack-support/info/pack-info";
-import PackList from "./pack-support/info/pack-list";
-import AddReportHandOver from "./pack-support/info/add-report-hand-over";
+import PackInfo from "./pack/info/pack-info";
+import PackList from "./pack/info/pack-list";
+import AddReportHandOver from "./pack/info/add-report-hand-over";
 import {
   DeliveryServicesGetList,
   getChannels,
@@ -21,7 +21,7 @@ import {StoreResponse} from "model/core/store.model";
 import {StoreGetListAction} from "domain/actions/core/store.action";
 import {GoodsReceiptsTypeResponse} from "model/response/pack/pack.response";
 import {getGoodsReceiptsType} from "domain/actions/goods-receipts/goods-receipts.action";
-import PackReportHandOver from "./pack-support/info/pack-report-hand-over";
+import PackReportHandOver from "./pack/info/pack-report-hand-over";
 import {getQueryParams, useQuery} from "utils/useQuery";
 import "assets/css/_pack.scss";
 import { useHistory } from "react-router-dom";
@@ -127,7 +127,7 @@ const PackSupportScreen: React.FC = () => {
       >
         <Row gutter={24}>
           <Col xs={24}>
-            <Card className="pack-support-card">
+            <Card className="pack-card">
               <Tabs activeKey={activeTab} onChange={handleClickTab}>
                 <TabPane tab="Đóng gói" key="1">
                   <PackInfo
