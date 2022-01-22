@@ -1,128 +1,155 @@
-import {Form, FormItemProps, Select} from "antd";
-import {FormInstance} from "antd/es/form/Form";
-import {sizeSearchAction} from "domain/actions/product/size.action";
-import _, {debounce} from "lodash";
-import {PageResponse} from "model/base/base-metadata.response";
-import {SizeQuery, SizeResponse} from "model/product/size.model";
-import React, {ReactElement, useCallback, useEffect} from "react";
-import {useDispatch} from "react-redux";
-
-const {Option} = Select;
-interface Props extends FormItemProps {
-  form?: FormInstance;
-  label: string;
-  name: string | any[];
-  rules?: any[];
-  placeholder?: string;
-  querySearch?: SizeQuery;
-  mode?: "multiple" | "tags" | undefined;
-  key?: "code" | "id";
-  defaultValue?: string | number | string[];
-}
+import { Form } from "antd";
+import { sizeSearchAction } from "domain/actions/product/size.action";
+import _ from "lodash";
+import { PageResponse } from "model/base/base-metadata.response";
+import { SizeQuery, SizeResponse } from "model/product/size.model";
+import React, { ReactElement, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { getSearchSize } from "service/product/size.service";
+import { callApiNative } from "utils/ApiUtils";
+import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
+import { SelectSearchProps } from "./color-select";
 
 SizeSelect.defaultProps = {
-  label: "Kích cỡ",
-  placeholder: "Chọn kích cỡ",
-  rules: [],
   querySearch: {
-    info: "",
+    code: "",
+  }, 
+  key: "id", 
+  noFormItem: false,
+  selectProps: {
+    placeholder: "Chọn kích cỡ",
+    mode: undefined,
+    showArrow: true,
+    optionFilterProp: "children",
+    showSearch: true,
+    allowClear: true,
+    maxTagCount: "responsive",
+    notFoundContent: "Không có dữ liệu",
   },
-  mode: undefined,
-  key: "id",
-  defaultValue: undefined,
 };
 
 function SizeSelect({
   form,
-  label,
-  placeholder,
-  name,
-  rules,
-  mode,
   key,
-  querySearch,
-  defaultValue,
-  ...restFormProps
-}: Props): ReactElement {
+  fixedQuery,
+  formItemProps,
+  noFormItem,
+  selectProps,
+}: SelectSearchProps): ReactElement {
+  const name = formItemProps?.name || "";
+  const { mode, defaultValue } = selectProps!;
   const dispatch = useDispatch();
-  const [sizeList, setSizeList] = React.useState<{
-    items: Array<SizeResponse>;
-    isLoading: boolean;
-  }>({items: [], isLoading: false});
-
-  const handleSizeSearch = useCallback(
-    (code: string, ids?: Array<number>) => {
-      if (querySearch) {
-        setSizeList((prev) => {
-          return {items: prev?.items || [], isLoading: true};
-        });
-
-        const query = _.cloneDeep(querySearch);
-        query.code = code;
-        query.ids = ids;
-        dispatch(
-          sizeSearchAction(query, (response: PageResponse<SizeResponse>) => {
-            if (response) {
-              setSizeList({
-                items: response.items,
-                isLoading: false,
-              });
-            }
-          })
-        );
-      }
+  const [isSearching, setIsSearching] = React.useState(false);
+  const [data, setData] = React.useState<PageResponse<SizeResponse>>({
+    items: [],
+    metadata: {
+      page: 1,
+      limit: 30,
+      total: 0,
     },
-    [dispatch, querySearch]
-  );
-  const onSearchAccount = debounce((key: string) => {
-    handleSizeSearch(key);
-  }, 300);
+  });
 
+  const handleSizeSearch = (queryParams: SizeQuery) => {
+    setIsSearching(true);
+    const query = { ...fixedQuery, ...queryParams };
+    dispatch(
+      sizeSearchAction(query, (response: PageResponse<SizeResponse>) => {
+        if (response) {
+          setData(response);
+        }
+        setIsSearching(false);
+      })
+    );
+  };
+
+  const formFieldValue = form && name ? form?.getFieldValue(name) : null;
+
+  /**
+   * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho
+   */
   useEffect(() => {
-    let value : any = defaultValue;
+    const getIntialValue = async () => {
+      let value = formFieldValue;
+      let initParams: any = [];
 
-    if (!defaultValue && form) {
-      value = form.getFieldValue(name);
-    }
+      if (defaultValue) {
+        value = defaultValue;
+      }
 
-    if (mode === "multiple" && Array.isArray(value)) {
-      handleSizeSearch("", value);
-    } else if (typeof value === "number") {
-      handleSizeSearch('', [value]);
-    } else  if (typeof value === "string") {
-      handleSizeSearch(value);
-    } else {
-      handleSizeSearch("");
-    } 
-  }, [handleSizeSearch, mode, defaultValue, form, name]);
+      if (mode === "multiple" && Array.isArray(value)) {
+        initParams = value;
+      } else if (typeof value === "string" || typeof value === "number") {
+        initParams = [Number(value)];
+      } else {
+        initParams = [];
+      }
 
-  return (
-    <Form.Item label={label} name={name} rules={rules} {...restFormProps}>
-      <Select
-        mode={mode}
-        placeholder={placeholder}
-        showArrow
-        optionFilterProp="children"
-        showSearch
-        allowClear
-        loading={sizeList?.isLoading}
-        onSearch={(value) => onSearchAccount(value || "")}
-        onClear={() => onSearchAccount("")}
-        maxTagCount="responsive"
-        defaultValue={defaultValue}
-        notFoundContent="Không có dữ liệu"
-      >
-        {sizeList?.items?.map((item) => (
-          <Option key={item.code} value={item[key!].toString()}>
-            {`${item.code}`}
-          </Option>
-        ))}
-      </Select>
-    </Form.Item>
+      if (initParams.length > 0) {
+        // call api lấy data của item(s) đang được chọn trước đó
+        const initSelectedResponse = await callApiNative(
+          { isShowError: true },
+          dispatch,
+          getSearchSize,
+          {
+            ids: initParams,
+          }
+        );
+
+        // call api lấy thêm data nối vào sau để người dùng có thể chọn item khác
+        const defaultItems = await callApiNative({ isShowError: true }, dispatch, getSearchSize);
+
+        let totalItems = [];
+        if (initSelectedResponse?.items && defaultItems?.items) {
+          // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
+          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultItems.items], key!);
+        } else if (defaultItems?.items) {
+          totalItems = defaultItems.items;
+        } else if (initSelectedResponse?.items) {
+          totalItems = initSelectedResponse.items;
+        }
+
+        setData({ ...defaultItems, items: totalItems });
+      } else {
+        const defaultItems = await callApiNative({ isShowError: true }, dispatch, getSearchSize);
+        setData(defaultItems);
+      }
+      setIsSearching(false);
+    };
+    getIntialValue();
+  }, [dispatch, formFieldValue, defaultValue, key, mode]);
+
+  const SelectContent = (
+    <SelectPagingV2
+      {...selectProps}
+      metadata={data.metadata}
+      loading={isSearching}
+      onSearch={(value) => handleSizeSearch({ code: value })}
+      onClear={() => handleSizeSearch({ code: "" })}
+      onPageChange={(key: string, page: number) => {
+        handleSizeSearch({ code: key, page: page });
+      }}>
+      {data?.items?.map((item) => (
+        <SelectPagingV2.Option key={item.code} value={item[key!]}>
+          {`${item.code}`}
+        </SelectPagingV2.Option>
+      ))}
+    </SelectPagingV2>
   );
+
+  if (noFormItem) {
+    return <>{SelectContent}</>;
+  } else {
+    return (
+      <Form.Item name={name} {...formItemProps}>
+        {SelectContent}
+      </Form.Item>
+    );
+  }
 }
 
 const SizeSearchSelect = React.memo(SizeSelect, (prev, next) => {
-  return prev.querySearch?.code === next.querySearch?.code;
+  const { form, fixedQuery } = prev;
+  const { form: nextForm, fixedQuery: nextQuery } = next;
+  return form === nextForm && fixedQuery === nextQuery;
 });
 export default SizeSearchSelect;
