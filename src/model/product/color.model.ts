@@ -1,6 +1,5 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from 'model/base/base.response';
-import {SupplierCreateRequest} from "../core/supplier.model";
 
 
 export interface ColorSearchQuery extends BaseQuery {
