@@ -59,6 +59,7 @@ import { departmentDetailAction } from "domain/actions/account/department.action
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { OrderResponse } from "model/response/order/order.response";
+import { SourceSearchQuery } from "model/request/source.request";
 //#end region
 
 type CustomerCardProps = {
@@ -415,12 +416,41 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [dispatch]);
 
 	useEffect(() => {
+    const checkIfInitOrderSourceIncludesOrderDetailSource = (sources: SourceResponse[]) => {
+      let result = false;
+      if(sources.some(single => single.id === OrderDetail?.source_id)) {
+        result = true;
+      }
+      return result;
+    };
 		getOrderSources().then((response) => {
-			const sortedSources =  response;
-			setInitListSource(sortedSources)
-			setListSource(sortedSources)
+			let sortedSources =  response;
+      let result = response;
+      if(OrderDetail?.source_id && props.updateOrder ) {
+        sortedSources = response.filter(x =>x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase());
+        if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
+          const query:SourceSearchQuery = {
+            ids: [OrderDetail?.source_id],
+          }
+          getSourcesWithParamsService(query).then((responseSource) => {
+            let items = responseSource.data.items;
+            sortedSources = [...response, ...items]
+          })
+
+        }
+        result = [...sortedSources]
+      } else {
+        result = sortedSources.filter((x) => {
+          return (
+            x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
+          )
+        });
+
+      }
+			setInitListSource(result);
+			setListSource(result);
 		});
-  }, [getOrderSources]);
+  }, [OrderDetail?.source_id, getOrderSources, props.updateOrder]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -534,11 +564,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           }}
           disabled={isDisableSelectSource}
         >
-          {listSource.filter((x) => {
-            return (
-              x.name.toLowerCase() !== CONSTANTS.POS.channel_code.toLowerCase() && x.active
-            )
-          }).map((item, index) => (
+          {listSource.map((item, index) => (
             <CustomSelect.Option
               style={{ width: "100%" }}
               key={index.toString()}
@@ -582,7 +608,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   return (
     <Card
       title="THÔNG TIN KHÁCH HÀNG"
-      extra={ OrderDetail? (OrderDetail.source?.toLocaleLowerCase()===CONSTANTS.POS.source.toLocaleLowerCase()
+      extra={ OrderDetail? ((OrderDetail.source?.toLocaleLowerCase()===CONSTANTS.POS.source.toLocaleLowerCase() || props.updateOrder)
         ?renderSelectOrderSource():renderInfoOrderSource()) 
         : renderSelectOrderSource()
       }
