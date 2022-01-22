@@ -23,6 +23,8 @@ import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
+import ColorSearchSelect from "component/custom/select-search/color-select";
+import SizeSearchSelect from "component/custom/select-search/size-search";
 import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
@@ -34,7 +36,6 @@ import {CountryGetAllAction} from "domain/actions/content/content.action";
 import {SupplierGetAllAction} from "domain/actions/core/supplier.action";
 import {getCategoryRequestAction} from "domain/actions/product/category.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
-import {getColorAction} from "domain/actions/product/color.action";
 import {
   detailMaterialAction,
   materialSearchAll,
@@ -43,16 +44,14 @@ import {
   productGetDetail,
   productUpdateAction,
   productUploadAction,
-} from "domain/actions/product/products.action";
-import {sizeSearchAction} from "domain/actions/product/size.action";
+} from "domain/actions/product/products.action"; 
 import useAuthorization from "hook/useAuthorization";
 import {AccountResponse} from "model/account/account.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import {CountryResponse} from "model/content/country.model";
 import {SupplierResponse} from "model/core/supplier.model";
 import {CategoryResponse, CategoryView} from "model/product/category.model";
-import { CollectionResponse } from "model/product/collection.model";
-import {ColorResponse} from "model/product/color.model";
+import { CollectionResponse } from "model/product/collection.model"; 
 import {MaterialResponse} from "model/product/material.model";
 import {ProductUploadModel} from "model/product/product-upload.model";
 import {
@@ -60,8 +59,7 @@ import {
   ProductResponse,
   VariantImage,
   VariantResponse,
-} from "model/product/product.model";
-import {SizeResponse} from "model/product/size.model";
+} from "model/product/product.model"; 
 import {RootReducerType} from "model/reducers/RootReducerType";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
@@ -146,16 +144,16 @@ const ProductDetailScreen: React.FC = () => {
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
   const [isChangeDescription, setIsChangeDescription] = useState(true);
-  const [colors, setColors] = useState<PageResponse<ColorResponse>>({
-    items: [],
-    metadata: { limit: 20, page: 1, total: 0 }
-  });
-  const [sizes, setSizes] = useState<PageResponse<SizeResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
+  // const [colors, setColors] = useState<PageResponse<ColorResponse>>({
+  //   items: [],
+  //   metadata: { limit: 20, page: 1, total: 0 }
+  // });
+  // const [sizes, setSizes] = useState<PageResponse<SizeResponse>>(
+  //   {
+  //     items: [],
+  //     metadata: { limit: 20, page: 1, total: 0 }
+  //   }
+  // );
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
     {
       items: [],
@@ -756,13 +754,13 @@ const ProductDetailScreen: React.FC = () => {
     [form, variantId]
   );
 
-  const getColors = useCallback((info: string, page: number) => {
-    dispatch(getColorAction({ info: info, is_main_color: 0, page: page }, setColors));
-  }, [dispatch]);
+  // const getColors = useCallback((info: string, page: number) => {
+  //   dispatch(getColorAction({ info: info, is_main_color: 0, page: page }, setColors));
+  // }, [dispatch]);
 
-  const getSizes = useCallback((code: string, page: number) => {
-    dispatch(sizeSearchAction({ code: code, page: page }, setSizes));
-  }, [dispatch]);
+  // const getSizes = useCallback((code: string, page: number) => {
+  //   dispatch(sizeSearchAction({ code: code, page: page }, setSizes));
+  // }, [dispatch]);
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -793,10 +791,10 @@ const ProductDetailScreen: React.FC = () => {
     dispatch(SupplierGetAllAction(setListSupplier));
     dispatch(materialSearchAll(setListMaterial));
     dispatch(CountryGetAllAction(setListCountry));
-    getColors("",1);
-    getSizes("",1);
+    // getColors("",1);
+    // getSizes("",1);
     getAccounts("",1,true,true);
-  }, [dispatch,getAccounts,setDataCategory,getColors,getSizes]);
+  }, [dispatch,getAccounts,setDataCategory]);
 
   const getCollections = useCallback((code: string, page: number) => {
     dispatch(
@@ -1638,53 +1636,19 @@ const ProductDetailScreen: React.FC = () => {
                                     </Form.List>
                                   </AuthWrapper>
                                   <Row gutter={50}>
-                                    <Col span={24} sm={12}>
-                                      <Item label="Màu sắc" name={[name, "color_id"]}>
-                                        <SelectPaging
-                                          onChange={onChange}
-                                          metadata={colors.metadata}
-                                          notFoundContent={"Không có dữ liệu"}
-                                          showSearch={false}
-                                          searchPlaceholder="Tìm kiếm màu sắc"
-                                          maxTagCount="responsive"
-                                          showArrow
-                                          allowClear 
-                                          onSearch={(key) => getColors(key, 1)}
-                                          onPageChange={(key, page) => getColors(key, page)}
-                                          placeholder="Chọn màu sắc"
-                                        >
-                                          {colors.items.map((item) => (
-                                            <SelectPaging.Option key={item.id} value={item.id}>
-                                              {`${item.code} - ${item.name}`}
-                                            </SelectPaging.Option>
-                                          ))}
-                                        </SelectPaging>
-                                      </Item>
-                                      <Item name={[name, "size_id"]} label="Kích cỡ">
-                                        <SelectPaging
-                                          onChange={onChange}
-                                          metadata={sizes.metadata}
-                                          showSearch={false}
-                                          notFoundContent={"Không có dữ liệu"}
-                                          placeholder="Chọn kích cỡ"
-                                          maxTagCount="responsive"
-                                          optionFilterProp="children"
-                                          allowClear
-                                          showArrow
-                                          onSearch={(key) => getSizes(key, 1)}
-                                          onPageChange={(key, page) => getSizes(key, page)}
-                                          searchPlaceholder="Tìm kiếm kích cỡ"
-                                        >
-                                          {sizes.items.map((item) => (
-                                            <SelectPaging.Option
-                                              key={item.code}
-                                              value={item.id}
-                                            >
-                                              {item.code}
-                                            </SelectPaging.Option>
-                                          ))}
-                                        </SelectPaging>
-                                      </Item>
+                                    <Col span={24} sm={12}> 
+                                      <ColorSearchSelect 
+                                        selectProps={{
+                                          defaultValue: form.getFieldValue(["variants", name, "color_id"])
+                                        }} 
+                                        formItemProps={{name:[name, "color_id"], label:"Màu sắc"}}
+                                        />
+                                     
+                                      <SizeSearchSelect 
+                                        selectProps={{defaultValue: form.getFieldValue(["variants", name, "size_id"])}}
+                                        formItemProps={{name:[name, "size_id"], label:"Kích cỡ"}}
+                                        />
+                                   
                                       <Item
                                         label="Kích thước (dài, rộng, cao)"
                                         tooltip={{

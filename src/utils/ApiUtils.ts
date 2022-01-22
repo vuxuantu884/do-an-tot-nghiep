@@ -20,7 +20,7 @@ export interface NotifyConfigApi {
  */
 export const catcherError = (error: any, jobName?: string) => {
   if (typeof error === "string") {
-    showError(`${error} ${jobName?.toLowerCase()}`);
+    showError(`${error} ${jobName ? jobName.toLowerCase() : ""}`);
   } else if (Array.isArray(error)) {
     error.forEach((e: string) => showError(e));
   } else {
@@ -137,8 +137,7 @@ export const callApiNative = async <
         throw response.message;
 
       case HttpStatus.SERVER_ERROR:
-        catcherError(response.errors, jobName);
-        throw response.errors;
+        throw response.message;
 
       default:
         throw response.message;
