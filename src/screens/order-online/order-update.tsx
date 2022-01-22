@@ -1273,6 +1273,7 @@ ShippingServiceConfigDetailResponseModel[]
 										setModalAction={setModalAction}
 										setOrderSourceId={setOrderSourceId}
 										isDisableSelectSource={isDisableSelectSource}
+										OrderDetail={OrderDetail}
 									/>
 									{/* <CardProduct
                     orderId={id}
