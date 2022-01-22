@@ -241,6 +241,7 @@ const CreateCustomerRanking = () => {
                   className="save-btn"
                   onClick={() => {
                     formRef.current?.submit();
+                    history.goBack()
                   }}
                 >
                   Lưu hạng khách hàng
