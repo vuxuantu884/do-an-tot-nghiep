@@ -18,7 +18,6 @@ import {PageResponse} from "model/base/base-metadata.response";
 import {StoreResponse} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import {
-  DeliveryServiceResponse,
   OrderProductListModel,
 } from "model/response/order/order.response";
 import React, {createRef, useCallback, useContext, useEffect, useMemo, useState} from "react";
