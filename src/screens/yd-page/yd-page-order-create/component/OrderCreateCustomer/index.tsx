@@ -629,6 +629,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 handleChangeCustomer={handleChangeCustomer}
                 ShippingAddressChange={props.setShippingAddress}
                 keySearchCustomer={keySearchCustomer}
+                CustomerDeleteInfo={CustomerDeleteInfo}
               />
             )}
 

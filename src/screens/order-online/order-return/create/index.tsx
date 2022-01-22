@@ -872,7 +872,7 @@ ShippingServiceConfigDetailResponseModel[]
       note_to_shipper: "",
       requirements: value.requirements,
       sender_address: null,
-      office_time: null,
+      office_time: form.getFieldValue("office_time"),
     };
 
     switch (shipmentMethod) {

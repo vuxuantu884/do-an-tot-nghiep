@@ -77,7 +77,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
-    if (listStores && listStores != null) {
+    if (listStores) {
       newData = listStores.filter((store) =>
         haveAccess(
           store.id,
@@ -262,7 +262,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     setFulfillmentsPackedItems,
   ]);
   useEffect(() => {
-    if (disableOrder === true) {
+    if (disableOrder) {
       setDisableProduct(false);
       setDisableQuality(false);
     } else {
@@ -610,7 +610,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             locale={{
               emptyText: (
                 <div className="sale_order_empty_product">
-                  <img src={emptyProduct} alt="empty product"></img>
+                  <img src={emptyProduct} alt="empty product"/>
                   <p>Không có dữ liệu!</p>
                 </div>
               ),

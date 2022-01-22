@@ -20,6 +20,7 @@ export interface SizeDetail extends BaseObject {
 export interface SizeQuery extends BaseQuery {
   category_id?: ""|number,
   code?: string,
+  ids?: Array<number>
 }
 
 
