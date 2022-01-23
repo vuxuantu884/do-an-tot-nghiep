@@ -115,6 +115,7 @@ export interface OrderModel extends BaseObject {
 	automatic_discount?: boolean;
   total_weight: number | null;
   channel_code: string;
+  created_on?: string | null;
 }
 
 export interface OrderSearchQuery {

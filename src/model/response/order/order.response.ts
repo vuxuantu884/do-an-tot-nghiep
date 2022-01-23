@@ -84,6 +84,7 @@ export interface OrderResponse extends BaseObject {
   linked_order_code: string | null;
   ecommerce_shop_name: string | null;
 	automatic_discount?: boolean;
+  created_on?: string | null;
 }
 
 export interface OrderLineItemResponse {
