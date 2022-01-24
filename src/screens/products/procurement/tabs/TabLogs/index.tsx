@@ -139,7 +139,7 @@ const TabLogs: React.FC = () => {
       render: (record: PurchaseOrderActionLogResponse)=>{
         return (
           <> 
-            {`${record.status_before} - ${record.status_after}`}
+            {record.status_before ? `${record.status_before} - ${record.status_after}` : record.status_after }
           </>
         );
       }
