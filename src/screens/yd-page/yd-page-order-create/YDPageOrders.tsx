@@ -8,7 +8,7 @@ import { getCustomerDetailAction } from "domain/actions/customer/customer.action
 import {
   orderConfigSaga,
   orderCreateAction,
-  DeliveryServicesGetList,
+  // DeliveryServicesGetList,
   OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
@@ -30,7 +30,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  DeliveryServiceResponse,
+  // DeliveryServiceResponse,
   OrderResponse,
   // StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -42,6 +42,7 @@ import {
   getAmountPaymentRequest,
   getTotalAmount,
   getTotalAmountAfterDiscount,
+  isNullOrUndefined,
   scrollAndFocusToDomElement,
   totalAmount,
 } from "utils/AppUtils";
@@ -73,11 +74,13 @@ import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.respons
 import { OrderModel } from "../../../model/order/order.model";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
+import { YDpageCustomerRequest } from "model/request/customer.request";
 
 let typeButton = "";
 
 type OrdersCreatePermissionProps = {
   customer: CustomerResponse | null;
+  newCustomerInfo?: YDpageCustomerRequest;
   setCustomer: (items: CustomerResponse | null) => void;
   setShippingAddress: (items: ShippingAddress | null) => void;
   setBillingAddress: (items: BillingAddress | null) => void;
@@ -113,6 +116,7 @@ const ordersCreatePermission = [YDpagePermission.orders_create];
 export default function Order(props: OrdersCreatePermissionProps) {
   const {
     customer,
+    newCustomerInfo,
     setCustomer,
     setActiveTabKey,
     // setIsClearOrderTab,
@@ -151,8 +155,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
-  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-  console.log('deliveryServices', deliveryServices)
+  // const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
   // const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   // const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -282,6 +285,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
+
+  useEffect(() => {
+    if (isNullOrUndefined(customer) && newCustomerInfo && (newCustomerInfo.full_name || newCustomerInfo.phone)) {
+      setModalAction("create");
+      setVisibleCustomer(true);
+    } else {
+      setModalAction("edit");
+      setVisibleCustomer(false);
+    }
+  }, [customer, newCustomerInfo, setVisibleCustomer]);
 
   let isCloneOrder = false;
   if (actionParam === "clone" && cloneIdParam) {
@@ -669,11 +682,11 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setDeliveryServices(response);
-      })
-    );
+    // dispatch(
+    //   DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+    //     setDeliveryServices(response);
+    //   })
+    // );
   }, [dispatch, setDataAccounts]);
 
   useEffect(() => {
@@ -1113,6 +1126,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 <Col span={24}>
                   <CardCustomer
                     customer={customer}
+                    newCustomerInfo={newCustomerInfo}
                     setCustomer={setCustomer}
                     loyaltyPoint={loyaltyPoint}
                     loyaltyUsageRules={loyaltyUsageRules}

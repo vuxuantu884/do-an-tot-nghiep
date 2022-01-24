@@ -238,3 +238,16 @@ export interface CustomerCardListRequest extends BaseRequest {
   statuses: Array<any>;
   release_ids: Array<any>;
 }
+
+export interface YDpageCustomerRequest {
+  full_name: string | null,
+  phone: string | null,
+  birthday: string | null,
+  email: string | null,
+  gender: string | null,
+  city_id: number | null,
+  district_id: number | null,
+  ward_id: number | null,
+  full_address: string | null,
+  card_number: string | null,
+}

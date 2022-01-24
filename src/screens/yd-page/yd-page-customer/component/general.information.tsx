@@ -3,7 +3,7 @@ import { BarcodeOutlined, CalendarOutlined } from "@ant-design/icons";
 import { RegUtil } from "utils/RegUtils";
 import "../customer.scss";
 import CustomInput from "../common/customInput";
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import arrowDown from "assets/icon/arrow-down.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import moment from "moment";
@@ -35,7 +35,10 @@ const GeneralInformation = (props: any) => {
     deleteFpPhone,
     setFpDefaultPhone,
     isDisable,
+    newCustomerInfo,
+    setNewCustomerInfo,
   } = props;
+  
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
   const [visiblePhoneModal, setVisiblePhoneModal] = React.useState<boolean>(false);
@@ -84,6 +87,48 @@ const GeneralInformation = (props: any) => {
     });
   };
 
+  // Update new customer info
+  const updateNewCustomerInfo = (fieldName: string, value: any) => {
+    const tempNewCustomerInfo = {...newCustomerInfo};
+    tempNewCustomerInfo[fieldName] = value;
+    setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
+  };
+
+  // handle change phone number
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+
+  const handleChangePhone = useCallback((value: string) => {
+    setPhoneNumber(value.trim());
+  }, []);
+
+  const handleBlurPhone = (value: string) => {
+    setPhoneNumber(value.trim());
+    updateNewCustomerInfo("phone", value.trim());
+    form.setFieldsValue({ phone: value.trim() });
+  };
+
+  useEffect(() => {
+    if (phoneNumber) {
+      form.setFieldsValue({ phone: phoneNumber });
+      updateNewCustomerInfo("phone", phoneNumber);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phoneNumber]);
+  // end handle change phone number
+
+  const onSelectWard = (wardId: number) => {
+    updateNewCustomerInfo("ward_id", wardId);
+  };
+
+  const onChangeBirthDay = (date: any, dateString: string) => {
+    updateNewCustomerInfo("birthday", date);
+  };
+
+  const onSelectGender = (value: string,) => {
+    updateNewCustomerInfo("gender", value);
+  };
+
+
   return (
     <Fragment>
       <Row gutter={24}>
@@ -102,6 +147,8 @@ const GeneralInformation = (props: any) => {
                 isRequired={true}
                 maxLength={255}
                 isDisable={isDisable}
+                newCustomerInfo={newCustomerInfo}
+                setNewCustomerInfo={setNewCustomerInfo}
               />
             </Col>
             <Col span={24} className="customer-info-row">
@@ -130,6 +177,8 @@ const GeneralInformation = (props: any) => {
                     maxLength={15}
                     placeholder="Nhập số điện thoại"
                     className="phone-input"
+                    onChange={(e) => handleChangePhone(e.target.value)}
+                    onBlur={(e) => handleBlurPhone(e.target.value)}
                   />
                 </Form.Item>
 
@@ -205,7 +254,7 @@ const GeneralInformation = (props: any) => {
                   allowClear
                   optionFilterProp="children"
                   placeholder="Chọn phường/xã"
-                  // onChange={handleChangeWard}
+                  onChange={onSelectWard}
                 >
                   {wards.map((ward: any) => (
                     <Option key={ward.id} value={ward.id}>
@@ -226,6 +275,8 @@ const GeneralInformation = (props: any) => {
                 placeholder="Địa chỉ chi tiết"
                 maxLength={500}
                 isRequired={false}
+                newCustomerInfo={newCustomerInfo}
+                setNewCustomerInfo={setNewCustomerInfo}
               />
             </Col>
 
@@ -245,6 +296,7 @@ const GeneralInformation = (props: any) => {
                     disabled={isDisable}
                     placeholder="Nhập ngày sinh"
                     format={"DD/MM/YYYY"}
+                    onChange={onChangeBirthDay}
                     suffixIcon={
                       <div
                         style={{
@@ -288,6 +340,10 @@ const GeneralInformation = (props: any) => {
                     maxLength={255}
                     type="text"
                     placeholder="Nhập email"
+                    onBlur={(e) => {
+                      form?.setFieldsValue({ email: e.target.value.trim() });
+                      updateNewCustomerInfo("email", e.target.value.trim());
+                    }}
                   />
                 </Form.Item>
                 <Col span={24}>
@@ -299,6 +355,10 @@ const GeneralInformation = (props: any) => {
                     <Input
                       placeholder="Nhập mã thẻ"
                       prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
+                      onBlur={(e) => {
+                        form?.setFieldsValue({ card_number: e.target.value.trim() });
+                        updateNewCustomerInfo("card_number", e.target.value.trim());
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -311,7 +371,7 @@ const GeneralInformation = (props: any) => {
                   }
                   // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                 >
-                  <Select placeholder="Chọn giới tính" disabled={isDisable}>
+                  <Select placeholder="Chọn giới tính" disabled={isDisable} onChange={onSelectGender}>
                     <Option value={"male"}>Nam</Option>
                     <Option value={"female"}>Nữ</Option>
                     <Option value={"other"}>Khác</Option>
