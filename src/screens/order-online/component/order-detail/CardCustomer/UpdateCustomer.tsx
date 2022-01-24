@@ -50,6 +50,8 @@ type UpdateCustomerProps = {
   customerItem: any;
   shippingAddress: ShippingAddress | any;
   levelOrder?: number;
+  shippingAddressesSecondPhone?:string;
+  setShippingAddressesSecondPhone?:(value:string)=>void;
   setSingleShippingAddress: (item: CustomerShippingAddress | null) => void;
   ShippingAddressChange: (items: any) => void;
   ShowAddressModalEdit: () => void;
@@ -67,11 +69,14 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     customerItem,
     shippingAddress,
     levelOrder = 0,
+    shippingAddressesSecondPhone,
     setSingleShippingAddress,
     ShippingAddressChange,
     ShowAddressModalEdit,
     showAddressModalDelete,
     ShowAddressModalAdd,
+    setShippingAddressesSecondPhone,
+
   } = props;
 
   const dispatch = useDispatch();
@@ -167,6 +172,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         shipping_addresses_phone: shippingAddress?.phone || "",
         shipping_addresses_ward_id: shippingAddress?.ward_id,
         shipping_addresses_full_address: shippingAddress?.full_address,
+        //shipping_addresses_second_phone: shippingAddress?.second_phone,
       }
       : {
         shipping_addresses__card_number: "",
@@ -398,7 +404,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 ]}
                 name="shipping_addresses_phone"
                 required={false}
-              //label="Số điện thoại"
               >
                 <Input
                   placeholder="Nhập số điện thoại"
@@ -447,13 +452,19 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
             <Col xs={24} lg={12}>
               <Form.Item
-                name="shipping_addresses_card_number"
+                name="shipping_addresses_second_phone"
                 style={customerItem !== null ? { marginBottom: "0px" } : {}}
               >
                 <Input
-                  placeholder="Nhập mã thẻ"
-                  prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
+                  placeholder="Nhập số điện thoại phụ"
+                  prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                   disabled={disableInput}
+                  value={shippingAddressesSecondPhone}
+                  onChange={(value)=>{
+                    if(setShippingAddressesSecondPhone)
+                      setShippingAddressesSecondPhone(value.target.value);
+                    //ShippingAddressChange({...shippingAddress,second_phone:value.target.value})
+                  }}
                 />
               </Form.Item>
             </Col>
