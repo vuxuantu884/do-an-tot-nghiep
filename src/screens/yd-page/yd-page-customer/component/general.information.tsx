@@ -3,7 +3,7 @@ import { BarcodeOutlined, CalendarOutlined } from "@ant-design/icons";
 import { RegUtil } from "utils/RegUtils";
 import "../customer.scss";
 import CustomInput from "../common/customInput";
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import arrowDown from "assets/icon/arrow-down.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import moment from "moment";
@@ -35,7 +35,10 @@ const GeneralInformation = (props: any) => {
     deleteFpPhone,
     setFpDefaultPhone,
     isDisable,
+    newCustomerInfo,
+    setNewCustomerInfo,
   } = props;
+  
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
   const [visiblePhoneModal, setVisiblePhoneModal] = React.useState<boolean>(false);
@@ -84,6 +87,48 @@ const GeneralInformation = (props: any) => {
     });
   };
 
+  // Update new customer info
+  const updateNewCustomerInfo = (fieldName: string, value: any) => {
+    const tempNewCustomerInfo = {...newCustomerInfo};
+    tempNewCustomerInfo[fieldName] = value;
+    setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
+  };
+
+  // handle change phone number
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+
+  const handleChangePhone = useCallback((value: string) => {
+    setPhoneNumber(value.trim());
+  }, []);
+
+  const handleBlurPhone = (value: string) => {
+    setPhoneNumber(value.trim());
+    updateNewCustomerInfo("phone", value.trim());
+    form.setFieldsValue({ phone: value.trim() });
+  };
+
+  useEffect(() => {
+    if (phoneNumber) {
+      form.setFieldsValue({ phone: phoneNumber });
+      updateNewCustomerInfo("phone", phoneNumber);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phoneNumber]);
+  // end handle change phone number
+
+  const onSelectWard = (wardId: number) => {
+    updateNewCustomerInfo("ward_id", wardId);
+  };
+
+  const onChangeBirthDay = (date: any, dateString: string) => {
+    updateNewCustomerInfo("birthday", date);
+  };
+
+  const onSelectGender = (value: string,) => {
+    updateNewCustomerInfo("gender", value);
+  };
+
+
   return (
     <Fragment>
       <Row gutter={24}>
@@ -102,43 +147,16 @@ const GeneralInformation = (props: any) => {
                 isRequired={true}
                 maxLength={255}
                 isDisable={isDisable}
+                newCustomerInfo={newCustomerInfo}
+                setNewCustomerInfo={setNewCustomerInfo}
               />
-            </Col>
-            <Col span={24} className="customer-info-row">
-              <Form.Item
-                name="birthday"
-                label={<span className="customer-field-label">Ngày sinh:</span>}
-              >
-                <DatePicker
-                  style={{ width: "100%" }}
-                  disabled={isDisable}
-                  placeholder="Nhập ngày sinh"
-                  format={"DD/MM/YYYY"}
-                  suffixIcon={
-                    <div
-                      style={{
-                        display: "flex",
-                        width: "100px",
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <CalendarOutlined />
-                      <span style={{ color: "#2a2a86", fontWeight: 500, marginLeft: 10 }}>
-                        {customer?.birthday &&
-                          `${moment().diff(
-                            ConvertUtcToLocalDate(customer?.birthday, "MM/DD/YYYY"),
-                            "years"
-                          )} Tuổi`}
-                      </span>
-                    </div>
-                  }
-                />
-              </Form.Item>
             </Col>
             <Col span={24} className="customer-info-row">
               <div className="phone-container">
                 <div className="ant-col ant-form-item-label">
-                  <span className="customer-field-label">SĐT: <span style={{ color: "#E24343" }}>*</span></span>
+                  <span className="customer-field-label">
+                    SĐT: <span style={{ color: "#E24343" }}>*</span>
+                  </span>
                 </div>
                 <Form.Item
                   name="phone"
@@ -151,8 +169,7 @@ const GeneralInformation = (props: any) => {
                       pattern: RegUtil.PHONE,
                       message: "Số điện thoại chưa đúng định dạng",
                     },
-                  ]}
-                >
+                  ]}>
                   <Input
                     style={{ borderRadius: 5 }}
                     disabled={isDisable}
@@ -160,6 +177,8 @@ const GeneralInformation = (props: any) => {
                     maxLength={15}
                     placeholder="Nhập số điện thoại"
                     className="phone-input"
+                    onChange={(e) => handleChangePhone(e.target.value)}
+                    onBlur={(e) => handleBlurPhone(e.target.value)}
                   />
                 </Form.Item>
 
@@ -178,16 +197,14 @@ const GeneralInformation = (props: any) => {
                     display: "flex",
                     justifyContent: "flex-end",
                     marginBottom: 10,
-                  }}
-                >
-                  <Col span={17} style={{ right: '-1px' }}>
+                  }}>
+                  <Col span={17} style={{ right: "-1px" }}>
                     {customerPhones &&
                       customerPhones.map((p: any, index: any) => (
                         <Tag
                           key={index}
                           style={{ cursor: "pointer" }}
-                          onClick={() => clickPhone(p)}
-                        >
+                          onClick={() => clickPhone(p)}>
                           {p}
                           <img
                             alt="delete"
@@ -204,7 +221,110 @@ const GeneralInformation = (props: any) => {
                 </Row>
               )}
             </Col>
+            
+            <Col span={24} className="customer-field-label customer-info-row">
+              <Form.Item
+                label={<span className="customer-field-label">Khu vực:</span>}
+                name="district_id">
+                <Select
+                  showSearch
+                  disabled={isDisable}
+                  placeholder="Chọn khu vực"
+                  onChange={handleChangeArea}
+                  allowClear
+                  optionFilterProp="children">
+                  {areas.map((area: any) => (
+                    <Option key={area.id} value={area.id}>
+                      {area.city_name + ` - ${area.name}`}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col span={24} className="customer-field-label customer-info-row">
+              <Form.Item
+                label={
+                  <span className="customer-field-label">Phường/ Xã:</span>
+                }
+                name="ward_id">
+                <Select
+                  showSearch
+                  disabled={isDisable}
+                  allowClear
+                  optionFilterProp="children"
+                  placeholder="Chọn phường/xã"
+                  onChange={onSelectWard}
+                >
+                  {wards.map((ward: any) => (
+                    <Option key={ward.id} value={ward.id}>
+                      {ward.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col span={24} className="customer-field-label customer-info-row">
+              <CustomInput
+                name="full_address"
+                isDisable={isDisable}
+                label={<span className="customer-field-label">Địa chỉ:</span>}
+                form={form}
+                message="Vui lòng nhập địa chỉ"
+                placeholder="Địa chỉ chi tiết"
+                maxLength={500}
+                isRequired={false}
+                newCustomerInfo={newCustomerInfo}
+                setNewCustomerInfo={setNewCustomerInfo}
+              />
+            </Col>
+
+            <Form.Item label="city" name="city_id" hidden>
+              <Input disabled={isDisable} />
+            </Form.Item>
+
             <Row hidden={showDetail} style={{ padding: "0 0px" }}>
+              <Col span={24} className="customer-info-row">
+                <Form.Item
+                  name="birthday"
+                  label={
+                    <span className="customer-field-label">Ngày sinh:</span>
+                  }>
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    disabled={isDisable}
+                    placeholder="Nhập ngày sinh"
+                    format={"DD/MM/YYYY"}
+                    onChange={onChangeBirthDay}
+                    suffixIcon={
+                      <div
+                        style={{
+                          display: "flex",
+                          width: "100px",
+                          justifyContent: "flex-end",
+                        }}>
+                        <CalendarOutlined />
+                        <span
+                          style={{
+                            color: "#2a2a86",
+                            fontWeight: 500,
+                            marginLeft: 10,
+                          }}>
+                          {customer?.birthday &&
+                            `${moment().diff(
+                              ConvertUtcToLocalDate(
+                                customer?.birthday,
+                                "MM/DD/YYYY"
+                              ),
+                              "years"
+                            )} Tuổi`}
+                        </span>
+                      </div>
+                    }
+                  />
+                </Form.Item>
+              </Col>
               <Col span={24} className="customer-info-row">
                 <Form.Item
                   name="email"
@@ -214,21 +334,31 @@ const GeneralInformation = (props: any) => {
                       pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
                       message: "Vui lòng nhập đúng định dạng email",
                     },
-                  ]}
-                >
+                  ]}>
                   <Input
                     disabled={isDisable}
                     maxLength={255}
                     type="text"
                     placeholder="Nhập email"
+                    onBlur={(e) => {
+                      form?.setFieldsValue({ email: e.target.value.trim() });
+                      updateNewCustomerInfo("email", e.target.value.trim());
+                    }}
                   />
                 </Form.Item>
                 <Col span={24}>
-                  <Form.Item name="card_number"
-                    label={<span className="customer-field-label">Thẻ KH:</span>}>
+                  <Form.Item
+                    name="card_number"
+                    label={
+                      <span className="customer-field-label">Thẻ KH:</span>
+                    }>
                     <Input
                       placeholder="Nhập mã thẻ"
                       prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
+                      onBlur={(e) => {
+                        form?.setFieldsValue({ card_number: e.target.value.trim() });
+                        updateNewCustomerInfo("card_number", e.target.value.trim());
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -236,10 +366,12 @@ const GeneralInformation = (props: any) => {
               <Col span={24} className="customer-info-row">
                 <Form.Item
                   name="gender"
-                  label={<span className="customer-field-label">Giới tính:</span>}
-                // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+                  label={
+                    <span className="customer-field-label">Giới tính:</span>
+                  }
+                  // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                 >
-                  <Select placeholder="Chọn giới tính" disabled={isDisable}>
+                  <Select placeholder="Chọn giới tính" disabled={isDisable} onChange={onSelectGender}>
                     <Option value={"male"}>Nam</Option>
                     <Option value={"female"}>Nữ</Option>
                     <Option value={"other"}>Khác</Option>
@@ -250,14 +382,17 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   hidden
                   name="website"
-                  label={<span className="customer-field-label">Website/Facebook:</span>}
+                  label={
+                    <span className="customer-field-label">
+                      Website/Facebook:
+                    </span>
+                  }
                   rules={[
                     {
                       pattern: RegUtil.WEBSITE_URL_2,
                       message: "Website/Facebook chưa đúng định dạng",
                     },
-                  ]}
-                >
+                  ]}>
                   <Input
                     disabled={isDisable}
                     maxLength={255}
@@ -269,8 +404,9 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   hidden
                   name="wedding_date"
-                  label={<span className="customer-field-label">Ngày cưới:</span>}
-                >
+                  label={
+                    <span className="customer-field-label">Ngày cưới:</span>
+                  }>
                   <DatePicker
                     style={{ width: "100%" }}
                     disabled={isDisable}
@@ -284,8 +420,9 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   hidden
                   name="company"
-                  label={<span className="customer-field-label">Tên đơn vị:</span>}
-                >
+                  label={
+                    <span className="customer-field-label">Tên đơn vị:</span>
+                  }>
                   <Input
                     disabled={isDisable}
                     maxLength={255}
@@ -296,34 +433,39 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item
                   hidden
-                  label={<span className="customer-field-label">Mã số thuế:</span>}
+                  label={
+                    <span className="customer-field-label">Mã số thuế:</span>
+                  }
                   name="tax_code"
                   rules={[
                     {
                       pattern: RegUtil.NUMBERREG,
                       message: "Mã số thuế chỉ được phép nhập số",
                     },
-                  ]}
-                >
-                  <Input disabled={isDisable} maxLength={255} placeholder="Mã số thuế" />
+                  ]}>
+                  <Input
+                    disabled={isDisable}
+                    maxLength={255}
+                    placeholder="Mã số thuế"
+                  />
                 </Form.Item>
               </Col>
 
               <Col span={24}>
                 <Form.Item
                   hidden
-                  label={<span className="customer-field-label">Quốc gia:</span>}
+                  label={
+                    <span className="customer-field-label">Quốc gia:</span>
+                  }
                   name="country_id"
-                  initialValue={233}
-                >
+                  initialValue={233}>
                   <Select
                     placeholder="Quốc gia"
                     disabled
                     // onChange={handleChangeCountry}
                     showSearch
                     allowClear
-                    optionFilterProp="children"
-                  >
+                    optionFilterProp="children">
                     {countries &&
                       countries.map((country: any) => (
                         <Option key={country.id} value={country.id}>
@@ -333,63 +475,6 @@ const GeneralInformation = (props: any) => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={24} className="customer-field-label customer-info-row">
-                <Form.Item
-                  label={<span className="customer-field-label">Khu vực:</span>}
-                  name="district_id"
-                >
-                  <Select
-                    showSearch
-                    disabled={isDisable}
-                    placeholder="Chọn khu vực"
-                    onChange={handleChangeArea}
-                    allowClear
-                    optionFilterProp="children"
-                  >
-                    {areas.map((area: any) => (
-                      <Option key={area.id} value={area.id}>
-                        {area.city_name + ` - ${area.name}`}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Form.Item label="city" name="city_id" hidden>
-                <Input disabled={isDisable} />
-              </Form.Item>
-              <Col span={24} className="customer-field-label customer-info-row">
-                <Form.Item
-                  label={<span className="customer-field-label">Phường/ Xã:</span>}
-                  name="ward_id"
-                >
-                  <Select
-                    showSearch
-                    disabled={isDisable}
-                    allowClear
-                    optionFilterProp="children"
-                    placeholder="Chọn phường/xã"
-                  // onChange={handleChangeWard}
-                  >
-                    {wards.map((ward: any) => (
-                      <Option key={ward.id} value={ward.id}>
-                        {ward.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={24} className="customer-field-label customer-info-row">
-                <CustomInput
-                  name="full_address"
-                  isDisable={isDisable}
-                  label={<span className="customer-field-label">Địa chỉ chi tiết:</span>}
-                  form={form}
-                  message="Vui lòng nhập địa chỉ"
-                  placeholder="Nhập địa chỉ chi tiết"
-                  maxLength={500}
-                  isRequired={false}
-                />
-              </Col>
             </Row>
             <Row
               style={{
@@ -397,15 +482,13 @@ const GeneralInformation = (props: any) => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-              }}
-            >
+              }}>
               <Col span={7} style={{ cursor: "pointer" }}>
                 <div
                   style={{ flex: 1 }}
                   onClick={() => {
                     setShowDetail(!showDetail);
-                  }}
-                >
+                  }}>
                   <img
                     alt="arrow down"
                     src={arrowDown}
@@ -426,8 +509,7 @@ const GeneralInformation = (props: any) => {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                }}
-              >
+                }}>
                 <div
                   style={{
                     width: "100%",
@@ -447,8 +529,7 @@ const GeneralInformation = (props: any) => {
                 padding: "16px",
                 display: "flex",
                 justifyContent: "flex-end",
-              }}
-            >
+              }}>
               <Col span={24}>
                 <Form.Item label={<b>Ghi chú:</b>} name="note">
                   <Input.TextArea
@@ -465,8 +546,7 @@ const GeneralInformation = (props: any) => {
                   paddingLeft: 0,
                   maxHeight: 150,
                   overflowY: "scroll",
-                }}
-              >
+                }}>
                 <div>
                   {notes &&
                     notes.map((note: any, index: number) => (
@@ -494,15 +574,17 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item
                   name="customer_type_id"
-                  label={<span className="customer-field-label">Loại khách hàng:</span>}
-                >
+                  label={
+                    <span className="customer-field-label">
+                      Loại khách hàng:
+                    </span>
+                  }>
                   <Select
                     disabled={isDisable}
                     showSearch
                     placeholder="Chọn loại khách hàng"
                     allowClear
-                    optionFilterProp="children"
-                  >
+                    optionFilterProp="children">
                     {props.types &&
                       props.types.map((type: any) => (
                         <Option key={type.id} value={type.id}>
@@ -515,20 +597,23 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item
                   name="customer_group_id"
-                  label={<span className="customer-field-label">Nhóm khách hàng:</span>}
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn nhóm khách hàng",
-                //   },
-                // ]}
+                  label={
+                    <span className="customer-field-label">
+                      Nhóm khách hàng:
+                    </span>
+                  }
+                  // rules={[
+                  //   {
+                  //     required: true,
+                  //     message: "Vui lòng chọn nhóm khách hàng",
+                  //   },
+                  // ]}
                 >
                   <Select
                     showSearch
                     placeholder="Chọn nhóm khách hàng"
                     allowClear
-                    optionFilterProp="children"
-                  >
+                    optionFilterProp="children">
                     {props.groups &&
                       props.groups.map((group: any) => (
                         <Option key={group.id} value={group.id}>
@@ -543,23 +628,24 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   name="responsible_staff_code"
                   label={
-                    <span className="customer-field-label">Nhân viên phụ trách:</span>
+                    <span className="customer-field-label">
+                      Nhân viên phụ trách:
+                    </span>
                   }
 
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn cấp độ khách hàng",
-                //   },
-                // ]}
+                  // rules={[
+                  //   {
+                  //     required: true,
+                  //     message: "Vui lòng chọn cấp độ khách hàng",
+                  //   },
+                  // ]}
                 >
                   <Select
                     showSearch
                     placeholder="Chọn nv phụ trách"
                     allowClear
                     optionFilterProp="children"
-                    onSearch={(value) => AccountChangeSearch(value)}
-                  >
+                    onSearch={(value) => AccountChangeSearch(value)}>
                     {props.accounts &&
                       props.accounts.map((c: any) => (
                         <Option key={c.id} value={c.code}>
@@ -572,8 +658,7 @@ const GeneralInformation = (props: any) => {
               <Col span={24}>
                 <Form.Item
                   label={<span className="customer-field-label">Mô tả:</span>}
-                  name="description"
-                >
+                  name="description">
                   <Input.TextArea maxLength={500} placeholder="Nhập mô tả" />
                 </Form.Item>
               </Col>

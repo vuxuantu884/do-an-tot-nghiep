@@ -39,7 +39,7 @@ const UrlConfig = {
   DISCOUNT: `/discounts`,
   PROMO_CODE: `/issues`,
   GIFT: `/gifts`,
-  PACK_SUPPORT:`/orders-pack-support`
+  PACK_SUPPORT:`/orders-pack`
 };
 
 export const ProductTabUrl = {
@@ -68,7 +68,8 @@ export const InventoryTabUrl = {
 
 export const ProcurementTabUrl = {
   TODAY: UrlConfig.PROCUREMENT + "/today",
-  ALL: UrlConfig.PROCUREMENT
+  ALL: UrlConfig.PROCUREMENT,
+  LOGS: UrlConfig.PROCUREMENT+'/logs'
 };
 
 export const PurchaseOrderTabUrl = {

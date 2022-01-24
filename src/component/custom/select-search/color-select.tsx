@@ -1,124 +1,165 @@
-import {Form, FormItemProps, Select} from "antd";
-import {FormInstance} from "antd/es/form/Form";
-import {getColorAction} from "domain/actions/product/color.action";
-import _, {debounce} from "lodash";
-import {PageResponse} from "model/base/base-metadata.response";
-import {ColorResponse, ColorSearchQuery} from "model/product/color.model";
-import React, {ReactElement, useCallback, useEffect} from "react";
-import {useDispatch} from "react-redux";
+import { Form, FormItemProps, SelectProps } from "antd";
+import { FormInstance } from "antd/es/form/Form";
+import { getColorAction } from "domain/actions/product/color.action";
+import _ from "lodash";
+import { PageResponse } from "model/base/base-metadata.response";
+import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
+import React, { ReactElement, ReactNode, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { colorSearchApi } from "service/product/color.service";
+import { callApiNative } from "utils/ApiUtils";
+import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
 
-const {Option} = Select;
-interface Props extends FormItemProps {
+export interface SelectSearchProps {
   form?: FormInstance;
-  label: string;
-  name: string | any[];
-  rules?: any[];
-  placeholder?: string;
-  querySearch?: ColorSearchQuery;
-  mode?: "multiple" | "tags" | undefined;
-  key?: "code" | "id";
-  defaultValue?: string | number | string[];
+  fixedQuery?: ColorSearchQuery;
+  key?: "code" | "id"; 
+  formItemProps?: FormItemProps<ReactNode>;
+  selectProps?: SelectProps<any>;
+  noFormItem?: boolean;
 }
 
-ColorSelectSearch.defaultProps = {
-  label: "Kích cỡ",
-  placeholder: "Chọn kích cỡ",
-  rules: [],
-  querySearch: {
+ColorSelect.defaultProps = {
+  fixedQuery: {
     info: "",
   },
-  mode: undefined,
-  key: "id",
-  defaultValue: undefined,
+  key: "id", 
+  noFormItem: false,
+  selectProps: {
+    placeholder: "Chọn màu sắc",
+    mode: undefined,
+    showArrow: true,
+    optionFilterProp: "children",
+    showSearch: true,
+    allowClear: true,
+    maxTagCount: "responsive",
+    notFoundContent: "Không có dữ liệu",
+  },
 };
 
-function ColorSelectSearch({
+function ColorSelect({
   form,
-  label,
-  placeholder,
-  name,
-  rules,
-  mode,
   key,
-  querySearch,
-  defaultValue,
-  ...restFormProps
-}: Props): ReactElement {
+  fixedQuery, 
+  formItemProps,
+  selectProps,
+  noFormItem,
+}: SelectSearchProps): ReactElement {
+  const name = formItemProps?.name || "";
+  const { mode, defaultValue } = selectProps!;
   const dispatch = useDispatch();
-  const [sizeList, setSizeList] = React.useState<{
-    items: Array<ColorResponse>;
-    isLoading: boolean;
-  }>({items: [], isLoading: false});
-
-  const handleChangeAccountSearch = useCallback(
-    (info: string, codes?: string[]) => {
-      if (querySearch) {
-        setSizeList((prev) => {
-          return {items: prev?.items || [], isLoading: true};
-        });
-
-        const query = _.cloneDeep(querySearch);
-        query.info = info;
-
-        dispatch(
-          getColorAction(query, (response: PageResponse<ColorResponse>) => {
-            if (response) {
-              setSizeList({
-                items: response.items,
-                isLoading: false,
-              });
-            }
-          })
-        );
-      }
+  const [isSearching, setIsSearching] = React.useState(false);
+  const [data, setData] = React.useState<PageResponse<ColorResponse>>({
+    items: [],
+    metadata: {
+      page: 1,
+      limit: 30,
+      total: 0,
     },
-    [dispatch, querySearch]
-  );
-  const onSearchAccount = debounce((key: string) => {
-    handleChangeAccountSearch(key);
-  }, 300);
+  });
 
+  const handleColorSearch = (queryParams: ColorSearchQuery) => {
+    setIsSearching(true);
+    const query = { ...fixedQuery, ...queryParams };
+
+    dispatch(
+      getColorAction(query, (response: PageResponse<ColorResponse>) => {
+        if (response) {
+          setData(response);
+        }
+        setIsSearching(false);
+      })
+    );
+  };
+  const formFieldValue = form && name ? form?.getFieldValue(name) : null;
+
+  /**
+   * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho
+   */
   useEffect(() => {
-    // let value = defaultValue;
+    const getIntialValue = async () => {
+      let value = formFieldValue;
+      let initParams: any = [];
 
-    // if (!defaultValue && form) {
-    //   value = form.getFieldValue(name);
-    // }
+      if (defaultValue) {
+        value = defaultValue;
+      }
 
-    // if (mode === "multiple" && Array.isArray(value)) {
-    //   handleChangeAccountSearch("", value);
-    // } else if (typeof value === "string") {
-    //   handleChangeAccountSearch("", [value]);
-    // } else {
-    //   handleChangeAccountSearch("");
-    // }
-    handleChangeAccountSearch("");
-  }, [handleChangeAccountSearch, mode, defaultValue, form, name]);
+      if (mode === "multiple" && Array.isArray(value)) {
+        initParams = value;
+      } else if (typeof value === "string" || typeof value === "number") {
+        initParams = [Number(value)];
+      } else {
+        initParams = [];
+      }
 
-  return (
-    <Form.Item label={label} name={name} rules={rules} {...restFormProps}>
-      <Select
-        mode={mode}
-        placeholder={placeholder}
-        showArrow
-        optionFilterProp="children"
-        showSearch
-        allowClear
-        loading={sizeList?.isLoading}
-        onSearch={(value) => onSearchAccount(value || "")}
-        onClear={() => onSearchAccount("")}
-        maxTagCount="responsive"
-        defaultValue={defaultValue}
-        notFoundContent="Không có dữ liệu"
-      >
-        {sizeList?.items?.map((item) => (
-          <Option key={item.name} value={item[key || "id"]}>
-            {`${item.name}`}
-          </Option>
-        ))}
-      </Select>
-    </Form.Item>
+      if (initParams.length > 0) {
+        // call api lấy data của item(s) đang được chọn trước đó
+        const initSelectedResponse = await callApiNative(
+          { isShowError: true },
+          dispatch,
+          colorSearchApi,
+          {
+            ids: initParams,
+          }
+        );
+
+        // call api lấy thêm data nối vào sau để người dùng có thể chọn item khác
+        const defaultItems = await callApiNative({ isShowError: true }, dispatch, colorSearchApi);
+
+        let totalItems = [];
+        if (initSelectedResponse?.items && defaultItems?.items) {
+          // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
+          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultItems.items], key!);
+        } else if (defaultItems?.items) {
+          totalItems = defaultItems.items;
+        } else if (initSelectedResponse?.items) {
+          totalItems = initSelectedResponse.items;
+        }
+
+        setData({ ...defaultItems, items: totalItems });
+      } else {
+        const defaultItems = await callApiNative({ isShowError: true }, dispatch, colorSearchApi);
+        setData(defaultItems);
+      }
+      setIsSearching(false);
+    };
+
+    getIntialValue();
+  }, [formFieldValue, mode, defaultValue, dispatch, key]);
+
+  const SelectContent = (
+    <SelectPagingV2
+      {...selectProps} 
+      metadata={data.metadata}
+      loading={isSearching}
+      onSearch={(value) => handleColorSearch({ info: value })}
+      onClear={() => handleColorSearch({ info: "" })}
+      onPageChange={(key: string, page: number) => {
+        handleColorSearch({ info: key, page: page });
+      }}>
+      {data?.items?.map((item) => (
+        <SelectPagingV2.Option key={item.name} value={item[key!]}>
+          {`${item.code}-${item.name}`}
+        </SelectPagingV2.Option>
+      ))}
+    </SelectPagingV2>
   );
+
+  if (noFormItem) {
+    return <>{SelectContent}</>;
+  } else {
+    return (
+      <Form.Item name={name} {...formItemProps}>
+        {SelectContent}
+      </Form.Item>
+    );
+  }
 }
 
-export default ColorSelectSearch;
+const ColorSearchSelect = React.memo(ColorSelect, (prev, next) => {
+  const { form, fixedQuery } = prev;
+  const { form: nextForm, fixedQuery: nextQuery } = next;
+  return form === nextForm  && fixedQuery === nextQuery;
+});
+export default ColorSearchSelect;

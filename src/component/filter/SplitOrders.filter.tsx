@@ -896,14 +896,14 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                     <CustomSelect.Option
                       style={{ width: "100%" }}
                       key="1"
-                      value="true"
+                      value="returned"
                     >
                       Đã trả hàng
                     </CustomSelect.Option>
 										<CustomSelect.Option
                       style={{ width: "100%" }}
                       key="2"
-                      value="false"
+                      value="unreturned"
                     >
                       Chưa trả hàng
                     </CustomSelect.Option>

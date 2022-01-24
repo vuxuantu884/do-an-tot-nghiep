@@ -441,6 +441,7 @@ function* ecommerceDisconnectItemSaga(action: YodyAction) {
 function* ecommercePostSyncStockItemSaga(action: YodyAction) {
   let { query, setData } = action.payload;
 
+  yield put(showLoading());
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommercePostSyncStockItemApi,
@@ -461,6 +462,8 @@ function* ecommercePostSyncStockItemSaga(action: YodyAction) {
   } catch (error) {
     setData(false);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 

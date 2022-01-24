@@ -32,7 +32,7 @@ const BreadcrumbContainer = (props: IProps) => {
                   );
                 return (
                   <Breadcrumb.Item key={`breadcrumb_item_${index}`}>
-                    <Link to={path}>{name}</Link>
+                    <Link className="breadcrumb_hover" to={path}>{name}</Link>
                   </Breadcrumb.Item>
                 );
               })}

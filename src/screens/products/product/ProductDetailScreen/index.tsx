@@ -380,12 +380,15 @@ const tab= document.getElementById("tab");
         isLoading={loading}
         title={`${data?.name}`}
         breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
+          // {
+          //   name: "Tổng quan",
+          //   path: UrlConfig.HOME,
+          // },
           {
             name: "Sản phẩm",
+          },
+          {
+            name: "Quản lý sản phẩm",
             path: `${UrlConfig.VARIANTS}`,
           },
           {

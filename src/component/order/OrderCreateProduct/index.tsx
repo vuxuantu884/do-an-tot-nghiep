@@ -221,6 +221,7 @@ function OrderCreateProduct(props: PropType) {
 		setCoupon,
 		setPromotion,
 	} = props;
+	console.log('items', items)
 	const dispatch = useDispatch();
 	const [loadingAutomaticDiscount] = useState(false);
 	const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -1421,6 +1422,7 @@ function OrderCreateProduct(props: PropType) {
 												removeDiscountItem(singleItem);
 											}
 										});
+										console.log('_items', _items)
 										calculateChangeMoney(_items);
 										setPromotion && setPromotion({
 											amount: 0,
@@ -1772,7 +1774,7 @@ function OrderCreateProduct(props: PropType) {
 			lineItem.discount_items = [];
 			lineItem.discount_rate = 0;
 			lineItem.discount_value = 0;
-			lineItem.line_amount_after_line_discount = lineItem.price;
+			lineItem.line_amount_after_line_discount = lineItem.price * lineItem.quantity;
 		});
 		// showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
 	};

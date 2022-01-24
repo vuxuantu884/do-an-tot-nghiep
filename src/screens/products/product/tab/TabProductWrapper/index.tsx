@@ -104,7 +104,7 @@ const TabProductWrapper: React.FC = () => {
         });
         return (
           <>
-            {url ? <Image placeholder="Xem" src={url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={url} />}
+            {url ? <Image width={40} height={40} placeholder="Xem" src={url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={url} />}
           </>
         );
       },
@@ -129,10 +129,10 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       title: "SL Phiên bản",
       dataIndex: "variants",
-      width: 120,
+      width: 110,
       render: (value: Array<VariantResponse>) => (
         <>
-          <div>{value ? value.length : ""}</div>
+          <div>{value ? value.length : "0"}</div>
         </>
       ),
       visible: true,
@@ -143,15 +143,15 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       visible: true,
       width: 120,
-      render: (value: number) => <div> {formatCurrency(value,".")}</div>,
+      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"0"}</div>,
     },
     {
       align: "right",
       title: "Có thể bán",
       dataIndex: "available",
       visible: true,
-      width: 120,
-      render: (value: number) => <div> {formatCurrency(value,".")}</div>,
+      width: 100,
+      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"0"}</div>,
     },
     {
       title: "Trạng thái",
@@ -169,8 +169,8 @@ const TabProductWrapper: React.FC = () => {
       title: "Ngày tạo",
       align: "left",
       dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY"),
-      width: 120,
+      render: (value) => value!==null?ConvertUtcToLocalDate(value, "DD/MM/YYYY"):"---",
+      width: 110,
       visible: true,
     },
     {
@@ -383,6 +383,7 @@ const TabProductWrapper: React.FC = () => {
         dataSource={data.items}
         columns={columnFinal}
         rowKey={(item: ProductResponse) => item.id}
+        className="yody-table-product-search"
       />
       <ModalSettingColumn
         visible={showSettingColumn}

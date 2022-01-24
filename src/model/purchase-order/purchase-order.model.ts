@@ -92,3 +92,9 @@ export interface PurchaseOrderPrint {
   html_content: string;
   size: string;
 }
+
+export interface ProcumentLogQuery extends BaseQuery {
+  condition?: string,
+  created_date_from?: Date,
+  created_date_to?: Date,
+}

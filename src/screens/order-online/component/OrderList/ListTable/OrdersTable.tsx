@@ -13,7 +13,7 @@ import React, { ReactNode, useCallback, useEffect, useMemo } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, isOrderFromPOS } from "utils/AppUtils";
 import { COD, FACEBOOK, FulFillmentStatus, OrderStatus, PaymentMethodCode, POS, ShipmentMethod, SHOPEE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor } from "utils/global-styles/variables";
@@ -261,7 +261,7 @@ function OrdersTable(props: PropsType) {
 								{value}
 							</Link>
 							<div style={{ fontSize: "0.86em" }}>
-								{moment(i.created_date).format(DATE_FORMAT.fullDate)}
+								{moment(i.created_on || i.created_date).format(DATE_FORMAT.fullDate)}
 							</div>
 							<div style={{ fontSize: "0.86em", marginTop: 5 }}>
 								<Tooltip title="Cửa hàng">
@@ -454,7 +454,7 @@ function OrdersTable(props: PropsType) {
 					const sortedFulfillments = record.fulfillments?.sort(
 						(a: any, b: any) => b.id - a.id
 					);
-					if (record.source_id === POS.source_id) {
+					if (isOrderFromPOS(record)) {
 						return (
 							<React.Fragment>
 								<div className="single">

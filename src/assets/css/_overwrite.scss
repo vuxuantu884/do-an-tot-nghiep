@@ -583,6 +583,20 @@
             }
         }
     }
+
+    //select tree
+    .-select-tree-treenode-checkbox-checked:after {
+        border-color: $primary-color;
+    }
+    .-select-tree-checkbox-indeterminate .ant-select-tree-checkbox-inner {
+        background-color: $primary-color;
+        border-color: $primary-color;
+    }
+    .-select-tree-checkbox-indeterminate .ant-select-tree-checkbox-inner::after {
+        height: 2px;
+        background-color: $white;
+    }
+    
     //Picker
     &-picker {
         height: 38px;
@@ -826,6 +840,7 @@
     }
     //Modal
     &-modal {
+        top: 28px;
         &-header {
             border-radius: 5px 5px 0 0;
             &-nostyle {

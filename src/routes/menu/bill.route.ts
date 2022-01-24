@@ -146,7 +146,7 @@ const bill: Array<RouteMenu> = [
     ],
   },
   {
-    path: `/orders-pack-support`,
+    path: UrlConfig.PACK_SUPPORT,
     exact: true,
     title: "Hỗ trợ đóng gói",
     icon: "icon-dot",

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
-import {borderColor} from "utils/global-styles/variables";
+import { borderColor } from "utils/global-styles/variables";
 
 // Inherit StyledCustomerInfo in StyledCustomerDetail
 export const StyledCustomerDetail = styled(StyledCustomerInfo)`
@@ -139,16 +139,62 @@ export const StyledPurchaseHistory = styled.div`
   td {
     position: relative;
   }
+  .order-return-background {
+    background-color: rgb(239, 239, 252); 
+    .ant-table-cell-fix-left, .ant-table-cell-fix-right {
+      background-color: rgb(239, 239, 252);
+    }
+  }
+
+  .ant-table-tbody>tr.order-return-background:hover>td {
+    background-color: rgb(239, 239, 252);
+  }
+
+  .ant-table-tbody>tr.order-return-background>td {
+    transition: unset;
+  }
+
+  .ant-table.ant-table-bordered>.ant-table-container>.ant-table-body>table>tbody>tr>td,
+  .ant-table.ant-table-bordered>.ant-table-container>.ant-table-header>table>thead>tr>th{
+    border-right: 1px solid #ddd;
+  }
+
+  .ant-table .ant-table-expanded-row-fixed {
+    padding: 10px 16px 16px 16px;
+  }
+
   .productNameQuantityPriceHeader {
     display: flex;
     justify-content: space-between;
   }
   .productNameWidth {
     width: ${nameWidth}px;
+    &:before {
+      content: "";
+        display: block;
+        width: 1px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        bottom: 0;
+        right: ${quantityWidth + priceWidth}px;
+        background-color: ${borderColor};
+    }
   }
   .quantityWidth {
     width: ${quantityWidth}px;
     text-align: center;
+    &:before {
+      content: "";
+        display: block;
+        width: 1px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        bottom: 0;
+        right: ${priceWidth}px;
+        background-color: ${borderColor};
+    }
   }
   .massWidth {
     width: ${massWidth}px;

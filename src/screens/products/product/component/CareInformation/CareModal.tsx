@@ -181,7 +181,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
         <p className="label">GIẶT</p>
         <Row gutter={24}>
           {careInformationState.washing.map((item: any) => (
-            <Col span={3} style={{ marginBottom: '20px'}}>
+            <Col key={item.value} span={3} style={{ marginBottom: '20px'}}>
               <Popover content={item.name}>
               <span onClick={() => onSelect(item.value, 'washing')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
               </Popover>
@@ -193,7 +193,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
             <p className="label">CHẤT TẨY</p>
             <Row gutter={24}>
               {careInformationState.beleaching.map((item: any) => (
-                <Col span={6} style={{ marginBottom: '20px'}}>
+                <Col key={item.value} span={6} style={{ marginBottom: '20px'}}>
                   <Popover content={item.name}>
                   <span onClick={() => onSelect(item.value, 'beleaching')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
                   </Popover>
@@ -205,7 +205,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
             <p className="label">ỦI</p>
             <Row gutter={24}>
               {careInformationState.ironing.map((item: any) => (
-                <Col span={6} style={{ marginBottom: '20px'}}>
+                <Col key={item.value} span={6} style={{ marginBottom: '20px'}}>
                   <Popover content={item.name}>
                   <span onClick={() => onSelect(item.value, 'ironing')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
                   </Popover>
@@ -218,7 +218,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
         <p className="label">SẤY - PHƠI</p>
         <Row gutter={24}>
           {careInformationState.drying.filter((e: CareLabelItem)=>e.type===1).map((item: any) => (
-            <Col span={3} style={{ marginBottom: '20px'}}>
+            <Col key={item.value} span={3} style={{ marginBottom: '20px'}}>
               <Popover content={item.name}>
                 <span onClick={() => onSelect(item.value, 'drying')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
               </Popover>
@@ -227,7 +227,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
         </Row>
         <Row gutter={24}>
           {careInformationState.drying.filter((e: CareLabelItem)=>e.type===2).map((item: any) => (
-            <Col span={3} style={{ marginBottom: '20px'}}>
+            <Col key={item.value} span={3} style={{ marginBottom: '20px'}}>
               <Popover content={item.name}>
                 <span onClick={() => onSelect(item.value, 'drying')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
               </Popover>
@@ -238,7 +238,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
         <p className="label">GIẶT KHÔ/ƯỚT CHUYÊN NGHIỆP</p>
         <Row gutter={24}>
           {careInformationState.professionalCare.filter((e: CareLabelItem)=>e.type===1).map((item: any) => (
-            <Col span={3} style={{ marginBottom: '20px'}}>
+            <Col key={item.value} span={3} style={{ marginBottom: '20px'}}>
               <Popover content={item.name}>
                 <span onClick={() => onSelect(item.value, 'professionalCare')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
               </Popover>
@@ -246,7 +246,7 @@ const ModalCares: React.FC<ModalCaresProps> = (
           ))}
         </Row><Row gutter={24}>
           {careInformationState.professionalCare.filter((e: CareLabelItem)=>e.type===2).map((item: any) => (
-            <Col span={3} style={{ marginBottom: '20px'}}>
+            <Col key={item.value} span={3} style={{ marginBottom: '20px'}}>
               <Popover content={item.name}>
                 <span onClick={() => onSelect(item.value, 'professionalCare')} className={`yody-icon ydl-${item.value} ${item.active ? "active" : "deactive"}`}></span>
               </Popover>

@@ -92,12 +92,18 @@ const TabHistoryInfo: React.FC = () => {
       visible: true,
       align: "left",
       render: (value, record) => {
-        return (
-          <div>
-            <Link to={`${UrlConfig.ACCOUNTS}/${value}`}>{value}</Link>
-            <div>{record.action_name}</div>
-          </div>
-        );
+        if(value!==null)
+        {
+          return (
+            <div>
+              <Link to={`${UrlConfig.ACCOUNTS}/${value}`}>{value}</Link>
+              <div>{record.action_name}</div>
+            </div>
+          );
+        }
+        else {
+          return (<div>---</div>)
+        }
       },
     },
     {
@@ -117,7 +123,7 @@ const TabHistoryInfo: React.FC = () => {
       visible: true,
       align: "left",
       dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value),
+      render: (value) => value!==null?ConvertUtcToLocalDate(value):"---",
       width: 160
     },
   ]);

@@ -14,7 +14,7 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
@@ -58,22 +58,20 @@ const ECOMMERCE_ORDER_STATUS = [
 
 type AllOrdersMappingProps = {
   isReloadPage: boolean;
+  setRowDataFilter: (x: any) => void;
+  handleDownloadSelectedOrders: (x: any) => void
 };
 
 const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   props: AllOrdersMappingProps
 ) => {
   const dispatch = useDispatch();
-  const { isReloadPage } = props;
-
+  const { isReloadPage,setRowDataFilter, handleDownloadSelectedOrders } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   useState<Array<AccountResponse>>();
   const [params, setPrams] = useState<GetOrdersMappingQuery>(initQuery);
   const [allShopList, setAllShopList] = useState<Array<any>>([]);
-
-  const [rowDataFilter, setRowDataFilter] = useState<Array<any>>([]);
-
   const productsUpdateStockPermission = [
     EcommerceProductPermission.products_update_stock,
   ];
@@ -244,7 +242,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
     setSelectedRowKeys(selectedRowIds);
     setRowDataFilter(newSelectedRow);
-  }, []);
+  }, [setRowDataFilter]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -317,6 +315,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     setAllShopList(shopList);
   }, []);
 
+
   useEffect(() => {
     dispatch(getShopEcommerceList({}, updateAllShopList));
   }, [dispatch, updateAllShopList]);
@@ -333,7 +332,8 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
           onClearFilter={onClearFilter}
           onFilter={onFilter}
           shopList={allShopList}
-          rowDataFilter={rowDataFilter}
+          setRowDataFilter={setRowDataFilter}
+          handleDownloadSelectedOrders={handleDownloadSelectedOrders}
         />
 
         <CustomTable

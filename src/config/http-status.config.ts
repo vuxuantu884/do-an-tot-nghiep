@@ -4,6 +4,7 @@ const HttpStatus = {
   BAD_REQUEST: 40000000,
 	FORBIDDEN: 40300000,
   NOT_FOUND: 40400000,
+  SERVER_ERROR: 50000000
 };
 
 export {HttpStatus};

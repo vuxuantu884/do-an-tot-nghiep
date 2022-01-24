@@ -14,4 +14,7 @@ export const StyledComponent = styled.div`
             cursor: no-drop; 
         }
     }
+    .page-filter{
+        padding: 0px;
+    }
 `;
