@@ -261,7 +261,7 @@ function OrdersTable(props: PropsType) {
 								{value}
 							</Link>
 							<div style={{ fontSize: "0.86em" }}>
-								{moment(i.created_on || i.created_date).format(DATE_FORMAT.fullDate)}
+								{moment(i.created_date).format(DATE_FORMAT.fullDate)}
 							</div>
 							<div style={{ fontSize: "0.86em", marginTop: 5 }}>
 								<Tooltip title="Cửa hàng">
