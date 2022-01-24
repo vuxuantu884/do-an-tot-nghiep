@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Form, Input } from "antd";
-import {formatCurrency} from "../../../../utils/AppUtils";
+import {formatCurrency} from "utils/AppUtils";
 
 type CustomInputProps = {
   name: string;
@@ -14,6 +14,8 @@ type CustomInputProps = {
   loyaltyPoint?: any;
   loyaltyUsageRules?: any;
   isDisable?: boolean;
+  newCustomerInfo?: any;
+  setNewCustomerInfo?: (data: any) => void;
 };
 
 function CustomInput(props: CustomInputProps) {
@@ -29,19 +31,33 @@ function CustomInput(props: CustomInputProps) {
     loyaltyPoint,
     loyaltyUsageRules,
     isDisable,
+    newCustomerInfo,
+    setNewCustomerInfo,
   } = props;
   const [value, setValue] = useState<string>("");
+
+  const updateNewCustomer = (inputValue: string) => {
+    const tempNewCustomerInfo = {...newCustomerInfo};
+    tempNewCustomerInfo[name] = inputValue;
+    setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
+  };
+
   const handleChange = useCallback((v: any) => {
     setValue(v.trim());
   }, []);
+
   const handleBlur = (v: any) => {
     setValue(v.trim());
+    updateNewCustomer(v.trim());
     form.setFieldsValue({ [name]: value });
   };
 
   React.useEffect(() => {
-    if (value) form.setFieldsValue({ [name]: value });
+    if (value) {
+      form.setFieldsValue({ [name]: value });
+    }
   }, [value, handleChange, form, name]);
+
   const rankLvl = () => {
     if (loyaltyUsageRules) {
       return loyaltyUsageRules?.find(

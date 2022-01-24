@@ -46,6 +46,8 @@ const YDPageCustomerDetail = (props: any) => {
   const {
     setCustomer,
     customer,
+    newCustomerInfo,
+    setNewCustomerInfo,
     getCustomerWhenPhoneChange,
     orderHistory,
     metaData,
@@ -59,11 +61,11 @@ const YDPageCustomerDetail = (props: any) => {
     deleteFpPhone,
     setFpDefaultPhone,
     loyaltyCard,
+    setDistrictIdProps
   } = props;
   const [customerForm] = Form.useForm();
   // const history = useHistory();
   const dispatch = useDispatch();
-
 
   const [allowCreateCustomer] = useAuthorization({
     acceptPermissions: customersCreatePermission,
@@ -218,9 +220,17 @@ const YDPageCustomerDetail = (props: any) => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
 
+  const updateNewCustomerArea = (districtId: string, cityId: number) => {
+    const tempNewCustomerInfo = {...newCustomerInfo};
+    tempNewCustomerInfo.city_id = cityId;
+    tempNewCustomerInfo.district_id = districtId;
+    setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
+  };
+
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
       setDistrictId(districtId);
+      setDistrictIdProps(districtId)
       let area = areas.find((area) => area.id === districtId);
       let value = customerForm.getFieldsValue();
       value.city_id = area.city_id;
@@ -230,6 +240,8 @@ const YDPageCustomerDetail = (props: any) => {
       value.ward_id = null;
       value.ward = "";
       customerForm.setFieldsValue(value);
+
+      updateNewCustomerArea(districtId, area.city_id) 
     }
   };
 
@@ -247,6 +259,7 @@ const YDPageCustomerDetail = (props: any) => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
+
   React.useEffect(() => {
     customerForm.setFieldsValue({ ...new CustomerModel() });
   }, [customerForm]);
@@ -327,6 +340,7 @@ const YDPageCustomerDetail = (props: any) => {
         },
       ],
     };
+    
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResultCreate));
   };
   const handleSubmitUpdate = (values: any) => {
@@ -432,6 +446,8 @@ const YDPageCustomerDetail = (props: any) => {
                   deleteFpPhone={deleteFpPhone}
                   setFpDefaultPhone={setFpDefaultPhone}
                   isDisable={isDisableUpdateCustomer()}
+                  newCustomerInfo={newCustomerInfo}
+                  setNewCustomerInfo={setNewCustomerInfo}
                 />
               </Col>
             </Row>

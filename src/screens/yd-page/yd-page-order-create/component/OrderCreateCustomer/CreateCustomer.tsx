@@ -25,16 +25,18 @@ import { WardResponse } from "model/content/ward.model";
 import {
   CustomerContactClass,
   CustomerModel,
-  CustomerShippingAddress
+  CustomerShippingAddress,
+  YDpageCustomerRequest
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import React, { createRef, useCallback, useState } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 
 type CreateCustomerProps = {
+  newCustomerInfo?: YDpageCustomerRequest;
   areas: any;
   wards: any;
   groups: any;
@@ -47,6 +49,7 @@ type CreateCustomerProps = {
 
 const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const {
+    newCustomerInfo,
     areas,
     wards,
     groups,
@@ -125,6 +128,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   });
 
   // console.log("isVisibleBtnUpdate", isVisibleBtnUpdate);
+
+  useEffect(() => {
+    if (newCustomerInfo && (newCustomerInfo.full_name || newCustomerInfo.phone)) {
+      const formValue = {...customerForm.getFieldsValue(), ...newCustomerInfo};
+      customerForm.setFieldsValue(formValue);
+    }
+  }, [customerForm, newCustomerInfo]);
 
   const DefaultWard = () => {
     let value = customerForm.getFieldsValue();
@@ -295,6 +305,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         initialValues={initialFormValueCustomer}
         className="update-customer-ydpage"
       >
+        <div style={{ marginBottom: 12, fontWeight: "bold", textTransform: "uppercase" }}>Tạo mới khách hàng</div>
         <Row gutter={12} >
           <Col span={12} >
             <Form.Item

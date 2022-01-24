@@ -38,7 +38,7 @@ import { getListSourceRequest } from "domain/actions/product/source.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { CustomerShippingAddress } from "model/request/customer.request";
+import { CustomerShippingAddress, YDpageCustomerRequest } from "model/request/customer.request";
 import {
   BillingAddress,
   CustomerResponse,
@@ -76,6 +76,7 @@ type CustomerCardProps = {
   setDistrictId: (items: number | null) => void;
   setVisibleCustomer: (item: boolean) => void;
   customer: CustomerResponse | null;
+  newCustomerInfo?: YDpageCustomerRequest;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
@@ -110,6 +111,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => {
   const {
     customer,
+    newCustomerInfo,
     setCustomer,
     loyaltyPoint,
     loyaltyUsageRules,
@@ -622,6 +624,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           <div style={{ marginTop: "14px" }}>
             {modalAction === CONSTANTS.MODAL_ACTION_TYPE.create && (
               <CreateCustomer
+                newCustomerInfo={newCustomerInfo}
                 areas={areas}
                 wards={wards}
                 groups={groups}
