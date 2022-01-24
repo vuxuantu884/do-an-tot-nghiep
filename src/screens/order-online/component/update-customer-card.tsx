@@ -33,7 +33,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 		if(!shippingAddress) {
 			return "";
 		}
-		result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
+		result = `${shippingAddress.name} - ${shippingAddress.phone} -${shippingAddress.second_phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
 		return result;
 	};
 
@@ -170,6 +170,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                       <span style={{ fontWeight: 400, marginLeft: "10px" }}>
                         {props.OrderDetail?.billing_address?.name} -{" "}
                         {props.OrderDetail?.billing_address?.phone} -{" "}
+                        
                         {props.OrderDetail?.billing_address?.full_address} -{" "}
                         {props.OrderDetail?.billing_address?.ward} -{" "}
                         {props.OrderDetail?.billing_address?.district} -{" "}
