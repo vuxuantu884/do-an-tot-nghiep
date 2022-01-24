@@ -158,7 +158,7 @@ const TabList: React.FC = () => {
   }, [checkConfirmProcurement]); 
 
   const ActionComponent = useCallback(()=>{
-      let Compoment = () => <span>Mã phiếu</span>;
+      let Compoment = () => <span>Mã phiếu nhập kho</span>;
       if (selected?.length > 1) {
         Compoment = () => (
           <CustomFilter onMenuClick={onMenuClick} menu={actions}>
@@ -175,7 +175,7 @@ const TabList: React.FC = () => {
         title: ActionComponent,
         dataIndex: "code",
         fixed: "left",
-        width: 130,
+        width: 150,
         visible: true,
         render: (value, record, index) => {
           return !record?.is_cancelled &&
@@ -192,10 +192,10 @@ const TabList: React.FC = () => {
         },
       },
       {
-        title: "Mã đơn mua",
+        title: "Mã đơn đặt hàng",
         dataIndex: "purchase_order",
         fixed: "left",
-        width: 120,
+        width: 150,
         visible: true,
         render: (value, record, index) => {
           return (
@@ -204,42 +204,6 @@ const TabList: React.FC = () => {
             </Link>
           );
         },
-      },
-      {
-        title: "Kho nhận hàng dự kiến",
-        dataIndex: "store",
-        render: (value, record, index) => value,
-        visible: true,
-      },
-      {
-        title: "Ngày nhận hàng dự kiến",
-        dataIndex: "expect_receipt_date",
-        visible: true,
-        render: (value, record, index) =>
-          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
-      },
-      {
-        title: "Ngày duyệt",
-        dataIndex: "activated_date",
-        render: (value, record, index) => ConvertUtcToLocalDate(value),
-      },
-      {
-        title: "Người duyệt",
-        dataIndex: "activated_by",
-        visible: true,
-        render: (value, record, index) => value,
-      },
-      {
-        title: "Ngày nhập kho",
-        dataIndex: "stock_in_date",
-        visible: true,
-        render: (value, record, index) => ConvertUtcToLocalDate(value),
-      },
-      {
-        title: "Người nhập",
-        dataIndex: "stock_in_by",
-        visible: true,
-        render: (value, record, index) => value,
       },
       {
         title: "Nhà cung cấp",
@@ -260,7 +224,22 @@ const TabList: React.FC = () => {
         ),
       },
       {
-        title: "Trạng thái",
+        title: "Kho nhận hàng dự kiến",
+        dataIndex: "store",
+        render: (value, record, index) => value,
+        visible: true,
+        width: 200,
+      },
+      {
+        title: "Ngày nhận hàng dự kiến",
+        dataIndex: "expect_receipt_date",
+        visible: true,
+        render: (value, record, index) =>
+          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
+        width: 200,
+      },
+      {
+        title: "Trạng thái phiếu nhập kho",
         dataIndex: "status",
         visible: true,
         render: (status: string) => {
@@ -303,9 +282,10 @@ const TabList: React.FC = () => {
           );
         },
         align: "center",
+        width: 200,
       },
       {
-        title: "Đã hủy",
+        title: "Trạng thái hủy",
         dataIndex: "is_cancelled",
         visible: true,
         render: (value, record, index) =>
@@ -349,6 +329,29 @@ const TabList: React.FC = () => {
         visible: true,
         render: (value) => ConvertUtcToLocalDate(value),
       },
+      {
+        title: "Ngày duyệt",
+        dataIndex: "activated_date",
+        render: (value, record, index) => ConvertUtcToLocalDate(value),
+      },
+      {
+        title: "Người duyệt",
+        dataIndex: "activated_by",
+        visible: true,
+        render: (value, record, index) => value,
+      },
+      // {
+      //   title: "Ngày nhập kho",
+      //   dataIndex: "stock_in_date",
+      //   visible: true,
+      //   render: (value, record, index) => ConvertUtcToLocalDate(value),
+      // },
+      // {
+      //   title: "Người nhập",
+      //   dataIndex: "stock_in_by",
+      //   visible: true,
+      //   render: (value, record, index) => value,
+      // },
     ]
   },[ActionComponent]);
 
@@ -591,7 +594,7 @@ const TabList: React.FC = () => {
           sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
           columns={columnFinal}
           rowKey={(item) => item.id}
-          scroll={{ x: 1700 }}
+          scroll={{ x: 2000 }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

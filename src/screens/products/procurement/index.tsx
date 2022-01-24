@@ -28,14 +28,14 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
 
   return (
     <ContentContainer
-      title="Danh sách đơn nhập kho"
+      title="Danh sách phiếu nhập kho"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Đơn nhập kho",
+          name: "Phiếu nhập kho",
         },
       ]}
     >
@@ -52,7 +52,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
           <TabPane tab="Hàng về hôm nay" key={ProcurementTabUrl.TODAY}>
             <TabCurrent />
           </TabPane>
-          <TabPane tab="Danh sách đơn nhập kho" key={ProcurementTabUrl.ALL}>
+          <TabPane tab="Danh sách phiếu nhập kho" key={ProcurementTabUrl.ALL}>
             <TabList />
           </TabPane>
           <TabPane tab="Lịch sử phiếu nhập kho" key={ProcurementTabUrl.LOGS}>
