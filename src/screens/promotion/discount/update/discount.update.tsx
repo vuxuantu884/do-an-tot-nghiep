@@ -171,7 +171,7 @@ const DiscountUpdate = () => {
         (entitled_variant_ids: Array<number>, entitled_product_ids: Array<number>) => {
             const listProduct: Array<ProductEntitlements> = []
             entitled_product_ids.forEach((id: number) => {
-                const product = dataProducts.find((item: ProductResponse) => item.id === id)
+                const product = dataProducts?.find((item: ProductResponse) => item.id === id)
                 if (product) {
                     listProduct.push({
                         variant_title: product.name,
@@ -186,7 +186,7 @@ const DiscountUpdate = () => {
             )
 
             const listProductFormVariant = entitled_variant_ids.map((id) => {
-                return dataVariants.find((v) => v.variant_id === id) || {} as ProductEntitlements;
+                return dataVariants?.find((v) => v.variant_id === id) || {} as ProductEntitlements;
             });
             return [...listProduct, ...listProductFormVariant];
         },

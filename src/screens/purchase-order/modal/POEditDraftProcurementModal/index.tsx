@@ -39,7 +39,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
   > = [
       {
         width: 50,
-        title: "Stt",
+        title: "STT",
         align: "center",
         fixed: true,
         render: (value, record, index) => index + 1,

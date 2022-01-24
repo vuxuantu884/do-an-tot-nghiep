@@ -23,28 +23,25 @@ import React, {
   useState,
 } from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {useHistory} from 'react-router';
 import {
   CategoryCreateRequest,
   CategoryResponse,
 } from 'model/product/category.model';
 import ContentContainer from 'component/container/content.container';
-import UrlConfig from 'config/url.config';
+import UrlConfig, { BASE_NAME_ROUTER } from 'config/url.config';
 import {RegUtil} from 'utils/RegUtils';
-import { showSuccess } from 'utils/ToastUtils';
 import BottomBarContainer from 'component/container/bottom-bar.container';
 
 let initialRequest: CategoryCreateRequest = {
   code: '',
   parent_id: -1,
-  goods: '',
+  goods: "fashion",
   name: '',
 };
 
 const {TreeNode} = TreeSelect;
 
 const AddCategory: React.FC = () => {
-  const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const bootstrapReducer = useSelector(
@@ -59,10 +56,10 @@ const AddCategory: React.FC = () => {
     return [];
   }, [bootstrapReducer]);
   const onSuccess = useCallback((result: CategoryResponse) => {
+    if(result)
+      window.location.href = `${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}`;
     setLoading(false);
-    showSuccess('Thêm danh mục thành công')
-    history.push(`${UrlConfig.CATEGORIES}/${result.id}`);
-  }, [history]);
+  }, []);
   const onFinish = useCallback(
     (values: CategoryCreateRequest) => {
       setLoading(true);
@@ -74,6 +71,8 @@ const AddCategory: React.FC = () => {
   useLayoutEffect(() => {
     dispatch(getCategoryRequestAction({}, setCategories));
   }, [dispatch]);
+
+  console.log("goods",goods)
   return (
     <ContentContainer
       title="Thêm mới danh mục"
@@ -126,9 +125,13 @@ const AddCategory: React.FC = () => {
                   ]}
                   name="goods"
                   label="Ngành hàng"
+                  
                 >
-                  <Select>
-                    <Select.Option value="">Ngành hàng</Select.Option>
+                  <Select
+                    placeholder="Ngành hàng"
+                    showSearch
+                    allowClear
+                  >
                     {goods.map((item, index) => (
                       <Select.Option key={index} value={item.value}>
                         {item.name}

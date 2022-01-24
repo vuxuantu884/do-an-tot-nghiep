@@ -69,7 +69,7 @@ import { HttpStatus } from "config/http-status.config";
 import { FulFillmentStatus } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { exitProgressDownloadEcommerceAction, getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
-import { generateQuery } from "utils/AppUtils";
+import { generateQuery, isNullOrUndefined } from "utils/AppUtils";
 import BaseResponse from "base/base.response";
 import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
 
@@ -639,10 +639,14 @@ const EcommerceOrders: React.FC = () => {
           }
         })
         .then((response) => {
-          showSuccess("Tạo phiếu giao hàng thành công")
-          let blob = new Blob([response.data], { type: 'application/pdf' })
-          let fileURL = URL.createObjectURL(blob);
-          window.open(fileURL)
+          if(response.data){
+            showSuccess("Tạo phiếu giao hàng thành công")
+            let blob = new Blob([response.data], { type: 'application/pdf' })
+            let fileURL = URL.createObjectURL(blob);
+            window.open(fileURL)
+          }else {
+            showError("Không thể tạo phiếu giao hàng")
+          }
           setTableLoading(false)
         })
         .catch(() => {
@@ -856,16 +860,23 @@ const EcommerceOrders: React.FC = () => {
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && response.data.total > 0) {
-          setProgressData(response.data);
-          const progressCount = response.data.total_created + response.data.total_updated + response.data.total_error;
-          if (progressCount >= response.data.total) {
+        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+          const processData = response.data;
+          setProgressData(processData);
+          const progressCount = processData.total_created + processData.total_updated + processData.total_error;
+          if (progressCount >= processData.total || processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
-            showSuccess("Tải đơn hàng thành công!");
             setIsDownloading(false);
+            if (!processData.api_error){
+              showSuccess("Tải đơn hàng thành công!");
+            }else {
+              resetProgress();
+              setIsVisibleProgressModal(false);
+              showError(processData.api_error);
+            }
           } else {
-            const percent = Math.floor(progressCount / response.data.total * 100);
+            const percent = Math.floor(progressCount / processData.total * 100);
             setProgressPercent(percent);
           }
         }

@@ -8,7 +8,7 @@ import {
   GoodsReceiptsTypeResponse,
   OrderConcernGoodsReceiptsResponse,
 } from "./../../model/response/pack/pack.response";
-import {GoodsReceiptsRequest} from "./../../model/request/pack.request";
+import {GoodsReceiptsDeleteRequest, GoodsReceiptsRequest} from "./../../model/request/pack.request";
 
 /**
  * lấy danh sách loại biên bản
@@ -58,6 +58,14 @@ export const deleteGoodsReceiptsService = (
   const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
   return BaseAxios.delete(link);
 };
+
+/**
+ * xóa nhiều biên bản bàn giao
+ */
+export const deleteAllGoodsReceipService=(request:GoodsReceiptsDeleteRequest):Promise<GoodsReceiptsResponse>=>{
+  const link=`${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts`;
+  return BaseAxios.delete(link, {data:request});
+}
 
 /**
  * tìm kiếm bản bàn giao

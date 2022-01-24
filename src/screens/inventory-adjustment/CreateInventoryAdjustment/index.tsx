@@ -116,10 +116,6 @@ const CreateInventoryAdjustment: FC = () => {
       key: "partly",
       name: "Một phần",
     },
-    {
-      key: "total",
-      name: "Toàn bộ",
-    },
   ];
  
   const [query, setQuery] = useState<SearchQueryVariant>({
@@ -198,13 +194,13 @@ const CreateInventoryAdjustment: FC = () => {
   const onChangeAuditType = useCallback(
     (auditType: string) => {
       setAuditType(auditType);
-      const storeId = form.getFieldValue("adjusted_store_id") as number;
-      if (storeId && auditType ===  INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
-
-        dispatch(getVariantHasOnHandByStoreAction({store_adj: storeId}, onResultGetVariant));
+      //const storeId = form.getFieldValue("adjusted_store_id") as number;
+      if (auditType ===  INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL) {
+        setAuditType(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
+        //dispatch(getVariantHasOnHandByStoreAction({store_adj: storeId}, onResultGetVariant));
       }
     },
-    [onResultGetVariant, form, dispatch]
+    []
   );
 
   // get store
@@ -785,6 +781,7 @@ const CreateInventoryAdjustment: FC = () => {
                           optionFilterProp="children"
                           showSearch={false}
                           allowClear={true}
+                          value={auditType}
                           onChange={(value: string) => {
                             onChangeAuditType(value);
                           }}

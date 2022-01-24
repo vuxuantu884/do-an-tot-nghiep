@@ -5,6 +5,7 @@ import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import ActionHistory from "component/order/Sidebar/ActionHistory";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
+import SidebarOrderDetailUtm from "component/order/Sidebar/SidebarOrderDetailUtm";
 import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -98,6 +99,12 @@ const OrderDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
+
+  const showOrderDetailUtm = useMemo(() => {
+    return OrderDetail?.utm_campain || OrderDetail?.utm_content
+      || OrderDetail?.utm_medium || OrderDetail?.utm_source
+      || OrderDetail?.utm_term || OrderDetail?.affiliate
+  }, [OrderDetail]);
   const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
     useState<OrderResponse | null>(null);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
@@ -295,6 +302,15 @@ const OrderDetail = (props: PropType) => {
       );
 
       setOrderDetail(_data);
+      // setOrderDetail({
+      //   ..._data,
+      //   affiliate: '123',
+      //   utm_source: '123',
+      //   utm_medium: '123',
+      //   utm_campain: '123',
+      //   utm_term: '123',
+      //   utm_content: '123',
+      // });
       setOrderDetailAllFulfillment(data);
       setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
       if (_data.sub_status_code) {
@@ -847,7 +863,7 @@ const OrderDetail = (props: PropType) => {
                             {OrderDetail?.fulfillments &&
                               OrderDetail?.fulfillments.length > 0 &&
                               OrderDetail?.fulfillments[0].shipment &&
-                              OrderDetail?.fulfillments[0].shipment.cod && (
+                              OrderDetail?.fulfillments[0].shipment.cod > 0 && (
                                 <Panel
                                   className={
                                     OrderDetail?.fulfillments[0].status !== "shipped"
@@ -1038,6 +1054,7 @@ const OrderDetail = (props: PropType) => {
             </Col>
 
             <Col md={6}>
+              {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
               <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
               <SubStatusOrder
                 subStatusCode={subStatusCode}

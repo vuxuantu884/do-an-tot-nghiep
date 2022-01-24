@@ -154,7 +154,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          fixed: true,
          render: (value) => {
            let price = Products.findPrice(value, AppConfig.currency);
-           return formatCurrency(price ? price.retail_price : 0,'.');
+           return formatCurrency(price ? price.retail_price : 0);
          },
        },
        {
@@ -180,7 +180,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value,record) => {
-           return <div> {formatCurrency(record.total_stock,".")}</div> ;
+           return <div> {formatCurrency(record.total_stock)}</div> ;
          },
        },
        {
@@ -194,7 +194,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },
        {
@@ -208,7 +208,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },
        {
@@ -222,7 +222,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        }, 
        {
@@ -236,7 +236,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi",
@@ -249,7 +249,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập",
@@ -262,7 +262,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng chuyển đến",
@@ -275,7 +275,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng chuyển đi",
@@ -288,7 +288,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Đang giao",
@@ -301,7 +301,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        }
      ]
@@ -332,7 +332,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value,record) => {
-           return <div>{formatCurrency(record.total_stock,".")}</div> ;
+           return <div>{formatCurrency(record.total_stock)}</div> ;
          },
        },
        {
@@ -341,7 +341,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },
        {
@@ -350,7 +350,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },
        {
@@ -358,7 +358,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          dataIndex: `committed`,
          align: "center",
          width: 80, render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        }, 
        {
@@ -367,7 +367,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
          title: "Hàng lỗi",
@@ -375,7 +375,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
          title: "Chờ nhập",
@@ -383,7 +383,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
          title: "Hàng chuyển đến",
@@ -391,7 +391,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
          title: "Hàng chuyển đi",
@@ -399,7 +399,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        },{
          title: "Đang giao",
@@ -407,7 +407,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
          align: "center",
          width: 80,
          render: (value) => {
-           return <div> {formatCurrency(value,".")}</div> ;
+           return <div> {formatCurrency(value)}</div> ;
          },
        }
      ]

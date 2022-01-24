@@ -249,7 +249,9 @@ export const ADMIN_ORDER = {
 export const POS = {
 	channel_id: 1,
   channel_code: "POS",
+  source: "POS",
 	source_id: 1,
+  source_code: "SC000070",
 };
 
 export const SHOPEE = {

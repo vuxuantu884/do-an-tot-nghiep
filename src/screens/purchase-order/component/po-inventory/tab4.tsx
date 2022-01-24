@@ -28,7 +28,10 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
           POField.procurements
         );
         let items = procurements !== undefined && procurements !== null
-          ? procurements.filter((item) => item.status === ProcumentStatus.DRAFT)
+          ? procurements.filter((item) => (
+              item.status === ProcumentStatus.DRAFT || 
+              item.status === ProcumentStatus.CANCELLED
+            ))
           : [];
         return (
           <Table
@@ -59,7 +62,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                 ),
                 dataIndex: "code",
                 render: (value, item, index) => (
-                  <Button
+                  !item?.is_cancelled ? (<Button
                     type="link"
                     onClick={() => {
                       confirmDraft(item, true, item?.code);
@@ -68,7 +71,9 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                     <div style={{color: "#5D5D8A", textDecoration: "underline"}}>
                       {value}
                     </div>
-                  </Button>
+                  </Button>) : (
+                    <div style={{ cursor: "no-drop" }}>{value}</div>
+                  )
                 ),
               },
               {

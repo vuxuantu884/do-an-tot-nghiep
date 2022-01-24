@@ -217,12 +217,12 @@ function CardProductBottom(props: PropType) {
 					<Divider className="margin-top-5 margin-bottom-5" />
 					<Row className="paymentRow" justify="space-between">
 						<strong className="font-size-text">
-							{totalAmountCustomerNeedToPay >= 0
+							{totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
 								? `Khách cần phải trả:`
 								: `Cần trả lại khách:`}
 						</strong>
 						<strong className="text-success font-size-price">
-							{totalAmountCustomerNeedToPay >= 0
+							{totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
 								? !returnOrderInformation ? formatCurrency(Math.abs(totalAmountOrder)) : formatCurrency(Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn))
 								: formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
 						</strong>

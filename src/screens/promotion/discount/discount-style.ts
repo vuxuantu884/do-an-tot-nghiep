@@ -16,10 +16,7 @@ export const DiscountStyled = styled.div`
   }
 }
 
-.dragger-wrapper {
-  width: 100%;
-  padding: 10px 30px;
-}
+
 
 .ant-select-selector {
   border-radius: 0px !important;
@@ -52,6 +49,14 @@ export const DiscountStyled = styled.div`
  }
 
 
+
+`;
+
+export const ImportFileDiscountStyled = styled.div`
+.dragger-wrapper {
+  width: 100%;
+  padding: 10px 30px;
+}
 .error-import-file {
   &__circel-check {
     font-size: 78px;
@@ -77,4 +82,4 @@ export const DiscountStyled = styled.div`
     font-size: 14px;
   }
 }
-`;
+`

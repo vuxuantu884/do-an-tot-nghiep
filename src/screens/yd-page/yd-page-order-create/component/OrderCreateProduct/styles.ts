@@ -66,4 +66,51 @@ export const StyledComponent = styled.div`
     display: flex;
     align-items: center;
   }
+
+  .row-footer-custom {
+    justify-content: space-between;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .yd-product-note {
+    .ant-input-group-addon {
+      padding: 0 5px;
+    }
+    .ant-input {
+      padding: 0 5px;
+    }
+    .ant-input-affix-wrapper {
+      padding: 0;
+    }
+    .anticon.ant-input-clear-icon {
+      margin: 0;
+    }
+  }
+
+  .yody-table-discount {
+    .saleorder-input-group-wrapper {
+      height: auto;
+      .yd-discount-group {
+        .ant-select {
+          width: auto !important;
+        }
+        .ant-input {
+          padding: 5px;
+        }
+      }
+      .ant-select-selector {
+        padding: 0 7px;
+      }
+      .ant-input-group-compact {
+        :first-child {
+          border-top-left-radius: 0 !important;
+          border-bottom-left-radius: 0 !important;
+          border-top-right-radius: 5px !important;
+          border-bottom-right-radius: 5px !important;
+        }
+      }
+    }
+  }
+
 `;

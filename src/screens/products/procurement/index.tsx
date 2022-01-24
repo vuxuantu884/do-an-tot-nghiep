@@ -7,6 +7,7 @@ import { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router-dom";
 import TabCurrent from "./tabs/TabCurrent";
 import TabList from "./tabs/TabList/index";
+import TabLogs from "./tabs/TabLogs";
 
 const {TabPane} = Tabs;
 const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
@@ -53,6 +54,9 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
           </TabPane>
           <TabPane tab="Danh sách đơn nhập kho" key={ProcurementTabUrl.ALL}>
             <TabList />
+          </TabPane>
+          <TabPane tab="Lịch sử phiếu nhập kho" key={ProcurementTabUrl.LOGS}>
+            <TabLogs />
           </TabPane>
         </Tabs>
       </Card>

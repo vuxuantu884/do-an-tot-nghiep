@@ -9,7 +9,7 @@ export interface CategoryQuery {
 export interface CategoryCreateRequest {
   code: string,
   name: string,
-  goods: string,
+  goods?: string,
   parent_id: number|null,
 }
 

@@ -18,9 +18,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { useReactToPrint } from "react-to-print";
-import PackDetailInfo from "./pack-support/detail/pack-detail-info";
-import PackListOrder from "./pack-support/detail/pack-list-order";
-import PackQuantityProduct from "./pack-support/detail/pack-quantity-product";
+import PackDetailInfo from "./pack/detail/pack-detail-info";
+import PackListOrder from "./pack/detail/pack-list-order";
+import PackQuantityProduct from "./pack/detail/pack-quantity-product";
 
 type PackParam = {
   id: string;

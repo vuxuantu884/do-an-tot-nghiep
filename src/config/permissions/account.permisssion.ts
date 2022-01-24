@@ -6,9 +6,9 @@ const accounts = `accounts`;
 const AccountPermissions = {
   READ: `${accounts}_read`,
   CREATE: `${accounts}_create`,
-  EXPORT: `${accounts}}_export`,
-  UPDATE: `${accounts}}_update`,
-  DELETE: `${accounts}}_delete`,
+  EXPORT: `${accounts}_export`,
+  UPDATE: `${accounts}_update`,
+  DELETE: `${accounts}_delete`,
 };
 
 const DepartmentsPermissions = {

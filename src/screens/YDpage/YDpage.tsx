@@ -12,6 +12,7 @@ import { AppConfig } from "config/app.config";
 import { useQuery } from "utils/useQuery";
 import { getYdpageSource, setYdpageSource } from "utils/LocalStorageUtils";
 import { useEffect } from "react";
+import SplashScreen from "screens/splash.screen";
 
 const YDPAGE_URL = AppConfig.ydPageUrl;
 const allSource = {
@@ -21,6 +22,8 @@ const YDpage: React.FC = () => {
   const goToFacebookYDpage = () => {
     setSource(allSource.FACEBOOK);
     setYdpageSource(allSource.FACEBOOK);
+    setIsLogining(true);
+    window.location.href = YDPAGE_URL + 'auth/facebook';
   };
 
   function setYdpagePath(path: any) {
@@ -42,6 +45,7 @@ const YDpage: React.FC = () => {
     switch (cmd) {
       case 'save_route_path':
         setYdpagePath(route.path);
+        setLoadingYdpage(false);
         break;
       case 'hide_sidebar_menu':
         const settingApp = JSON.parse(localStorage.setting_app || '{}');
@@ -49,6 +53,9 @@ const YDpage: React.FC = () => {
           const toggleSideBtn: HTMLElement | null = document.querySelector('header button');
           toggleSideBtn?.click();
         }
+        break;
+      case 'ydpage_loaded':
+        setLoadingYdpage(false);
         break;
       default:
         break;
@@ -59,6 +66,8 @@ const YDpage: React.FC = () => {
   const fbCode = queryString.get("code");
 
   const [source, setSource] = useState<String | null>(getYdpageSource());
+  const [loadingYdpage, setLoadingYdpage] = useState<Boolean | null>(false);
+  const [isLogining, setIsLogining] = useState<Boolean | null>(false);
 
   useEffect(() => {
     const iframe: HTMLIFrameElement | null = document.querySelector('[name="ydpage-callback-iframe"]');
@@ -67,6 +76,10 @@ const YDpage: React.FC = () => {
       url.searchParams.delete('code');
       window.history.pushState({}, '', url.toString());
     });
+
+    if (!iframe && source) {
+      setLoadingYdpage(true);
+    }
   }, [source]);
 
   return (
@@ -121,7 +134,10 @@ const YDpage: React.FC = () => {
           </div>
         </ContentContainer>
       )}
-      {source === allSource.FACEBOOK && !fbCode && (
+      {loadingYdpage && (
+        <SplashScreen />
+      )}
+      {source === allSource.FACEBOOK && !fbCode && !isLogining && (
         <iframe
           className="ydpage-iframe"
           title="ydpage"
@@ -129,7 +145,7 @@ const YDpage: React.FC = () => {
           style={{ width: "100%", height: "100%" }}
         ></iframe>
       )}
-      {source === allSource.FACEBOOK && fbCode && (
+      {source === allSource.FACEBOOK && fbCode && !isLogining && (
         <iframe
           name="ydpage-callback-iframe"
           className="ydpage-iframe"

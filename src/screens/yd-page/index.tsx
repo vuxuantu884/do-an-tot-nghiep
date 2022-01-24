@@ -28,6 +28,7 @@ import { showError } from "utils/ToastUtils";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { BillingAddress, ShippingAddress } from "model/request/order.request";
 import { LoyaltyCardSearch } from "../../domain/actions/loyalty/card/loyalty-card.action";
+import { YDpageCustomerRequest } from "model/request/customer.request";
 
 const { TabPane } = Tabs;
 
@@ -38,11 +39,25 @@ const initQueryCustomer: FpageCustomerSearchQuery = {
   phone: null,
 };
 
+const initCustomerInfo: YDpageCustomerRequest = {
+  full_name: null,
+  phone: null,
+  birthday: "",
+  email: null,
+  gender: null,
+  city_id: null,
+  district_id: null,
+  ward_id: null,
+  full_address: null,
+  card_number: null
+};
+
 function YDPageCRM() {
   let queryString = useQuery();
   const dispatch = useDispatch();
   const [activeTabKey, setActiveTabKey] = React.useState<string>("1");
   const [customer, setCustomer] = React.useState<CustomerResponse | null>(null);
+  const [newCustomerInfo, setNewCustomerInfo] = React.useState<YDpageCustomerRequest>(initCustomerInfo);
   const [isClearOrderTab, setIsClearOrderTab] = React.useState<boolean>(false);
   const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
@@ -109,6 +124,9 @@ function YDPageCRM() {
       const { default_phone, phones } = YDPageCustomerInfo;
       if (default_phone) {
         setCustomerPhone(default_phone);
+      }
+      else if(phones && phones.length > 0) {
+        setCustomerPhone(phones[0]);
       }
       setCustomerPhones(phones);
     }
@@ -217,6 +235,7 @@ function YDPageCRM() {
     dispatch(getCustomerDetailAction(id, searchByPhoneCallback));
   }, [dispatch, searchByPhoneCallback])
 
+
   return (
     <div className="yd-page-customer-relationship">
       <Tabs
@@ -231,6 +250,8 @@ function YDPageCRM() {
           <YDPageCustomer
             customer={customer}
             setCustomer={setCustomer}
+            newCustomerInfo={newCustomerInfo}
+            setNewCustomerInfo={setNewCustomerInfo}
             getCustomerWhenPhoneChange={getCustomerWhenChoicePhone}
             orderHistory={orderHistory}
             metaData={metaData}
@@ -244,6 +265,7 @@ function YDPageCRM() {
             deleteFpPhone={deleteFpPhone}
             setFpDefaultPhone={setFpDefaultPhone}
             loyaltyCard={loyaltyCard}
+            setDistrictIdProps={setDistrictId}
           />
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>} forceRender={!isClearOrderTab}>
@@ -254,6 +276,7 @@ function YDPageCRM() {
             defaultSourceId={defaultSourceId}
             defaultStoreId={defaultStoreId}
             customer={customer}
+            newCustomerInfo={newCustomerInfo}
             userId={userId}
             setCustomer={setCustomer}
             setActiveTabKey={setActiveTabKey}

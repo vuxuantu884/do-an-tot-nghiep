@@ -38,7 +38,7 @@ function* getDiscounts(action: YodyAction) {
 		}
   } catch (error) {
     setData(null);
-    showError("Có lỗi khi lấy thông tin khuyến mại đơn hàn. Vui lòng thử lại sau!");
+    showError("Có lỗi khi lấy thông tin khuyến mại đơn hàng. Vui lòng thử lại sau!");
   }
 }
 

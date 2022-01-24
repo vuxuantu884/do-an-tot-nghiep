@@ -62,7 +62,7 @@ function CardReturnMoney(props: PropType) {
                   </Col>
                   <Col md={8} style={{ textAlign: "center" }}>
                     <strong className="po-payment-row-title">
-                      {formatCurrency(single.amount)}
+                      {formatCurrency(single.return_amount)}
                     </strong>
                   </Col>
                   <Col md={8} style={{ textAlign: "right" }}>

@@ -3,7 +3,8 @@ import { Steps } from "antd";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import { useEffect, useMemo, useState } from "react";
-import { FulFillmentStatus, OrderStatus, POS } from "utils/Constants";
+import { isOrderFromPOS } from "utils/AppUtils";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 // import { FulFillmentStatus } from "utils/Constants";
 import "./create-bill-step.scss";
@@ -22,8 +23,26 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     return orderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
   }, [orderDetail?.fulfillments])
 
+	const renderStepFinalizedDescription = () => {
+		if(!orderDetail) {
+			return null;
+		}
+    if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
+      return moment(orderDetail.finished_on).format(formatDate);
+    }
+    let result = undefined;
+    if (props.orderDetail &&
+			props.orderDetail.finalized_on) {
+      result = moment(props.orderDetail.finalized_on).format(formatDate);
+    }
+    return result;
+  };
+
   const renderStepPackedDescription = () => {
-    if(orderDetail?.source_id === POS.source_id && orderDetail.finished_on) {
+		if(!orderDetail) {
+			return null;
+		}
+    if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
     let result = undefined;
@@ -40,7 +59,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   const renderStepShippingDescription = () => {
-    if(orderDetail?.source_id === POS.source_id && orderDetail.finished_on) {
+		if(!orderDetail) {
+			return null;
+		}
+    if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
     let result = undefined;
@@ -57,7 +79,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   };
 
   const renderStepFinishDescription = () => {
-    if(orderDetail?.source_id === POS.source_id && orderDetail.finished_on) {
+		if(!orderDetail) {
+			return null;
+		}
+    if(isOrderFromPOS(orderDetail) && orderDetail?.finished_on) {
       return moment(orderDetail.finished_on).format(formatDate);
     }
     if (fulfillments && fulfillments?.length > 0 &&  fulfillments[0].shipped_on) {
@@ -117,16 +142,12 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       <Steps.Step
         title="Đặt hàng"
         description={
-          orderDetail ? moment(props.orderDetail?.created_date).format(formatDate) : null
+          orderDetail ? moment(props.orderDetail?.created_on || props.orderDetail?.created_date).format(formatDate) : null
         }
       />
       <Steps.Step
         title="Xác nhận"
-        description={
-          props.orderDetail &&
-          props.orderDetail.finalized_on &&
-          moment(props.orderDetail.finalized_on).format(formatDate)
-        }
+        description={renderStepFinalizedDescription()}
         className={
           props.status === 'draff'
           ? "inactive"

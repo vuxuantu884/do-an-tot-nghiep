@@ -134,4 +134,37 @@ export const DashboardContainer = styled.div`
       }
     }
   }
+
+  .table-income{
+    .ant-table-tbody{
+      tr{
+        td{
+          border-bottom: 1px solid #fff;
+        }
+      }
+      .ant-table-cell{
+        padding : 0 !important;
+      }
+      .name-row{
+        padding : 12px;
+        background-color: #F5F5FF;     
+    }
+    .value-row{
+      padding : 12px;
+      position: relative;
+      opacity: 0.9; 
+    }
+    .process-bg{
+      background-color: #D7D7FF;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;  
+    }
+    }
+    
+     
+  }
 `;

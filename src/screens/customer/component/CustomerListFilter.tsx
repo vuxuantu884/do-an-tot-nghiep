@@ -1,58 +1,58 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
-  Dropdown,
-  Menu,
-  Form,
-  Input,
-  Select,
-  Tag,
+  Dropdown, Form,
+  Input, Menu, Select,
+  Tag
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
-
-import moment from "moment";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
-import {
-  formatCurrency,
-  generateQuery,
-  isNullOrUndefined,
-  replaceFormatString,
-} from "utils/AppUtils";
-import { RegUtil } from "utils/RegUtils";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { VietNamId } from "utils/Constants";
-import { showError } from "utils/ToastUtils";
-import BaseFilter from "component/filter/base.filter";
-import SelectDateFilter from "component/filter/SelectDateFilter";
-import CustomNumberInput from "component/custom/customNumberInput";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { ChannelResponse } from "model/response/product/channel.response";
-import { ProvinceModel } from "model/content/district.model";
-import {
-  CityByCountryAction,
-  DistrictByCityAction,
-  WardGetByDistrictAction,
-} from "domain/actions/content/content.action";
-
 import filterIcon from "assets/icon/filter.svg";
 import rightArrow from "assets/icon/right-arrow.svg";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
+import CustomNumberInput from "component/custom/customNumberInput";
+import BaseFilter from "component/filter/base.filter";
+import SelectDateFilter from "component/filter/SelectDateFilter";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { departmentDetailAction } from "domain/actions/account/department.action";
+import {
+  CityByCountryAction,
+  DistrictByCityAction,
+  WardGetByDistrictAction
+} from "domain/actions/content/content.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import {
+  AccountResponse,
+  AccountSearchQuery
+} from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { ProvinceModel } from "model/content/district.model";
+import { StoreResponse } from "model/core/store.model";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { SourceResponse } from "model/response/order/source.response";
+import { ChannelResponse } from "model/response/product/channel.response";
+import moment from "moment";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   StyledCustomerBaseFilter,
-  StyledCustomerFilter,
+  StyledCustomerFilter
 } from "screens/customer/customerStyled";
-import { SourceResponse } from "model/response/order/source.response";
+import { getSourcesWithParamsService } from "service/order/order.service";
+import {
+  formatCurrency,
+  generateQuery,
+  handleDelayActionWhenInsertTextInSearchInput,
+  isNullOrUndefined,
+  replaceFormatString,
+  sortSources
+} from "utils/AppUtils";
+import { VietNamId } from "utils/Constants";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { RegUtil } from "utils/RegUtils";
+import { showError } from "utils/ToastUtils";
 
 type CustomerListFilterProps = {
   isLoading?: boolean;
@@ -67,7 +67,6 @@ type CustomerListFilterProps = {
   loyaltyUsageRules?: any;
   listStore?: Array<StoreResponse>;
   listChannel?: Array<ChannelResponse>;
-  listSource?: Array<SourceResponse>;
 };
 
 const { Option } = Select;
@@ -103,7 +102,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     loyaltyUsageRules,
     listStore,
     listChannel,
-    listSource,
   } = props;
 
   const dispatch = useDispatch();
@@ -120,6 +118,56 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const [resultSearch, setResultSearch] = React.useState<
     PageResponse<AccountResponse> | false
   >(false);
+
+  //---Handle Source---\\
+  
+  const sourceInputRef = useRef()
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
+  const [allSources, setAllSources] = useState<Array<SourceResponse>>([]);
+  const [departmentIds, setDepartmentIds] = useState<number[]|null>(null);
+
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
+
+  useEffect(() => {
+		dispatch(getListSourceRequest((response) => {
+			setAllSources(response)
+		}));
+  }, [dispatch]);
+
+  useEffect(() => {
+    let departmentId = userReducer.account?.account_jobs[0]?.department_id;
+    if (departmentId) {
+      let department: number[] = [];
+      department.push(departmentId);
+      dispatch(
+        departmentDetailAction(departmentId, (response) => {
+          if (response && response.parent_id) {
+            department.push(response.parent_id);
+            setDepartmentIds(department);
+          }
+        })
+      );
+    }
+  }, [dispatch, userReducer.account?.account_jobs]);
+
+  const getOrderSources = useCallback(async() => {
+		let result:SourceResponse[]  = []
+		result= await sortSources(allSources, departmentIds)
+		return result
+	}, [allSources, departmentIds]);
+
+  useEffect(() => {
+		getOrderSources().then((response) => {
+			const sortedSources =  response;
+			setInitListSource(sortedSources)
+			setListSource(sortedSources)
+		});
+  }, [getOrderSources]);
+
+  //---End Handle Source---\\
 
   const initQueryAccount: AccountSearchQuery = useMemo(
     () => ({
@@ -1126,8 +1174,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     }
 
     return list;
-  }, [
-    initialValues.gender,
+  }, [initialValues.gender,
     initialValues.customer_group_ids,
     initialValues.customer_level_ids,
     initialValues.responsible_staff_codes,
@@ -1136,18 +1183,17 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     initialValues.store_ids,
     initialValues.day_of_birth_from,
     initialValues.day_of_birth_to,
-    initialValues.year_of_birth_from,
-    initialValues.year_of_birth_to,
     initialValues.month_of_birth_from,
     initialValues.month_of_birth_to,
+    initialValues.year_of_birth_from,
+    initialValues.year_of_birth_to,
+    initialValues.channel_ids,
+    initialValues.source_ids,
     initialValues.age_from,
     initialValues.age_to,
     initialValues.city_ids,
     initialValues.district_ids,
     initialValues.ward_ids,
-    districtsList,
-    provincesList,
-    wardsList,
     initialValues.total_finished_order_from,
     initialValues.total_finished_order_to,
     initialValues.total_paid_amount_from,
@@ -1168,8 +1214,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     initialValues.first_order_time_to,
     initialValues.last_order_time_from,
     initialValues.last_order_time_to,
-    initialValues.channel_ids,
-    initialValues.source_ids,
     initialValues.point_from,
     initialValues.point_to,
     LIST_GENDER,
@@ -1180,6 +1224,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     listStore,
     listChannel,
     listSource,
+    provincesList,
+    districtsList, wardsList
   ]);
 
   // close tag filter
@@ -1638,6 +1684,23 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     }
   };
 
+  const handleSearchOrderSources = useCallback((value:string) => {
+		if(value.length > 1) {
+		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
+			 let query = {
+					name: value
+			 }
+			 getSourcesWithParamsService(query).then((response) => {
+				 setListSource(response.data.items)
+			 }).catch((error) => {
+				 console.log('error', error)
+			 })
+		 })
+		} else {
+			setListSource(initListSource)
+		}
+	}, [initListSource]);
+
   return (
     <StyledCustomerFilter>
       <Form
@@ -1848,11 +1911,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 <Form.Item
                   name="source_ids"
                   label={<b>Nguồn mua hàng</b>}
-                  className="left-filter">
+                  className="center-filter">
                   <Select
                     mode="multiple"
                     maxTagCount="responsive"
                     showSearch
+                    onSearch={handleSearchOrderSources}
                     showArrow
                     allowClear
                     placeholder="Chọn nguồn"

@@ -39,4 +39,21 @@ export const globalCssLayoutOutsideComponent = css`
 			}
 		}
 	}
+
+  .yody-modal-price-product .ant-modal-header{
+    padding: 16px 20px 0px 20px;
+  }
+
+  .yody-modal-price-product .ant-modal-body{
+    padding: 5px 20px;
+  }
+  .yody-table-product-search .ant-image-mask-info{
+    font-size: 10px;
+  }
+  .yody-text-ellipsis{
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
