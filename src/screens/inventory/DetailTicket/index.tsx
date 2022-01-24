@@ -914,6 +914,7 @@ const DetailTicket: FC = () => {
                       data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&
                         <AuthWrapper 
                           acceptPermissions={[ShipmentInventoryTransferPermission.create]}
+                          acceptStoreIds={[data.from_store_id]}
                         >
                           <Button
                             className={"choses-shipper-button"}
@@ -978,6 +979,7 @@ const DetailTicket: FC = () => {
                         <div className="inventory-transfer-action">
                           <AuthWrapper 
                             acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
+                            acceptStoreIds={[data.from_store_id]}
                           >
                             <Button
                               type="default"
@@ -991,6 +993,7 @@ const DetailTicket: FC = () => {
                             data.status ===  STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
                               <AuthWrapper 
                                 acceptPermissions={[ShipmentInventoryTransferPermission.export]}
+                                acceptStoreIds={[data.from_store_id]}
                               >
                                 <Button
                                   className="export-button"
@@ -1166,6 +1169,7 @@ const DetailTicket: FC = () => {
                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && 
                     <AuthWrapper 
                       acceptPermissions={[InventoryTransferPermission.update]}
+                      acceptStoreIds={[data.from_store_id]}
                     >
                       <Button
                         onClick={() => {
