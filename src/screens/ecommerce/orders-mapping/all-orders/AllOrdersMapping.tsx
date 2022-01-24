@@ -16,7 +16,7 @@ import { OrderModel } from "model/order/order.model";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import TableRowAction from "screens/ecommerce/common/TableRowAction";
 import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
@@ -25,6 +25,7 @@ import { getIconByEcommerceId } from "screens/ecommerce/common/commonAction";
 import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/component/AllOrdersMappingFilter";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { generateQuery } from "utils/AppUtils";
 
 const initQuery: GetOrdersMappingQuery = {
   page: 1,
@@ -91,6 +92,8 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     },
     items: [],
   });
+
+  const history = useHistory()
 
   const convertDateTimeFormat = (dateTimeData: any) => {
     const formatDateTime = "HH:mm:ss DD/MM/YYYY";
@@ -258,8 +261,11 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     (values) => {
       const filterParams = { ...params, ...values, page: 1 };
       setPrams(filterParams);
+     const newParams = generateQuery(filterParams);
+     history.push(`?${newParams}`);
+
     },
-    [params]
+    [history, params]
   );
 
   const onClearFilter = useCallback(() => {
