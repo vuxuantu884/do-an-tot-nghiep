@@ -880,6 +880,7 @@ const DetailTicket: FC = () => {
                           <div className="inventory-transfer-action">
                             <AuthWrapper 
                               acceptPermissions={[InventoryTransferPermission.receive]}
+                              acceptStoreIds={[data.from_store_id]}
                             >
                               <Button
                                 type="default"
