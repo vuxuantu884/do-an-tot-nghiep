@@ -36,7 +36,6 @@ import { useDispatch } from "react-redux";
 import {
   creatInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
-  inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
@@ -61,13 +60,19 @@ import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { Link } from "react-router-dom";
-import { InventoryResponse } from "model/inventory"; 
+import { InventoryResponse } from "model/inventory";  
+import { callApiNative } from "utils/ApiUtils";
+import { getAccountDetail } from "service/accounts/account.service";
+import { getStoreApi } from "service/inventory/transfer/index.service";import {
+  AccountStoreResponse
+} from "model/account/account.model";
 
 const { Option } = Select;
 
 const VARIANTS_FIELD = "line_items";
 
-const CreateTicket: FC = () => {
+const CreateTicket: FC = () => { 
+  const [fromStores,setFromStores] = useState<Array<AccountStoreResponse>>();
   const [form] = Form.useForm();
   const [quantityInput, setQuantityInput] = useState<any>({});
   const [dataTable, setDataTable] = useState<Array<VariantResponse> | any>(
@@ -77,7 +82,7 @@ const CreateTicket: FC = () => {
   const history = useHistory();
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
+  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>); 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
 
@@ -132,15 +137,26 @@ const CreateTicket: FC = () => {
 
   const dispatch = useDispatch();
 
+  const getMe = useCallback(async ()=>{
+    const res = await callApiNative({isShowLoading: false},dispatch,getAccountDetail);
+    if (res && res.account_stores) { 
+      setFromStores(res.account_stores);
+    }
+  },[dispatch]);
+
+  const getStores = useCallback(async ()=>{
+    const res = await callApiNative({isShowLoading: false},dispatch,getStoreApi,{ status: "active", simple: true });
+    if (res) {
+      setStores(res);
+    }
+  },[dispatch]);
+
   // get store
   useEffect(() => {
-    dispatch(
-      inventoryGetSenderStoreAction(
-        { status: "active", simple: true },
-        setStores
-      )
-    );
-  }, [dispatch]);
+    getStores();
+    getMe();
+
+  }, [dispatch, getMe, getStores]);
 
   // validate
   const validateStore = useCallback((rule: any, value: any, callback: any): void => {
@@ -674,14 +690,13 @@ const CreateTicket: FC = () => {
                           });
                         }}
                       >
-                        {Array.isArray(stores) &&
-                          stores.length > 0 &&
-                          stores.map((item, index) => (
+                        {fromStores &&
+                          fromStores.map((item, index) => (
                             <Option
                               key={"from_store_id" + index}
-                              value={item.id.toString()}
+                              value={item.store?.toString() ?? ""}
                             >
-                              {item.name}
+                              {item.store}
                             </Option>
                           ))}
                       </Select>
