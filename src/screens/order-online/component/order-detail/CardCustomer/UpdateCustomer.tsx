@@ -25,7 +25,7 @@ import {
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
-  CustomerUpdateAction,
+  CustomerUpdateAction, getCustomerDetailAction,
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import { CustomerModel, CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
@@ -50,6 +50,8 @@ type UpdateCustomerProps = {
   customerItem: any;
   shippingAddress: ShippingAddress | any;
   levelOrder?: number;
+  shippingAddressesSecondPhone?:string;
+  setShippingAddressesSecondPhone?:(value:string)=>void;
   setSingleShippingAddress: (item: CustomerShippingAddress | null) => void;
   ShippingAddressChange: (items: any) => void;
   ShowAddressModalEdit: () => void;
@@ -67,11 +69,14 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     customerItem,
     shippingAddress,
     levelOrder = 0,
+    shippingAddressesSecondPhone,
     setSingleShippingAddress,
     ShippingAddressChange,
     ShowAddressModalEdit,
     showAddressModalDelete,
     ShowAddressModalAdd,
+    setShippingAddressesSecondPhone,
+
   } = props;
 
   const dispatch = useDispatch();
@@ -167,6 +172,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         shipping_addresses_phone: shippingAddress?.phone || "",
         shipping_addresses_ward_id: shippingAddress?.ward_id,
         shipping_addresses_full_address: shippingAddress?.full_address,
+        shipping_addresses_second_phone: shippingAddressesSecondPhone
       }
       : {
         shipping_addresses__card_number: "",
@@ -259,7 +265,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           full_address: value.full_address,
           gender: value.gender,
           birthday: value.birthday,
-          customer_group_id: value.customer_group_id,
+          customer_group_id: value.customer_group_id
         }
       }
       else {
@@ -283,7 +289,19 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           setVisibleBtnUpdate(false);
           handleChangeCustomer(datas);
         }
-        console.log(datas)
+        else{
+          dispatch(
+            getCustomerDetailAction(
+              customerItem.id,
+              (data_i: CustomerResponse | null) => {
+                if (data_i) {
+                  handleChangeCustomer(data_i);
+                }
+              }
+            )
+          );
+        }
+
       }));
     },
     [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer,shippingWards,wards]
@@ -398,7 +416,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 ]}
                 name="shipping_addresses_phone"
                 required={false}
-              //label="Số điện thoại"
               >
                 <Input
                   placeholder="Nhập số điện thoại"
@@ -447,13 +464,19 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
             <Col xs={24} lg={12}>
               <Form.Item
-                name="shipping_addresses_card_number"
+                name="shipping_addresses_second_phone"
                 style={customerItem !== null ? { marginBottom: "0px" } : {}}
               >
                 <Input
-                  placeholder="Nhập mã thẻ"
-                  prefix={<BarcodeOutlined style={{ color: "#71767B" }} />}
+                  placeholder="Nhập số điện thoại phụ"
+                  prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                   disabled={disableInput}
+                  value={shippingAddressesSecondPhone}
+                  onChange={(value)=>{
+                    if(setShippingAddressesSecondPhone)
+                      setShippingAddressesSecondPhone(value.target.value);
+                    //ShippingAddressChange({...shippingAddress,second_phone:value.target.value})
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -554,7 +577,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 {isVisibleCollapseCustomer === true && (
                   <Divider orientation="right" style={{ color: "#5656A1", marginTop: 0 }}>
                     <Popover
-                      placement="topLeft"
+                      placement="left"
                       overlayStyle={{ zIndex: 17 }}
                       title={
                         <Row

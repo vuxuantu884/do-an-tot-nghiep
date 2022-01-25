@@ -359,7 +359,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </Row>
             <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">Mã giảm giá:</Space>
-              <div className="font-weight-500 " style={{color: successColor}}>{OrderDetail?.discounts && OrderDetail?.discounts[0]?.discount_code ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code) : "-"}</div>
+              <div className="font-weight-500 " style={{color: successColor, textTransform: "uppercase"}}>{OrderDetail?.discounts && OrderDetail?.discounts[0]?.discount_code ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code) : "-"}</div>
             </Row>
 
             <Row className="payment-row" justify="space-between">

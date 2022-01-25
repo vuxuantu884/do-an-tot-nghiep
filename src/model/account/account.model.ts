@@ -66,6 +66,7 @@ export interface AccountPublicSearchQuery extends BaseQuery {
   department_ids?: Array<number>;
   position_ids?: number;
   store_ids?: Array<number>;
+  codes?: Array<string>;
 }
 
 export interface AccountJobResponse {

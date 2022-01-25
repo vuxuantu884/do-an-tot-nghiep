@@ -122,6 +122,7 @@ export default function Order(props: PropType) {
 	let { id } = useParams<OrderParam>();
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone]= useState<string>();
 	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
 	const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
 	const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
@@ -703,7 +704,11 @@ ShippingServiceConfigDetailResponseModel[]
 		values.tags = tags;
 		values.items = items.concat(itemGifts);
 		values.discounts = lstDiscount;
-		values.shipping_address = shippingAddress;
+		let _shippingAddressRequest:any={
+			...shippingAddress,
+			second_phone:shippingAddressesSecondPhone
+		}
+		values.shipping_address = _shippingAddressRequest;
 		values.billing_address = billingAddress;
 		values.customer_id = customer?.id;
 		values.customer_ward = customer?.ward;
@@ -903,8 +908,6 @@ ShippingServiceConfigDetailResponseModel[]
 			cauHinhInNhieuLienHoaDon: 3,
 		});
 	}, []);
-
-	console.log('OrderDetail', OrderDetail)
 
 	const fetchData = () => {
 		dispatch(
@@ -1208,6 +1211,10 @@ ShippingServiceConfigDetailResponseModel[]
 		);
 	}, [dispatch]);
 
+	useEffect(()=>{
+		setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone||'');
+	},[OrderDetail?.shipping_address]);
+
 	return (
 		<React.Fragment>
 			<ContentContainer
@@ -1278,6 +1285,8 @@ ShippingServiceConfigDetailResponseModel[]
 										setOrderSourceId={setOrderSourceId}
 										isDisableSelectSource={isDisableSelectSource}
 										OrderDetail={OrderDetail}
+										shippingAddressesSecondPhone={shippingAddressesSecondPhone}
+										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
 									/>
 									{/* <CardProduct
                     orderId={id}

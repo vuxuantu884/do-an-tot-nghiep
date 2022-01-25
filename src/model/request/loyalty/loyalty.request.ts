@@ -1,6 +1,7 @@
 import { BaseQuery } from "model/base/base.query";
 
 export interface PointAdjustmentListRequest extends BaseQuery {
+  term: string | null;
   id: string | null;
   reasons: Array<string> | [];
 }
