@@ -139,6 +139,7 @@ function CardProductBottom(props: PropType) {
                     margin: 0,
                     color: "#E24343",
                     backgroundColor: "#F5F5F5",
+                    textTransform: "uppercase"
                   }}
                   className="orders-tag orders-tag-danger"
                   closable
