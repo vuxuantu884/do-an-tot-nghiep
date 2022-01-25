@@ -193,8 +193,7 @@ function YDPageCRM() {
       }
     } else {
       setCustomer(null);
-      setLoyaltyCard(null)
-      setVisibleCustomer(false)
+      setLoyaltyCard(null);
     }
   }, [])
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
