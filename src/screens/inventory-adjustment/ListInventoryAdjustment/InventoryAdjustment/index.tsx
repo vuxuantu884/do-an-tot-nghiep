@@ -440,7 +440,6 @@ const InventoryAdjustment: React.FC = () => {
     (index: number) => {
       switch (index) {
         case ACTIONS_INDEX.PRINT:
-          debugger
           printTicketAction(index);
           break;
         case ACTIONS_INDEX.EXPORT:
