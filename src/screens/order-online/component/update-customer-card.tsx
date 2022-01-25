@@ -1,4 +1,5 @@
 //#region Import
+import { PhoneOutlined } from "@ant-design/icons";
 import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
@@ -11,7 +12,6 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import { Link } from "react-router-dom";
-import OrderDetail from "../order-detail";
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -156,9 +156,16 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                   className="font-weight-500 customer-info-left"
                 >
                   <div className="title-address">
-                    <img
+                    {/* <img
                       src={addressIcon}
                       alt=""
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        marginRight: "10px",
+                      }}
+                    /> */}
+                    <PhoneOutlined
                       style={{
                         width: "24px",
                         height: "24px",
