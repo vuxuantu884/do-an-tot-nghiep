@@ -193,6 +193,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isShowSelectOrderSources, setIsShowSelectOrderSources] = useState(false)
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+  const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone]= useState<string>();
   // const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
 ShippingServiceConfigDetailResponseModel[]
@@ -792,7 +793,11 @@ ShippingServiceConfigDetailResponseModel[]
     values.tags = tags;
     values.items = listExchangeProducts;
     values.discounts = lstDiscount;
-    values.shipping_address = shippingAddress;
+    let _shippingAddressRequest:any={
+			...shippingAddress,
+			second_phone:shippingAddressesSecondPhone
+		}
+		values.shipping_address = _shippingAddressRequest;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
@@ -1108,6 +1113,8 @@ ShippingServiceConfigDetailResponseModel[]
                     modalAction={"edit"}
                     levelOrder={3}
                     OrderDetail={OrderDetail}
+                    shippingAddressesSecondPhone={shippingAddressesSecondPhone}
+										setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
                   />
@@ -1276,6 +1283,7 @@ ShippingServiceConfigDetailResponseModel[]
   useEffect(() => {
     if (OrderDetail != null) {
       dispatch(getCustomerDetailAction(OrderDetail?.customer_id, setCustomer));
+      setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone||'');
     }
   }, [dispatch, OrderDetail]);
 
@@ -1285,7 +1293,8 @@ ShippingServiceConfigDetailResponseModel[]
       console.log("customer check", customer)
       if (customer.shipping_addresses) {
         let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
-        onChangeShippingAddress(shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null);
+        let shipping_addresses=shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null
+        onChangeShippingAddress(shipping_addresses);
       }
       else
         onChangeShippingAddress(null)
