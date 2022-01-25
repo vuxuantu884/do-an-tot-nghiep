@@ -1,4 +1,4 @@
-import { Col, Form, Modal, Row, Table } from "antd";
+import { Col, Modal, Row, Table } from "antd";
 import {
   POProcumentLineItemField,
   PurchaseProcument,
@@ -9,7 +9,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { POUtils } from "utils/POUtils";
 import { Moment } from "moment";
 
-import { Fragment, useCallback } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils"; 
 import RowDetail from "component/custom/RowDetail";
@@ -23,10 +23,9 @@ type ProducmentInventoryModalProps = {
   onCancel: () => void;
   listProcurement: Array<PurchaseProcument> | undefined;
   defaultStore: number;
-  onOk: (value: PurchaseProcument) => void;
+  onOk: (value: Array<PurchaseProcumentLineItem>) => void;
   loading: boolean;
-  procumentCode: string;
-  line_items: Array<PurchaseProcumentLineItem>;
+  procumentCode: string; 
   title: string
 };
 
@@ -34,22 +33,30 @@ const ProducmentInventoryMultiModal: React.FC<ProducmentInventoryModalProps> = (
   props: ProducmentInventoryModalProps
 ) => {
   const {
-    visible, 
-    line_items,
+    visible,  
     title,
     onCancel,
     onOk,
     listProcurement
-  } = props;   
-  
-  const [form] = Form.useForm();
+  } = props; 
+
+  const [dataTable, setDataTable] = useState<Array<PurchaseProcumentLineItem>>([]); 
 
   const onQuantityChange = useCallback(
-    (quantity, index: number) => {
-      
+    (quantity, index: number, item: PurchaseProcumentLineItem) => {
+      let cusData = [...dataTable];
+      cusData.forEach((e)=>{
+        if (e.sku=== item.sku) 
+          e.real_quantity = quantity;
+      });
+      setDataTable(cusData);
     },
-    []
-  );
+    [dataTable]
+  ); 
+
+  const okModal  = useCallback(()=>{
+    onOk(dataTable);
+  },[dataTable, onOk]);
 
   if (visible) {  
     return ( 
@@ -59,21 +66,18 @@ const ProducmentInventoryMultiModal: React.FC<ProducmentInventoryModalProps> = (
         centered
         title={title}
         onCancel={onCancel}
-        onOk={()=>{
-          onOk(form.getFieldsValue())
-        }}
+        onOk={okModal}
         okText="Xác nhận nhập"
       >
-        <Form form={form}>
-          <Row gutter={50}>
+         <Row gutter={50}>
               <Col span={12}>
                 <RowDetail title="Ngày nhận dự kiến" value={listProcurement ? ConvertUtcToLocalDate(listProcurement[0].expect_receipt_date ?? "", DATE_FORMAT.DDMMYYY): ""} ></RowDetail>
               </Col>
               <Col span={12}>
                 <RowDetail title="Kho nhận hàng" value={listProcurement ? listProcurement[0].store ?? "" : ""} ></RowDetail>
               </Col> 
-          </Row>
-          <Row gutter={50}>
+         </Row>
+         <Row gutter={50}>
               <Col span={12}>
                 <RowDetail title="Nhà cung cấp" value={listProcurement ? listProcurement[0].purchase_order.supplier : ""} ></RowDetail>
               </Col>
@@ -84,138 +88,137 @@ const ProducmentInventoryMultiModal: React.FC<ProducmentInventoryModalProps> = (
                   <div className="row-detail-right data">{listProcurement ? listProcurement[0].purchase_order.phone : ""}</div>
                 </div>
               </Col> 
-          </Row>
-        </Form>
+         </Row>
          <Table
           className="product-table"
-         rowKey={(record: PurchaseProcumentLineItem) =>
-           record.line_item_id
-         }
-         rowClassName="product-table-row"
-         dataSource={line_items}
-         tableLayout="fixed"
-         scroll={{ y: 250, x: 845 }}
-         pagination={false}
-         columns={[
-           {
-             title: "STT",
-             align: "center",
-             width: 60,
-             render: (value, record, index) => index + 1,
-           },
-           {
-             title: "Ảnh",
-             width: 60,
-             dataIndex: POProcumentLineItemField.variant_image,
-             render: (value) => (
-               <div className="product-item-image">
-                 <img
-                   src={value === null ? imgDefIcon : value}
-                   alt=""
-                   className=""
-                 />
-               </div>
-             ),
-           },
-           {
-             title: "Sản phẩm",
-             width: "99%",
-             className: "ant-col-info",
-             dataIndex: POProcumentLineItemField.variant,
-             render: (
-               value: string,
-               item: PurchaseProcumentLineItem,
-               index: number
-             ) => (
-               <div>
-                 <div>
-                   <div className="product-item-sku">{item.sku}</div>
-                   <div className="product-item-name">
-                     <span className="product-item-name-detail">
-                       {value}
-                     </span>
-                   </div>
-                 </div>
-               </div>
-             ),
-           },
-           {
-             title: (
-               <div
-                 style={{
-                   width: "100%",
-                   textAlign: "right",
-                   flexDirection: "column",
-                   display: "flex",
-                 }}
-               >
-                 SL Đặt hàng
-                 <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
-                   ({formatCurrency(POUtils.totalOrderQuantityProcument(line_items),".")})
-                 </div>
-               </div>
-             ),
-             width: 130,
-             dataIndex: POProcumentLineItemField.ordered_quantity,
-             render: (value, item, index) => (
-               <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
-             ),
-           },
-           {
-             title: (
-               <div
-                 style={{
-                   width: "100%",
-                   textAlign: "right",
-                   flexDirection: "column",
-                   display: "flex",
-                 }}
-               >
-                 SL nhận được duyệt
-               </div>
-             ),
-             width: 130,
-             dataIndex: POProcumentLineItemField.quantity,
-             render: (value, item, index) => (
-               <div style={{ textAlign: "right" }}>{value}</div>
-             ),
-           },
-           {
-             title: (
-               <div
-                 style={{
-                   width: "100%",
-                   textAlign: "right",
-                   flexDirection: "column",
-                   display: "flex",
-                 }}
-               >
-                 SL thực nhận
-               </div>
-             ),
-             width: 150,
-             dataIndex: POProcumentLineItemField.real_quantity,
-             render: (value, item, index) => {
-               return (
-               <NumberInput
-                 placeholder="SL thực nhận"
-                 isFloat={false}
-                 value={value}
-                 min={0}
-                 // max={item.quantity}
-                 default={0}
-                 maxLength={8}
-                 onChange={(quantity: number | null) => {
-                   onQuantityChange(quantity, index);
-                 }}
-                 format={(a: string) => formatCurrency(a)}
-                 replace={(a: string) =>
-                  replaceFormatString(a)
-                }
-               />
-             )},
-           },
-         ]}
+          rowKey={(record: PurchaseProcumentLineItem) =>
+            record.line_item_id
+          }
+          rowClassName="product-table-row"
+          dataSource={dataTable}
+          tableLayout="fixed"
+          scroll={{ y: 400, x: 845 }}
+          pagination={false}
+          columns={[
+            {
+              title: "STT",
+              align: "center",
+              width: 60,
+              render: (value, record, index) => index + 1,
+            },
+            {
+              title: "Ảnh",
+              width: 60,
+              dataIndex: POProcumentLineItemField.variant_image,
+              render: (value) => (
+                <div className="product-item-image">
+                  <img
+                    src={value === null ? imgDefIcon : value}
+                    alt=""
+                    className=""
+                  />
+                </div>
+              ),
+            },
+            {
+              title: "Sản phẩm",
+              width: "99%",
+              className: "ant-col-info",
+              dataIndex: POProcumentLineItemField.variant,
+              render: (
+                value: string,
+                item: PurchaseProcumentLineItem,
+                index: number
+              ) => (
+                <div>
+                  <div>
+                    <div className="product-item-sku">{item.sku}</div>
+                    <div className="product-item-name">
+                      <span className="product-item-name-detail">
+                        {value}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: (
+                <div
+                  style={{
+                    width: "100%",
+                    textAlign: "right",
+                    flexDirection: "column",
+                    display: "flex",
+                  }}
+                >
+                  SL Đặt hàng
+                  <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
+                    ({formatCurrency(POUtils.totalOrderQuantityProcument(dataTable),".")})
+                  </div>
+                </div>
+              ),
+              width: 130,
+              dataIndex: POProcumentLineItemField.ordered_quantity,
+              render: (value, item, index) => (
+                <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
+              ),
+            },
+            {
+              title: (
+                <div
+                  style={{
+                    width: "100%",
+                    textAlign: "right",
+                    flexDirection: "column",
+                    display: "flex",
+                  }}
+                >
+                  SL nhận được duyệt
+                </div>
+              ),
+              width: 130,
+              dataIndex: POProcumentLineItemField.quantity,
+              render: (value, item, index) => (
+                <div style={{ textAlign: "right" }}>{value}</div>
+              ),
+            },
+            {
+              title: (
+                <div
+                  style={{
+                    width: "100%",
+                    textAlign: "right",
+                    flexDirection: "column",
+                    display: "flex",
+                  }}
+                >
+                  SL thực nhận
+                </div>
+              ),
+              width: 150,
+              dataIndex: POProcumentLineItemField.real_quantity,
+              render: (value, item, index) => {
+                return (
+                <NumberInput
+                  placeholder="SL thực nhận"
+                  isFloat={false}
+                  value={value}
+                  min={0}
+                  // max={item.quantity}
+                  default={0}
+                  maxLength={8}
+                  onChange={(quantity: number | null) => {
+                    onQuantityChange(quantity, index,item);
+                  }}
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) =>
+                    replaceFormatString(a)
+                  }
+                />
+              )},
+            },
+          ]}
          summary={(data) => {
            let ordered_quantity = 0;
            let quantity = 0;
