@@ -172,7 +172,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         shipping_addresses_phone: shippingAddress?.phone || "",
         shipping_addresses_ward_id: shippingAddress?.ward_id,
         shipping_addresses_full_address: shippingAddress?.full_address,
-        //shipping_addresses_second_phone: shippingAddress?.second_phone,
+        shipping_addresses_second_phone: shippingAddressesSecondPhone
       }
       : {
         shipping_addresses__card_number: "",
