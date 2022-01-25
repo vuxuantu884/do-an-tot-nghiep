@@ -424,7 +424,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   useEffect(() => {
     formFilter.setFieldsValue({
       ...params,
-      ecommerce_order_code: params.core_order_code,
+      ecommerce_order_code: params.ecommerce_order_code,
       core_order_code: params.core_order_code,
       connected_status: params.connected_status,
       created_date_from: params.created_date_from,
