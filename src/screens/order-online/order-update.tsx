@@ -1192,9 +1192,13 @@ ShippingServiceConfigDetailResponseModel[]
 	};
 
 	useEffect(() => {
-		if(OrderDetail?.fulfillments && OrderDetail?.fulfillments[0] )
-		setIsDisableSelectSource(true);
-	}, [OrderDetail?.fulfillments])
+		if(OrderDetail?.status === OrderStatus.DRAFT) {
+			return;
+		}
+		if(OrderDetail?.fulfillments && OrderDetail?.fulfillments[0] ) {
+			setIsDisableSelectSource(true);
+		}
+	}, [OrderDetail?.fulfillments, OrderDetail?.status])
 
 	useEffect(() => {
 		dispatch(
