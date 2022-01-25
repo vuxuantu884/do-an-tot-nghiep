@@ -25,7 +25,7 @@ import {
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
-  CustomerUpdateAction,
+  CustomerUpdateAction, getCustomerDetailAction,
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import { CustomerModel, CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
@@ -265,7 +265,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           full_address: value.full_address,
           gender: value.gender,
           birthday: value.birthday,
-          customer_group_id: value.customer_group_id,
+          customer_group_id: value.customer_group_id
         }
       }
       else {
@@ -289,7 +289,19 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           setVisibleBtnUpdate(false);
           handleChangeCustomer(datas);
         }
-        console.log(datas)
+        else{
+          dispatch(
+            getCustomerDetailAction(
+              customerItem.id,
+              (data_i: CustomerResponse | null) => {
+                if (data_i) {
+                  handleChangeCustomer(data_i);
+                }
+              }
+            )
+          );
+        }
+
       }));
     },
     [dispatch, handleChangeCustomer, customerItem, areas, shippingAddress, isVisibleCollapseCustomer,shippingWards,wards]
@@ -565,7 +577,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 {isVisibleCollapseCustomer === true && (
                   <Divider orientation="right" style={{ color: "#5656A1", marginTop: 0 }}>
                     <Popover
-                      placement="topLeft"
+                      placement="left"
                       overlayStyle={{ zIndex: 17 }}
                       title={
                         <Row
