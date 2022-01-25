@@ -1,4 +1,4 @@
-import { Form } from "antd";
+import { Form, SelectProps } from "antd";
 import { sizeSearchAction } from "domain/actions/product/size.action";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -10,22 +10,23 @@ import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
 import { SelectSearchProps } from "./color-select";
 
+const defaultSelectProps: SelectProps<any> = {
+  placeholder: "Chọn kích cỡ",
+  mode: undefined,
+  showArrow: true,
+  optionFilterProp: "children",
+  showSearch: true,
+  allowClear: true,
+  maxTagCount: "responsive",
+  notFoundContent: "Không có dữ liệu",
+};
+
 SizeSelect.defaultProps = {
   querySearch: {
     code: "",
-  }, 
-  key: "id", 
-  noFormItem: false,
-  selectProps: {
-    placeholder: "Chọn kích cỡ",
-    mode: undefined,
-    showArrow: true,
-    optionFilterProp: "children",
-    showSearch: true,
-    allowClear: true,
-    maxTagCount: "responsive",
-    notFoundContent: "Không có dữ liệu",
   },
+  key: "id",
+  noFormItem: false,
 };
 
 function SizeSelect({
@@ -120,6 +121,7 @@ function SizeSelect({
 
   const SelectContent = (
     <SelectPagingV2
+      {...defaultSelectProps}
       {...selectProps}
       metadata={data.metadata}
       loading={isSearching}
