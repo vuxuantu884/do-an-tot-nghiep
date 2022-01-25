@@ -1,9 +1,6 @@
-interface BaseRequest {
-  page?: number,
-  limit?: number,
-}
+import { BaseQuery } from "model/base/base.query";
 
-export interface PointAdjustmentListRequest extends BaseRequest {
+export interface PointAdjustmentListRequest extends BaseQuery {
   id: string | null;
   reasons: Array<string> | [];
 }
