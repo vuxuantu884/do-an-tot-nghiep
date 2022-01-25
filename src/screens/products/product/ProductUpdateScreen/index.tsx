@@ -1,4 +1,4 @@
-import {EditOutlined, InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import { EditOutlined, InfoCircleOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -14,76 +14,72 @@ import {
   Select,
   Space,
   Switch,
-  Upload,
+  Upload
 } from "antd";
-import {RcFile, UploadFile} from "antd/lib/upload/interface";
+import { RcFile, UploadFile } from "antd/lib/upload/interface";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import ColorSearchSelect from "component/custom/select-search/color-select";
 import SizeSearchSelect from "component/custom/select-search/size-search";
 import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
-import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
-import {AppConfig} from "config/app.config";
-import {ProductPermission} from "config/permissions/product.permission";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { AppConfig } from "config/app.config";
+import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import {CountryGetAllAction} from "domain/actions/content/content.action";
-import {SupplierGetAllAction} from "domain/actions/core/supplier.action";
-import {getCategoryRequestAction} from "domain/actions/product/category.action";
+import { CountryGetAllAction } from "domain/actions/content/content.action";
+import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
+import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import {
   detailMaterialAction,
-  materialSearchAll,
+  materialSearchAll
 } from "domain/actions/product/material.action";
 import {
   productGetDetail,
   productUpdateAction,
-  productUploadAction,
-} from "domain/actions/product/products.action"; 
+  productUploadAction
+} from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {CountryResponse} from "model/content/country.model";
-import {SupplierResponse} from "model/core/supplier.model";
-import {CategoryResponse, CategoryView} from "model/product/category.model";
-import { CollectionResponse } from "model/product/collection.model"; 
-import {MaterialResponse} from "model/product/material.model";
-import {ProductUploadModel} from "model/product/product-upload.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { CountryResponse } from "model/content/country.model";
+import { SupplierResponse } from "model/core/supplier.model";
+import { CategoryResponse, CategoryView } from "model/product/category.model";
+import { CollectionResponse } from "model/product/collection.model";
+import { MaterialResponse } from "model/product/material.model";
+import { ProductUploadModel } from "model/product/product-upload.model";
 import {
   ProductRequest,
   ProductResponse,
   VariantImage,
-  VariantResponse,
-} from "model/product/product.model"; 
-import {RootReducerType} from "model/reducers/RootReducerType";
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory, useParams} from "react-router-dom";
+  VariantResponse
+} from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
 import {
   convertCategory,
   formatCurrency,
   Products,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
-import {handleChangeMaterial} from "utils/ProductUtils";
-import {RegUtil} from "utils/RegUtils";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { handleChangeMaterial } from "utils/ProductUtils";
+import { RegUtil } from "utils/RegUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { careInformation } from "../component/CareInformation/care-value";
 import CareModal from "../component/CareInformation/CareModal";
 import ModalConfirmPrice from "../component/ModalConfirmPrice";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import ModalUpdatePrice from "../component/ModalUpdatePrice";
 import VariantList from "../component/VariantList";
-import {ProductParams} from "../ProductDetailScreen";
-import {StyledComponent} from "./styles";
-
-var isWin = false;
-var isDesigner = false;
+import { ProductParams } from "../ProductDetailScreen";
+import { StyledComponent } from "./styles";
 
 const {Item} = Form;
 let tempActive: number = 0;
@@ -144,30 +140,7 @@ const ProductDetailScreen: React.FC = () => {
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
   const [showCareModal, setShowCareModal] = useState(false);
   const [isChangeDescription, setIsChangeDescription] = useState(true);
-  // const [colors, setColors] = useState<PageResponse<ColorResponse>>({
-  //   items: [],
-  //   metadata: { limit: 20, page: 1, total: 0 }
-  // });
-  // const [sizes, setSizes] = useState<PageResponse<SizeResponse>>(
-  //   {
-  //     items: [],
-  //     metadata: { limit: 20, page: 1, total: 0 }
-  //   }
-  // );
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-
-  const [designers, setDeisgner] = useState<PageResponse<AccountResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
@@ -206,17 +179,6 @@ const ProductDetailScreen: React.FC = () => {
     setListCategory(temp);
   }, []);
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return false;
-      }
-      if (isWin) {
-        setWins(data);
-      }
-      if (isDesigner) {
-        setDeisgner(data);
-      }
-    },[]);
 
   const onPickAvatar = useCallback(() => {
     let variants: Array<VariantResponse> = form.getFieldValue("variants");
@@ -754,13 +716,6 @@ const ProductDetailScreen: React.FC = () => {
     [form, variantId]
   );
 
-  // const getColors = useCallback((info: string, page: number) => {
-  //   dispatch(getColorAction({ info: info, is_main_color: 0, page: page }, setColors));
-  // }, [dispatch]);
-
-  // const getSizes = useCallback((code: string, page: number) => {
-  //   dispatch(sizeSearchAction({ code: code, page: page }, setSizes));
-  // }, [dispatch]);
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -775,26 +730,13 @@ const ProductDetailScreen: React.FC = () => {
     }
   }, [data, active]);
 
-  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
-    isDesigner = designer;
-    isWin = win;
-    dispatch(
-      AccountSearchAction(
-        { info: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
-        setDataAccounts
-      )
-    );
-  }, [dispatch, setDataAccounts]);
 
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setDataCategory));
     dispatch(SupplierGetAllAction(setListSupplier));
     dispatch(materialSearchAll(setListMaterial));
     dispatch(CountryGetAllAction(setListCountry));
-    // getColors("",1);
-    // getSizes("",1);
-    getAccounts("",1,true,true);
-  }, [dispatch,getAccounts,setDataCategory]);
+  }, [dispatch, setDataCategory]);
 
   const getCollections = useCallback((code: string, page: number) => {
     dispatch(
@@ -1188,51 +1130,23 @@ const ProductDetailScreen: React.FC = () => {
                   </Card>
                   <Card className="card" title="Phòng Win">
                     <div className="padding-20">
-                      <Item
-                        name="merchandiser_code"
-                        label="Merchandiser"
-                        tooltip={{
-                          title: "Chọn nhân viên mua hàng",
-                          icon: <InfoCircleOutlined />,
-                        }}
-                      >
-                        <SelectPaging 
-                         optionFilterProp="children"
-                         metadata={designers.metadata}
-                         showSearch 
-                         allowClear
-                         placeholder="Chọn Merchandiser"
-                         onSearch={(key) => getAccounts(key, 1,false,true)}
-                         onPageChange={(key, page) => getAccounts(key, page,false,true)}
-                         showArrow>
-                          {wins.items.map((item) => (
-                            <SelectPaging.Option key={item.code} value={item.code}>
-                              {`${item.code} - ${item.full_name}`}
-                            </SelectPaging.Option>
-                          ))}
-                        </SelectPaging>
-                      </Item>
-                      <Item
-                        name="designer_code"
-                        label="Thiết kế"
-                        tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
-                      >
-                        <SelectPaging
-                          metadata={designers.metadata}
-                          optionFilterProp="children"
-                          showSearch
-                          allowClear
-                          placeholder="Chọn thiết kế"
-                          onSearch={(key) => getAccounts(key, 1,true,false)}
-                          onPageChange={(key, page) => getAccounts(key, page,true,false)}
-                        >
-                          {designers.items.map((item) => (
-                            <SelectPaging.Option key={item.code} value={item.code}>
-                              {`${item.code} - ${item.full_name}`}
-                            </SelectPaging.Option>
-                          ))}
-                        </SelectPaging>
-                      </Item>
+                      <AccountSearchPaging selectProps={{placeholder:"Chọn Merchandiser"}}
+                      formItemProps={{name:"merchandiser_code", label:"Merchandiser", tooltip:{
+                        title: "Chọn nhân viên mua hàng",
+                        icon: <InfoCircleOutlined />,
+                      }}}
+                      form={form}
+                      fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"}}
+                      />
+
+                      <AccountSearchPaging selectProps={{placeholder:"Chọn nhân viên thiết kế"}}
+                      formItemProps={{name:"designer_code", label:"Thiết kế", tooltip:{
+                        title: "Chọn nhân viên thiết kế",
+                        icon: <InfoCircleOutlined />,
+                      }}}
+                      form={form}
+                      fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"}}
+                      />
                     </div>
                   </Card>
                 </Col>

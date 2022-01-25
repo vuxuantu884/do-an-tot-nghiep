@@ -1,26 +1,17 @@
-import { Form, FormItemProps, SelectProps } from "antd";
-import { FormInstance } from "antd/es/form/Form";
-import { getColorAction } from "domain/actions/product/color.action";
+import { Form, SelectProps } from "antd";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import _ from "lodash";
+import { AccountPublicSearchQuery, AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
-import React, { ReactElement, ReactNode, useEffect } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { colorSearchApi } from "service/product/color.service";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
-
-export interface SelectSearchProps {
-  form?: FormInstance;
-  fixedQuery?: any;
-  key?: "code" | "id";
-  formItemProps?: FormItemProps<ReactNode>;
-  selectProps?: SelectProps<any>;
-  noFormItem?: boolean;
-}
+import { SelectSearchProps } from "./color-select";
 
 const defaultSelectProps: SelectProps<any> = {
-  placeholder: "Chọn màu sắc",
+  placeholder: "Chọn tài khoản",
   mode: undefined,
   showArrow: true,
   optionFilterProp: "children",
@@ -30,27 +21,27 @@ const defaultSelectProps: SelectProps<any> = {
   notFoundContent: "Không có dữ liệu",
 };
 
-ColorSelect.defaultProps = {
+AccountSelect.defaultProps = {
   fixedQuery: {
-    info: "",
+    condition: "",
   },
-  key: "id",
+  key: "code",
   noFormItem: false,
 };
 
-function ColorSelect({
+function AccountSelect({
   form,
   key,
   fixedQuery,
   formItemProps,
-  selectProps,
   noFormItem,
+  selectProps,
 }: SelectSearchProps): ReactElement {
   const name = formItemProps?.name || "";
   const { mode, defaultValue } = selectProps!;
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
-  const [data, setData] = React.useState<PageResponse<ColorResponse>>({
+  const [data, setData] = React.useState<PageResponse<AccountResponse>>({
     items: [],
     metadata: {
       page: 1,
@@ -59,12 +50,11 @@ function ColorSelect({
     },
   });
 
-  const handleColorSearch = (queryParams: ColorSearchQuery) => {
+  const handleSearch = (queryParams: AccountPublicSearchQuery) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
-
     dispatch(
-      getColorAction(query, (response: PageResponse<ColorResponse>) => {
+      searchAccountPublicAction(query, (response: PageResponse<AccountResponse>) => {
         if (response) {
           setData(response);
         }
@@ -72,6 +62,7 @@ function ColorSelect({
       })
     );
   };
+
   const formFieldValue = form && name ? form?.getFieldValue(name) : null;
 
   /**
@@ -88,8 +79,8 @@ function ColorSelect({
 
       if (mode === "multiple" && Array.isArray(value)) {
         initParams = value;
-      } else if (typeof value === "string" || typeof value === "number") {
-        initParams = [Number(value)];
+      } else if (typeof value === "string") {
+        initParams = [value];
       } else {
         initParams = [];
       }
@@ -99,14 +90,18 @@ function ColorSelect({
         const initSelectedResponse = await callApiNative(
           { isShowError: true },
           dispatch,
-          colorSearchApi,
+          searchAccountPublicApi,
           {
-            ids: initParams,
+            codes: initParams,
           }
         );
 
         // call api lấy thêm data nối vào sau để người dùng có thể chọn item khác
-        const defaultItems = await callApiNative({ isShowError: true }, dispatch, colorSearchApi);
+        const defaultItems = await callApiNative(
+          { isShowError: true },
+          dispatch,
+          searchAccountPublicApi
+        );
 
         let totalItems = [];
         if (initSelectedResponse?.items && defaultItems?.items) {
@@ -120,48 +115,52 @@ function ColorSelect({
 
         setData({ ...defaultItems, items: totalItems });
       } else {
-        const defaultItems = await callApiNative({ isShowError: true }, dispatch, colorSearchApi);
+        const defaultItems = await callApiNative(
+          { isShowError: true },
+          dispatch,
+          searchAccountPublicApi
+        );
         setData(defaultItems);
       }
       setIsSearching(false);
     };
-
     getIntialValue();
-  }, [formFieldValue, mode, defaultValue, dispatch, key]);
+  }, [dispatch, formFieldValue, defaultValue, key, mode]);
 
-  const SelectContent = (
+  const SelectContent = ()=>(
     <SelectPagingV2
       {...defaultSelectProps}
       {...selectProps}
-      metadata={data.metadata}
+      metadata={data?.metadata}
       loading={isSearching}
-      onSearch={(value) => handleColorSearch({ info: value })}
-      onClear={() => handleColorSearch({ info: "" })}
+      onSearch={(value) => handleSearch({ condition: value })}
+      onClear={() => handleSearch({ condition: "" })}
       onPageChange={(key: string, page: number) => {
-        handleColorSearch({ info: key, page: page });
+        handleSearch({ condition: key, page: page });
       }}>
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.name} value={item[key!]}>
-          {`${item.code}-${item.name}`}
+        <SelectPagingV2.Option key={item.code + name} value={item[key!]}>
+          {`${item.code} - ${item.full_name}`}
         </SelectPagingV2.Option>
       ))}
     </SelectPagingV2>
   );
 
   if (noFormItem) {
-    return <>{SelectContent}</>;
+    return <SelectContent/>;
   } else {
     return (
       <Form.Item name={name} {...formItemProps}>
-        {SelectContent}
+        <SelectContent/>
       </Form.Item>
     );
   }
 }
 
-const ColorSearchSelect = React.memo(ColorSelect, (prev, next) => {
-  const { form, fixedQuery } = prev;
-  const { form: nextForm, fixedQuery: nextQuery } = next;
-  return form === nextForm && fixedQuery === nextQuery;
-});
-export default ColorSearchSelect;
+// const AccountSearchPaging = React.memo(AccountSelect, (prev, next) => {
+//   const { form, fixedQuery } = prev;
+//   const { form: nextForm, fixedQuery: nextQuery } = next;
+//   return form === nextForm && fixedQuery === nextQuery;
+// });
+export default AccountSelect;
+// export default AccountSearchPaging;
