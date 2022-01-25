@@ -148,7 +148,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = useMemo(() => {
     return [
       {
-        title: "ID đơn hàng",
+        title: "ID đơn đặt hàng",
         dataIndex: "code",
         render: (value: string, i: PurchaseOrder) => {
           return (
