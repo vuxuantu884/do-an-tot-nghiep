@@ -3,5 +3,4 @@ export interface BaseQuery {
   limit?: number,
   sort_column?: string, 
   sort_type?: string,
-  customer_id?: number | null,
 }

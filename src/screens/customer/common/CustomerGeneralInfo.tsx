@@ -53,8 +53,8 @@ const CustomerGeneralInfo = (props: any) => {
   );
 
   const customerCardParams = {
-    status: "ACTIVE",
-    card_number: "",
+    statuses: ["ACTIVE"],
+    request: "",
   }
 
 
@@ -70,7 +70,7 @@ const CustomerGeneralInfo = (props: any) => {
   const onChangeCardSearch = (value: string) => {
     setKeySearchCard(value);
     if (value && Number(value) && value.length >= 3) {
-      customerCardParams.card_number = value;
+      customerCardParams.request = value;
       dispatch(LoyaltyCardSearch(customerCardParams, updateLoyaltyCard));
     }
   };
