@@ -292,7 +292,11 @@ const YDPageCustomerDetail = (props: any) => {
         card_number: null
       };
       customerForm.setFieldsValue(field);
+      const tempNewCustomerInfo = {...newCustomerInfo};
+      tempNewCustomerInfo.full_name = field.full_name;
+      setNewCustomerInfo(tempNewCustomerInfo);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer, customerForm, customerFbName, loyaltyCard]);
   const setResultUpdate = React.useCallback(
     (result) => {
