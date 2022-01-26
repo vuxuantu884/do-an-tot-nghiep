@@ -225,12 +225,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     const [productSelected, setProductSelected] = useState<any>(
       ecommerceItem?.core_sku ?
         {
-          core_variant: ecommerceItem?.core_variant,
-          sku: ecommerceItem?.core_sku,
+          core_variant: ecommerceItem.core_variant,
+          core_variant_id: ecommerceItem.core_variant_id,
+          core_sku: ecommerceItem.core_sku,
           variant_prices: null,
-          retail_price: ecommerceItem?.core_price,
-          id: ecommerceItem?.id,
-          product_id: ecommerceItem?.core_product_id,
+          core_price: ecommerceItem.core_price,
+          id: ecommerceItem.id,
+          core_product_id: ecommerceItem.core_product_id,
         }
         : null
     );
@@ -270,19 +271,17 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
     // handle save single connected Yody product
     const saveConnectYodyProduct = () => {
-      const newConnectItemList =
-        copyConnectItemList &&
-        copyConnectItemList.filter((item: any) => {
-          return item.core_variant_id !== productSelected.id;
-        });
+      const newConnectItemList = copyConnectItemList && copyConnectItemList.filter((item: any) => {
+        return item.core_variant_id !== productSelected.core_variant_id;
+      });
 
       const connectProductSelected = {
-        id: ecommerceItem.id,
-        core_variant_id: productSelected.id,
-        core_sku: productSelected.sku,
+        id: productSelected.id,
+        core_variant_id: productSelected.core_variant_id,
+        core_sku: productSelected.core_sku,
         core_variant: productSelected.core_variant,
-        core_price: productSelected.retail_price,
-        core_product_id: productSelected.product_id,
+        core_price: productSelected.core_price,
+        core_product_id: productSelected.core_product_id,
         ecommerce_correspond_to_core: 1,
       };
 
@@ -298,7 +297,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     };
 
     const handleSaveConnectYodyProduct = () => {
-      if (ecommerceItem?.ecommerce_price === productSelected?.retail_price) {
+      if (ecommerceItem?.ecommerce_price === productSelected?.core_price) {
         saveConnectYodyProduct();
       } else {
         setDiffPriceProduct([productSelected]);
@@ -366,26 +365,27 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
       const productSelectedData = {
         core_variant: itemSelected && itemSelected.name,
-        sku: itemSelected && itemSelected.sku,
+        core_sku: itemSelected && itemSelected.sku,
         variant_prices: itemSelected && itemSelected.variant_prices,
-        retail_price:
+        core_price:
           itemSelected &&
           itemSelected.variant_prices &&
           itemSelected.variant_prices[0] &&
           itemSelected.variant_prices[0].retail_price,
-        id: itemSelected && itemSelected.id,
-        product_id: itemSelected && itemSelected.product_id,
+        id: ecommerceItem.id,
+        core_variant_id: itemSelected && itemSelected.id,
+        core_product_id: itemSelected && itemSelected.product_id,
       };
 
       setProductSelected(productSelectedData);
 
       const connectItem = {
         id: ecommerceItem.id,
-        core_variant_id: productSelectedData.id,
-        core_sku: productSelectedData.sku,
+        core_variant_id: productSelectedData.core_variant_id,
+        core_sku: productSelectedData.core_sku,
         core_variant: productSelectedData.core_variant,
-        core_price: productSelectedData.retail_price,
-        core_product_id: productSelectedData.product_id,
+        core_price: productSelectedData.core_price,
+        core_product_id: productSelectedData.core_product_id,
         ecommerce_correspond_to_core: 1,
       };
 
@@ -492,7 +492,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                 <span>
                   <Link
                     target="_blank"
-                    to={`${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`}
+                    to={`${UrlConfig.PRODUCT}/${productSelected.core_product_id}/variants/${productSelected.id}`}
                   >
                     {productSelected.core_variant}
                   </Link>
@@ -501,7 +501,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
               <li>
                 <b>SKU: </b>
-                <span style={{ color: "#737373" }}>{productSelected.sku}</span>
+                <span style={{ color: "#737373" }}>{productSelected.core_sku}</span>
               </li>
 
               <li>
@@ -509,7 +509,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                 <span>
                   {productSelected.variant_prices ?
                     findPrice(productSelected.variant_prices, AppConfig.currency)
-                    : formatCurrency(productSelected.retail_price)
+                    : formatCurrency(productSelected.core_price)
                   }
                   <span className="item-price-unit">đ</span>
                 </span>
