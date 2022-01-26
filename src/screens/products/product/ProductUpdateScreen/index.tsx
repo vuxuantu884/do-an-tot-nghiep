@@ -50,7 +50,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import { CollectionResponse } from "model/product/collection.model";
+import { CollectionCreateRequest, CollectionResponse } from "model/product/collection.model";
 import { MaterialResponse } from "model/product/material.model";
 import { ProductUploadModel } from "model/product/product-upload.model";
 import {
@@ -347,7 +347,10 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   const update = useCallback(
-    (product: ProductResponse) => {
+    (product: any) => { 
+      if (product.collections) {
+        product.collections = product.collections.map((e: CollectionCreateRequest)=>e.code);
+      }  
       setLoadingVariant(true);
       dispatch(productUpdateAction(idNumber, product, onResultUpdate));
     },
@@ -455,7 +458,7 @@ const ProductDetailScreen: React.FC = () => {
 
   const onFinish = useCallback(
     (values: ProductRequest) => {  
-      setLoadingButton(true);  
+      setLoadingButton(true);   
       dispatch(productUpdateAction(
         idNumber,
         {
@@ -577,7 +580,7 @@ const ProductDetailScreen: React.FC = () => {
   }, [form, isChangePrice]);
 
   const onOkPrice = useCallback(
-    (isOnly) => {
+    (isOnly) => { 
       setVisiblePrice(false);
       if (isOnly) {
         form.submit();
