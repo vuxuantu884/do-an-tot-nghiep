@@ -38,7 +38,7 @@ const TabLogs: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
  
   const query = useQuery();
-  let dataQuery: ProcumentLogQuery = {...getQueryParams(query), sort_column:"created_date",sort_type:"desc"};
+  let dataQuery: ProcumentLogQuery = {...getQueryParams(query), sort_column:"updatedDate",sort_type:"desc"};
   const [params, setPrams] = useState<ProcumentLogQuery>(dataQuery);
 
   const onPageChange = (page: number, size?: number) => {
