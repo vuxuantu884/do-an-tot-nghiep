@@ -14,7 +14,7 @@ import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
 import {
   AllOrdersMappingFilterStyled,
@@ -84,13 +84,15 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   }, [shopList]);
 
   let initialValues = useMemo(() => {
-   return {
-     ...params,
-     ecommerce_order_statuses: Array.isArray(params.ecommerce_order_statuses)
-       ? params.ecommerce_order_statuses
-       : [params.ecommerce_order_statuses],
-     shop_ids: Array.isArray(params.shop_ids) ? params.shop_ids : [params.shop_ids],
-   };
+    return {
+      ...params,
+      ecommerce_order_statuses: Array.isArray(params.ecommerce_order_statuses)
+        ? params.ecommerce_order_statuses
+        : [params.ecommerce_order_statuses],
+      shop_ids: Array.isArray(params.shop_ids)
+        ? params.shop_ids
+        : [params.shop_ids],
+    };
   }, [params]);
 
   const isDisableAction = () => {
@@ -279,7 +281,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       let shopNameList = "";
       initialValues.shop_ids.forEach((shopId: any) => {
         const findStatus = ecommerceShopList?.find(
-          (item) => item.id === +shopId
+          (item) => item.id === shopId
         );
         shopNameList = findStatus
           ? shopNameList + findStatus.name + "; "
@@ -337,7 +339,14 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     }
 
     return list;
-  }, [initialValues.shop_ids, initialValues.connected_status, initialValues.created_date_from, initialValues.created_date_to, initialValues.ecommerce_order_statuses, ecommerceShopList]);
+  }, [
+    initialValues.shop_ids,
+    initialValues.connected_status,
+    initialValues.created_date_from,
+    initialValues.created_date_to,
+    initialValues.ecommerce_order_statuses,
+    ecommerceShopList,
+  ]);
 
   // close tag filter
   const onCloseTag = useCallback(
@@ -420,29 +429,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     },
     [shopIdsSelected, createdDateFrom, createdDateTo, onFilter]
   );
-
-  useEffect(() => {
-    formFilter.setFieldsValue({
-      ...params,
-      ecommerce_order_code: params.ecommerce_order_code,
-      core_order_code: params.core_order_code,
-      connected_status: params.connected_status,
-      created_date_from: params.created_date_from,
-      created_date_to: params.created_date_to,
-      ecommerce_order_statuses: params.ecommerce_order_statuses,
-      shop_ids: params.shop_ids,
-    });
-
-    if (params.created_date_from === null || params.created_date_to === null) {
-      setCreatedDateClick("");
-      setCreatedDateFrom(null);
-      setCreatedDateTo(null);
-    }
-    if (!initialValues.shop_ids.length) {
-      setShopIdsSelected([])
-      ecommerceShopList.forEach((item) => item.isSelected = false)
-    }
-  }, [ecommerceShopList, formFilter, initialValues.shop_ids.length, params]);
 
   return (
     <AllOrdersMappingFilterStyled>
@@ -570,22 +556,20 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
           </StyledEcommerceOrderBaseFilter>
         </BaseFilter>
       </div>
-      {filters && filters.length > 0 && (
-          <div className="filter-tags">
-                  {filters?.map((filter: any, index) => {
-                    return (
-                      <Tag
-                        key={filter.key}
-                        className="tag"
-                        closable={!isLoading}
-                        onClose={(e) => onCloseTag(e, filter)}>
-                        {filter.name}: {filter.value}
-                      </Tag>
-                    );
-                  })}
-          </div>
-      )}
-            
+
+      <div className="filter-tags">
+        {filters?.map((filter: any, index) => {
+          return (
+            <Tag
+              key={filter.key}
+              className="tag"
+              closable={!isLoading}
+              onClose={(e) => onCloseTag(e, filter)}>
+              {filter.name}: {filter.value}
+            </Tag>
+          );
+        })}
+      </div>
     </AllOrdersMappingFilterStyled>
   );
 };
