@@ -1133,23 +1133,24 @@ const ProductDetailScreen: React.FC = () => {
                   </Card>
                   <Card className="card" title="Phòng Win">
                     <div className="padding-20">
-                      <AccountSearchPaging selectProps={{placeholder:"Chọn Merchandiser"}}
-                      formItemProps={{name:"merchandiser_code", label:"Merchandiser", tooltip:{
-                        title: "Chọn nhân viên mua hàng",
-                        icon: <InfoCircleOutlined />,
-                      }}}
-                      form={form}
-                      fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"}}
-                      />
+                      <Item name="merchandiser_code" label="Merchandiser"
+                        tooltip={{
+                          title: "Chọn nhân viên mua hàng",
+                          icon: <InfoCircleOutlined />,
+                        }}>
+                        <AccountSearchPaging placeholder="Chọn Merchandiser"
+                          fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                        />
+                      </Item>
 
-                      <AccountSearchPaging selectProps={{placeholder:"Chọn nhân viên thiết kế"}}
-                      formItemProps={{name:"designer_code", label:"Thiết kế", tooltip:{
+                      <Item name="designer_code" label="Thiết kế" tooltip={{
                         title: "Chọn nhân viên thiết kế",
-                        icon: <InfoCircleOutlined />,
-                      }}}
-                      form={form}
-                      fixedQuery={{department_ids: [AppConfig.WIN_DEPARTMENT], status: "active"}}
-                      />
+                        icon: <InfoCircleOutlined />, 
+                      }}>
+                        <AccountSearchPaging
+                          placeholder="Chọn nhân viên thiết kế"                
+                          fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                        /></Item>
                     </div>
                   </Card>
                 </Col>
@@ -1554,17 +1555,12 @@ const ProductDetailScreen: React.FC = () => {
                                   </AuthWrapper>
                                   <Row gutter={50}>
                                     <Col span={24} sm={12}> 
-                                      <ColorSearchSelect 
-                                        selectProps={{
-                                          defaultValue: form.getFieldValue(["variants", name, "color_id"])
-                                        }} 
-                                        formItemProps={{name:[name, "color_id"], label:"Màu sắc"}}
-                                        />
-                                     
-                                      <SizeSearchSelect 
-                                        selectProps={{defaultValue: form.getFieldValue(["variants", name, "size_id"])}}
-                                        formItemProps={{name:[name, "size_id"], label:"Kích cỡ"}}
-                                        />
+                                    <Item name={[name, "color_id"]} label="Màu sắc">
+                                      <ColorSearchSelect/>
+                                    </Item>
+                                    <Item name={[name, "size_id"]} label="Kích cỡ">
+                                      <SizeSearchSelect/>
+                                    </Item>
                                    
                                       <Item
                                         label="Kích thước (dài, rộng, cao)"

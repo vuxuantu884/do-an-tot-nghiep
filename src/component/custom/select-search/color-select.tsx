@@ -1,14 +1,14 @@
-import { Form, FormItemProps, SelectProps } from "antd";
+import { FormItemProps, SelectProps } from "antd";
 import { FormInstance } from "antd/es/form/Form";
-import { getColorAction } from "domain/actions/product/color.action";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
-import React, { ReactElement, ReactNode, useEffect } from "react";
+import React, { ReactElement, ReactNode, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { colorSearchApi } from "service/product/color.service";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
+import { SelectContentProps } from "./account-select-paging";
 
 export interface SelectSearchProps {
   form?: FormInstance;
@@ -17,6 +17,7 @@ export interface SelectSearchProps {
   formItemProps?: FormItemProps<ReactNode>;
   selectProps?: SelectProps<any>;
   noFormItem?: boolean;
+  [name: string]: any;
 }
 
 const defaultSelectProps: SelectProps<any> = {
@@ -34,20 +35,10 @@ ColorSelect.defaultProps = {
   fixedQuery: {
     info: "",
   },
-  key: "id",
-  noFormItem: false,
 };
 
-function ColorSelect({
-  form,
-  key,
-  fixedQuery,
-  formItemProps,
-  selectProps,
-  noFormItem,
-}: SelectSearchProps): ReactElement {
-  const name = formItemProps?.name || "";
-  const { mode, defaultValue } = selectProps!;
+function ColorSelect(props: SelectContentProps): ReactElement {
+  const { id: name, value, mode, fixedQuery, key, ...selectProps } = props;
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
   const [data, setData] = React.useState<PageResponse<ColorResponse>>({
@@ -58,33 +49,40 @@ function ColorSelect({
       total: 0,
     },
   });
+  const [defaultOptons, setDefaultOptons] = useState<ColorResponse[]>([]);
 
-  const handleColorSearch = (queryParams: ColorSearchQuery) => {
+  const handleColorSearch = async (queryParams: ColorSearchQuery) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
-
-    dispatch(
-      getColorAction(query, (response: PageResponse<ColorResponse>) => {
-        if (response) {
-          setData(response);
-        }
-        setIsSearching(false);
-      })
-    );
+    const response = await callApiNative({ isShowError: true }, dispatch, colorSearchApi, query);
+    if (response) {
+      setData(response);
+    }
+    setIsSearching(false);
   };
-  const formFieldValue = form && name ? form?.getFieldValue(name) : null;
+
+  /**
+   * Option cho trang 1
+   */
+  useEffect(() => {
+    const getDefaultOptions = async () => {
+      const response = await callApiNative({ isShowError: true }, dispatch, colorSearchApi, {
+        ...fixedQuery,
+        page: 1,
+        limit: 30,
+      });
+      setDefaultOptons(response.items);
+      setData(response);
+    };
+    getDefaultOptions();
+  }, [dispatch, fixedQuery]);
 
   /**
    * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho
    */
   useEffect(() => {
     const getIntialValue = async () => {
-      let value = formFieldValue;
       let initParams: any = [];
-
-      if (defaultValue) {
-        value = defaultValue;
-      }
 
       if (mode === "multiple" && Array.isArray(value)) {
         initParams = value;
@@ -105,63 +103,49 @@ function ColorSelect({
           }
         );
 
-        // call api lấy thêm data nối vào sau để người dùng có thể chọn item khác
-        const defaultItems = await callApiNative({ isShowError: true }, dispatch, colorSearchApi);
-
-        let totalItems = [];
-        if (initSelectedResponse?.items && defaultItems?.items) {
+        let totalItems: ColorResponse[] = [];
+        if (initSelectedResponse?.items && defaultOptons?.length > 0) {
           // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
-          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultItems.items], key!);
-        } else if (defaultItems?.items) {
-          totalItems = defaultItems.items;
+          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultOptons], "id");
+        } else if (defaultOptons) {
+          totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {
           totalItems = initSelectedResponse.items;
         }
 
-        setData({ ...defaultItems, items: totalItems });
-      } else {
-        const defaultItems = await callApiNative({ isShowError: true }, dispatch, colorSearchApi);
-        setData(defaultItems);
+        setData((prevState) => ({ ...prevState, items: totalItems }));
       }
       setIsSearching(false);
     };
 
     getIntialValue();
-  }, [formFieldValue, mode, defaultValue, dispatch, key]);
+  }, [mode, dispatch, value, defaultOptons]);
 
-  const SelectContent = (
+  return (
     <SelectPagingV2
       {...defaultSelectProps}
-      {...selectProps}
+      defaultValue={value}
+      mode={mode}
       metadata={data.metadata}
       loading={isSearching}
       onSearch={(value) => handleColorSearch({ info: value })}
       onClear={() => handleColorSearch({ info: "" })}
       onPageChange={(key: string, page: number) => {
         handleColorSearch({ info: key, page: page });
-      }}>
+      }}
+      {...selectProps}>
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.name} value={item[key!]}>
+        <SelectPagingV2.Option key={item.code} value={item.id}>
           {`${item.code}-${item.name}`}
         </SelectPagingV2.Option>
       ))}
     </SelectPagingV2>
   );
-
-  if (noFormItem) {
-    return <>{SelectContent}</>;
-  } else {
-    return (
-      <Form.Item name={name} {...formItemProps}>
-        {SelectContent}
-      </Form.Item>
-    );
-  }
 }
 
 const ColorSearchSelect = React.memo(ColorSelect, (prev, next) => {
-  const { form, fixedQuery } = prev;
-  const { form: nextForm, fixedQuery: nextQuery } = next;
-  return form === nextForm && fixedQuery === nextQuery;
+  const { value } = prev;
+  const { value: nextValue } = next;
+  return value === nextValue;
 });
 export default ColorSearchSelect;
