@@ -302,6 +302,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				case 'services':
 					onFilter && onFilter({ ...params, services: "" });
 					break;
+				case 'return_status':
+					onFilter && onFilter({ ...params, return_status: "" });
+					break;
 				default: break
 			}
 			// const tags = filters.filter((tag: any) => tag.key !== key);
@@ -512,6 +515,28 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 		}
 
+		if (initialValues.return_status.length) {
+			let option = [
+				{
+					label: "Có đổi trả hàng",
+					value: "returned"
+				},
+				{
+					label: "Không đổi trả hàng",
+					value: "unreturned"
+				}
+			]
+			let mappedReturnStatus = option?.filter((status) => initialValues.return_status?.some((item) => item === status.value.toString()))
+			console.log('mappedReturnStatus', mappedReturnStatus)
+			let text = getFilterString(mappedReturnStatus, "label", undefined, undefined);
+			
+			list.push({
+				key: 'return_status',
+				name: 'Trả hàng',
+				value: <React.Fragment>{text}</React.Fragment>
+			})
+		}
+
 		if (initialValues.sub_status_code.length) {
 			let mappedSubStatuses = subStatus?.filter((status) => initialValues.sub_status_code?.some((item) => item === status.code.toString()))
 			let text = getFilterString(mappedSubStatuses, "sub_status", undefined, undefined);
@@ -565,7 +590,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				value: text,
 			})
 		}
-console.log('services', services)
+ 
 		if (initialValues.services.length > 0) {
 			let text = "";
 			for (let i = 0; i < services.length; i++) {
@@ -683,7 +708,7 @@ console.log('services', services)
 		}
 		// console.log('filters list', list);
 		return list
-	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
+	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
 
 	const widthScreen = () => {
 		if (window.innerWidth >= 1600) {
