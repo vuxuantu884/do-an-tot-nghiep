@@ -41,7 +41,7 @@ function CardGeneralSettings(props: PropType) {
         for_all_order: listOrderConfigs.for_all_order,
         allow_choose_item: listOrderConfigs.allow_choose_item,
         order_config_action: listOrderConfigs.order_config_action,
-        order_config_print_id: listOrderConfigs.order_config_print.id,
+        order_config_print_id: listOrderConfigs.order_config_print?.id,
         hide_gift: listOrderConfigs.hide_gift,
         hide_bonus_item: listOrderConfigs.hide_bonus_item
       };
@@ -339,7 +339,7 @@ function CardGeneralSettings(props: PropType) {
                   onChange={onChangeSelectSettingPrinter}
                   className="selectInNhieuDonHang"
                   defaultValue={
-                    listOrderConfigs?.order_config_print.id.toString() ||
+                    listOrderConfigs?.order_config_print?.id.toString() ||
                     undefined
                   }
                 >
