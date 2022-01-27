@@ -2,10 +2,11 @@ import BaseAction from 'base/base.action';
 import BaseResponse from 'base/base.response';
 import { LoyaltyCardType } from 'domain/types/loyalty.type';
 import { PageResponse } from 'model/base/base-metadata.response';
+import { CustomerCardListRequest } from 'model/request/customer.request';
 import { LoyaltyCardAssignmentRequest } from 'model/request/loyalty/card/CardAssignmentRequest';
 import { LoyaltyCardResponse } from 'model/response/loyalty/card/loyalty-card.response';
 
-export const LoyaltyCardSearch = (query: any, setData: (data: PageResponse<LoyaltyCardResponse>) => void) => {
+export const LoyaltyCardSearch = (query: CustomerCardListRequest, setData: (data: PageResponse<LoyaltyCardResponse>) => void) => {
     return BaseAction(LoyaltyCardType.SEARCH_LOYALTY_CARD_REQUEST, { query, setData });
 }
 

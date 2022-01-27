@@ -148,7 +148,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = useMemo(() => {
     return [
       {
-        title: "ID đơn hàng",
+        title: "ID đơn đặt hàng",
         dataIndex: "code",
         render: (value: string, i: PurchaseOrder) => {
           return (
@@ -172,30 +172,14 @@ const PurchaseOrderListScreen: React.FC = () => {
         visible: true,
       },
       {
-        title: "Ngày duyệt đơn",
-        width: 150,
-        dataIndex: "activated_date",
-        render: (value: string) => {
-          return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
+        title: "Merchandiser",
+        dataIndex: 'merchandiser',
+        render: (value, row: PurchaseOrder) => {
+          if (!row || !row.merchandiser_code || !row.merchandiser) return "";
+          return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
         },
         visible: true,
-      },
-      {
-        title: "Ngày nhận hàng dự kiến",
-        dataIndex: "procurements",
-        render: (value: Array<PurchaseProcument>) => {
-          let display = "";
-          if (value && value.length > 0) {
-            value.sort((a, b) =>
-              moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date))
-            );
-            display = ConvertUtcToLocalDate(value[value.length - 1].expect_receipt_date,DATE_FORMAT.DDMMYYY);
-          }
-          return <div>{display}</div>;
-        },
-        visible: true,
-        width: 200,
-      },
+      }, 
       {
         title: "Trạng thái đơn",
         width: 150,
@@ -318,15 +302,6 @@ const PurchaseOrderListScreen: React.FC = () => {
         visible: true,
       },
       {
-        title: "Merchandiser",
-        dataIndex: 'merchandiser',
-        render: (value, row: PurchaseOrder) => {
-          if (!row || !row.merchandiser_code || !row.merchandiser) return "";
-          return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
-        },
-        visible: true,
-      }, 
-      {
         title: "QC",
         dataIndex: 'qc',
         render: (value,row: PurchaseOrder) => {
@@ -336,7 +311,37 @@ const PurchaseOrderListScreen: React.FC = () => {
         visible: true,
       },
       {
-        title: "Ngày hoàn tất đơn",
+        title: "Thiết kế",
+        dataIndex: 'designer',
+        visible: true,
+      },
+      {
+        title: "Ngày duyệt đơn",
+        width: 150,
+        dataIndex: "activated_date",
+        render: (value: string) => {
+          return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
+        },
+        visible: true,
+      },
+      {
+        title: "Ngày nhận hàng dự kiến",
+        dataIndex: "procurements",
+        render: (value: Array<PurchaseProcument>) => {
+          let display = "";
+          if (value && value.length > 0) {
+            value.sort((a, b) =>
+              moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date))
+            );
+            display = ConvertUtcToLocalDate(value[value.length - 1].expect_receipt_date,DATE_FORMAT.DDMMYYY);
+          }
+          return <div>{display}</div>;
+        },
+        visible: true,
+        width: 200,
+      },
+      {
+        title: "Ngày hoàn thành đơn",
         dataIndex: "completed_date",
         render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
         visible: true,

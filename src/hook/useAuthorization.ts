@@ -2,27 +2,33 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { checkUserPermission } from "utils/AuthUtil";
-export interface useAuthorizationProps {
+export interface UseAuthorizationProps {
   acceptPermissions?: Array<string>;
   not?: boolean;
+  acceptStoreIds?: Array<number>;
 }
 
 useAuthorization.defautProps = {
   acceptPermissions: [],
   not: false,
 };
-function useAuthorization(props: useAuthorizationProps) {
-  const { acceptPermissions, not } = props;
-  const currentRoles: string[] = useSelector(
-    (state: RootReducerType) => state.permissionReducer?.permissions
+function useAuthorization(props: UseAuthorizationProps) {
+  const { acceptPermissions, not, acceptStoreIds } = props;
+
+  const [allowed, setAllowed] = useState<boolean>(false);
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions
   );
-    
-  const [allowed, setAllowed] = useState(false);
+
+  const currentStores = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores
+  );
+
   useEffect(() => {
-    setAllowed(checkUserPermission(acceptPermissions, currentRoles));
-  }, [acceptPermissions, currentRoles]);
+    setAllowed(checkUserPermission(acceptPermissions, currentPermissions, acceptStoreIds, currentStores));
+  }, [acceptPermissions, currentPermissions, acceptStoreIds, currentStores]);
 
   return [allowed && !not];
 }
 
-export default useAuthorization
+export default useAuthorization;

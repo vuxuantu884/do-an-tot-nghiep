@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button, Card } from 'antd';
 
 import UrlConfig from 'config/url.config';
@@ -17,7 +17,6 @@ import mathPlusIcon from "assets/icon/math-plus.svg";
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
 import NumberFormat from 'react-number-format';
 import useAuthorization from 'hook/useAuthorization';
-import { generateQuery } from 'utils/AppUtils';
 
 
 const initParams: PointAdjustmentListRequest = {
@@ -42,8 +41,6 @@ const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 
 const PointAdjustment = () => {
-
-  const history = useHistory()
 
   const [allowCreatePointAdjustment] = useAuthorization({
     acceptPermissions: createPointAdjustmentPermission,
@@ -164,10 +161,8 @@ const PointAdjustment = () => {
     (values) => {
       const filterParams = { ...params, ...values, page: 1 };
       setParams(filterParams);
-      const newParams = generateQuery(filterParams);
-      history.push(`?${newParams}`);
     },
-    [history, params]
+    [params]
   );
 
   const onClearFilter = useCallback(() => {

@@ -541,7 +541,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 style={{ color: "#5656A1", marginTop: 0 }}
               >
                 <Popover
-                  placement="topLeft"
+                  placement="left"
                   overlayStyle={{ zIndex: 17 }}
                   title={
                     <Row

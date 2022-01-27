@@ -17,4 +17,7 @@ export const StyledComponent = styled.div`
     .page-filter{
         padding: 0px;
     }
+    .warning-confirm{
+        word-break: break-word;
+    }
 `;

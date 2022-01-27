@@ -145,6 +145,7 @@ export interface ShippingAddress {
   ward: string;
   zip_code: string;
   full_address: string;
+  second_phone?:string|null;
 }
 
 export interface ShipmentRequest {

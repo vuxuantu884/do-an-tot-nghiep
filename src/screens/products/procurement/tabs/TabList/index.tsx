@@ -55,7 +55,7 @@ const ACTIONS_INDEX = {
 export const ProcurementList = (text: string)=>{
   return (
     <>
-    <div>
+    <div style={{wordBreak: "break-word"}}>
         <div>Phiếu nhập kho <b>{text}</b> không thỏa mãn điều kiện xác nhận nhiều phiếu cùng lúc.</div>
         <div>Vui lòng chọn các phiếu có cùng:</div>
         <ul>
@@ -66,9 +66,7 @@ export const ProcurementList = (text: string)=>{
     </div>
     </>
   );
-}
-
-let listProcurementCode = "";
+} 
 
 const TabList: React.FC = () => {
   const [storeExpect, setStoreExpect] = useState<number>(-1);
@@ -112,8 +110,8 @@ const TabList: React.FC = () => {
    },[]);
 
   const checkConfirmProcurement = useCallback(()=>{
-    let pass = true;
-    console.log(selected);
+    let pass = true; 
+    let listProcurementCode = "";
     
     for (let index = 0; index < selected.length; index++) {
       const element = selected[index];
@@ -134,7 +132,7 @@ const TabList: React.FC = () => {
       if (firstElement.purchase_order.supplier_id !== element.purchase_order.supplier_id
           || ConvertUtcToLocalDate(firstElement.stock_in_date,DATE_FORMAT.DDMMYYY) !== ConvertUtcToLocalDate(element.stock_in_date,DATE_FORMAT.DDMMYYY)
           || firstElement.store_id !== element.store_id) {
-            listProcurementCode +=`${element.code},`;
+            listProcurementCode +=`, ${element.code},`;
          pass = false;
       }
     }
@@ -158,7 +156,7 @@ const TabList: React.FC = () => {
   }, [checkConfirmProcurement]); 
 
   const ActionComponent = useCallback(()=>{
-      let Compoment = () => <span>Mã phiếu</span>;
+      let Compoment = () => <span>Mã phiếu nhập kho</span>;
       if (selected?.length > 1) {
         Compoment = () => (
           <CustomFilter onMenuClick={onMenuClick} menu={actions}>
@@ -175,7 +173,7 @@ const TabList: React.FC = () => {
         title: ActionComponent,
         dataIndex: "code",
         fixed: "left",
-        width: 130,
+        width: 150,
         visible: true,
         render: (value, record, index) => {
           return !record?.is_cancelled &&
@@ -192,10 +190,10 @@ const TabList: React.FC = () => {
         },
       },
       {
-        title: "Mã đơn mua",
+        title: "Mã đơn đặt hàng",
         dataIndex: "purchase_order",
         fixed: "left",
-        width: 120,
+        width: 150,
         visible: true,
         render: (value, record, index) => {
           return (
@@ -204,42 +202,6 @@ const TabList: React.FC = () => {
             </Link>
           );
         },
-      },
-      {
-        title: "Kho nhận hàng dự kiến",
-        dataIndex: "store",
-        render: (value, record, index) => value,
-        visible: true,
-      },
-      {
-        title: "Ngày nhận hàng dự kiến",
-        dataIndex: "expect_receipt_date",
-        visible: true,
-        render: (value, record, index) =>
-          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
-      },
-      {
-        title: "Ngày duyệt",
-        dataIndex: "activated_date",
-        render: (value, record, index) => ConvertUtcToLocalDate(value),
-      },
-      {
-        title: "Người duyệt",
-        dataIndex: "activated_by",
-        visible: true,
-        render: (value, record, index) => value,
-      },
-      {
-        title: "Ngày nhập kho",
-        dataIndex: "stock_in_date",
-        visible: true,
-        render: (value, record, index) => ConvertUtcToLocalDate(value),
-      },
-      {
-        title: "Người nhập",
-        dataIndex: "stock_in_by",
-        visible: true,
-        render: (value, record, index) => value,
       },
       {
         title: "Nhà cung cấp",
@@ -260,7 +222,22 @@ const TabList: React.FC = () => {
         ),
       },
       {
-        title: "Trạng thái",
+        title: "Kho nhận hàng dự kiến",
+        dataIndex: "store",
+        render: (value, record, index) => value,
+        visible: true,
+        width: 200,
+      },
+      {
+        title: "Ngày nhận hàng dự kiến",
+        dataIndex: "expect_receipt_date",
+        visible: true,
+        render: (value, record, index) =>
+          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
+        width: 200,
+      },
+      {
+        title: "Trạng thái phiếu nhập kho",
         dataIndex: "status",
         visible: true,
         render: (status: string) => {
@@ -303,9 +280,10 @@ const TabList: React.FC = () => {
           );
         },
         align: "center",
+        width: 200,
       },
       {
-        title: "Đã hủy",
+        title: "Trạng thái hủy",
         dataIndex: "is_cancelled",
         visible: true,
         render: (value, record, index) =>
@@ -349,6 +327,29 @@ const TabList: React.FC = () => {
         visible: true,
         render: (value) => ConvertUtcToLocalDate(value),
       },
+      {
+        title: "Ngày duyệt",
+        dataIndex: "activated_date",
+        render: (value, record, index) => ConvertUtcToLocalDate(value),
+      },
+      {
+        title: "Người duyệt",
+        dataIndex: "activated_by",
+        visible: true,
+        render: (value, record, index) => value,
+      },
+      // {
+      //   title: "Ngày nhập kho",
+      //   dataIndex: "stock_in_date",
+      //   visible: true,
+      //   render: (value, record, index) => ConvertUtcToLocalDate(value),
+      // },
+      // {
+      //   title: "Người nhập",
+      //   dataIndex: "stock_in_by",
+      //   visible: true,
+      //   render: (value, record, index) => value,
+      // },
     ]
   },[ActionComponent]);
 
@@ -503,6 +504,18 @@ const TabList: React.FC = () => {
     [onAddProcumentSuccess]
   );
 
+  const onReciveMuiltiProcumentCallback = useCallback(
+    (value: boolean) => {
+      setLoadingConfirm(false);
+      if (value !== null) {
+        showSuccess("Xác nhận nhập kho thành công");
+        setLoadingRecive(false); 
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
+      }
+    },
+    [onAddProcumentSuccess]
+  );
+
   const onReciveProcument = useCallback(
     (value: PurchaseProcument) => {
       if (poId && value.id) {
@@ -519,6 +532,16 @@ const TabList: React.FC = () => {
     },
     [dispatch, poId, onReciveProcumentCallback]
   );
+
+  const onReciveMultiProcument = useCallback(
+    (value: Array<PurchaseProcumentLineItem>) => { 
+      if (listProcurement) {
+        onReciveMuiltiProcumentCallback(true);
+      }
+    },
+    [listProcurement, onReciveMuiltiProcumentCallback]
+  );
+
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {
     const { status = "", expect_store_id = 144, code } = record;
@@ -582,16 +605,14 @@ const TabList: React.FC = () => {
       <div className="margin-top-20">
         <TabListFilter />
         <CustomTable 
-          rowSelection={
-            { type: "checkbox",...selected}
-          }
           isRowSelection
+          selectedRowKey={selected.map(e=>e.id)}
           isLoading={loading}
           dataSource={data.items}
           sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
           columns={columnFinal}
           rowKey={(item) => item.id}
-          scroll={{ x: 1700 }}
+          scroll={{ x: 2000 }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -625,12 +646,11 @@ const TabList: React.FC = () => {
         {/* Xác nhận nhập */}
         <ProducmentInventoryMultiModal 
           title={`Xác nhận nhập kho ${listProcurement?.map(e=> e.code).toString()}`}
-          line_items={[]}
           now={now}
           visible={showConfirm}
           listProcurement={listProcurement}
-          onOk={(value: PurchaseProcument) => {
-            onReciveProcument(value);
+          onOk={(value: Array<PurchaseProcumentLineItem>) => {
+            if (value) onReciveMultiProcument(value);
           }}
           loading={loadingRecive}
           defaultStore={storeExpect}
@@ -660,13 +680,13 @@ const TabList: React.FC = () => {
           }}
         />
 
-          <ModalConfirm
-              onCancel={()=>{
+          <ModalConfirm 
+              onCancel={(()=>{
                 setShowWarConfirm(false);
-              }}
+              })}
               onOk={()=>{
                 setSelected([]);
-                setShowWarConfirm(false);
+                setShowWarConfirm(false); 
               }}
               okText="Chọn lại"
               cancelText="Hủy" 

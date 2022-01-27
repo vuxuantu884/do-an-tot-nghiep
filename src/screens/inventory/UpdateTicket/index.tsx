@@ -40,7 +40,6 @@ import {
   getCopyDetailInventoryTransferAction,
   getDetailInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
-  inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
   updateInventoryTransferAction,
@@ -71,12 +70,17 @@ import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { InventoryResponse } from "model/inventory";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { ConvertFullAddress } from "utils/ConvertAddress";
+import { AccountStoreResponse } from "model/account/account.model";
+import { callApiNative } from "utils/ApiUtils";
+import { getStoreApi } from "service/inventory/transfer/index.service";
+import { getAccountDetail } from "service/accounts/account.service";
 
 const { Option } = Select;
 
 const VARIANTS_FIELD = "line_items";
 
 const UpdateTicket: FC = () => {
+  const [fromStores,setFromStores] = useState<Array<AccountStoreResponse>>();
   const [form] = Form.useForm();
   const [dataTable, setDataTable] = useState<Array<VariantResponse> | any>(
     [] as Array<VariantResponse>
@@ -166,14 +170,25 @@ const UpdateTicket: FC = () => {
     setDataTable(temps);
   }
 
-  useEffect(()=>{
-    dispatch(
-      inventoryGetSenderStoreAction(
-        { status: "active", simple: true },
-        setStores
-      )
-    );
-  },[dispatch])
+  const getMe = useCallback(async ()=>{
+    const res = await callApiNative({isShowLoading: false},dispatch,getAccountDetail);
+    if (res && res.account_stores) { 
+      setFromStores(res.account_stores);
+    }
+  },[dispatch]);
+
+  const getStores = useCallback(async ()=>{
+    const res = await callApiNative({isShowLoading: false},dispatch,getStoreApi,{ status: "active", simple: true });
+    if (res) {
+      setStores(res);
+    }
+  },[dispatch]);
+ 
+  useEffect(() => {
+    getStores();
+    getMe();
+
+  }, [dispatch, getMe, getStores]);
 
   // get store
   useEffect(() => {
@@ -814,14 +829,13 @@ const UpdateTicket: FC = () => {
                             });
                           }}
                         >
-                          {Array.isArray(stores) &&
-                            stores.length > 0 &&
-                            stores.map((item, index) => (
+                          {fromStores &&
+                            fromStores.map((item, index) => (
                               <Option
                                 key={"from_store_id" + index}
-                                value={item.id}
+                                value={item.store?.toString() ?? ""}
                               >
-                                {item.name}
+                                {item.store}
                               </Option>
                             ))}
                         </Select>

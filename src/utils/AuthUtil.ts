@@ -1,14 +1,17 @@
-import {FormInstance} from "antd/es/form/Form";
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
-import {AdminPermission} from "config/permissions/admin.permission";
+import { FormInstance } from "antd/es/form/Form";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { AdminPermission } from "config/permissions/admin.permission";
 import _ from "lodash";
-import {ModuleAuthorize} from "model/auth/module.model";
-import {PageResponse} from "model/base/base-metadata.response";
+import { AccountStoreResponse } from "model/account/account.model";
+import { ModuleAuthorize } from "model/auth/module.model";
+import { PageResponse } from "model/base/base-metadata.response";
 
 //returns true : can | false : can not
 export const checkUserPermission = (
   acceptPermissions: Array<string> = [],
-  currentPermissions: Array<string> = []
+  currentPermissions: Array<string> = [],
+  acceptStoreIds: Array<number> = [],
+  currentStoreIds: Array<AccountStoreResponse> = []
 ): boolean => {
   // không truyền vào quyền nào => được phép truy cập
   if (Array.isArray(acceptPermissions) && acceptPermissions?.length === 0) {
@@ -16,25 +19,26 @@ export const checkUserPermission = (
   }
 
   // admin_all => full quyền => được phép truy cập
-  if (
-    Array.isArray(currentPermissions) &&
-    currentPermissions?.includes(AdminPermission.all)
-  ) {
+  if (Array.isArray(currentPermissions) && currentPermissions?.includes(AdminPermission.all)) {
     return true;
   }
 
   // nếu trong profile có 1 quyền nào đó so với quyền cần có => được phép truy cập
-  let hasPermission = false;
-  acceptPermissions.some((element) => {
-    if (currentPermissions.includes(element)) {
-      hasPermission = true;
-      return true;
-    } else {
-      return false;
-    }
+  const hasPermission = acceptPermissions.some((element) => {
+    return  currentPermissions.includes(element);
   });
 
-  return hasPermission;
+  // nếu trong profile có 1 store nào đó so với store cần có => được phép truy cập
+  let hasStoreId = false;
+  if(Array.isArray(acceptStoreIds) && acceptStoreIds?.length > 0) {
+      hasStoreId = acceptStoreIds.some((element) => {
+      return currentStoreIds.some((store) => store.store_id === element);
+    }); 
+  }else{
+      hasStoreId = true;
+  }
+
+  return hasPermission && hasStoreId;
 };
 
 export const handleCheckedModule = (
@@ -43,9 +47,7 @@ export const handleCheckedModule = (
   checkedModules: string[],
   setCheckedModules: (data: string[]) => void
 ) => {
-  const permissionsIdList = module.permissions.map((permission) =>
-    permission.id.toString()
-  );
+  const permissionsIdList = module.permissions.map((permission) => permission.id.toString());
   const permissionsCheckedByModule = form.getFieldsValue(permissionsIdList);
   const isCheckedFull = _.every(permissionsCheckedByModule, function (value) {
     return value;
@@ -69,23 +71,17 @@ export const handleIndeterminateModule = (
   indeterminateModules: string[],
   setIndeterminateModules: (data: string[]) => void
 ) => {
-  const permissionsIdList = module.permissions.map((permission) =>
-    permission.id.toString()
-  );
+  const permissionsIdList = module.permissions.map((permission) => permission.id.toString());
   const permissionsCheckedByModule = form.getFieldsValue(permissionsIdList);
   //convert permissionsCheckedByModule to array
-  const permissionsCheckedByModuleArray = Object.keys(permissionsCheckedByModule).map(
-    (key) => {
-      return permissionsCheckedByModule[key];
-    }
-  );
+  const permissionsCheckedByModuleArray = Object.keys(permissionsCheckedByModule).map((key) => {
+    return permissionsCheckedByModule[key];
+  });
   //check list permissionsCheckedByModule has number of true value between 1 and length of permissionsIdList
   if (Array.isArray(permissionsCheckedByModuleArray)) {
     const temps = [...indeterminateModules];
     //number of true value in one module
-    const numberOfChecked = permissionsCheckedByModuleArray.filter(
-      (value: any) => value
-    ).length;
+    const numberOfChecked = permissionsCheckedByModuleArray.filter((value: any) => value).length;
     if (numberOfChecked > 0 && numberOfChecked < permissionsIdList.length) {
       temps.push(module.code);
       // format array to unique value
@@ -111,9 +107,9 @@ export const onChangeModule = (
   setActivePanel: (data: string | string[]) => void
 ) => {
   e.stopPropagation();
-  const {checked} = e.target;
+  const { checked } = e.target;
   const moduleCode = module.code;
-  const {setFieldsValue} = form;
+  const { setFieldsValue } = form;
   //removemodule.code in indeterminateModules
   setIndeterminateModules(indeterminateModules.filter((id) => id !== moduleCode)); // set indeterminate checkbox to false
   if (checked) {

@@ -1,33 +1,35 @@
-import {FilterOutlined} from "@ant-design/icons";
-import {Button, Collapse, Form, Input, Select, Space, Tag} from "antd";
+import { FilterOutlined } from "@ant-design/icons";
+import { Button, Collapse, Form, Input, Select, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import ColorSearchSelect from "component/custom/select-search/color-select";
+import SizeSearchSelect from "component/custom/select-search/size-search";
 import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
 import CustomSelectOne from "component/filter/component/select-one.custom";
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
 import { AppConfig } from "config/app.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
-import { getColorAction} from "domain/actions/product/color.action";
+import { getColorAction } from "domain/actions/product/color.action";
 import { sizeSearchAction } from "domain/actions/product/size.action";
-import _ from "lodash";
-import {AccountResponse} from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import {BaseBootstrapResponse} from "model/content/bootstrap.model";
-import {CountryResponse} from "model/content/country.model";
-import {SupplierResponse} from "model/core/supplier.model";
-import {ColorResponse} from "model/product/color.model";
-import {SearchVariantField, SearchVariantMapping} from "model/product/product-mapping";
-import {VariantSearchQuery} from "model/product/product.model";
-import {SizeResponse} from "model/product/size.model";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
+import { CountryResponse } from "model/content/country.model";
+import { SupplierResponse } from "model/core/supplier.model";
+import { ColorResponse } from "model/product/color.model";
+import { SearchVariantField, SearchVariantMapping } from "model/product/product-mapping";
+import { VariantSearchQuery } from "model/product/product.model";
+import { SizeResponse } from "model/product/size.model";
 import moment from "moment";
-import {useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
-import {StyledComponent} from "./style";
+import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
+import { StyledComponent } from "./style";
 
 let isWin = false;
 let isDesigner = false; 
@@ -293,45 +295,12 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.designer:
                     component = (
-                      <SelectPaging
-                        metadata={designers.metadata}
-                        showSearch={false}
-                        showArrow
-                        allowClear
-                        searchPlaceholder="Tìm kiếm nhân viên"
-                        placeholder="Chọn thiết kế"
-                        onPageChange={(key, page) => getAccounts(key, page, true, false)}
-                        onSearch={_.debounce((key) => getAccounts(key, 1, true, false), AppConfig.TYPING_TIME_REQUEST)}
-                        onSelect={()=>{}} // to disable onSearch when select item
-                      >
-    
-                        {designers.items.map((item) => (
-                          <SelectPaging.Option key={item.code} value={item.code}>
-                            {`${item.code} - ${item.full_name}`}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                      <AccountSearchPaging placeholder="Chọn thiết kế" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
                     );
                     break;
                   case SearchVariantField.merchandiser:
                     component = (
-                      <SelectPaging
-                        metadata={wins.metadata}
-                        placeholder="Chọn merchandiser"
-                        showSearch={false}
-                        showArrow
-                        allowClear
-                        searchPlaceholder="Tìm kiếm nhân viên"
-                        onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                        onSearch={_.debounce((key) => getAccounts(key, 1, false, true), AppConfig.TYPING_TIME_REQUEST)}
-                        onSelect={()=>{}} // to disable onSearch when select item
-                      >
-                        {wins.items.map((item) => (
-                          <SelectPaging.Option key={item.code} value={item.code}>
-                            {`${item.code} - ${item.full_name}`}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                      <AccountSearchPaging placeholder="Chọn merchandiser" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
                     );
                     break;
                   case SearchVariantField.created_date:
@@ -339,71 +308,17 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.size:
                     component = (
-                      <SelectPaging
-                        metadata={colors.metadata}
-                        notFoundContent={"Không có dữ liệu"}
-                        showSearch={false}
-                        searchPlaceholder="Tìm kiếm kích thước"
-                        maxTagCount="responsive"
-                        showArrow
-                        allowClear
-                        onSearch={(key) => getSizes(key, 1)}
-                        onPageChange={(key, page) => getSizes(key, page)}
-                        placeholder="Chọn kích thước"
-                        onSelect={()=>{}} // to disable onSearch when select item
-                      >
-                        {lstSize.items.map((item) => (
-                          <SelectPaging.Option key={item.id} value={item.id}>
-                            {`${item.code} - ${item.code}`}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging> 
+                      <SizeSearchSelect onSelect={(key, option) => getSizes(option?.key || key, 1)}/> // để tạm onslect để lấy key hiển thị ra filter list
                     );
                     break;
                   case SearchVariantField.color:
                     component = (
-                      <SelectPaging
-                        metadata={colors.metadata}
-                        notFoundContent={"Không có dữ liệu"}
-                        showSearch={false}
-                        searchPlaceholder="Tìm kiếm màu sắc"
-                        maxTagCount="responsive"
-                        showArrow
-                        allowClear
-                        onSearch={(key) => getColors(key, 1,true,false)}
-                        onPageChange={(key, page) => getColors(key, page,true,false)}
-                        placeholder="Chọn màu sắc"
-                        onSelect={()=>{}} // to disable onSearch when select item
-                      >
-                        {colors.items.map((item) => (
-                          <SelectPaging.Option key={item.id} value={item.id}>
-                            {`${item.code} - ${item.name}`}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                      <ColorSearchSelect fixedQuery={{is_main_color:0}} onSelect={(key, option) =>{getColors(option?.key || key, 1,true,false)}}/> // để tạm onslect để lấy key hiển thị ra filter list
                     );
                     break;
                   case SearchVariantField.main_color:
                     component = (
-                      <SelectPaging
-                        metadata={mainColors.metadata}
-                        notFoundContent={"Không có dữ liệu"}
-                        showSearch={false}
-                        searchPlaceholder="Tìm kiếm màu sắc chủ đạo"
-                        maxTagCount="responsive"
-                        showArrow
-                        allowClear
-                        onSearch={(key) => getColors(key, 1,false,true)}
-                        onPageChange={(key, page) => getColors(key, page,false,true)}
-                        placeholder="Chọn màu sắc chủ đạo"
-                        onSelect={()=>{}} // to disable onSearch when select item
-                      >
-                        {mainColors.items.map((item) => (
-                          <SelectPaging.Option key={item.id} value={item.id}>
-                            {`${item.code} - ${item.name}`}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                      <ColorSearchSelect fixedQuery={{is_main_color:1}}  placeholder="Chọn màu sắc chủ đạo" onSelect={(key, option) =>{getColors(option?.key || key, 1,false, true)}}/> // để tạm onslect để lấy key hiển thị ra filter list
                     );
                     break;
                   case SearchVariantField.supplier:
