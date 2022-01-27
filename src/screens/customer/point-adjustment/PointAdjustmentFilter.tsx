@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Button,
   Form,
@@ -130,12 +130,6 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
     [onFilter]
   );
 
-  useEffect(() => {
-      formFilter.setFieldsValue({
-        term: params.term,
-        reasons: params.reasons,
-      })
-  }, [formFilter, params]);
 
   return (
     <StyledPointAdjustment>
@@ -216,22 +210,20 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
         </BaseFilter>
       </div>
 
-			{filters && filters.length > 0 && (
-        <div className="filter-tags">
-          {filters?.map((filter: any, index) => {
-            return (
-              <Tag
-                key={filter.key}
-                className="tag"
-                closable={!isLoading}
-                onClose={(e) => onCloseTag(e, filter)}
-              >
-                {filter.name}: {filter.value}
-              </Tag>
-            );
-          })}
-        </div>
-      )}
+      <div className="filter-tags">
+        {filters?.map((filter: any, index) => {
+          return (
+            <Tag
+              key={filter.key}
+              className="tag"
+              closable={!isLoading}
+              onClose={(e) => onCloseTag(e, filter)}
+            >
+              {filter.name}: {filter.value}
+            </Tag>
+          );
+        })}
+      </div>
     </StyledPointAdjustment>
   );
 };

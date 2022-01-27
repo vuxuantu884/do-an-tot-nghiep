@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button, Card } from 'antd';
 
 import UrlConfig from 'config/url.config';
@@ -17,14 +17,9 @@ import mathPlusIcon from "assets/icon/math-plus.svg";
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
 import NumberFormat from 'react-number-format';
 import useAuthorization from 'hook/useAuthorization';
-import queryString from "query-string";
-import { generateQuery } from 'utils/AppUtils';
-import { getQueryParamsFromQueryString } from 'utils/useQuery';
-
 
 
 const initParams: PointAdjustmentListRequest = {
-  term: null,
   page: 1,
   limit: 30,
   id: null,
@@ -46,13 +41,6 @@ const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 
 const PointAdjustment = () => {
-
-  const history = useHistory()
-  const location = useLocation()
-
-  const queryParamsParsed: { [key: string]: string | string[] | null } = queryString.parse(
-    location.search
-  );
 
   const [allowCreatePointAdjustment] = useAuthorization({
     acceptPermissions: createPointAdjustmentPermission,
@@ -167,50 +155,14 @@ const PointAdjustment = () => {
   const dispatch = useDispatch()
 
   const [params, setParams] = useState<PointAdjustmentListRequest>({ ...initParams });
-  const [isLoading, 
-    setIsLoading] = useState(false);
-
-  const updatePointAdjustmentData = useCallback((data: any) => {
-    setIsLoading(false);
-    if (!!data) {
-      setPointAdjustmentData(data);
-    }
-  }, []);
-
-
-  const fetchData = useCallback(
-    (params) => {
-      return new Promise<void>((resolve, reject) => {
-        setIsLoading(true)
-        dispatch(getPointAdjustmentListAction(params, updatePointAdjustmentData));
-        resolve();
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch]
-  );
-
-  const handleFetchData = useCallback(
-    (params) => {
-      fetchData(params).catch(() => {
-        setIsLoading(false);
-      });
-    },
-    [fetchData]
-  );
+  const [isLoading, setIsLoading] = useState(false);
 
   const onFilter = useCallback(
     (values) => {
-      let filterParams = { ...params, ...values, page: 1 };
-      let currentParam = generateQuery(params);
-      let queryParam = generateQuery(filterParams);
-      if (currentParam === queryParam) {
-        handleFetchData(filterParams);
-      } else {
-        history.push(`${location.pathname}?${queryParam}`);
-      }
+      const filterParams = { ...params, ...values, page: 1 };
+      setParams(filterParams);
     },
-    [handleFetchData, history, location.pathname, params]
+    [params]
   );
 
   const onClearFilter = useCallback(() => {
@@ -226,15 +178,18 @@ const PointAdjustment = () => {
     [params]
   );
 
+  const updatePointAdjustmentData = useCallback((data: any) => {
+    setIsLoading(false);
+    if (!!data) {
+      setPointAdjustmentData(data);
+    }
+  }, [])
+
   useEffect(() => {
-    let dataQuery: PointAdjustmentListRequest = {
-      ...initParams,
-      ...getQueryParamsFromQueryString(queryParamsParsed),
-    };
-    setParams(dataQuery);
-    handleFetchData(dataQuery);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, handleFetchData, location.search]);
+    setIsLoading(true);
+    dispatch(getPointAdjustmentListAction(params, updatePointAdjustmentData));
+  }, [dispatch, updatePointAdjustmentData, params]);
+  
 
   return (
     <StyledPointAdjustment>

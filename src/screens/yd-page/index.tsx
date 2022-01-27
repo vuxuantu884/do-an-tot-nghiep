@@ -139,6 +139,7 @@ function YDPageCRM() {
     return () => {
       window.removeEventListener("message", handleEvent, false);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
