@@ -358,42 +358,42 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               }
               return (
                 <Fragment>
-                  <AccountSearchPaging
-                    fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
-                    selectProps={{ placeholder: "Chọn Merchandiser", defaultValue: getFieldValue(POField.merchandiser_code) }}
-                    formItemProps={{
-                      name: POField.merchandiser_code, label: "Merchandiser",
-                      rules: [
-                        {
-                          required: true,
-                          message: "Vui lòng chọn Merchandiser",
-                        },
-                      ]
-                    }}
-                  />
+                  <Form.Item
+                    name={POField.merchandiser_code}
+                    label="Merchandiser"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn Merchandiser",
+                      },
+                    ]}>
+                    <AccountSearchPaging
+                      placeholder="Chọn Merchandiser"
+                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                    />
+                  </Form.Item>
 
-                  <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
-                    selectProps={{ placeholder: "Chọn QC", defaultValue: getFieldValue(POField.qc_code) }}
-                    formItemProps={{
-                      name: POField.qc_code, label: "QC"
-                    }}
-                  />
+                  <Form.Item name={POField.qc_code} label="QC">
+                    <AccountSearchPaging
+                      placeholder="Chọn QC"
+                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                    />
+                  </Form.Item>
 
-                  <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
-                    selectProps={{ placeholder: "Chọn nhà thiết kế", defaultValue: getFieldValue(POField.designer_code) }}
-                    formItemProps={{
-                      name: POField.designer_code, label: "Thiết kế"
-                    }}
-                  />
-                  
+                  <Form.Item name={POField.designer_code} label="Thiết kế">
+                    <AccountSearchPaging
+                      placeholder="Chọn nhà thiết kế"
+                      fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                    />
+                  </Form.Item>
+
                   <Form.Item
                     tooltip={{
                       title: "Thêm số tham chiếu hoặc mã hợp đồng",
                       icon: <InfoCircleOutlined />,
                     }}
                     name={POField.reference}
-                    label="Số tham chiếu"
-                  >
+                    label="Số tham chiếu">
                     <Input placeholder="Nhập số tham chiếu" maxLength={255} />
                   </Form.Item>
                 </Fragment>

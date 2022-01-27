@@ -1,15 +1,17 @@
-import { Form, SelectProps } from "antd";
+import { SelectProps } from "antd";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import _ from "lodash";
 import { AccountPublicSearchQuery, AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import React, { ReactElement, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
-import { SelectSearchProps } from "./color-select";
-
+export interface SelectContentProps extends SelectProps<any> {
+  fixedQuery?: any; 
+  [name: string]: any;
+}
 const defaultSelectProps: SelectProps<any> = {
   placeholder: "Chọn tài khoản",
   mode: undefined,
@@ -21,24 +23,16 @@ const defaultSelectProps: SelectProps<any> = {
   notFoundContent: "Không có dữ liệu",
 };
 
-AccountSelect.defaultProps = {
+SelectSearch.defaultProps = {
   fixedQuery: {
     condition: "",
   },
   key: "code",
-  noFormItem: false,
 };
 
-function AccountSelect({
-  form,
-  key,
-  fixedQuery,
-  formItemProps,
-  noFormItem,
-  selectProps,
-}: SelectSearchProps): ReactElement {
-  const name = formItemProps?.name || "";
-  const { mode, defaultValue } = selectProps!;
+function SelectSearch(contentProps: SelectContentProps) {
+  const { id: name, value, mode, fixedQuery, key, ...selectProps } = contentProps;
+
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
   const [data, setData] = React.useState<PageResponse<AccountResponse>>({
@@ -49,6 +43,8 @@ function AccountSelect({
       total: 0,
     },
   });
+
+  const [defaultOptons, setDefaultOptons] = useState<AccountResponse[]>([]);
 
   const handleSearch = (queryParams: AccountPublicSearchQuery) => {
     setIsSearching(true);
@@ -63,104 +59,95 @@ function AccountSelect({
     );
   };
 
-  const formFieldValue = form && name ? form?.getFieldValue(name) : null;
+  /**
+   * Option cho trang 1
+   */
+  useEffect(() => {
+    const getDefaultOptions = async () => {
+      const response = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        searchAccountPublicApi,
+        { ...fixedQuery, page: 1, limit: 30 }
+      );
+      setDefaultOptons(response.items);
+      setData(response);
+    };
+    getDefaultOptions();
+  }, [dispatch, fixedQuery]);
 
   /**
    * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho
    */
   useEffect(() => {
     const getIntialValue = async () => {
-      let value = formFieldValue;
-      let initParams: any = [];
-
-      if (defaultValue) {
-        value = defaultValue;
-      }
+      let initCodes: any = [];
 
       if (mode === "multiple" && Array.isArray(value)) {
-        initParams = value;
+        initCodes = value;
       } else if (typeof value === "string") {
-        initParams = [value];
+        initCodes = [value];
       } else {
-        initParams = [];
+        initCodes = [];
       }
 
-      if (initParams.length > 0) {
+      if (initCodes.length > 0 && defaultOptons?.length > 0) {
         // call api lấy data của item(s) đang được chọn trước đó
         const initSelectedResponse = await callApiNative(
           { isShowError: true },
           dispatch,
           searchAccountPublicApi,
           {
-            codes: initParams,
+            codes: initCodes,
+            ...fixedQuery,
           }
         );
 
-        // call api lấy thêm data nối vào sau để người dùng có thể chọn item khác
-        const defaultItems = await callApiNative(
-          { isShowError: true },
-          dispatch,
-          searchAccountPublicApi
-        );
-
-        let totalItems = [];
-        if (initSelectedResponse?.items && defaultItems?.items) {
+        let totalItems: AccountResponse[] = [];
+        if (initSelectedResponse?.items && defaultOptons) {
           // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
-          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultItems.items], key!);
-        } else if (defaultItems?.items) {
-          totalItems = defaultItems.items;
+          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultOptons], "code");
+        } else if (defaultOptons) {
+          totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {
           totalItems = initSelectedResponse.items;
         }
 
-        setData({ ...defaultItems, items: totalItems });
-      } else {
-        const defaultItems = await callApiNative(
-          { isShowError: true },
-          dispatch,
-          searchAccountPublicApi
-        );
-        setData(defaultItems);
+        setData((prevState) => ({ ...prevState, items: totalItems }));
       }
       setIsSearching(false);
     };
     getIntialValue();
-  }, [dispatch, formFieldValue, defaultValue, key, mode]);
+  }, [dispatch, mode, value, fixedQuery, key, defaultOptons]);
 
-  const SelectContent = ()=>(
+  return (
     <SelectPagingV2
       {...defaultSelectProps}
-      {...selectProps}
+      id={name}
+      mode={mode}
+      defaultValue={value}
       metadata={data?.metadata}
       loading={isSearching}
       onSearch={(value) => handleSearch({ condition: value })}
       onClear={() => handleSearch({ condition: "" })}
       onPageChange={(key: string, page: number) => {
         handleSearch({ condition: key, page: page });
-      }}>
+      }}
+      {...selectProps}
+      >
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code + name} value={item[key!]}>
+        <SelectPagingV2.Option key={item.code + name} value={item.code}>
           {`${item.code} - ${item.full_name}`}
         </SelectPagingV2.Option>
       ))}
     </SelectPagingV2>
   );
-
-  if (noFormItem) {
-    return <SelectContent/>;
-  } else {
-    return (
-      <Form.Item name={name} {...formItemProps}>
-        <SelectContent/>
-      </Form.Item>
-    );
-  }
 }
 
-// const AccountSearchPaging = React.memo(AccountSelect, (prev, next) => {
-//   const { form, fixedQuery } = prev;
-//   const { form: nextForm, fixedQuery: nextQuery } = next;
-//   return form === nextForm && fixedQuery === nextQuery;
-// });
-export default AccountSelect;
-// export default AccountSearchPaging;
+const AccountSearchPaging = React.memo(SelectSearch, (prev, next) => {
+  const { value } = prev;
+  const { value: nextValue } = next;
+  return value === nextValue;
+});
+
+export default AccountSearchPaging;

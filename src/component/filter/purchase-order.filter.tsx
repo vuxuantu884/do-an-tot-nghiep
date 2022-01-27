@@ -3,8 +3,8 @@ import { Button, Collapse, Form, Input, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import HashTag from "component/custom/hashtag";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomSelect from "component/custom/select.custom";
-import SelectPaging from "component/custom/SelectPaging";
 import CustomRangepicker from "component/filter/component/range-picker.custom";
 import CustomModal from "component/modal/CustomModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -31,7 +31,7 @@ import { primaryColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
 import BaseFilter from "./base.filter";
 import CustomSelectMany from "./component/select-many.custom";
-import CustomSelectOne from "./component/select-one.custom"; 
+import CustomSelectOne from "./component/select-one.custom";
 
 
 const { Panel } = Collapse;
@@ -264,48 +264,18 @@ const AdvanceFormItems = ({
             break;
           case filterFields.merchandiser:
             collapseChildren = (
-              <SelectPaging 
-                    metadata={wins.metadata}
-                    placeholder="Chọn Merchandiser"
-                    showSearch={false}
-                    showArrow
-                    allowClear
-                    tagRender={tagRender} 
-                    mode="multiple"
-                    maxTagCount="responsive" 
-                    searchPlaceholder="Tìm kiếm Merchandiser"
-                    onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                    onSearch={(key) => getAccounts(key, 1, false, true)}
-                  >
-                    {wins.items?.map((item) => (
-                      <SelectPaging.Option key={item.id} value={item.code}>
-                      {`${item.code} - ${item.full_name}`}
-                      </SelectPaging.Option>
-                          ))}
-                </SelectPaging>
+              <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                tagRender={tagRender}
+                mode="multiple"
+                placeholder="Chọn Merchandiser"/>
             );
             break;
           case filterFields.qc:
             collapseChildren = (
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 hoặc nhiều qc"
-                mode="multiple"
-                allowClear
+              <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                 tagRender={tagRender}
-                style={{
-                  width: "100%",
-                }}
-                optionFilterProp="children"
-                notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive"
-              >
-              {lstQC.items?.map((item) => (
-                   <SelectPaging.Option key={item.id} value={item.code}>
-                   {`${item.code} - ${item.full_name}`}
-                   </SelectPaging.Option>
-                       ))}
-              </CustomSelect>
+                mode="multiple"
+                placeholder="Chọn 1 hoặc nhiều QC"/>
             );
             break;
           case filterFields.is_have_returned:
@@ -691,25 +661,10 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                 />
               </Item>
               <Item name={filterFields.merchandiser} style={{width: 250}}>
-                <SelectPaging 
-                    metadata={wins.metadata}
-                    placeholder="Chọn Merchandiser"
-                    showSearch={false}
-                    showArrow
-                    allowClear
-                    tagRender={tagRender} 
-                    mode="multiple"
-                    maxTagCount="responsive" 
-                    searchPlaceholder="Tìm kiếm Merchandiser"
-                    onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                    onSearch={(key) => getAccounts(key, 1, false, true)}
-                  >
-                    {wins.items?.map((item) => (
-                      <SelectPaging.Option key={item.id} value={item.code}>
-                      {`${item.code} - ${item.full_name}`}
-                      </SelectPaging.Option>
-                          ))}
-                </SelectPaging>
+                <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                tagRender={tagRender}
+                mode="multiple"
+                placeholder="Chọn Merchandiser"/>
               </Item>
               <Item name={filterFields.status}>
                 <CustomSelect
