@@ -56,15 +56,27 @@ const GeneralInformation = (props: any) => {
     setVisiblePhoneModal(false);
   };
 
+    // Update new customer info
+    const updateNewCustomerInfo = useCallback((fieldName: string, value: any) => {
+      const tempNewCustomerInfo = {...newCustomerInfo};
+      tempNewCustomerInfo[fieldName] = value;
+      setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
   useEffect(() => {
     let phoneValue = form.getFieldValue("phone");
     if (!phoneValue) {
+      updateNewCustomerInfo("phone", customerPhone);
       form.setFieldsValue({ phone: customerPhone });
       getCustomerWhenPhoneChange(customerPhone);
+    } else {
+      updateNewCustomerInfo("phone", phoneValue);
     }
-  }, [customerPhone, form, getCustomerWhenPhoneChange]);
+  }, [customerPhone, form, getCustomerWhenPhoneChange, updateNewCustomerInfo]);
 
   const clickPhone = (p: any) => {
+    updateNewCustomerInfo("phone", p);
     form.setFieldsValue({ phone: p });
     getCustomerWhenPhoneChange(p);
   };
@@ -85,13 +97,6 @@ const GeneralInformation = (props: any) => {
       deleteFpPhone(p);
       setVisibleDeletePhoneModal(false);
     });
-  };
-
-  // Update new customer info
-  const updateNewCustomerInfo = (fieldName: string, value: any) => {
-    const tempNewCustomerInfo = {...newCustomerInfo};
-    tempNewCustomerInfo[fieldName] = value;
-    setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
 
   // handle change phone number

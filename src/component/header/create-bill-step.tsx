@@ -142,7 +142,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       <Steps.Step
         title="Đặt hàng"
         description={
-          orderDetail ? moment(props.orderDetail?.created_on || props.orderDetail?.created_date).format(formatDate) : null
+          orderDetail ? moment(props.orderDetail?.created_date).format(formatDate) : null
         }
       />
       <Steps.Step

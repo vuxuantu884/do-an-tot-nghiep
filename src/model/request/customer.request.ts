@@ -1,3 +1,5 @@
+import { BaseQuery } from "model/base/base.query";
+
 interface BaseObject {
   created_by: number | null;
   created_name: string | null;
@@ -5,13 +7,6 @@ interface BaseObject {
   updated_name: string | null;
   request_id: string | null;
   operator_kc_id: string | null;
-}
-
-interface BaseRequest {
-  page?: number;
-  limit?: number;
-  sort_column?: string;
-  sort_type?: string;
 }
 
 export interface CustomerBillingAddress extends BaseObject {
@@ -231,12 +226,13 @@ export interface CustomerUpdateRequest extends CustomerRequest {
   shopping_histories: Array<any>;
 }
 
-export interface CustomerCardListRequest extends BaseRequest {
-  request: string;
-  from_assigned_date: string;
-  to_assigned_date: string;
-  statuses: Array<any>;
-  release_ids: Array<any>;
+export interface CustomerCardListRequest extends BaseQuery {
+  request?: string;
+  from_assigned_date?: string;
+  to_assigned_date?: string;
+  statuses?: Array<any>;
+  release_ids?: Array<any>;
+  customer_id?: number | null,
 }
 
 export interface YDpageCustomerRequest {

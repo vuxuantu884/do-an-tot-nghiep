@@ -23,44 +23,48 @@ const YDpage: React.FC = () => {
     setSource(allSource.FACEBOOK);
     setYdpageSource(allSource.FACEBOOK);
     setIsLogining(true);
-    window.location.href = YDPAGE_URL + 'auth/facebook';
+    window.location.href = YDPAGE_URL + "auth/facebook";
   };
 
   function setYdpagePath(path: any) {
     const url = new URL(window.location.href);
-    url.searchParams.set('path', path);
-    window.history.pushState({}, '', url.toString());
+    url.searchParams.set("path", path);
+    window.history.pushState({}, "", url.toString());
   }
 
   function getYdPageUrl() {
-    const pathParam = new URLSearchParams(window.location.search).get('path');
-    const path = (pathParam) ? pathParam : '/chat';
-    return new URL(YDPAGE_URL || '').origin + '/#' + path;
+    const pathParam = new URLSearchParams(window.location.search).get("path");
+    const path = pathParam ? pathParam : "/chat";
+    return new URL(YDPAGE_URL || "").origin + "/#" + path;
   }
-
-  window.addEventListener("message", (event) => {
-    const { data } = event;
-    const { cmd, route } = data;
-
-    switch (cmd) {
-      case 'save_route_path':
-        setYdpagePath(route.path);
-        setLoadingYdpage(false);
-        break;
-      case 'hide_sidebar_menu':
-        const settingApp = JSON.parse(localStorage.setting_app || '{}');
-        if (!settingApp.collapse) {
-          const toggleSideBtn: HTMLElement | null = document.querySelector('header button');
-          toggleSideBtn?.click();
-        }
-        break;
-      case 'ydpage_loaded':
-        setLoadingYdpage(false);
-        break;
-      default:
-        break;
+  useEffect(() => {
+    function handleEvent(event: any) {
+      const { data } = event;
+      const { cmd, route } = data;
+      switch (cmd) {
+        case "save_route_path":
+          setYdpagePath(route.path);
+          setLoadingYdpage(false);
+          break;
+        case "hide_sidebar_menu":
+          const settingApp = JSON.parse(localStorage.setting_app || "{}");
+          if (!settingApp.collapse) {
+            const toggleSideBtn: HTMLElement | null = document.querySelector("header button");
+            toggleSideBtn?.click();
+          }
+          break;
+        case "ydpage_loaded":
+          setLoadingYdpage(false);
+          break;
+        default:
+          break;
+      }
     }
-  }, false);
+    window.addEventListener("message", handleEvent, false);
+    return () => {
+      window.removeEventListener("message", handleEvent, false);
+    };
+  }, []);
 
   const queryString = useQuery();
   const fbCode = queryString.get("code");
@@ -70,11 +74,13 @@ const YDpage: React.FC = () => {
   const [isLogining, setIsLogining] = useState<Boolean | null>(false);
 
   useEffect(() => {
-    const iframe: HTMLIFrameElement | null = document.querySelector('[name="ydpage-callback-iframe"]');
-    iframe?.addEventListener('load', function () {
+    const iframe: HTMLIFrameElement | null = document.querySelector(
+      '[name="ydpage-callback-iframe"]'
+    );
+    iframe?.addEventListener("load", function () {
       const url = new URL(window.location.href);
-      url.searchParams.delete('code');
-      window.history.pushState({}, '', url.toString());
+      url.searchParams.delete("code");
+      window.history.pushState({}, "", url.toString());
     });
 
     if (!iframe && source) {
@@ -134,16 +140,13 @@ const YDpage: React.FC = () => {
           </div>
         </ContentContainer>
       )}
-      {loadingYdpage && (
-        <SplashScreen />
-      )}
+      {loadingYdpage && <SplashScreen />}
       {source === allSource.FACEBOOK && !fbCode && !isLogining && (
         <iframe
           className="ydpage-iframe"
           title="ydpage"
           src={getYdPageUrl()}
-          style={{ width: "100%", height: "100%" }}
-        ></iframe>
+          style={{ width: "100%", height: "100%" }}></iframe>
       )}
       {source === allSource.FACEBOOK && fbCode && !isLogining && (
         <iframe
@@ -151,8 +154,7 @@ const YDpage: React.FC = () => {
           className="ydpage-iframe"
           title="ydpage"
           src={`${YDPAGE_URL}auth/facebook/callback?code=${fbCode}`}
-          style={{ width: "100%", height: "100%" }}
-        ></iframe>
+          style={{ width: "100%", height: "100%" }}></iframe>
       )}
     </StyledYDpage>
   );

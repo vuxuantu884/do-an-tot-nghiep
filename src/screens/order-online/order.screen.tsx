@@ -84,6 +84,7 @@ export default function Order() {
 	const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 	const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone]= useState<string>();
 	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
 	const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
 	const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
@@ -488,7 +489,11 @@ ShippingServiceConfigDetailResponseModel[]
 		values.tags = tags;
 		values.items = items.concat(itemGifts);
 		values.discounts = lstDiscount;
-		values.shipping_address = shippingAddress;
+		let _shippingAddressRequest:any={
+			...shippingAddress,
+			second_phone:shippingAddressesSecondPhone
+		}
+		values.shipping_address = _shippingAddressRequest;
 		values.billing_address = billingAddress;
 		values.customer_id = customer?.id;
 		values.customer_ward = customer?.ward;
@@ -1033,6 +1038,8 @@ ShippingServiceConfigDetailResponseModel[]
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
 
+	//console.log("shippingAddressesSecondPhone",shippingAddress)
+
 	return (
 		<React.Fragment>
 			<ContentContainer
@@ -1097,6 +1104,8 @@ ShippingServiceConfigDetailResponseModel[]
 											modalAction={modalAction}
 											setModalAction={setModalAction}
 											setOrderSourceId={setOrderSourceId}
+											shippingAddressesSecondPhone={shippingAddressesSecondPhone}
+											setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
 										/>
 										<OrderCreateProduct
 											orderAmount={orderAmount}

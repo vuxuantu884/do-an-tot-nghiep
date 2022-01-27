@@ -1,4 +1,5 @@
 //#region Import
+import { PhoneOutlined } from "@ant-design/icons";
 import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
@@ -33,6 +34,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 		if(!shippingAddress) {
 			return "";
 		}
+    ///let second_phone_address=shippingAddress.second_phone?`-${shippingAddress.second_phone} -`:'-';
 		result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
 		return result;
 	};
@@ -145,6 +147,39 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                 </Col>
               </Row>
 
+              <Row gutter={24} hidden={props.OrderDetail?.shipping_address?.second_phone?false:true}>
+                <Col
+                  xs={24}
+                  style={{
+                    paddingTop: "14px",
+                  }}
+                  className="font-weight-500 customer-info-left"
+                >
+                  <div className="title-address">
+                    {/* <img
+                      src={addressIcon}
+                      alt=""
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        marginRight: "10px",
+                      }}
+                    /> */}
+                    <PhoneOutlined
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        marginRight: "10px",
+                      }}
+                    />
+                    Số điện thoại phụ:
+                    <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+											{/* {props.OrderDetail?.shipping_address?.name} - {" "} */}
+                      {props.OrderDetail?.shipping_address?.second_phone}
+                    </span>
+                  </div>
+                </Col>
+              </Row>
 
               <div className="send-order-box" hidden={true}>
                 <Divider style={{ padding: 0, margin: 0 }} />
@@ -170,6 +205,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                       <span style={{ fontWeight: 400, marginLeft: "10px" }}>
                         {props.OrderDetail?.billing_address?.name} -{" "}
                         {props.OrderDetail?.billing_address?.phone} -{" "}
+                        
                         {props.OrderDetail?.billing_address?.full_address} -{" "}
                         {props.OrderDetail?.billing_address?.ward} -{" "}
                         {props.OrderDetail?.billing_address?.district} -{" "}

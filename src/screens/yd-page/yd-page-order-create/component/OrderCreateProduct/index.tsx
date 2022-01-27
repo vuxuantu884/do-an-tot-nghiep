@@ -103,7 +103,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
 	storeId: number | null;
-  defaultStoreId: number | null;
+	defaultStoreId: number | null;
 	items?: Array<OrderLineItemRequest>;
 	shippingFeeInformedToCustomer: number | null;
 	form: FormInstance<any>;
@@ -196,7 +196,7 @@ function OrderCreateProduct(props: PropType) {
 		form,
 		items,
 		storeId,
-    defaultStoreId,
+		defaultStoreId,
 		inventoryResponse,
 		levelOrder = 0,
 		coupon = "",
@@ -2088,7 +2088,7 @@ function OrderCreateProduct(props: PropType) {
               </div>
             ),
           }}
-          rowKey={(record, index) => record.id + (index || 0)}
+			rowKey={(item) => item.id.toString()}
           columns={columns}
           dataSource={items}
           className="sale-product-box-table2 w-100"

@@ -79,6 +79,8 @@ type CustomerCardProps = {
   modalAction: modalActionType;
   setOrderSourceId?: (value: number) => void;
   OrderDetail?: OrderResponse | null;
+  shippingAddressesSecondPhone?:string;
+  setShippingAddressesSecondPhone?:(value:string)=>void;
 };
 
 //Add query for search Customer
@@ -113,7 +115,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setModalAction,
     modalAction,
     setOrderSourceId,
-    OrderDetail
+    OrderDetail,
+    shippingAddressesSecondPhone,
+    setShippingAddressesSecondPhone,
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -350,6 +354,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     props.ShippingAddressChange(null);
     if(setVisibleCustomer)setVisibleCustomer(false);
     setKeySearchCustomer("");
+    if(setShippingAddressesSecondPhone)
+      setShippingAddressesSecondPhone("");
   };
 
   //#end region
@@ -396,6 +402,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur)
           autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
+        if( setShippingAddressesSecondPhone)setShippingAddressesSecondPhone("");
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -761,6 +768,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 ShowAddressModalEdit={ShowAddressModalEdit}
                 showAddressModalDelete={showAddressModalDelete}
                 ShowAddressModalAdd={ShowAddressModalAdd}
+                shippingAddressesSecondPhone={shippingAddressesSecondPhone}
+                setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
               />
             )}
 
