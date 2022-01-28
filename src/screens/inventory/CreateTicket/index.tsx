@@ -358,7 +358,7 @@ const CreateTicket: FC = () => {
     }
   }, [dataTable, form])
 
-  const onChangeFromStore = (storeId: number) => {
+  const onChangeFromStore = (storeId: number) => { 
     const variants_id = dataTable?.map((item: VariantResponse) => item.id);
 
     if (variants_id?.length > 0) {
@@ -681,9 +681,9 @@ const CreateTicket: FC = () => {
                         showArrow
                         optionFilterProp="children"
                         showSearch
-                        onChange={(value: string) => {
+                        onChange={(value: number) => {
                           stores.forEach((element) => {
-                            if (element.id === parseInt(value)) {
+                            if (element.id === value) {
                               setFormStoreData(element);
                               onChangeFromStore(element.id);
                             }
@@ -694,7 +694,7 @@ const CreateTicket: FC = () => {
                           fromStores.map((item, index) => (
                             <Option
                               key={"from_store_id" + index}
-                              value={item.store?.toString() ?? ""}
+                              value={item.store_id || 0}
                             >
                               {item.store}
                             </Option>
