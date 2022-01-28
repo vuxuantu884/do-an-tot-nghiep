@@ -833,7 +833,7 @@ const UpdateTicket: FC = () => {
                             fromStores.map((item, index) => (
                               <Option
                                 key={"from_store_id" + index}
-                                value={item.store?.toString() ?? ""}
+                                value={item.store_id || 0}
                               >
                                 {item.store}
                               </Option>
