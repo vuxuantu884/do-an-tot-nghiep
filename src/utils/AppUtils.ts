@@ -1208,7 +1208,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 			moment(b.updated_date).diff(moment(a.updated_date))
 		);
 		let result = "-";
-		switch (sortedFulfillments[0]?.shipment.delivery_service_provider_type) {
+		switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
 			case ShipmentMethod.EMPLOYEE:
 				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}` 
 				break;
@@ -1232,7 +1232,6 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
-		console.log("dataJson", dataJson);
 		result = `
 		<span style="color:red">Thông tin đơn hàng: </span><br/> 
 		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
@@ -1240,14 +1239,14 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		- Nguồn : ${dataJson?.source || "-"}<br/>
 		- Cửa hàng : ${dataJson?.store || "-"}<br/>
 		- Địa chỉ cửa hàng : ${dataJson?.store_full_address}<br/>
-		- Thời gian: ${dataJson.updated_date ? moment(dataJson.updated_date).format(dateFormat) : "-"}<br/>
+		- Thời gian: ${dataJson?.updated_date ? moment(dataJson?.updated_date).format(dateFormat) : "-"}<br/>
 		- Ghi chú: ${dataJson?.note || "-"} <br/>
 		<br/>
 		<span style="color:red">Sản phẩm: </span><br/> 
-		${dataJson.items
+		${dataJson?.items
 			.map((singleItem: any, index: any) => {
 				return `
-		- Sản phẩm ${index + 1}: ${singleItem.product} <br/>
+		- Sản phẩm ${index + 1}: ${singleItem?.product} <br/>
 			+ Đơn giá: ${singleItem?.price} <br/>
 			+ Số lượng: ${singleItem?.quantity} <br/>
 			+ Thuế : ${singleItem?.tax_rate || 0} <br/>
@@ -1261,16 +1260,16 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		- Địa chỉ giao hàng: ${renderAddress(dataJson)} <br/>
 		- Địa chỉ nhận hóa đơn: ${renderAddress(dataJson)} <br/>
 		- Phương thức giao hàng: ${renderShipmentMethod(dataJson)} <br/>
-		- Trạng thái: ${dataJson.fulfillments[0]?.status} <br/>
+		- Trạng thái: ${dataJson?.fulfillments[0]?.status} <br/>
 		<br/>
 		<span style="color:red">Thanh toán: </span><br/>  
 		${
-			(!(dataJson.payments?.length > 0))
+			(!(dataJson?.payments?.length > 0))
 				? `- Chưa thanh toán`
 				: dataJson?.payments && dataJson?.payments
 						.map((singlePayment: any, index: number) => {
 							return `
-							- ${singlePayment.payment_method}: ${singlePayment.paid_amount}
+							- ${singlePayment?.payment_method}: ${singlePayment?.paid_amount}
 						`;
 						})
 						.join("<br/>")
