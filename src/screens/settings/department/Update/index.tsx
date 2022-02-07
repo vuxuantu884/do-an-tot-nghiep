@@ -19,6 +19,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {useHistory} from "react-router";
 import {useParams} from "react-router-dom";
+import { RegUtil } from "utils/RegUtils";
 
 interface DepartmentParam {
   id: string;
@@ -216,7 +217,15 @@ const DepartmentUpdateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={8}>
-                <Form.Item name="phone" label="Số điện thoại">
+                <Form.Item 
+                  name="phone" 
+                  label="Số điện thoại"
+                  rules={[
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại không đúng định dạng"
+                    }
+                  ]}>
                   <Input placeholder="Nhập số điện thoại" />
                 </Form.Item>
               </Col>
