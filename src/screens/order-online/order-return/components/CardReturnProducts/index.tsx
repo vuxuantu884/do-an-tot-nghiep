@@ -108,7 +108,7 @@ function CardReturnProducts(props: PropType) {
           style={{display: "flex", justifyContent: "space-between"}}
         >
           <p style={{margin: 0}}>Đơn giá gốc: </p>
-          <p style={{margin: "0 0 0 20px"}}>{price}</p>
+          <p style={{margin: "0 0 0 20px"}}>{formatCurrency(price)}</p>
         </div>
       </div>
     );

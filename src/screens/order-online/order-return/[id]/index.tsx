@@ -104,6 +104,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const handleReturnMoney = () => {
     form.validateFields().then(() => {
       const formValue = form.getFieldsValue();
+      console.log('formValue', formValue)
       if (formValue.returnMoneyField && formValue.returnMoneyField[0]) {
         const formValuePayment = formValue.returnMoneyField[0];
         let returnMoneyMethod = listPaymentMethods.find((single) => {
@@ -116,14 +117,15 @@ const ScreenReturnDetail = (props: PropType) => {
               payment_method: returnMoneyMethod.name,
               name: returnMoneyMethod.name,
               note: formValuePayment.returnMoneyNote || "",
-              amount: OrderDetail?.total_line_amount_after_line_discount || 0,
+              amount: 0,
               paid_amount:
-                OrderDetail?.total_line_amount_after_line_discount || 0,
+                totalAmountReturnToCustomer || 0,
               return_amount:
-                OrderDetail?.total_line_amount_after_line_discount || 0,
+                totalAmountReturnToCustomer || 0,
               customer_id: OrderDetail?.customer_id,
             },
           ];
+          console.log('payments', payments)
           dispatch(
             actionOrderRefund(returnOrderId, { payments }, (response) => {
               dispatch(

@@ -76,6 +76,8 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     EcommerceProductPermission.products_update_stock,
   ];
 
+  const [pageQuery, setPageQuery] = useState(1);
+
   const [allowProductsUpdateStock] = useAuthorization({
     acceptPermissions: productsUpdateStockPermission,
     not: false,
@@ -246,12 +248,13 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
 
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
-      setPrams({ ...params });
+      setPageQuery(page)
+      let newPrams = { ...params, page, limit: size };
+      let queryParam = generateQuery(newPrams);
+      history.push(`${location.pathname}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [params]
+    [history, location.pathname, params]
   );
 
   const onFilter = useCallback(
@@ -320,6 +323,36 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     dispatch(getShopEcommerceList({}, updateAllShopList));
   }, [dispatch, updateAllShopList]);
   // end
+
+  const onFilter = useCallback(
+    (values) => {
+      let filterParams = { ...params, ...values, page: pageQuery };
+      let currentParam = generateQuery(params);
+      let queryParam = generateQuery(filterParams);
+      if (currentParam === queryParam) {
+        handleFetchData(filterParams);
+      } else {
+        history.push(`${location.pathname}?${queryParam}`);
+      }
+    },
+    [handleFetchData, history, location.pathname, pageQuery, params]
+  );
+
+  const onClearFilter = useCallback(() => {
+    setPrams(initQuery);
+    let queryParam = generateQuery(initQuery);
+		history.push(`${location.pathname}?${queryParam}`);
+  }, [history, location.pathname]);
+
+  useEffect(() => {
+    let dataQuery: GetOrdersMappingQuery = {
+      ...initQuery,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    };
+    setPrams(dataQuery);
+    handleFetchData(dataQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, handleFetchData, setSearchResult, location.search]);
 
   return (
     <AllOrdersMappingStyled>

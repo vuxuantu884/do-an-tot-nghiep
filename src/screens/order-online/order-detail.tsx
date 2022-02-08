@@ -47,7 +47,7 @@ import {
 	formatCurrency,
 	generateQuery,
 	getAmountPayment,
-	SumCOD
+	// SumCOD
 } from "utils/AppUtils";
 import {
 	FulFillmentStatus,
@@ -101,7 +101,7 @@ const OrderDetail = (props: PropType) => {
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
 
   const showOrderDetailUtm = useMemo(() => {
-    return OrderDetail?.utm_campain || OrderDetail?.utm_content
+    return OrderDetail?.utm_campaign || OrderDetail?.utm_content
       || OrderDetail?.utm_medium || OrderDetail?.utm_source
       || OrderDetail?.utm_term || OrderDetail?.affiliate
   }, [OrderDetail]);
@@ -744,10 +744,11 @@ const OrderDetail = (props: PropType) => {
                             defaultActiveKey={["100"]}
                             ghost
                           >
-                            {OrderDetail.total === SumCOD(OrderDetail) &&
+                            {/* {OrderDetail.total === SumCOD(OrderDetail) &&
                             OrderDetail.total === totalPaid ? (
                               ""
-                            ) : (
+                            ) :  */}
+                            {/* ( */}
                               <React.Fragment>
                                 {OrderDetail?.payments
                                   .filter((payment) => {
@@ -765,15 +766,17 @@ const OrderDetail = (props: PropType) => {
                                       className="orders-timeline-custom success-collapse"
                                       header={
                                         <div className="orderPaymentItem">
-                                          <div className="orderPaymentItem__left">
+                                          <div className="orderPaymentItem__left 333">
                                             <div>
-                                              {/* <b>{payment.payment_method}</b> */}
                                               {/* trường hợp số tiền âm là hoàn lại tiền */}
-                                              <b>
-                                                {payment.paid_amount < 0
-                                                  ? "Hoàn tiền cho khách"
-                                                  : payment.payment_method}
-                                              </b>
+																									<b>
+																										{payment.paid_amount < 0
+																											? "Hoàn tiền cho khách"
+																											: payment.payment_method}
+																									</b>
+                                              {/* <b>
+                                                  {payment.payment_method}
+                                              </b> */}
                                               <span style={{marginLeft: 12}}>
                                                 {payment.reference}
                                               </span>
@@ -803,7 +806,8 @@ const OrderDetail = (props: PropType) => {
                                     ></Panel>
                                   ))}
                               </React.Fragment>
-                            )}
+                            {/* ) */}
+                            {/* } */}
                             {isShowPaymentPartialPayment && OrderDetail !== null && (
                               <Panel
                                 className="orders-timeline-custom orders-dot-status"
@@ -874,7 +878,7 @@ const OrderDetail = (props: PropType) => {
                                   header={
                                     <>
                                       <div className="orderPaymentItem">
-                                        <div className="orderPaymentItem__left">
+                                        <div className="orderPaymentItem__left 22">
                                           <b>
                                             COD
                                             {OrderDetail.fulfillments[0].status !==

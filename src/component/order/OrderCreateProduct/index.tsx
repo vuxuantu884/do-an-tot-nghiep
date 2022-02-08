@@ -221,8 +221,8 @@ function OrderCreateProduct(props: PropType) {
 		setCoupon,
 		setPromotion,
 	} = props;
-	console.log('items', items)
 	const dispatch = useDispatch();
+	const loading = useSelector((state: RootReducerType) => state.loadingReducer);
 	const [loadingAutomaticDiscount] = useState(false);
 	const [splitLine, setSplitLine] = useState<boolean>(false);
 	const [isDisableOrderDiscount, setIsDisableOrderDiscount] = useState<boolean>(false);
@@ -246,8 +246,8 @@ function OrderCreateProduct(props: PropType) {
 	const [isVisiblePickCoupon, setIsVisiblePickCoupon] = useState(false);
 	const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
 	const [changeMoney, setChangeMoney] = useState<number>(0);
-	const [isShowProductSearch, setIsShowProductSearch] = useState(true);
-	const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
+	//const [isShowProductSearch, setIsShowProductSearch] = useState(true);
+	//const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
 	const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
 	const [isCalculateDiscount, setIsCalculateDiscount] = useState(false);
 	const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -312,41 +312,49 @@ function OrderCreateProduct(props: PropType) {
 				if (event.key !== "Enter") {
 					barcode = barcode + event.key;
 				} else if (event.key === "Enter") {
+					if(loading.isVisible===true || isCalculateDiscount===true)
+					{
+						showWarning("Thao tác quá nhanh, hệ thống không kịp phản hồi!");
+						return;
+					}
 					if (barcode !== "" && event && items) {
-						dispatch(
-							SearchBarCode(barcode, (data: VariantResponse) => {
-								if (data) {
-									let _items = [...items];
-									let index = _items.findIndex((i) => i.variant_id === data.id);
-									const item: OrderLineItemRequest = createItem(data);
-									item.position = items.length + 1;
-									if (true) {
-										if (splitLine || index === -1) {
-											_items.unshift(item);
-											calculateChangeMoney(_items);
-										} else {
-											let variantItems = _items.filter((item) => item.variant_id === data.id);
-											let firstIndex = 0;
-											variantItems[firstIndex].quantity += 1;
-											variantItems[firstIndex].line_amount_after_line_discount +=
-												variantItems[firstIndex].price -
-												variantItems[firstIndex].discount_items[0]?.amount *
-												variantItems[firstIndex].quantity;
-											calculateChangeMoney(_items);
+						(() => {
+							dispatch(
+								SearchBarCode(barcode, (data: VariantResponse) => {
+									if (data) {
+										let _items = [...items];
+										let index = _items.findIndex((i) => i.variant_id === data.id);
+										const item: OrderLineItemRequest = createItem(data);
+										item.position = items.length + 1;
+										if (true) {
+											if (splitLine || index === -1) {
+												_items.unshift(item);
+												calculateChangeMoney(_items);
+											} else {
+												let variantItems = _items.filter((item) => item.variant_id === data.id);
+												let firstIndex = 0;
+												variantItems[firstIndex].quantity += 1;
+												variantItems[firstIndex].line_amount_after_line_discount +=
+													variantItems[firstIndex].price -
+													variantItems[firstIndex].discount_items[0]?.amount *
+													variantItems[firstIndex].quantity;
+												calculateChangeMoney(_items);
+											}
 										}
+	
+										if (isAutomaticDiscount && _items.length > 0) {
+											handleApplyDiscount(_items);
+										} else if (couponInputText && _items.length > 0) {
+											handleApplyCouponWhenInsertCoupon(couponInputText, _items);
+										}
+										//autoCompleteRef.current?.blur();
+										//setIsInputSearchProductFocus(false);
+										setKeySearchVariant("");
 									}
-
-									if (isAutomaticDiscount && _items.length > 0) {
-										handleApplyDiscount(_items);
-									} else if (couponInputText && _items.length > 0) {
-										handleApplyCouponWhenInsertCoupon(couponInputText, _items);
-									}
-									autoCompleteRef.current?.blur();
-									setIsInputSearchProductFocus(false);
-									setKeySearchVariant("");
-								}
-							})
-						);
+								})
+							);
+							
+						})();
 						barcode = "";
 					}
 				}
@@ -355,17 +363,159 @@ function OrderCreateProduct(props: PropType) {
 		},
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[items, isAutomaticDiscount, couponInputText, splitLine]
+		[	
+			items, 
+			isAutomaticDiscount, 
+			couponInputText, 
+			splitLine,
+			isCalculateDiscount,
+			loading.isVisible
+		]
 	);
 
+	const eventKeydownProduct=useCallback( (event: KeyboardEvent)=>{
+		const handleSearchProduct=(e: KeyboardEvent, Code: string)=>{
+			barcode="";
+			if (e.key === "Enter" && Code){
+				if(loading.isVisible===true || isCalculateDiscount===true)
+				{
+					showWarning("Thao tác quá nhanh, hệ thống không kịp phản hồi!");
+					return;
+				}
+				if(!items) return;
+
+				setKeySearchVariant("");
+				if (event.getModifierState("CapsLock")) {
+					showError("Yêu cầu tắt Caps lock");
+					return;
+				}
+				(() => {
+					 dispatch(
+						SearchBarCode(Code, (data: VariantResponse) => {
+							if (data) {
+								let _items = [...items];
+								let index = _items.findIndex((i) => i.variant_id === data.id);
+								const item: OrderLineItemRequest = createItem(data);
+								item.position = items.length + 1;
+								if (true) {
+									if (splitLine || index === -1) {
+										_items.unshift(item);
+										calculateChangeMoney(_items);
+									} else {
+										let variantItems = _items.filter((item) => item.variant_id === data.id);
+										let firstIndex = 0;
+										variantItems[firstIndex].quantity += 1;
+										variantItems[firstIndex].line_amount_after_line_discount +=
+											variantItems[firstIndex].price -
+											variantItems[firstIndex].discount_items[0]?.amount *
+											variantItems[firstIndex].quantity;
+										calculateChangeMoney(_items);
+									}
+								}
+	
+								if (isAutomaticDiscount && _items.length > 0) {
+									handleApplyDiscount(_items);
+								} else if (couponInputText && _items.length > 0) {
+									handleApplyCouponWhenInsertCoupon(couponInputText, _items);
+								}
+								// autoCompleteRef?.current?.blur();
+								//setIsInputSearchProductFocus(false);
+								setKeySearchVariant("");
+							}
+						})
+					);
+				})();
+				
+			}
+			else
+			{
+				const txtSearchCustomerElement: any =
+					document.getElementById("search_product");
+				let value=txtSearchCustomerElement?.value;
+				
+				if (orderConfig?.allow_choose_item && value) {
+					form?.validateFields(["store_id"]).catch(() => {
+						return;
+					});
+				}
+
+				initQueryVariant.info = value;
+				initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
+				// console.log("initQueryVariant", initQueryVariant);
+				if (value.length >=3) {
+					setSearchProducts(true);
+				} else {
+					setSearchProducts(false);
+				}
+				if (value.trim()) {
+					(async () => {
+						try {
+						 await dispatch(
+								searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+									setResultSearchVariant(data);
+									setSearchProducts(false);
+									//setIsShowProductSearch(true);
+									// if(data.items.length === 0) {
+									// 	showError("Không tìm thấy sản phẩm!")
+									// }
+								}, () => {
+									setSearchProducts(false);
+								})
+							);
+						} catch {
+							setSearchProducts(false);
+						}
+					})();
+				} else {
+					setSearchProducts(false);
+				}
+			}
+		}
+		if(event.key!=="Enter" && event.key!=="Shift")
+			barcode	= barcode+event.key
+		if(event.key!=="Enter")
+		{
+			setResultSearchVariant({
+				metadata: {
+					limit: 0,
+					page: 1,
+					total: 0,
+				},
+				items: [],
+			});
+		}
+
+		handleDelayActionWhenInsertTextInSearchInput(
+			autoCompleteRef,
+			() => handleSearchProduct(event, barcode),
+			200
+		  );
+		  return;
+			  
+	
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	},[	
+		couponInputText, 
+		dispatch, 
+		isAutomaticDiscount, 
+		items, 
+		orderConfig?.allow_choose_item, 
+		splitLine,isCalculateDiscount,
+		loading.isVisible
+	]);
+
 	useEffect(() => {
+		const txtSearchProductElement:any= document.getElementById("search_product");
+
 		window.addEventListener("keypress", eventKeyPress);
 		window.addEventListener("keydown", handlePressKeyBoards);
+		txtSearchProductElement?.addEventListener("keydown",eventKeydownProduct);
 		return () => {
 			window.removeEventListener("keypress", eventKeyPress);
 			window.removeEventListener("keydown", handlePressKeyBoards);
+			txtSearchProductElement?.removeEventListener("keydown",eventKeydownProduct);
 		};
-	}, [eventKeyPress, handlePressKeyBoards]);
+	}, [eventKeyPress, handlePressKeyBoards,eventKeydownProduct]);
 
 	useEffect(() => {
 		setIsAutomaticDiscount(form.getFieldValue("automatic_discount"));
@@ -729,7 +879,7 @@ function OrderCreateProduct(props: PropType) {
 						min={1}
 						maxLength={4}
 						minLength={0}
-						disabled={levelOrder > 3}
+						disabled={levelOrder > 3 || isCalculateDiscount}
 					/>
 				</div>
 			);
@@ -789,6 +939,7 @@ function OrderCreateProduct(props: PropType) {
 							couponInputText !== "" ||
 							promotion !== null ||
 							(userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin)
+							|| isCalculateDiscount
 						}
 					/>
 				</div>
@@ -821,7 +972,8 @@ function OrderCreateProduct(props: PropType) {
 							levelOrder > 3 ||
 							checkIfLineItemHasAutomaticDiscount(l) ||
 							couponInputText !== "" ||
-							checkIfOrderHasAutomaticDiscount()
+							checkIfOrderHasAutomaticDiscount() || 
+							isCalculateDiscount
 						}
 					/>
 				</div>
@@ -1001,9 +1153,10 @@ function OrderCreateProduct(props: PropType) {
 	};
 
 	const onDeleteItem = (index: number) => {
-		if (!items) {
+		if (!items || isCalculateDiscount) {
 			return;
 		}
+		
 		let _items = [...items];
 		_items.splice(index, 1);
 		if (isAutomaticDiscount && _items.length > 0) {
@@ -1432,7 +1585,7 @@ function OrderCreateProduct(props: PropType) {
 												removeDiscountItem(singleItem);
 											}
 										});
-										console.log('_items', _items)
+										// console.log('_items', _items)
 										calculateChangeMoney(_items);
 										setPromotion && setPromotion({
 											amount: 0,
@@ -1498,7 +1651,7 @@ function OrderCreateProduct(props: PropType) {
 				handleApplyCouponWhenInsertCoupon(couponInputText, _items);
 			}
 			autoCompleteRef.current?.blur();
-			setIsInputSearchProductFocus(false);
+			//setIsInputSearchProductFocus(false);
 			setKeySearchVariant("");
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1523,52 +1676,52 @@ function OrderCreateProduct(props: PropType) {
 
 	const onChangeProductSearch = useCallback(
 		async (value: string) => {
-			setIsInputSearchProductFocus(true);
+			//setIsInputSearchProductFocus(true);
 			setKeySearchVariant(value);
-			if (!isShowProductSearch || !isInputSearchProductFocus) {
-				return;
-			}
-			if (orderConfig?.allow_choose_item && value) {
-				await form?.validateFields(["store_id"]).catch(() => {
-					return;
-				});
-			}
+			// if (!isShowProductSearch || !isInputSearchProductFocus) {
+			// 	return;
+			// }
+			// if (orderConfig?.allow_choose_item && value) {
+			// 	await form?.validateFields(["store_id"]).catch(() => {
+			// 		return;
+			// 	});
+			// }
 
-			initQueryVariant.info = value;
-			initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
-			// console.log("initQueryVariant", initQueryVariant);
-			if (value.length >=3) {
-				setSearchProducts(true);
-			} else {
-				setSearchProducts(false);
-			}
-			const handleSearchProduct = () => {
-				if (value.trim()) {
-					(async () => {
-						try {
-							await dispatch(
-								searchVariantsOrderRequestAction(initQueryVariant, (data) => {
-									setResultSearchVariant(data);
-									setSearchProducts(false);
-									setIsShowProductSearch(true);
-									if(data.items.length === 0) {
-										showError("Không tìm thấy sản phẩm!")
-									}
-								}, () => {
-									setSearchProducts(false);
-								})
-							);
-						} catch {
-							setSearchProducts(false);
-						}
-					})();
-				} else {
-					setSearchProducts(false);
-				}
-			};
-			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
-				handleSearchProduct()
-			);
+			// initQueryVariant.info = value;
+			// initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
+			// // console.log("initQueryVariant", initQueryVariant);
+			// if (value.length >=3) {
+			// 	setSearchProducts(true);
+			// } else {
+			// 	setSearchProducts(false);
+			// }
+			// const handleSearchProduct = () => {
+			// 	if (value.trim()) {
+			// 		(async () => {
+			// 			try {
+			// 				await dispatch(
+			// 					searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+			// 						setResultSearchVariant(data);
+			// 						setSearchProducts(false);
+			// 						setIsShowProductSearch(true);
+			// 						if(data.items.length === 0) {
+			// 							showError("Không tìm thấy sản phẩm!")
+			// 						}
+			// 					}, () => {
+			// 						setSearchProducts(false);
+			// 					})
+			// 				);
+			// 			} catch {
+			// 				setSearchProducts(false);
+			// 			}
+			// 		})();
+			// 	} else {
+			// 		setSearchProducts(false);
+			// 	}
+			// };
+			// handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
+			// 	handleSearchProduct()
+			// );
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[form]
@@ -1796,14 +1949,14 @@ function OrderCreateProduct(props: PropType) {
 		dispatch(StoreGetListAction(setListStores));
 	}, [dispatch]);
 
-	const onInputSearchProductFocus = () => {
-		setIsInputSearchProductFocus(true);
-		autoCompleteRef.current?.focus();
-	};
+	// const onInputSearchProductFocus = () => {
+	// 	setIsInputSearchProductFocus(true);
+	// 	autoCompleteRef.current?.focus();
+	// };
 
-	const onInputSearchProductBlur = () => {
-		setIsInputSearchProductFocus(false);
-	};
+	// const onInputSearchProductBlur = () => {
+	// 	setIsInputSearchProductFocus(false);
+	// };
 
 	const handleSplitOrder = () => {
 		if (!orderDetail || !userReducer.account) {
@@ -1841,11 +1994,11 @@ function OrderCreateProduct(props: PropType) {
 		);
 	};
 
-	useEffect(() => {
-		if (items && items.length > 0) {
-			setIsShowProductSearch(true);
-		}
-	}, [items]);
+	// useEffect(() => {
+	// 	if (items && items.length > 0) {
+	// 		setIsShowProductSearch(true);
+	// 	}
+	// }, [items]);
 
 	/**
 	 * gọi lại api chiết khấu khi update cửa hàng, khách hàng, nguồn, số lượng item
@@ -1996,7 +2149,7 @@ function OrderCreateProduct(props: PropType) {
 								onChange={(value?: number) => {
 									if (value) {
 										setStoreId(value);
-										setIsShowProductSearch(true);
+										//setIsShowProductSearch(true);
 										setKeySearchVariant("");
 										setResultSearchVariant({
 											metadata: {
@@ -2007,7 +2160,7 @@ function OrderCreateProduct(props: PropType) {
 											items: [],
 										});
 									} else {
-										setIsShowProductSearch(false);
+										//setIsShowProductSearch(false);
 									}
 								}}
 								filterOption={(input, option) => {
@@ -2045,9 +2198,9 @@ function OrderCreateProduct(props: PropType) {
 								options={convertResultSearchVariant}
 								maxLength={255}
 								// open={isShowProductSearch && isInputSearchProductFocus}
-								onFocus={onInputSearchProductFocus}
-								onBlur={onInputSearchProductBlur}
-								disabled={levelOrder > 3 || loadingAutomaticDiscount}
+								// onFocus={onInputSearchProductFocus}
+								// onBlur={onInputSearchProductBlur}
+								disabled={levelOrder > 3 || loadingAutomaticDiscount || isCalculateDiscount} 
 								defaultActiveFirstOption
 								dropdownRender={(menu) => (
 									<div>
@@ -2089,7 +2242,7 @@ function OrderCreateProduct(props: PropType) {
 											<SearchOutlined style={{ color: "#ABB4BD" }} />
 										)
 									}
-									disabled={levelOrder > 3}
+									disabled={levelOrder > 3 || isCalculateDiscount}
 								/>
 							</AutoComplete>
 						</Form.Item>

@@ -26,6 +26,7 @@ import {
 } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
+  OrderDiscountRequest,
 	OrderLineItemRequest,
 	OrderPaymentRequest
 } from "model/request/order.request";
@@ -1142,6 +1143,19 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	return discountPerOrder;
 }
 
+export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | null) => {
+  if(!discounts) {
+    return 0;
+  }
+	let totalDiscount = 0;
+	discounts.forEach((singleOrderDiscount) => {
+		if (singleOrderDiscount?.amount) {
+			totalDiscount = totalDiscount + singleOrderDiscount.amount;
+		}
+	});
+	return totalDiscount;
+}
+
 export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 		if (!items) {
 			return 0;
@@ -1213,7 +1227,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}` 
 				break;
 			case ShipmentMethod.EXTERNAL_SERVICE:
-				result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment.delivery_service_provider_name}` 
+				result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment?.delivery_service_provider_name}` 
 				break;
 			case ShipmentMethod.EXTERNAL_SHIPPER:
 				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
