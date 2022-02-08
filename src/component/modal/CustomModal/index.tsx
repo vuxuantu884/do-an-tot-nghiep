@@ -45,7 +45,6 @@ const CustomModal = (props: CustomModalType) => {
       form.validateFields().then(()=> {
         setVisibleForm(false);
         onEdit(form.getFieldsValue());
-
       })
     },
   };
