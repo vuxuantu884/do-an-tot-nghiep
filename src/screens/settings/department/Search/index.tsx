@@ -91,6 +91,7 @@ const DepartmentSearchScreen: React.FC = () => {
                   width: 200,
                   render: (value: string, item: DepartmentView) => (
                     <div
+                      className="break-word"
                       style={{
                         display: "flex",
                         alignItems: "center",
