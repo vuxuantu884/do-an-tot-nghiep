@@ -84,3 +84,5 @@ export const CustomizedYAxisTickRankUserImcome = (props: any) => {
         </g>
     );
 };
+
+ 

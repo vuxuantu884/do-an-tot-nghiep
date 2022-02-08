@@ -56,13 +56,13 @@ function CardReturnMoney(props: PropType) {
               <Timeline.Item key={index} color="#27AE60">
                 <Row gutter={24}>
                   <Col md={8}>
-                    <div className="timeline__colTitle">
-                      <h3>{single.payment_method}</h3>
+                    <div className="timeline__colTitle 222">
+                      <h3>{single.paid_amount < 0 ? "Hoàn tiền cho khách" : single.payment_method}</h3>
                     </div>
                   </Col>
                   <Col md={8} style={{ textAlign: "center" }}>
                     <strong className="po-payment-row-title">
-                      {formatCurrency(single.paid_amount)}
+                      {formatCurrency(Math.abs(single.paid_amount))}
                     </strong>
                   </Col>
                   <Col md={8} style={{ textAlign: "right" }}>

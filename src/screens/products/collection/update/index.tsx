@@ -155,7 +155,6 @@ const GroupUpdate: React.FC = () => {
     dispatch(
       searchProductWrapperRequestAction(
         {
-          status: "active",
           limit: 10,
           page: 1,
           info: value.trim(),
@@ -293,7 +292,6 @@ const getProductCollection = useCallback((key,page,size)=>{
     dispatch(
       getProductsCollectionAction(
         {
-          status: "active",
           limit: size,
           page: page,
           collections: detail?.code,

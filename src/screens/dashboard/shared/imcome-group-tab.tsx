@@ -1,20 +1,19 @@
 import { Tabs } from "antd";
 import CustomTable from "component/table/CustomTable";
+import { ProductGroup, ProductGroupIncome, ProductGroupQuantity } from "model/dashboard/dashboard.model";
 import React, { ReactElement } from "react";
 import { formatCurrency } from "utils/AppUtils";
 
-interface ProductIncomeTableMonth {
-  id: number;
-  name: string;
-  income: number;
-  quantity: number;
+interface Props {
+  data: ProductGroup;
+}
+interface ProductGroupTableProps {
+  dataSource: ProductGroupIncome[] | ProductGroupQuantity[];
+  isQuantity: boolean;
 }
 
-interface Props {}
-interface TableImComeProps {
-  dataSource: ProductIncomeTableMonth[];
-}
 const { TabPane } = Tabs;
+
 const TAB_KEY = {
   income: "income",
   quantity: "quantity",
@@ -24,11 +23,7 @@ const TAB_NAME = {
   [TAB_KEY.quantity]: "Số lượng",
 };
 
-const getPercentOfRow = (
-  value: number,
-  dataSource: ProductIncomeTableMonth[],
-  isQuantity: boolean
-) => {
+const getPercentOfRow = (value: number, dataSource: any[], isQuantity: boolean) => {
   // get max income of dataSource
   const maxIncome = Math.max(...dataSource.map((item) => item.income));
   //get max quantity of dataSource
@@ -38,42 +33,26 @@ const getPercentOfRow = (
   // get percent of value of quantity
   const percentQuantity = (value / maxQuantity) * 100;
   // return percent of value
-  return (isQuantity ? percentQuantity : percentIncome)+"%";
+  return (isQuantity ? percentQuantity : percentIncome) + "%";
 };
 
-
-function dumyData(): ProductIncomeTableMonth[] {
-  // return list sample data for table income, quantity, name
-  const a = [...Array(10).keys()].map((_, index) => {
-    return {
-      id: index,
-      name: `name ${index}`,
-      quantity: index,
-      income: Math.random() * 100000000,
-    };
-  });
-  console.log(a);
-  return a;
-}
-
 function ImcomeGroupTab(props: Props): ReactElement {
-  const dataSource: ProductIncomeTableMonth[] = dumyData();
-
+  const { data } = props;
   const INCOME_TABS = [
     {
       key: TAB_KEY.income,
       name: TAB_NAME[TAB_KEY.income],
-      Component: <IncomeTable dataSource={dataSource} />,
+      Component: <ProductGroupTable dataSource={data.product_group_incomes} isQuantity={false} />,
     },
     {
       key: TAB_KEY.quantity,
       name: TAB_NAME[TAB_KEY.quantity],
-      Component: null,
+      Component: <ProductGroupTable dataSource={data.product_group_quantities} isQuantity={true} />,
     },
   ];
 
   return (
-    <div className="table-income">
+    <div className="product-group">
       <Tabs>
         {INCOME_TABS.map(({ name, Component, key }) => (
           <TabPane tab={name} key={key}>
@@ -85,15 +64,16 @@ function ImcomeGroupTab(props: Props): ReactElement {
   );
 }
 
-function IncomeTable(props: TableImComeProps) {
-  const { dataSource } = props;
+function ProductGroupTable(props: ProductGroupTableProps) {
+  const { dataSource, isQuantity } = props;
+  const key = isQuantity ? "quantity" : "income";
   return (
     <CustomTable
       columns={[
         {
           title: "Tên nhóm",
-          dataIndex: "name",
-          render: (text, record) => {
+          dataIndex: "product_group_name",
+          render: (text: string) => {
             return (
               <div className="name-row">
                 <span>{text}</span>
@@ -103,17 +83,17 @@ function IncomeTable(props: TableImComeProps) {
         },
         {
           title: "Doanh thu",
-          dataIndex: "income",
+          dataIndex: key,
           align: "center",
-          sorter: (a, b) => a.income - b.income,
-          render: (income) => {
+          sorter: (a: any, b: any) => a[key] - b[key],
+          render: (value: number) => {
             return (
               <div className="value-row">
-                <div>{formatCurrency(income, ".")}đ</div>
+                <div>{isQuantity ? value : formatCurrency(value, ".") + "đ"}</div>
                 <div
                   className="process-bg"
                   style={{
-                    width: getPercentOfRow(income, dataSource, false),
+                    width: getPercentOfRow(value, dataSource, isQuantity),
                   }}></div>
               </div>
             );

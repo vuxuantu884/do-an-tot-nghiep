@@ -97,7 +97,7 @@ const initQuery: ShipmentSearchQuery = {
 const ShipmentsScreen: React.FC = (props: any) => {
 	const {location} = props;
 	console.log('location', location)
-	const queryParamsParsed: { [key: string]: string | string[] | null } = queryString.parse(
+	const queryParamsParsed:any = queryString.parse(
     location.search
   );
 	const query = useQuery();
@@ -215,7 +215,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 				<div className="productNameQuantityHeader">
 					<span className="productNameWidth">Sản phẩm</span>
 					<span className="quantity quantityWidth">
-						<span>Số lượng</span>
+						<span>SL</span>
 					</span>
 				</div>
 			),
@@ -237,7 +237,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
 										</div>
 									</div>
 									<div className="quantity quantityWidth">
-										<span>SL: {item.quantity}</span>
+										<span>{item.quantity}</span>
 									</div>
 								</div>
 							);
@@ -423,13 +423,14 @@ const ShipmentsScreen: React.FC = (props: any) => {
 						to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}
 						className="primary"
 					>
-						{`${record.account ? record.account : ''} - ${record.account_code}`}
+						{`${record.account_code} - ${record.account ? record.account : ''} `}
 					</Link>{" "}
 				</div>
 			},
 			key: "account_code",
 			visible: true,
 			align: "center",
+			width: 170,
 		},
 		{
 			title: "Ghi chú",
