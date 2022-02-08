@@ -222,6 +222,7 @@ export interface OrderSearchQueryModel {
 }
 
 export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
+  ecommerce_id: number | null;
   ecommerce_shop_ids: any[];
   channel_id: number | undefined;
 }

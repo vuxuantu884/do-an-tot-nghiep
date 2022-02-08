@@ -74,6 +74,7 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
 			}
     }
   } catch (error) {
+    console.log(error)
     showError("Có lỗi khi tìm kiếm khách hàng! Vui lòng thử lại sau!");
   }
 }

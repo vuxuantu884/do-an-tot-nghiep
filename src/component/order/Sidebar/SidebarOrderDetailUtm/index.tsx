@@ -12,54 +12,54 @@ function SidebarOrderDetailInformation(props: PropType) {
   return (
     <StyledComponent>
       <Card title="THÔNG TIN NGUỒN">
-        <Row gutter={5}>
+        {OrderDetail?.utm_source && <Row gutter={5}>
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_source:</Col>
-          <Col span={14}>
+          <Col span={14} style={{ wordBreak: "break-word" }}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_source}
             </span>
           </Col>
-        </Row>
-        <Row gutter={5}>
+        </Row>}
+        {OrderDetail?.utm_medium && <Row gutter={5}>
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_medium:</Col>
-          <Col span={14}>
+          <Col span={14} style={{ wordBreak: "break-word" }}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_medium}
             </span>
           </Col>
-        </Row>
-        <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_campain:</Col>
-          <Col span={14}>
+        </Row>}
+        {OrderDetail?.utm_campaign && <Row gutter={5}>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_campaign:</Col>
+          <Col span={14} style={{ wordBreak: "break-word" }}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
-              {OrderDetail?.utm_campain}
+              {OrderDetail?.utm_campaign}
             </span>
           </Col>
-        </Row>
-        <Row gutter={5}>
+        </Row>}
+        {OrderDetail?.utm_term && <Row gutter={5}>
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_term:</Col>
-          <Col span={14}>
+          <Col span={14} style={{ wordBreak: "break-word" }}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_term}
             </span>
           </Col>
-        </Row>
-        <Row gutter={5}>
+        </Row>}
+        {OrderDetail?.utm_content && <Row gutter={5}>
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_content:</Col>
-          <Col span={14}>
+          <Col span={14} style={{ wordBreak: "break-word" }}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_content}
             </span>
           </Col>
-        </Row>
-        <Row gutter={5}>
+        </Row>}
+        {OrderDetail?.affiliate && <Row gutter={5}>
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>Affiliate:</Col>
-          <Col span={14}>
+          <Col span={14} style={{ wordBreak: "break-word" }}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.affiliate}
             </span>
           </Col>
-        </Row>
+        </Row>}
       </Card>
     </StyledComponent>
   );

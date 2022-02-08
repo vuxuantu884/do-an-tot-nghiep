@@ -7,26 +7,25 @@ import {
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { POUtils } from "utils/POUtils";
-import { Moment } from "moment";
 
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, ReactNode, useCallback, useEffect, useState } from "react";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils"; 
 import RowDetail from "component/custom/RowDetail";
 import { PhoneOutlined } from "@ant-design/icons";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { callApiNative } from "utils/ApiUtils";
+import { useDispatch } from "react-redux";
+import { getProcurementsMerge } from "service/purchase-order/purchase-procument.service";
 
 type ProducmentInventoryModalProps = { 
   visible: boolean;
-  now: Moment;
   poData?: PurchaseOrder | undefined;
   onCancel: () => void;
   listProcurement: Array<PurchaseProcument> | undefined;
-  defaultStore: number;
   onOk: (value: Array<PurchaseProcumentLineItem>) => void;
   loading: boolean;
-  procumentCode: string; 
-  title: string
+  title: ReactNode
 };
 
 const ProducmentInventoryMultiModal: React.FC<ProducmentInventoryModalProps> = (
@@ -41,7 +40,7 @@ const ProducmentInventoryMultiModal: React.FC<ProducmentInventoryModalProps> = (
   } = props; 
 
   const [dataTable, setDataTable] = useState<Array<PurchaseProcumentLineItem>>([]); 
-
+  const dispatch = useDispatch();
   const onQuantityChange = useCallback(
     (quantity, index: number, item: PurchaseProcumentLineItem) => {
       let cusData = [...dataTable];
@@ -52,11 +51,25 @@ const ProducmentInventoryMultiModal: React.FC<ProducmentInventoryModalProps> = (
       setDataTable(cusData);
     },
     [dataTable]
-  ); 
+  );  
 
   const okModal  = useCallback(()=>{
     onOk(dataTable);
   },[dataTable, onOk]);
+
+  const getProcurementItems = useCallback(async ()=>{
+    if (listProcurement && listProcurement.length > 0) {
+      const arrId = listProcurement?.map(e=>e.id) ?? [];
+      const res: PurchaseProcument = await callApiNative({isShowLoading: false},dispatch,getProcurementsMerge, arrId.toString());
+      if (res) {
+        setDataTable(res.procurement_items)
+      }
+    }
+  },[listProcurement, dispatch]);
+
+  useEffect(()=>{
+    getProcurementItems();
+  },[getProcurementItems, listProcurement]);
 
   if (visible) {  
     return ( 
