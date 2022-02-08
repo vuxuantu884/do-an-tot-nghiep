@@ -26,6 +26,7 @@ import {
 } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
+  OrderDiscountRequest,
 	OrderLineItemRequest,
 	OrderPaymentRequest
 } from "model/request/order.request";
@@ -1141,6 +1142,20 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
 	return discountPerOrder;
 }
+
+export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | null) => {
+  if(!discounts) {
+    return 0;
+  }
+	let totalDiscount = 0;
+	discounts.forEach((singleOrderDiscount) => {
+		if (singleOrderDiscount?.amount) {
+			totalDiscount = totalDiscount + singleOrderDiscount.amount;
+		}
+	});
+	return totalDiscount;
+}
+
 
 export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 		if (!items) {
