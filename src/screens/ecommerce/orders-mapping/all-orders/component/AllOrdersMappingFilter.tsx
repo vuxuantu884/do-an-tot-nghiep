@@ -430,40 +430,6 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     [shopIdsSelected, createdDateFrom, createdDateTo, onFilter]
   );
 
-  useEffect(() => {
-    formFilter.setFieldsValue({
-      ...params,
-      ecommerce_order_code: params.ecommerce_order_code,
-      core_order_code: params.core_order_code,
-      connected_status: params.connected_status,
-      created_date_from: params.created_date_from,
-      created_date_to: params.created_date_to,
-      ecommerce_order_statuses: params.ecommerce_order_statuses,
-      shop_ids: params.shop_ids,
-    });
-
-    if (params.created_date_from === null || params.created_date_to === null) {
-      setCreatedDateClick("");
-      setCreatedDateFrom(null);
-      setCreatedDateTo(null);
-    }
-    if (!initialValues.shop_ids.length) {
-      setShopIdsSelected([])
-      ecommerceShopList.forEach((item) => item.isSelected = false)
-    }else {
-      const arr: any[] = []
-			let shop_ids = Array.isArray(params.shop_ids) ? params.shop_ids : [params.shop_ids];
-      shop_ids!.map((x) => {
-        arr.push(Number(x))
-        return ecommerceShopList.map((y) => {
-          return arr.includes(y.id) ? (y.isSelected = true) : (y.isSelected = false);
-        })
-      })
-      setShopIdsSelected(arr);
-    }
-
-  }, [ecommerceShopList, formFilter, initialValues.shop_ids.length, params]);
-
   return (
     <AllOrdersMappingFilterStyled>
       <div className="order-filter">
