@@ -1,7 +1,5 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
-import color from "assets/css/export-variable.module.scss";
-const { grayE5, white } = color;
 export const ChartColor = {
   primary: "#2A2A86",
   secondary: "#FCAF17",
@@ -10,12 +8,7 @@ export const ChartColor = {
   white: "white",
 };
 export const DashboardContainer = styled.div`
-  margin-top: 20px; 
-  .divider-table{
-    border-top: 2px solid ${grayE5};
-    margin-top: 30px; 
-    margin-bottom: 10px;
-     }
+  margin-top: 20px;
   .greeting {
     display: flex;
     align-items: center;
@@ -70,7 +63,7 @@ export const DashboardContainer = styled.div`
   }
   .business-results {
     .ant-card-body {
-      /* padding-left: 0; */
+      padding-left: 0;
     }
   }
   .verti-grid {
@@ -80,9 +73,6 @@ export const DashboardContainer = styled.div`
       width: 100%;
       height: 110px;
       border-bottom: 1px solid ${borderColor};
-      .income-box{
-        padding-left: 0;
-      }
     }
   }
 
@@ -145,51 +135,11 @@ export const DashboardContainer = styled.div`
     }
   }
 
-  .rank-container {
-    margin: -20px 0;
-    .user-rank {
-      padding: 20px 30px 20px 0;
-    }
-    .store-rank {
-      padding: 20px 30px;
-       border-right: 1px solid #E5E5E5;
-       border-left :1px solid #E5E5E5
-      } 
-      .department-rank {
-        padding: 20px 0 20px 30px;
-      }
-  }
- .cart-bottom-wrapper{
-   &>.ant-card-body{
-     padding-top: 0;
-     padding-left: 0;
-   }
- }
-  .product-group{
-    &-cart{
-      border:none;
-       border-right: 1px solid ${grayE5};
-        box-shadow: none;
-       
-      .ant-card-bordered{
-        border : none;
-      }
-      .ant-card-body{
-        padding-right: 0;
-    }
-    .ant-tabs-content-holder{
-      margin-top: 20px;
-    }
-    .ant-tabs-nav{
-      padding: 0;
-    }
-    .ant-tabs-tab{
-      padding: 0 0 12px 12px !important;
-    }
+  .table-income{
     .ant-table-tbody{
       tr{
         td{
-          border-bottom: 1px solid ${white};
+          border-bottom: 1px solid #fff;
         }
       }
       .ant-table-cell{
@@ -199,8 +149,6 @@ export const DashboardContainer = styled.div`
         padding : 12px;
         background-color: #F5F5FF;     
     }
-
-  
     .value-row{
       padding : 12px;
       position: relative;
@@ -217,6 +165,6 @@ export const DashboardContainer = styled.div`
     }
     }
     
+     
   }
- 
 `;

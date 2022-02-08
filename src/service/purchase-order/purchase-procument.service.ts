@@ -3,7 +3,7 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { ImportProcument, ProcurementConfirm, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { ImportProcument, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { generateQuery } from "utils/AppUtils";
 
 export const createPurchaseProcumentService = (
@@ -98,16 +98,4 @@ export const getLogProcurements = (
   code: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/procurements/${code}/log`);
-}
-
-export const getProcurementsMerge = (
-  ids: string
-): Promise<BaseResponse<PurchaseProcument>> => {
-  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/procurements/merge?ids=${ids}`);
-}
-
-export const confirmProcumentsMerge = (
-  request: ProcurementConfirm
-): Promise<BaseResponse<PurchaseProcument>> => {
-  return BaseAxios.put(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/procurements/merge/confirm`,request);
 }

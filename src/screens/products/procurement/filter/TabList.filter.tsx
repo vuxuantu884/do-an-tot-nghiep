@@ -23,8 +23,6 @@ import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
 import { FilterProcurementStyle, ProcurementStatusStyle } from "./styles";
-import ButtonSetting from "component/table/ButtonSetting";
-
 const { Item } = Form;
 const BaseProcumentField = {
   content: "content",
@@ -60,14 +58,8 @@ const ProcurementFilterName = {
   [ProcurementFilterItem.stores]: "Kho nhận hàng",
   [ProcurementFilterItem.expectDate]: "Ngày nhận dự kiến",
 };
-
-type TabListFilterProps = { 
-  // onFilter?: (values: ProcurementQuery) => void; 
-  onClickOpen?: () => void;
-};
-
 const { Panel } = Collapse;
-function TabListFilter({ onClickOpen }: TabListFilterProps) {
+function TabListFilter() {
   const history = useHistory();
   const dispatch = useDispatch();
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
@@ -238,7 +230,7 @@ function TabListFilter({ onClickOpen }: TabListFilterProps) {
                 Thêm bộ lọc
               </Button>
             </Item>
-            <Item><ButtonSetting onClick={onClickOpen} /></Item>
+            {/* <Item><ButtonSetting onClick={openColumn} /></Item> */}
           </div>
         </FilterProcurementStyle>
       </Form>

@@ -236,9 +236,6 @@ function OrdersTable(props: PropsType) {
 		if(!shippingAddress) {
 			return "";
 		}
-		if(!shippingAddress.name && !shippingAddress.phone && !shippingAddress.full_address && !shippingAddress.ward && !shippingAddress.district ) {
-			return "";
-		}
 		result = `${shippingAddress.name} - ${shippingAddress.phone} - ${shippingAddress.full_address} - ${shippingAddress.ward} - ${shippingAddress.district}`
 		return (
 			<React.Fragment>
