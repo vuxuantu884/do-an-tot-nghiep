@@ -21,6 +21,8 @@ type PropType = {
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   form: FormInstance<any>;
+  setIs4h?:(value:boolean)=>void;
+  is4h?:boolean;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -33,6 +35,8 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     renderButtonCreateActionHtml,
     setThirdPL,
     form,
+    setIs4h,
+    is4h,
   } = props;
 
   const [typeDelivery, setTypeDelivery] = useState('employee');
@@ -45,7 +49,6 @@ function ShipmentMethodSelfDelivery(props: PropType) {
 	const [initYodyAccountData, setInitYodyAccountData] = useState<
     Array<AccountResponse>
   >([]);
-  const [is4h, setIs4h] = useState(false);
 
 	const dispatch = useDispatch();
 console.log('storeId', storeId)

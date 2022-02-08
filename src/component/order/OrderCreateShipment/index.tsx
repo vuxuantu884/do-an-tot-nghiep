@@ -130,9 +130,11 @@ function OrderCreateShipment(props: PropType) {
     ecommerceShipment,
     isEcommerceOrder,
     OrderDetail,
+    setIs4h,
+    is4h,
   } = props;
   const dateFormat = "DD/MM/YYYY";
-	// console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
@@ -439,6 +441,8 @@ function OrderCreateShipment(props: PropType) {
             {/*--- Tự vận chuyển ----*/}
             {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <ShipmentMethodSelfDelivery
+                setIs4h={setIs4h}
+                is4h={is4h}
                 totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                 levelOrder={levelOrder}
                 setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}

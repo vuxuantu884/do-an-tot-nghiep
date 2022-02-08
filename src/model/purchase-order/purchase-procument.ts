@@ -16,7 +16,8 @@ export interface PurchaseProcument extends BaseObject {
   stock_in_date: string|null;
   stock_in_by: string|null;
   store?: string;
-  is_cancelled?: boolean; 
+  is_cancelled?: boolean
+  
 }
 export interface PurchaseProcurementViewDraft {
   id?: number,
@@ -125,9 +126,5 @@ export interface ImportProcument {
   type: string; 
   url_template?: string
 }
-export interface ProcurementConfirm {
-  procurement_items: Array<PurchaseProcumentLineItem>;
-  refer_ids: Array<number>
-} 
 
 export { POProcumentField, POProcumentLineItemField };

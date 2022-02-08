@@ -128,8 +128,6 @@ export default function Order() {
 	})
 	const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 
-	console.log('payments', payments)
-
 	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 	// const [listOrderConfigs, setListOrderConfigs] =
 	//   useState<OrderConfigResponseModel | null>(null);
@@ -508,7 +506,7 @@ ShippingServiceConfigDetailResponseModel[]
 			values.fulfillments = [];
 			// thêm payment vào đơn nháp
 			// values.payments = [];
-			values.payments = totalAmountOrder >0 ? payments.filter((payment) => payment.amount > 0) : payments;
+			values.payments = payments.filter((payment) => payment.amount > 0);
 
 			values.shipping_fee_informed_to_customer = 0;
 			values.action = OrderStatus.DRAFT;
@@ -519,7 +517,7 @@ ShippingServiceConfigDetailResponseModel[]
 			values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
 			values.fulfillments = lstFulFillment;
 			values.action = OrderStatus.FINALIZED;
-			values.payments = totalAmountOrder > 0 ? payments.filter((payment) => payment.amount !== 0): payments;
+			values.payments = payments.filter((payment) => payment.amount !== 0);
 			values.total = getTotalAmount(values.items);
 			if (
 				values?.fulfillments &&
@@ -553,7 +551,7 @@ ShippingServiceConfigDetailResponseModel[]
 				}
 				let valuesCalculateReturnAmount = {
 					...values,
-					payments: reCalculatePaymentReturn(payments)
+					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
 				}
 				if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
 					if (typeButton === OrderStatus.DRAFT) {

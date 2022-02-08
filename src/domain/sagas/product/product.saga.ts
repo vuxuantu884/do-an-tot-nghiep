@@ -1,4 +1,3 @@
-import { showLoading, hideLoading } from './../../actions/loading.action';
 import { productBarcodeApi, productCheckDuplicateCodeApi, productDetailApi, productImportApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi, searchVariantsInventoriesApi } from 'service/product/product.service';
 import {
   ProductHistoryResponse,
@@ -460,7 +459,6 @@ function* variantDeleteSaga(action: YodyAction) {
 
 function* searchBarCodeSaga(action: YodyAction) {
   let {barcode,setData} = action.payload;
-  yield put(showLoading());
   try {
     let response: BaseResponse<VariantResponse> = yield call(getVariantByBarcode, barcode);
     
@@ -469,15 +467,12 @@ function* searchBarCodeSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
-        //showError('Không tìm thấy sản phẩm')
+        showError('Không tìm thấy sản phẩm')
         break;
     }
   } catch (error) {
     console.log(error);
     showError('Không tìm thấy sản phẩm 11112')
-  }
-  finally {
-    yield put(hideLoading());
   }
 }
 

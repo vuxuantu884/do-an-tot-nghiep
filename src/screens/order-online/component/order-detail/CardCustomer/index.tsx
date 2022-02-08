@@ -101,8 +101,6 @@ const initQueryCustomer: CustomerSearchQuery = {
   search_type: "SIMPLE",
 };
 
-var barCode = "";
-
 const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => {
   const {
     customer,
@@ -159,7 +157,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = useRef<any>(null);
-  // const autoCompleteElement: any = document.getElementById("search_customer");
+  const autoCompleteElement: any = document.getElementById("search_customer");
+
+  const [typingTimer, setTypingTimer] = useState(0);
 
 	const sourceInputRef = useRef()
   //#region Modal
@@ -175,12 +175,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     if(setModalAction)setModalAction("create");
     if(setVisibleCustomer)setVisibleCustomer(true);
   };
-  const OkConfirmCustomerEdit = useCallback(
-    () => {
-      if(setModalAction)setModalAction("edit");
-      if(setVisibleCustomer)setVisibleCustomer(true);
-    },[setModalAction, setVisibleCustomer]
-  );
+  const OkConfirmCustomerEdit = () => {
+    if(setModalAction)setModalAction("edit");
+    if(setVisibleCustomer)setVisibleCustomer(true);
+  };
 
   const ShowAddressModalAdd = () => {
     setModalActionShipping("create");
@@ -205,71 +203,47 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setIsVisibleShippingModal(false);
   };
 
-  const eventKeydownCustomer = useCallback(
+  const event = useCallback(
     (event: KeyboardEvent) => {
-      // if (event.target instanceof HTMLInputElement) {
-      //   if (event.target.id === "search_customer") {
-      console.log("eventKeydownCustomer",event.key)
-      const handleSearchCustomer=(e: KeyboardEvent, Code: string)=>{
-            barCode = "";
-            if (e.key === "Enter" && Code){
-              setKeySearchCustomer("");
-              if (event.getModifierState("CapsLock")) {
-                showError("Yêu cầu tắt Caps lock");
-                return;
-              }
+      if (event.target instanceof HTMLInputElement) {
+        if (event.keyCode === 13 && event.target.id === "search_customer") {
+          setTypingTimer(5000);
 
-              initQueryCustomer.request=Code
-              dispatch(CustomerSearchSo(initQueryCustomer, (response:CustomerResponse[]) => {
-                if(response&&response.length>0){
-                  console.log("customer",response)
-                  dispatch(
-                    getCustomerDetailAction(
-                      response[0].id,
-                      (data: CustomerResponse | null) => {
-                        if (data) {
-                          OkConfirmCustomerEdit();
-                          handleCustomer(data);
-                        }
+          if (autoCompleteRef.current?.props && autoCompleteRef.current?.props.value) {
+            initQueryCustomer.request = autoCompleteRef.current?.props.value;
+            dispatch(
+              CustomerSearchSo(initQueryCustomer, (data: Array<CustomerResponse>) => {
+                if (data && data.length !== 0) {
+                  handleCustomer(data[0]);
+                  //set Shipping Address
+                  if (data[0].shipping_addresses) {
+                    data[0].shipping_addresses.forEach((item, index2) => {
+                      if (item.default === true) {
+                        props.ShippingAddressChange(item);
                       }
-                    )
-                  );
-          
-                  if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur)
-                    autoCompleteRef.current?.blur();
-                  if( setShippingAddressesSecondPhone)setShippingAddressesSecondPhone("");
-                }
-                
-              }));
-              setSearchCustomer(false);
-            }
-            else
-            {
-              const txtSearchCustomerElement: any =
-              document.getElementById("search_customer");
-              initQueryCustomer.request=txtSearchCustomerElement?.value
-              dispatch(CustomerSearchSo(initQueryCustomer, (response) => {
-                setResultSearch(response);
-              }));
-              setSearchCustomer(false);
-            }
-      }
+                    });
+                  }
 
-      if (event.key !== "Enter" && event.key !== "Shift")
-        barCode = barCode + event.key;
-      if (event.key !== "Enter")
-        setResultSearch([]);
-      handleDelayActionWhenInsertTextInSearchInput(
-        autoCompleteRef,
-        () => handleSearchCustomer(event, barCode),
-        500
-      );
-      return;
-          
-      //   }
-      // }
+                  //set Billing Address
+                  if (data[0].billing_addresses) {
+                    data[0].billing_addresses.forEach((item, index2) => {
+                      if (item.default === true) {
+                        props.BillingAddressChange(item);
+                      }
+                    });
+                  }
+                } else {
+                  showError("Không tìm thấy khách hàng từ hệ thống");
+                }
+                setKeySearchCustomer("");
+              })
+            );
+          }
+        }
+      }
     },
-    [OkConfirmCustomerEdit, dispatch, handleCustomer, setShippingAddressesSecondPhone]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, autoCompleteElement, customer]
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -290,16 +264,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   };
 
   useEffect(() => {
-    const txtSearchCustomerElement: any =
-              document.getElementById("search_customer");
-
-    txtSearchCustomerElement?.addEventListener("keydown", eventKeydownCustomer);
+    window.addEventListener("keydown", event);
     window.addEventListener("keydown", handlePressKeyBoards);
     return () => {
-      txtSearchCustomerElement?.removeEventListener("keydown", eventKeydownCustomer);
+      window.removeEventListener("keypress", event);
       window.removeEventListener("keydown", handlePressKeyBoards);
     };
-  }, [eventKeydownCustomer, handlePressKeyBoards]);
+  }, [event, handlePressKeyBoards]);
 
   //#end region
 
@@ -309,25 +280,26 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const CustomerChangeSearch = useCallback(
     (value) => {
       setKeySearchCustomer(value);
-			// if(value.length >=3) {
-			// 	setSearchCustomer(true);
-			// } else {
-			// 	setSearchCustomer(false);
-			// }
-      // initQueryCustomer.request = value.trim();
-      // const handleSearch = () => {
+			if(value.length >=3) {
+				setSearchCustomer(true);
+			} else {
+				setSearchCustomer(false);
+			}
+      initQueryCustomer.request = value.trim();
+      const handleSearch = () => {
 				
-      //   dispatch(CustomerSearchSo(initQueryCustomer, (response) => {
-			// 		setResultSearch(response);
-			// 		// if(response.length === 0) {
-			// 		// 	showError("Không tìm thấy khách hàng!")
-			// 		// }
-			// 	}));
-      //   setSearchCustomer(false);
-      // };
-      // handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearch());
+        dispatch(CustomerSearchSo(initQueryCustomer, (response) => {
+					setResultSearch(response);
+					// if(response.length === 0) {
+					// 	showError("Không tìm thấy khách hàng!")
+					// }
+				}));
+        setSearchCustomer(false);
+      };
+      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearch());
     },
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, typingTimer, setTypingTimer]
   );
 
   //Render result search
@@ -362,6 +334,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerConvertResultSearch = useMemo(() => {
     let options: any[] = [];
+    console.log("resultSearch", resultSearch);
     if (resultSearch.length > 0) {
       resultSearch.forEach((item: CustomerResponse, index: number) => {
         options.push({
@@ -383,10 +356,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setKeySearchCustomer("");
     if(setShippingAddressesSecondPhone)
       setShippingAddressesSecondPhone("");
-    const txtSearchCustomerElement: any =
-        document.getElementById("search_customer");
-    txtSearchCustomerElement?.focus();
-
   };
 
   //#end region
@@ -398,6 +367,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 					name: value
 			 }
 			 getSourcesWithParamsService(query).then((response) => {
+				 console.log('response', response)
 				 setListSource(response.data.items)
 			 }).catch((error) => {
 				 console.log('error', error)
@@ -597,6 +567,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           }}
           onChange={(value) => {
             setOrderSourceId && setOrderSourceId(value);
+            console.log(value)
           }}
           disabled={isDisableSelectSource}
         >
