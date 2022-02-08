@@ -36,6 +36,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  OrderDiscountResponse,
 	OrderLineItemResponse,
 	OrderResponse,
 	OrderReturnReasonModel,
@@ -55,6 +56,8 @@ import {
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
 	getTotalAmountAfterDiscount,
+	getTotalDiscount,
+	getTotalOrderDiscount,
 	isOrderFromPOS,
 	scrollAndFocusToDomElement,
 	totalAmount
@@ -392,6 +395,17 @@ ShippingServiceConfigDetailResponseModel[]
     }
   };
 
+  const handleRecalculateOriginDiscount = (itemsResult: any) => {
+    return OrderDetail?.discounts?.map(singleDiscount => {
+      let value = (singleDiscount?.rate || 0) /100 * getTotalAmountAfterDiscount(itemsResult) 
+      return {
+        ...singleDiscount,
+        value: value,
+        amount: value,
+      }
+    }) || null
+  };
+
   const handleSubmitFormReturn = () => {
     let formValue = form.getFieldsValue();
 
@@ -404,7 +418,10 @@ ShippingServiceConfigDetailResponseModel[]
       let itemsResult = items.filter((single) => {
         return single.quantity > 0;
       });
+      console.log('itemsResult', itemsResult)
       let payments: OrderPaymentRequest[] | null = [];
+      // tính toán lại discount
+      let discounts = handleRecalculateOriginDiscount(itemsResult);
       if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
         const formReturnMoney = formValue.returnMoneyField[0];
         let returnMoneyMethod = listPaymentMethods.find((single) => {
@@ -453,7 +470,13 @@ ShippingServiceConfigDetailResponseModel[]
         received: isReceivedReturnProducts,
         order_returns: [],
         automatic_discount: form.getFieldValue("automatic_discount"),
+        discounts: discounts,
+        total: totalAmountReturnProducts,
+        total_discount: getTotalOrderDiscount(discounts),
+        total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
       };
+      console.log('orderDetailResult', orderDetailResult);
+      // return;
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
           history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
@@ -552,9 +575,9 @@ ShippingServiceConfigDetailResponseModel[]
         newPaymentCash = {
           code: PaymentMethodCode.CASH,
           payment_method_id: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
-          amount: -returnAmount,
-					paid_amount: 0,
-          return_amount: returnAmount,
+          amount: 0,
+					paid_amount: -returnAmount,
+          return_amount: 0,
           status: "",
           payment_method: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
           reference: '',
@@ -672,6 +695,7 @@ ShippingServiceConfigDetailResponseModel[]
             sub_reason_id: form.getFieldValue("sub_reason_id") || null,
             received: isReceivedReturnProducts,
             channel_id: ADMIN_ORDER.channel_id,
+            discounts: handleRecalculateOriginDiscount(itemsResult),
           };
 
           let values: ExchangeRequest = form.getFieldsValue();
@@ -683,6 +707,7 @@ ShippingServiceConfigDetailResponseModel[]
               console.log('valuesResult', valuesResult)
               valuesResult.order_return_id = orderReturnId;
               valuesResult.payments = valuesResult.payments ? reCalculatePaymentReturn(valuesResult.payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0)) : null;
+              valuesResult.items = listExchangeProducts;
               if (isErrorExchange) {
                 // showWarning("Đã tạo đơn đổi hàng không thành công!");
                 dispatch(
@@ -791,7 +816,7 @@ ShippingServiceConfigDetailResponseModel[]
       values.fulfillments[0].shipment.cod = priceToShipper > 0 ? priceToShipper : 0;
     }
     values.tags = tags;
-    values.items = listExchangeProducts;
+    // values.items = listExchangeProducts;
     values.discounts = lstDiscount;
     let _shippingAddressRequest:any={
 			...shippingAddress,
