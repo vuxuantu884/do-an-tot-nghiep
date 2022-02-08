@@ -82,7 +82,7 @@ function OrderList(props: PropsType) {
   const dispatch = useDispatch();
 
   const { location, initQuery, pageTitle, isHideTab=false } = props;
-  const queryParamsParsed:any= queryString.parse(
+  const queryParamsParsed: { [key: string]: string | string[] | null } = queryString.parse(
     location.search
   );
 

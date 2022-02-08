@@ -116,7 +116,7 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
     const pushCurrentValueToDataAccount = (fieldName: string) => {
 			let fieldNameValue = form.getFieldValue(fieldName);
       if (fieldNameValue) {
-				// console.log('fieldNameValue', fieldNameValue)
+				console.log('fieldNameValue', fieldNameValue)
         switch (fieldName) {
           case "assignee_code":
             setInitValueAssigneeCode(fieldNameValue);

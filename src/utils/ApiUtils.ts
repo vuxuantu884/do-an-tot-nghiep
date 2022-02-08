@@ -140,6 +140,10 @@ export const callApiNative = async <
         throw response.message;
 
       default:
+        if (response.errors && response.errors.length > 0) {
+          response.errors.forEach((e: string) => showError(e));
+          break
+        }
         throw response.message;
     }
   } catch (error: any) {

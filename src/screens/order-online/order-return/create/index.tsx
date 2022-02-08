@@ -36,7 +36,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  // OrderDiscountResponse,
+  OrderDiscountResponse,
 	OrderLineItemResponse,
 	OrderResponse,
 	OrderReturnReasonModel,
@@ -201,9 +201,8 @@ const ScreenReturnCreate = (props: PropType) => {
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
 ShippingServiceConfigDetailResponseModel[]
 >([]);
-  const [shipmentService, setShipmentService]=useState("");
-  
-  console.log("shipmentService",shipmentService);
+
+  const [is4h, setIs4h] = useState(false);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -885,7 +884,7 @@ ShippingServiceConfigDetailResponseModel[]
       shipper_code: "",
       shipper_name: "",
       handover_id: null,
-      service: "",
+      service: null,
       fee_type: "",
       fee_base_on: "",
       delivery_fee: null,
@@ -911,7 +910,7 @@ ShippingServiceConfigDetailResponseModel[]
         return {
           ...objShipment,
           delivery_service_provider_id: thirdPL.delivery_service_provider_id,
-          delivery_service_provider_type: ShipmentMethod.EXTERNAL_SERVICE,
+          delivery_service_provider_type: "external_service",
           delivery_transport_type: thirdPL.delivery_transport_type,
           delivery_service_provider_code: thirdPL.delivery_service_provider_code,
           delivery_service_provider_name: thirdPL.delivery_service_provider_name,
@@ -928,7 +927,6 @@ ShippingServiceConfigDetailResponseModel[]
           shipper_code: value.shipper_code,
           shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
-          service: thirdPL.service,
           cod:
             totalAmountExchange +
             (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
@@ -1092,12 +1090,10 @@ ShippingServiceConfigDetailResponseModel[]
       setStoreReturn,
       storeReturn,
       listExchangeProducts,
-      setShipmentService
     },
     isExchange,
     isStepExchange,
-    listStoreReturn,
-   
+    listStoreReturn
   };
 
   const renderIfOrderNotFinished = () => {
@@ -1234,6 +1230,8 @@ ShippingServiceConfigDetailResponseModel[]
                       form={form}
 											shippingServiceConfig={shippingServiceConfig}
 											orderConfig={orderConfig}
+                      setIs4h={setIs4h}
+                      is4h={is4h}
                     />
                   </Card>
                 )}

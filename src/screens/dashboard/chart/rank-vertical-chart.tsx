@@ -1,24 +1,36 @@
-import { RankIncomeItem } from 'model/dashboard/dashboard.model';
 import React, { ReactElement } from 'react';
 import { Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { currencyAbbreviation } from 'utils/DashboardUtils';
 import { ChartColor } from '../index.style';
 import { CustomizedYAxisTickRankUserImcome, CustomTooltip } from '../shared';
 import { RankChartStyle } from './rank-chart.style';
-import { DataKey, labelName } from "./rank-hirizontal-chart";
+import { DataKey, IncomeRank, labelName } from "./rank-hirizontal-chart";
 interface Props {
     title: string;
     subTitle: string;
-    data: Array<RankIncomeItem>;
+    data: Array<IncomeRank>;
     legendPrimary: string;
     legendSecondary: string;
 }
- 
 
- 
+const userRank = ["YD0001", "YD0002", "YD0003", "YD0004", "YD0005"]
+
+const getSampleData = () => {
+    const data: IncomeRank[] = [];
+    userRank.forEach((element, i) => {
+        data.push({
+            label: element,
+            imcome: i * 1000000 * Math.random() + 15000000,
+            averageBill: i * 1000000 * Math.random() + 1000000,
+        });
+    })
+    return data;
+};
+
 RankVerticalChart.defaultProps = {
     title: 'Bảng thi đua nhân viên',
-    subTitle: 'Top 5 nhân viên có doanh thu cao nhất', 
+    subTitle: 'Top 5 nhân viên có doanh thu cao nhất',
+    data: getSampleData(),
     legendPrimary: 'Doanh thu bán lẻ',
     legendSecondary: 'Giá trị trung bình/Hóa đơn'
 }
@@ -52,7 +64,7 @@ function RankVerticalChart(props: Props): ReactElement {
                     width={80}
                 />
 
-                <XAxis dataKey={DataKey.retail_income}
+                <XAxis dataKey={DataKey.imcome}
                     type="number" tickLine={false}
                     xAxisId="top" orientation="top"
                     stroke={ChartColor.primary}
@@ -61,7 +73,7 @@ function RankVerticalChart(props: Props): ReactElement {
                     }}
 
                 />
-                <XAxis dataKey={DataKey.average_of_retail_income}
+                <XAxis dataKey={DataKey.averageBill}
                     type="number" tickLine={false}
                     xAxisId="bottom" orientation="bottom"
                     stroke={ChartColor.secondary}
@@ -70,8 +82,8 @@ function RankVerticalChart(props: Props): ReactElement {
                     }}
                 />
                 <Tooltip content={<CustomTooltip labelName={labelName} />} />
-                <Bar dataKey={DataKey.retail_income} barSize={20} xAxisId="top" fill={ChartColor.primary} />
-                <Bar dataKey={DataKey.average_of_retail_income} barSize={20} xAxisId="bottom" fill={ChartColor.secondary} />
+                <Bar dataKey={DataKey.imcome} barSize={20} xAxisId="top" fill={ChartColor.primary} />
+                <Bar dataKey={DataKey.averageBill} barSize={20} xAxisId="bottom" fill={ChartColor.secondary} />
             </ComposedChart>
             </ResponsiveContainer>
             <div className='rank-chart__legend'>

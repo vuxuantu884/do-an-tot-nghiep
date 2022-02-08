@@ -11,7 +11,6 @@ import {
   TreeSelect,
 } from 'antd';
 import {
-  createCategoryAction,
   getCategoryRequestAction,
 } from 'domain/actions/product/category.action';
 import {RootReducerType} from 'model/reducers/RootReducerType';
@@ -31,6 +30,10 @@ import ContentContainer from 'component/container/content.container';
 import UrlConfig, { BASE_NAME_ROUTER } from 'config/url.config';
 import {RegUtil} from 'utils/RegUtils';
 import BottomBarContainer from 'component/container/bottom-bar.container';
+import { callApiNative } from 'utils/ApiUtils';
+import {
+  createCategoryApi, 
+} from 'service/product/category.service';
 
 let initialRequest: CategoryCreateRequest = {
   code: '',
@@ -55,24 +58,23 @@ const AddCategory: React.FC = () => {
     }
     return [];
   }, [bootstrapReducer]);
-  const onSuccess = useCallback((result: CategoryResponse) => {
-    if(result)
-      window.location.href = `${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}`;
-    setLoading(false);
-  }, []);
+  
   const onFinish = useCallback(
-    (values: CategoryCreateRequest) => {
+    async (values: CategoryCreateRequest) => {
       setLoading(true);
-      dispatch(createCategoryAction(values, onSuccess));
+      const res = await callApiNative({isShowLoading: false},dispatch,createCategoryApi,values);
+      setLoading(false);
+      if (res) {
+          window.location.href = `${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}`;
+      }
     },
-    [dispatch, onSuccess]
+    [dispatch]
   ); 
 
   useLayoutEffect(() => {
     dispatch(getCategoryRequestAction({}, setCategories));
   }, [dispatch]);
 
-  console.log("goods",goods)
   return (
     <ContentContainer
       title="Thêm mới danh mục"
