@@ -24,8 +24,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
   const [listSelected, setListSelected] = useState<Array<number>>([]);
   const [checkedAll, setCheckedAll] = useState<boolean>(false);
 
-  const firstScrollRef = useRef(true)
-  const productName = productData?.name;
+  const firstScrollRef = useRef(true) 
   const onMenuClick = useCallback(
     (action) => {
       switch (action) {
@@ -103,9 +102,9 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
         }
         renderItem={(item, index) => {
           let avatar = Products.findAvatar(item.variant_images);
-          let variantName = item.name;
-          if (productName) {
-            variantName = item.name?.replace(productName, "");
+          let variantName = item.sku;
+          if (item.sku && productData) {
+            variantName = item.sku?.replace(productData.code, "");
           }
           return (
             <List.Item
