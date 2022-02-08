@@ -15,6 +15,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { ProcumentLogQuery, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { callApiNative } from "utils/ApiUtils";
 import { getProcumentLogsService } from "service/purchase-order/purchase-order.service"; 
+import ActionPurchaseORderHistoryModal from "screens/purchase-order/Sidebar/ActionHistory/Modal";
 
 const LogsStatus = [
   {key: "draft", value: "Nháp"},
@@ -36,10 +37,12 @@ const TabLogs: React.FC = () => {
     items: [],
   });    
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [showLogPo, setShowLogPo] = useState(false);
  
   const query = useQuery();
   let dataQuery: ProcumentLogQuery = {...getQueryParams(query), sort_column:"updatedDate",sort_type:"desc"};
   const [params, setPrams] = useState<ProcumentLogQuery>(dataQuery);
+  const [actionId, setActionId] = useState<number>();
 
   const onPageChange = (page: number, size?: number) => {
     let newPrams = {...params,page:page,limit: size};
@@ -128,7 +131,12 @@ const TabLogs: React.FC = () => {
       render: (record: PurchaseOrderActionLogResponse)=>{ 
         return (
           <> 
-            {LogsStatus.find(e=>e.key === record.action)?.value}
+           {record.action && <div className="procurement-code" 
+               onClick={()=>{
+                  setActionId(record.id);
+                  setShowLogPo(true)}}>
+               {LogsStatus.find(e=>e.key === record.action)?.value}
+            </div>} 
           </>
         );
       }
@@ -214,6 +222,11 @@ const TabLogs: React.FC = () => {
           }}
           data={columns}
         />
+      <ActionPurchaseORderHistoryModal
+        isModalVisible={showLogPo}
+        onCancel={()=>{setShowLogPo(false)}}
+        actionId={actionId}
+      />
     </StyledComponent>
   );
 };
