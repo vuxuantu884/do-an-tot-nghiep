@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useHistory, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
 import { Button, Card } from "antd";
@@ -9,7 +9,7 @@ import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 // todo thai: handle later
 // import { showSuccess } from "utils/ToastUtils";
-import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
+import { getQueryParams, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
 import {
@@ -76,7 +76,6 @@ import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.ser
 import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
-import queryString from "query-string";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -98,7 +97,6 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_min: null,
   ship_on_max: null,
   ship_on_predefined: null,
-  ecommerce_id: null,
   ecommerce_shop_ids: [],
   channel_id: undefined,
   expected_receive_on_min: null,
@@ -182,13 +180,6 @@ const EcommerceOrders: React.FC = () => {
     },
     items: [],
   });
-
-  const history = useHistory()
-  const location = useLocation()
-
-  const queryParamsParsed: { [key: string]: string | string[] | null } = queryString.parse(
-    location.search
-  );
 
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
@@ -595,71 +586,22 @@ const EcommerceOrders: React.FC = () => {
     setSelectedRowKeys(selectedRowIds);
   }, []);
 
-  const setSearchResult = useCallback(
-    (result: PageResponse<OrderModel> | false) => {
-      setTableLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
-
-  const fetchData = useCallback(
-    (params) => {
-      const requestParams = { ...params };
-      if (!requestParams.ecommerce_shop_ids.length) {
-        requestParams.ecommerce_shop_ids = allShopIds;
-      }
-      return new Promise<void>((resolve, reject) => {
-        setTableLoading(true);
-        dispatch(
-          getListOrderAction(requestParams, (result) => {
-            setTableLoading(false);
-            setSearchResult(result);
-          })
-        );
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, setSearchResult]
-  );
-
-  const handleFetchData = useCallback(
-    (params) => {
-      fetchData(params).catch(() => {
-        setTableLoading(false);
-
-      });
-    },
-    [fetchData]
-  );
-
   const onPageChange = useCallback(
     (page, size) => {
-      setPageQuery(page)
-      let newPrams = { ...params, page, limit: size };
-      let queryParam = generateQuery(newPrams);
-			history.push(`${location.pathname}?${queryParam}`);
+      params.page = page;
+      params.limit = size;
+      setPrams({ ...params });
       window.scrollTo(0, 0);
     },
-    [history, location.pathname, params]
+    [params]
   );
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: pageQuery };
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
-      let currentParam = generateQuery(params);
-      let queryParam = generateQuery(newPrams);
-      if (currentParam === queryParam) {
-        handleFetchData(newPrams);
-      } else {
-				history.push(`${location.pathname}?${queryParam}`);
-      }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [handleFetchData, history, location.pathname, params]
+    [params]
   );
 
   const onClearFilter = useCallback(() => {
@@ -754,6 +696,16 @@ const EcommerceOrders: React.FC = () => {
   ];
   // end handle action button
 
+  const setSearchResult = useCallback(
+    (result: PageResponse<OrderModel> | false) => {
+      setTableLoading(false);
+      if (!!result) {
+        setData(result);
+      }
+    },
+    []
+  );
+
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -794,6 +746,24 @@ const EcommerceOrders: React.FC = () => {
     }
   };
 
+  const getEcommerceOrderList = useCallback(() => {
+    const requestParams = { ...params };
+    if (!requestParams.ecommerce_shop_ids.length) {
+      requestParams.ecommerce_shop_ids = allShopIds;
+    }
+
+    setTableLoading(true);
+    dispatch(getListOrderAction(requestParams, (result) => {
+      setTableLoading(false);
+      setSearchResult(result);
+    }));
+  }, [allShopIds, dispatch, params, setSearchResult]);
+
+  const reloadPage = () => {
+    if (allowOrdersView) {
+      getEcommerceOrderList();
+    }
+  };
   // end
 
   // handle Select Ecommerce
@@ -808,6 +778,12 @@ const EcommerceOrders: React.FC = () => {
     setAllShopIds(shopIds);
   }, []);
 
+
+  useEffect(() => {
+    if (allowOrdersView && allShopIds.length) {
+      getEcommerceOrderList();
+    }
+  }, [allShopIds, allowOrdersView, getEcommerceOrderList]);
 
   useEffect(() => {
     if (allowOrdersView) {
@@ -836,8 +812,6 @@ const EcommerceOrders: React.FC = () => {
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressData, setProgressData] = useState(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
-
-  const [pageQuery, setPageQuery] = useState(1);
   
 
   const resetProgress = () => {
@@ -857,6 +831,7 @@ const EcommerceOrders: React.FC = () => {
 
   const onOKProgressDownloadOrder = () => {
     resetProgress();
+    reloadPage();
     setIsVisibleProgressModal(false);
   }
   // end
@@ -921,16 +896,6 @@ const EcommerceOrders: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getProgress,  ]);
 // end progress download orders
-
-  useEffect(() => {
-    let dataQuery: EcommerceOrderSearchQuery = {
-      ...initQuery,
-      ...getQueryParamsFromQueryString(queryParamsParsed),
-    };
-    setPrams(dataQuery);
-    handleFetchData(dataQuery);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, handleFetchData, setSearchResult, location.search]);
 
   return (
     <StyledComponent>
