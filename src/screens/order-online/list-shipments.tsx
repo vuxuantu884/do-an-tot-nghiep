@@ -97,7 +97,7 @@ const initQuery: ShipmentSearchQuery = {
 const ShipmentsScreen: React.FC = (props: any) => {
 	const {location} = props;
 	console.log('location', location)
-	const queryParamsParsed: { [key: string]: string | string[] | null } = queryString.parse(
+	const queryParamsParsed:any= queryString.parse(
     location.search
   );
 	const query = useQuery();
