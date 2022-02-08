@@ -43,7 +43,7 @@ import "assets/css/custom-filter.scss";
 
 type formValuesType = {
   name: string | undefined;
-  department_id: number | undefined;
+  department_ids: number | undefined;
 };
 
 type PropsType = {
@@ -72,7 +72,7 @@ function OrderSources(props: PropsType) {
   };
   const initFilterParams: formValuesType = {
     name: "",
-    department_id: undefined,
+    department_ids: undefined,
   };
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModalOrderSource, setIsShowModalOrderSource] = useState(false);
@@ -428,12 +428,12 @@ function OrderSources(props: PropsType) {
   useEffect(() => {
     const valuesFromParams: formValuesType = {
       name: queryParamsParsed.name || undefined,
-      department_id: queryParamsParsed.department_id
-        ? +queryParamsParsed.department_id
+      department_ids: queryParamsParsed.department_ids
+        ? +queryParamsParsed.department_ids
         : undefined,
     };
     form.setFieldsValue(valuesFromParams);
-  }, [form, queryParamsParsed.department_id, queryParamsParsed.name]);
+  }, [form, queryParamsParsed.department_ids, queryParamsParsed.name]);
 
   useEffect(() => {
     setQueryParams({
@@ -442,12 +442,12 @@ function OrderSources(props: PropsType) {
       sort_type: "desc",
       sort_column: "updated_date",
       name: queryParamsParsed.name,
-      department_id: queryParamsParsed.department_id,
+      department_ids: queryParamsParsed.department_ids,
     });
   }, [
     DEFAULT_PAGINATION.limit,
     DEFAULT_PAGINATION.page,
-    queryParamsParsed.department_id,
+    queryParamsParsed.department_ids,
     queryParamsParsed.limit,
     queryParamsParsed.name,
     queryParamsParsed.page,
@@ -507,7 +507,7 @@ function OrderSources(props: PropsType) {
                     placeholder="Nguồn đơn hàng"
                   />
                 </Form.Item>
-                <Form.Item name="department_id" style={{width: 305}}>
+                <Form.Item name="department_ids" style={{width: 305}}>
                   <Select
                     showSearch
                     allowClear 
