@@ -36,7 +36,6 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  OrderDiscountResponse,
 	OrderLineItemResponse,
 	OrderResponse,
 	OrderReturnReasonModel,
@@ -56,7 +55,6 @@ import {
 	getAmountPaymentRequest,
 	getListItemsCanReturn,
 	getTotalAmountAfterDiscount,
-	getTotalDiscount,
 	getTotalOrderDiscount,
 	isOrderFromPOS,
 	scrollAndFocusToDomElement,
