@@ -164,7 +164,7 @@ const CreateTicket: FC = () => {
       const from_store_id = form.getFieldValue("from_store_id");
       const to_store_id = form.getFieldValue("to_store_id");
 
-      if (from_store_id === to_store_id) {
+      if (from_store_id && to_store_id && (from_store_id.toString() === to_store_id.toString())) {
         callback(`Kho gửi và kho nhận không được trùng nhau`);
       } else {
         form.setFields([
