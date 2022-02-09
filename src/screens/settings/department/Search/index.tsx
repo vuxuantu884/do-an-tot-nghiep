@@ -147,8 +147,8 @@ const DepartmentSearchScreen: React.FC = () => {
                         flexDirection: "column",
                       }}
                     >
-                      <div>{record?.updated_by}</div>
                       <div>{record?.updated_name}</div>
+                      <div>{record?.updated_by}</div>
                     </div>
                   ),
                 },
