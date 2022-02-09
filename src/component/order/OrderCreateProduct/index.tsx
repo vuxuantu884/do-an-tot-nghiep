@@ -1693,12 +1693,19 @@ function OrderCreateProduct(props: PropType) {
 	const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = [];
 		if (listStores && listStores.length) {
-			newData = listStores.filter((store) =>
-				haveAccess(
-					store.id,
-					userReducer.account ? userReducer.account.account_stores : []
-				)
-			);
+			if(userReducer.account?.account_stores && userReducer.account?.account_stores.length>0)
+			{
+				newData = listStores.filter((store) =>
+					haveAccess(
+						store.id,
+						userReducer.account ? userReducer.account.account_stores : []
+					)
+				);
+			}
+			else{
+				newData=listStores;
+			}
+			
 			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
 			if (storeId && userReducer.account) {
 				if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {
