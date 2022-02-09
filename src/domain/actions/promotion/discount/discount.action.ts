@@ -12,6 +12,10 @@ export const getVariantsAction = (id: number, onResult: (result: ProductEntitlem
   return BaseAction(DiscountType.GET_VARIANTS, {id, onResult});
 }
 
+export const getPriceRuleVariantPaggingAction = (id: number, params: BaseQuery, onResult: (result: PageResponse<ProductEntitlements>) => void) => {
+  return BaseAction(DiscountType.GET_PRICE_RULE_VARIANTS_PAGGING, {id, params, onResult});
+}
+
 // export const discountGetDetail = (id: number, onResult: (result: PriceRule) => void) => {
 //   return BaseAction(DiscountType.GET_DISCOUNT_CODE_DETAIL, {id, onResult});
 // }
