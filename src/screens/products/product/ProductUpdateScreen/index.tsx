@@ -1193,7 +1193,7 @@ const ProductDetailScreen: React.FC = () => {
                           sku: data.code,
                           variant_prices: [
                             {
-                              retail_price: "",
+                              retail_price: 0,
                               currency_code: AppConfig.currency,
                               import_price: "",
                               wholesale_price: "",
@@ -1201,6 +1201,7 @@ const ProductDetailScreen: React.FC = () => {
                               tax_percent: 0,
                             },
                           ],
+                          weight: 0,
                           length_unit:
                             lengthUnitList && lengthUnitList.length > 0
                               ? lengthUnitList[0].value
