@@ -7,6 +7,7 @@ import BaseFilter from "component/filter/base.filter";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
 // import SelectStoreField from "component/filter/component/select-store-field";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
+import ButtonSetting from "component/table/ButtonSetting";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
@@ -43,6 +44,10 @@ interface ProcurementFilter {
   suppliers: string;
 }
 
+interface ProcurementFilterProps{
+  onClickOpen?: () => void;
+}
+
 const ProcurementFilterItem = {
   stockDate: "stockDate",
   confirmDate: "confirmDate",
@@ -59,7 +64,10 @@ const ProcurementFilterName = {
   [ProcurementFilterItem.expectDate]: "Ngày nhận dự kiến",
 };
 const { Panel } = Collapse;
-function TabListFilter() {
+function TabListFilter(props: ProcurementFilterProps) {
+  const { 
+    onClickOpen,
+  } = props;
   const history = useHistory();
   const dispatch = useDispatch();
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
@@ -230,7 +238,7 @@ function TabListFilter() {
                 Thêm bộ lọc
               </Button>
             </Item>
-            {/* <Item><ButtonSetting onClick={openColumn} /></Item> */}
+            <Item><ButtonSetting onClick={onClickOpen} /></Item>
           </div>
         </FilterProcurementStyle>
       </Form>
