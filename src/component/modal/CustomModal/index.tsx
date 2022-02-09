@@ -45,7 +45,6 @@ const CustomModal = (props: CustomModalType) => {
       form.validateFields().then(()=> {
         setVisibleForm(false);
         onEdit(form.getFieldsValue());
-        
       })
     },
   };
@@ -75,7 +74,7 @@ const CustomModal = (props: CustomModalType) => {
         );
       }
       return (
-        <div className="footer footer__edit"> 
+        <div className="footer footer__edit">
            <div className="footer__left">
              {
                 !isOnlyEdit &&  <Button
@@ -87,7 +86,7 @@ const CustomModal = (props: CustomModalType) => {
                 Xóa
               </Button>
              }
-          </div> 
+          </div>
           <div className="footer__right">
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Đóng
@@ -109,7 +108,7 @@ const CustomModal = (props: CustomModalType) => {
     if (deletedItemTitle) {
       return (
         <React.Fragment>
-          Bạn có chắc chắn muốn xóa "<strong>{deletedItemTitle}</strong>" ?
+          Bạn có chắc chắn muốn xóa "<strong className="break-word">{deletedItemTitle}</strong>" ?
         </React.Fragment>
       );
     }
