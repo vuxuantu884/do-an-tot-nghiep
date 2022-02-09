@@ -186,6 +186,7 @@ function YDPageCRM() {
   const setFpDefaultPhone = useCallback(
     (phone: string) => {
       if (fbCustomerId) {
+        setCustomerPhone(phone);
         dispatch(setFpageDefaultPhone(fbCustomerId, phone, setYDPageCustomerInfo));
       }
     },
