@@ -226,7 +226,7 @@ const GroupDiscountList = (props: Props) => {
         }}
         width={650}
         visible={showImportModal}
-        title="Nhập file khuyến mại"
+        title="Nhập file khuyến mại chiết khấu/đồng giá"
         footer={[
           <Button
             key="back"
@@ -262,7 +262,7 @@ const GroupDiscountList = (props: Props) => {
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
               <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
               <p>
-                - Tải file mẫu <a href={AppConfig.ENTITLEMENTS_TEMPLATE_URL}>tại đây</a>
+                - Tải file mẫu <a href={discountMethod === PriceRuleMethod.FIXED_PRICE.toString() ? AppConfig.PROMOTION_FIXED_PRICE_TEMPLATE_URL : AppConfig.PROMOTION_QUANTITY_TEMPLATE_URL}>tại đây</a>
               </p>
               <p>- File nhập có dụng lượng tối đa là 2MB và 1500 bản ghi</p>
               <p>
