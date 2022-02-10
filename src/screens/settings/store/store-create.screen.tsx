@@ -7,6 +7,7 @@ import {
   Collapse,
   Form,
   Input,
+  InputNumber,
   Row,
   Select,
   Space,
@@ -414,6 +415,14 @@ const StoreCreateScreen: React.FC = () => {
                         <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
                       ))}
                     </TreeSelect> 
+                  </Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item 
+                    name="reference_id"
+                    label="Mã tham chiếu"
+                  >
+                    <InputNumber style={{width:"100%"}} maxLength={10} placeholder="Nhập mã tham chiếu" />
                   </Item>
                 </Col>
               </Row>
