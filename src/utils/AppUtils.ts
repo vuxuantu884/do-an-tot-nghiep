@@ -39,10 +39,11 @@ import {
 	OrderResponse,
 	ReturnProductModel
 } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { ErrorGHTK, POS, ShipmentMethod } from "./Constants";
+import { ErrorGHTK, PaymentMethodCode, POS, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { RegUtil } from "./RegUtils";
 import { showError } from "./ToastUtils";
@@ -1293,6 +1294,39 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		`;
 	}
 	return result;
+};
+
+export const reCalculatePaymentReturn = (payments: OrderPaymentRequest[], totalAmountCustomerNeedToPay: number, listPaymentMethod: PaymentMethodResponse[]) => {
+  if (totalAmountCustomerNeedToPay < 0) {
+    let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
+    let _payments = [...payments];
+    let paymentCashIndex = _payments.findIndex(payment => payment.payment_method_code === PaymentMethodCode.CASH);
+    if (paymentCashIndex > -1) {
+      _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
+      _payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
+      _payments[paymentCashIndex].return_amount = returnAmount;
+    } else {
+      let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+      newPaymentCash = {
+        code: PaymentMethodCode.CASH,
+        payment_method_code: PaymentMethodCode.CASH,
+        payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+        amount: -returnAmount,
+        paid_amount: 0,
+        return_amount: returnAmount,
+        status: "",
+        payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
+        reference: '',
+        source: '',
+        customer_id: 1,
+        note: '',
+        type: '',
+      };
+      _payments.push(newPaymentCash)
+    }
+    return _payments;
+  }
+  return payments;
 };
 
 /**

@@ -10,6 +10,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { getAmountPayment, reCalculatePaymentReturn } from "utils/AppUtils";
 import { OrderStatus, PaymentMethodOption } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
@@ -125,21 +126,25 @@ function UpdatePaymentCard(props: PropType) {
 
   const onOkConfirm = () => {
     let fulfillment = CreateFulFillmentRequest();
-    let request: any = {
-      payments: paymentData.filter((payment) => payment.amount > 0),
-      fulfillments: fulfillment,
-    };
     (async () => {
       setCreatePayment(true);
+      let request: any = {
+        payments: paymentData.filter((payment) => payment.amount > 0),
+        fulfillments: fulfillment,
+      };
+      let totalAmountCustomerNeedToPay = amount - getAmountPayment(request.payments);
+      let valuesCalculateReturnAmount = {
+        ...request,
+        payments: reCalculatePaymentReturn(request.payments, totalAmountCustomerNeedToPay, listPaymentMethods).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
+      }
       try {
         await dispatch(
-          UpdatePaymentAction(request, props.order_id, onUpdateSuccess, onError)
+          UpdatePaymentAction(valuesCalculateReturnAmount, props.order_id, onUpdateSuccess, onError)
         );
       } catch {
         onError(true);
       }
     })();
-    // dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
   };
 
   const onCancelConfirm = useCallback(() => {
