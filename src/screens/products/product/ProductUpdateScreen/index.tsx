@@ -67,7 +67,8 @@ import {
   convertCategory,
   formatCurrency,
   Products,
-  replaceFormatString
+  replaceFormatString,
+  scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
@@ -458,6 +459,9 @@ const ProductDetailScreen: React.FC = () => {
 
   const onFinish = useCallback(
     (values: ProductRequest) => {  
+      console.log("xxx ",values);
+      return
+      
       setLoadingButton(true);   
       dispatch(productUpdateAction(
         idNumber,
@@ -571,10 +575,7 @@ const ProductDetailScreen: React.FC = () => {
         const element: any = document.getElementById(
           error.errorFields[0].name.join("")
         );
-        element?.focus();
-        const y =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-        window.scrollTo({ top: y, behavior: "smooth" });
+        scrollAndFocusToDomElement(element);
       });
     }
   }, [form, isChangePrice]);
@@ -774,7 +775,19 @@ const ProductDetailScreen: React.FC = () => {
         ]}
       >
         {data !== null && (
-          <Form onFinish={onFinish} form={form} initialValues={data} layout="vertical">
+          <Form
+            form={form} 
+            initialValues={data} 
+            layout="vertical"
+            // onFinishFailed={handleSubmitFail}
+            onFinishFailed={({ errorFields }: any) => {
+              console.log("valfdf", errorFields)
+              const element: any = document.getElementById(
+                errorFields[0].name.join("")
+              );
+              scrollAndFocusToDomElement(element);
+            }}
+            onFinish={onFinish} >
             <Item hidden noStyle name="id">
               <Input />
             </Item>
@@ -1200,8 +1213,7 @@ const ProductDetailScreen: React.FC = () => {
                               cost_price: "",
                               tax_percent: 0,
                             },
-                          ],
-                          weight: 0,
+                          ], 
                           length_unit:
                             lengthUnitList && lengthUnitList.length > 0
                               ? lengthUnitList[0].value
