@@ -36,10 +36,11 @@ import {showError, showSuccess} from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import {StyledComponent} from "./styles";
 import { primaryColor } from "utils/global-styles/variables";
-import { SourcePermissions } from "config/permissions/setting.permisssion";  
+import { SourcePermissions } from "config/permissions/setting.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import "assets/css/custom-filter.scss";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 type formValuesType = {
   name: string | undefined;
@@ -54,7 +55,7 @@ const ACTIONS_INDEX = {
   DELETE: 2,
 };
 
-const actionsDefault: Array<MenuAction> = [ 
+const actionsDefault: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.DELETE,
     name: "Xóa",
@@ -65,7 +66,7 @@ const actionsDefault: Array<MenuAction> = [
 function OrderSources(props: PropsType) {
   const {location} = props;
   const queryParamsParsed: any = queryString.parse(location.search);
- 
+
   const DEFAULT_PAGINATION = {
     page: 1,
     limit: 30,
@@ -97,11 +98,11 @@ function OrderSources(props: PropsType) {
 
   const [allowReadSource] = useAuthorization({
     acceptPermissions: [SourcePermissions.READ],
-  }); 
+  });
 
   const [allowDeleteSource] = useAuthorization({
     acceptPermissions: [SourcePermissions.DELETE],
-  }); 
+  });
 
   const [allowUpdateSource] = useAuthorization({
     acceptPermissions: [SourcePermissions.UPDATE],
@@ -233,7 +234,7 @@ function OrderSources(props: PropsType) {
     [history, queryParams]
   );
 
-  const handleDeleteMultiOrderSource = () => { 
+  const handleDeleteMultiOrderSource = () => {
     showLoading();
     if (rowSelectedObject.length > 0) {
       let channel_ids: number[] = [];
@@ -280,7 +281,7 @@ function OrderSources(props: PropsType) {
       }
     },
     []
-  ); 
+  );
 
   const actions = useMemo(() => {
     return actionsDefault.filter((item) => {
@@ -289,8 +290,8 @@ function OrderSources(props: PropsType) {
       }
       return false;
     });
-  }, [ 
-    allowDeleteSource, 
+  }, [
+    allowDeleteSource,
   ]);
 
   const handleNavigateByQueryParams = (queryParams: any) => {
@@ -510,10 +511,17 @@ function OrderSources(props: PropsType) {
                 <Form.Item name="department_ids" style={{width: 305}}>
                   <Select
                     showSearch
-                    allowClear 
+                    allowClear
                     placeholder="Phòng ban"
                     optionFilterProp="title"
                     notFoundContent="Không tìm thấy phòng ban"
+                    filterOption={(input: String, option: any) => {
+                      if (option.props.value) {
+                        return strForSearch(option.props.children[2]).includes(strForSearch(input));
+                      }
+
+                      return false;
+                    }}
                   >
                     {listDepartments &&
                       listDepartments.map((single) => {
@@ -521,14 +529,14 @@ function OrderSources(props: PropsType) {
                           <Select.Option value={single.id} key={single.id} title={single.name}>
                             <span
                               className="hideInSelect"
-                              style={{paddingLeft: +18 * single.level}}
-                            ></span>
+                              style={{ paddingLeft: +18 * single.level }}
+                            />
                             {single?.parent?.name && (
                               <span className="hideInDropdown">
                                 {single?.parent?.name} -{" "}
                               </span>
                             )}
-                            <span>{single.name}</span>
+                            {single.name}
                           </Select.Option>
                         );
                       })}

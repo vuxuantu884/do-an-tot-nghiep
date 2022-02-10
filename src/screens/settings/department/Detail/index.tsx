@@ -24,9 +24,9 @@ const DepartmentCreateScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [data, setData] = useState<DepartmentResponse | null>(null); 
-  
- 
+  const [data, setData] = useState<DepartmentResponse | null>(null);
+
+
   const convertDepTree =useCallback((item:DepartmentResponse): Array<DataNode> =>{
     let arr= [] as Array<DataNode>;
     let node= {} as DataNode;
@@ -34,26 +34,26 @@ const DepartmentCreateScreen: React.FC = () => {
       title: item.name,
       key: item.id
     };
-    
-    if (item.children.length > 0) { 
+
+    if (item.children.length > 0) {
       let childs =  [] as Array<DataNode>;
       item.children.forEach((i)=>{
        const c = convertDepTree(i);
        childs = [...childs,...c];
-      }); 
+      });
       node = {...node, children: childs};
     }
     arr.push(node);
     return arr;
-  },[])    
+  },[])
 
   const dataChildren = useMemo(() => {
-    let dataNode: Array<DataNode> = []; 
-    if (data !== null) { 
-      data.children.forEach((item) => {
+    let dataNode: Array<DataNode> = [];
+    if (data !== null) {
+      data.children && data.children.length > 0 && data.children.forEach((item) => {
         const temp = convertDepTree(item);
         dataNode = [...dataNode, ...temp];
-      }); 
+      });
     }
     return dataNode;
   }, [data, convertDepTree]);

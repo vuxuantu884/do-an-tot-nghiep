@@ -125,7 +125,7 @@ const CustomModal = (props: CustomModalType) => {
               Xóa
             </Button> */}
           </div>
-          
+
           <div className="footer__right">
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
@@ -149,7 +149,7 @@ const CustomModal = (props: CustomModalType) => {
     if (deletedItemTitle) {
       return (
         <React.Fragment>
-          Bạn có chắc chắn muốn xóa "<strong>{deletedItemTitle}</strong>" ?
+          Bạn có chắc chắn muốn xóa "<strong className="break-word">{deletedItemTitle}</strong>" ?
         </React.Fragment>
       );
     }

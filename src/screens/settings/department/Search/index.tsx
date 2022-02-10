@@ -91,6 +91,7 @@ const DepartmentSearchScreen: React.FC = () => {
                   width: 200,
                   render: (value: string, item: DepartmentView) => (
                     <div
+                      className="break-word"
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -146,8 +147,8 @@ const DepartmentSearchScreen: React.FC = () => {
                         flexDirection: "column",
                       }}
                     >
-                      <div>{record?.updated_by}</div>
                       <div>{record?.updated_name}</div>
+                      <div>{record?.updated_by}</div>
                     </div>
                   ),
                 },
