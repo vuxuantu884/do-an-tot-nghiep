@@ -161,6 +161,7 @@ const GroupDiscountList = (props: Props) => {
             if (discountMethod === PriceRuleMethod.QUANTITY) {
               initValue.prerequisite_quantity_ranges[0].value_type = DiscountUnitType.PERCENTAGE.value
             }
+            initValue.prerequisite_quantity_ranges[0].greater_than_or_equal_to = 1;
             initValue.selectedProducts = [];
             initValue.entitled_variant_ids = [];
             initValue.entitled_product_ids = [];
