@@ -2394,6 +2394,7 @@ ShippingServiceConfigDetailResponseModel[]
 										listOrderSubStatus={listOrderSubStatus}
 										form={form}
 										storeId={storeId}
+										orderDetail={OrderDetail}
 									/>
 								</Col>
 							</Row>
