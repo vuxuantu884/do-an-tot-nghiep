@@ -1,7 +1,7 @@
-import {Checkbox, Col, Form, Input, Row, Select} from "antd";
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
-import {CustomModalFormModel} from "model/modal/modal.model";
-import {useEffect, useState} from "react";
+import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from "antd";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { CustomModalFormModel } from "model/modal/modal.model";
+import { useEffect, useState } from "react";
 import * as CONSTANTS from "utils/Constants";
 import {StyledComponent} from "./styles";
 import { strForSearch } from "utils/RemoveDiacriticsString";
@@ -15,6 +15,7 @@ type FormValuesType = {
   channel_id: number;
   is_active: boolean;
   is_default: boolean;
+  reference_id?: number;
 };
 
 const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
@@ -23,33 +24,35 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
     company: CONSTANTS.DEFAULT_COMPANY.company,
   };
 
-  const {modalAction, formItem, form, visible, moreFormArguments} = props;
+  const { modalAction, formItem, form, visible, moreFormArguments } = props;
 
-  const {listDepartments} = moreFormArguments;
+  const { listDepartments } = moreFormArguments;
   const [isVisibleFieldDefault, setIsVisibleFieldDefault] = useState(false);
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
       ? {
-          channel_id: formItem.channel_id,
-          company_id: formItem.company_id,
-          company: DEFAULT_COMPANY.company,
-          name: formItem.name,
-          department_id: formItem.department_id,
-          department: formItem.department,
-          is_active: formItem.active,
-          is_default: formItem.default,
-        }
+        channel_id: formItem.channel_id,
+        company_id: formItem.company_id,
+        company: DEFAULT_COMPANY.company,
+        name: formItem.name,
+        department_id: formItem.department_id,
+        department: formItem.department,
+        is_active: formItem.active,
+        is_default: formItem.default,
+        reference_id: formItem.reference_id,
+      }
       : {
-          channel_id: undefined,
-          company_id: DEFAULT_COMPANY.company_id,
-          company: DEFAULT_COMPANY.company,
-          name: "",
-          department_id: undefined,
-          department: "",
-          is_active: false,
-          is_default: false,
-        };
+        channel_id: undefined,
+        company_id: DEFAULT_COMPANY.company_id,
+        company: DEFAULT_COMPANY.company,
+        name: "",
+        department_id: undefined,
+        department: "",
+        is_active: false,
+        is_default: false,
+        reference_id: undefined,
+      };
 
   /**
    * when change company, set visible field Default
@@ -57,7 +60,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
   const handleChangeCheckFieldActive = (checkedValue: CheckboxChangeEvent) => {
     setIsVisibleFieldDefault(checkedValue.target.checked);
     if (!checkedValue.target.checked) {
-      form.setFieldsValue({is_default: false});
+      form.setFieldsValue({ is_default: false });
     }
   };
 
@@ -94,16 +97,16 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
           <Input />
         </Form.Item>
         <Row gutter={30}>
-        <Col span={24}>
+          <Col span={24}>
             <Form.Item
               name="name"
               label="Tên nguồn đơn hàng"
               rules={[
-                {required: true, message: "Vui lòng điền tên nguồn đơn hàng!"},
-                {max: 255, message: "Không được nhập quá 255 ký tự!"},
+                { required: true, message: "Vui lòng điền tên nguồn đơn hàng!" },
+                { max: 255, message: "Không được nhập quá 255 ký tự!" },
               ]}
             >
-              <Input placeholder="Nhập tên nguồn đơn hàng" style={{width: "100%"}} />
+              <Input placeholder="Nhập tên nguồn đơn hàng" style={{ width: "100%" }} />
             </Form.Item>
           </Col>
         </Row>
@@ -113,12 +116,12 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
             <Form.Item
               name="department_id"
               label="Phòng ban"
-              rules={[{required: true, message: "Vui lòng chọn phòng ban!"}]}
+              rules={[{ required: true, message: "Vui lòng chọn phòng ban!" }]}
             >
               <Select
                 showSearch
                 allowClear
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 placeholder="Chọn phòng ban"
                 optionFilterProp="title"
                 notFoundContent="Không tìm thấy phòng ban"
@@ -127,7 +130,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                     return single.id === value;
                   });
                   if (selectedDepartment) {
-                    form.setFieldsValue({department: selectedDepartment.name});
+                    form.setFieldsValue({ department: selectedDepartment.name });
                   }
                 }}
                 filterOption={(input: String, option: any) => {
@@ -144,7 +147,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                       <Select.Option value={single.id} key={single.id} title={single.name}>
                         <span
                           className="hideInSelect"
-                          style={{paddingLeft: +18 * single.level}}
+                          style={{ paddingLeft: +18 * single.level }}
                         ></span>
                         {single?.parent?.name && (
                           <span className="hideInDropdown">
@@ -159,7 +162,17 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item name="is_active" valuePropName="checked" style={{marginBottom: 10}}>
+        <Row>
+          <Col span={24}>
+            <Form.Item
+              name="reference_id"
+              label="Mã tham chiếu"
+            >
+              <InputNumber style={{ width: "100%" }} maxLength={10} placeholder="Nhập mã tham chiếu" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Form.Item name="is_active" valuePropName="checked" style={{ marginBottom: 10 }}>
           <Checkbox onChange={handleChangeCheckFieldActive}>
             Áp dụng cho đơn hàng
           </Checkbox>
@@ -167,7 +180,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
         <Form.Item
           name="is_default"
           valuePropName="checked"
-          style={{marginBottom: 0}}
+          style={{ marginBottom: 0 }}
           className={isVisibleFieldDefault ? "show" : "hidden"}
         >
           <Checkbox>Đặt làm mặc định</Checkbox>

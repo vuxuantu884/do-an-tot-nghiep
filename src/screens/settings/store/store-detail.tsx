@@ -135,6 +135,11 @@ const StoreDetailScreen: React.FC = () => {
                     <RowDetail title="Phân loại" value={data.type_name} />
                   </Col>
                 </Row>
+                <Row style={{marginTop: 10}} gutter={50}>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                  <RowDetail title="Mã tham chiếu" value={data.reference_id} />
+                  </Col>
+                </Row>
               </Card>
              </Col>
              <Col span={6}>
