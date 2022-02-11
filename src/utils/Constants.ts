@@ -230,6 +230,7 @@ export const ProcurementStatusName = {
   [ProcurementStatus.draft]: "Nháp",
   [ProcurementStatus.not_received]: "Đã duyệt",
   [ProcurementStatus.received]: "Đã nhận",
+  [ProcumentStatus.CANCELLED]: "Đã hủy",
 };
 
 export const PROMO_TYPE = {

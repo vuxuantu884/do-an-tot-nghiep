@@ -65,7 +65,7 @@ const ProcurementFilterName = {
 };
 const { Panel } = Collapse;
 function TabListFilter(props: ProcurementFilterProps) {
-  const { 
+  const {
     onClickOpen,
   } = props;
   const history = useHistory();
@@ -203,7 +203,7 @@ function TabListFilter(props: ProcurementFilterProps) {
           <Item name={BaseProcumentField.content} className="search">
             <Input
               prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm phiếu nhập kho"
+              placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng"
             />
           </Item>
           <Item className="suppliers">
@@ -220,7 +220,7 @@ function TabListFilter(props: ProcurementFilterProps) {
                 label=""
                 placeholder="Chọn merchandisers"
                 name={BaseProcumentField.merchandisers}
-                mode="multiple" 
+                mode="multiple"
                 queryAccount={{department_ids: [AppConfig.WIN_DEPARTMENT]}}
                 help={false}
                 maxTagCount="responsive"
