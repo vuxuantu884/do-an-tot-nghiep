@@ -474,7 +474,7 @@ function CardPayments(props: CardPaymentsProps) {
                                     size="middle"
                                     min={0}
                                     max={calculateMax(props.amount, index)}
-                                    value={method.amount}
+                                    value={method.paid_amount}
                                     disabled={
                                       method.code === PaymentMethodCode.POINT ||
                                       levelOrder > 2
@@ -505,7 +505,7 @@ function CardPayments(props: CardPaymentsProps) {
                                   }}
                                 >
                                   <span style={{ padding: "14px", lineHeight: 1 }}>
-                                    {formatCurrency(method.amount)}
+                                    {formatCurrency(method.paid_amount)}
                                   </span>
                                 </Col>
                               )}

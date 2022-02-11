@@ -47,26 +47,7 @@ const ACTIONS_INDEX = {
   ACTIVE: 3,
   INACTIVE: 4,
   DELETE: 5,
-};
-
-const actionsDefault: Array<MenuAction> = [
-  {
-    id: ACTIONS_INDEX.PRINT_BAR_CODE,
-    name: "In mã vạch",
-  },
-  {
-    id: ACTIONS_INDEX.ACTIVE,
-    name: "Cho phép bán",
-  },
-  {
-    id: ACTIONS_INDEX.INACTIVE,
-    name: "Ngừng bán",
-  },
-  {
-    id: ACTIONS_INDEX.DELETE,
-    name: "Xóa sản phẩm",
-  },
-];
+}; 
 
 const initQuery: VariantSearchQuery = {
   info: "",
@@ -113,6 +94,32 @@ const TabProduct: React.FC = () => {
     items: [],
   });
   const [rowKey, setRowKey] = useState<Array<any>>([]);
+
+  const actionsDefault: Array<MenuAction> = useMemo(()=>{
+    const disabled = selected && selected.length > 0 ? false: true;
+
+    return [
+      {
+        id: ACTIONS_INDEX.PRINT_BAR_CODE,
+        name: "In mã vạch",
+      },
+      {
+        id: ACTIONS_INDEX.ACTIVE,
+        name: "Cho phép bán",
+        disabled: disabled
+      },
+      {
+        id: ACTIONS_INDEX.INACTIVE,
+        name: "Ngừng bán",
+        disabled: disabled
+      },
+      {
+        id: ACTIONS_INDEX.DELETE,
+        name: "Xóa sản phẩm",
+        disabled: disabled
+      },
+    ]
+  },[selected]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -390,7 +397,7 @@ const TabProduct: React.FC = () => {
       }
       return false;
     });
-  }, [canPrintBarcode, canDeleteVariants, canUpdateProduct]);
+  }, [canPrintBarcode, canDeleteVariants, canUpdateProduct, actionsDefault]);
 
   const onSelect = useCallback(
     (selectedRow: Array<VariantResponse>) => {
