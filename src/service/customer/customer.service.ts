@@ -118,3 +118,11 @@ export const importCustomerService = (file: File) => {
     headers: { "content-type": "multipart/form-data" },
   });
 }
+
+//get progress import customer
+export const getProgressImportCustomerApi = (
+    process_code: any
+): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.CUSTOMER}/jobs/${process_code}`;
+  return BaseAxios.get(requestUrl);
+};

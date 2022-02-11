@@ -1,14 +1,17 @@
-import React, { useCallback, useState } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import { useDispatch } from "react-redux";
-import { Button, Modal, Progress, Typography, Upload,} from "antd";
+import { Button, Modal, Typography, Upload,} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import {showSuccess, showWarning} from "utils/ToastUtils";
 import { importCustomerAction } from "domain/actions/customer/customer.action";
 import excelIcon from "assets/icon/icon-excel.svg";
-import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
 import { isNullOrUndefined } from "utils/AppUtils";
-import NumberFormat from "react-number-format";
-
+import {HttpStatus} from "config/http-status.config";
+import BaseResponse from "base/base.response";
+import {getProgressImportCustomerApi} from "service/customer/customer.service";
+import {EnumJobStatus} from "config/enum.config";
+import ProgressImportCustomerModal from "screens/customer/import-file/ProgressImportCustomerModal";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 type ImportCustomerFileType = {
   onCancel: () => void;
@@ -26,9 +29,12 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
 
   const [isVisibleImportModal, setIsVisibleImportModal] = useState(true);
   const [fileList, setFileList] = useState<Array<File>>([]);
-  const [isVisibleResultModal, setIsVisibleResultModal] = useState(false);
-  const [uploadResult, setUploadResult] = useState<any>();
-  const [errorData, setErrorData] = useState<Array<any>>([]);
+  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
+  const [importProgressPercent, setImportProgressPercent] = useState<number>(0);
+  const [processCode, setProcessCode] = useState(null);
+  const [progressData, setProgressData] = useState(null);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [isVisibleExitImportCustomerModal, setIsVisibleExitImportCustomerModal] = useState<boolean>(false);
 
   // upload customer file
   const beforeUploadFile = useCallback((file) => {
@@ -49,10 +55,9 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
   const callbackImportCustomer = (response: any) => {
     setIsVisibleImportModal(false);
     if (!!response) {
-      showSuccess("Tải file lên thành công!");
-      setUploadResult(response.process);
-      setErrorData(response.errors);
-      setIsVisibleResultModal(true);
+      setProcessCode(response.code);
+      setIsVisibleProgressModal(true);
+      setIsDownloading(true);
     } else {
       onCancel && onCancel();
     }
@@ -70,23 +75,88 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
     setIsVisibleImportModal(false);
     onCancel && onCancel();
   }
+
+  const resetProgress = () => {
+    setProcessCode(null);
+    setImportProgressPercent(0);
+    setProgressData(null);
+  }
   
+  const getProgressImportFile = useCallback(() => {
+    let getImportProgressPromise: Promise<BaseResponse<any>> = getProgressImportCustomerApi(processCode);
+
+    Promise.all([getImportProgressPromise]).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+          const processData = response.data;
+          setProgressData(processData);
+          const progressCount = processData.processed;
+          if (progressCount >= processData.total || processData.status === EnumJobStatus.finish) {
+            setImportProgressPercent(100);
+            setProcessCode(null);
+            setIsDownloading(false);
+            showSuccess("Tải file lên thành công!");
+            // lỗi api
+            // if (!processData.api_error){
+            //   showSuccess("Tải file lên thành công!");
+            // } else {
+            //   resetProgress();
+            //   setIsVisibleProgressModal(false);
+            //   showError(processData.api_error);
+            // }
+          } else {
+            const percent = Math.floor(progressCount / processData.total * 100);
+            setImportProgressPercent(percent);
+          }
+        }
+      });
+    });
+  }, [processCode]);
+
+  useEffect(() => {
+    if (importProgressPercent === 100 || !processCode) {
+      return;
+    }
+    getProgressImportFile();
+    const getFileInterval = setInterval(getProgressImportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [getProgressImportFile, importProgressPercent, processCode]);
+
+
+  const onOKProgressImportCustomer = () => {
+    resetProgress();
+    setIsVisibleProgressModal(false);
+    onOk && onOk();
+  }
+
+  const onCancelProgressImportCustomer = () => {
+    setIsVisibleExitImportCustomerModal(true);
+  }
+
+  const onCancelExitImportCustomerModal = () => {
+    setIsVisibleExitImportCustomerModal(false);
+  }
+
+  const onOkExitImportCustomerModal = () => {
+    setIsVisibleExitImportCustomerModal(false);
+    onOKProgressImportCustomer();
+    // gọi api hủy tải file lên
+    // dispatch(
+    //   exitProgressImportCustomerAction(processCode, (responseData) => {
+    //     if (responseData) {
+    //       showSuccess(responseData);
+    //       setIsVisibleExitImportCustomerModal(false);
+    //       onOKProgressImportCustomer();
+    //     }
+    //   })
+    // );
+  }
+
+
   const checkDisableOkButton = useCallback(() => {
     return !fileList.length;
   }, [fileList.length]);
   // end upload customer file
-
-  // result upload customer file
-  const onCloseResultModal = () => {
-    setIsVisibleResultModal(false);
-    if (uploadResult.error === uploadResult.total_process) {
-      onCancel && onCancel();
-    } else {
-      onOk && onOk();
-    }
-  }
-
-  // end result upload customer file
 
 
   return (
@@ -119,102 +189,38 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
         </div>
       </Modal>
 
-      <Modal
-        width="600px"
-        centered
-        visible={isVisibleResultModal}
-        title="Nhập file"
-        maskClosable={false}
-        okText="Xác nhận"
-        cancelText="Hủy"
-        onOk={onCloseResultModal}
-        onCancel={onCloseResultModal}
-      >
-        <StyledProgressDownloadModal>
-          <div className="progress-body">
-            <div className="progress-count">
-              <div>
-                <div>Tổng cộng</div>
-                <div className="total-count">
-                  {isNullOrUndefined(uploadResult?.total_process) ?
-                    "--" :
-                    <NumberFormat
-                      value={uploadResult?.total_process}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  }
-                </div>
-              </div>
-              
-              <div>
-                <div>Đã xử lý</div>
-                <div className="total-count">
-                  {isNullOrUndefined(uploadResult?.processed) ?
-                    "--" :
-                    <NumberFormat
-                      value={uploadResult?.processed}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  }
-                </div>
-              </div>
-              
-              <div>
-                <div>Thành công</div>
-                <div className="total-updated">
-                  {isNullOrUndefined(uploadResult?.success) ?
-                    "--" :
-                    <NumberFormat
-                      value={uploadResult?.success}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  }
-                </div>
-              </div>
-              
-              <div>
-                <div>Lỗi</div>
-                <div className="total-error">
-                  {isNullOrUndefined(uploadResult?.error) ?
-                    "--" :
-                    <NumberFormat
-                      value={uploadResult?.error}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  }
-                </div>
-              </div>
-            </div>
+      {isVisibleProgressModal &&
+        <ProgressImportCustomerModal
+          visible={isVisibleProgressModal}
+          onCancel={onCancelProgressImportCustomer}
+          onOk={onOKProgressImportCustomer}
+          progressData={progressData}
+          progressPercent={importProgressPercent}
+          isDownloading={isDownloading}
+        />
+      }
 
-            <Progress
-              status="normal"
-              percent={uploadResult ?
-                ((uploadResult.success + uploadResult.error) / uploadResult.total_process * 100)
-                : 100
-              }
-              style={{ marginTop: 20 }}
-            />
+      {isVisibleExitImportCustomerModal &&
+        <Modal
+          width="600px"
+          centered
+          visible={isVisibleExitImportCustomerModal}
+          title=""
+          maskClosable={false}
+          onCancel={onCancelExitImportCustomerModal}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          onOk={onOkExitImportCustomerModal}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img src={DeleteIcon} alt="" />
+            <div style={{ marginLeft: 15 }}>
+              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải file lên không?</strong>
+              <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải file khách hàng lên. <br /> Các khách hàng đã tải thành công sẽ được thêm vào danh sách khách hàng"</div>
+            </div>
           </div>
-
-          {errorData.length ?
-            <div className="error-orders">
-              <div className="title">Chi tiết lỗi:</div>
-              <ul style={{ backgroundColor: "#F5F5F5", padding: "20px 30px", color: "#E24343" }}>
-                {errorData.map((error, index) => (
-                  <li key={index} style={{ marginBottom: "5px"}}>
-                    <span>{error}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            : <></>
-          }
-        </StyledProgressDownloadModal>
-      </Modal>
+        </Modal>
+      }
     </div>
   );
 };
