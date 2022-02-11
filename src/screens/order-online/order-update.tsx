@@ -788,8 +788,6 @@ ShippingServiceConfigDetailResponseModel[]
 	 */
 	const totalAmountPayment = OrderDetail?.payments && OrderDetail?.payments?.length > 0 ? getAmountPayment(OrderDetail.payments) :getAmountPayment(payments);
 
-	console.log('totalAmountPayment', totalAmountPayment)
-
 	/**
 	 * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
 	 */
@@ -935,7 +933,7 @@ ShippingServiceConfigDetailResponseModel[]
 								discount_value: item.discount_value,
 								discount_amount: item.discount_amount,
 								position: item.position,
-								gifts: giftResponse,
+								gifts: giftResponse.filter(single => single.position === item.position),
 								available: item.available,
 							};
 						});
