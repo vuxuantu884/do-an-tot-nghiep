@@ -415,6 +415,18 @@ function OrderCreateProduct(props: PropType) {
 						totalDiscount = totalDiscount + a.amount;
 					});
 					i.discount_amount = totalDiscount;
+
+					let discountValue = 0;
+					i.discount_items.forEach((a) => {
+						discountValue = discountValue + a.value;
+					});
+					i.discount_value = totalDiscount;
+
+					let discountRate= 0;
+					i.discount_items.forEach((a) => {
+						discountRate = discountRate + a.rate;
+					});
+					i.discount_rate = discountRate;
 				}
 			});
 			return _amount;

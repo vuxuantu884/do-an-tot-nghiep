@@ -1246,6 +1246,15 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
     }
 		return result
 	};
+  const renderDiscountItem = (singleItem: any) => {
+    let discountAmount = 0;
+    if(singleItem?.discount_items && singleItem?.discount_items.length > 0) {
+      singleItem?.discount_items.forEach((discount:any) => {
+        discountAmount = discountAmount + discount.amount
+      });
+    }
+    return formatCurrency(discountAmount);
+  };
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
@@ -1264,11 +1273,11 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 			.map((singleItem: any, index: any) => {
 				return `
 		- Sản phẩm ${index + 1}: ${singleItem?.product} <br/>
-			+ Đơn giá: ${singleItem?.price} <br/>
+			+ Đơn giá: ${formatCurrency(singleItem?.price)} <br/>
 			+ Số lượng: ${singleItem?.quantity} <br/>
 			+ Thuế : ${singleItem?.tax_rate || 0} <br/>
-			+ Chiết khấu sản phẩm: ${singleItem?.discount_value || 0} <br/>
-			+ Thành tiền: ${singleItem?.amount} <br/>
+			+ Chiết khấu sản phẩm: ${renderDiscountItem(singleItem)} <br/>
+			+ Thành tiền: ${formatCurrency(singleItem?.amount)} <br/>
 			`;
 			})
 			.join("<br/>")}
@@ -1286,7 +1295,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 				: dataJson?.payments && dataJson?.payments
 						.map((singlePayment: any, index: number) => {
 							return `
-							- ${singlePayment?.payment_method}: ${singlePayment?.paid_amount}
+							- ${singlePayment?.payment_method}: ${formatCurrency(singlePayment?.paid_amount)} 
 						`;
 						})
 						.join("<br/>")
