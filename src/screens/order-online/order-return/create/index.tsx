@@ -572,6 +572,7 @@ ShippingServiceConfigDetailResponseModel[]
         let newPaymentCash: OrderPaymentRequest | undefined = undefined;
         newPaymentCash = {
           code: PaymentMethodCode.CASH,
+          payment_method_code: PaymentMethodCode.CASH,
           payment_method_id: listPaymentMethods.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
           amount: 0,
 					paid_amount: -returnAmount,

@@ -318,7 +318,7 @@ function OrderPayments(props: PropType): JSX.Element {
                   <Input.Group compact>
                     <NumberInput
                       min={0}
-                      value={method.amount}
+                      value={method.paid_amount}
                       disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2}
                       className="yody-payment-input hide-number-handle"
                       //placeholder="Nhập tiền mặt"
@@ -358,7 +358,7 @@ function OrderPayments(props: PropType): JSX.Element {
                   }}
                 >
                   <span style={{ padding: "14px", lineHeight: 1 }}>
-                    {formatCurrency(method.amount)}
+                    {formatCurrency(method.paid_amount)}
                   </span>
                 </Col>
               )}

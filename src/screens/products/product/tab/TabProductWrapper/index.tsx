@@ -31,7 +31,7 @@ import ProductWrapperFilter from "screens/products/product/filter/ProductWrapper
 import {convertCategory, formatCurrency, generateQuery} from "utils/AppUtils";
 import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showSuccess, showWarning} from "utils/ToastUtils";
+import {showInfo, showSuccess, showWarning} from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -39,26 +39,7 @@ const ACTIONS_INDEX = {
   ACTIVE: 3,
   INACTIVE: 4,
   DELETE: 5,
-};
-
-const actionsDefault: Array<MenuAction> = [
-  {
-    id: ACTIONS_INDEX.EXPORT_EXCEL,
-    name: "Xuất thông tin excel",
-  },
-  {
-    id: ACTIONS_INDEX.ACTIVE,
-    name: "Đang hoạt động",
-  },
-  {
-    id: ACTIONS_INDEX.INACTIVE,
-    name: "Ngừng hoạt động",
-  },
-  {
-    id: ACTIONS_INDEX.DELETE,
-    name: "Xóa sản phẩm",
-  },
-]; 
+};  
 
 const TabProductWrapper: React.FC = () => {
   const dispatch = useDispatch();
@@ -83,6 +64,31 @@ const TabProductWrapper: React.FC = () => {
     },
     items: [],
   });
+
+  const actionsDefault: Array<MenuAction> = useMemo(()=>{
+    const disabled = selected && selected.length > 0 ? false: true;
+    return [
+      {
+        id: ACTIONS_INDEX.EXPORT_EXCEL,
+        name: "Xuất thông tin excel",
+      },
+      {
+        id: ACTIONS_INDEX.ACTIVE,
+        name: "Đang hoạt động",
+        disabled: disabled
+      },
+      {
+        id: ACTIONS_INDEX.INACTIVE,
+        name: "Ngừng hoạt động",
+        disabled: disabled
+      },
+      {
+        id: ACTIONS_INDEX.DELETE,
+        name: "Xóa sản phẩm",
+        disabled: disabled
+      },
+    ];
+  },[selected]);
 
   const [params, setParams] = useState<ProductWrapperSearchQuery>(
     {} as ProductWrapperSearchQuery
@@ -315,20 +321,21 @@ const TabProductWrapper: React.FC = () => {
 
   const onMenuClick = useCallback(
     (index: number) => {
-      if (selected.length > 0) {
-        switch (index) {
-          case ACTIONS_INDEX.ACTIVE:
-            onActive(selected[0]);
-            break;
-          case ACTIONS_INDEX.INACTIVE:
-            onInactive(selected[0]);
-            break;
-          case ACTIONS_INDEX.DELETE: 
-            setConfirmDelete(true);
-            break;
-          case 3:
-            break;
-        }
+      switch (index) {
+        case ACTIONS_INDEX.ACTIVE:
+          onActive(selected[0]);
+          break;
+        case ACTIONS_INDEX.INACTIVE:
+          onInactive(selected[0]);
+          break;
+        case ACTIONS_INDEX.DELETE: 
+          setConfirmDelete(true);
+          break;
+       case ACTIONS_INDEX.EXPORT_EXCEL: 
+          showInfo("Tính năng đang phát triển");
+          break;
+        case 3:
+          break;
       }
     },
     [onActive, onInactive, selected]

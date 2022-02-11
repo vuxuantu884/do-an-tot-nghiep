@@ -56,6 +56,7 @@ import {
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
+	reCalculatePaymentReturn,
 	scrollAndFocusToDomElement,
 	totalAmount
 } from "utils/AppUtils";
@@ -445,39 +446,6 @@ ShippingServiceConfigDetailResponseModel[]
 		}
 	};
 
-	const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
-		if (totalAmountCustomerNeedToPay < 0) {
-			let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
-			let _payments = [...payments];
-			let paymentCashIndex = _payments.findIndex(payment => payment.payment_method_code === PaymentMethodCode.CASH);
-			if (paymentCashIndex > -1) {
-				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
-				_payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
-				_payments[paymentCashIndex].return_amount = returnAmount;
-				
-			} else {
-				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
-				newPaymentCash = {
-					code: PaymentMethodCode.CASH,
-					payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
-					amount: -returnAmount,
-					paid_amount: 0,
-					return_amount: returnAmount,
-					status: "",
-					payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
-					reference: '',
-					source: '',
-					customer_id: 1,
-					note: '',
-					type: '',
-				};
-				_payments.push(newPaymentCash)
-			}
-			return _payments;
-		}
-		return payments;
-	};
-
 	const onFinish = (values: OrderRequest) => {
 		values.channel_id = ADMIN_ORDER.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
@@ -551,7 +519,7 @@ ShippingServiceConfigDetailResponseModel[]
 				}
 				let valuesCalculateReturnAmount = {
 					...values,
-					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
+					payments: reCalculatePaymentReturn(payments, totalAmountCustomerNeedToPay, listPaymentMethod).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
 				}
 				if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
 					if (typeButton === OrderStatus.DRAFT) {

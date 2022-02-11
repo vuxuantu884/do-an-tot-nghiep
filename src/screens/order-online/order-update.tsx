@@ -87,6 +87,7 @@ import {
 	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
+	reCalculatePaymentReturn,
 	SumCOD,
 	SumWeightResponse,
 	totalAmount,
@@ -638,38 +639,6 @@ ShippingServiceConfigDetailResponseModel[]
 		}
 	};
 
-	const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
-		if (totalAmountCustomerNeedToPay < 0) {
-			let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
-			let _payments = [...payments];
-			let paymentCashIndex = _payments.findIndex(payment => payment.code === PaymentMethodCode.CASH);
-			if (paymentCashIndex > -1) {
-				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
-				_payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
-				_payments[paymentCashIndex].return_amount = returnAmount;
-			} else {
-				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
-				newPaymentCash = {
-					code: PaymentMethodCode.CASH,
-					payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
-					amount: -returnAmount,
-					paid_amount: 0,
-					return_amount: returnAmount,
-					status: "",
-					payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
-					reference: '',
-					source: '',
-					customer_id: 1,
-					note: '',
-					type: '',
-				};
-				_payments.push(newPaymentCash)
-			}
-			return _payments;
-		}
-		return payments;
-	};
-
 	const onFinish = (values: OrderRequest) => {
 		if (!OrderDetail) return;
 		values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
@@ -730,7 +699,7 @@ ShippingServiceConfigDetailResponseModel[]
 			} else {
 				let valuesCalculateReturnAmount = {
 					...values,
-					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
+					payments: reCalculatePaymentReturn(payments, totalAmountCustomerNeedToPay, listPaymentMethod).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
 				}
 				if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
 					if (values.delivery_service_provider_id === null) {
@@ -818,8 +787,6 @@ ShippingServiceConfigDetailResponseModel[]
 	 * tổng số tiền đã trả
 	 */
 	const totalAmountPayment = OrderDetail?.payments && OrderDetail?.payments?.length > 0 ? getAmountPayment(OrderDetail.payments) :getAmountPayment(payments);
-
-	console.log('totalAmountPayment', totalAmountPayment)
 
 	/**
 	 * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
@@ -966,7 +933,7 @@ ShippingServiceConfigDetailResponseModel[]
 								discount_value: item.discount_value,
 								discount_amount: item.discount_amount,
 								position: item.position,
-								gifts: giftResponse,
+								gifts: giftResponse.filter(single => single.position === item.position),
 								available: item.available,
 							};
 						});

@@ -652,7 +652,7 @@ function OrderCreateProduct(props: PropType) {
 					<div style={{ marginTop: 5 }}>
 						{l.gifts &&
 							l.gifts.map((a, index1) => (
-								<div key={index1} className="yody-pos-addition yody-pos-gift">
+								<div key={index1} className="yody-pos-addition yody-pos-gift 3">
 									<div>
 										<img src={giftIcon} alt="" />
 										<i style={{ marginLeft: 7 }}>
