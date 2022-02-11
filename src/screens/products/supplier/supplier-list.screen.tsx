@@ -27,9 +27,6 @@ import {DeleteOutlined} from "@ant-design/icons";
 import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import {AccountResponse} from "model/account/account.model";
-import {AppConfig} from "config/app.config";
 
 const ACTIONS_INDEX = {
   DELETE: 1,
@@ -45,7 +42,7 @@ const actionsDefault: Array<MenuAction> = [
 
 const DefaultCountry = 233;
 const initQuery: SupplierQuery = {
-  district_id: "",
+  district_id: undefined,
   note: "",
   contact: "",
   pics: [],
@@ -108,6 +105,7 @@ const ListSupplierScreen: React.FC = () => {
     {
       title: "Mã",
       dataIndex: "code",
+      fixed: "left",
       render: (value: string, item: SupplierResponse) => {
         return <Link to={`${UrlConfig.SUPPLIERS}/${item.id}`}>{value}</Link>;
       },
@@ -116,44 +114,10 @@ const ListSupplierScreen: React.FC = () => {
     {
       width: 300,
       title: "Tên nhà cung cấp",
+      fixed: "left",
       dataIndex: "name",
       visible: true,
       ellipsis: true,
-    },
-    {
-      title: "Loại",
-      dataIndex: "type_name",
-      visible: true,
-    },
-    {
-      title: "Quốc gia",
-      dataIndex: "country_name",
-      visible: false,
-    },
-    {
-      title: "Thành phố",
-      dataIndex: "city_name",
-      visible: false,
-    },
-    {
-      title: "Quận huyện",
-      dataIndex: "district_name",
-      visible: false,
-    },
-    {
-      title: "Người liên hệ",
-      dataIndex: "contacts",
-      visible: true,
-      render: (contacts: Array<SupplierContactResposne>) => {
-        let index = contacts.findIndex((value) => value.is_default);
-        if(index === -1) {
-          if(contacts.length > 0) {
-            return contacts[0].name;
-          }
-          return '';
-        }
-        return contacts[index].name;
-      },
     },
     {
       title: "Số điện thoại",
@@ -171,10 +135,50 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
     {
+      title: "Merchandiser",
+      dataIndex: "contacts",
+      visible: true,
+      render: (contacts: Array<SupplierContactResposne>) => {
+        let index = contacts.findIndex((value) => value.is_default);
+        if(index === -1) {
+          if(contacts.length > 0) {
+            return contacts[0].name;
+          }
+          return '';
+        }
+        return contacts[index].name;
+      },
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status_name",
+      render: (value: string, item: SupplierResponse) => (
+        <div className={item.status === "active" ? "text-success" : "text-error"}>
+          {value}
+        </div>
+      ),
+      visible: true,
+    },
+    {
       title: "Phân cấp",
       dataIndex: "scorecard",
       align: "center",
       visible: true,
+    }, 
+    {
+      title: "Quốc gia",
+      dataIndex: "country_name",
+      visible: false,
+    },
+    {
+      title: "Thành phố",
+      dataIndex: "city_name",
+      visible: false,
+    },
+    {
+      title: "Quận huyện",
+      dataIndex: "district_name",
+      visible: false,
     },
     {
       title: "Người tạo",
@@ -186,15 +190,10 @@ const ListSupplierScreen: React.FC = () => {
       dataIndex: "created_date",
       visible: false,
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    },
+    },   
     {
-      title: "Trạng thái",
-      dataIndex: "status_name",
-      render: (value: string, item: SupplierResponse) => (
-        <div className={item.status === "active" ? "text-success" : "text-error"}>
-          {value}
-        </div>
-      ),
+      title: "Loại",
+      dataIndex: "type_name",
       visible: true,
     },
   ]);
@@ -211,14 +210,7 @@ const ListSupplierScreen: React.FC = () => {
     );
   }, []);
 
-  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: {
-      limit: 20,
-      page: 1,
-      total: 0,
-    },
-  });
+
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -274,28 +266,13 @@ const ListSupplierScreen: React.FC = () => {
     }
   }, [selected]);
 
-  const getAccounts = useCallback(
-    (search: string, page: number) => {
-      dispatch(
-        AccountSearchAction(
-          {info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page},
-          (response: PageResponse<AccountResponse> | false) => {
-            if (response) {
-              setAccounts(response);
-            }
-          }
-        )
-      );
-    },
-    [dispatch]
-  );
+
 
   useEffect(() => {
     setTableLoading(true);
     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
-    getAccounts("", 1);
-  }, [dispatch, getAccounts, params, searchSupplierCallback]);
+  }, [dispatch, params, searchSupplierCallback]);
   return (
     <>
       {allowReadSup ? (
@@ -325,8 +302,6 @@ const ListSupplierScreen: React.FC = () => {
         >
           <Card>
             <SupplierFilter
-              accounts={accounts}
-              onAccountPageChange={(key, page) => getAccounts(key, page)}
               onMenuClick={onMenuClick}
               listDistrict={listDistrict}
               actions={actions}

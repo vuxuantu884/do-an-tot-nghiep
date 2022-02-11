@@ -124,6 +124,7 @@ const CreateSupplierScreen: React.FC = () => {
     items: [],
   });
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const params: CollectionQuery = useParams() as CollectionQuery;
 
@@ -158,6 +159,7 @@ const CreateSupplierScreen: React.FC = () => {
 
   const onCreateSuccess = useCallback(
     (data) => {
+      setIsSubmitting(false);
       if (!data) return;
 
       history.push(`${UrlConfig.SUPPLIERS}`);
@@ -166,6 +168,7 @@ const CreateSupplierScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
+      setIsSubmitting(true);
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
@@ -590,9 +593,8 @@ const CreateSupplierScreen: React.FC = () => {
                           <Col span={24}>
                             <Item
                               name={[name, "phone"]}
-                              label="Số điện thoại"
+                              label="SĐT người liên hệ"
                               rules={[
-                                { required: true, message: "Vui lòng nhập số điện thoại" },
                                 {
                                   validator: validatePhone,
                                 }
@@ -690,7 +692,7 @@ const CreateSupplierScreen: React.FC = () => {
           back="Quay lại danh sách"
           rightComponent={
             allowCreateSup && (
-              <Button htmlType="submit" type="primary">
+              <Button htmlType="submit" type="primary" loading={isSubmitting}>
                 Tạo nhà cung cấp
               </Button>
             )
