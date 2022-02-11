@@ -93,18 +93,19 @@ const UpdateSupplierScreen: React.FC = () => {
     },
     [formRef]
   );
-  const onUpdateSuccess = useCallback(() => {
-    setLoading(false);
+  
+  const onUpdateSuccess = (response: SupplierResponse|false) => {
+    if(response){
     history.push(`${UrlConfig.SUPPLIERS}/${id}}`);
     showSuccess("Sửa nhà cung cấp thành công");
-  }, [history, id]);
-  const onFinish = useCallback(
-    (values: SupplierUpdateRequest) => {
+    }
+    setLoading(false);
+  };
+
+  const onFinish = (values: SupplierUpdateRequest) => {
       setLoading(true);
       dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
-    },
-    [dispatch, idNumber, onUpdateSuccess]
-  );
+    };
   //End callback
   //Memo
   const statusValue = useMemo(() => {
