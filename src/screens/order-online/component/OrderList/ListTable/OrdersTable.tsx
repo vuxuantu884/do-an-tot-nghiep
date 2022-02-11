@@ -462,9 +462,9 @@ function OrdersTable(props: PropsType) {
           }
           if (sortedFulfillments) {
             if (sortedFulfillments[0]?.shipment) {
-              switch (sortedFulfillments[0].shipment?.delivery_service_provider_type) {
+              switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
                 case ShipmentMethod.EXTERNAL_SERVICE:
-                  const thirdPLId = sortedFulfillments[0].shipment.delivery_service_provider_id;
+                  const thirdPLId = sortedFulfillments[0]?.shipment?.delivery_service_provider_id;
                   const service = deliveryServices.find((service) => service.id === thirdPLId);
                   return (
                     <React.Fragment>
@@ -484,8 +484,8 @@ function OrdersTable(props: PropsType) {
                               <img src={iconShippingFeeInformedToCustomer} alt="" />
                               <span>
                                 {formatCurrency(
-                                  sortedFulfillments[0].status !== FulFillmentStatus.CANCELLED
-                                    ? sortedFulfillments[0].shipment
+                                  sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED
+                                    ? sortedFulfillments[0]?.shipment
                                         .shipping_fee_informed_to_customer || 0
                                     : 0
                                 )}
@@ -497,7 +497,7 @@ function OrdersTable(props: PropsType) {
                             <div className="single">
                               <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
                               {formatCurrency(
-                                sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0
+                                sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0
                               )}
                             </div>
                           </Tooltip>
@@ -510,13 +510,13 @@ function OrdersTable(props: PropsType) {
                   return (
                     <React.Fragment>
                       <div className="single">
-                        {sortedFulfillments[0]?.shipment.service === "4h_delivery"
+                        {sortedFulfillments[0]?.shipment?.service === "4h_delivery"
                           ? "Đơn giao 4H"
                           : "Đơn giao thường"}
                         {" - "}
                         <span style={{ color: primaryColor }}>
-                          {sortedFulfillments[0].shipment.shipper_code}-
-                          {sortedFulfillments[0].shipment.shipper_name}
+                          {sortedFulfillments[0]?.shipment?.shipper_code}-
+                          {sortedFulfillments[0]?.shipment?.shipper_name}
                         </span>
                       </div>
                       <Tooltip title="Tổng khối lượng">
@@ -530,7 +530,7 @@ function OrdersTable(props: PropsType) {
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
                             {formatCurrency(
-                              sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0
+                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0
                             )}
                           </span>
                         </div>
@@ -540,7 +540,7 @@ function OrdersTable(props: PropsType) {
                         <div className="single">
                           <img src={iconShippingFeePay3PL} alt="" />
                           {formatCurrency(
-                            sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0
+                            sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0
                           )}
                         </div>
                       </Tooltip>
@@ -566,7 +566,7 @@ function OrdersTable(props: PropsType) {
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
                             {formatCurrency(
-                              sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0
+                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0
                             )}
                           </span>
                         </div>
@@ -576,7 +576,7 @@ function OrdersTable(props: PropsType) {
                         <div className="single">
                           <img src={iconShippingFeePay3PL} alt="" />
                           {formatCurrency(
-                            sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0
+                            sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0
                           )}
                         </div>
                       </Tooltip>
@@ -597,7 +597,7 @@ function OrdersTable(props: PropsType) {
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
                             {formatCurrency(
-                              sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0
+                              sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0
                             )}
                           </span>
                         </div>
@@ -607,7 +607,7 @@ function OrdersTable(props: PropsType) {
                         <div className="single">
                           <img src={iconShippingFeePay3PL} alt="" />
                           {formatCurrency(
-                            sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0
+                            sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0
                           )}
                         </div>
                       </Tooltip>
@@ -627,7 +627,7 @@ function OrdersTable(props: PropsType) {
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
                             {formatCurrency(
-                              sortedFulfillments[0].shipment.shipping_fee_informed_to_customer || 0
+                              sortedFulfillments[0]?.shipment.shipping_fee_informed_to_customer || 0
                             )}
                           </span>
                         </div>
@@ -637,7 +637,7 @@ function OrdersTable(props: PropsType) {
                         <div className="single">
                           <img src={iconShippingFeePay3PL} alt="" />
                           {formatCurrency(
-                            sortedFulfillments[0].shipment.shipping_fee_paid_to_three_pls || 0
+                            sortedFulfillments[0]?.shipment.shipping_fee_paid_to_three_pls || 0
                           )}
                         </div>
                       </Tooltip>
@@ -916,7 +916,7 @@ function OrdersTable(props: PropsType) {
     let result = 0;
     data.items.forEach((item) => {
       const sortedFulfillments = item.fulfillments?.sort((a: any, b: any) => b.id - a.id);
-      if (sortedFulfillments && sortedFulfillments[0].status !== FulFillmentStatus.CANCELLED) {
+      if (sortedFulfillments && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
         result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_informed_to_customer || 0);
       }
     });
@@ -927,7 +927,7 @@ function OrdersTable(props: PropsType) {
     let result = 0;
     data.items.forEach((item) => {
       const sortedFulfillments = item.fulfillments?.sort((a: any, b: any) => b.id - a.id);
-      if (sortedFulfillments && sortedFulfillments[0].status !== FulFillmentStatus.CANCELLED) {
+      if (sortedFulfillments && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
         result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0);
       }
     });
