@@ -191,4 +191,32 @@ export const StyledComponent = styled.div`
 			}
 		}
 	}
+  .ant-table {
+    .ant-table-footer {
+      background: #fff;
+      padding: 30px 0 20px 0;
+      .text-field {
+        font-weight: 500;
+        display: inline-block;
+      }
+      .hasIcon {
+        .iconShippingFeeInformedToCustomer {
+          position: relative;
+          top: -2px;
+        }
+        .iconShippingFeePay3PL {
+          position: relative;
+          top: -1px;
+        }
+        span {
+          display: flex;
+          align-items: center;
+        }
+        img {
+          margin-right: 8px;
+        }
+      }
+    }
+
+  }
 `;
