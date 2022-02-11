@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { STATUS_INVENTORY_ADJUSTMENT } from "../constants";
 
+
 export const BG_COLOR_TAG = {
   DRAFT: {
     background: '#fffff',
@@ -44,6 +45,13 @@ export const InventoryAdjustmentWrapper = styled.div`
       background: ${BG_COLOR_TAG.ADJUSTED.background};
       color: ${BG_COLOR_TAG.ADJUSTED.color};
     } 
+    .ellipses-text{
+      overflow: "hidden";
+      text-overflow: "ellipsis";
+      display: "-webkit-box";
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: "vertical"
+    }
   }
   
 `;
