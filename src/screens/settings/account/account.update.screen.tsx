@@ -88,7 +88,7 @@ const AccountUpdateScreen: React.FC = () => {
   //State
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
-  const [status, setStatus] = useState<string>("active");
+  const [status, setStatus] = useState<string>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
@@ -163,6 +163,7 @@ const AccountUpdateScreen: React.FC = () => {
       }
     });
     data.store_ids = [...ids];
+    setStatus(data.status);
     setAccountDetail(data);
     idNumber.current = data.id;
   }, []);

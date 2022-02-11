@@ -110,6 +110,7 @@ export interface ProductEntitlements {
   entitlement?: EntilementFormModel;
   open_quantity: number;
   price_rule_id?: number;
+  retail_price?: number;
 }
 
 export interface EntilementFormModel {

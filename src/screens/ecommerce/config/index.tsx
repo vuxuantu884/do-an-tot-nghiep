@@ -9,12 +9,6 @@ import { EcommerceConfigPermission } from "config/permissions/ecommerce.permissi
 
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import { ecommerceConfigGetAction } from "domain/actions/ecommerce/ecommerce.actions";
 import { useQuery } from "utils/useQuery";
@@ -44,9 +38,7 @@ import connectedShopIcon from "assets/icon/connected_shop.svg";
 
 
 const { TabPane } = Tabs;
-const initQueryAccount: AccountSearchQuery = {
-  info: "",
-};
+
 let isConnectedShop = false;
 let connectedShopList: Array<EcommerceResponse> = [];
 
@@ -70,7 +62,6 @@ const EcommerceConfig: React.FC = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
-  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [configData, setConfigData] = React.useState<Array<EcommerceResponse>>(
     []
   );
@@ -113,17 +104,6 @@ const EcommerceConfig: React.FC = () => {
 
 
   const storeChangeSearch = React.useCallback(() => { }, []);
-
-  const setDataAccounts = React.useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      const _items = data.items.filter((item) => item.status === "active");
-      setAccounts(_items);
-    },
-    []
-  );
 
   // link to ecommerce
   const redirectCallback = React.useCallback((value: any) => {
@@ -204,18 +184,6 @@ const EcommerceConfig: React.FC = () => {
       dispatch(ecommerceConfigInfoAction(generatedParams, configInfoCallback));
     }
   }, [initQueryConnect, configInfoCallback, dispatch, isGetAllShop]);
-  
-  const accountChangeSearch = React.useCallback(
-    (value) => {
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
-    },
-    [dispatch, setDataAccounts]
-  );
-
-  React.useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
 
   React.useEffect(() => {
     dispatch(
@@ -344,8 +312,6 @@ const EcommerceConfig: React.FC = () => {
                   <TabPane tab="Cấu hình gian hàng" key="setting">
                     <ConfigShop
                       listStores={stores}
-                      accounts={accounts}
-                      accountChangeSearch={accountChangeSearch}
                       form={configForm}
                       configData={configData}
                       configToView={configToView}
