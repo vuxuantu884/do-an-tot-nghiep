@@ -1,4 +1,3 @@
-import UrlConfig from "config/url.config";
 import { OrderSearchQuery } from "model/order/order.model";
 import React from "react";
 import { withRouter } from "react-router-dom";
@@ -16,8 +15,7 @@ function OrdersScreen(props: PropTypes) {
     title: "Danh sách đơn hàng",
     breadcrumb: [
       {
-        name: "Tổng quan",
-        path: UrlConfig.HOME,
+        name: "Đơn hàng",
       },
       {
         name: "Danh sách đơn hàng",

@@ -1,5 +1,6 @@
 //color
 export const primaryColor = "#2a2a86";
+export const primaryColorHover = "#0F0F6D";
 export const siderColor = "#222247";
 export const menuColor = "rgba(0, 0, 0, 1)";
 export const secondaryColor = "#fcaf17";

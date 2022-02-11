@@ -30,13 +30,26 @@
         }
       }
       &-item {
+        &:first-child {
+          .ant-steps-item-tail {
+            margin: 0 !important;
+            left: 50%;
+          }
+        }
+        &:last-child {
+          .ant-steps-item-container>.ant-steps-item-tail {
+            display: block;
+          }
+        }
         &-tail {
-          margin-left: 42px !important;
+          margin-left: -42px !important;
         }
         &-icon {
           width: 14px !important;
           height: 14px !important;
           margin-left: 35px !important;
+          position: relative;
+          z-index: 999;
         }
         &-description {
           color: #222 !important;
@@ -107,9 +120,9 @@
   }
   .cancelled {
     .ant-steps-item-tail {
-      background-color: #e24343 !important;
+      background-color: #d9d9e4  !important;
       &::after {
-        background-color: #e24343 !important;
+        background-color: #d9d9e4  !important;
       }
     }
     .ant-steps-icon-dot {

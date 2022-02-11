@@ -16,5 +16,10 @@ export const StyledComponent = styled.div`
     @media screen and (max-width: 1439px) {
       left: ${200 + 20}px;
     }
+    &__right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
   }
 `;
