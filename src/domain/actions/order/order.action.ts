@@ -289,7 +289,8 @@ export const setSubStatusAction = (
   order_id: number,
   statusCode: string,
   handleData: () => void,
-  action: string = "Chuyển trạng thái phụ"
+  handleError?: () => void,
+  action: string = "Chuyển trạng thái phụ",
 ) => {
   return {
     type: OrderType.SET_SUB_STATUS,
@@ -298,6 +299,7 @@ export const setSubStatusAction = (
       statusCode,
       action,
       handleData,
+      handleError
     },
   };
 };
