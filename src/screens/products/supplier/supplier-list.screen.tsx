@@ -48,6 +48,9 @@ const initQuery: SupplierQuery = {
   pics: [],
   from_created_date: "",
   to_created_date: "",
+  status: undefined,
+  type: undefined,
+  scorecard: undefined,
 };
 
 const ListSupplierScreen: React.FC = () => {
