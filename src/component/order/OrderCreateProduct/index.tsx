@@ -147,6 +147,7 @@ var barcode = "";
 const initQueryVariant: VariantSearchQuery = {
 	limit: 10,
 	page: 1,
+	saleable: true,
 };
 
 /**
