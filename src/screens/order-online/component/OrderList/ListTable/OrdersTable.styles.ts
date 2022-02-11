@@ -194,7 +194,10 @@ export const StyledComponent = styled.div`
   .ant-table {
     .ant-table-footer {
       background: #fff;
-      padding: 30px 0 20px 0;
+      padding: 0;
+      .tableFooter {
+        padding: 30px 0 20px 0;
+      }
       .text-field {
         font-weight: 500;
         display: inline-block;

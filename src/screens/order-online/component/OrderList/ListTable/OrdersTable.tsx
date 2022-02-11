@@ -935,68 +935,72 @@ function OrdersTable(props: PropsType) {
   };
 
   const renderFooter = () => {
-    let html: ReactNode = "";
-    html = (
-      <Row>
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">TỔNG SỐ LƯỢNG SẢN PHẨM:</p>
+    let html: ReactNode = null;
+    if(data?.items.length > 0) {
+      html = (
+        <div className="tableFooter">
+          <Row>
+            <Col md={12}>
+              <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">TỔNG SỐ LƯỢNG SẢN PHẨM:</p>
+                </Col>
+                <Col span={14}>
+                  <b className="text-field">{formatCurrency(getTotalQuantity())}</b>
+                </Col>
+              </Row>
             </Col>
-            <Col span={14}>
-              <b className="text-field">{formatCurrency(getTotalQuantity())}</b>
+            <Col md={12}>
+              <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">TỔNG TIỀN ĐƠN HÀNG:</p>
+                </Col>
+                <Col span={14}>
+                  <b className="text-field">{formatCurrency(getTotalAmount())}</b>
+                </Col>
+              </Row>
+            </Col>
+            <Col md={12}>
+              <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">TỔNG TIỀN THANH TOÁN:</p>
+                </Col>
+                <Col span={14}>
+                  <div>
+                    <b className="text-field">{formatCurrency(getTotalPayment())}</b>
+                  </div>
+                </Col>
+              </Row>
+            </Col>
+            <Col md={12}>
+              <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">TỔNG VẬN CHUYỂN:</p>
+                </Col>
+                <Col span={14}>
+                  <div>
+                    <b className="text-field hasIcon">
+                      <Tooltip title="Tổng phí ship báo khách">
+                        <img src={iconShippingFeeInformedToCustomer} alt="" className="iconShippingFeeInformedToCustomer"/>
+                        {formatCurrency(getTotalShippingFeeInformedToCustomer())}
+                      </Tooltip>
+                    </b>
+                  </div>
+                  <div>
+                    <b className="text-field hasIcon">
+                      <Tooltip title="Tổng phí vận chuyển">
+                        <img src={iconShippingFeePay3PL} alt="" />
+                        {formatCurrency(getTotalShippingPay3PL())}
+                      </Tooltip>
+                    </b>
+                  </div>
+                </Col>
+              </Row>
             </Col>
           </Row>
-        </Col>
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">TỔNG TIỀN ĐƠN HÀNG:</p>
-            </Col>
-            <Col span={14}>
-              <b className="text-field">{formatCurrency(getTotalAmount())}</b>
-            </Col>
-          </Row>
-        </Col>
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">TỔNG TIỀN THANH TOÁN:</p>
-            </Col>
-            <Col span={14}>
-              <div>
-                <b className="text-field">{formatCurrency(getTotalPayment())}</b>
-              </div>
-            </Col>
-          </Row>
-        </Col>
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">TỔNG VẬN CHUYỂN:</p>
-            </Col>
-            <Col span={14}>
-							<div>
-								<b className="text-field hasIcon">
-									<Tooltip title="Tổng phí ship báo khách">
-										<img src={iconShippingFeeInformedToCustomer} alt="" className="iconShippingFeeInformedToCustomer"/>
-										{formatCurrency(getTotalShippingFeeInformedToCustomer())}
-									</Tooltip>
-								</b>
-							</div>
-							<div>
-								<b className="text-field hasIcon">
-									<Tooltip title="Tổng phí vận chuyển">
-										<img src={iconShippingFeePay3PL} alt="" />
-										{formatCurrency(getTotalShippingPay3PL())}
-									</Tooltip>
-								</b>
-							</div>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-    );
+        </div>
+      );
+    }
     return html;
   };
 
