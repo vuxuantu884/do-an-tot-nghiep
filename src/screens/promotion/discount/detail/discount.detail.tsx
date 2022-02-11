@@ -18,13 +18,14 @@ import {
   bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction,
   getPriceRuleAction,
-  getVariantsAction
+  getPriceRuleVariantPaggingAction  
 } from "../../../../domain/actions/promotion/discount/discount.action";
 import { showError, showInfo, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionDetail from "../../shared/general-condition.detail";
 import DiscountRuleInfo from "../components/discount-rule-info";
 import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants/index"; 
 import { DiscountStyled } from "../discount-style";
+import { PageResponse } from "model/base/base-metadata.response";
 
 const MAX_LOAD_VARIANT_LIST = 3;
 const RELOAD_VARIANT_LIST_TIME = 3000;
@@ -54,7 +55,14 @@ const PromotionDetailScreen: React.FC = () => {
   const [isLoadingVariantList, setIsLoadingVariantList] = useState(false);
   const [dataDiscount, setDataDiscount] = useState<PriceRule>();
   const [quantityColumn, setQuantityColumn] = useState<any>([]);
-  const [dataVariants, setDataVariants] = useState<Array<ProductEntitlements>>();
+  const [dataVariants, setDataVariants] = useState<PageResponse<ProductEntitlements>>({
+    items: [],
+    metadata: {
+      total: 0,
+      limit: 30,
+      page: 1,
+    }
+  });
   const isFirstLoadVariantList = useRef(true);
   const countLoadVariantList = useRef(0);
 
@@ -72,7 +80,7 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, []);
 
-  const handleResponse = useCallback((result: ProductEntitlements[]) => {
+  const handleResponse = useCallback((result: PageResponse<ProductEntitlements>) => {
     setLoading(false);
     setIsLoadingVariantList(false);
     if (result) {
@@ -186,10 +194,14 @@ const PromotionDetailScreen: React.FC = () => {
     }
   };
 
+  const getPriceRuleVariantData = useCallback((page=1, limit=30)=>{
+    dispatch(getPriceRuleVariantPaggingAction(idNumber,{page , limit }, handleResponse));
+  },[idNumber, dispatch, handleResponse]);
+
   useEffect(() => {
     dispatch(getPriceRuleAction(idNumber, onResult));
-    dispatch(getVariantsAction(idNumber, handleResponse));
-  }, [dispatch, handleResponse, idNumber, onResult]);
+    getPriceRuleVariantData();
+  }, [dispatch, idNumber, onResult, getPriceRuleVariantData]);
 
   /**
    * Kiểm tra danh sách sản phẩm nếu trong chiết khấu có sản phẩm mà danh sách variant của chiết khấu chưa có => server chưa lưu dữ liệu variant xong => chờ 3s load lại
@@ -197,7 +209,7 @@ const PromotionDetailScreen: React.FC = () => {
    */
   useEffect(() => {
     let isVariantNotLoadYet = false;
-    const variantLength = dataVariants?.length ?? 0;
+    const variantLength = dataVariants?.items?.length ?? 0;
     const variantIdLength = dataDiscount?.entitlements[0]?.entitled_variant_ids.length ?? 0;
     const productIdLength = dataDiscount?.entitlements[0]?.entitled_product_ids.length ?? 0;
 
@@ -209,32 +221,32 @@ const PromotionDetailScreen: React.FC = () => {
         isFirstLoadVariantList.current = false;
       }
       setTimeout(() => {
-        dispatch(getVariantsAction(idNumber, handleResponse));
+        getPriceRuleVariantData()
       }, RELOAD_VARIANT_LIST_TIME);
     }
 
 
-    if (
-      dataDiscount?.entitlements[0]?.entitled_product_ids.length === 0
-      && dataDiscount?.entitlements[0]?.entitled_variant_ids.length === 0) {
+    // if (
+    //   dataDiscount?.entitlements[0]?.entitled_product_ids.length === 0
+    //   && dataDiscount?.entitlements[0]?.entitled_variant_ids.length === 0) {
 
-      const ranges = dataDiscount?.entitlements[0]?.prerequisite_quantity_ranges[0]
-      setDataVariants([{
-        variant_title: <span style={{ color: "#2A2A86", fontWeight: 500 }}>Tất cả sản phẩm</span>,
-        sku: "",
-        limit: ranges?.allocation_limit,
-        cost: -1,
-        open_quantity: 0,
-        product_id: 0,
-        variant_id: 0,
-        entitlement: dataDiscount?.entitlements[0],
-        price_rule_id: 0,
-      }])
-    }
+    //   const ranges = dataDiscount?.entitlements[0]?.prerequisite_quantity_ranges[0]
+    //   setDataVariants([{
+    //     variant_title: <span style={{ color: "#2A2A86", fontWeight: 500 }}>Tất cả sản phẩm</span>,
+    //     sku: "",
+    //     limit: ranges?.allocation_limit,
+    //     cost: -1,
+    //     open_quantity: 0,
+    //     product_id: 0,
+    //     variant_id: 0,
+    //     entitlement: dataDiscount?.entitlements[0],
+    //     price_rule_id: 0,
+    //   }])
+    // }
 
     setQuantityColumn(dataDiscount?.entitled_method !== PriceRuleMethod.FIXED_PRICE ? columnFixedPrice : columnDiscountQuantity);
     setIsLoadingVariantList(isVariantNotLoadYet);
-  }, [dataVariants, dataDiscount, dispatch, handleResponse, idNumber]);
+  }, [dataVariants, dataDiscount, dispatch, handleResponse, idNumber, getPriceRuleVariantData]);
 
   return (
     <ContentContainer
@@ -383,14 +395,25 @@ const PromotionDetailScreen: React.FC = () => {
 
                 {dataDiscount.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD && dataVariants && <CustomTable
                   rowKey="id"
-                  dataSource={dataVariants}
+                  dataSource={dataVariants.items}
                   columns={
-                    dataVariants.length > 1
+                    dataVariants?.items?.length > 1
                       ? quantityColumn
                       : quantityColumn.filter((column: any) => column.title !== "STT") // show only when have more than 1 entitlement
                   }
                   isLoading={isLoadingVariantList}
-                  pagination={false}
+                  pagination={{
+                    total: dataVariants.metadata?.total,
+                    pageSize: dataVariants.metadata?.limit,
+                    current: dataVariants.metadata?.page,
+                    onChange: (page: number, limit?:number) => {
+                      getPriceRuleVariantData(page,limit);
+                  },
+                  onShowSizeChange: (current: number, size: number) => {
+                    getPriceRuleVariantData(current,size);
+                  },
+                  showSizeChanger: true,
+                }}
                 />}
 
               </Card>

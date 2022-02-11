@@ -147,6 +147,7 @@ var barcode = "";
 const initQueryVariant: VariantSearchQuery = {
 	limit: 10,
 	page: 1,
+	saleable: true,
 };
 
 /**
@@ -414,6 +415,18 @@ function OrderCreateProduct(props: PropType) {
 						totalDiscount = totalDiscount + a.amount;
 					});
 					i.discount_amount = totalDiscount;
+
+					let discountValue = 0;
+					i.discount_items.forEach((a) => {
+						discountValue = discountValue + a.value;
+					});
+					i.discount_value = totalDiscount;
+
+					let discountRate= 0;
+					i.discount_items.forEach((a) => {
+						discountRate = discountRate + a.rate;
+					});
+					i.discount_rate = discountRate;
 				}
 			});
 			return _amount;
@@ -652,7 +665,7 @@ function OrderCreateProduct(props: PropType) {
 					<div style={{ marginTop: 5 }}>
 						{l.gifts &&
 							l.gifts.map((a, index1) => (
-								<div key={index1} className="yody-pos-addition yody-pos-gift">
+								<div key={index1} className="yody-pos-addition yody-pos-gift 3">
 									<div>
 										<img src={giftIcon} alt="" />
 										<i style={{ marginLeft: 7 }}>
@@ -1693,12 +1706,19 @@ function OrderCreateProduct(props: PropType) {
 	const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = [];
 		if (listStores && listStores.length) {
-			newData = listStores.filter((store) =>
-				haveAccess(
-					store.id,
-					userReducer.account ? userReducer.account.account_stores : []
-				)
-			);
+			if(userReducer.account?.account_stores && userReducer.account?.account_stores.length>0)
+			{
+				newData = listStores.filter((store) =>
+					haveAccess(
+						store.id,
+						userReducer.account ? userReducer.account.account_stores : []
+					)
+				);
+			}
+			else{
+				newData=listStores;
+			}
+			
 			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
 			if (storeId && userReducer.account) {
 				if (userReducer.account.account_stores.map((single) => single.store_id).indexOf(storeId) === -1) {

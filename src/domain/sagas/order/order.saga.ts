@@ -559,7 +559,7 @@ function* getListSubStatusSaga(action: YodyAction) {
 }
 
 function* setSubStatusSaga(action: YodyAction) {
-	let { order_id, statusCode, handleData } = action.payload;
+	let { order_id, statusCode, handleData, handleError } = action.payload;
 	const actionText = action.payload.action;
 	yield put(showLoading());
 	try {
@@ -573,9 +573,11 @@ function* setSubStatusSaga(action: YodyAction) {
 			showSuccess("Cập nhật trạng thái phụ đơn hàng thành công!");
 				handleData();
 		} else {
+			handleError();
 			yield put(fetchApiErrorAction(response, "Cập nhật trạng thái phụ đơn hàng"));
 		}
 	} catch (error) {
+		handleError()
 		showError("Có lỗi khi cập nhật trạng thái phụ đơn hàng! Vui lòng thử lại sau!")
 	} finally {
 		yield put(hideLoading());

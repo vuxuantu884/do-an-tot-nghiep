@@ -23,6 +23,10 @@ export const getVariantApi = (id: number) : Promise<PriceRule> => {
   return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}/variants`);
 }
 
+export const getPriceRuleVariantApi = (id: number, params?: BaseQuery) : Promise<BaseResponse<PageResponse<PriceRule>>> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}/variant-items`, {params});
+}
+
 export const deletePriceRuleById = (id: number): Promise<any> => {
   return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}/${id}/cancel`);
 }

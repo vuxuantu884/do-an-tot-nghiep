@@ -17,7 +17,8 @@ import {
 } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryResponse, InventoryResponse } from "model/inventory";
-import { ProductResponse } from "model/product/product.model";
+import { CollectionCreateRequest } from "model/product/collection.model";
+import { ProductResponse, VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -411,9 +412,9 @@ const tab= document.getElementById("tab");
                           style={{marginLeft: 10}}
                           checked={data.status === "active"}
                           onChange={(checked) => {
-                            let newData = {...data};
+                            let newData: any = {...data};
                             newData.status = checked ? "active" : "inactive";
-                            newData.variants.forEach((item) => {
+                            newData.variants.forEach((item: VariantResponse) => {
                               item.status = checked ? "active" : "inactive";
                               if (!checked) {
                                 item.saleable = checked;
@@ -422,6 +423,10 @@ const tab= document.getElementById("tab");
                             newData.variants = getFirstProductAvatarByVariantResponse(
                               newData.variants
                             );
+                            if (newData.collections) {
+                              newData.collections = newData.collections.map((e: CollectionCreateRequest)=>e.code);
+                            }  
+                      
                             setLoadingSwitch(true);
                             dispatch(
                               productUpdateAction(idNumber, newData, (result) => {

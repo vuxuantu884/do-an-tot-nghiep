@@ -7,8 +7,10 @@ import { AccountPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
 import { AccountJobResponse } from "model/account/account.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { useContext, useMemo } from "react";
 import { RiEditLine } from "react-icons/ri";
+import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -31,6 +33,9 @@ const JobColumn: Array<ColumnProps<Job>> = [
 
 function AccountViewTab() {
   const history = useHistory();
+  const listGender = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.gender
+  );
   const detailContext = useContext(AccountDetailContext);
   const { accountInfo, userCode } = detailContext;
 
@@ -67,7 +72,7 @@ function AccountViewTab() {
               <span className="account-title">Giới tính </span>
             </td>
             <td>
-              <b>: {accountInfo?.gender === "female" ? "Nữ" : "Nam"}</b>
+              <b>: {accountInfo?.gender && listGender?.find(item=> item.value.toLocaleLowerCase() === accountInfo.gender)?.name} </b>
             </td>
           </tr>
 

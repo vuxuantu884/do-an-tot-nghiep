@@ -13,29 +13,30 @@ export const checkUserPermission = (
   acceptStoreIds: Array<number> = [],
   currentStoreIds: Array<AccountStoreResponse> = []
 ): boolean => {
-  // không truyền vào quyền nào => được phép truy cập
-  if (Array.isArray(acceptPermissions) && acceptPermissions?.length === 0) {
-    return true;
-  }
-
   // admin_all => full quyền => được phép truy cập
   if (Array.isArray(currentPermissions) && currentPermissions?.includes(AdminPermission.all)) {
     return true;
   }
 
   // nếu trong profile có 1 quyền nào đó so với quyền cần có => được phép truy cập
-  const hasPermission = acceptPermissions.some((element) => {
-    return  currentPermissions.includes(element);
-  });
+  let hasPermission = false;
+  // không truyền vào quyền nào => được phép truy cập
+  if (Array.isArray(acceptPermissions) && acceptPermissions?.length > 0) {
+    hasPermission = acceptPermissions.some((element) => {
+      return currentPermissions.includes(element);
+    });
+  } else {
+    hasPermission = true;
+  }
 
   // nếu trong profile có 1 store nào đó so với store cần có => được phép truy cập
   let hasStoreId = false;
-  if(Array.isArray(acceptStoreIds) && acceptStoreIds?.length > 0) {
-      hasStoreId = acceptStoreIds.some((element) => {
+  if (Array.isArray(acceptStoreIds) && acceptStoreIds?.length > 0) {
+    hasStoreId = acceptStoreIds.some((element) => {
       return currentStoreIds.some((store) => store.store_id === element);
-    }); 
-  }else{
-      hasStoreId = true;
+    });
+  } else {
+    hasStoreId = true;
   }
 
   return hasPermission && hasStoreId;

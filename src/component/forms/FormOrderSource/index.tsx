@@ -4,6 +4,7 @@ import { CustomModalFormModel } from "model/modal/modal.model";
 import { useEffect, useState } from "react";
 import * as CONSTANTS from "utils/Constants";
 import {StyledComponent} from "./styles";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 type FormValuesType = {
   company_id: number;
@@ -107,7 +108,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
             >
               <Input placeholder="Nhập tên nguồn đơn hàng" style={{ width: "100%" }} />
             </Form.Item>
-          </Col> 
+          </Col>
         </Row>
 
         <Row gutter={30}>
@@ -132,6 +133,13 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                     form.setFieldsValue({ department: selectedDepartment.name });
                   }
                 }}
+                filterOption={(input: String, option: any) => {
+                  if (option.props.value) {
+                    return strForSearch(option.props.children[2].props.children).includes(strForSearch(input));
+                  }
+
+                  return false;
+                }}
               >
                 {listDepartments &&
                   listDepartments.map((single: any) => {
@@ -146,7 +154,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                             {single?.parent?.name} -{" "}
                           </span>
                         )}
-                        <span  className={`${single.level === 0 && "itemParent"}`}>{single.name}</span>
+                        <span className={`${single.level === 0 && "itemParent"}`}>{single.name}</span>
                       </Select.Option>
                     );
                   })}

@@ -36,14 +36,15 @@ import {showError, showSuccess} from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import {StyledComponent} from "./styles";
 import { primaryColor } from "utils/global-styles/variables";
-import { SourcePermissions } from "config/permissions/setting.permisssion";  
+import { SourcePermissions } from "config/permissions/setting.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import "assets/css/custom-filter.scss";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 type formValuesType = {
   name: string | undefined;
-  department_id: number | undefined;
+  department_ids: number | undefined;
 };
 
 type PropsType = {
@@ -54,7 +55,7 @@ const ACTIONS_INDEX = {
   DELETE: 2,
 };
 
-const actionsDefault: Array<MenuAction> = [ 
+const actionsDefault: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.DELETE,
     name: "Xóa",
@@ -65,14 +66,14 @@ const actionsDefault: Array<MenuAction> = [
 function OrderSources(props: PropsType) {
   const {location} = props;
   const queryParamsParsed: any = queryString.parse(location.search);
- 
+
   const DEFAULT_PAGINATION = {
     page: 1,
     limit: 30,
   };
   const initFilterParams: formValuesType = {
     name: "",
-    department_id: undefined,
+    department_ids: undefined,
   };
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModalOrderSource, setIsShowModalOrderSource] = useState(false);
@@ -97,11 +98,11 @@ function OrderSources(props: PropsType) {
 
   const [allowReadSource] = useAuthorization({
     acceptPermissions: [SourcePermissions.READ],
-  }); 
+  });
 
   const [allowDeleteSource] = useAuthorization({
     acceptPermissions: [SourcePermissions.DELETE],
-  }); 
+  });
 
   const [allowUpdateSource] = useAuthorization({
     acceptPermissions: [SourcePermissions.UPDATE],
@@ -233,7 +234,7 @@ function OrderSources(props: PropsType) {
     [history, queryParams]
   );
 
-  const handleDeleteMultiOrderSource = () => { 
+  const handleDeleteMultiOrderSource = () => {
     showLoading();
     if (rowSelectedObject.length > 0) {
       let channel_ids: number[] = [];
@@ -280,7 +281,7 @@ function OrderSources(props: PropsType) {
       }
     },
     []
-  ); 
+  );
 
   const actions = useMemo(() => {
     return actionsDefault.filter((item) => {
@@ -289,8 +290,8 @@ function OrderSources(props: PropsType) {
       }
       return false;
     });
-  }, [ 
-    allowDeleteSource, 
+  }, [
+    allowDeleteSource,
   ]);
 
   const handleNavigateByQueryParams = (queryParams: any) => {
@@ -428,12 +429,12 @@ function OrderSources(props: PropsType) {
   useEffect(() => {
     const valuesFromParams: formValuesType = {
       name: queryParamsParsed.name || undefined,
-      department_id: queryParamsParsed.department_id
-        ? +queryParamsParsed.department_id
+      department_ids: queryParamsParsed.department_ids
+        ? +queryParamsParsed.department_ids
         : undefined,
     };
     form.setFieldsValue(valuesFromParams);
-  }, [form, queryParamsParsed.department_id, queryParamsParsed.name]);
+  }, [form, queryParamsParsed.department_ids, queryParamsParsed.name]);
 
   useEffect(() => {
     setQueryParams({
@@ -442,12 +443,12 @@ function OrderSources(props: PropsType) {
       sort_type: "desc",
       sort_column: "updated_date",
       name: queryParamsParsed.name,
-      department_id: queryParamsParsed.department_id,
+      department_ids: queryParamsParsed.department_ids,
     });
   }, [
     DEFAULT_PAGINATION.limit,
     DEFAULT_PAGINATION.page,
-    queryParamsParsed.department_id,
+    queryParamsParsed.department_ids,
     queryParamsParsed.limit,
     queryParamsParsed.name,
     queryParamsParsed.page,
@@ -507,13 +508,20 @@ function OrderSources(props: PropsType) {
                     placeholder="Nguồn đơn hàng"
                   />
                 </Form.Item>
-                <Form.Item name="department_id" style={{width: 305}}>
+                <Form.Item name="department_ids" style={{width: 305}}>
                   <Select
                     showSearch
-                    allowClear 
+                    allowClear
                     placeholder="Phòng ban"
                     optionFilterProp="title"
                     notFoundContent="Không tìm thấy phòng ban"
+                    filterOption={(input: String, option: any) => {
+                      if (option.props.value) {
+                        return strForSearch(option.props.children[2]).includes(strForSearch(input));
+                      }
+
+                      return false;
+                    }}
                   >
                     {listDepartments &&
                       listDepartments.map((single) => {
@@ -521,14 +529,14 @@ function OrderSources(props: PropsType) {
                           <Select.Option value={single.id} key={single.id} title={single.name}>
                             <span
                               className="hideInSelect"
-                              style={{paddingLeft: +18 * single.level}}
-                            ></span>
+                              style={{ paddingLeft: +18 * single.level }}
+                            />
                             {single?.parent?.name && (
                               <span className="hideInDropdown">
                                 {single?.parent?.name} -{" "}
                               </span>
                             )}
-                            <span>{single.name}</span>
+                            {single.name}
                           </Select.Option>
                         );
                       })}

@@ -7,7 +7,8 @@ import {
   bulkDeletePriceRules,
   bulkDisablePriceRules,
   getVariantApi,
-  updatePriceRuleById
+  updatePriceRuleById,
+  getPriceRuleVariantApi
 } from 'service/promotion/discount/discount.service'; 
 import { YodyAction } from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
@@ -22,6 +23,7 @@ import { all } from "redux-saga/effects";
 import { PriceRule } from 'model/promotion/price-rules.model';
 import { isFetchApiSuccessful } from 'utils/AppUtils';
 import { fetchApiErrorAction } from 'domain/actions/app.action';
+import { callApiSaga } from 'utils/ApiUtils';
 
 function* getDiscounts(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -59,6 +61,11 @@ function* getVariantsAct(action: YodyAction) {
     onResult(false);
     showError("Có lỗi khi lấy danh sách sản phẩm. Vui lòng thử lại sau!");
   }
+}
+
+function* getPriceRuleVariantPaggingAction(action: YodyAction) {
+  const {id, params, onResult} = action.payload;
+  yield callApiSaga({isShowError:true, jobName:"đọc danh sách sản phẩm chiêt khấu"},onResult,getPriceRuleVariantApi,id, params);
 }
 
 
@@ -286,6 +293,7 @@ export function* discountSaga() {
     takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesSaga),
     takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct),
     takeEvery(DiscountType.GET_VARIANTS, getVariantsAct),
+    takeEvery(DiscountType.GET_PRICE_RULE_VARIANTS_PAGGING, getPriceRuleVariantPaggingAction),
     takeLatest(DiscountType.UPDATE_PRICE_RULE_BY_ID, updatePriceRuleByIdSaga),
     takeLatest(PriceRuleType.CREATE_PRICE_RULE, createPriceRuleSaga)
   ])

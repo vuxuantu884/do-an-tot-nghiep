@@ -101,7 +101,7 @@ const CustomModal = (props: CustomModalType) => {
     if (deletedItemTitle) {
       return (
         <React.Fragment>
-          Bạn có chắc chắn muốn xóa "<strong>{deletedItemTitle}</strong>" ?
+          Bạn có chắc chắn muốn xóa "<strong className="break-word">{deletedItemTitle}</strong>" ?
         </React.Fragment>
       );
     }

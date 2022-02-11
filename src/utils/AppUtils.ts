@@ -26,6 +26,7 @@ import {
 } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
+  OrderDiscountRequest,
 	OrderLineItemRequest,
 	OrderPaymentRequest
 } from "model/request/order.request";
@@ -38,10 +39,11 @@ import {
 	OrderResponse,
 	ReturnProductModel
 } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { ErrorGHTK, POS, ShipmentMethod } from "./Constants";
+import { ErrorGHTK, PaymentMethodCode, POS, ShipmentMethod } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { RegUtil } from "./RegUtils";
 import { showError } from "./ToastUtils";
@@ -1142,6 +1144,20 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 	return discountPerOrder;
 }
 
+export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | null) => {
+  if(!discounts) {
+    return 0;
+  }
+	let totalDiscount = 0;
+	discounts.forEach((singleOrderDiscount) => {
+		if (singleOrderDiscount?.amount) {
+			totalDiscount = totalDiscount + singleOrderDiscount.amount;
+		}
+	});
+	return totalDiscount;
+}
+
+
 export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 		if (!items) {
 			return 0;
@@ -1203,36 +1219,45 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
     return result;
   };
 	const renderShipmentMethod = (dataJson: any) => {
-		console.log('dataJson', dataJson);
-		const sortedFulfillments = dataJson?.fulfillments.sort((a:FulFillmentResponse, b:FulFillmentResponse) =>
-			moment(b.updated_date).diff(moment(a.updated_date))
-		);
 		let result = "-";
-		switch (sortedFulfillments[0]?.shipment.delivery_service_provider_type) {
-			case ShipmentMethod.EMPLOYEE:
-				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}` 
-				break;
-			case ShipmentMethod.EXTERNAL_SERVICE:
-				result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment.delivery_service_provider_name}` 
-				break;
-			case ShipmentMethod.EXTERNAL_SHIPPER:
-				result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
-				break;
-			case ShipmentMethod.PICK_AT_STORE:
-				result = "Nhận tại cửa hàng"
-				break;
-			case ShipmentMethod.SHOPEE:
-				result = "Shopee"
-				break;
-			default:
-				break;
-		}
+    if(dataJson.fulfillments) {
+      const sortedFulfillments = dataJson?.fulfillments?.sort((a:FulFillmentResponse, b:FulFillmentResponse) =>
+        moment(b?.updated_date).diff(moment(a?.updated_date))
+      );
+      switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
+        case ShipmentMethod.EMPLOYEE:
+          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment?.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}` 
+          break;
+        case ShipmentMethod.EXTERNAL_SERVICE:
+          result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment?.delivery_service_provider_name}` 
+          break;
+        case ShipmentMethod.EXTERNAL_SHIPPER:
+          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
+          break;
+        case ShipmentMethod.PICK_AT_STORE:
+          result = "Nhận tại cửa hàng"
+          break;
+        case ShipmentMethod.SHOPEE:
+          result = "Shopee"
+          break;
+        default:
+          break;
+      }
+    }
 		return result
 	};
+  const renderDiscountItem = (singleItem: any) => {
+    let discountAmount = 0;
+    if(singleItem?.discount_items && singleItem?.discount_items.length > 0) {
+      singleItem?.discount_items.forEach((discount:any) => {
+        discountAmount = discountAmount + discount.amount
+      });
+    }
+    return formatCurrency(discountAmount);
+  };
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
-		console.log("dataJson", dataJson);
 		result = `
 		<span style="color:red">Thông tin đơn hàng: </span><br/> 
 		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
@@ -1240,19 +1265,19 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		- Nguồn : ${dataJson?.source || "-"}<br/>
 		- Cửa hàng : ${dataJson?.store || "-"}<br/>
 		- Địa chỉ cửa hàng : ${dataJson?.store_full_address}<br/>
-		- Thời gian: ${dataJson.updated_date ? moment(dataJson.updated_date).format(dateFormat) : "-"}<br/>
+		- Thời gian: ${dataJson?.updated_date ? moment(dataJson?.updated_date).format(dateFormat) : "-"}<br/>
 		- Ghi chú: ${dataJson?.note || "-"} <br/>
 		<br/>
 		<span style="color:red">Sản phẩm: </span><br/> 
-		${dataJson.items
+		${dataJson?.items
 			.map((singleItem: any, index: any) => {
 				return `
-		- Sản phẩm ${index + 1}: ${singleItem.product} <br/>
-			+ Đơn giá: ${singleItem?.price} <br/>
+		- Sản phẩm ${index + 1}: ${singleItem?.product} <br/>
+			+ Đơn giá: ${formatCurrency(singleItem?.price)} <br/>
 			+ Số lượng: ${singleItem?.quantity} <br/>
 			+ Thuế : ${singleItem?.tax_rate || 0} <br/>
-			+ Chiết khấu sản phẩm: ${singleItem?.discount_value || 0} <br/>
-			+ Thành tiền: ${singleItem?.amount} <br/>
+			+ Chiết khấu sản phẩm: ${renderDiscountItem(singleItem)} <br/>
+			+ Thành tiền: ${formatCurrency(singleItem?.amount)} <br/>
 			`;
 			})
 			.join("<br/>")}
@@ -1261,16 +1286,16 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		- Địa chỉ giao hàng: ${renderAddress(dataJson)} <br/>
 		- Địa chỉ nhận hóa đơn: ${renderAddress(dataJson)} <br/>
 		- Phương thức giao hàng: ${renderShipmentMethod(dataJson)} <br/>
-		- Trạng thái: ${dataJson.fulfillments[0]?.status} <br/>
+		- Trạng thái: ${dataJson?.fulfillments ? dataJson?.fulfillments[0]?.status : "-"} <br/>
 		<br/>
 		<span style="color:red">Thanh toán: </span><br/>  
 		${
-			(!(dataJson.payments?.length > 0))
+			(!(dataJson?.payments?.length > 0))
 				? `- Chưa thanh toán`
 				: dataJson?.payments && dataJson?.payments
 						.map((singlePayment: any, index: number) => {
 							return `
-							- ${singlePayment.payment_method}: ${singlePayment.paid_amount}
+							- ${singlePayment?.payment_method}: ${formatCurrency(singlePayment?.paid_amount)} 
 						`;
 						})
 						.join("<br/>")
@@ -1278,6 +1303,39 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		`;
 	}
 	return result;
+};
+
+export const reCalculatePaymentReturn = (payments: OrderPaymentRequest[], totalAmountCustomerNeedToPay: number, listPaymentMethod: PaymentMethodResponse[]) => {
+  if (totalAmountCustomerNeedToPay < 0) {
+    let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
+    let _payments = [...payments];
+    let paymentCashIndex = _payments.findIndex(payment => payment.payment_method_code === PaymentMethodCode.CASH);
+    if (paymentCashIndex > -1) {
+      _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
+      _payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
+      _payments[paymentCashIndex].return_amount = returnAmount;
+    } else {
+      let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+      newPaymentCash = {
+        code: PaymentMethodCode.CASH,
+        payment_method_code: PaymentMethodCode.CASH,
+        payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+        amount: -returnAmount,
+        paid_amount: 0,
+        return_amount: returnAmount,
+        status: "",
+        payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
+        reference: '',
+        source: '',
+        customer_id: 1,
+        note: '',
+        type: '',
+      };
+      _payments.push(newPaymentCash)
+    }
+    return _payments;
+  }
+  return payments;
 };
 
 /**

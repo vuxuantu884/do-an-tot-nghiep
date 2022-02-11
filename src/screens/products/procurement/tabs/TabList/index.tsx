@@ -13,6 +13,7 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import {
+  ProcurementConfirm,
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
@@ -47,27 +48,15 @@ import  { MenuAction } from "component/table/ActionButton";
 import ModalConfirm from "component/modal/ModalConfirm";
 import ProducmentInventoryMultiModal from "screens/purchase-order/modal/procument-inventory-multi.modal";
 import ProcumentInventoryModal from "screens/purchase-order/modal/procument-inventory.modal";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { callApiNative } from "utils/ApiUtils";
+import { confirmProcumentsMerge } from "service/purchase-order/purchase-procument.service";
+import { ProcurementListWarning } from "../../components/ProcumentListWarning";
 
 const ACTIONS_INDEX = {
   CONFIRM_MULTI: 1,
 }; 
-
-export const ProcurementList = (text: string)=>{
-  return (
-    <>
-    <div style={{wordBreak: "break-word"}}>
-        <div>Phiếu nhập kho <b>{text}</b> không thỏa mãn điều kiện xác nhận nhiều phiếu cùng lúc.</div>
-        <div>Vui lòng chọn các phiếu có cùng:</div>
-        <ul>
-            <li>Nhà cung cấp</li>
-            <li>Ngày và kho nhận hàng dự kiến</li>
-            <li>Phiếu đã duyệt</li>
-        </ul> 
-    </div>
-    </>
-  );
-} 
-
+ 
 const TabList: React.FC = () => {
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const dispatch = useDispatch();
@@ -121,7 +110,7 @@ const TabList: React.FC = () => {
       } 
     }
     if (!pass) {
-      setContentWarning(()=>ProcurementList(listProcurementCode));
+      setContentWarning(()=>ProcurementListWarning(listProcurementCode));
       setShowWarConfirm(true);
       return false;
     }
@@ -137,7 +126,7 @@ const TabList: React.FC = () => {
       }
     }
     if (!pass) {
-      setContentWarning(()=>ProcurementList(listProcurementCode));
+      setContentWarning(()=>ProcurementListWarning(listProcurementCode));
       setShowWarConfirm(true);
       return false;
     }
@@ -509,6 +498,7 @@ const TabList: React.FC = () => {
       setLoadingConfirm(false);
       if (value !== null) {
         showSuccess("Xác nhận nhập kho thành công");
+        setShowConfirm(false);
         setLoadingRecive(false); 
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
@@ -534,14 +524,22 @@ const TabList: React.FC = () => {
   );
 
   const onReciveMultiProcument = useCallback(
-    (value: Array<PurchaseProcumentLineItem>) => { 
+   async (value: Array<PurchaseProcumentLineItem>) => { 
       if (listProcurement) {
-        onReciveMuiltiProcumentCallback(true);
+        const PrucurementConfirm = {
+          procurement_items: value,
+          refer_ids: listProcurement.map(e=>e.id)
+        } as ProcurementConfirm;
+        const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm); 
+        if (res) {
+          onReciveMuiltiProcumentCallback(true);
+        }
       }
     },
-    [listProcurement, onReciveMuiltiProcumentCallback]
+    [listProcurement,dispatch,onReciveMuiltiProcumentCallback]
   );
 
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {
     const { status = "", expect_store_id = 144, code } = record;
@@ -600,10 +598,22 @@ const TabList: React.FC = () => {
     dispatch(StoreGetListAction(setListStore));
   }, [dispatch]);
 
+  const titleMultiConfirm = useMemo(()=>{
+    return <>
+      Xác nhận nhập kho {listProcurement?.map((e, i)=>{
+         return  <>
+            <Link target="_blank" to={`${UrlConfig.PURCHASE_ORDERS}/${e.purchase_order.id}`}>
+              {e.code}
+            </Link>{i === (listProcurement.length  - 1) ? "": ", "} 
+         </>
+      })}
+    </>
+  },[listProcurement]);
+
   return (
     <StyledComponent>
       <div className="margin-top-20">
-        <TabListFilter />
+        <TabListFilter onClickOpen={() => setShowSettingColumn(true)} />
         <CustomTable 
           isRowSelection
           selectedRowKey={selected.map(e=>e.id)}
@@ -643,18 +653,24 @@ const TabList: React.FC = () => {
             setVisibleDaft(false);
           }}
         />
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumns(data);
+          }}
+          data={columns}
+        />
         {/* Xác nhận nhập */}
         <ProducmentInventoryMultiModal 
-          title={`Xác nhận nhập kho ${listProcurement?.map(e=> e.code).toString()}`}
-          now={now}
+          title={titleMultiConfirm}
           visible={showConfirm}
           listProcurement={listProcurement}
           onOk={(value: Array<PurchaseProcumentLineItem>) => {
             if (value) onReciveMultiProcument(value);
           }}
           loading={loadingRecive}
-          defaultStore={storeExpect}
-          procumentCode={procumentCode}
           onCancel={() => {
             setShowConfirm(false);
           }}

@@ -6,7 +6,7 @@
   background: $background-color;
   padding: 18px 0px;
   transition: all .1s;
-  
+
   &-heading{
     display: flex;
     justify-content: space-between;
@@ -27,6 +27,7 @@
             color: $primary-color;
           }
           .ant-breadcrumb-link{
+            word-break: break-all;
             color: #5D5D8A;
               a{
               color: #5D5D8A;

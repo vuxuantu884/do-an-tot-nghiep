@@ -12,3 +12,11 @@
 .ant-table-cell.column-product{
     min-width: 200px !important;
 }
+
+.custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td{
+    padding: 4px 4px;
+} 
+
+.custom-table .ant-table.ant-table-middle .ant-table-tbody .ant-table-wrapper:only-child .ant-table{
+    margin: -4px -4px -4px 30px;
+}

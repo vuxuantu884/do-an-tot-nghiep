@@ -31,9 +31,9 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const handleChange = (sub_status_code: string) => {
     
     if (orderId) {
-      setValueSubStatusCode(sub_status_code);
       dispatch(setSubStatusAction(orderId, sub_status_code, ()=>{
-				handleUpdateSubStatus();
+        setValueSubStatusCode(sub_status_code);
+        handleUpdateSubStatus();
 				setReload(true)
 			}));
     }

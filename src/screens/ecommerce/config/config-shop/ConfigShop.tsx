@@ -1,13 +1,13 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { showSuccess } from "utils/ToastUtils";
 import { useHistory } from "react-router-dom";
 import CustomSelect from "component/custom/select.custom";
-import { Row, Col, Form, Select, Button } from "antd";
+import { Row, Col, Form, Select, Button, Spin } from "antd";
 
 import { StoreResponse } from "model/core/store.model";
-import { AccountResponse } from "model/account/account.model";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import {
   EcommerceRequest,
@@ -18,8 +18,6 @@ import {
   ecommerceConfigCreateAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import CustomInput from "screens/customer/common/customInput";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { SourceResponse } from "model/response/order/source.response";
 
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
@@ -29,6 +27,11 @@ import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
 import { ECOMMERCE_ICON } from "screens/ecommerce/common/commonAction";
 import { StyledConfig } from "screens/ecommerce/config/config-shop/StyledConfigShop";
+import { debounce } from "lodash";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
+import { OrderSourceModel, OrderSourceResponseModel } from "model/response/order/order-source.response";
 
 const { Option } = Select;
 
@@ -36,27 +39,29 @@ const shopsReadPermission = [EcommerceConfigPermission.shops_read];
 const shopsUpdatePermission = [EcommerceConfigPermission.shops_update];
 const shopsDeletePermission = [EcommerceConfigPermission.shops_delete];
 
+const initQueryAccount: AccountSearchQuery = {
+  info: "",
+  status: "active"
+};
+
 type ConfigShopProps = {
   listStores: Array<StoreResponse>;
   storeChangeSearch: (value: string) => void;
-  accounts: Array<AccountResponse>;
   form: any;
   configData: Array<EcommerceResponse>;
   configToView: EcommerceResponse | undefined;
-  accountChangeSearch: (value: string) => void;
   reloadConfigData: () => void;
   setConfigToView: (value: any) => void;
   configFromEcommerce: any | undefined;
   setConfigFromEcommerce: (value: any) => void;
   showDeleteModal: (value: EcommerceResponse) => void;
 };
+
 const ConfigShop: React.FC<ConfigShopProps> = (
   props: ConfigShopProps
 ) => {
   const {
     listStores,
-    accountChangeSearch,
-    accounts,
     form,
     configToView,
     configData,
@@ -67,6 +72,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     showDeleteModal,
     storeChangeSearch,
   } = props;
+
   const dispatch = useDispatch();
   const history = useHistory();
   const [configDetail, setConfigDetail] = useState<
@@ -75,10 +81,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (
   const [inventories, setInventories] = React.useState<
     Array<EcommerceShopInventoryDto>
   >([]);
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [isConfigExist, setIsConfigExist] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   
   const [allowShopsUpdate] = useAuthorization({
     acceptPermissions: shopsUpdatePermission,
@@ -90,6 +94,74 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     not: false,
   });
 
+  // handle search account
+  const [accountList, setAccountList] = React.useState<Array<AccountResponse>>([]);
+  const [accountSearching, setAccountSearching] = React.useState<boolean>(false);
+
+  const updateAccountData = useCallback(
+    (response: PageResponse<AccountResponse> | false) => {
+      if (response) {
+        setAccountList(response.items);
+        setAccountSearching(false);
+      }
+    },
+    []
+  );
+
+  const handleSearchingAccount = useCallback(
+    (searchValue: string) => {
+      setAccountList([]);
+      setAccountSearching(true);
+
+      initQueryAccount.info = searchValue;
+      dispatch(AccountSearchAction(initQueryAccount, updateAccountData));
+    },
+    [dispatch, updateAccountData]
+  );
+
+  const onSearchAccount = debounce((value: string) => {
+    handleSearchingAccount(value);
+  }, 500);
+
+  useEffect(() => {
+    dispatch(AccountSearchAction(initQueryAccount, updateAccountData));
+  }, [dispatch, updateAccountData]);
+  // end handle search account
+
+  // handle search account
+  const [sourceList, setSourceList] = useState<OrderSourceModel[]>([]);
+  const [sourceSearching, setSourceSearching] = React.useState<boolean>(false);
+
+  const updateSourceData = useCallback(
+    (response: OrderSourceResponseModel) => {
+      if (response) {
+        setSourceList(response.items);
+        setSourceSearching(false);
+      }
+    },
+    []
+  );
+
+  const handleSearchingSource = useCallback(
+    (searchValue: string) => {
+      setSourceList([]);
+      setSourceSearching(true);
+
+      dispatch(
+        actionFetchListOrderSources({name: searchValue} , updateSourceData)
+      );
+    },
+    [dispatch, updateSourceData]
+  );
+
+  const onSearchSource = debounce((value: string) => {
+    handleSearchingSource(value);
+  }, 800);
+
+  useEffect(() => {
+    dispatch(actionFetchListOrderSources({}, updateSourceData));
+  }, [dispatch, updateSourceData]);
+  // end handle search account
 
   useEffect(() => {
     if (configFromEcommerce) {
@@ -115,6 +187,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
       setIsConfigExist(false);
     }
   }, [configDetail, configData]);
+
   const handleConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
       setIsLoading(false);
@@ -129,6 +202,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     },
     [history, reloadConfigData, setConfigToView, setConfigFromEcommerce]
   );
+
   const handleCreateConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
       setIsLoading(false);
@@ -143,6 +217,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     },
     [history, reloadConfigData, setConfigToView, setConfigFromEcommerce]
   );
+
   const handleConfigSetting = React.useCallback(
     (value: EcommerceRequest) => {
       if (configDetail) {
@@ -154,10 +229,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
           ...value,
           inventories: inventories,
           assign_account:
-            accounts?.find((item) => item.code === value.assign_account_code)
-              ?.full_name || "",
+            accountList?.find((item) => item.code === value.assign_account_code)?.full_name || "",
           source:
-            listSource?.find((item) => item.id === value.source_id)?.name || "",
+            sourceList?.find((item) => item.id === value.source_id)?.name || "",
           store:
             listStores?.find((item) => item.id === value.store_id)?.name || "",
         };
@@ -180,9 +254,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
       handleCreateConfigCallback,
       configDetail,
       inventories,
-      accounts,
+      accountList,
       configData,
-      listSource,
+      sourceList,
       listStores,
     ]
   );
@@ -214,7 +288,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
         id: configDetail.id,
         name: configDetail.name,
         store_id: configDetail.store_id,
-        assign_account_code: configDetail.assign_account_code,
+        assign_account_code: configDetail.assign_account_code + "-" + configDetail.assign_account,
         order_sync: configDetail.order_sync,
         product_sync: configDetail.product_sync,
         inventory_sync: configDetail.inventory_sync,
@@ -245,12 +319,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
       );
     }
   };
-  const listSources = React.useMemo(() => {
-    return listSource.filter((item) => item.code !== "POS");
-  }, [listSource]);
-  React.useEffect(() => {
-    dispatch(getListSourceRequest(setListSource));
-  }, [dispatch]);
+
 
   const renderComponent = () => {
     return (
@@ -437,7 +506,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               </Form.Item>
 
               <Form.Item
-                label={<span>Nhân viên bán hàng</span>}
+                label="Nhân viên bán hàng"
                 name="assign_account_code"
                 rules={[
                   {
@@ -452,14 +521,16 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   placeholder="Chọn nhân viên bán hàng"
                   allowClear
                   optionFilterProp="children"
-                  onSearch={(value) => accountChangeSearch(value)}
+                  onSearch={(value) => onSearchAccount(value.trim() || "")}
+                  loading={accountSearching}
+                  onClear={() => onSearchAccount("")}
+                  notFoundContent={accountSearching ? <Spin size="small" /> : "Không có dữ liệu"}
                 >
-                  {accounts &&
-                    accounts?.map((c: any) => (
-                      <Option key={c.id} value={c.code}>
-                        {`${c.code} - ${c.full_name}`}
-                      </Option>
-                    ))}
+                  {accountList?.map((account) => (
+                    <Option key={account.id} value={account.code}>
+                      {`${account.code} - ${account.full_name}`}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
 
@@ -479,12 +550,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   placeholder="Chọn nguồn đơn hàng"
                   allowClear
                   optionFilterProp="children"
-                  onSearch={(value) => accountChangeSearch(value)}
+                  onSearch={(value) => onSearchSource(value.trim() || "")}
+                  loading={sourceSearching}
+                  onClear={() => onSearchSource("")}
+                  notFoundContent={sourceSearching ? <Spin size="small" /> : "Không có dữ liệu"}
                 >
-                  {listSources &&
-                    listSources?.map((c: any) => (
-                      <Option key={c.id} value={c.id}>
-                        {`${c.name}`}
+                  {sourceList?.map((source: any) => (
+                      <Option key={source.id} value={source.id}>
+                        {`${source.name}`}
                       </Option>
                     ))}
                 </Select>

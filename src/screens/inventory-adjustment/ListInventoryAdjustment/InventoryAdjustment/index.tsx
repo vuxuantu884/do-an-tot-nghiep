@@ -199,18 +199,16 @@ const InventoryAdjustment: React.FC = () => {
       width: 140,
       align: "center",
       visible: true,
-      render: (item: InventoryAdjustmentDetailItem) => {
-        return (
-          <Space>
-            {!item.total_excess || item.total_excess === 0 ? null : (
-              <div style={{color: "#27AE60"}}>+{formatCurrency(item.total_excess,".")}</div>
-            )}
-            {item.total_excess && item.total_missing ? <Space>/</Space> : null}
-            {!item.total_missing || item.total_missing === 0 ? null : (
-              <div style={{color: "red"}}>{formatCurrency(item.total_missing,".")}</div>
-            )}
-          </Space>
-        );
+      render: (item: InventoryAdjustmentDetailItem) => { 
+        return (<div className="ellipses-text">
+          {!item.total_excess || item.total_excess === 0 ? null : (
+            <div style={{color: "#27AE60"}}>+{formatCurrency(item.total_excess,".")}</div>
+          )}
+          {item.total_excess && item.total_missing ? <Space>/</Space> : null}
+          {!item.total_missing || item.total_missing === 0 ? null : (
+            <div style={{color: "red"}}>{formatCurrency(item.total_missing,".")}</div>
+          )}
+        </div>);
       },
     },
     {
