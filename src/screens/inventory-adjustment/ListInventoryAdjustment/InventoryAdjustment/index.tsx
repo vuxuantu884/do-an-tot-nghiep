@@ -40,7 +40,6 @@ import {STATUS_IMPORT_EXPORT} from "screens/inventory-adjustment/DetailInvetoryA
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
-import TextEllipsis from "component/table/TextEllipsis";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
