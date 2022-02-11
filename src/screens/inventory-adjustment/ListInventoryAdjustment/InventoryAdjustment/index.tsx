@@ -40,6 +40,7 @@ import {STATUS_IMPORT_EXPORT} from "screens/inventory-adjustment/DetailInvetoryA
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
+import TextEllipsis from "component/table/TextEllipsis";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -199,18 +200,16 @@ const InventoryAdjustment: React.FC = () => {
       width: 140,
       align: "center",
       visible: true,
-      render: (item: InventoryAdjustmentDetailItem) => {
-        return (
-          <Space>
-            {!item.total_excess || item.total_excess === 0 ? null : (
-              <div style={{color: "#27AE60"}}>+{formatCurrency(item.total_excess,".")}</div>
-            )}
-            {item.total_excess && item.total_missing ? <Space>/</Space> : null}
-            {!item.total_missing || item.total_missing === 0 ? null : (
-              <div style={{color: "red"}}>{formatCurrency(item.total_missing,".")}</div>
-            )}
-          </Space>
-        );
+      render: (item: InventoryAdjustmentDetailItem) => { 
+        return (<div className="ellipses-text">
+          {!item.total_excess || item.total_excess === 0 ? null : (
+            <div style={{color: "#27AE60"}}>+{formatCurrency(item.total_excess,".")}</div>
+          )}
+          {item.total_excess && item.total_missing ? <Space>/</Space> : null}
+          {!item.total_missing || item.total_missing === 0 ? null : (
+            <div style={{color: "red"}}>{formatCurrency(item.total_missing,".")}</div>
+          )}
+        </div>);
       },
     },
     {

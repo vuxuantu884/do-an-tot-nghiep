@@ -458,10 +458,7 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   const onFinish = useCallback(
-    (values: ProductRequest) => {  
-      console.log("xxx ",values);
-      return
-      
+    (values: ProductRequest) => {   
       setLoadingButton(true);   
       dispatch(productUpdateAction(
         idNumber,
