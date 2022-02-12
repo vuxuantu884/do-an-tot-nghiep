@@ -9,7 +9,12 @@ export const StyledComponent = styled.div`
         border-style: none;
         border-width: 0;
         box-shadow: none;
-        height: 40px;
+        height: auto;
+        padding: 11px 0;
+        margin: 0 0 0 32px;
+        &:first-child {
+          margin-left: 0;
+        }
       }
       .ant-radio-button-wrapper:first-child {
         border-left: none;
@@ -55,6 +60,12 @@ export const StyledComponent = styled.div`
                   align-items: center;
                   button {
                     margin-right: 15px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  }
+                  [role="img"] {
+                    vertical-align: middle;
                   }
                 }
                 .input-search {

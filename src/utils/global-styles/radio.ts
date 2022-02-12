@@ -16,4 +16,9 @@ export const globalCssCustomRadio = css`
   .ant-radio:hover .ant-radio-inner {
     border-color: ${primaryColor};
   }
+  .ant-radio-button-wrapper {
+    &:hover {
+      color: ${primaryColor};
+    }
+  }
 `;

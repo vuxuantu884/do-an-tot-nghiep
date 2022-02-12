@@ -243,8 +243,8 @@ const ScreenReturnDetail = (props: PropType) => {
             path: `${UrlConfig.HOME}`,
           },
           {
-            name: "Trả hàng",
-            path: `${UrlConfig.HOME}`,
+            name: "Danh sách đơn trả hàng",
+            path: `${UrlConfig.ORDERS_RETURN}`,
           },
           {
             name: OrderDetail?.code ? `Chi tiết đơn trả hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
