@@ -403,7 +403,7 @@ const GroupDiscountList = (props: Props) => {
                         {entitlementErrorsResponse?.map((error: any, index) => (
                           <div key={index} className="error-import-file__item">
                             <span>
-                              - Dòng {error?.index + 2}: {error?.message} 
+                              - Dòng {error?.index}: {error?.message}
                             </span>
                           </div>
                         ))}
