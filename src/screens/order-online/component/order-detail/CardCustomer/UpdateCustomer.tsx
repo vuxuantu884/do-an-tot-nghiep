@@ -271,6 +271,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       else {
         customerRequest = {
           ...customerItem,
+          gender: GENDER_OPTIONS.findIndex((p)=>p.value===customerItem.gender)===-1?null:customerItem.gender,
           billing_addresses: customerItem.billing_addresses ? customerItem.billing_addresses.map((item: any) => {
             let _item = { ...item };
             _item.is_default = _item.default;
