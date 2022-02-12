@@ -602,7 +602,8 @@ const OrderDetail = (props: PropType) => {
           path: `${UrlConfig.HOME}`,
         },
         {
-          name: "Đơn hàng",
+          name: "Danh sách đơn hàng",
+          path: `${UrlConfig.ORDER}`,
         },
         {
           name: OrderDetail?.code

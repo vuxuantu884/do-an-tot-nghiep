@@ -31,7 +31,8 @@ export interface StoreResponse extends BaseObject {
   is_saleable: boolean,
   is_stocktaking: boolean,
   type: string,
-  type_name: string, 
+  type_name: string,
+  reference_id?: number, 
 }
 
 export interface StoreQuery extends BaseQuery {

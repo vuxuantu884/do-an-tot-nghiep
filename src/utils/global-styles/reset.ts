@@ -1,5 +1,5 @@
 import { css } from "styled-components";
-import { bodyFontSize, textBodyColor, textLinkColor } from "./variables";
+import { bodyFontSize, primaryColor, textBodyColor, textLinkColor } from "./variables";
 const scrollBarThumb = "#c1c1c1";
 const scrollBarColor = "#f1f1f1";
 
@@ -35,6 +35,9 @@ export const reset = css`
   }
   a {
     color: ${textLinkColor};
+    &:hover {
+      color: ${primaryColor};
+    }
   }
 	ul {
 		padding-left: 15px;

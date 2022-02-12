@@ -9,27 +9,23 @@ import {
   Row,
   Select,
   Space,
-  Switch,
+  Switch
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
-import SelectPaging from "component/custom/SelectPaging";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import { AppConfig } from "config/app.config";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   SupplierDetailAction,
-  SupplierUpdateAction,
+  SupplierUpdateAction
 } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import {
   SupplierResponse,
-  SupplierUpdateRequest,
+  SupplierUpdateRequest
 } from "model/core/supplier.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -84,14 +80,7 @@ const UpdateSupplierScreen: React.FC = () => {
     acceptPermissions: [SuppliersPermissions.UPDATE],
     not: false,
   });
-  const [accounts, setAccounts] = React.useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: {
-      limit: 20,
-      page: 1,
-      total: 0,
-    },
-  });
+
   //EndState
   //Callback
 
@@ -104,18 +93,19 @@ const UpdateSupplierScreen: React.FC = () => {
     },
     [formRef]
   );
-  const onUpdateSuccess = useCallback(() => {
-    setLoading(false);
+  
+  const onUpdateSuccess = (response: SupplierResponse|false) => {
+    if(response){
     history.push(`${UrlConfig.SUPPLIERS}/${id}}`);
     showSuccess("Sửa nhà cung cấp thành công");
-  }, [history, id]);
-  const onFinish = useCallback(
-    (values: SupplierUpdateRequest) => {
+    }
+    setLoading(false);
+  };
+
+  const onFinish = (values: SupplierUpdateRequest) => {
       setLoading(true);
       dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
-    },
-    [dispatch, idNumber, onUpdateSuccess]
-  );
+    };
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -157,19 +147,6 @@ const UpdateSupplierScreen: React.FC = () => {
       history.goBack();
     }
   };
-
-  const getAccounts = useCallback((search: string, page: number) => {
-    dispatch(
-      AccountSearchAction(
-        { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page },
-        (response: PageResponse<AccountResponse> | false) => {
-          if (response) {
-            setAccounts(response);
-          }
-        }
-      )
-    );
-  }, [dispatch])
 
   //end memo
   useEffect(() => {
@@ -315,33 +292,16 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={12}>
                     <Form.Item
-                      label="Nhân viên phụ trách"
+                      label="Merchandiser"
                       rules={[
                         {
                           required: true,
-                          message: "Vui lòng chọn nhân viên phụ trách",
+                          message: "Vui lòng chọn Merchandiser",
                         },
                       ]}
                       name="pic_code"
                     >
-                      <SelectPaging
-                        allowClear
-                        placeholder="Nhân viên phụ trách"
-                        searchPlaceholder={"Tìm kiếm nhân viên phụ trách"}
-                        metadata={accounts.metadata}
-                        onPageChange={(key, page) => {
-                          getAccounts(key, page);
-                        }}
-                        onSearch={(key) => {
-                          getAccounts(key, 1);
-                        }}
-                      >
-                        {accounts.items.map((value, index) => (
-                          <SelectPaging.Option key={value.id} value={value.code}>
-                            {value.code + " - " + value.full_name}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                    <AccountSearchPaging placeholder="Chọn Merchandiser" />
                     </Form.Item>
                   </Col>
                   <Col span={12}>

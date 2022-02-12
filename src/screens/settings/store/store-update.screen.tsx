@@ -9,7 +9,8 @@ import {
   Row,
   Select,
   Space,
-  TreeSelect
+  TreeSelect,
+  InputNumber
 } from "antd";
 import StoreTooltip from "assets/icon/store-tooltip.png";
 import {
@@ -411,6 +412,14 @@ const StoreUpdateScreen: React.FC = () => {
                   </TreeSelect> 
                 </Item>
               </Col> 
+              <Col span={24} lg={8} md={12} sm={24}>
+                  <Item 
+                    name="reference_id"
+                    label="Mã tham chiếu"
+                  >
+                    <InputNumber style={{width:"100%"}} maxLength={10} placeholder="Nhập mã tham chiếu" />
+                  </Item>
+                </Col>
             </Row>
           </Card>
           </Col>

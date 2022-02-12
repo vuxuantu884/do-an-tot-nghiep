@@ -7,6 +7,9 @@ const priceWidth = 100;
 const nameWidth = nameQuantityWidth - quantityWidth;
 
 export const StyledComponent = styled.div`
+  .ant-card-body {
+    padding-top: 0;
+  }
   th {
 		text-align: center !important;
   }

@@ -23,7 +23,7 @@ import {
   supplierDeleteContactApi,
 } from "service/core/supplier.service";
 import {showError} from "utils/ToastUtils";
-
+import {callApiSaga} from "utils/ApiUtils";
 function* supplierSearchSaga(action: YodyAction) {
   const {query, searchSupplierCallback} = action.payload;
   try {
@@ -73,27 +73,7 @@ function* supplierGetAllSaga(action: YodyAction) {
 
 function* supplierUpdateSaga(action: YodyAction) {
   const {id, request, setData} = action.payload;
-  try {
-    let response: BaseResponse<SupplierResponse> = yield call(
-      supplierPutApi,
-      id,
-      request
-    );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
-  }
+  yield callApiSaga({isShowError:true, jobName: "supplierUpdateSaga"}, setData, supplierPutApi, id, request);
 }
 
 function* supplierDetailSaga(action: YodyAction) {

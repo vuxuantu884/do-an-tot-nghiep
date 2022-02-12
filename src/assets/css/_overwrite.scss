@@ -451,9 +451,9 @@
             &:hover,
             &:focus,
             &.active {
-                color: $white;
-                background-color: $primary-color;
-                border-color: $primary-color;
+                color: $white !important;
+                background-color: $primary-color !important;
+                border-color: $primary-color !important;
             }
             &.light {
                 background-color: $white;

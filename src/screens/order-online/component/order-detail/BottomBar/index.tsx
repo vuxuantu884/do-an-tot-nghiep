@@ -177,7 +177,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
               </Col>
             )}
           {isVisibleActionsButtons && (
-            <Col md={12} style={{ marginTop: "8px" }}>
+            <Col md={12} className="bottomBar__right">
               <Dropdown
                 getPopupContainer={(trigger) => trigger}
                 disabled={disabledBottomActions}
