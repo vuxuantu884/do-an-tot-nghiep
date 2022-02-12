@@ -97,7 +97,7 @@ const UpdateTicket: FC = () => {
   const [fromStoreData, setFormStoreData] = useState<Store>();
   const [toStoreData, setToStoreData] = useState<Store>();
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
-  
+
 
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
@@ -109,11 +109,11 @@ const UpdateTicket: FC = () => {
 
   const location = useLocation();
   const stateImport: any = location.state;
-  
-  
+
+
   const query = useQuery();
   const queryParam: any = getQueryParams(query);
-  
+
   const CopyId = queryParam?.cloneId;
 
   const { id } = useParams<InventoryParams>();
@@ -123,13 +123,12 @@ const UpdateTicket: FC = () => {
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
-      console.log(result)
       if (!result) {
         return;
       } else {
         form.setFieldsValue(result);
-        setInitDataForm(result); 
-        setDataTable(result.line_items); 
+        setInitDataForm(result);
+        setDataTable(result.line_items);
         const listFile: any = result.attached_files?.map((item: string ) => {
           return {
             name: item,
@@ -141,7 +140,7 @@ const UpdateTicket: FC = () => {
         form.setFieldsValue({ attached_files: fileCurrent });
         setToStoreData(stores.find(e=>e.id=== result.to_store_id));
       }
-    }, 
+    },
     [stores, form]
   );
 
@@ -172,7 +171,7 @@ const UpdateTicket: FC = () => {
 
   const getMe = useCallback(async ()=>{
     const res = await callApiNative({isShowLoading: false},dispatch,getAccountDetail);
-    if (res && res.account_stores) { 
+    if (res && res.account_stores) {
       setFromStores(res.account_stores);
     }
   },[dispatch]);
@@ -183,7 +182,7 @@ const UpdateTicket: FC = () => {
       setStores(res);
     }
   },[dispatch]);
- 
+
   useEffect(() => {
     getStores();
     getMe();
@@ -195,15 +194,15 @@ const UpdateTicket: FC = () => {
     if ( CopyId ) {
       dispatch(getCopyDetailInventoryTransferAction(CopyId, onResult));
     } else if (stateImport) {
-      
+
       if (stateImport) {
         form.setFieldsValue(stateImport);
-        setInitDataForm(stateImport); 
+        setInitDataForm(stateImport);
         setDataTable(stateImport.line_items);
       }
     } else {
       dispatch(getDetailInventoryTransferAction(idNumber, onResult));
-    } 
+    }
   }, [CopyId, stateImport, dispatch, idNumber, onResult, form]);
 
   // validate
@@ -293,7 +292,7 @@ const UpdateTicket: FC = () => {
   };
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
-    
+
     const newResult = result?.map((item) => {
       const variantPrice =
         item &&
@@ -409,9 +408,9 @@ const UpdateTicket: FC = () => {
       }
     },
     [history]
-  );  
+  );
 
-  const onResultGetDetailVariantIds = useCallback( result => {    
+  const onResultGetDetailVariantIds = useCallback( result => {
     if (result) {
       setIsLoadingTable(false);
       const newDataTable = dataTable.map((itemOld: VariantResponse) => {
@@ -422,17 +421,17 @@ const UpdateTicket: FC = () => {
             newOnHand = itemNew.on_hand;
           }
         });
-        return {  
+        return {
           ...itemOld,
           available: newAvailable,
           on_hand: newOnHand,
         };
       });
-      
+
       setDataTable(newDataTable);
     } else {
       setIsLoadingTable(false);
-      setDataTable([]); 
+      setDataTable([]);
       form.setFieldsValue({ [VARIANTS_FIELD]: [] });
     }
     setModalConfirm({ visible: false });
@@ -454,7 +453,7 @@ const UpdateTicket: FC = () => {
           setFormStoreData(storeData);
           const variants_id = dataTable?.map((item: VariantResponse) => item.variant_id);
           if (variants_id?.length > 0) {
-            setIsLoadingTable(true); 
+            setIsLoadingTable(true);
             dispatch(
               inventoryGetDetailVariantIdsAction(variants_id, storeData.id, onResultGetDetailVariantIds)
             );
@@ -493,8 +492,8 @@ const UpdateTicket: FC = () => {
     if (countError > 0) {
       showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
       return;
-    } 
-  
+    }
+
     if (CopyId || stateImport) {
       const dataCreate: any= {}
       stores.forEach((store) => {
@@ -517,12 +516,12 @@ const UpdateTicket: FC = () => {
           };
         }
       });
-      
+
       if (dataTable.length === 0) {
         showError("Vui lòng chọn sản phẩm");
         return;
       }
-      
+
       dataCreate.line_items = dataTable.map((item: any) => {
         return {
           sku: item.sku,
@@ -539,7 +538,7 @@ const UpdateTicket: FC = () => {
           weight: item.weight,
           weight_unit: item.weight_unit
         };
-      }); 
+      });
 
       dataCreate.note = data.note;
       dataCreate.attached_files = data.attached_files;
@@ -571,7 +570,7 @@ const UpdateTicket: FC = () => {
           }
         });
       }
-      
+
       if (dataTable.length === 0) {
         showError("Vui lòng chọn sản phẩm");
         return;
@@ -602,7 +601,7 @@ const UpdateTicket: FC = () => {
     } else {
       if (thisInput) thisInput.style.borderColor = "unset";
     }
-    
+
     dataLineItems?.forEach((element: VariantResponse, index: number) => {
       const thisInput = document.getElementById(`item-quantity-${index}`);
       if (!element.transfer_quantity) {
@@ -618,7 +617,7 @@ const UpdateTicket: FC = () => {
       }
     });
   };
-  
+
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(
       deleteInventoryTransferAction(
@@ -635,11 +634,11 @@ const UpdateTicket: FC = () => {
     );
   };
 
-  const isError = useMemo(()=>{       
+  const isError = useMemo(()=>{
    const fromId =  form.getFieldValue("from_store_id");
-   console.log(`xxx ${fromId} ${toStoreData?.id}`);
-   
-    if (!fromId || !toStoreData ||  (fromId === toStoreData.id))  return true
+
+    if (!fromId || (!initDataForm && !toStoreData) ||  (fromId === toStoreData?.id))  return true
+
     let error = false;
 
     if (dataTable.length === 0) {
@@ -649,10 +648,10 @@ const UpdateTicket: FC = () => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
       if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
         error= true
-      } 
-    }); 
+      }
+    });
     return error;
-  },[form, toStoreData, dataTable])
+  },[form, toStoreData, dataTable, initDataForm])
 
   useEffect(() => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
@@ -669,7 +668,7 @@ const UpdateTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "unset";
       }
     });
-  
+
   }, [dataTable]);
 
   const columns: ColumnsType<any> = [
@@ -768,17 +767,17 @@ const UpdateTicket: FC = () => {
   return (
      <ContentContainer
         title={ (CopyId || stateImport) ? 'Thêm mới Phiếu chuyển hàng' : `Sửa phiếu chuyển hàng ${initDataForm? initDataForm.code : ''}`}
-        breadcrumb={(CopyId || stateImport) ? [] : [
+        breadcrumb={CopyId ? [] : [
           {
             name: "Tổng quan",
             path: UrlConfig.HOME,
           },
-          { 
+          {
             name: "Chuyển hàng",
             path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
-            name: `${initDataForm? initDataForm.code : ''}`,
+            name: stateImport ? 'Thêm mới' : `${initDataForm? initDataForm.code : ''}`,
           },
         ]}
       >
@@ -786,7 +785,7 @@ const UpdateTicket: FC = () => {
           <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
             <Form.Item noStyle hidden name="version">
               <Input />
-            </Form.Item>  
+            </Form.Item>
             <Form.Item noStyle hidden name="store_transfer">
               <Input />
             </Form.Item>
@@ -823,7 +822,7 @@ const UpdateTicket: FC = () => {
                           optionFilterProp="children"
                           onChange={(value: number) => {
                             stores.forEach((element) => {
-                              if (element.id === value) {                                
+                              if (element.id === value) {
                                 onChangeFromStore(element);
                               }
                             });
@@ -1042,9 +1041,9 @@ const UpdateTicket: FC = () => {
               }
               rightComponent={
                 <Space>
-                  
+
                   {(!CopyId || !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
-                  
+
                   <Button
                     disabled={isError || isLoading}
                     htmlType={"submit"}
@@ -1083,7 +1082,7 @@ const UpdateTicket: FC = () => {
           />
         }
         {
-          isVisibleModalWarning && 
+          isVisibleModalWarning &&
           <ModalConfirm
             onCancel={() => {
               setIsVisibleModalWarning(false);
