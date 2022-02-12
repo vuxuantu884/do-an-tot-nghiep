@@ -3,6 +3,7 @@ import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
 import { Link } from "react-router-dom";
 import { StyledDropDown, StyledMenu } from "./styles";
@@ -21,7 +22,7 @@ const ActionColumnIssue = () => {
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
         <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
           <Menu.Item key="0">
-            <Link to={`/promotion/codes/${id}`}>
+            <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${id}`}>
             <Button
               icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
               type="text"
