@@ -89,7 +89,6 @@ export const StyledComponent = styled.div`
       background: rgba(42, 42, 134, 0.05);
       border-radius: 50px;
       max-width: 100%;
-      display: block;
       white-space: initial;
     }
     .tagLabel {
