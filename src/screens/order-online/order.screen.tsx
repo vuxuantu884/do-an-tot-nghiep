@@ -305,6 +305,8 @@ ShippingServiceConfigDetailResponseModel[]
 		}
 		return listFulfillmentRequest;
 	};
+	
+	console.log('thirdPL', thirdPL)
 
 	const createShipmentRequest = (value: OrderRequest) => {
 		let objShipment: ShipmentRequest = {
@@ -357,7 +359,7 @@ ShippingServiceConfigDetailResponseModel[]
 					service: thirdPL.service,
 					shipper_code: value.shipper_code,
 					shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-					shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
+					shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
 					cod:
 						orderAmount +
 						(shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
@@ -535,6 +537,7 @@ ShippingServiceConfigDetailResponseModel[]
 						setCreating(false);
 					} else {
 						(async () => {
+							console.log('valuesCalculateReturnAmount', valuesCalculateReturnAmount);
 							try {
 								await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
 									// on error
@@ -721,6 +724,8 @@ ShippingServiceConfigDetailResponseModel[]
 								items: responseItems,
 								dating_ship: newDatingShip,
 								shipper_code: newShipperCode,
+								shipping_fee_paid_to_three_pls:
+									response?.fulfillments ? response?.fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || null : null,
 								shipping_fee_informed_to_customer:
 									response.shipping_fee_informed_to_customer,
 								payments: new_payments,
@@ -764,27 +769,49 @@ ShippingServiceConfigDetailResponseModel[]
 								response.fulfillments[0].shipment?.delivery_service_provider_type
 								) {
 									case ShipmentMethod.EMPLOYEE:
+										{
+											newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
+											const shipmentEmployee = response?.fulfillments[0]?.shipment;
+											console.log('shipmentEmployee', shipmentEmployee)
+											setThirdPL({
+												delivery_service_provider_code:
+													shipmentEmployee.delivery_service_provider_code,
+												delivery_service_provider_id:
+													shipmentEmployee.delivery_service_provider_id,
+												insurance_fee: shipmentEmployee.insurance_fee,
+												delivery_service_provider_name:
+													shipmentEmployee.delivery_service_provider_name,
+												delivery_transport_type:
+													shipmentEmployee.delivery_transport_type,
+												service: shipmentEmployee.service,
+												shipping_fee_paid_to_three_pls:
+													shipmentEmployee.shipping_fee_paid_to_three_pls,
+											});
+											break;
+										}
 									case ShipmentMethod.EXTERNAL_SHIPPER:
 										newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
 										break;
 									case ShipmentMethod.EXTERNAL_SERVICE:
-										newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
-										const shipmentDeliverPartner = response?.fulfillments[0]?.shipment;
-										setThirdPL({
-											delivery_service_provider_code:
-												shipmentDeliverPartner.delivery_service_provider_code,
-											delivery_service_provider_id:
-												shipmentDeliverPartner.delivery_service_provider_id,
-											insurance_fee: shipmentDeliverPartner.insurance_fee,
-											delivery_service_provider_name:
-												shipmentDeliverPartner.delivery_service_provider_name,
-											delivery_transport_type:
-												shipmentDeliverPartner.delivery_transport_type,
-											service: shipmentDeliverPartner.service,
-											shipping_fee_paid_to_three_pls:
-												shipmentDeliverPartner.shipping_fee_paid_to_three_pls,
-										});
-										break;
+										{
+											newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
+											const shipmentDeliverPartner = response?.fulfillments[0]?.shipment;
+											setThirdPL({
+												delivery_service_provider_code:
+													shipmentDeliverPartner.delivery_service_provider_code,
+												delivery_service_provider_id:
+													shipmentDeliverPartner.delivery_service_provider_id,
+												insurance_fee: shipmentDeliverPartner.insurance_fee,
+												delivery_service_provider_name:
+													shipmentDeliverPartner.delivery_service_provider_name,
+												delivery_transport_type:
+													shipmentDeliverPartner.delivery_transport_type,
+												service: shipmentDeliverPartner.service,
+												shipping_fee_paid_to_three_pls:
+													shipmentDeliverPartner.shipping_fee_paid_to_three_pls,
+											});
+											break;
+										}
 									case ShipmentMethod.PICK_AT_STORE:
 										newShipmentMethod = ShipmentMethodOption.PICK_AT_STORE;
 										break;

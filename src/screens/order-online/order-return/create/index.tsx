@@ -200,8 +200,6 @@ const ScreenReturnCreate = (props: PropType) => {
 ShippingServiceConfigDetailResponseModel[]
 >([]);
 
-  const [is4h, setIs4h] = useState(false);
-
   const initialForm: OrderRequest = {
     action: "", //finalized
     store_id: null,
@@ -918,19 +916,20 @@ ShippingServiceConfigDetailResponseModel[]
           service: thirdPL.service,
           shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
         };
-
+      
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
           delivery_service_provider_type: thirdPL.delivery_service_provider_code,
+          service: thirdPL.service,
           shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
-          shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
           cod:
             totalAmountExchange +
             (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
             getAmountPaymentRequest(payments) -
-            discountValue,
+            discountValue
         };
 
       case ShipmentMethodOption.PICK_AT_STORE:
@@ -1229,8 +1228,6 @@ ShippingServiceConfigDetailResponseModel[]
                       form={form}
 											shippingServiceConfig={shippingServiceConfig}
 											orderConfig={orderConfig}
-                      setIs4h={setIs4h}
-                      is4h={is4h}
                     />
                   </Card>
                 )}
