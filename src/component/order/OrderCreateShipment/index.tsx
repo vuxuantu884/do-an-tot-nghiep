@@ -67,8 +67,6 @@ type PropType = {
   isEcommerceOrder?: boolean;
 	OrderDetail?: OrderResponse | null;
 	orderConfig:  OrderConfigResponseModel | null;
-  setIs4h?:(value:boolean)=>void;
-  is4h?:boolean;
 };
 
 /**
@@ -130,11 +128,10 @@ function OrderCreateShipment(props: PropType) {
     ecommerceShipment,
     isEcommerceOrder,
     OrderDetail,
-    setIs4h,
-    is4h,
   } = props;
   const dateFormat = "DD/MM/YYYY";
 	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+	console.log('thirdPL', thirdPL)
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
@@ -441,14 +438,13 @@ function OrderCreateShipment(props: PropType) {
             {/*--- Tự vận chuyển ----*/}
             {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <ShipmentMethodSelfDelivery
-                setIs4h={setIs4h}
-                is4h={is4h}
                 totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                 levelOrder={levelOrder}
                 setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                 isCancelValidateDelivery={isCancelValidateDelivery}
                 storeId={storeDetail?.id}
                 renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+                thirdPL={thirdPL}
                 setThirdPL={setThirdPL}
                 listExternalShippers={listExternalShippers}
                 form={form}
