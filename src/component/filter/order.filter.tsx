@@ -15,7 +15,7 @@ import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import TreeStore from "component/tree-node/tree-node";
+import TreeStore from "component/tree-node/tree-store";
 import UrlConfig from "config/url.config";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
@@ -888,7 +888,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 					{rerender && <Form
 						onFinish={onFinish}
 						ref={formRef}
-						initialValues={params}
+						initialValues={initialValues}
 						layout="vertical"
 					>
 						<Row gutter={20}>

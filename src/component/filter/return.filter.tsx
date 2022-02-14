@@ -21,6 +21,7 @@ import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import { ReturnSearchQuery } from "model/order/return.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
+import TreeStore from "component/tree-node/tree-store";
 
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
@@ -369,7 +370,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
               <Col span={12}>
                 <p>Kho cửa hàng</p>
                 <Item name="store_ids">
-                  <CustomSelect
+                  {/* <CustomSelect
                     mode="multiple"
                     allowClear
                     showArrow
@@ -386,7 +387,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                         {item.name}
                       </CustomSelect.Option>
                     ))}
-                  </CustomSelect>
+                  </CustomSelect> */}
+                  <TreeStore listStore={listStore} placeholder="Cửa hàng"/>
                 </Item>
                 <p>Lý do trả hàng</p>
                 <Item name="reason_ids">
