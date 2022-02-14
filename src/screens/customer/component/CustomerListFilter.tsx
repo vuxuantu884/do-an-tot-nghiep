@@ -13,6 +13,7 @@ import settingGearIcon from "assets/icon/setting-gear-icon.svg";
 import CustomNumberInput from "component/custom/customNumberInput";
 import BaseFilter from "component/filter/base.filter";
 import SelectDateFilter from "component/filter/SelectDateFilter";
+import TreeStore from "component/tree-node/tree-store";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { departmentDetailAction } from "domain/actions/account/department.action";
@@ -1976,7 +1977,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   name="store_ids"
                   label={<b>Cửa hàng</b>}
                   className="left-filter">
-                  <Select
+                  {/* <Select
                     mode="multiple"
                     showSearch
                     showArrow
@@ -1989,7 +1990,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         {item.name}
                       </Option>
                     ))}
-                  </Select>
+                  </Select> */}
+                   <TreeStore listStore={listStore}  placeholder="Chọn cửa hàng"/>
                 </Form.Item>
 
                 <div className="center-filter">

@@ -165,6 +165,7 @@ const AccountUpdateScreen: React.FC = () => {
     data.store_ids = [...ids];
     setStatus(data.status);
     setAccountDetail(data);
+    console.log("setAccountDetail",data)
     idNumber.current = data.id;
   }, []);
   //End callback
@@ -384,7 +385,7 @@ const AccountUpdateScreen: React.FC = () => {
                 label="Số điện thoại"
                 name="phone"
                 rules={[
-                  { required: true, message: "Vui lòng nhập số điện thoại" },
+                  // { required: true, message: "Vui lòng nhập số điện thoại" },
                   {
                     pattern: RegUtil.PHONE,
                     message: "Số điện thoại không đúng định dạng",

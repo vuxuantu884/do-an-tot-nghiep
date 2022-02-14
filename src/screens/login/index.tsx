@@ -66,7 +66,6 @@ const Login = () => {
               name="password"
               rules={[
                 {required: true, message: "Mật khẩu không được bỏ trống"},
-                {min: 6, max: 12, message: "Mật khẩu sai định dạng"},
               ]}
             >
               <Input.Password prefix={<LockOutlined style={{color: "#c5c5c5", marginRight: 8}} />} disabled={loading} size="large" placeholder="Mật khẩu" />
