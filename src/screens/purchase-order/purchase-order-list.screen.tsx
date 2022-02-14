@@ -278,13 +278,9 @@ const PurchaseOrderListScreen: React.FC = () => {
       },
       {
         title: "Tổng SL sp",
-        dataIndex: "total_quantity",
-        render: (value, row: PurchaseOrder) => {
-          let total = 0;
-          row?.line_items.forEach((item) => {
-            total += item?.quantity ? item.quantity : 0;
-          });
-          return <div>{formatCurrency(total,".")}</div>;
+        dataIndex: "planned_quantity",
+        render: (value, row: PurchaseOrder) => { 
+          return <div>{formatCurrency(value,".")}</div>;
         },
         visible: true,
       },
