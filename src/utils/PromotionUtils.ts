@@ -114,8 +114,8 @@ export const insertProduct = (
     // nếu nhóm khuyến mãi không tồn tại trong danh sách => tạo mới
     const discount: EntilementFormModel = {
       selectedProducts: [itemParseFromFileToDisplay],
-      entitled_variant_ids: importItem.variant_id ? [importItem.variant_id] : [],
-      entitled_product_ids: importItem.product_id ? [importItem.product_id] : [],
+      entitled_variant_ids: isVariant ? [importItem.variant_id] : [], 
+      entitled_product_ids: !isVariant ? [importItem.product_id] : [],
       prerequisite_quantity_ranges: [{...prerequisite_quantity}],
     };
 
@@ -132,7 +132,6 @@ export const insertProduct = (
     // nếu nhóm khuyến mãi đã tồn tại  & sản phẩm chưa tồn tại trong nhóm KM => thêm sản phẩm vào nhóm khuyến mãi
     if (isVariant) {
       discountGroup.entitled_variant_ids.unshift(importItem.variant_id);
-      discountGroup.entitled_product_ids.unshift(importItem.product_id);
     } else {
       discountGroup.entitled_product_ids.unshift(importItem.product_id);
     }
@@ -145,7 +144,6 @@ export const insertProduct = (
   // add product id và variant_id vào form
   if (isVariant) {
     currentVariantIdList.push(importItem.variant_id);
-    console.log(importItem.variant_id);
   } else {
     currentProductIdList.push(importItem.product_id);
   }

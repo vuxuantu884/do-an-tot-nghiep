@@ -1,10 +1,7 @@
 import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import { searchProductWrapperRequestAction } from "domain/actions/product/products.action";
-import { getVariantsAction, getPriceRuleAction, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
-import { PriceRule, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model"; 
+import { getPriceRuleAction, getVariantsAction, updatePriceRuleByIdAction } from "domain/actions/promotion/discount/discount.action";
+import { EntilementFormModel, PriceRule, ProductEntitlements } from "model/promotion/price-rules.model";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -13,7 +10,7 @@ import { parseDurationToMoment, transformData } from "utils/PromotionUtils";
 import ContentContainer from "../../../../component/container/content.container";
 import UrlConfig from "../../../../config/url.config";
 import { showError, showSuccess } from "../../../../utils/ToastUtils";
-import GeneralConditionForm from "../../shared/general-condition.form"; 
+import GeneralConditionForm from "../../shared/general-condition.form";
 import DiscountUpdateForm from "../components/discount-form";
 import DiscountProvider, { DiscountContext } from "../components/discount-provider";
 import { DiscountStyled } from "../discount-style";
@@ -27,7 +24,6 @@ const DiscountUpdate = () => {
     const idNumber = parseInt(id);
 
     const [dataVariants, setDataVariants] = useState<ProductEntitlements[]>([]);
-    const [dataProducts, setDataProducts] = useState<ProductResponse[]>([]);
 
     const [isAllStore, setIsAllStore] = useState(true);
     const [isAllCustomer, setIsAllCustomer] = useState(true);
@@ -136,29 +132,11 @@ const DiscountUpdate = () => {
      */
     const onResult = useCallback(
         (result: PriceRule | false) => {
-            if (result) {                
-                // search data of parent product for entitled_product_ids
-                let product_ids: Array<number> = []
-                result.entitlements.forEach((item: EntilementFormModel) => {
-                    return item.entitled_product_ids.forEach((id: number) => {
-                        product_ids.push(id)
-                    })
-                })
-
-                const query: ProductWrapperSearchQuery = {
-                    product_ids
-                }
-                dispatch(searchProductWrapperRequestAction(query, (data: false | PageResponse<ProductResponse>) => {
-                    if (data) {
-                        setDataProducts(data.items)
-                    }
-                }));
-
+            if (result) {
                 parseDataToForm(result);
                 setIsLoading(false);
             }
-        },
-        [dispatch, parseDataToForm]
+        },[parseDataToForm]
     );
 
 
@@ -169,28 +147,16 @@ const DiscountUpdate = () => {
      */
     const mergeVariantsData = useCallback(
         (entitled_variant_ids: Array<number>, entitled_product_ids: Array<number>) => {
-            const listProduct: Array<ProductEntitlements> = []
-            entitled_product_ids.forEach((id: number) => {
-                const product = dataProducts?.find((item: ProductResponse) => item.id === id)
-                if (product) {
-                    listProduct.push({
-                        variant_title: product.name,
-                        variant_id: undefined,
-                        product_id: product.id,
-                        sku: product.code,
-                        cost: 0,
-                        open_quantity: product.on_hand,
-                    })
-                }
-            }
-            )
-
+            const listProduct: Array<ProductEntitlements> = entitled_product_ids.map((productId:number)=>{
+                return dataVariants?.find((v) => v.product_id === productId) || {} as ProductEntitlements;
+            })
+            
             const listProductFormVariant = entitled_variant_ids.map((id) => {
                 return dataVariants?.find((v) => v.variant_id === id) || {} as ProductEntitlements;
             });
             return [...listProduct, ...listProductFormVariant];
         },
-        [dataVariants, dataProducts]
+        [dataVariants]
     );
 
     /**
