@@ -15,6 +15,7 @@ import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
+import TreeStore from "component/tree-node/tree-node";
 import UrlConfig from "config/url.config";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
@@ -890,11 +891,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						initialValues={params}
 						layout="vertical"
 					>
-
 						<Row gutter={20}>
 							<Col span={8} xxl={8}>
 								<Item name="store_ids" label="Kho cửa hàng">
-									<CustomSelect
+									{/* <CustomSelect
 										mode="multiple"
 										showArrow allowClear
 										showSearch
@@ -912,7 +912,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 												{item.name}
 											</CustomSelect.Option>
 										))}
-									</CustomSelect>
+									</CustomSelect> */}
+									<TreeStore listStore={listStore} placeholder="Cửa hàng"/>
 								</Item>
 							</Col>
 							<Col span={8} xxl={8}>
