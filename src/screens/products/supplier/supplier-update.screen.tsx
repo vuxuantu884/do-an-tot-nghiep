@@ -9,7 +9,7 @@ import {
   Row,
   Select,
   Space,
-  Switch
+  Switch,
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -23,6 +23,8 @@ import {
   SupplierUpdateAction
 } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   SupplierResponse,
   SupplierUpdateRequest
@@ -34,6 +36,8 @@ import { useHistory, useParams } from "react-router";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
+import {getCollectionRequestAction} from "../../../domain/actions/product/collection.action";
+import {CollectionQuery, CollectionResponse} from "../../../model/product/collection.model";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -43,6 +47,8 @@ type SupplierParam = {
 
 const UpdateSupplierScreen: React.FC = () => {
   const { id } = useParams<SupplierParam>();
+  const params: CollectionQuery = useParams() as CollectionQuery;
+
   let idNumber = parseInt(id);
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -72,6 +78,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
+  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
 
   const [type, setType] = useState("personal");
 
@@ -93,7 +100,7 @@ const UpdateSupplierScreen: React.FC = () => {
     },
     [formRef]
   );
-  
+
   const onUpdateSuccess = (response: SupplierResponse|false) => {
     if(response){
     history.push(`${UrlConfig.SUPPLIERS}/${id}}`);
@@ -102,10 +109,18 @@ const UpdateSupplierScreen: React.FC = () => {
     setLoading(false);
   };
 
+  const onGetSuccess = (results: PageResponse<CollectionResponse>) => {
+    if (results && results.items) {
+      setGroupProducts(results);
+    }
+  }
+
   const onFinish = (values: SupplierUpdateRequest) => {
-      setLoading(true);
-      dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
-    };
+    const newValues = {...values, phone: values.phone || supplier?.phone || ''}
+    setLoading(true);
+    dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
+    dispatch(SupplierUpdateAction(idNumber, newValues, onUpdateSuccess))
+  }
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -154,6 +169,7 @@ const UpdateSupplierScreen: React.FC = () => {
       setLoadingData(true);
       if (!Number.isNaN(idNumber)) {
         dispatch(SupplierDetailAction(idNumber, setSupplierDetail));
+        dispatch(getCollectionRequestAction(params, onGetSuccess))
       }
     }
     isFirstLoad.current = false;
@@ -322,6 +338,41 @@ const UpdateSupplierScreen: React.FC = () => {
                       <Input placeholder="Nhập mã số thuế" maxLength={13} />
                     </Item>
                   </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Số điện thoại"
+                      rules={[
+                        {
+                          pattern: RegUtil.PHONE,
+                          message: 'Số điện thoại không đúng định dạng'
+                        },
+                        {
+                          required: true,
+                          message: "Vui lòng nhập số điện thoại",
+                        },
+                      ]}
+                      name="phone"
+                    >
+                      <Input placeholder="Nhập tên nhà cung cấp" maxLength={255} />
+                    </Form.Item>
+                  </Col>
+                  {/*TODO: Waiting response api*/}
+                  {/*<Col span={12}>*/}
+                  {/*  <Item*/}
+                  {/*    name="group_product"*/}
+                  {/*    label="Nhóm hàng"*/}
+                  {/*  >*/}
+                  {/*    <Select allowClear placeholder="Chọn nhóm hàng">*/}
+                  {/*      {groupProducts && groupProducts?.items.map((item) => (*/}
+                  {/*        <Option key={item.id} value={item.id}>*/}
+                  {/*          {item.name}*/}
+                  {/*        </Option>*/}
+                  {/*      ))}*/}
+                  {/*    </Select>*/}
+                  {/*  </Item>*/}
+                  {/*</Col>*/}
                 </Row>
               </Card>
               <Card title="Chi tiết nhà cung cấp">
