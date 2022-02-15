@@ -67,7 +67,7 @@ function SelectSearch(contentProps: SelectContentProps) {
         searchAccountPublicApi,
         { ...fixedQuery, page: 1, limit: 30 }
       );
-      setDefaultOptons(response.items);
+      setDefaultOptons(response?.items);
       setData(response);
     };
     getDefaultOptions();

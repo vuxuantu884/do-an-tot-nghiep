@@ -6,9 +6,8 @@ import { MenuAction } from "component/table/ActionButton";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule } from "model/promotion/price-rules.model";
-import moment from "moment";
 import React, { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { RiDeleteBin2Fill, FiCheckCircle } from "react-icons/all";
+import { FiCheckCircle, RiDeleteBin2Fill } from "react-icons/all";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
@@ -18,14 +17,13 @@ import UrlConfig from "../../../config/url.config";
 import { bulkDisablePriceRulesAction, bulkEnablePriceRulesAction, getListDiscountAction } from "../../../domain/actions/promotion/discount/discount.action";
 import { PageResponse } from "../../../model/base/base-metadata.response";
 import { DiscountSearchQuery } from "../../../model/query/discount.query";
-import { DATE_FORMAT } from "../../../utils/DateUtils";
 import { showError, showSuccess } from "../../../utils/ToastUtils";
-import { getQueryParams, useQuery } from "../../../utils/useQuery"; 
-import DiscountFilter from "./components/DiscountFilter";
+import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { ACTIONS_DISCOUNT, DISCOUNT_STATUS } from "../constants";
+import DatePromotionColumn from "../shared/date-column";
+import DiscountFilter from "./components/DiscountFilter";
+import { DiscountStyled } from "./discount-style";
 import "./discount-style.ts";
-import { DiscountStyled } from "./discount-style"; 
-
 const DiscountPage = () => {
 
   const initQuery: DiscountSearchQuery = {
@@ -175,10 +173,8 @@ const DiscountPage = () => {
       title: "Thời gian",
       visible: true,
       align: "center",
-      render: (value: any, item: any, index: number) => (
-        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)
-          } - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm) : "∞"
-          }`}</div>
+      render: (value: any, item: any) => (
+        <DatePromotionColumn startDate={item.starts_date} endDate={item.ends_date}/>
       ),
     },
     {

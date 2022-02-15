@@ -66,14 +66,14 @@ export const findCurrentRoute = (
       route.subMenu.forEach((item) => {
         if (item.subMenu.length > 0 && item.showMenuThird) {
           item.subMenu.forEach((item1) => {
-            if (path === item1.path) {
+            if (path === item1.path || item?.activeLink?.includes(path)) {
               current.push(item1.key);
               subMenu.push(route.key);
               subMenu.push(item.key);
             }
           });
         }
-        if (path === item.path) {
+        if (path === item.path || item?.activeLink?.includes(path)) {
           current.push(item.key);
           subMenu.push(route.key);
         }
