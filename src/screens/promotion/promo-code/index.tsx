@@ -18,15 +18,14 @@ import {
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PriceRule } from "model/promotion/price-rules.model";
-import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
-import { DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { ACTIONS_PROMO } from "../constants";
+import DatePromotionColumn from "../shared/date-column";
 import actionColumn from "./actions/action.column";
 import "./promo-code.scss";
 
@@ -166,17 +165,8 @@ const PromotionCode = () => {
       fixed: "left",
       align: "center",
       width: "20%",
-      render: (value: any, item: any, index: number) => (
-        <div>
-          {`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)
-            }`}{" "}
-          -{" "}
-          {item.ends_date ? (
-            moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm)
-          ) : (
-            <span>&#8734;</span>
-          )}
-        </div>
+       render: (value: any, item: any) => (
+        <DatePromotionColumn startDate={item.starts_date} endDate={item.ends_date}/>
       ),
     },
     {
