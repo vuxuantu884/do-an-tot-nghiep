@@ -33,6 +33,7 @@ export interface OrderFulfillmentsModel {
   status: string;
 }
 export interface OrderModel extends BaseObject {
+  ecommerce_shop_id: null;
   company_id: number | null;
   company: string | null;
   store_id: number | null;
