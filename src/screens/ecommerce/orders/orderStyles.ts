@@ -255,3 +255,9 @@ export const StyledUpdateConnectionModal = styled.div`
     }
   }
 `;
+
+export const StyledLogisticConfirmModal = styled.div`
+  .ant-modal-content{
+    
+  }
+`;

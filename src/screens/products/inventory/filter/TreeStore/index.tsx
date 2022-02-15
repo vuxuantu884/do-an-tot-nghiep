@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Tag, TreeSelect, TreeSelectProps } from "antd";
+import { FormInstance, Tag, TreeSelect, TreeSelectProps } from "antd";
 import _ from "lodash";
-import { FormInstance } from 'antd';
 import { StoreResponse } from "model/core/store.model";
- 
+import React, { useEffect, useState } from "react";
+import { fullTextSearch } from "utils/RemoveDiacriticsString";
 interface Props extends TreeSelectProps<string> {
   form?: FormInstance;
   name: string;
@@ -14,6 +13,7 @@ interface Props extends TreeSelectProps<string> {
 const TreeStore = (props: Props) => {
   const { form, name, placeholder, listStore, ...restProps } = props;
   const [stores, setStores] = useState<Array<StoreResponse>>();
+  const [noDepartmentStores, setNoDepartmentStores] = useState<Array<StoreResponse>>();
 
   useEffect(() => {
     const groupBy = (list: Array<StoreResponse>, keyGetter: any) => {
@@ -32,6 +32,7 @@ const TreeStore = (props: Props) => {
 
     const grouped: any = listStore !== undefined ? groupBy(listStore, (store: StoreResponse) => store.department) : [];
     const newStores = _.filter([...grouped], store => store[0]);
+    setNoDepartmentStores(_.filter(listStore, store => !store.department_id));
     setStores(newStores);
   }, [listStore]);
 
@@ -62,40 +63,39 @@ const TreeStore = (props: Props) => {
       showSearch
       multiple
       treeCheckable
-      treeNodeFilterProp='title'
+      treeNodeFilterProp="title"
       tagRender={tagRender}
       maxTagCount="responsive"
-      onChange={(value) => {form?.setFieldsValue({ [name]: value })}}
-      {...restProps}
-      filterTreeNode={(search: any, item: any) => {
-        return item?.title.toLowerCase().includes(search.toLowerCase().trim());
+      onChange={(value) => {
+        form?.setFieldsValue({ [name]: value });
       }}
-    >
-      {
-        stores?.map((departmentItem: any) => {
-          return (
-            <TreeSelect.TreeNode
-              key={departmentItem[0]}
-              value={`${_.find(listStore, ["department", departmentItem[0]])?.department_id || ''}`}
-              title={departmentItem[0]}
-            >
-              {
-                <React.Fragment>  
-                  {
-                    departmentItem[1].map((storeItem: any) => (
-                      <TreeSelect.TreeNode
-                        key={storeItem.id}
-                        value={storeItem.id}
-                        title={storeItem.name}
-                      />
-                    ))
-                  }
-                </React.Fragment>
-              }
-            </TreeSelect.TreeNode>
-          )
-        })
-      }
+      {...restProps}
+      filterTreeNode={(textSearch: any, item: any) => {        
+        return fullTextSearch(textSearch, item?.title);
+      }}>
+      {stores?.map((departmentItem: any) => {
+        return (
+          <TreeSelect.TreeNode
+            key={departmentItem[0]}
+            value={`${_.find(listStore, ["department", departmentItem[0]])?.department_id || ""}`}
+            title={departmentItem[0]}>
+            {
+              <React.Fragment>
+                {departmentItem[1].map((storeItem: StoreResponse) => (
+                  <TreeSelect.TreeNode
+                    key={storeItem.code}
+                    value={storeItem.id}
+                    title={storeItem.name}
+                  />
+                ))}
+              </React.Fragment>
+            }
+          </TreeSelect.TreeNode>
+        );
+      })}
+      {noDepartmentStores?.map((storeItem: StoreResponse) => (
+        <TreeSelect.TreeNode key={storeItem.code} value={storeItem.id} title={storeItem.name} />
+      ))}
     </TreeSelect>
   );
 };

@@ -46,7 +46,7 @@ function OrderReturnReason(props: PropType): React.ReactElement {
 
   const renderSubReason = () => {
     if (!reasonID) {
-      return <div>Vui lòng chọn lý do hủy đơn!</div>;
+      // return <div>Vui lòng chọn lý do hủy đơn!</div>;
     } else if (reasonSubs.length > 0) {
       return (
         <Form.Item
