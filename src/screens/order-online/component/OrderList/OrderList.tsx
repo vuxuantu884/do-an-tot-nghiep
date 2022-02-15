@@ -450,7 +450,6 @@ function OrderList(props: PropsType) {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
     };
-    console.log("dataQuery",dataQuery.store_ids.map(p=>p))
     
     setPrams(dataQuery);
     handleFetchData(dataQuery);
