@@ -63,6 +63,7 @@ const ACTION_ID = {
 
 type DuplicateParam = {
   customer_phone: string;
+  store_id:string;
 };
 
 const actions: Array<MenuAction> = [
@@ -129,10 +130,11 @@ const initQuery: DuplicateOrderDetailQuery = {
   district: "",
   city: "",
   country: "",
+  services:[]
 };
 
 const OrderDuplicate: React.FC = () => {
-  const { customer_phone } = useParams<DuplicateParam>();
+  const { customer_phone, store_id } = useParams<DuplicateParam>();
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -742,9 +744,9 @@ const OrderDuplicate: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
+      history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}/${store_id}?${queryParam}`);
     },
-    [history, params, customer_phone]
+    [history, params, customer_phone,store_id]
   );
 
   const onFilter = useCallback(
@@ -753,16 +755,16 @@ const OrderDuplicate: React.FC = () => {
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       setIsFilter(true)
-      history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
+      history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}/${store_id}?${queryParam}`);
     },
-    [history, params, customer_phone]
+    [history, params, customer_phone, store_id]
   );
 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}?${queryParam}`);
-  }, [history, customer_phone]);
+    history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}/${store_id}?${queryParam}`);
+  }, [history, customer_phone, store_id]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -898,11 +900,12 @@ const OrderDuplicate: React.FC = () => {
 
     dispatch(getDetailOrderDuplicateAction({
       ...params
+      , store_ids: params.store_ids && params.store_ids.length > 0 ? params.store_ids : [store_id]
       , search_term: params.search_term && params.search_term.length > 0 ? params.search_term : customer_phone
       , issued_on_min: params.issued_on_min && params.issued_on_min.length > 0 ? params.issued_on_min : _issued_on_min
       , issued_on_max: params.issued_on_max && params.issued_on_max.length > 0 ? params.issued_on_max : _issued_on_max
     }, setSearchResult));
-  }, [dispatch, params, setSearchResult, customer_phone]);
+  }, [dispatch, params, store_id, customer_phone, setSearchResult]);
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),

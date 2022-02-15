@@ -446,7 +446,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 		let list: ListFilterTagTypes[] = []
 		if (initialValues.store_ids.length) {
-			let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
+			let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single.toString() === store.id.toString()))
 			let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
 			list.push({
 				key: 'store',
@@ -707,7 +707,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				value: <React.Fragment>{initialValues.reference_code}</React.Fragment>
 			})
 		}
-		// console.log('filters list', list);
+		console.log('filters list', list);
 		return list
 	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
 
