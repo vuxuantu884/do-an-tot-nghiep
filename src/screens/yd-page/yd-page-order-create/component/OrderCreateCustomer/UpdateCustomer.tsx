@@ -38,7 +38,7 @@ type UpdateCustomerProps = {
   groups: any;
   handleChangeArea: any;
   handleChangeCustomer: any;
-  customerItem: any;
+  customer: any;
   shippingAddress: ShippingAddress | any;
   levelOrder?: number;
   setSingleShippingAddress: (item: CustomerShippingAddress | null) => void;
@@ -55,7 +55,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     groups,
     handleChangeArea,
     handleChangeCustomer,
-    customerItem,
+    customer,
     shippingAddress,
     levelOrder = 0,
     setSingleShippingAddress,
@@ -93,7 +93,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   
   //properties
   const disableInput = levelOrder >= 4;
-
+console.log(customer);
   //element
   const txtShippingAddressName = document.getElementById("shippingAddress_update_name");
   const txtShippingAddressPhone = document.getElementById("shippingAddress_update_phone");
@@ -117,19 +117,19 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   });
 
   const initialFormValueCustomer =
-    customerItem !== null
+    customer !== null
       ? {
-          full_name: customerItem.full_name,
-          district_id: customerItem.district_id,
-          phone: customerItem.phone,
-          ward_id: customerItem.ward_id,
-          card_number: customerItem.card_number,
-          full_address: customerItem.full_address,
-          gender: customerItem.gender,
-          birthday: customerItem.birthday
-            ? moment(customerItem.birthday)
+          full_name: customer.full_name,
+          district_id: customer.district_id,
+          phone: customer.phone,
+          ward_id: customer.ward_id,
+          card_number: customer.card_number,
+          full_address: customer.full_address,
+          gender: customer.gender,
+          birthday: customer.birthday
+            ? moment(customer.birthday)
             : null,
-          customer_group_id: customerItem.customer_group_id,
+          customer_group_id: customer.customer_group_id,
         }
       : {
           full_name: "",
@@ -147,7 +147,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const initialFormValueshippingAddress =
     shippingAddress
       ? {
-          card_number: customerItem.card_number,
+          card_number: customer.card_number,
           name: shippingAddress?.name,
           district_id: shippingAddress?.district_id,
           country_id: shippingAddress?.country_id,
@@ -157,7 +157,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           full_address: shippingAddress?.full_address,
         }
       : {
-          card_number: customerItem.card_number,
+          card_number: customer.card_number,
           name: "",
           district_id: null,
           country_id: null,
@@ -199,12 +199,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           dispatch(
               UpdateShippingAddress(
                   shippingAddress?.id,
-                  customerItem.id,
+                  customer.id,
                   param,
                   (data: any) => {
                       if (data) {
                           dispatch(
-                              getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
+                              getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                                   handleChangeCustomer(datas);
                               })
                           );
@@ -223,12 +223,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           param.country = "VIETNAM"
           dispatch(
               CreateShippingAddress(
-                  customerItem.id,
+                  customer.id,
                   param,
                   (data: ShippingAddress) => {
                       if (data) {
                           dispatch(
-                              getCustomerDetailAction(customerItem.id, (datas: CustomerResponse) => {
+                              getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                                   handleChangeCustomer(datas);
                               })
                           );
@@ -245,7 +245,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       }
 
     },
-    [dispatch, customerItem, areas, shippingAddress, handleChangeCustomer]
+    [dispatch, customer, areas, shippingAddress, handleChangeCustomer]
   );
 
   const onOkPress = useCallback(() => {
@@ -345,7 +345,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           <Col span={12} hidden>
             <Form.Item
               name="card_number"
-              style={customerItem ? { marginBottom: "0px" } : {}}
+              style={customer ? { marginBottom: "0px" } : {}}
             >
               <Input
                 placeholder="Nhập mã thẻ"
@@ -354,7 +354,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col span={24}>
             <Form.Item
               name="district_id"
               //label="Khu vực"
@@ -401,7 +401,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
 
 
-          <Col span={12}>
+          <Col span={24}>
             <Form.Item
               name="ward_id"
               //label="Phường xã"
@@ -443,7 +443,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           <Col span={24}>
             <Form.Item
               name="full_address"
-              style={customerItem ? { marginBottom: "0px" } : {}}
+              style={customer ? { marginBottom: "0px" } : {}}
             >
               <Input
                 placeholder="Địa chỉ"
@@ -511,7 +511,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     }
                     content={
                       <CustomerShippingAddressOrder
-                        customer={customerItem}
+                        customer={customer}
                         handleChangeCustomer={handleChangeCustomer}
                         handleShippingEdit={ShowAddressModalEdit}
                         handleShippingDelete={showAddressModalDelete}
@@ -568,7 +568,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   }
                   content={
                     <CustomerShippingAddressOrder
-                      customer={customerItem}
+                      customer={customer}
                       handleChangeCustomer={handleChangeCustomer}
                       handleShippingEdit={ShowAddressModalEdit}
                       handleShippingDelete={showAddressModalDelete}

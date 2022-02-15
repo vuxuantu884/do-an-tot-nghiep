@@ -264,10 +264,14 @@ const ProductDetailScreen: React.FC = () => {
   const onChangeChecked = useCallback(
     (e) => {
       if (data !== null) {
+        let request: any = data;
         setLoadingVariantUpdate(true);
-        data.variants[active].saleable = e;
-        data.variants = getFirstProductAvatarByVariantResponse(data.variants);
-        dispatch(productUpdateAction(idNumber, data, onUpdateSaleable));
+        request.variants[active].saleable = e;
+        request.variants = getFirstProductAvatarByVariantResponse(data.variants);
+        if (data.collections) {
+          request.collections = data.collections.map((e: CollectionCreateRequest)=>e.code);
+        }  
+        dispatch(productUpdateAction(idNumber, request, onUpdateSaleable));
       }
     },
     [active, data, dispatch, idNumber, onUpdateSaleable]
