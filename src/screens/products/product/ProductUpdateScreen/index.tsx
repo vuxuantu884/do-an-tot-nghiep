@@ -904,6 +904,11 @@ const ProductDetailScreen: React.FC = () => {
                                 pattern: RegUtil.STRINGUTF8,
                                 message: "Tên sản phẩm không báo gồm kí tự đặc biệt",
                               },
+                              {
+                                max: 255,
+                                message:
+                                  "Tên sản phẩm không vượt quá 255 ký tự",
+                              },
                             ]}
                             tooltip={{
                               title:
@@ -915,7 +920,7 @@ const ProductDetailScreen: React.FC = () => {
                           >
                             <Input
                               onChange={onChange}
-                              maxLength={120}
+                              maxLength={255}
                               placeholder="Nhập tên sản phẩm"
                             />
                           </Item>
