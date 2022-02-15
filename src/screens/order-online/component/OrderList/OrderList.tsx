@@ -86,6 +86,8 @@ function OrderList(props: PropsType) {
     location.search
   );
 
+  console.log("queryParamsParsed",location.search)
+
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -443,10 +445,12 @@ function OrderList(props: PropsType) {
   }, [dispatch]);
 
   useEffect(() => {
+    
     let dataQuery: OrderSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
     };
+    
     setPrams(dataQuery);
     handleFetchData(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps

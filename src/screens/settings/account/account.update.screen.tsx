@@ -165,6 +165,7 @@ const AccountUpdateScreen: React.FC = () => {
     data.store_ids = [...ids];
     setStatus(data.status);
     setAccountDetail(data);
+    console.log("setAccountDetail",data)
     idNumber.current = data.id;
   }, []);
   //End callback

@@ -1,4 +1,4 @@
-import { Button, Form,Row, FormInstance, Input, Select } from "antd";
+import { Button, Form,Row, FormInstance, Input } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import React, { createRef, useCallback } from "react";
@@ -12,9 +12,9 @@ import CustomDatePicker from "component/custom/new-date-picker.custom";
 import moment from "moment";
 import { StoreResponse } from "model/core/store.model";
 import { DuplicateOrderSearchQuery } from "model/order/order.model";
+import TreeStore from "component/tree-node/tree-store";
 
 const { Item } = Form;
-const { Option } = Select;
 
 type OrderDuplicateFilterProps = {
   onMenuClick?: (id: number) => void;
@@ -94,8 +94,8 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
                 />
               </Item> 
             </Row>
-            <Item name="store_id" style={{ width: "20%", marginRight:"42px" }}>
-              <Select
+            <Item name="store_ids" style={{ width: "20%", marginRight:"42px" }}>
+              {/* <Select
                 showSearch
                 allowClear
                 optionFilterProp="children"
@@ -111,7 +111,8 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
                 ))}
 
                 <Option value="2">Closed</Option>
-              </Select>
+              </Select> */}
+              <TreeStore listStore={listStore} placeholder="Cửa hàng"/>
             </Item>
 
             <Item name="search_term" style={{ width: "200px" ,marginRight:"42px"}}>

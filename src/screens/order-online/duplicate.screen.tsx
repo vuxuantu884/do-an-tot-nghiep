@@ -80,7 +80,7 @@ const CustomerDuplicate: React.FC = () => {
       dataIndex: "customer",
       render: (value: string, i: CustomerDuplicateModel) => {
         let queryParamDetail=generateQuery({
-          store_ids:i.store_id,
+          // store_ids:i.store_id,
           issued_on_min:params.issued_on_min,
           issued_on_max:params.issued_on_max,
           full_address:i.full_address,
@@ -91,7 +91,7 @@ const CustomerDuplicate: React.FC = () => {
         });
         return (
           <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?${queryParamDetail}`}>
+            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}/${i.store_id}?${queryParamDetail}`}>
               {value}
             </Link>
           </React.Fragment>
@@ -110,7 +110,7 @@ const CustomerDuplicate: React.FC = () => {
       dataIndex: "customer_phone_number",
       render: (value: string, i: CustomerDuplicateModel) => {
         let queryParamDetail=generateQuery({
-          store_ids:i.store_id,
+          //store_ids:i.store_id,
           issued_on_min:params.issued_on_min,
           issued_on_max:params.issued_on_max,
           full_address:i.full_address,
@@ -121,7 +121,7 @@ const CustomerDuplicate: React.FC = () => {
         });
         return (
           <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?${queryParamDetail}`}>
+            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}/${i.store_id}?${queryParamDetail}`}>
               {value}
             </Link>
           </React.Fragment>

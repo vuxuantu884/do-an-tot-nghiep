@@ -133,7 +133,7 @@ const bill: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.ORDERS_DUPLICATE}/order/:customer_phone`,
+        path: `${UrlConfig.ORDERS_DUPLICATE}/order/:customer_phone/:store_id`,
         exact: true,
         title: "Danh sách đơn trùng",
         icon: "icon-dot",
@@ -144,6 +144,18 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       }
     ],
+  },
+  {
+    path: UrlConfig.SPLIT_ORDERS,
+    exact: true,
+    title: "Danh sách đơn tách",
+    icon: "icon-dot",
+    component: SplitOrdersScreen,
+    key: "split-orders",
+    isShow: true,
+    header: null,
+    subMenu: [],
+    // permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
   },
   {
     path: UrlConfig.PACK_SUPPORT,
@@ -191,18 +203,7 @@ const bill: Array<RouteMenu> = [
     ],
     permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
   },
-	{
-    path: UrlConfig.SPLIT_ORDERS,
-    exact: true,
-    title: "Danh sách đơn tách",
-    icon: "icon-dot",
-    component: SplitOrdersScreen,
-    key: "split-orders",
-    isShow: true,
-    header: null,
-    subMenu: [],
-    // permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
-  },
+
 ];
 
 export default bill;

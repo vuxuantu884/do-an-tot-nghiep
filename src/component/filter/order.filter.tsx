@@ -15,6 +15,7 @@ import CustomSelect from "component/custom/select.custom";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
+import TreeStore from "component/tree-node/tree-store";
 import UrlConfig from "config/url.config";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
@@ -445,7 +446,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
 		let list: ListFilterTagTypes[] = []
 		if (initialValues.store_ids.length) {
-			let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single === store.id.toString()))
+			let mappedStores = listStore?.filter((store) => initialValues.store_ids?.some((single) => single.toString() === store.id.toString()))
 			let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
 			list.push({
 				key: 'store',
@@ -706,7 +707,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				value: <React.Fragment>{initialValues.reference_code}</React.Fragment>
 			})
 		}
-		// console.log('filters list', list);
+		console.log('filters list', list);
 		return list
 	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
 
@@ -887,14 +888,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 					{rerender && <Form
 						onFinish={onFinish}
 						ref={formRef}
-						initialValues={params}
+						initialValues={initialValues}
 						layout="vertical"
 					>
-
 						<Row gutter={20}>
 							<Col span={8} xxl={8}>
 								<Item name="store_ids" label="Kho cửa hàng">
-									<CustomSelect
+									{/* <CustomSelect
 										mode="multiple"
 										showArrow allowClear
 										showSearch
@@ -912,7 +912,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 												{item.name}
 											</CustomSelect.Option>
 										))}
-									</CustomSelect>
+									</CustomSelect> */}
+									<TreeStore listStore={listStore} placeholder="Cửa hàng"/>
 								</Item>
 							</Col>
 							<Col span={8} xxl={8}>
