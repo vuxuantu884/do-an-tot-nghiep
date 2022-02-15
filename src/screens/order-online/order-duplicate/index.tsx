@@ -49,7 +49,7 @@ import ExportModal from "../modal/export.modal";
 import "../scss/index.screen.scss";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import { ShipmentMethod } from "utils/Constants";
+import { OrderStatus, ShipmentMethod } from "utils/Constants";
 import EditNote from "../component/edit-note";
 import MergeOrderModel from "./modal/merge-order.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -353,70 +353,71 @@ const OrderDuplicate: React.FC = () => {
       width: 160,
     },
     {
-      title: "Trạng thái đơn",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status_value: string) => {
-        const status = status_order?.find((status) => status.value === status_value);
+      className: "orderStatus",
+      render: (value: string, record: OrderModel) => {
+        if (!record || !status_order) {
+          return null;
+        }
+        const status = status_order.find((status) => status.value === record.status);
         return (
-          <div>
-            {status?.name === "Nháp" && (
-              <div
-                style={{
-                  background: "#F5F5F5",
-                  borderRadius: "100px",
-                  color: "#666666",
-                  padding: "3px 10px",
-                }}
-              >
-                {status?.name}
+          <div className="orderStatus">
+            <div className="inner">
+              <div className="single">
+                <div>
+                  <strong>Xử lý đơn: </strong>
+                </div>
+                {record.sub_status ? record.sub_status : "-"}
               </div>
-            )}
+              <div className="single">
+                <div>
+                  <strong>Đơn hàng: </strong>
+                </div>
+                {record.status === OrderStatus.DRAFT && (
+                  <div
+                    style={{
+                      color: "#737373",
+                    }}>
+                    {status?.name}
+                  </div>
+                )}
 
-            {status?.name === "Đã xác nhận" && (
-              <div
-                style={{
-                  background: "rgba(42, 42, 134, 0.1)",
-                  borderRadius: "100px",
-                  color: "#2A2A86",
-                  padding: "5px 10px",
-                }}
-              >
-                {status?.name}
-              </div>
-            )}
+                {record.status === OrderStatus.FINALIZED && (
+                  <div
+                    style={{
+                      color: "#FCAF17",
+                    }}>
+                    {status?.name}
+                  </div>
+                )}
 
-            {status?.name === "Kết thúc" && (
-              <div
-                style={{
-                  background: "rgba(39, 174, 96, 0.1)",
-                  borderRadius: "100px",
-                  color: "#27AE60",
-                  padding: "5px 10px",
-                }}
-              >
-                {status?.name}
-              </div>
-            )}
+                {record.status === OrderStatus.FINISHED && (
+                  <div
+                    style={{
+                      color: "#27AE60",
+                    }}>
+                    {status?.name}
+                  </div>
+                )}
 
-            {status?.name === "Đã huỷ" && (
-              <div
-                style={{
-                  background: "rgba(226, 67, 67, 0.1)",
-                  borderRadius: "100px",
-                  color: "#E24343",
-                  padding: "5px 10px",
-                }}
-              >
-                {status?.name}
+                {record.status === OrderStatus.CANCELLED && (
+                  <div
+                    style={{
+                      color: "#E24343",
+                    }}>
+                    {status?.name}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         );
       },
       visible: true,
-      align: "center",
-      width: "150px"
+      align: "left",
+      width: 120,
     },
     {
       title: "Nguồn đơn hàng",
