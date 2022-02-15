@@ -30,7 +30,7 @@ import {
   setFpageDefaultPhone,
   getOrderMappingListApi,
   exitProgressDownloadEcommerceApi,
-  ecommerceSyncStockItemApi,
+  ecommerceSyncStockItemApi, getEcommerceStoreAddressApi, createEcommerceLogisticApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -607,6 +607,56 @@ function* exitProgressDownloadEcommerceSaga(action: YodyAction) {
   yield callApiSaga({isShowLoading:true}, callback, exitProgressDownloadEcommerceApi, query);
 }
 
+function* getEcommerceStoreAddressSaga(action: YodyAction){
+  const { query, callback } = action.payload;
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+        getEcommerceStoreAddressApi,
+        query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    callback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* createEcommerceLogisticOrder(action: YodyAction){
+  const { request , callback } = action.payload;
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+        createEcommerceLogisticApi,
+        request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    callback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
@@ -707,5 +757,17 @@ export function* ecommerceSaga() {
   yield takeLatest(
     EcommerceType.EXIT_PROGRESS_DOWNLOAD_ECOMMERCE,
     exitProgressDownloadEcommerceSaga
+  );
+
+  // get ecommerce shop address
+  yield takeLatest(
+      EcommerceType.GET_ECOMMERCE_STORE_ADDRESS,
+      getEcommerceStoreAddressSaga
+  );
+
+  // create ecommerce shipping order
+  yield takeLatest(
+      EcommerceType.CREATE_ECOMMERCE_LOGISTIC,
+      createEcommerceLogisticOrder
   );
 }
