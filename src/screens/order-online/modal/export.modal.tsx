@@ -85,20 +85,20 @@ const ExportModal: React.FC<ExportModalProps> = (
         </span>
       ]}
       footer={[
+        <Button
+          key="cancel"
+          className="create-button-custom ant-btn-outline fixed-button"
+          onClick={onCancel}
+          >
+          Thoát
+        </Button>,
         <Button key="ok"
+          type="primary"
           onClick={() => onOk(optionExport, typeExport)}
           disabled={statusExport !== 1}
           loading={statusExport === 2}
         >
           Xuất file
-        </Button>,
-        <Button
-          key="cancel"
-          type="primary"
-          className="create-button-custom ant-btn-outline fixed-button"
-          onClick={onCancel}
-        >
-          Thoát
         </Button>,
         
       ]}
