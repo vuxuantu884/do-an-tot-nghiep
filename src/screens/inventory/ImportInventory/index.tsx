@@ -40,6 +40,7 @@ import { InventoryParams } from "../DetailTicket";
 import { ApiConfig } from "config/api.config";
 import BaseAxios from "base/base.axios";
 import { showError } from "utils/ToastUtils";
+import MyStoreSelect from "component/custom/select-search/my-store-select";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -209,23 +210,7 @@ const UpdateTicket: FC = () => {
                         ]}
                         labelCol={{ span: 24, offset: 0 }}
                       >
-                        <Select
-                          placeholder="Chọn kho gửi"
-                          showArrow
-                          showSearch
-                          optionFilterProp="children"
-                        >
-                          {Array.isArray(stores) &&
-                            stores.length > 0 &&
-                            stores.map((item, index) => (
-                              <Option
-                                key={"from_store_id" + index}
-                                value={item.id}
-                              >
-                                {item.name}
-                              </Option>
-                            ))}
-                        </Select>
+                        <MyStoreSelect placeholder="Chọn kho gửi"/>
                       </Form.Item>
                     </Col>
                     <Col span={12}>
