@@ -16,3 +16,15 @@
         font-size: 52px;
     }
 }
+
+.orderStatus {
+    .inner {
+        height: 100%;
+    }
+    .single {
+        padding: 10px;
+        &:not(:last-child) {
+            border-bottom: 1px solid #ddd;
+        }
+    }
+}
