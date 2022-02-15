@@ -61,7 +61,7 @@ const UpdateTicket: FC = () => {
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
-      
+
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -128,7 +128,7 @@ const UpdateTicket: FC = () => {
     formData.append('storeTransfer',JSON.stringify(data.storeTransfer));
     formData.append('storeReceive',JSON.stringify(data.storeReceive));
     formData.append('note', data.note ? data.note : '');
-    
+
     BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData ).then((res: any) => {
       if (res) {
       setIsLoading(false);
@@ -186,7 +186,7 @@ const UpdateTicket: FC = () => {
                     </div>
                     <div>
                       <span>Bước 3:</span> <span><b>Upload file excel đã điền và xác nhận phiếu chuyển kho.</b></span>
-                    </div> 
+                    </div>
                   </div>
                 </Card>
                 <Card
@@ -210,7 +210,7 @@ const UpdateTicket: FC = () => {
                         ]}
                         labelCol={{ span: 24, offset: 0 }}
                       >
-                        <MyStoreSelect placeholder="Chọn kho gửi"/>
+                        <MyStoreSelect placeholder="Chọn kho gửi" optionFilterProp="children"/>
                       </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -324,7 +324,7 @@ const UpdateTicket: FC = () => {
       </ContentContainer>
       {
         isStatusModalVisible && (
-          <Modal 
+          <Modal
             title="Nhập file"
             visible={isStatusModalVisible}
             centered
@@ -333,7 +333,7 @@ const UpdateTicket: FC = () => {
               <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
                 Huỷ
               </Button>,
-              <Button 
+              <Button
                 disabled={!!dataUploadError}
                 type="primary"
                 onClick={() => {
