@@ -2,6 +2,7 @@ import {BaseObject} from "model/base/base.response";
 import {StoreResponse} from "model/core/store.model";
 
 export interface OrderResponse extends BaseObject {
+  ecommerce_shop_id: null;
   company_id: number | null;
   company: string | null;
   store_id: number | null;
