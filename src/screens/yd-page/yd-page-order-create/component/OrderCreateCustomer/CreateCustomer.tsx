@@ -76,11 +76,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   );
 
   var pattern = new RegExp(RegUtil.PHONE);
-  const initialFormValueCustomer = pattern.test(keySearchCustomer)
-    ? {
-        phone: keySearchCustomer,
-      }
-    : {};
+  const initialFormValueCustomer = pattern.test(keySearchCustomer) ? {
+        ...customerForm.getFieldsValue(), ...new CustomerModel(),
+    phone: keySearchCustomer,
+  } : {...customerForm.getFieldsValue(), ...new CustomerModel()};
 
   //element
   const txtCustomerFullname = document.getElementById("customer_add_full_name");
@@ -127,8 +126,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     setVisibleBtnUpdate(true);
   });
 
-  // console.log("isVisibleBtnUpdate", isVisibleBtnUpdate);
-
   useEffect(() => {
     if (newCustomerInfo && (newCustomerInfo.full_name || newCustomerInfo.phone)) {
       const formValue = {...customerForm.getFieldsValue(), ...newCustomerInfo};
@@ -155,7 +152,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     (result: CustomerResponse) => {
       if (result !== null && result !== undefined) {
         showSuccess("Thêm mới khách hàng thành công");
-        if (isVisibleShipping === false) {
+        if (!isVisibleShipping) {
           shippingFormRef.current?.validateFields();
 
           let district_id =
@@ -209,7 +206,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
                                 let shippingAddressesItem =
                                   data_i.shipping_addresses.find(
-                                    (x) => x.default === true
+                                    (x) => x.default
                                   );
                                 ShippingAddressChange(shippingAddressesItem);
                                 setVisibleBtnUpdate(false);
@@ -320,7 +317,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 },
               ]}
               name="full_name"
-              //label="Tên khách hàng"
             >
               <Input
                 placeholder="Nhập Tên khách hàng"
@@ -388,7 +384,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   </Select>
                 </Form.Item>
               </Col>
-          <Col span={12}>
+          <Col span={24}>
             <Form.Item
               name="district_id"
               //label="Khu vực"
@@ -424,7 +420,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col span={24}>
             <Form.Item
               name="ward_id"
               //label="Phường xã"
@@ -459,9 +455,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               </Select>
             </Form.Item>
           </Col>
-
-          
-
           <Col span={24}>
             <Form.Item name="full_address">
               <Input
@@ -472,7 +465,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           </Col>
         </Row>
 
-        {isVisibleCollapseCustomer === false && (
+        {!isVisibleCollapseCustomer && (
           <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
             <div>
               <Button
@@ -488,7 +481,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             </div>
           </Divider>
         )}
-        {isVisibleCollapseCustomer === true && (
+        {isVisibleCollapseCustomer && (
           <div>
             <Row gutter={24}>
             <Col span={12}>
@@ -600,9 +593,9 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               Thông tin của khách hàng cũng là thông tin giao hàng
             </Checkbox>
           </Col>
-          {isVisibleShipping === true && (
-            <Col md={12} style={{ float: "right", marginTop: "10px" }}>
-              {isVisibleBtnUpdate === true && (
+          {isVisibleShipping && (
+            <Col md={24} style={{ float: "right", marginTop: "10px", width: "100%" }}>
+              {isVisibleBtnUpdate && (
                 <Button
                   type="primary"
                   style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
@@ -622,13 +615,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   CustomerDeleteInfo();
                 }}
               >
-                Hủy
+                Hủy tạo mới khách hàng
               </Button>
             </Col>
           )}
         </Row>
 
-        {isVisibleShipping === false && (
+        {!isVisibleShipping && (
           <Form
             ref={shippingFormRef}
             layout="vertical"
@@ -667,7 +660,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     },
                   ]}
                   name="phone"
-                  //label="Số điện thoại"
                 >
                   <Input
                     placeholder="Nhập số điện thoại"
