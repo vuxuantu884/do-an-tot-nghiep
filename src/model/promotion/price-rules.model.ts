@@ -111,6 +111,7 @@ export interface ProductEntitlements {
   open_quantity: number;
   price_rule_id?: number;
   retail_price?: number;
+  title?: string;
 }
 
 export interface EntilementFormModel {

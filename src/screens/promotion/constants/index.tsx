@@ -343,7 +343,7 @@ export const columnFixedPrice = [
           <Link to={url}>
             {sku}
           </Link>
-          <div>{item.variant_title}</div>
+          <div>{item.title}</div>
         </div>
       );
     },
@@ -425,7 +425,7 @@ export const columnDiscountQuantity = [
           <Link to={url}>
             {sku}
           </Link><br />
-          <div>{item.variant_title}</div>
+          <div>{item.title}</div>
         </div>
       );
     },
