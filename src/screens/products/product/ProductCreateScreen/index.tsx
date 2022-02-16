@@ -729,7 +729,7 @@ const ProductCreateScreen: React.FC = () => {
           title="Thêm mới sản phẩm"
           breadcrumb={[
             {
-              name: "Tổng quan",
+              name: "Sản phẩm",
               path: UrlConfig.HOME,
             },
             {
@@ -787,7 +787,7 @@ const ProductCreateScreen: React.FC = () => {
                           message: "Mã sản phẩm bao gồm 7 kí tự",
                         },
                         {
-                          pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                          pattern: RegUtil.NUMBER_AND_CHARACTER,
                           message: "Mã sản phẩm chỉ gồm chữ và số",
                         },
                       ]}
