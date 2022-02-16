@@ -44,4 +44,35 @@ export const StyledComponent = styled.div`
       }
     }
   }
+
+  .ant-card-head {
+    border-bottom: none;
+  }
+  
+  .orders-timeline .ant-collapse-item {
+    &::before, &::after {
+      display: none;
+    }
+  }
+
+  .ant-collapse-content-box {
+    padding: 0 !important;
+  }
+
+  .btn-payment-method {
+    padding: 0 !important;
+
+    .ant-btn-default.active,
+    .ant-btn-default:focus,
+    .ant-btn-default:hover {
+      color: unset !important;
+      background-color: unset !important;
+      border-color: unset !important;
+    }
+  }
+
+  .hide-number-handle .ant-input-number-input-wrap > input {
+    height: 32px;
+  }
+
 `;

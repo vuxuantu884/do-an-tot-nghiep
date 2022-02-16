@@ -290,7 +290,7 @@
   .container {
     margin-left: 0;
   }
-  .container.collapsed{
+  .container.collapsed {
     margin-left: 0;
   }
   .ant-steps {
@@ -302,12 +302,13 @@
   .ant-card-head {
     padding: 0 !important;
     min-height: 0;
+    border: none;
   }
   .ant-card-head-wrapper {
     display: block !important;
     .ant-card-head-title {
       width: 100%;
-      padding: 6px 0 0 0;
+      padding: 6px 0 0 12px;
     }
     .ant-card-extra {
       width: 100%;
@@ -363,6 +364,11 @@
     flex-direction: row !important;
     margin-bottom: 8px;
   }
+
+  .ant-form-item.form-input-deliver {
+    flex-direction: column !important;
+  }
+
   .ant-form-item-control {
     width: 100%;
     flex: 0 0 70% !important;
@@ -389,16 +395,16 @@
     }
     .ant-space-align-center {
       display: flex;
-      justify-content: space-between;
+      // justify-content: space-between;
       // padding: 0 24px;
     }
     .btn-list-method {
       padding: 0;
       justify-content: space-between;
       .ant-btn {
-        padding: 10px 20px !important;
-        margin-top: 5px;
-        width: 190px;
+        // padding: 10px 20px !important;
+        // margin-top: 5px;
+        // width: 190px;
       }
     }
   }
@@ -471,7 +477,8 @@
     }
   }
   .ant-divider-horizontal {
-    margin: 6px 0;
+    margin: 0;
+    border-top: 1px solid #e5e5e5;
   }
   .customer-bottom-button {
     padding: 0 20px;
@@ -586,9 +593,9 @@
   .create-order-payment {
     .btn-list-method {
       .ant-btn {
-        padding: 10px 20px !important;
-        margin-top: 5px;
-        width: 162px;
+        // padding: 10px 20px !important;
+        // margin-top: 5px;
+        // width: 162px;
       }
     }
   }

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { borderColor, primaryColor } from "utils/global-styles/variables";
+import { primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .saleorder_shipment_method_btn {
@@ -32,16 +32,13 @@ export const StyledComponent = styled.div`
     width: 100%;
   }
   .saleorder_shipment_button {
-    border: 1px solid ${borderColor};
+    border: none;
     padding: 8px 10px;
     border-radius: 3px;
     cursor: pointer;
     flex: 1;
     margin-bottom: -1px;
     transition: border 0.3s ease;
-    &:hover {
-      border: 1px solid ${primaryColor};
-    }
     img {
       margin-right: 8px;
       width: 18px;
@@ -58,8 +55,7 @@ export const StyledComponent = styled.div`
       }
     }
     &.active {
-      border: 1px solid ${primaryColor};
-      border-bottom: none;
+      border-bottom: 2px solid ${primaryColor};
       border-radius: 3px 3px 0 0;
       background-color: white;
       padding-bottom: 10px;
@@ -68,4 +64,10 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .ant-btn-default.active, .ant-btn-default:focus, .ant-btn-default:hover {
+    color: unset !important;
+    background-color: unset !important;
+    border-color: unset !important;
+  }
+
 `;
