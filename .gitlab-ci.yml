@@ -1,0 +1,152 @@
+cache:
+  key: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
+  paths:
+    - .npm/
+
+variables:
+  SERVICE_PATH: /admin
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+
+stages:
+  - docker_build
+  - deploy
+
+docker build dev:
+  stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
+  tags:
+  - builder
+  only:
+    - develop
+  before_script:
+    - unset DOCKER_HOST
+  variables:
+    PREFIX: dev
+    DOCKER_FILE: Dockerfile
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
+docker build uat:
+  stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
+  tags:
+  - builder
+  before_script:
+    - unset DOCKER_HOST
+  only:
+    - uat
+  variables:
+    PREFIX: uat
+    DOCKER_FILE: Dockerfile-uat
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
+docker build production:
+  stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
+  tags:
+  - builder
+  before_script:
+    - unset DOCKER_HOST
+  only:
+    - master
+  variables:
+    PREFIX: prod
+    DOCKER_FILE: Dockerfile-production
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
+
+docker build accountant:
+  stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
+  tags:
+  - builder
+  before_script:
+    - unset DOCKER_HOST
+  only:
+    - master
+  variables:
+    PREFIX: prod
+    DOCKER_FILE: Dockerfile-accountant
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
+deploy to dev:
+  stage: deploy
+  cache: {}
+  tags:
+    - npd-deploy
+  only:
+    - develop
+  variables:
+    PREFIX: dev
+    HOST: dev.unicorn.yody.io
+    NAMESPACE: dev
+    ENVIRONMENT: dev
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/deploy.sh app-admin
+
+deploy to uat:
+  stage: deploy
+  cache: {}
+  when: manual
+  tags:
+    - npd-deploy
+  only:
+    - uat
+  variables:
+    PREFIX: uat
+    HOST: uat.unicorn.yody.io
+    NAMESPACE: uat
+    ENVIRONMENT: uat
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/deploy.sh app-admin
+
+deploy to production:
+  stage: deploy
+  when: manual
+  cache: {}
+  tags:
+    - production
+  only:
+    - master
+  variables:
+    PREFIX: prod
+    HOST: unicorn.yody.io
+    NAMESPACE: production
+    ENVIRONMENT: production
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/deploy.sh app-admin
+
+deploy to accountant:
+  stage: deploy
+  when: manual
+  cache: {}
+  tags:
+    - deploy-accountant
+  only:
+    - accountant
+  variables:
+    PREFIX: prod
+    HOST: unicorn-accountant.yody.io
+    NAMESPACE: production
+    ENVIRONMENT: production
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/deploy.sh app-admin
