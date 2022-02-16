@@ -45,7 +45,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
             rowClassName="product-table-row"
             dataSource={items}
             tableLayout="fixed"
-            scroll={{ y: 250, x: 845 }}
+            scroll={{ y: 250, x: 600 }}
             pagination={false}
             expandable={{
               expandIcon: (props) => {

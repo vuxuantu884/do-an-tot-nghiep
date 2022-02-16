@@ -14,8 +14,8 @@ function DatePromotionColumn({ endDate, startDate }: Props) {
       {startDate && moment(startDate).format(DATE_FORMAT.DDMMYY_HHmm)} -
       <div>
         {endDate ? (
-          <div style={moment().isBefore(endDate) ? { color: Color.red } : {}}>
-            {moment(endDate).format(DATE_FORMAT.DDMMYY_HHmm)}{" "}
+          <div style={moment().isAfter(endDate) ? { color: Color.red } : {}}>
+            {moment(endDate).format(DATE_FORMAT.DDMMYY_HHmm)}
           </div>
         ) : (
           "∞"
