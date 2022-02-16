@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { formatCurrency, handleFetchApiError, isFetchApiSuccessful, replaceFormatString } from "utils/AppUtils";
+import { SHIPPING_TYPE } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -21,8 +22,7 @@ type PropType = {
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   form: FormInstance<any>;
-  setIs4h?:(value:boolean)=>void;
-  is4h?:boolean;
+  thirdPL?: thirdPLModel;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -35,10 +35,10 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     renderButtonCreateActionHtml,
     setThirdPL,
     form,
-    setIs4h,
-    is4h,
+    thirdPL,
   } = props;
 
+  const [is4h, setIs4h] = useState(false);
   const [typeDelivery, setTypeDelivery] = useState('employee');
 
 	const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
@@ -53,6 +53,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
 	const dispatch = useDispatch();
 console.log('storeId', storeId)
 console.log('initYodyAccountData', initYodyAccountData)
+console.log('thirdPL', thirdPL)
 	useEffect(() => {
 		if(!storeId) {
 			return;
@@ -74,6 +75,7 @@ console.log('initYodyAccountData', initYodyAccountData)
 	}, [dispatch, storeId])
 
   const onChange = useCallback((e) => {
+    console.log('e.target.checked', e.target.checked)
     if(setIs4h)setIs4h(e.target.checked);
   }, [setIs4h]);
 
@@ -82,17 +84,7 @@ console.log('initYodyAccountData', initYodyAccountData)
     form?.setFieldsValue({shipper_code: undefined});
   }, [form]);
 
-  useEffect(() => {
-    setThirdPL({
-      delivery_service_provider_code: typeDelivery,
-      delivery_service_provider_id: null,
-      insurance_fee: null,
-      delivery_service_provider_name: "",
-      delivery_transport_type: "",
-      service: is4h ? '4h_delivery' : "",
-      shipping_fee_paid_to_three_pls: null,
-    })
-  }, [is4h, setThirdPL, typeDelivery])
+ 
 
 	useEffect(() => {
     const pushCurrentValueToDataAccount = (fieldName: string) => {
@@ -142,12 +134,31 @@ console.log('initYodyAccountData', initYodyAccountData)
     pushCurrentValueToDataAccount("shipper_code");
   }, [dispatch, form, storeAccountData]);
 
+  useEffect(() => {
+   if(thirdPL?.service === SHIPPING_TYPE.DELIVERY_4H) {
+    setIs4h(true)
+   }
+  }, [thirdPL?.service])
+
+  console.log('is4h', is4h)
+  useEffect(() => {
+    setThirdPL({
+      delivery_service_provider_code: typeDelivery,
+      delivery_service_provider_id: null,
+      insurance_fee: null,
+      delivery_service_provider_name: "",
+      delivery_transport_type: "",
+      service: is4h ? SHIPPING_TYPE.DELIVERY_4H : "",
+      shipping_fee_paid_to_three_pls: thirdPL?.shipping_fee_paid_to_three_pls || null,
+    })
+  }, [is4h, setThirdPL, thirdPL?.shipping_fee_paid_to_three_pls, typeDelivery])
+
 
   return (
     <StyledComponent>
       <div>
         <Row className="options">
-          <Checkbox value={is4h} onChange={onChange} className="shipment4h">Đơn giao 4H</Checkbox>
+          <Checkbox value={is4h} checked={is4h}  onChange={onChange} className="shipment4h">Đơn giao 4H</Checkbox>
           <Radio.Group value={typeDelivery} onChange={onChangeType}>
             <Radio value="employee">Nhân viên YODY</Radio>
             <Radio value="external_shipper">Đối tác khác</Radio>
@@ -253,6 +264,14 @@ console.log('initYodyAccountData', initYodyAccountData)
                 maxLength={15}
                 minLength={0}
                 disabled={levelOrder > 3}
+                onChange={(value) => {
+                  if(thirdPL) {
+                    setThirdPL({
+                      ...thirdPL,
+                      shipping_fee_paid_to_three_pls: value || null,
+                    })
+                  }
+                }}
               />
             </Form.Item>
             <Form.Item

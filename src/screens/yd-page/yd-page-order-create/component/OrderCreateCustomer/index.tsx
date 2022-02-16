@@ -243,7 +243,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     },
     [dispatch, autoCompleteElement, customer]
   );
-
+  console.log(customer)
   useEffect(() => {
     window.addEventListener("keydown", event);
   }, [event]);
@@ -619,8 +619,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           </div>
         )}
       </div>
-      {isVisibleCustomer && (
-        <div>
+      {!customer && isVisibleCustomer && (
           <div style={{ marginTop: "14px" }}>
             {modalAction === CONSTANTS.MODAL_ACTION_TYPE.create && (
               <CreateCustomer
@@ -635,14 +634,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 CustomerDeleteInfo={CustomerDeleteInfo}
               />
             )}
+          </div>
+        )}
 
-            {modalAction === CONSTANTS.MODAL_ACTION_TYPE.edit && customer !== null && (
-              <UpdateCustomer
+      {customer && (
+            <div>
+            <UpdateCustomer
                 levelOrder={levelOrder}
                 areas={areas}
                 wards={wards}
                 groups={groups}
-                customerItem={customer}
+                customer={customer}
                 shippingAddress={shippingAddress}
                 handleChangeArea={handleChangeArea}
                 handleChangeCustomer={handleChangeCustomer}
@@ -651,32 +653,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 ShowAddressModalEdit={ShowAddressModalEdit}
                 showAddressModalDelete={showAddressModalDelete}
                 ShowAddressModalAdd={ShowAddressModalAdd}
-              />
-            )}
-
-            {/* <EditCustomerModal
-                    areas={areas}
-                    wards={wards}
-                    groups={groups}
-                    formItem={customer}
-                    modalAction={modalAction}
-                    isVisibleCollapseCustomer={isVisibleCollapseCustomer}
-                    districtId={districtId}
-                    handleChangeArea={handleChangeArea}
-                    handleChangeCustomer={handleChangeCustomer}
-                    onCancel={CustomerDeleteInfo}
-                    ShowAddressModalAdd={ShowAddressModalAdd}
-                    ShowAddressModalEdit={ShowAddressModalEdit}
-                    showAddressModalDelete={showAddressModalDelete}
-                    setSingleShippingAddress={setSingleShippingAddress}
-                    setVisibleCollapseCustomer={setVisibleCollapseCustomer}
-                    setVisibleBtnUpdate={setVisibleBtnUpdate}
-                    ShippingAddressChange={props.ShippingAddressChange}
-                  /> */}
-          </div>
-        </div>
-      )}
-
+            />
+            </div>
+        )}
       <AddAddressModal
         customer={customer}
         handleChangeCustomer={handleChangeCustomer}

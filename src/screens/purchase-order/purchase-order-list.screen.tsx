@@ -36,13 +36,13 @@ import ExportModal from "screens/purchase-order/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
 import { getPurchaseOrderConfigService } from "service/purchase-order/purchase-order.service";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus, ArrPoStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
-import { PurchaseOrderListContainer } from "./purchase-order-list.style";
- 
+import { PurchaseOrderListContainer } from "./purchase-order-list.style"; 
+
 const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
@@ -183,9 +183,12 @@ const PurchaseOrderListScreen: React.FC = () => {
       {
         title: "Trạng thái đơn",
         width: 150,
-        dataIndex: "status_name",
+        dataIndex: "status",
         render: (value: string, record) => {
           let type = TagStatusType.nomarl;
+          if (!value) {
+            return "";
+          }
           switch (record.status) {
             case POStatus.FINALIZED:
             case POStatus.STORED:
@@ -201,9 +204,9 @@ const PurchaseOrderListScreen: React.FC = () => {
             case POStatus.DRAFT:
               type = TagStatusType.nomarl;
               break;
-          }
+          } 
   
-          return <TagStatus type={type}>{value}</TagStatus>;
+          return <TagStatus type={type}>{ArrPoStatus.find(e=>e.key === value)?.value}</TagStatus>;
         },
         visible: true,
       },
@@ -278,13 +281,9 @@ const PurchaseOrderListScreen: React.FC = () => {
       },
       {
         title: "Tổng SL sp",
-        dataIndex: "total_quantity",
-        render: (value, row: PurchaseOrder) => {
-          let total = 0;
-          row?.line_items.forEach((item) => {
-            total += item?.quantity ? item.quantity : 0;
-          });
-          return <div>{formatCurrency(total,".")}</div>;
+        dataIndex: "planned_quantity",
+        render: (value, row: PurchaseOrder) => { 
+          return <div>{formatCurrency(value,".")}</div>;
         },
         visible: true,
       },

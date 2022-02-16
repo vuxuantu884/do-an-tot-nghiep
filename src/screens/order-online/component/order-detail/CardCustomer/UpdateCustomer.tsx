@@ -37,7 +37,7 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
-import { VietNamId } from "utils/Constants";
+import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 
@@ -263,7 +263,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           ward:customer_ward.name,
           card_number: value.card_number,
           full_address: value.full_address,
-          gender: value.gender,
+          gender: GENDER_OPTIONS.findIndex((p)=>p.value===value.gender)===-1?null:value.gender,
           birthday: value.birthday,
           customer_group_id: value.customer_group_id
         }
@@ -271,6 +271,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       else {
         customerRequest = {
           ...customerItem,
+          gender: GENDER_OPTIONS.findIndex((p)=>p.value===customerItem.gender)===-1?null:customerItem.gender,
           billing_addresses: customerItem.billing_addresses ? customerItem.billing_addresses.map((item: any) => {
             let _item = { ...item };
             _item.is_default = _item.default;

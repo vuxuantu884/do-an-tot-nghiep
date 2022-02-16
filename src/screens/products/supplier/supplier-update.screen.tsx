@@ -14,22 +14,20 @@ import {
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
-import SelectPaging from "component/custom/SelectPaging";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import { AppConfig } from "config/app.config";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   SupplierDetailAction,
-  SupplierUpdateAction,
+  SupplierUpdateAction
 } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   SupplierResponse,
-  SupplierUpdateRequest,
+  SupplierUpdateRequest
 } from "model/core/supplier.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -38,6 +36,8 @@ import { useHistory, useParams } from "react-router";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
+import {getCollectionRequestAction} from "../../../domain/actions/product/collection.action";
+import {CollectionQuery, CollectionResponse} from "../../../model/product/collection.model";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -47,6 +47,8 @@ type SupplierParam = {
 
 const UpdateSupplierScreen: React.FC = () => {
   const { id } = useParams<SupplierParam>();
+  const params: CollectionQuery = useParams() as CollectionQuery;
+
   let idNumber = parseInt(id);
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -76,6 +78,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
+  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
 
   const [type, setType] = useState("personal");
 
@@ -84,14 +87,7 @@ const UpdateSupplierScreen: React.FC = () => {
     acceptPermissions: [SuppliersPermissions.UPDATE],
     not: false,
   });
-  const [accounts, setAccounts] = React.useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: {
-      limit: 20,
-      page: 1,
-      total: 0,
-    },
-  });
+
   //EndState
   //Callback
 
@@ -104,18 +100,27 @@ const UpdateSupplierScreen: React.FC = () => {
     },
     [formRef]
   );
-  const onUpdateSuccess = useCallback(() => {
-    setLoading(false);
+
+  const onUpdateSuccess = (response: SupplierResponse|false) => {
+    if(response){
     history.push(`${UrlConfig.SUPPLIERS}/${id}}`);
     showSuccess("Sửa nhà cung cấp thành công");
-  }, [history, id]);
-  const onFinish = useCallback(
-    (values: SupplierUpdateRequest) => {
-      setLoading(true);
-      dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
-    },
-    [dispatch, idNumber, onUpdateSuccess]
-  );
+    }
+    setLoading(false);
+  };
+
+  const onGetSuccess = (results: PageResponse<CollectionResponse>) => {
+    if (results && results.items) {
+      setGroupProducts(results);
+    }
+  }
+
+  const onFinish = (values: SupplierUpdateRequest) => {
+    const newValues = {...values, phone: values.phone || supplier?.phone || ''}
+    setLoading(true);
+    dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
+    dispatch(SupplierUpdateAction(idNumber, newValues, onUpdateSuccess))
+  }
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -158,25 +163,13 @@ const UpdateSupplierScreen: React.FC = () => {
     }
   };
 
-  const getAccounts = useCallback((search: string, page: number) => {
-    dispatch(
-      AccountSearchAction(
-        { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page },
-        (response: PageResponse<AccountResponse> | false) => {
-          if (response) {
-            setAccounts(response);
-          }
-        }
-      )
-    );
-  }, [dispatch])
-
   //end memo
   useEffect(() => {
     if (isFirstLoad.current) {
       setLoadingData(true);
       if (!Number.isNaN(idNumber)) {
         dispatch(SupplierDetailAction(idNumber, setSupplierDetail));
+        dispatch(getCollectionRequestAction(params, onGetSuccess))
       }
     }
     isFirstLoad.current = false;
@@ -315,33 +308,16 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={12}>
                     <Form.Item
-                      label="Nhân viên phụ trách"
+                      label="Merchandiser"
                       rules={[
                         {
                           required: true,
-                          message: "Vui lòng chọn nhân viên phụ trách",
+                          message: "Vui lòng chọn Merchandiser",
                         },
                       ]}
                       name="pic_code"
                     >
-                      <SelectPaging
-                        allowClear
-                        placeholder="Nhân viên phụ trách"
-                        searchPlaceholder={"Tìm kiếm nhân viên phụ trách"}
-                        metadata={accounts.metadata}
-                        onPageChange={(key, page) => {
-                          getAccounts(key, page);
-                        }}
-                        onSearch={(key) => {
-                          getAccounts(key, 1);
-                        }}
-                      >
-                        {accounts.items.map((value, index) => (
-                          <SelectPaging.Option key={value.id} value={value.code}>
-                            {value.code + " - " + value.full_name}
-                          </SelectPaging.Option>
-                        ))}
-                      </SelectPaging>
+                    <AccountSearchPaging placeholder="Chọn Merchandiser" />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
@@ -362,6 +338,41 @@ const UpdateSupplierScreen: React.FC = () => {
                       <Input placeholder="Nhập mã số thuế" maxLength={13} />
                     </Item>
                   </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Số điện thoại"
+                      rules={[
+                        {
+                          pattern: RegUtil.PHONE,
+                          message: 'Số điện thoại không đúng định dạng'
+                        },
+                        {
+                          required: true,
+                          message: "Vui lòng nhập số điện thoại",
+                        },
+                      ]}
+                      name="phone"
+                    >
+                      <Input placeholder="Nhập tên nhà cung cấp" maxLength={255} />
+                    </Form.Item>
+                  </Col>
+                  {/*TODO: Waiting response api*/}
+                  {/*<Col span={12}>*/}
+                  {/*  <Item*/}
+                  {/*    name="group_product"*/}
+                  {/*    label="Nhóm hàng"*/}
+                  {/*  >*/}
+                  {/*    <Select allowClear placeholder="Chọn nhóm hàng">*/}
+                  {/*      {groupProducts && groupProducts?.items.map((item) => (*/}
+                  {/*        <Option key={item.id} value={item.id}>*/}
+                  {/*          {item.name}*/}
+                  {/*        </Option>*/}
+                  {/*      ))}*/}
+                  {/*    </Select>*/}
+                  {/*  </Item>*/}
+                  {/*</Col>*/}
                 </Row>
               </Card>
               <Card title="Chi tiết nhà cung cấp">

@@ -94,6 +94,7 @@ const product: Array<RouteMenu> = [
       ProductPermission.read_variant,
       ProductPermission.read_histories,
     ],
+    activeLink: [UrlConfig.PRODUCT, `${UrlConfig.PRODUCT}/history-prices`, `${UrlConfig.PRODUCT}/histories`],
     subMenu: [
       {
         path: `${UrlConfig.PRODUCT}/create`,

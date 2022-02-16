@@ -3,9 +3,6 @@ import { bluePlus } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
-  .card {
-    margin-top: 20px;
-  }
   .extra-cards {
     width: 150px;
     display: flex;

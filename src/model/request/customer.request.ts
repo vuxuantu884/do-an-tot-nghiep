@@ -197,7 +197,7 @@ export class CustomerModel implements CustomerRequest {
   card_number = "";
   phone = "";
   email = "";
-  gender = null;
+  gender = "other";
   birthday = "";
   website = "";
   wedding_date = "";

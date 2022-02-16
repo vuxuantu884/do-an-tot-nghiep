@@ -13,7 +13,8 @@ export interface RouteMenu {
   pathIgnore?: Array<string>;
   component: React.ReactNode;
   showMenuThird?: boolean;
-  permissions?: Array<string>
+  permissions?: Array<string>;
+  activeLink?: Array<string>;
 }
 export interface FilterConfigRequest extends BaseObject{
   json_content: string,

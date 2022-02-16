@@ -23,6 +23,16 @@ export const OrderStatus = {
   EXPIRED: "expired",
 };
 
+export const ArrPoStatus = [
+  {key: "draft", value: "Nháp"},
+  {key: "finalized", value: "Đã xác nhận"},
+  {key: "draftpo", value: "Phiếu nháp"},
+  {key: "stored", value: "Đã nhập kho"},
+  {key: "completed", value: "Đã hoàn thành"},
+  {key: "finished", value: "Đã kết thúc"}, 
+  {key: "cancelled", value: "Đã hủy"}
+]
+
 export const TaxTreatment = {
   INCLUSIVE: "inclusive",
   EXCLUSIVE: "exclusive",

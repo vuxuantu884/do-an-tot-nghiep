@@ -3,8 +3,9 @@ import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { convertActionLogDetailToText, safeContent } from "utils/AppUtils";
+import { convertActionLogDetailToText } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
+import purify from "dompurify";
 
 type PropType = {
   isModalVisible: boolean;
@@ -32,7 +33,7 @@ function ActionHistoryModal(props: PropType) {
       <div
         className="orderDetails"
         dangerouslySetInnerHTML={{
-          __html: safeContent(value),
+          __html: purify.sanitize(value),
         }}
       ></div>
     );

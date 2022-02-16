@@ -2,35 +2,30 @@ import { Button, Card, Col, Form, Input, Radio, Row, Select, Space, Switch } fro
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
-import SelectPaging from "component/custom/SelectPaging";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import CustomSelect from "component/custom/select.custom";
 import { AppConfig } from "config/app.config";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction,
+  DistrictGetByCountryAction
 } from "domain/actions/content/content.action";
 import { SupplierCreateAction, SupplierSearchAction } from "domain/actions/core/supplier.action";
+import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { SupplierCreateRequest, SupplierResponse } from "model/core/supplier.model";
 import { CollectionQuery, CollectionResponse } from "model/product/collection.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
-import { getCollectionRequestAction } from "domain/actions/product/collection.action";
-import CustomSelect from "component/custom/select.custom";
-import _ from 'lodash';
-import { searchAccountApi } from "service/accounts/account.service";
-import { callApiNative } from "utils/ApiUtils";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -111,15 +106,6 @@ const CreateSupplierScreen: React.FC = () => {
   //   (state: RootReducerType) => state.userReducer?.account
   // );
 
-  const [accounts, setAccounts] = React.useState<PageResponse<AccountResponse>>({
-    items: [],
-    metadata: {
-      limit: 20,
-      page: 1,
-      total: 0,
-    },
-  });
-
   //State
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
@@ -138,6 +124,7 @@ const CreateSupplierScreen: React.FC = () => {
     items: [],
   });
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const params: CollectionQuery = useParams() as CollectionQuery;
 
@@ -172,6 +159,7 @@ const CreateSupplierScreen: React.FC = () => {
 
   const onCreateSuccess = useCallback(
     (data) => {
+      setIsSubmitting(false);
       if (!data) return;
 
       history.push(`${UrlConfig.SUPPLIERS}`);
@@ -180,6 +168,7 @@ const CreateSupplierScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
+      setIsSubmitting(true);
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
@@ -196,14 +185,7 @@ const CreateSupplierScreen: React.FC = () => {
     }
     return "";
   }, [status, supplier_status]);
-  const getAccounts = useCallback(
-    async (search: string, page: number) => {
-      const response: PageResponse<AccountResponse> 
-      = await callApiNative({isShowLoading:false}, dispatch, searchAccountApi, { info: search, department_ids: [AppConfig.WIN_DEPARTMENT], page: page });
-      setAccounts(response || { items: [], metadata: {}});
-    },
-    [dispatch]
-  );
+
   //end memo
 
   const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
@@ -245,8 +227,7 @@ const CreateSupplierScreen: React.FC = () => {
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
-    getAccounts("", 1);
-  }, [dispatch, getAccounts, setListDistrict]);
+  }, [dispatch, setListDistrict]);
   useEffect(() => {
     if (formSupplier && date_unit) {
       formSupplier.setFieldsValue({
@@ -368,33 +349,16 @@ const CreateSupplierScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={12}>
                   <Form.Item
-                    label="Nhân viên phụ trách"
+                    label="Merchandiser"
                     rules={[
                       {
                         required: true,
-                        message: "Vui lòng chọn nhân viên phụ trách",
+                        message: "Vui lòng chọn Merchandiser",
                       },
                     ]}
                     name="pic_code"
                   >
-                    <SelectPaging
-                      allowClear
-                      placeholder="Nhân viên phụ trách"
-                      searchPlaceholder={"Tìm kiếm nhân viên phụ trách"}
-                      metadata={accounts.metadata}
-                      onPageChange={(key, page) => {
-                        getAccounts(key, page);
-                      }}
-                      onSearch={_.debounce((key) => {
-                        getAccounts(key, 1);
-                      }, 300)}
-                    >
-                      {accounts.items.map((value, index) => (
-                        <SelectPaging.Option key={value.id} value={value.code}>
-                          {value.code + " - " + value.full_name}
-                        </SelectPaging.Option>
-                      ))}
-                    </SelectPaging>
+                    <AccountSearchPaging placeholder="Chọn Merchandiser" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -629,9 +593,8 @@ const CreateSupplierScreen: React.FC = () => {
                           <Col span={24}>
                             <Item
                               name={[name, "phone"]}
-                              label="Số điện thoại"
+                              label="SĐT người liên hệ"
                               rules={[
-                                { required: true, message: "Vui lòng nhập số điện thoại" },
                                 {
                                   validator: validatePhone,
                                 }
@@ -729,7 +692,7 @@ const CreateSupplierScreen: React.FC = () => {
           back="Quay lại danh sách"
           rightComponent={
             allowCreateSup && (
-              <Button htmlType="submit" type="primary">
+              <Button htmlType="submit" type="primary" loading={isSubmitting}>
                 Tạo nhà cung cấp
               </Button>
             )

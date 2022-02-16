@@ -11,6 +11,7 @@ import {
   RequestSyncStockQuery,
 } from "model/query/ecommerce.query";
 import {PageResponse} from "model/base/base-metadata.response";
+import {EcommerceStoreAddress} from "../../../model/ecommerce/ecommerce.model";
 
 export const addFpagePhone = (
   userId: string,
@@ -208,6 +209,26 @@ export const exitProgressDownloadEcommerceAction = (
   }
   return BaseAction(EcommerceType.EXIT_PROGRESS_DOWNLOAD_ECOMMERCE, {
     query,
+    callback
+  });
+};
+
+export const getEcommerceStoreAddress = (
+    query: any,
+    callback: (data: Array<EcommerceStoreAddress>) => void
+) => {
+  return BaseAction(EcommerceType.GET_ECOMMERCE_STORE_ADDRESS, {
+    query,
+    callback
+  });
+};
+
+export const createEcommerceLogistic = (
+    request: any,
+    callback: (data: any) => void
+) => {
+  return BaseAction(EcommerceType.CREATE_ECOMMERCE_LOGISTIC, {
+    request,
     callback
   });
 };

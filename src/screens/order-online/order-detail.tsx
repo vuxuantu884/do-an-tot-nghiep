@@ -67,6 +67,9 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
+import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
+import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
+import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -118,6 +121,7 @@ const OrderDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
+  const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
   const [reasons, setReasons] = useState<
     Array<{id: number; name: string; sub_reasons: any[]}>
   >([]);
@@ -361,6 +365,26 @@ const OrderDetail = (props: PropType) => {
     [OrderId, dispatch]
   );
 
+  const handleConfirmToEcommerce = () => {
+
+  }
+
+  const cancelPrepareGoodsModal = () => {
+    setVisibleLogisticConfirmModal(false);
+  }
+
+  const [ecommerceStoreAddress, setEcommerceStoreAddress] = useState<Array<EcommerceStoreAddress>>([]);
+
+  const handleEcommerceStoreAddress = useCallback(() => {
+    if(OrderDetail){
+      const ecommerceAddressQuery: EcommerceAddressQuery = {
+        order_sn: OrderDetail.reference_code,
+        shop_id: OrderDetail.ecommerce_shop_id,
+      }
+      dispatch(getEcommerceStoreAddress(ecommerceAddressQuery, setEcommerceStoreAddress));
+    }
+  }, [OrderDetail, dispatch])
+
   const orderActionsClick = useCallback(
     (type) => {
       switch (type) {
@@ -388,12 +412,16 @@ const OrderDetail = (props: PropType) => {
           const queryParam = generateQuery(params);
           const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewOrderUrl);
-          break;  
+          break;
+        case "confirm":
+          handleEcommerceStoreAddress();
+          setVisibleLogisticConfirmModal(true);
+          break;
         default:
           break;
       }
     },
-    [OrderDetail?.id, history, id]
+    [OrderDetail?.id, handleEcommerceStoreAddress, history, id]
   );
 
   /**
@@ -602,7 +630,8 @@ const OrderDetail = (props: PropType) => {
           path: `${UrlConfig.HOME}`,
         },
         {
-          name: "Đơn hàng",
+          name: "Danh sách đơn hàng",
+          path: `${UrlConfig.ORDER}`,
         },
         {
           name: OrderDetail?.code
@@ -1095,6 +1124,13 @@ const OrderDetail = (props: PropType) => {
           handleCancelOrder(reason_id, sub_reason_id, reason)
         }
         reasons={reasons}
+      />
+      <LogisticConfirmModal
+          visible={visibleLogisticConfirmModal}
+          ecommerceStoreAddress={ecommerceStoreAddress}
+          onOk={handleConfirmToEcommerce}
+          onCancel={cancelPrepareGoodsModal}
+          OrderDetail={OrderDetail}
       />
     </ContentContainer>
   );

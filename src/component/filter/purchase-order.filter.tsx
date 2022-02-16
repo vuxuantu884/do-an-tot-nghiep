@@ -11,6 +11,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
+import TreeStore from "component/tree-node/tree-store";
 import { AppConfig } from "config/app.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { createConfigPoAction, deleteConfigPoAction, getConfigPoAction, updateConfigPoAction } from "domain/actions/po/po.action";
@@ -290,24 +291,25 @@ const AdvanceFormItems = ({
             break;
           case filterFields.expected_store:
             collapseChildren = (
-              <CustomSelect
-                showArrow
-                placeholder="Kho nhận hàng dự kiến"
-                style={{
-                  width: "100%",
-                }}
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                mode="multiple"
-                allowClear
-                maxTagCount="responsive"
-              >
-                {listStore?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.name}>
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+              // <CustomSelect
+              //   showArrow
+              //   placeholder="Kho nhận hàng dự kiến"
+              //   style={{
+              //     width: "100%",
+              //   }}
+              //   tagRender={tagRender}
+              //   notFoundContent="Không tìm thấy kết quả"
+              //   mode="multiple"
+              //   allowClear
+              //   maxTagCount="responsive"
+              // >
+              //   {listStore?.map((item) => (
+              //     <CustomSelect.Option key={item.id} value={item.name}>
+              //       {item.name}
+              //     </CustomSelect.Option>
+              //   ))}
+              // </CustomSelect>
+              <TreeStore listStore={listStore} placeholder="Kho nhận hàng dự kiến"/>
             );
             break;
           case filterFields.note:

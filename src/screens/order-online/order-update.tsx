@@ -2062,6 +2062,18 @@ ShippingServiceConfigDetailResponseModel[]
 																						</Col>
 																					</Row>
 																				</Col>
+																				<Col md={12}>
+																					<Row gutter={30}>
+																						<Col span={10}>
+																							<p className="text-field">Loại đơn giao hàng:</p>
+																						</Col>
+																						<Col span={14}>
+																							<b className="text-field" style={{ color: fulfillment.shipment?.service === '4h_delivery' ? '#E24343' : '' }}>
+																								{fulfillment.shipment?.service === '4h_delivery' ? 'Đơn giao 4H' : 'Đơn giao bình thường'}
+																							</b>
+																						</Col>
+																					</Row>
+																				</Col>
 
 																				{CheckShipmentType(OrderDetail!) ===
 																					"external_service" && (
@@ -2394,6 +2406,7 @@ ShippingServiceConfigDetailResponseModel[]
 										listOrderSubStatus={listOrderSubStatus}
 										form={form}
 										storeId={storeId}
+										orderDetail={OrderDetail}
 									/>
 								</Col>
 							</Row>

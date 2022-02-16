@@ -24,9 +24,6 @@ const defaultSelectProps: SelectProps<any> = {
 };
 
 SelectSearch.defaultProps = {
-  fixedQuery: {
-    condition: "",
-  },
   key: "code",
 };
 
@@ -70,7 +67,7 @@ function SelectSearch(contentProps: SelectContentProps) {
         searchAccountPublicApi,
         { ...fixedQuery, page: 1, limit: 30 }
       );
-      setDefaultOptons(response.items);
+      setDefaultOptons(response?.items);
       setData(response);
     };
     getDefaultOptions();
@@ -145,9 +142,9 @@ function SelectSearch(contentProps: SelectContentProps) {
 }
 
 const AccountSearchPaging = React.memo(SelectSearch, (prev, next) => {
-  const { value } = prev;
-  const { value: nextValue } = next;
-  return value === nextValue;
+  const { fixedQuery } = prev;
+  const { fixedQuery: nextQuery } = next;
+  return _.isEqual(fixedQuery, nextQuery);
 });
 
 export default AccountSearchPaging;

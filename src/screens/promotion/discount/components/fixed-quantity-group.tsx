@@ -519,7 +519,7 @@ const FixedAndQuantityGroup = (props: Props) => {
             {
               title: "Sản phẩm",
               className: "ant-col-info",
-              dataIndex: "variant_title",
+              dataIndex: "title",
               align: "left",
               render: (title: string, item, index: number) => {
                 return (

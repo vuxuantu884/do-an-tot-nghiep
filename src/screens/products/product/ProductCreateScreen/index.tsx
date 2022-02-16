@@ -503,7 +503,7 @@ const ProductCreateScreen: React.FC = () => {
       if (values.saleable) {
         variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
       }
-      setLoadingSaveButton(false);
+      setLoadingSaveButton(true);
 
       let request = Products.convertProductViewToRequest({
         ...values,
@@ -733,7 +733,7 @@ const ProductCreateScreen: React.FC = () => {
               path: UrlConfig.HOME,
             },
             {
-              name: "Sản phẩm",
+              name: "Quản lý sản phẩm",
               path: `${UrlConfig.VARIANTS}`,
             },
             {
@@ -787,7 +787,7 @@ const ProductCreateScreen: React.FC = () => {
                           message: "Mã sản phẩm bao gồm 7 kí tự",
                         },
                         {
-                          pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                          pattern: RegUtil.NUMBER_AND_CHARACTER,
                           message: "Mã sản phẩm chỉ gồm chữ và số",
                         },
                       ]}
@@ -847,6 +847,11 @@ const ProductCreateScreen: React.FC = () => {
                           message:
                             "Tên sản phẩm không báo gồm kí tự đặc biệt",
                         },
+                        {
+                          max: 255,
+                          message:
+                            "Tên sản phẩm không vượt quá 255 ký tự",
+                        },
                       ]}
                       tooltip={{
                         title:
@@ -858,7 +863,7 @@ const ProductCreateScreen: React.FC = () => {
                     >
                       <Input
                         onChange={onNameChange}
-                        maxLength={120}
+                        maxLength={255}
                         placeholder="Nhập tên sản phẩm"
                       />
                     </Item>

@@ -6,6 +6,7 @@ import {
   grayE5Color,
   grayF5Color,
   primaryColor,
+  primaryColorHover,
   secondaryColor,
   textBodyColor,
 } from "./variables";
@@ -61,8 +62,8 @@ export const globalCssCustomButton = css`
       justify-content: center;
       &:hover,
       &:focus {
-        background: linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
-          ${primaryColor};
+        background-color: ${primaryColorHover};
+        border-color: ${primaryColorHover};
         color: white;
       }
     }
