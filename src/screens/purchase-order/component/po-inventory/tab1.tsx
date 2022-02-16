@@ -71,7 +71,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
               rowClassName="product-table-row"
               dataSource={new_line_items}
               tableLayout="fixed"
-              scroll={{ y: 250, x: 845 }}
+              scroll={{ y: 250, x: 600 }}
               pagination={false}
               columns={[
                 {
@@ -222,7 +222,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                     justifyContent: "flex-end",
                   }}
                 >
-                  <AuthWrapper 
+                  <AuthWrapper
                         acceptPermissions={[PurchaseOrderPermission.procurements_finish]}
                       >
                   <Button

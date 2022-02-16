@@ -102,7 +102,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                 rowClassName="product-table-row"
                 dataSource={line_items}
                 tableLayout="fixed"
-                scroll={{ y: 250, x: 845 }}
+                scroll={{ y: 250, x: 600 }}
                 pagination={false}
                 columns={[
                   {
@@ -163,7 +163,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         </div>
                       </div>
                     ),
-                    width: 120,
+                    width: 100,
                     dataIndex: POProcumentLineItemField.ordered_quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
@@ -184,7 +184,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     ),
                     width: 100,
                     dataIndex: POProcumentLineItemField.accepted_quantity,
-                    render: (value, item, index) =>{ 
+                    render: (value, item, index) =>{
                       return (
                       <div style={{ textAlign: "right" }}>
                         {value ? formatCurrency(value,".") : 0}
