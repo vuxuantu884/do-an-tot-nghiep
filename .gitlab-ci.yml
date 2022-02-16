@@ -73,7 +73,7 @@ docker build accountant:
   only:
     - accountant
   variables:
-    PREFIX: prod
+    PREFIX: accountant
     DOCKER_FILE: Dockerfile-accountant
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
