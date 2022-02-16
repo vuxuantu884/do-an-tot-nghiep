@@ -28,7 +28,7 @@ import {
   importCustomerService,
 } from "service/customer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
-import { showError } from "utils/ToastUtils";
+import {showError} from "utils/ToastUtils";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { isFetchApiSuccessful } from "utils/AppUtils";
 import { fetchApiErrorAction } from "domain/actions/app.action";
@@ -577,18 +577,11 @@ function* importCustomerSaga(action: YodyAction) {
   yield put(showLoading());
   try {
     const response: BaseResponse<any> = yield call(importCustomerService, file);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        callback(response);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        callback(null);
-        yield put(unauthorizedAction());
-        break;
-      default:
-        callback(null);
-        response.errors.forEach((e) => showError(e));
-        break;
+    if (response.code) {
+      callback(response);
+    } else {
+      callback(null);
+      yield put(unauthorizedAction());
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
