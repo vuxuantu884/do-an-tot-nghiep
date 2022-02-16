@@ -110,7 +110,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
               rowClassName="product-table-row"
               dataSource={listItems}
               tableLayout="fixed"
-              scroll={{ y: 250, x: 845 }}
+              scroll={{ y: 250, x: 600 }}
               pagination={false}
               columns={[
                 {

@@ -37,6 +37,7 @@ import { AppConfig } from "config/app.config";
 export type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
   isEdit: boolean;
+  isDetail?: boolean;
   visible: boolean;
   now: Moment;
   stores: Array<StoreResponse>;
@@ -81,6 +82,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     item,
     type,
     isEdit,
+    isDetail,
     isConfirmModal,
   } = props;
   const [form] = Form.useForm();
@@ -299,6 +301,18 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     else if (type === "inventory") prefix = "phiếu nhập kho";
     return `Bạn chắc chắn huỷ ${prefix} ${item?.code}?`;
   }, [type, item]);
+
+  const submit = () => {
+    if (type === "confirm" && !isEdit) {
+      //duyet
+      form.setFieldsValue({ status: ProcumentStatus.NOT_RECEIVED });
+    } else if (type === "inventory" && !isEdit) {
+      //nhap kho
+      form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
+    }
+    form.submit();
+  };
+
   return (
     <Fragment>
       <Modal
@@ -328,23 +342,19 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         </Row>
       </Modal>
       <Modal
+        footer={!isDetail ? [
+          <Button loading={loading} onClick={onCancle}>
+            {cancelText}
+          </Button>,
+          <Button type="primary" loading={loading} onClick={submit}>
+            {okText}
+          </Button>,
+        ] : null}
         onCancel={onCancle}
         width={920}
         visible={visible}
-        cancelText={cancelText}
-        onOk={() => {
-          if (type === "confirm" && !isEdit) {
-            //duyet
-            form.setFieldsValue({ status: ProcumentStatus.NOT_RECEIVED });
-          } else if (type === "inventory" && !isEdit) {
-            //nhap kho
-            form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
-          }
-          form.submit();
-        }}
         confirmLoading={loading}
         title={titleTabModal}
-        okText={okText}
       >
         <PurchaseOrderDraft>
           {
@@ -356,7 +366,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                 renderTabBar={RenderTabBar}
               >
                 <TabPane tab="Tồn kho" key={PurchaseOrderTabUrl.INVENTORY}>
-                  {item && (
+                  {item && !isDetail && (
                     <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
                       <Button
                         type="default"

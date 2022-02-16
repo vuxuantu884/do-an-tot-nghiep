@@ -55,13 +55,14 @@ import { ProcurementListWarning } from "../../components/ProcumentListWarning";
 
 const ACTIONS_INDEX = {
   CONFIRM_MULTI: 1,
-}; 
- 
+};
+
 const TabList: React.FC = () => {
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const dispatch = useDispatch();
   const history = useHistory();
   const [loading, setLoading] = useState(true);
+  const [isDetail, setIsDetail] = useState(false);
   const [poId, setPOId] = useState(0);
   const [loadingData, setLoadingData] = useState(false);
   const [loadingRecive, setLoadingRecive] = useState(false);
@@ -99,15 +100,15 @@ const TabList: React.FC = () => {
    },[]);
 
   const checkConfirmProcurement = useCallback(()=>{
-    let pass = true; 
+    let pass = true;
     let listProcurementCode = "";
-    
+
     for (let index = 0; index < selected.length; index++) {
       const element = selected[index];
       if (element.status !== ProcumentStatus.NOT_RECEIVED) {
         listProcurementCode +=`${element.code},`;
         pass = false;
-      } 
+      }
     }
     if (!pass) {
       setContentWarning(()=>ProcurementListWarning(listProcurementCode));
@@ -132,7 +133,7 @@ const TabList: React.FC = () => {
     }
     setListProcurement(selected);
     setShowConfirm(true);
-  },[selected]); 
+  },[selected]);
 
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
@@ -142,7 +143,7 @@ const TabList: React.FC = () => {
       default:
         break;
     }
-  }, [checkConfirmProcurement]); 
+  }, [checkConfirmProcurement]);
 
   const ActionComponent = useCallback(()=>{
       let Compoment = () => <span>Mã phiếu nhập kho</span>;
@@ -165,17 +166,13 @@ const TabList: React.FC = () => {
         width: 150,
         visible: true,
         render: (value, record, index) => {
-          return !record?.is_cancelled &&
-            (record?.status === ProcumentStatus.DRAFT ||
-              record?.status === ProcumentStatus.NOT_RECEIVED) ? (
+          return (
             <div
               className="procurement-code"
               onClick={() => handleClickProcurement(record)}>
               {value}
             </div>
-          ) : (
-            <div> {value}</div>
-          );
+          )
         },
       },
       {
@@ -347,7 +344,7 @@ const TabList: React.FC = () => {
   >(defaultColumns);
 
   useEffect(() => {
-    setColumns(defaultColumns); 
+    setColumns(defaultColumns);
   }, [selected, defaultColumns]);
 
   const columnFinal = useMemo(()=>
@@ -433,7 +430,7 @@ const TabList: React.FC = () => {
     (result) => {
       if (result !== null) {
         showSuccess("Huỷ phiếu nháp thành công");
-        setVisibleDaft(false); 
+        setVisibleDaft(false);
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
@@ -486,7 +483,7 @@ const TabList: React.FC = () => {
       setLoadingConfirm(false);
       if (value !== null) {
         showSuccess("Xác nhận nhập kho thành công");
-        setLoadingRecive(false); 
+        setLoadingRecive(false);
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
@@ -499,7 +496,7 @@ const TabList: React.FC = () => {
       if (value !== null) {
         showSuccess("Xác nhận nhập kho thành công");
         setShowConfirm(false);
-        setLoadingRecive(false); 
+        setLoadingRecive(false);
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
@@ -524,13 +521,13 @@ const TabList: React.FC = () => {
   );
 
   const onReciveMultiProcument = useCallback(
-   async (value: Array<PurchaseProcumentLineItem>) => { 
+   async (value: Array<PurchaseProcumentLineItem>) => {
       if (listProcurement) {
         const PrucurementConfirm = {
           procurement_items: value,
           refer_ids: listProcurement.map(e=>e.id)
         } as ProcurementConfirm;
-        const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm); 
+        const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm);
         if (res) {
           onReciveMuiltiProcumentCallback(true);
         }
@@ -543,12 +540,21 @@ const TabList: React.FC = () => {
 
   const handleClickProcurement = (record: PurchaseProcument | any) => {
     const { status = "", expect_store_id = 144, code } = record;
-    if (status === ProcumentStatus.DRAFT) {
-      setVisibleDaft(true);
-      setItem(record);
-    } else if (status === ProcumentStatus.NOT_RECEIVED) {
-      setProcumentInventory(record);
-      setVisibleConfirm(true);
+    switch (status) {
+      case ProcumentStatus.DRAFT:
+        setVisibleDaft(true);
+        setItem(record);
+        break;
+      case ProcumentStatus.NOT_RECEIVED:
+        setProcumentInventory(record);
+        setVisibleConfirm(true);
+        setIsDetail(false);
+        break;
+      default:
+        setProcumentInventory(record);
+        setVisibleConfirm(true);
+        setIsDetail(true);
+        break;
     }
     setProcumentCode(code);
     setPOId((prevPOId) => {
@@ -557,7 +563,7 @@ const TabList: React.FC = () => {
       }
     });
     setStoreExpect(expect_store_id);
-  }; 
+  };
 
   const onSelectedChange = useCallback(
     (selectedRow: Array<PurchaseProcument>) => {
@@ -604,7 +610,7 @@ const TabList: React.FC = () => {
          return  <>
             <Link target="_blank" to={`${UrlConfig.PURCHASE_ORDERS}/${e.purchase_order.id}`}>
               {e.code}
-            </Link>{i === (listProcurement.length  - 1) ? "": ", "} 
+            </Link>{i === (listProcurement.length  - 1) ? "": ", "}
          </>
       })}
     </>
@@ -614,7 +620,7 @@ const TabList: React.FC = () => {
     <StyledComponent>
       <div className="margin-top-20">
         <TabListFilter onClickOpen={() => setShowSettingColumn(true)} />
-        <CustomTable 
+        <CustomTable
           isRowSelection
           selectedRowKey={selected.map(e=>e.id)}
           isLoading={loading}
@@ -663,7 +669,7 @@ const TabList: React.FC = () => {
           data={columns}
         />
         {/* Xác nhận nhập */}
-        <ProducmentInventoryMultiModal 
+        <ProducmentInventoryMultiModal
           title={titleMultiConfirm}
           visible={showConfirm}
           listProcurement={listProcurement}
@@ -676,7 +682,9 @@ const TabList: React.FC = () => {
           }}
         />
 
+        {/* Xác nhận nhập và Chi tiết phiếu nhập kho */}
         <ProcumentInventoryModal
+          isDetail={isDetail}
           loadDetail={loadDetail}
           isEdit={false}
           items={[]}
@@ -690,22 +698,22 @@ const TabList: React.FC = () => {
           onDelete={onDeleteProcument}
           loading={loadingRecive}
           defaultStore={storeExpect}
-          procumentCode={procumentCode}    
+          procumentCode={procumentCode}
           onCancel={() => {
             setVisibleConfirm(false);
           }}
         />
 
-          <ModalConfirm 
+          <ModalConfirm
               onCancel={(()=>{
                 setShowWarConfirm(false);
               })}
               onOk={()=>{
                 setSelected([]);
-                setShowWarConfirm(false); 
+                setShowWarConfirm(false);
               }}
               okText="Chọn lại"
-              cancelText="Hủy" 
+              cancelText="Hủy"
               title={`Nhận hàng từ nhiều phiếu nhập kho`}
               subTitle={contentWarning}
               visible={showWarConfirm}

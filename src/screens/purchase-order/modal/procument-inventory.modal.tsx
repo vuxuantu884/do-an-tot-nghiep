@@ -23,11 +23,13 @@ import {
 } from "domain/actions/po/po.action";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import { ProcurementStatusName } from "../../../utils/Constants";
 
 type ProducmentInventoryModalProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
   visible: boolean;
   isEdit: boolean;
+  isDetail?: boolean;
   now: Moment;
   stores: Array<StoreResponse>;
   poData?: PurchaseOrder | undefined;
@@ -57,14 +59,15 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     items,
     stores,
     poData,
-    isEdit
+    isEdit,
+    isDetail
   } = props;
 
   type PurchaseOrderParam = {
     id: string;
   };
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
-  
+
   const [itemProcument, setItemProcument] = useState<PurchaseProcument | null>(item);
   const dispatch = useDispatch();
   const { id } = useParams<PurchaseOrderParam>();
@@ -83,15 +86,15 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
       let data = result.procurements.find(e=>e.id === item?.id);
       setItemProcument(data ?? null);
     }
-    
+
   },[item]);
 
   const ActionImport= {
-    Ok: useCallback((res)=>{ 
+    Ok: useCallback((res)=>{
       if (idNumber) {
         dispatch(PoDetailAction(idNumber, onDetail));
       }
-      
+
     },[idNumber, dispatch, onDetail]),
     Cancel: useCallback(()=>{
       setShowImportModal(false);
@@ -102,6 +105,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     return (
       <>
       <ProcumentCommonModal
+        isDetail={isDetail}
         type="inventory"
         isEdit={isEdit}
         items={items}
@@ -115,30 +119,32 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         visible={visible}
         cancelText="Hủy"
         onOk={onOk}
-        onDelete={onDelete} 
+        onDelete={onDelete}
         loading={loading}
         isConfirmModal={true}
         title={
           <div>
-            {isEdit ? "Sửa phiếu nhập kho " : "Xác nhận nhập kho phiếu nháp "}
-            <span style={{ color: "#2A2A86" }}>{item?.code}</span>
+            {isEdit ? "Sửa phiếu nhập kho " : isDetail ? "Phiếu nhập kho " : "Xác nhận nhập kho "}
+            <span style={{ color: "#2A2A86" }}>{item?.code} - {ProcurementStatusName[String(item?.status)]}</span>
           </div>
         }
         okText={isEdit ? "Lưu phiếu nhập kho" : "Xác nhận nhập"}
       >
         {(onQuantityChange, onRemove, line_items) => {
           return (
-            <> 
-               <div style={{float: "right", marginBottom: 10}}>
-                   <Button
-                         className="light"
-                         size="large"
-                         icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
-                         onClick={()=>{setShowImportModal(true)}}
-                       >
-                     Nhập file
-                   </Button>
-               </div>
+            <>
+              {!isDetail && (
+                <div style={{float: "right", marginBottom: 10}}>
+                  <Button
+                    className="light"
+                    size="large"
+                    icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
+                    onClick={()=>{setShowImportModal(true)}}
+                  >
+                    Nhập file
+                  </Button>
+                </div>
+              )}
                <Table
                 className="product-table"
                rowKey={(record: PurchaseProcumentLineItem) =>
@@ -147,7 +153,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                rowClassName="product-table-row"
                dataSource={line_items}
                tableLayout="fixed"
-               scroll={{ y: 250, x: 845 }}
+               scroll={{ y: 250, x: 600 }}
                pagination={false}
                columns={[
                  {
@@ -249,7 +255,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                    width: 150,
                    dataIndex: POProcumentLineItemField.real_quantity,
                    render: (value, item, index) => {
-                     return (
+                     return !isDetail ? (
                      <NumberInput
                        placeholder="SL thực nhận"
                        isFloat={false}
@@ -266,7 +272,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                         replaceFormatString(a)
                       }
                      />
-                   )},
+                   ) : <div className="text-right mr-15">{value}</div>},
                  },
                ]}
                summary={(data) => {
@@ -301,8 +307,8 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                    </Table.Summary>
                  );
                }}
-              /> 
-            </> 
+              />
+            </>
           );
         }}
       </ProcumentCommonModal>
@@ -315,7 +321,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         okText= "Xác nhận"
         templateUrl={AppConfig.PROCUMENT_IMPORT_TEMPLATE_URL}
         forder="stock-transfer"
-        customParams={{conditions: `${item?.purchase_order.id},${item?.id}`, 
+        customParams={{conditions: `${item?.purchase_order.id},${item?.id}`,
               type: "IMPORT_PROCUREMENT"}}
       />
     </>
