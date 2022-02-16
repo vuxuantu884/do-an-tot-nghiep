@@ -227,7 +227,7 @@ const GroupDiscountList = (props: Props) => {
         }}
         width={650}
         visible={showImportModal}
-        title={`Nhập file khuyến mại ${discountMethod === PriceRuleMethod.FIXED_PRICE.toString() ? "đồng giá" : "chiết khấu"}`}
+        title={`Nhập file khuyến mại ${discountMethod === PriceRuleMethod.FIXED_PRICE.toString() ? "đồng giá" : "chiết khấu theo từng sản phẩm"}`}
         footer={[
           <Button
             key="back"
