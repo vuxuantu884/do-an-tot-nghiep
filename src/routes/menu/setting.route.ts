@@ -133,7 +133,6 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [],
       },
       {
         path: `${UrlConfig.ACCOUNTS}/me`,

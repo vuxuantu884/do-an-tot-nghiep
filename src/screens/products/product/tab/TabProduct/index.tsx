@@ -41,6 +41,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
+import { StyledComponent } from "./style";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -287,7 +288,7 @@ const TabProduct: React.FC = () => {
       title:  "Sản phẩm",
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => {
-        let strName=i.name.toLocaleUpperCase().trim();
+        let strName=i.name.trim();
         strName=window.screen.width>=1920?splitEllipsis(strName,80,10)
           :window.screen.width>=1600?strName=splitEllipsis(strName,55,10)
           :window.screen.width>=1366?strName=splitEllipsis(strName,50,10):strName;
@@ -420,7 +421,7 @@ const TabProduct: React.FC = () => {
   }, [dispatch, params, setSearchResult]);
 
   return (
-    <div>
+    <StyledComponent>
       <ProductFilter
         onMenuClick={onMenuClick}
         actions={actions}
@@ -481,7 +482,7 @@ const TabProduct: React.FC = () => {
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
         visible={isConfirmDelete}
       />
-    </div>
+    </StyledComponent>
   );
 };
 
