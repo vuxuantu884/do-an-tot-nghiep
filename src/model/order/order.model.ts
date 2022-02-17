@@ -157,6 +157,8 @@ export interface OrderSearchQuery {
   return_status: [];
   account_codes?: [];
   assignee_codes?: [];
+  coordinator_codes?: [];
+  marketer_codes?: [];
   price_min: number | undefined;
   price_max: number | undefined;
   payment_method_ids: [];

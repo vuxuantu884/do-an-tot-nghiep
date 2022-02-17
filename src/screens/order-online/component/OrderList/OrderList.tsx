@@ -50,7 +50,7 @@ import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
 import { StyledComponent } from "./OrderList.styles";
 
-type PropsType = {
+type PropTypes = {
   location: any;
   initQuery: OrderSearchQuery;
   pageTitle: {
@@ -63,7 +63,7 @@ type PropsType = {
 	isHideTab?: boolean;
 };
 
-function OrderList(props: PropsType) {
+function OrderList(props: PropTypes) {
   const EXPORT_IDs = {
     allOrders: 1,
     ordersOnThisPage: 2,

@@ -194,10 +194,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               <Button type="link" className="p-0" style={{ color: "#000000" }}>
                 <Space>
                   <img src={storeBluecon} alt="" />
-                  <Link
-                    target="_blank"
-                    to={`${UrlConfig.STORE}/${OrderDetail?.store_id}`}
-                  >
+                  <Link target="_blank" to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}>
                     {OrderDetail?.store}
                   </Link>
                 </Space>

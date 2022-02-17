@@ -125,9 +125,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>NV marketing:</Col>
           <Col span={14}>
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
-							<Link
+              <Link
                 target="_blank"
-                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.marketer_code}`}
+								to={`${UrlConfig.ORDER}?page=1&limit=30&marketer_codes=${OrderDetail?.marketer_code}`}
               >
                 {OrderDetail?.marketer_code} - {OrderDetail?.marketer}
               </Link>
@@ -138,9 +138,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>NV điều phối:</Col>
           <Col span={14}>
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
-							<Link
+              <Link
                 target="_blank"
-                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.coordinator_code}`}
+								to={`${UrlConfig.ORDER}?page=1&limit=30&coordinator_codes=${OrderDetail?.coordinator_code}`}
               >
                 {OrderDetail?.coordinator_code} - {OrderDetail?.coordinator}
               </Link>
