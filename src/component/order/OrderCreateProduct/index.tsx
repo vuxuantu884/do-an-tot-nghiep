@@ -1910,6 +1910,8 @@ function OrderCreateProduct(props: PropType) {
 		}
 	}, [items, setPromotion]);
 
+	console.log("storeId",storeId)
+
 	return (
 		<StyledComponent>
 			<Card
@@ -2121,6 +2123,7 @@ function OrderCreateProduct(props: PropType) {
 					onCancel={onCancleConfirm}
 					onOk={onOkConfirm}
 					visible={isVisibleGift}
+					storeId={storeId}
 				/>
 				<Table
 					locale={{
