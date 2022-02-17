@@ -111,7 +111,6 @@ function OrdersTable(props: PropTypes) {
 
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
-      console.log("ok ok");
       const newItems = [...data.items];
       const indexOrder = newItems.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
@@ -132,7 +131,6 @@ function OrdersTable(props: PropTypes) {
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
-      console.log("newNote, noteType, orderID", newNote, noteType, orderID);
       let params: any = {};
       if (noteType === "note") {
         params.note = newNote;
@@ -739,7 +737,6 @@ function OrdersTable(props: PropTypes) {
                   title="Khách hàng: "
                   color={primaryColor}
                   onOk={(newNote) => {
-                    console.log("newNote", newNote);
                     editNote(newNote, "customer_note", record.id);
                   }}
                   isDisable={record.status === OrderStatus.FINISHED}
@@ -751,7 +748,6 @@ function OrdersTable(props: PropTypes) {
                   title="Nội bộ: "
                   color={primaryColor}
                   onOk={(newNote) => {
-                    console.log("newNote", newNote);
                     editNote(newNote, "note", record.id);
                   }}
                   isDisable={record.status === OrderStatus.FINISHED}

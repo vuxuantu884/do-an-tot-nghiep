@@ -212,14 +212,11 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   const rowSelection = {
     onChange: (selectedRowKeys: any, selectedRows: any) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
       setSelectedOrderList(selectedRows);
     },
     onSelect: (record: any, selected: any, selectedRows: any) => {
-      console.log(record, selected, selectedRows);
     },
     onSelectAll: (selected: any, selectedRows: any, changeRows: any) => {
-      console.log(selected, selectedRows, changeRows);
     },
   };
 

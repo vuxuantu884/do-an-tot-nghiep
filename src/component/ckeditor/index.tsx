@@ -20,7 +20,6 @@ function Editor(props: any) {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleChange = (evt: any) => {
-    // console.log("change");
     onChange(evt.editor.getData());
   };
 
@@ -33,7 +32,6 @@ function Editor(props: any) {
   };
 
   const handleInsertKeyword = (text: string) => {
-    // console.log("text", text);
     keyword = text;
     let editorButtonInsertHtml = document.getElementsByClassName(
       "cke_button__inserthtml_label"
@@ -68,7 +66,6 @@ function Editor(props: any) {
     getPreviewHeaderHeight();
   }, [previewHeaderHeight, toolbarElement]);
 
-  // console.log("initialHtmlContent", initialHtmlContent);
   return (
     <StyledComponent>
       {/* use key to change value */}
@@ -205,7 +202,6 @@ function Editor(props: any) {
          */
         // onBeforeLoad={(CKEDITOR: any) => {
         onNamespaceLoaded={(CKEDITOR: any) => {
-          console.log("onNamespaceLoaded");
           CKEDITOR.plugins.add("timestamp", {
             init: function (editor: any) {
               editor.addCommand("openModalDialog", {
@@ -215,7 +211,6 @@ function Editor(props: any) {
                     "buttonShowModal"
                   )[0] as HTMLElement;
                   editorButtonShowModal.click();
-                  // console.log("openModalDialog");
                 },
               });
               editor.ui.addButton("OpenModalButton", {
@@ -226,9 +221,7 @@ function Editor(props: any) {
               });
               editor.addCommand("insertHtml", {
                 exec: function (editor: any) {
-                  // console.log("keyword", keyword);
                   editor.insertHtml(keyword);
-                  // console.log("initialHtmlContent", initialHtmlContent);
                   setTimeout(() => {
                     editor.focus();
                   }, 500);

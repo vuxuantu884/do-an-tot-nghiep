@@ -46,8 +46,6 @@ function OrderPayments(props: PropType): JSX.Element {
     setPayments,
   } = props;
 
-  console.log('payments', payments)
-
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
   }, [listPaymentMethod]);

@@ -57,16 +57,9 @@ function CardProductBottom(props: PropType) {
 		handleRemoveAllDiscount,
 	} = props;
 
-	// console.log('isDisableOrderDiscount', isDisableOrderDiscount)
-
 	let discountRate = promotion?.rate || 0;
 	let discountValue = promotion?.value || 0;
 
-	console.log('totalAmountOrder', totalAmountOrder)
-	console.log('isCouponValid', isCouponValid)
-
-	// console.log('coupon33', coupon)
-	// console.log('discountRate', discountRate);
 	return (
 		<StyledComponent>
 			<Row gutter={24}>

@@ -46,7 +46,6 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
   const [formRef] = Form.useForm();
   const onFinish = useCallback(
     (values: AccountSearchQuery) => {
-      console.log(values);
       onFilter && onFilter(values);
     },
     [onFilter]
@@ -91,8 +90,6 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
       })
     );
   }, [dispatch]);
-
-  console.log("listDepartment",listDepartment)
 
   return (
     <div>

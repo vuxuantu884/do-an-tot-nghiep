@@ -98,7 +98,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         password: "",
         transport_types,
       };
-      console.log("formValueFormatted", formValueFormatted);
       dispatch(updateDeliveryConfigurationAction(formValueFormatted, () => {}));
     });
   };

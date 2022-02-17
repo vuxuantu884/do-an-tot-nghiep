@@ -43,7 +43,6 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
       let value: any = {};
       value = formSearchRef?.current?.getFieldsValue(["issued_on_min", "issued_on_max"])
       if (value["issued_on_min"] && value["issued_on_max"] && (+moment(value["issued_on_min"], 'DD-MM-YYYY') > + moment(value["issued_on_max"], 'DD-MM-YYYY'))) {
-        console.log('invalid')
         formSearchRef?.current?.setFields([
           {
             name: "issued_on_min",
