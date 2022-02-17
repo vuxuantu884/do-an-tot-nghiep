@@ -1,7 +1,7 @@
 import {MenuAction} from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import {Fragment} from "react";
-import {ActionStyle} from "screens/products/product/tab/TabProduct/style";
+import {ActionStyle} from "screens/products/product/tab/style";
 
 function useChangeHeaderToAction(
   header: string,
