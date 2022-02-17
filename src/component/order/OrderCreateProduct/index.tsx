@@ -222,7 +222,7 @@ function OrderCreateProduct(props: PropType) {
 		setCoupon,
 		setPromotion,
 	} = props;
-	console.log('items', items)
+	// console.log('items', items)
 	const dispatch = useDispatch();
 	const [loadingAutomaticDiscount] = useState(false);
 	const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -1445,7 +1445,7 @@ function OrderCreateProduct(props: PropType) {
 												removeDiscountItem(singleItem);
 											}
 										});
-										console.log('_items', _items)
+										// console.log('_items', _items)
 										calculateChangeMoney(_items);
 										setPromotion && setPromotion({
 											amount: 0,
@@ -2121,6 +2121,7 @@ function OrderCreateProduct(props: PropType) {
 					onCancel={onCancleConfirm}
 					onOk={onOkConfirm}
 					visible={isVisibleGift}
+					storeId={storeId}
 				/>
 				<Table
 					locale={{
