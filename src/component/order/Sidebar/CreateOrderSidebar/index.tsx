@@ -187,13 +187,15 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 		searchAccountPublicApi({
 			store_ids: [storeId],
 		})
-			.then((response) => {
-				if (isFetchApiSuccessful(response)) {
-					setStoreAccountData(response.data.items);
-				} else {
-					handleFetchApiError(response, "Danh sách tài khoản", dispatch)
-				}
-			})
+      .then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          setStoreAccountData(response.data.items);
+          setInitAssigneeAccountData(response.data.items);
+          setInitMarketingAccountData(response.data.items);
+        } else {
+          handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+        }
+      })
 			.catch((error) => {
 				console.log("error", error);
 			})
