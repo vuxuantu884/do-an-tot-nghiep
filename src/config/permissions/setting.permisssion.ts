@@ -5,6 +5,7 @@ const sources = `sources`;
 const channels = `channels`;
 const stores = `stores`;
 const prints_templates = `print_templates`;
+const auth_settings = `auths`;
 
 const SourcePermissions = {
   READ: `${sources}_read`,
@@ -35,4 +36,11 @@ const PrintPermissions = {
   CREATE: `${prints_templates}_create`,    
 };
 
-export {SourcePermissions, ChannelPermissions, StorePermissions, PrintPermissions};
+const AuthPermissions = {
+  READ: `${auth_settings}_read`,
+  CREATE: `${auth_settings}_create`,
+  UPDATE: `${auth_settings}_update`,
+  DELETE: `${auth_settings}_delete`,
+};
+
+export {SourcePermissions, ChannelPermissions, StorePermissions, PrintPermissions, AuthPermissions};
