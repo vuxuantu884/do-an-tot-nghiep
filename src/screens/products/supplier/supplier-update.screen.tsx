@@ -23,7 +23,7 @@ import {
   SupplierUpdateAction
 } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse } from "model/account/account.model";
+// import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   SupplierResponse,
@@ -78,7 +78,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
-  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
+  const [, setGroupProducts] = useState<PageResponse<CollectionResponse> | null>( null)
 
   const [type, setType] = useState("personal");
 

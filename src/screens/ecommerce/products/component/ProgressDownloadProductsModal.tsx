@@ -6,7 +6,7 @@ import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 
 import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+// import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 
 
 type ProgressDownloadProductsModalType = {
@@ -34,7 +34,10 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
   const [errorData, setErrorData] = useState<Array<any>>([]);
 
   useEffect(() => {
-    setErrorData(progressData?.errors_msg);
+    if (progressData?.errors_msg) {
+      const errorList = progressData?.errors_msg.slice(1).split("\n");
+      setErrorData(errorList);
+    }
   }, [progressData?.errors_msg]);
 
   const okProgressDownloadModal = () => {
@@ -45,32 +48,32 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
     onCancel && onCancel();
   };
 
-  const columns: Array<ICustomTableColumType<any>> = [
-    {
-      title: "STT",
-      align: "center",
-      width: 70,
-      render: (value: any, row: any, index: any) => {
-        return <span>{index + 1}</span>;
-      },
-    },
-    {
-      title: "SKU",
-      dataIndex: "order_sn",
-      width: 155,
-    },
-    {
-      title: "Nội dung",
-      dataIndex: "error_message",
-      render: (value: any, item: any, index: number) => {
-        return (
-          <div>
-            {value[0]}
-          </div>
-        );
-      },
-    },
-  ];
+  // const columns: Array<ICustomTableColumType<any>> = [
+  //   {
+  //     title: "STT",
+  //     align: "center",
+  //     width: 70,
+  //     render: (value: any, row: any, index: any) => {
+  //       return <span>{index + 1}</span>;
+  //     },
+  //   },
+  //   {
+  //     title: "SKU",
+  //     dataIndex: "order_sn",
+  //     width: 155,
+  //   },
+  //   {
+  //     title: "Nội dung",
+  //     dataIndex: "error_message",
+  //     render: (value: any, item: any, index: number) => {
+  //       return (
+  //         <div>
+  //           {value[0]}
+  //         </div>
+  //       );
+  //     },
+  //   },
+  // ];
 
 
   return (
@@ -171,20 +174,19 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
           />
         </div>
 
-        {errorData && errorData.length &&
-          <div className="error-orders">
-            <div className="title">Chi tiết lỗi:</div>
-            
-            <CustomTable
-              bordered
-              sticky={{ offsetScroll: 1 }}
-              pagination={false}
-              dataSource={errorData}
-              columns={columns}
-              rowKey={(item: any) => item.order_sn}
-            />
-          </div>
-          }
+        {errorData.length ?
+            <div className="error-orders">
+              <div className="title">Chi tiết lỗi:</div>
+              <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
+                <ul style={{ color: "#E24343" }}>
+                  {errorData.map((error, index) => (
+                      <li key={index} style={{ marginBottom: "5px"}}>
+                        <span>{error}</span>
+                      </li>
+                  ))}
+                </ul>
+              </div>
+            </div> : <div/>}
       </StyledProgressDownloadModal>
     </Modal>
   );
