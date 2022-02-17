@@ -63,8 +63,6 @@ function CardReturnProducts(props: PropType) {
     handleChangeReturnAll,
   } = props;
 
-  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
-
   const autoCompleteRef = createRef<RefSelectProps>();
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);

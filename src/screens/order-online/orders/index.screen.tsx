@@ -58,6 +58,8 @@ function OrdersScreen(props: PropTypes) {
     payment_status: [],
     return_status: [],
     account_codes: [],
+    coordinator_codes: [],
+    marketer_codes: [],
     assignee_codes: [],
     price_min: undefined,
     price_max: undefined,

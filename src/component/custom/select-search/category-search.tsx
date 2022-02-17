@@ -72,8 +72,6 @@ function CategorySelect({
             if (response) {
               let temps: Array<CategoryResponse> = getFlatCategory(response);
               setIsLoading(false);
-              console.log(JSON.stringify(temps.length));
-
               setCategoryList(temps);
             }
           })

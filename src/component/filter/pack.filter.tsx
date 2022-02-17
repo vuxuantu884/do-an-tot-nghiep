@@ -97,9 +97,6 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     (e, tag) => {
       e.preventDefault();
       setRerender(false);
-      // console.log("key", tag.key);
-      // console.log("params", params);
-      console.log(tag.key)
       switch (tag.key) {
         
         case "store":
@@ -160,9 +157,6 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
         //   from_date: values.from_date,
         //   to_date: values.to_date,
         // };
-        // console.log("valuesForm",params)
-        // console.log("valuesForm",valuesForm)
-        // console.log("valuesForm",valuesForm)
         onFilter && onFilter(values);
         setRerender(false);
       }
@@ -186,7 +180,6 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
 		};
 
     if (initialValues.store_ids && initialValues.store_ids.length>0) {
-      console.log("initialValues.store_ids,initialValues.store_ids",initialValues.store_ids)
       let mappedStores = listStores?.filter((store) => initialValues.store_ids?.some((single) => single?.toString() === store.id.toString()))
 
       let textStores=mappedStores.map((single, index)=>{
@@ -273,9 +266,6 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
         value: textOrderCreatedDate,
       });
     }
-
-    console.log("initialValues",initialValues)
-    console.log("filters",list)
 
     return list;
   }, [initialValues, listChannels, listGoodsReceiptsType, listStores, listThirdPartyLogistics]);

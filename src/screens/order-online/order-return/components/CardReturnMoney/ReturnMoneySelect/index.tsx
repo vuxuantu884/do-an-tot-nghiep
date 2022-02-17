@@ -31,7 +31,6 @@ function ReturnMoneySelect(props: PropType) {
     listPaymentMethods,
     handleReturnMoney,
   } = props;
-  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
   let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
     return !exceptMethods.includes(single.code);

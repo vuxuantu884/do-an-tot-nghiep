@@ -256,8 +256,6 @@ const CustomerDuplicate: React.FC = () => {
     history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
   }, [history, params, columns]);
 
-  console.log("columns",columns)
-
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
@@ -290,7 +288,6 @@ const CustomerDuplicate: React.FC = () => {
     }))
   }, [dispatch, params]);
 
-  console.log("data", data)
   return (
     <ContentContainer
       title="Đơn trùng"
@@ -316,7 +313,6 @@ const CustomerDuplicate: React.FC = () => {
                   icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
                   // onClick={onExport}
                   onClick={() => {
-                    console.log("export");
                   }}
                   disabled={!isPassed}
                 >

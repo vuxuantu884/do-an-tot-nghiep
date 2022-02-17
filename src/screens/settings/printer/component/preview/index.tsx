@@ -20,10 +20,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     isPrint,
     onChangeShowEditor,
   } = props;
-  // console.log("htmlContent", htmlContent);
   const printElementRef = useRef(null);
-  // console.log("listProductKeywords", listProductKeywords);
-  // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   const checkIfStringContainsOneInArray = (
     text: string,
     arr: productKeywordsModel[]

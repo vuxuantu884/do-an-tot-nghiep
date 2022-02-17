@@ -190,7 +190,6 @@ const OrderDuplicate: React.FC = () => {
       title: "ID đơn hàng",
       dataIndex: "code",
       render: (value: string, i: OrderModel) => {
-        // console.log('i', i)
         return (
           <React.Fragment>
             <Link target="_blank" to={`${UrlConfig.ORDER}/${i.id}`}>
@@ -610,7 +609,6 @@ const OrderDuplicate: React.FC = () => {
       title: "Ghi chú nội bộ",
       render: (record) =>
         <EditNote note={record.note} onOk={(newNote) => {
-          console.log('newNote', newNote);
           editNote(newNote, 'note', record.id)
         }} />
       ,
@@ -622,7 +620,6 @@ const OrderDuplicate: React.FC = () => {
       title: "Ghi chú của khách",
       render: (record) =>
         <EditNote note={record.customer_note} onOk={(newNote) => {
-          console.log('newNote', newNote);
           editNote(newNote, 'customer_note', record.id)
         }} />
       ,
@@ -794,7 +791,6 @@ const OrderDuplicate: React.FC = () => {
     (optionExport, typeExport) => {
       let newParams: any = { ...params };
       // let hiddenFields = [];
-      console.log("selectedRowCodes", selectedRowCodes);
       switch (optionExport) {
         case 1:
           newParams = {};
@@ -803,7 +799,6 @@ const OrderDuplicate: React.FC = () => {
           break;
         case 3:
           newParams.code = selectedRowCodes;
-          console.log("newParams", newParams);
           break;
         case 4:
           delete newParams.page;
@@ -812,7 +807,6 @@ const OrderDuplicate: React.FC = () => {
         default:
           break;
       }
-      // console.log('newParams', newParams);
 
       // switch (optionExport) {
       //   case 1:
@@ -847,8 +841,6 @@ const OrderDuplicate: React.FC = () => {
     [params, selectedRowCodes, listExportFile]
   );
   const checkExportFile = useCallback(() => {
-    console.log("start check status");
-
     let getFilePromises = listExportFile.map((code) => {
       return getFile(code);
     });
@@ -860,7 +852,6 @@ const OrderDuplicate: React.FC = () => {
           }
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
-            console.log("finishhh");
             setExportProgress(100);
             const fileCode = response.data.code;
             const newListExportFile = listExportFile.filter((item) => {
@@ -886,7 +877,6 @@ const OrderDuplicate: React.FC = () => {
     setTableLoading(false);
     setIsFilter(false);
     if (!!result) {
-      console.log('result result result', result);
       setData(result);
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data1 = result
@@ -921,10 +911,8 @@ const OrderDuplicate: React.FC = () => {
   };
 
   const onSuccessEditNote = useCallback((newNote, noteType, orderID) => {
-    console.log('ok ok');
     const indexOrder = data1.items.findIndex((item: any) => item.id === orderID)
     const newItems = [...data1.items]
-    console.log('data', data1);
     if (indexOrder > -1) {
       const newItem: any = newItems[indexOrder]
       newItems.splice(indexOrder, 1, {
@@ -943,7 +931,6 @@ const OrderDuplicate: React.FC = () => {
   }, [data1]);
 
   const editNote = useCallback((newNote, noteType, orderID) => {
-    console.log('newNote, noteType, orderID', newNote, noteType, orderID);
     let params: any = {}
     if (noteType === 'note') {
       params.note = newNote
@@ -955,7 +942,6 @@ const OrderDuplicate: React.FC = () => {
   }, [dispatch, onSuccessEditNote]);
 
   const hanldMergeOrderOk = useCallback((value: number) => {
-    console.log(value)
     if (value === null) {
       showWarning("Yêu cầu chọn đơn hàng gốc");
       return;
@@ -981,7 +967,6 @@ const OrderDuplicate: React.FC = () => {
   }, [dispatch, selectedOrder, handleSearchResult])
 
   const hanldMergeOrderCancel = () => {
-    console.log("Cancel");
     setMergeOrderVisible(false);
   }
 
@@ -1019,7 +1004,6 @@ const OrderDuplicate: React.FC = () => {
   }, [handleSearchResult]);
 
   useEffect(() => {
-    console.log('data change', data);
 
   }, [data]);
 
@@ -1102,7 +1086,6 @@ const OrderDuplicate: React.FC = () => {
                     icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
                     // onClick={onExport}
                     onClick={() => {
-                      console.log("export");
                       setShowExportModal(true);
                     }}
                     disabled={!isPassed}

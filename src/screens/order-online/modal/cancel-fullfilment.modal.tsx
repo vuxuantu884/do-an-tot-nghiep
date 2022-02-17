@@ -37,7 +37,6 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
     setReasonID(value)
     setReason('')
     const reasonDetails = reasons.find(reason => reason.id == value)
-    console.log('set reasonSubs', reasonID, reasonDetails);
     if (reasonDetails && reasonDetails.sub_reasons.length) {
       setReasonSubID(reasonDetails.sub_reasons[0].id.toString())
       setReasonSubs(reasonDetails.sub_reasons)
@@ -45,7 +44,7 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
       setReasonSubID('')
       setReasonSubs([])
     }
-  }, [reasonID, reasons])
+  }, [reasons])
 
   return (
     <Modal

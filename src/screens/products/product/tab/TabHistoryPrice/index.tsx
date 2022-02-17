@@ -18,6 +18,7 @@ import { OFFSET_HEADER_TABLE  } from "utils/Constants";
 import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
+import { StyledComponent } from "../style";
 const initQuery: ProductHistoryQuery = {
   history_type: 'UPDATE_PRICE'
 };
@@ -184,7 +185,7 @@ const TabHistoryPrice: React.FC = () => {
   }, [dispatch, onResult, params]);
 
   return (
-    <div>
+    <StyledComponent>
       <HistoryProductFilter
         onFinish={(values: any) => { 
           let { from_action_date, to_action_date, condition } = values;
@@ -233,7 +234,7 @@ const TabHistoryPrice: React.FC = () => {
         }}
         data={columns}
       />
-    </div>
+    </StyledComponent>
   );
 };
 

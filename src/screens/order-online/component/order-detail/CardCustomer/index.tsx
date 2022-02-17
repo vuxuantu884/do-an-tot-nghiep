@@ -334,7 +334,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const CustomerConvertResultSearch = useMemo(() => {
     let options: any[] = [];
-    console.log("resultSearch", resultSearch);
     if (resultSearch.length > 0) {
       resultSearch.forEach((item: CustomerResponse, index: number) => {
         options.push({
@@ -367,7 +366,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 					name: value
 			 }
 			 getSourcesWithParamsService(query).then((response) => {
-				 console.log('response', response)
 				 setListSource(response.data.items)
 			 }).catch((error) => {
 				 console.log('error', error)
@@ -567,7 +565,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           }}
           onChange={(value) => {
             setOrderSourceId && setOrderSourceId(value);
-            console.log(value)
           }}
           disabled={isDisableSelectSource}
         >

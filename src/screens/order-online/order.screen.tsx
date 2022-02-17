@@ -306,8 +306,6 @@ ShippingServiceConfigDetailResponseModel[]
 		return listFulfillmentRequest;
 	};
 	
-	console.log('thirdPL', thirdPL)
-
 	const createShipmentRequest = (value: OrderRequest) => {
 		let objShipment: ShipmentRequest = {
 			delivery_service_provider_id: null, //id đối tác vận chuyển
@@ -512,9 +510,8 @@ ShippingServiceConfigDetailResponseModel[]
 				const element: any = document.getElementById("search_product");
 				element?.focus();
 			} else {
-				// console.log(shippingAddress);
 				if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
-					showError("Vui lòng nhập địa chỉ giao hàng!");
+					showError("Vui lòng cập nhật địa chỉ giao hàng!");
 					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
 					scrollAndFocusToDomElement(element);
 					return;
@@ -537,7 +534,6 @@ ShippingServiceConfigDetailResponseModel[]
 						setCreating(false);
 					} else {
 						(async () => {
-							console.log('valuesCalculateReturnAmount', valuesCalculateReturnAmount);
 							try {
 								await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
 									// on error
@@ -772,7 +768,6 @@ ShippingServiceConfigDetailResponseModel[]
 										{
 											newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
 											const shipmentEmployee = response?.fulfillments[0]?.shipment;
-											console.log('shipmentEmployee', shipmentEmployee)
 											setThirdPL({
 												delivery_service_provider_code:
 													shipmentEmployee.delivery_service_provider_code,
@@ -849,7 +844,6 @@ ShippingServiceConfigDetailResponseModel[]
 		if (customer) {
 			dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
 			setVisibleCustomer(true);
-			// console.log("customer check", customer)
 			if (customer.shipping_addresses) {
 				let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
 				let item = shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null;
@@ -1033,7 +1027,6 @@ ShippingServiceConfigDetailResponseModel[]
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
 
-	//console.log("shippingAddressesSecondPhone",shippingAddress)
 
 	return (
 		<React.Fragment>

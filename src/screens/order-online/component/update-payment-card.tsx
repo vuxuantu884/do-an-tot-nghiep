@@ -42,16 +42,12 @@ function UpdatePaymentCard(props: PropType) {
     disabledActions,
     listPaymentMethods,
     amount,
-    isVisibleUpdatePayment,
     setShowPaymentPartialPayment,
-    form,
     setPaymentMethod,
     paymentMethod,
     shipmentMethod,
     isDisablePostPayment,
   } = props;
-  console.log("isVisibleUpdatePayment", isVisibleUpdatePayment);
-  console.log("form", form);
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
@@ -245,8 +241,6 @@ function UpdatePaymentCard(props: PropType) {
   useEffect(() => {
     dispatch(getLoyaltyRate(setLoyaltyRate));
   }, [dispatch]);
-
-  console.log("props.isVisibleUpdatePayment", props.isVisibleUpdatePayment);
 
   return (
     <StyledComponent>

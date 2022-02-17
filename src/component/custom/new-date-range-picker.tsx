@@ -73,7 +73,6 @@ const CustomRangeDatePicker: React.FC<CustomDateRangePickerProps> = (
     setActiveButton('')
     value = formRef?.current?.getFieldsValue([fieldNameFrom, fieldNameTo])
     if (value[fieldNameFrom] && value[fieldNameTo] && (+moment(value[fieldNameFrom], format) > + moment(value[fieldNameTo], format))) {
-      console.log('invalid')
       formRef?.current?.setFields([
         {
           name: fieldNameFrom,

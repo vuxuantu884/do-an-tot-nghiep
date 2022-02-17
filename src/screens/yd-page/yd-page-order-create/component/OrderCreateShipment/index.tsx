@@ -9,6 +9,7 @@ import {
   Row,
   Select,
   Space,
+  Tooltip,
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
@@ -318,32 +319,27 @@ function OrderCreateShipment(props: PropType) {
     <StyledComponent>
       <div className="padding-12 orders-shipment">
         <Row gutter={24}>
-          <Col span={24}>
-            <Form.Item name="dating_ship" label="Hẹn giao:">
+          <Col span={11} style={{ paddingRight: 6 }}>
+            <Form.Item name="dating_ship">
               <DatePicker
                 format={dateFormat}
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
-                placeholder="Chọn ngày giao"
+                placeholder="Ngày hẹn giao"
                 disabledDate={(current: any) => moment().add(-1, "days") >= current}
               />
             </Form.Item>
           </Col>
 
-          <Col span={24}>
-            <Form.Item name="office_time" label="Giờ hành chính:" valuePropName="checked">
-              <Checkbox style={{ marginTop: "8px" }} />
-            </Form.Item>
-          </Col>
-          <Col span={24}>
-            <Form.Item name="requirements" label="Yêu cầu:">
+          <Col span={11} style={{ paddingLeft: 6 }}>
+            <Form.Item name="requirements">
               <Select
                 className="select-with-search"
                 showSearch
                 showArrow
                 notFoundContent="Không tìm thấy kết quả"
                 style={{ width: "100%" }}
-                placeholder="Chọn yêu cầu"
+                placeholder="Yêu cầu xem hàng"
                 disabled={orderConfig?.for_all_order}
                 filterOption={(input, option) => {
                   if (option) {
@@ -362,9 +358,17 @@ function OrderCreateShipment(props: PropType) {
               </Select>
             </Form.Item>
           </Col>
+
+          <Col span={2} style={{ padding: 0 }}>
+            <Form.Item name="office_time" valuePropName="checked">
+              <Tooltip placement="topRight" title="Giờ hành chính">
+                <Checkbox style={{ marginTop: "8px" }} />
+              </Tooltip>
+            </Form.Item>
+          </Col>
         </Row>
-        <Divider style={{ marginTop: 6 }} />
         <Row>
+          <span className="saleorder_shipment_method-heading">THÔNG TIN VẬN CHUYỂN</span>
           <div
             className="saleorder_shipment_method_btn 2"
             style={
@@ -420,7 +424,7 @@ function OrderCreateShipment(props: PropType) {
           )}
         </div>
       </div>
-    </StyledComponent>
+    </StyledComponent >
   );
 }
 
