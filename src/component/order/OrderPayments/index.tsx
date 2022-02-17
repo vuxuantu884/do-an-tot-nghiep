@@ -283,12 +283,12 @@ function OrderPayments(props: PropType): JSX.Element {
                           marginLeft: 12,
                           borderRadius: 5,
                         }}
-												format={(a: string) =>
-													formatCurrency(a)
-												}
-												replace={(a: string) =>
-													replaceFormatString(a)
-												}
+                        format={(a: string) =>
+                          formatCurrency(a)
+                        }
+                        replace={(a: string) =>
+                          replaceFormatString(a)
+                        }
                         className="hide-number-handle"
                         onFocus={(e) => e.target.select()}
                         min={0}

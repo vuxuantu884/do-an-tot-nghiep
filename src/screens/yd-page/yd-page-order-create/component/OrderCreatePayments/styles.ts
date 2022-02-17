@@ -54,6 +54,10 @@ export const StyledComponent = styled.div`
       display: none;
     }
   }
+  
+  .orders-timeline .ant-collapse-header {
+    display: none;
+  }
 
   .ant-collapse-content-box {
     padding: 0 !important;
@@ -61,13 +65,27 @@ export const StyledComponent = styled.div`
 
   .btn-payment-method {
     padding: 0 !important;
+    margin-top: 8px;
+
+    & .ant-btn {
+      display: flex;
+      height: 22px !important;
+      line-height: 20px !important;
+      padding: 0;
+      margin-left: 12px;
+      border: none;
+      box-shadow: none;
+    }
+
+    .ant-btn-primary {
+      border: 1px solid #2a2a86 !important;
+    }
 
     .ant-btn-default.active,
     .ant-btn-default:focus,
     .ant-btn-default:hover {
       color: unset !important;
       background-color: unset !important;
-      border-color: unset !important;
     }
   }
 

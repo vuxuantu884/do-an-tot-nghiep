@@ -2,12 +2,17 @@ import styled from "styled-components";
 import { primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
+  .saleorder_shipment_method-heading {
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
   .saleorder_shipment_method_btn {
     display: flex;
     align-items: center;
     width: 100%;
     height: auto;
-    margin: 20px 0 0 0;
+    margin: 0;
     border-bottom: 1px solid ${primaryColor};
   }
   .orders-shipment {
@@ -68,6 +73,12 @@ export const StyledComponent = styled.div`
     color: unset !important;
     background-color: unset !important;
     border-color: unset !important;
+  }
+
+  .orders-shipment {
+    & .ant-form-item {
+      flex-direction: column !important;
+    }
   }
 
 `;
