@@ -75,7 +75,8 @@ const CategoryUpdate: React.FC = () => {
     setLoading(false);
     setDetail(result);
     showSuccess('Sửa danh mục thành công');
-  }, []);
+    history.replace(`${UrlConfig.CATEGORIES}`);
+  }, [history]);
   const onFinish = useCallback(
     (values: CategoryUpdateRequest) => {
       setLoading(true);
