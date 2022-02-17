@@ -67,7 +67,7 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
 
   return (
     <Modal
-      width="600px"
+      width="620px"
       centered
       visible={visible}
       title="Tải đơn hàng"
@@ -166,16 +166,21 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
         {errorData.length ?
             <div className="error-orders">
               <div className="title">Chi tiết lỗi:</div>
-              <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
-                <ul style={{ color: "#E24343" }}>
-                  {errorData.map((error, index) => (
-                      <li key={index} style={{ marginBottom: "5px"}}>
-                        <span>{error}</span>
-                      </li>
-                  ))}
-                </ul>
+              <div className="error_message">
+                <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
+                  <ul style={{ color: "#E24343" }}>
+                    {errorData.map((error, index) => (
+                        <li key={index} style={{ marginBottom: "5px"}}>
+                          <span style={{fontWeight: 500}}>{error.split(":")[0]}</span>
+                          <span>:</span>
+                          <span>{error.split(":")[1]}</span>
+                        </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div> : <div/>}
+            </div>
+            : <div/>}
       </StyledProgressDownloadModal>
     </Modal>
   );

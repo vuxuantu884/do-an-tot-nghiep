@@ -92,7 +92,7 @@ export const StyledProgressDownloadModal = styled.div`
       text-align: center;
       .total-count {
         font-weight: 700;
-        color: "#2222222";
+        color: #222222;
       }
       .total-created {
         font-weight: 700;
@@ -114,10 +114,9 @@ export const StyledProgressDownloadModal = styled.div`
       margin: 20px 0;
       font-weight: bold;
     }
-    .custom-table {
-      height: 300px;
+    .error_message {
+      max-height: 300px;
       overflow-y: scroll;
     }
   }
-  
 `;

@@ -62,6 +62,7 @@ import { StyledProductFilter } from "screens/ecommerce/products/styles";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 import ConnectedItemActionColumn from "../connected-items/ConnectedItemActionColumn";
+import ProgressDownloadProductsModal from "../../component/ProgressDownloadProductsModal";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -70,6 +71,7 @@ let connectedYodyProductsRequest: object;
 
 type NotConnectedItemsPropsType = {
   isReloadPage: boolean;
+  handleMappingVariantJob: (x: any) => void;
 };
 
 const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConnectedItemsPropsType) => {
@@ -78,7 +80,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const { Option } = Select;
   const history = useHistory();
 
-  const {isReloadPage} = props;
+  const {isReloadPage, handleMappingVariantJob} = props;
 
   const [allowProductsConnect] = useAuthorization({
     acceptPermissions: productsConnectPermission,
@@ -737,8 +739,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       updateConnectItemList(notMatchConnectItemList);
       setConnectItemList(tempConnectItemList);
       setSelectedRow(notMatchSelectedRow);
-      setConnectProductData(data);
-      setIsShowResultConnectProductModal(true);
+      handleMappingVariantJob(data.process_id);
+      // setIsShowResultConnectProductModal(true);
     }
   };
 
@@ -1162,12 +1164,22 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         />
       }
 
-      <ResultConnectProductModal
-        visible={isShowResultConnectProductModal}
-        onCancel={closeResultConnectProductModal}
-        onOk={closeResultConnectProductModal}
-        connectProductData={connectProductData}
-      />
+      {/*<ResultConnectProductModal*/}
+      {/*  visible={isShowResultConnectProductModal}*/}
+      {/*  onCancel={closeResultConnectProductModal}*/}
+      {/*  onOk={closeResultConnectProductModal}*/}
+      {/*  connectProductData={connectProductData}*/}
+      {/*/>*/}
+
+      {/*<ProgressDownloadProductsModal*/}
+      {/*    visible={isShowResultConnectProductModal}*/}
+      {/*    isDownloading={false}*/}
+      {/*    onOk={closeResultConnectProductModal}*/}
+      {/*    onCancel={closeResultConnectProductModal}*/}
+      {/*    progressData={connectProductData}*/}
+      {/*    progressPercent={100}*/}
+      {/*    processType="sync-variant"*/}
+      {/*/>*/}
 
       <Modal
         width="600px"
