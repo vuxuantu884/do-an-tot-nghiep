@@ -41,7 +41,7 @@ import IconStore from "./images/store.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
-type PropsType = {
+type PropTypes = {
   tableLoading: boolean;
   data: PageResponse<OrderModel>;
   columns: ICustomTableColumType<OrderModel>[];
@@ -53,7 +53,7 @@ type PropsType = {
   setShowSettingColumn: (value: boolean) => void;
 };
 
-function OrdersTable(props: PropsType) {
+function OrdersTable(props: PropTypes) {
   const {
     tableLoading,
     data,

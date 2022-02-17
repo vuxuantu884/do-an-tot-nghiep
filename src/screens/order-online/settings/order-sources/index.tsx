@@ -47,7 +47,7 @@ type formValuesType = {
   department_ids: number | undefined;
 };
 
-type PropsType = {
+type PropTypes = {
   location: any;
 };
 
@@ -63,7 +63,7 @@ const actionsDefault: Array<MenuAction> = [
   },
 ];
 
-function OrderSources(props: PropsType) {
+function OrderSources(props: PropTypes) {
   const {location} = props;
   const queryParamsParsed: any = queryString.parse(location.search);
 

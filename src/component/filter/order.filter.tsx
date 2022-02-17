@@ -173,6 +173,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	const [accountFound, setAccountFound] = useState<Array<AccountResponse>>(
 		[]
 	);
+	const [marketerFound, setMarketerFound] = useState<Array<AccountResponse>>(
+		[]
+	);
+	const [coordinatorFound, setCoordinatorFound] = useState<Array<AccountResponse>>(
+		[]
+	);
 
 	console.log('assigneeFound', assigneeFound)
 
@@ -191,8 +197,22 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				setAccountFound(response.data.items)
 			})
 		}
+		if (params.marketer_codes && params.marketer_codes?.length > 0) {
+			searchAccountApi({
+				codes: params.marketer_codes
+			}).then((response) => {
+				setMarketerFound(response.data.items)
+			})
+		}
+		if (params.coordinator_codes && params.coordinator_codes?.length > 0) {
+			searchAccountApi({
+				codes: params.coordinator_codes
+			}).then((response) => {
+				setCoordinatorFound(response.data.items)
+			})
+		}
 
-	}, [params.assignee_codes, params.account_codes])
+	}, [params.assignee_codes, params.account_codes, params.marketer_codes, params.coordinator_codes])
 
 	const onChangeOrderOptions = useCallback((e) => {
 		console.log('ok lets go', e.target.value);
@@ -266,6 +286,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 					break;
 				case 'account_codes':
 					onFilter && onFilter({ ...params, account_codes: [] });
+					break;
+				case 'coordinator_codes':
+					onFilter && onFilter({ ...params, coordinator_codes: [] });
+					break;
+				case 'marketer_codes':
+					onFilter && onFilter({ ...params, marketer_codes: [] });
 					break;
 				case 'price':
 					onFilter && onFilter({ ...params, price_min: null, price_max: null });
@@ -344,6 +370,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
 			assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
 			account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
+			coordinator_codes: Array.isArray(params.coordinator_codes) ? params.coordinator_codes : [params.coordinator_codes],
+			marketer_codes: Array.isArray(params.marketer_codes) ? params.marketer_codes : [params.marketer_codes],
 			delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
 			services: Array.isArray(params.services) ? params.services : [params.services],
 		}
@@ -617,6 +645,24 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				value: text,
 			})
 		}
+		
+		if (initialValues.coordinator_codes.length) {
+			let text = getFilterString(coordinatorFound, "full_name", UrlConfig.ACCOUNTS, "code", "coordinator_codes");
+			list.push({
+				key: 'coordinator_codes',
+				name: 'Nhân viên điều phối',
+				value: text,
+			})
+		}
+
+		if (initialValues.marketer_codes.length) {
+			let text = getFilterString(marketerFound, "full_name", UrlConfig.ACCOUNTS, "code", "marketer_codes");
+			list.push({
+				key: 'marketer_codes',
+				name: 'Nhân viên marketing',
+				value: text,
+			})
+		}
 
 		if (initialValues.price_min || initialValues.price_max) {
 			let textPrice = (initialValues.price_min ? `${initialValues.price_min} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : " 0 ") + " ~ " + (initialValues.price_max ? `${initialValues.price_max} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : " ?? ")
@@ -709,7 +755,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 		console.log('filters list', list);
 		return list
-	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
+	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers]);
 
 	const widthScreen = () => {
 		if (window.innerWidth >= 1600) {
