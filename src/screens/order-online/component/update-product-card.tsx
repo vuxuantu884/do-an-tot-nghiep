@@ -7,7 +7,8 @@ import {
 	Space,
 	Table,
 	Tag,
-	Tooltip
+	Tooltip,
+  Typography
 } from "antd";
 import giftIcon from "assets/icon/gift.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
@@ -115,7 +116,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
         <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
-    className: "yody-pos-price text-right",
+    className: "yody-pos-price text-right 1",
     width: "15%",
     align: "right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
@@ -138,6 +139,13 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           {l.discount_items.length > 0 && l.discount_items[0].value !== null
             ? formatCurrency(l.discount_items[0].value)
             : 0}
+            <div className="d-flex justify-content-end yody-table-discount-converted">
+              <Typography.Text type="danger">
+                <span style={{fontSize: "0.857rem"}}>
+                  {Math.round(l.discount_items[0]?.rate * 100)/100}%
+                </span>
+              </Typography.Text>
+            </div>
         </div>
       );
     },

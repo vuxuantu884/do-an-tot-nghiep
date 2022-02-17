@@ -720,6 +720,14 @@ function OrdersTable(props: PropsType) {
         width: 120,
       },
       {
+        title: "Tổng SLSP",
+        dataIndex: "total_quantity",
+        key: "total_quantity",
+        visible: true,
+        align: "center",
+        width: 80,
+      },
+      {
         title: "Ghi chú",
         className: "notes",
         render: (value: string, record: OrderModel) => (
@@ -756,14 +764,6 @@ function OrdersTable(props: PropsType) {
         visible: true,
         align: "left",
         width: 150,
-      },
-      {
-        title: "Tổng SLSP",
-        dataIndex: "total_quantity",
-        key: "total_quantity",
-        visible: true,
-        align: "center",
-        width: 80,
       },
       {
         title: "NV bán hàng",

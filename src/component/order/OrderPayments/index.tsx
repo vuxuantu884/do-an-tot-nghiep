@@ -11,6 +11,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useEffect, useMemo } from "react";
 import { formatCurrency, getAmountPayment, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
+import { yellowColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -125,12 +126,12 @@ function OrderPayments(props: PropType): JSX.Element {
     setPayments(_paymentData);
   };
 
-  const handleInputMonney = (code?: string) => {
+  const fillInputMoney = (code?: string) => {
     if (code && code.length === 0) return;
     let paymentCopy: OrderPaymentRequest[] = payments;
     let indexPayment = paymentCopy.findIndex(x => x.payment_method_code === code);
 
-    if (indexPayment !== -1 && totalAmountCustomerNeedToPay >= 0) {
+    if (indexPayment !== -1) {
 
       if (paymentCopy[indexPayment].payment_method_code === PaymentMethodCode.POINT) {
 
@@ -149,8 +150,13 @@ function OrderPayments(props: PropType): JSX.Element {
 
       else {
         let amount = paymentCopy[indexPayment].amount + totalAmountCustomerNeedToPay;
+        if (amount < 0) {
+          amount = 0
+        }
         let paid_amount = paymentCopy[indexPayment].paid_amount + totalAmountCustomerNeedToPay;
-
+        if (paid_amount < 0) {
+          paid_amount = 0
+        }
         paymentCopy[indexPayment].amount = amount;
         paymentCopy[indexPayment].paid_amount = paid_amount;
       }
@@ -341,7 +347,7 @@ function OrderPayments(props: PropType): JSX.Element {
                       type="default"
                       icon={<ArrowLeftOutlined />}
                       onClick={() => {
-                        handleInputMonney(method.payment_method_code)
+                        fillInputMoney(method.payment_method_code)
                       }}
                     ></Button>
                   </Input.Group>
@@ -365,7 +371,7 @@ function OrderPayments(props: PropType): JSX.Element {
             </Row>
           );
         })}
-        <Row gutter={20} className="row-price" style={{ height: 38, margin: "10px 0 0 0" }}>
+        <Row gutter={20} className="row-price 32" style={{ height: 38, margin: "10px 0 0 0" }}>
           <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
             <b>{totalAmountCustomerNeedToPay >= 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
           </Col>
@@ -379,7 +385,7 @@ function OrderPayments(props: PropType): JSX.Element {
               fontSize: "20px",
             }}
           >
-            <span style={{ color: totalAmountCustomerNeedToPay < 0 ? "blue" : "red" }}>
+            <span style={{ color: totalAmountCustomerNeedToPay < 0 ? yellowColor : "red" }}>
               {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
             </span>
           </Col>

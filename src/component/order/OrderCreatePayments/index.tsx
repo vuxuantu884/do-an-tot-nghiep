@@ -7,6 +7,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import {useMemo} from "react";
 import {formatCurrency, getAmountPayment} from "utils/AppUtils";
 import {PaymentMethodOption, ShipmentMethodOption} from "utils/Constants";
+import { yellowColor } from "utils/global-styles/variables";
 import {StyledComponent} from "./styles";
 
 const {Panel} = Collapse;
@@ -175,7 +176,7 @@ function OrderCreatePayments(props: PropType): JSX.Element {
                         <strong>{formatCurrency(totalAmountOrder)}</strong>
                       </div>
                     </Col>
-                    <Col lg={10} xxl={7} className="margin-top-bottom-10">
+                    <Col lg={10} xxl={7} className="margin-top-bottom-10 55">
                       <div>
                         <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
                         <strong>
@@ -187,6 +188,16 @@ function OrderCreatePayments(props: PropType): JSX.Element {
                         </strong>
                       </div>
                     </Col>
+                    {totalAmountCustomerNeedToPay < 0 ? (
+                      <Col lg={10} xxl={7} className="margin-top-bottom-10 55">
+                      <div>
+                        <span style={{paddingRight: "20px" }}>Tiền thừa: </span>
+                        <strong style={{color: yellowColor}}>
+                          {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
+                        </strong>
+                      </div>
+                    </Col>
+                    ): null}
                     <Divider style={{margin: "10px 0"}} />
                     <OrderPayments
                       payments={payments}
