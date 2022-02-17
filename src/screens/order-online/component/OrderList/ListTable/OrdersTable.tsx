@@ -38,6 +38,7 @@ import IconPaymentCash from "./images/paymentMoney.svg";
 import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
+import IconFacebook from "./images/facebook.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
@@ -165,7 +166,7 @@ function OrdersTable(props: PropTypes) {
         case FACEBOOK.channel_id:
           html = (
             <Tooltip title="Đơn hàng từ Facebook">
-              <img src={IconShopee} alt="" />
+              <img src={IconFacebook} alt="" />
             </Tooltip>
           );
           break;
