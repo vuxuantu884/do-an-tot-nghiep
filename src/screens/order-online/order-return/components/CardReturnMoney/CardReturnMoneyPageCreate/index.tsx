@@ -4,9 +4,10 @@ import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { formatCurrency, getAmountPayment } from "utils/AppUtils";
+import { yellowColor } from "utils/global-styles/variables";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 
@@ -47,6 +48,10 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const isReturnMoneyToCustomer =
     totalAmountCustomerNeedToPay !== undefined && totalAmountCustomerNeedToPay <= 0;
+
+  const leftMoneyAfterInsertPayment = useMemo(() => {
+   return totalAmountCustomerNeedToPay - getAmountPayment(payments)
+  }, [payments, totalAmountCustomerNeedToPay])
 
   const renderWhenReturnMoneyToCustomer = () => {
     return (
@@ -121,15 +126,26 @@ function CardReturnMoneyPageCreate(props: PropType) {
                   <Col lg={10} xxl={7} className="margin-top-bottom-10">
                     <div>
                       <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
-                      <strong>
+                      <strong style={{color: "red"}}>
                         {formatCurrency(
-                          Math.round((totalAmountCustomerNeedToPay - getAmountPayment(payments)) > 0
-													? (totalAmountCustomerNeedToPay - getAmountPayment(payments))
+                          Math.round(leftMoneyAfterInsertPayment > 0
+													? leftMoneyAfterInsertPayment
 													: 0)
                         )}
                       </strong>
                     </div>
                   </Col>
+                  {leftMoneyAfterInsertPayment < 0 ? (
+                    <Col lg={10} xxl={7} className="margin-top-bottom-10">
+                      <div>
+                        <span style={{paddingRight: "20px"}}>Tiền thừa: </span>
+                        <strong style={{color: yellowColor}}>
+                          {formatCurrency(Math.abs(leftMoneyAfterInsertPayment))}
+                        </strong>
+                      </div>
+                    </Col>
+
+                  ): null}
                   <Divider style={{margin: "10px 0"}} />
                   <OrderPayments
                     payments={payments}

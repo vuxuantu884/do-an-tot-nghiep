@@ -20,6 +20,7 @@ export const defaultBgTag= "#F4F4F7";
 export const focusBorderColor = primaryColor;
 export const sortActionColor ="#BFBFBF";
 export const bluePlus ="#3d3d3d";
+export const yellowColor ="#FCAF17";
 
 //
 export const borderRadius = "2px";
