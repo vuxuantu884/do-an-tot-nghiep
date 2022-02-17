@@ -520,6 +520,9 @@ function OrderCreateProduct(props: PropType) {
 			let _items = [...items];
 			if (value !== null && value !== _items[index].price) {
 				_items[index].price = value;
+				if(_items[index]?.discount_items && _items[index].discount_items[0]) {
+					_items[index].discount_items[0].value = _items[index]?.discount_items[0].rate * value / 100;
+				}
 				handleDelayApplyDiscountWhenChangeInput(lineItemPriceInputTimeoutRef, _items);
 				calculateChangeMoney(_items);
 			}

@@ -70,6 +70,7 @@ import CardShowReturnProducts from "./order-return/components/CardShowReturnProd
 import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
 import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
 import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
+import { yellowColor } from "utils/global-styles/variables";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -734,7 +735,7 @@ const OrderDetail = (props: PropType) => {
                   >
                     <div style={{marginBottom: 20}}>
                       <Row>
-                        <Col span={12}>
+                        <Col span={8}>
                           <span className="text-field margin-right-40">
                             Đã thanh toán:
                           </span>
@@ -746,22 +747,30 @@ const OrderDetail = (props: PropType) => {
                               formatCurrency(getAmountPayment(OrderDetail.payments))}
                           </b>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                           <span className="text-field margin-right-40">
-                            {customerNeedToPayValue -
-                              totalPaid >=
-                            0
-                              ? `Còn phải trả:`
-                              : `Hoàn tiền cho khách:`}
+                            Còn phải trả:
                           </span>
 													<b style={{color: "red"}}>
 														{formatCurrency(
-															Math.abs(
-																customerNeedToPayValue - totalPaid
-															)
+														customerNeedToPayValue - totalPaid > 0 ? customerNeedToPayValue - totalPaid : 0
 														)}
                           </b>
                         </Col>
+                        {customerNeedToPayValue - totalPaid < 0 ? (
+                          <Col span={8}>
+                            <span className="text-field margin-right-40">
+                              Đã hoàn tiền cho khách:
+                            </span>
+                            <b style={{color: yellowColor}}>
+                              {formatCurrency(
+                                Math.abs(
+                                  customerNeedToPayValue - totalPaid
+                                )
+                              )}
+                            </b>
+                          </Col>
+                        ): null}
                       </Row>
                     </div>
 
