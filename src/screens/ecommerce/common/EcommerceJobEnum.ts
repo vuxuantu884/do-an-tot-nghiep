@@ -37,7 +37,7 @@ const labelJob = [
     },
   ]
 
-export default {
+export const ECOMMERCE_JOB_DETAIL = {
   cancelSuccessMessage: (type: String) => {
     return labelJob.find(item => item.label === type)?.cancel_success_message
   },
@@ -45,6 +45,6 @@ export default {
     return labelJob.find(item => item.label === type)?.cancel_fail_message
   },
   getDisplay: (type: String) => {
-   return labelJob.find(item => item.label === type)
+   return labelJob.find(item => item.label === type)?.display
   }
 }
