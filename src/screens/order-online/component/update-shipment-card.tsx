@@ -57,7 +57,7 @@ import {
 	checkPaymentStatusToShow,
 	CheckShipmentType,
 	formatCurrency,
-	getAmountPayment, getShippingAddressDefault, scrollAndFocusToDomElement, SumWeight,
+	getAmountPayment, scrollAndFocusToDomElement,
 	SumWeightResponse,
 	TrackingCode
 } from "utils/AppUtils";
@@ -324,7 +324,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 		onReload && onReload();
 	};
 	const onError = (error: boolean) => {
-		// console.log('error');
 		setUpdateShipment(false);
 		setCancelShipment(false);
 		setIsvibleShippingConfirm(false);
@@ -382,8 +381,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 					dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess, onError));
 					break;
 				case 5:
-					console.log('dataCancelFFM', dataCancelFFM);
-
 					value.status = FulFillmentStatus.CANCELLED;
 					value.action = FulFillmentStatus.CANCELLED;
 					value.cancel_reason_id = dataCancelFFM.reasonID
@@ -403,7 +400,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 					dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
 					break;
 				case 7:
-					console.log('dataCancelFFM', dataCancelFFM);
 					value.status = FulFillmentStatus.RETURNED;
 					value.action = FulFillmentStatus.RETURNED;
 					value.cancel_reason_id = dataCancelFFM.reasonID
@@ -611,7 +607,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 				value.shipping_fee_informed_to_customer -
 				getAmountPayment(props.OrderDetail.payments);
 		} else {
-			console.log('takeHelperValue', takeHelperValue)
 			if (takeHelperValue > 0) {
 				value.cod = takeHelperValue;
 			}
@@ -786,8 +781,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 		},
 		[setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
 	);
-	const [addressError, setAddressError] = useState<string>("");
-	console.log(addressError)
 	// end
 
 	const onPrint = () => {
@@ -821,57 +814,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 			}
 		}
 	};
-	useEffect(() => {
-		if (!props.storeDetail) {
-			setAddressError("Thiếu thông tin địa chỉ cửa hàng");
-		}
-		if (
-			props.customerDetail &&
-			props.storeDetail &&
-			(getShippingAddressDefault(props.customerDetail)?.city_id ||
-				getShippingAddressDefault(props.customerDetail)?.district_id) &&
-			getShippingAddressDefault(props.customerDetail)?.ward_id &&
-			getShippingAddressDefault(props.customerDetail)?.full_address
-		) {
-			let request = {
-				from_city_id: props.storeDetail?.city_id,
-				from_city: props.storeDetail?.city_name,
-				from_district_id: props.storeDetail?.district_id,
-				from_district: props.storeDetail?.district_name,
-				from_ward_id: props.storeDetail?.ward_id,
-				to_country_id: getShippingAddressDefault(props.customerDetail)?.country_id,
-				to_city_id: getShippingAddressDefault(props.customerDetail)?.city_id,
-				to_city: getShippingAddressDefault(props.customerDetail)?.city,
-				to_district_id: getShippingAddressDefault(props.customerDetail)?.district_id,
-				to_district: getShippingAddressDefault(props.customerDetail)?.district,
-				to_ward_id: getShippingAddressDefault(props.customerDetail)?.ward_id,
-				from_address: props.storeDetail?.address,
-				to_address: getShippingAddressDefault(props.customerDetail)?.full_address,
-				price: OrderDetail?.total_line_amount_after_line_discount,
-				quantity: 1,
-				weight: SumWeight(OrderDetail?.items),
-				length: 0,
-				height: 0,
-				width: 0,
-				service_id: 0,
-				service: "",
-				option: "",
-				insurance: 0,
-				coupon: "",
-				cod: 0,
-			};
-			console.log("request", request);
-			setAddressError("");
-		} else {
-			setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng");
-		}
-	}, [
-		props.customerDetail,
-		dispatch,
-		props.storeDetail,
-		OrderDetail?.total_line_amount_after_line_discount,
-		OrderDetail?.items,
-	]);
 
 	useEffect(() => {
 		getRequirementName();
@@ -884,11 +826,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
 	useEffect(() => {
 		if (updateShipment || cancelShipment) {
-			// console.log('updateShipment cancelShipment ok ok');
 			// disabled orther actions
 			disabledActions && disabledActions("shipment");
 		} else {
-			// console.log('updateShipment cancelShipment');
 			disabledActions && disabledActions("none");
 		}
 	}, [updateShipment, cancelShipment, disabledActions]);
@@ -1005,7 +945,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 									defaultActiveKey={[
 										isFulfillmentCancelled(fulfillment) ? "0" : "1",
 									]}
-									// onChange={(e) => console.log(e[0])}
 									expandIcon={({ isActive }) => (
 										<div className="saleorder-header-arrow 2" style={{ justifyContent: "flex-start" }}>
 											<img

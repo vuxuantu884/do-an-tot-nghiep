@@ -194,13 +194,10 @@ const ShipmentDetail: React.FC = () => {
   }, [dispatch, fulfillmentDetail]);
 
   useEffect(() => {
-    console.log('code code code', code);
     dispatch(
       getFulfillmentDetail(
         code,
         (data) => {
-          console.log('data data', data);
-
           const status = status_order.find(
             (status) => status.value === data.status
           );
@@ -236,7 +233,6 @@ const ShipmentDetail: React.FC = () => {
 
           afterDiscountTotal = amountTotal - discountTotal
 
-          console.log('mapItems', mapItems);
           setOrderItems(mapItems);
           setItemTotal({
             quantityTotal,

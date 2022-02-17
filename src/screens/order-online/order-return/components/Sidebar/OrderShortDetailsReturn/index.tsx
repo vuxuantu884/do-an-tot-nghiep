@@ -15,7 +15,6 @@ type PropType = {
  */
 function OrderShortDetailsReturn(props: PropType) {
   const {OrderDetail} = props;
-  console.log("OrderDetail", OrderDetail);
   return (
     <StyledComponent>
       <Card className="card-block card-block-normal" title="Thông tin Đơn TRẢ hàng">

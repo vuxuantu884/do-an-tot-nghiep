@@ -36,7 +36,6 @@ const PackSupportScreen: React.FC = () => {
   const query = useQuery();
   const newParam:any=getQueryParams(query);
   const history = useHistory();
-  console.log("query",getQueryParams(query))
   //useState
 
   const [data, setData] = useState<PageResponse<any>>({

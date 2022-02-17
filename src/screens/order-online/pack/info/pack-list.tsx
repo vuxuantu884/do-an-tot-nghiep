@@ -14,7 +14,6 @@ function PackList(props: any) {
   //   }
   // }, [data])
 
-  console.log(data)
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
     {

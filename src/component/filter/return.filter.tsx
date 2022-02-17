@@ -85,8 +85,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     (e, tag) => {
       e.preventDefault();
       setRerender(false)
-      console.log('key', tag.key)
-      console.log('params', params);
       switch(tag.key) {
         case 'store':
           onFilter && onFilter({...params, store_ids: []});
@@ -154,8 +152,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       
       default: break;  
     }
-    console.log();
-    
     setIsReceived(newIsReceived)
   }, [isReceived]);
 

@@ -136,7 +136,6 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
   );
 
   const onChangeOrderOptions = useCallback((e) => {
-    console.log('ok lets go', e.target.value);
     onFilter && onFilter({...params, is_online: e.target.value});
   }, [onFilter, params]);
 
@@ -161,8 +160,6 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     (e, tag) => {
       e.preventDefault();
       setRerender(false);
-      console.log('key', tag.key)
-      console.log('params', params);
       switch(tag.key) {
         case 'store':
           onFilter && onFilter({...params, store_ids: []});
@@ -261,8 +258,6 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
   }, [listSource]);
   
   const initialValues = useMemo(() => {
-    console.log('params', params);
-    
     return {
       ...params,
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
@@ -281,7 +276,6 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
       delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
   }}, [params])
-  console.log('initialValues', initialValues)
   const onFinish = useCallback(
     (values) => {
       let error = false;
@@ -459,7 +453,6 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     if (initialValues.variant_ids.length) {
       let textVariant = ""
       
-      console.log('optionsVariant', optionsVariant)
       optionsVariant.forEach(i => {
         textVariant = textVariant + i.label + "; "
       })
@@ -589,7 +582,6 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
         value: initialValues.reference_code
       })
     }
-    // console.log('filters list', list);
     return list
   }, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes, initialValues.account_codes, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, accounts, listPaymentMethod, serviceType, deliveryService]);
 
@@ -639,7 +631,6 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
             } catch {}
           })
         );
-        console.log('variants', variants);
         setOptionsVariant(variants)
       })()
     }

@@ -51,9 +51,6 @@ function ShipmentMethodSelfDelivery(props: PropType) {
   >([]);
 
 	const dispatch = useDispatch();
-console.log('storeId', storeId)
-console.log('initYodyAccountData', initYodyAccountData)
-console.log('thirdPL', thirdPL)
 	useEffect(() => {
 		if(!storeId) {
 			return;
@@ -75,7 +72,6 @@ console.log('thirdPL', thirdPL)
 	}, [dispatch, storeId])
 
   const onChange = useCallback((e) => {
-    console.log('e.target.checked', e.target.checked)
     if(setIs4h)setIs4h(e.target.checked);
   }, [setIs4h]);
 
@@ -140,7 +136,6 @@ console.log('thirdPL', thirdPL)
    }
   }, [thirdPL?.service])
 
-  console.log('is4h', is4h)
   useEffect(() => {
     setThirdPL({
       delivery_service_provider_code: typeDelivery,

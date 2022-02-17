@@ -61,7 +61,6 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
 
   const onSearchInventory = useCallback((value: string) => {
     let _item: StoreResponse[] | any = storeArrayResponse?.filter(x => x.name.toLowerCase().includes(value.toLowerCase().trim()));
-    console.log("_item", _item);
     setsStoreData(_item);
   }, [storeArrayResponse])
 
