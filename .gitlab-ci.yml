@@ -142,11 +142,12 @@ deploy to accountant:
   only:
     - accountant
   variables:
-    PREFIX: prod
+    PREFIX: accountant
     HOST: quanlybanhang.yody.io
-    NAMESPACE: production
-    ENVIRONMENT: production
+    NAMESPACE: accountant
+    ENVIRONMENT: accountant
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
     - bash deployment/deploy.sh app-admin
+
