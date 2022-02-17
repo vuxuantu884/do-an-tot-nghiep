@@ -41,7 +41,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
-import { StyledComponent } from "./style";
+import { StyledComponent } from "../style";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,

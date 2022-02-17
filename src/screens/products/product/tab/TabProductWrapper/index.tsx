@@ -33,6 +33,8 @@ import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showInfo, showSuccess, showWarning} from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
+import { StyledComponent } from "../style";
+
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
   PRINT_BAR_CODE: 2,
@@ -359,7 +361,7 @@ const TabProductWrapper: React.FC = () => {
   }, [dispatch, params, setSearchResult]);
 
   return (
-    <div>
+    <StyledComponent>
       <ProductWrapperFilter
         onClickOpen={() => setShowSettingColumn(true)}
         onMenuClick={onMenuClick}
@@ -416,7 +418,7 @@ const TabProductWrapper: React.FC = () => {
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
         visible={isConfirmDelete}
       />
-    </div>
+    </StyledComponent>
   );
 };
 
