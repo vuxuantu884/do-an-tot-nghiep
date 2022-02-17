@@ -5,7 +5,7 @@ import { RegUtil } from "utils/RegUtils";
 
 interface NumberInputProps {
   id?: string
-  value?: number;
+  value?: number | string;
   isFloat?: boolean;
   onChange?: (v: number | null) => void;
   onBlur?: () => void;
@@ -21,7 +21,7 @@ interface NumberInputProps {
   className?: string;
   min?: number;
   max?: number;
-  default?: number;
+  default?: number | null;
   prefix?: React.ReactNode;
   autoFocus?: boolean;
   onFocus?: (e: any) => void;
@@ -105,8 +105,9 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     [onBlur, onChange, props, value]
   );
   useEffect(() => {
-    setData(value !== undefined && value !== null ? value.toString() : '');
+    setData(value !== null && value !== undefined && value !== '' ? value.toString() : '');
   }, [value]);
+
   return (
     <Input
       id={id}

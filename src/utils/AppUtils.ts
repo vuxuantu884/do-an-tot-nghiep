@@ -268,18 +268,34 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     updated_name: size.updated_name,
     updated_date: size.updated_date,
     version: size.version,
-    code: size.code, 
+    code: size.code,
   };
   return sizeConvert;
 };
 
 export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {
   try {
-		if(typeof currency ==="number") {
-			currency = Math.round(currency);
-		} else if(typeof currency ==="string") {
-			currency = Math.round(Number(currency));
-		}
+    if(typeof currency ==="number") {
+      currency = Math.round(currency);
+    } else if(typeof currency ==="string") {
+      currency = Math.round(Number(currency));
+    }
+    let format = currency.toString();
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
+  } catch (e) {
+    return "";
+  }
+};
+
+export const formatCurrencyForProduct = (currency: number | string | boolean, sep: string = ","): string => {
+  try {
+    if (currency === null || currency === undefined || currency === '') return '';
+
+    if(typeof currency ==="number") {
+      currency = Math.round(currency);
+    } else if(typeof currency ==="string") {
+      currency = Math.round(Number(currency));
+    }
     let format = currency.toString();
     return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
   } catch (e) {
@@ -1022,7 +1038,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
 	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
 	let newReturnItems = _.cloneDeep(_orderReturnItems);
 	let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
-  
+
   for (const singleOrder of normalItems) {
 		// trường hợp line item trùng nhau
     let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id);
@@ -1106,7 +1122,7 @@ export const getAccountCodeFromCodeAndName = (text: string | null | undefined) =
 	let result = null;
 	if(text) {
 		result = text.split(splitString)[0].trim();
-	} 
+	}
 	return result;
 };
 
@@ -1222,10 +1238,10 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
       );
       switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
         case ShipmentMethod.EMPLOYEE:
-          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment?.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}` 
+          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment?.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
           break;
         case ShipmentMethod.EXTERNAL_SERVICE:
-          result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment?.delivery_service_provider_name}` 
+          result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment?.delivery_service_provider_name}`
           break;
         case ShipmentMethod.EXTERNAL_SHIPPER:
           result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
@@ -1404,12 +1420,12 @@ export async function sortSources(orderSources: SourceResponse[], departmentIds:
 						}
 					}
 				}
-				
+
 			} catch (error) {
 				console.log('error', error)
 			}
 		}
-	} 
+	}
 	if(departmentSources.length > 0) {
 		result = [...departmentSources]
 	}
