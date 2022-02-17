@@ -6,9 +6,8 @@ import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 
 import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
-import {ECOMMERCE_JOB_TYPE, getJobType} from "../../../../utils/Constants";
-import EcommerceJobEnum from "../../common/EcommerceJobEnum";
-// import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import {ECOMMERCE_JOB_TYPE} from "../../../../utils/Constants";
+import {ECOMMERCE_JOB_DETAIL} from "../../common/EcommerceJobEnum";
 
 
 type ProgressDownloadProductsModalType = {
@@ -56,7 +55,7 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
       width="620px"
       centered
       visible={visible}
-      title={EcommerceJobEnum.getDisplay(processType)}
+      title={ECOMMERCE_JOB_DETAIL.getDisplay(processType)}
       okText="Xác nhận"
       cancelText="Hủy"
       onCancel={cancelProgressDownloadModal}

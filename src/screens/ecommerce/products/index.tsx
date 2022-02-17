@@ -120,7 +120,7 @@ const Products: React.FC = () => {
     dispatch(
       exitProgressDownloadEcommerceAction(processId, (responseData) => {
         if (responseData) {
-          showSuccess(responseData);
+          showSuccess("Đã hủy quá trình xử lý");
           setIsVisibleExitDownloadProductsModal(false);
           resetProgress();
           setIsVisibleProgressModal(false);
@@ -130,7 +130,6 @@ const Products: React.FC = () => {
     );
   }
   // end
-
   const getProgress = useCallback(() => {
     let getProgressPromises: Promise<BaseResponse<any>> = getProgressDownloadEcommerceApi(processId);
 
