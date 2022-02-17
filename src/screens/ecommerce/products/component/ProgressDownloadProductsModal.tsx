@@ -16,6 +16,7 @@ type ProgressDownloadProductsModalType = {
   onCancel: () => void;
   progressData: any;
   progressPercent: number;
+  processType: string;
 };
 
 
@@ -28,7 +29,8 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
     onOk,
     onCancel,
     progressData,
-    progressPercent
+    progressPercent,
+    processType
     } = props;
 
   const [errorData, setErrorData] = useState<Array<any>>([]);
@@ -81,7 +83,7 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
       width="600px"
       centered
       visible={visible}
-      title="Tải sản phẩm"
+      title={processType === "variant" ? "Tải sản phẩm" : "Đồng bộ tồn"}
       okText="Xác nhận"
       cancelText="Hủy"
       onCancel={cancelProgressDownloadModal}
@@ -122,7 +124,8 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
                 }
               </div>
             </div>
-            
+
+            {processType === "variant" &&
             <div>
               <div>SP mới</div>
               <div className="total-created">
@@ -136,21 +139,40 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
                 }
               </div>
             </div>
-            
-            <div>
-              <div>SP cập nhật</div>
-              <div className="total-updated">
-                {isNullOrUndefined(progressData?.total_updated) ?
-                  "--" :
-                  <NumberFormat
-                    value={progressData?.total_updated}
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
-                }
-              </div>
-            </div>
-            
+            }
+
+            {processType === "variant" &&
+                <div>
+                  <div>SP cập nhật</div>
+                  <div className="total-updated">
+                    {isNullOrUndefined(progressData?.total_updated) ?
+                        "--" :
+                        <NumberFormat
+                            value={progressData?.total_updated}
+                            displayType={"text"}
+                            thousandSeparator={true}
+                        />
+                    }
+                  </div>
+                </div>
+            }
+
+            {processType === "stock" &&
+                <div>
+                  <div>Đồng bộ tồn thành công</div>
+                  <div className="total-updated">
+                    {isNullOrUndefined(progressData?.total_success) ?
+                        "--" :
+                        <NumberFormat
+                            value={progressData?.total_success}
+                            displayType={"text"}
+                            thousandSeparator={true}
+                        />
+                    }
+                  </div>
+                </div>
+            }
+
             <div>
               <div>Lỗi</div>
               <div className="total-error">

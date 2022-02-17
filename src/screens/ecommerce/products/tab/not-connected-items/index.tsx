@@ -103,7 +103,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
 
 
-
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
@@ -930,6 +929,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setIsShowDeleteItemModal(true);
   };
 
+  const handleSuggestItem = () => {
+    reloadPage()
+  }
+
   const actionList = (
     <Menu>
       {allowProductsDelete &&
@@ -937,6 +940,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
         </Menu.Item>
       }
+      <Menu.Item key="3">
+        <span onClick={handleSuggestItem}>Gợi ý ghép nối</span>
+      </Menu.Item>
     </Menu>
   )
 

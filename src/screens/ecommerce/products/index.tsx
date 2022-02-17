@@ -86,7 +86,7 @@ const Products: React.FC = () => {
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressData, setProgressData] = useState(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
-  
+  const [processType, setProcessType] = useState("");
   const resetProgress = () => {
     setProcessId(null);
     setProgressPercent(0);
@@ -144,7 +144,8 @@ const Products: React.FC = () => {
             setProcessId(null);
             setIsDownloading(false);
             if (!processData.api_error){
-              showSuccess("Tải sản phẩm thành công!");
+              processType === "variant" ? showSuccess("Tải sản phẩm thành công!")
+                  : showSuccess("Đồng bộ tồn thành công!");
             }else {
               resetProgress();
               setIsVisibleProgressModal(false);
@@ -157,7 +158,7 @@ const Products: React.FC = () => {
         }
       });
     });
-  }, [processId]);
+  }, [processId, processType]);
 
   useEffect(() => {
     if (progressPercent === 100 || !processId) {
@@ -196,7 +197,18 @@ const Products: React.FC = () => {
     }
   }, []);
 
+  const handleSyncStockJob =(id: any) => {
+    console.log(id)
+    if(id){
+      setProcessType("stock");
+      setProcessId(id);
+      setIsVisibleProgressModal(true);
+      setIsDownloading(true);
+    }
+  }
+
   const getProductsFromEcommerce = (params: any) => {
+    setProcessType("variant");
     setIsLoading(true);
     setIsReloadPage(false);
     dispatch(postProductEcommerceList(params, updateEcommerceList));
@@ -266,7 +278,7 @@ const Products: React.FC = () => {
               }
               
               {activeTab === PRODUCT_TAB.connected.key &&
-                <ConnectedItems />
+                <ConnectedItems handleSyncStockJob={handleSyncStockJob}/>
               }
               
               {activeTab === PRODUCT_TAB.notConnected.key &&
@@ -294,6 +306,7 @@ const Products: React.FC = () => {
           progressData={progressData}
           progressPercent={progressPercent}
           isDownloading={isDownloading}
+          processType={processType}
         />
       }
 
