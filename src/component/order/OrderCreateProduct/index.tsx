@@ -2204,6 +2204,7 @@ function OrderCreateProduct(props: PropType) {
 					onCancel={onCancleConfirm}
 					onOk={onOkConfirm}
 					visible={isVisibleGift}
+					storeId={storeId}
 				/>
 				<Table
 					locale={{
