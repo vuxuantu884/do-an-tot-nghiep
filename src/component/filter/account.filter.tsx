@@ -3,9 +3,10 @@ import { Button, Col, DatePicker, Form, Input, Row, Select } from "antd";
 import search from "assets/img/search.svg";
 import { FilterWrapper } from "component/container/filter.container";
 import { MenuAction } from "component/table/ActionButton";
+import TreeDepartment from "component/tree-node/tree-department";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { AccountSearchQuery } from "model/account/account.model";
-import { DepartmentView } from "model/account/department.model";
+import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { StoreResponse } from "model/core/store.model";
@@ -19,7 +20,7 @@ import BaseFilter from "./base.filter";
 
 type AccountFilterProps = {
   params: AccountSearchQuery;
-  listDepartment?: Array<DepartmentView>;
+  listDepartment?:  DepartmentResponse[] | undefined;
   listPosition?: Array<PositionResponse>;
   listStatus?: Array<BaseBootstrapResponse>;
   listStore?: Array<StoreResponse>;
@@ -45,7 +46,6 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
   const [formRef] = Form.useForm();
   const onFinish = useCallback(
     (values: AccountSearchQuery) => {
-      console.log(values);
       onFilter && onFilter(values);
     },
     [onFilter]
@@ -111,37 +111,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
           </Form.Item>
 
           <Form.Item name="department_ids">
-            <Select
-              showSearch
-              allowClear
-              showArrow
-              placeholder="Chọn bộ phận"
-              optionFilterProp="title"
-              style={{
-                width: 250,
-              }}>
-              {listDepartment &&
-                listDepartment.map((single: any) => {
-                  return (
-                    <Select.Option
-                      value={single.id}
-                      key={single.id}
-                      title={single.name}>
-                      <span
-                        className="hideInSelect"
-                        style={{ paddingLeft: +18 * single.level }}></span>
-                      {single?.parent?.name && (
-                        <span className="hideInDropdown">
-                          {single?.parent?.name} -{" "}
-                        </span>
-                      )}
-                      <span className={`${single.level === 0 && "itemParent"}`}>
-                        {single.name}
-                      </span>
-                    </Select.Option>
-                  );
-                })}
-            </Select>
+            <TreeDepartment listDepartment={listDepartment} style={{ width: 250}}/>
           </Form.Item>
           <Form.Item name="status" style={{ minWidth: 220 }}>
             <Select showArrow placeholder="Trạng thái" allowClear>

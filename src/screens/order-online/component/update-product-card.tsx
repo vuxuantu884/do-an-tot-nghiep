@@ -7,7 +7,8 @@ import {
 	Space,
 	Table,
 	Tag,
-	Tooltip
+	Tooltip,
+  Typography
 } from "antd";
 import giftIcon from "assets/icon/gift.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
@@ -115,7 +116,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
         <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
-    className: "yody-pos-price text-right",
+    className: "yody-pos-price text-right 1",
     width: "15%",
     align: "right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
@@ -131,13 +132,20 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     ),
     align: "right",
     width: "15%",
-    className: "yody-table-discount text-right",
+    className: "yody-table-discount text-right 32",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
         <div>
           {l.discount_items.length > 0 && l.discount_items[0].value !== null
             ? formatCurrency(l.discount_items[0].value)
             : 0}
+            <div className="d-flex justify-content-end yody-table-discount-converted">
+              <Typography.Text type="danger">
+                <span style={{fontSize: "0.857rem"}}>
+                  {Math.round(l.discount_items[0]?.rate * 100 || 0)/100}%
+                </span>
+              </Typography.Text>
+            </div>
         </div>
       );
     },
@@ -186,10 +194,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               <Button type="link" className="p-0" style={{ color: "#000000" }}>
                 <Space>
                   <img src={storeBluecon} alt="" />
-                  <Link
-                    target="_blank"
-                    to={`${UrlConfig.STORE}/${OrderDetail?.store_id}`}
-                  >
+                  <Link target="_blank" to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}>
                     {OrderDetail?.store}
                   </Link>
                 </Space>

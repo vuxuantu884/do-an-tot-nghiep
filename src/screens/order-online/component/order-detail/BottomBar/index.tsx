@@ -114,10 +114,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                     id="save-and-confirm"
                     onClick={() => {
                       handleTypeButton(OrderStatus.FINALIZED);
-                      // console.log(
-                      //   "formRef.current.value",
-                      //   formRef?.current?.getFieldsValue()
-                      // );
                       formRef.current?.submit();
                     }}
                     loading={creating}
@@ -215,6 +211,16 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         Sao chép đơn hàng
                       </Menu.Item>}
                     </AuthWrapper>
+                    {orderDetail && orderDetail?.fulfillments?.length &&
+                        !orderDetail?.fulfillments[0]?.shipment?.tracking_code &&
+                        orderDetail.status === "finalized" && orderDetail.channel_id === 3 && (
+                        <Menu.Item
+                            key="confirm"
+                            onClick={() => orderActionsClick && orderActionsClick("confirm")}
+                        >
+                          Xác nhận đơn trên sàn
+                        </Menu.Item>
+                    )}
                     {stepsStatusValue === FulFillmentStatus.SHIPPED && (
                       <Menu.Item
                           key="print"

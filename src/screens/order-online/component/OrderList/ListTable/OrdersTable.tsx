@@ -41,7 +41,7 @@ import IconStore from "./images/store.svg";
 // import IconWebsite from "./images/website.svg";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
-type PropsType = {
+type PropTypes = {
   tableLoading: boolean;
   data: PageResponse<OrderModel>;
   columns: ICustomTableColumType<OrderModel>[];
@@ -53,7 +53,7 @@ type PropsType = {
   setShowSettingColumn: (value: boolean) => void;
 };
 
-function OrdersTable(props: PropsType) {
+function OrdersTable(props: PropTypes) {
   const {
     tableLoading,
     data,
@@ -111,7 +111,6 @@ function OrdersTable(props: PropsType) {
 
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
-      console.log("ok ok");
       const newItems = [...data.items];
       const indexOrder = newItems.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
@@ -132,7 +131,6 @@ function OrdersTable(props: PropsType) {
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
-      console.log("newNote, noteType, orderID", newNote, noteType, orderID);
       let params: any = {};
       if (noteType === "note") {
         params.note = newNote;
@@ -720,6 +718,14 @@ function OrdersTable(props: PropsType) {
         width: 120,
       },
       {
+        title: "Tổng SLSP",
+        dataIndex: "total_quantity",
+        key: "total_quantity",
+        visible: true,
+        align: "center",
+        width: 80,
+      },
+      {
         title: "Ghi chú",
         className: "notes",
         render: (value: string, record: OrderModel) => (
@@ -731,7 +737,6 @@ function OrdersTable(props: PropsType) {
                   title="Khách hàng: "
                   color={primaryColor}
                   onOk={(newNote) => {
-                    console.log("newNote", newNote);
                     editNote(newNote, "customer_note", record.id);
                   }}
                   isDisable={record.status === OrderStatus.FINISHED}
@@ -743,7 +748,6 @@ function OrdersTable(props: PropsType) {
                   title="Nội bộ: "
                   color={primaryColor}
                   onOk={(newNote) => {
-                    console.log("newNote", newNote);
                     editNote(newNote, "note", record.id);
                   }}
                   isDisable={record.status === OrderStatus.FINISHED}
@@ -756,14 +760,6 @@ function OrdersTable(props: PropsType) {
         visible: true,
         align: "left",
         width: 150,
-      },
-      {
-        title: "Tổng SLSP",
-        dataIndex: "total_quantity",
-        key: "total_quantity",
-        visible: true,
-        align: "center",
-        width: 80,
       },
       {
         title: "NV bán hàng",

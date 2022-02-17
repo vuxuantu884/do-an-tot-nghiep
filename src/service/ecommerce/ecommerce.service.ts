@@ -11,6 +11,7 @@ import { EcommerceRequest } from "model/request/ecommerce.request";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
 import { generateQuery } from "utils/AppUtils";
+import {EcommerceCreateLogistic} from "../../model/ecommerce/ecommerce.model";
 
 const addFpagePhone = (
   userId: string,
@@ -175,6 +176,16 @@ const getOrderMappingListApi = (query: any) => {
   return BaseAxios.get(link);
 };
 
+const getEcommerceStoreAddressApi = (query : any) => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.ECOMMERCE}/logistic/store-address?${params}`;
+  return BaseAxios.get(link);
+}
+
+const createEcommerceLogisticApi = (requestBody : EcommerceCreateLogistic) => {
+  let link = `${ApiConfig.ECOMMERCE}/logistic/shipping-order`;
+  return BaseAxios.post(link, requestBody);
+}
 export {
   ecommerceCreateApi,
   ecommerceGetApi,
@@ -200,4 +211,6 @@ export {
   deleteFpagePhone,
   setFpageDefaultPhone,
   getOrderMappingListApi,
+  getEcommerceStoreAddressApi,
+  createEcommerceLogisticApi
 };

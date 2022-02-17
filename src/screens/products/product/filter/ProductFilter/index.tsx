@@ -1,5 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Collapse, Form, Input, Select, Space, Tag } from "antd";
+import { Button, Col, Form, Input, Row, Select, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import ColorSearchSelect from "component/custom/select-search/color-select";
@@ -270,7 +270,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
-          width={500}
+          width={700}
         >
           <Form
             onFinish={onFinishAvd}
@@ -278,7 +278,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
             initialValues={{}}
             layout="vertical"
           >
-            <Space className="po-filter" direction="vertical" style={{width: "100%"}}>
+            <Row gutter={20}>
               {Object.keys(SearchVariantMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
@@ -361,17 +361,13 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     );
                 }
                 return (
-                  <Collapse key={key}>
-                    <Collapse.Panel
-                      key="1"
-                      header={<span>{SearchVariantMapping[key].toUpperCase()}</span>}
-                    >
-                      <Item name={key}>{component}</Item>
-                    </Collapse.Panel>
-                  </Collapse>
+                  <Col span={12}>
+                    <p>{SearchVariantMapping[key]}</p>
+                    <Item name={key}>{component}</Item>
+                  </Col>
                 );
               })}
-            </Space>
+            </Row>
           </Form>
         </BaseFilter>
       </div>

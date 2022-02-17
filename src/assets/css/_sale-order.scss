@@ -21,6 +21,10 @@
   text-align: right;
 }
 
+.mr-15 {
+  margin-right: 15px;
+}
+
 .ant-input-search .ant-input-group .ant-input-affix-wrapper:not(:last-child) {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -194,6 +198,7 @@
     // font-size: 17px;
     align-items: center;
   }
+
   .ant-btn-primary {
     background: #2a2a86;
     border-color: #2a2a86;
@@ -373,26 +378,26 @@
     }
     .ant-collapse-item {
       position: relative;
-      &::after {
-        content: "";
-        position: absolute;
-        width: 14px;
-        height: 14px;
-        top: 16px;
-        left: -8px;
-        background-color: #27ae60;
-        border-radius: 50%;
-      }
-      &::before {
-        content: "";
-        position: absolute;
-        width: 2px;
-        // height: 100%;
-        background-color: #d9d9e4;
-        left: -2px;
-        top: -16px;
-        bottom: 5px;
-      }
+       &::after {
+         content: "";
+         position: absolute;
+         width: 14px;
+         height: 14px;
+         top: 16px;
+         left: -8px;
+         background-color: #27ae60;
+         border-radius: 50%;
+       }
+       &::before {
+         content: "";
+         position: absolute;
+         width: 2px;
+         // height: 100%;
+         background-color: #d9d9e4;
+         left: -2px;
+         top: -16px;
+         bottom: 5px;
+       }
       &:first-child {
         &::before {
           top: 6px;
@@ -467,11 +472,12 @@
   min-height: 37px;
   .ant-input-group.ant-input-group-compact > .ant-cascader-picker:first-child .ant-input,
   .ant-input-group.ant-input-group-compact
-    > .ant-select-auto-complete:first-child
-    .ant-input,
+  > .ant-select-auto-complete:first-child
+  .ant-input,
   .ant-input-group.ant-input-group-compact
-    > .ant-select:first-child
-    > .ant-select-selector,
+  > .ant-select:first-child
+  > .ant-select-selector,
+
   .ant-input-group.ant-input-group-compact > :first-child {
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
@@ -909,7 +915,7 @@
     width: 18px;
     height: 18px;
     filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg) brightness(66%)
-      contrast(100%);
+    contrast(100%);
   }
   span {
     height: 18px;
@@ -953,8 +959,7 @@
     margin-right: 8px;
     width: 18px;
     height: 18px;
-    filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg) brightness(66%)
-      contrast(100%);
+    filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg) brightness(66%) contrast(100%);
   }
 }
 // shipment đơn hàng
@@ -1310,28 +1315,33 @@
       //   left: -4px;
       //   border-radius: 50%;
       // }
-			&.currentTimeline {
-				&:after {
-					background-color: $green !important;
-				}
-				b, i, span {
-					color: $green !important;
-				}
-				&.hasError {
-					&:after {
-						background-color: $red !important;
-					}
-					b, i, span {
-						color: $red !important;
-					}
-				}
-			}
+      &.currentTimeline {
+        &:after {
+          background-color: $green !important;
+        }
+        b,
+        i,
+        span {
+          color: $green !important;
+        }
+        &.hasError {
+          &:after {
+            background-color: $red !important;
+          }
+          b,
+          i,
+          span {
+            color: $red !important;
+          }
+        }
+      }
     }
     .orders-timeline-custom.order-shipment-dot-default {
       &::before {
         background-color: #e5e5e5;
       }
     }
+
     .orders-timeline-custom.order-shipment-dot-active {
       &::before {
         background-color: $green;
@@ -1339,14 +1349,15 @@
     }
     .orders-timeline-custom.order-shipment-dot-cancelled {
       // &::before {
-        .saleorder-header-content {
-          .text-field {
-            color: #e24343 !important;
-          }
+      .saleorder-header-content {
+        .text-field {
+          color: #e24343 !important;
         }
-        // background-color: #e24343;
+      }
+      // background-color: #e24343;
       // }
     }
+
     .ant-collapse-header {
       display: flex;
       flex-direction: row;
@@ -1755,7 +1766,7 @@
   box-shadow: 3px 0px 6px #f5f5f5;
 }
 
-.order-list{
+.order-list {
   .ant-table-wrapper::-webkit-scrollbar {
     height: 6px;
   }

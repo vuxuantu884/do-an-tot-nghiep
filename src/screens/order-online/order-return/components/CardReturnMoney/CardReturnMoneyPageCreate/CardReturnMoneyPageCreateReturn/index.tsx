@@ -22,8 +22,6 @@ function CardReturnMoneyPageCreateReturn(props: PropType) {
     setReturnMoneyType,
   } = props;
 
-  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
-
   return (
     <Card className="margin-top-20" title={<span className="title-card">Hoàn tiền</span>}>
       <div className="create-order-payment">

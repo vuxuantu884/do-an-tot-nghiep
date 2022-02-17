@@ -36,6 +36,7 @@ import 'component/filter/order.filter.scss'
 
 import search from "assets/img/search.svg";
 import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
+import TreeStore from "component/tree-node/tree-store";
 
 type EcommerceOrderFilterProps = {
   params: OrderSearchQuery;
@@ -939,7 +940,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               <Col span={8} xxl={6}>
                 <p>Kho cửa hàng</p>
                 <Item name="store_ids">
-                  <CustomSelect
+                  {/* <CustomSelect
                     mode="multiple"
                     showArrow allowClear
                     showSearch
@@ -957,7 +958,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                         {item.name}
                       </CustomSelect.Option>
                     ))}
-                  </CustomSelect>
+                  </CustomSelect> */}
+                  <TreeStore listStore={listStore} placeholder="Cửa hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}/>
                 </Item>
                 <p>Trạng thái đơn</p>
                 <Item name="order_status">

@@ -29,11 +29,11 @@ import { callApiNative } from "utils/ApiUtils";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc, ConvertUtcToLocalDate, DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import { ProcurementListWarning } from "../../components/ProcumentListWarning"; 
+import { ProcurementListWarning } from "../../components/ProcumentListWarning";
 
 const ACTIONS_INDEX = {
   CONFIRM_MULTI: 1,
-}; 
+};
 
 const TabCurrent: React.FC = () => {
   const dispatch = useDispatch();
@@ -57,10 +57,10 @@ const TabCurrent: React.FC = () => {
   const [isLoadingReceive, setIsLoadingReceive] = useState<boolean>(false);
   const [showLoadingBeforeShowModal, setShowLoadingBeforeShowModal] =
     useState<number>(-1);
-    
+
   const [selected, setSelected] = useState<Array<PurchaseProcument>>([]);
   const [showWarConfirm, setShowWarConfirm] = useState<boolean>(false);
-  const [contentWarning,setContentWarning] = useState<ReactNode>(); 
+  const [contentWarning,setContentWarning] = useState<ReactNode>();
   const [showConfirm, setShowConfirm] = useState<boolean>(false);
   const [listProcurement, setListProcurement] =
   useState<Array<PurchaseProcument>>();
@@ -150,15 +150,15 @@ const TabCurrent: React.FC = () => {
   );
 
   const checkConfirmProcurement = useCallback(()=>{
-    let pass = true; 
+    let pass = true;
     let listProcurementCode = "";
-    
+
     for (let index = 0; index < selected.length; index++) {
       const element = selected[index];
       if (element.status !== ProcumentStatus.NOT_RECEIVED) {
         listProcurementCode +=`${element.code},`;
         pass = false;
-      } 
+      }
     }
     if (!pass) {
       setContentWarning(()=>ProcurementListWarning(listProcurementCode));
@@ -183,7 +183,7 @@ const TabCurrent: React.FC = () => {
     }
     setListProcurement(selected);
     setShowConfirm(true);
-  },[selected]); 
+  },[selected]);
 
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
@@ -193,7 +193,7 @@ const TabCurrent: React.FC = () => {
       default:
         break;
     }
-  }, [checkConfirmProcurement]); 
+  }, [checkConfirmProcurement]);
 
   const ActionComponent = useCallback(()=>{
     let Compoment = () => <span>Mã nhập kho</span>;
@@ -245,7 +245,7 @@ const TabCurrent: React.FC = () => {
 
   const [columns, setColumns] = useState<
     Array<ICustomTableColumType<PurchaseProcument>>
-  >(defaultColumns); 
+  >(defaultColumns);
 
   const onSelectedChange = useCallback(
     (selectedRow: Array<PurchaseProcument>) => {
@@ -264,7 +264,7 @@ const TabCurrent: React.FC = () => {
       if (value !== null) {
         setSelected([]);
         showSuccess("Xác nhận nhập kho thành công");
-        setShowConfirm(false); 
+        setShowConfirm(false);
         search();
       }
     },
@@ -272,13 +272,13 @@ const TabCurrent: React.FC = () => {
   );
 
   const onReciveMultiProcument = useCallback(
-    async (value: Array<PurchaseProcumentLineItem>) => { 
+    async (value: Array<PurchaseProcumentLineItem>) => {
        if (listProcurement) {
          const PrucurementConfirm = {
            procurement_items: value,
            refer_ids: listProcurement.map(e=>e.id)
          } as ProcurementConfirm;
-         const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm); 
+         const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm);
          if (res) {
            onReciveMuiltiProcumentCallback(true);
          }
@@ -288,7 +288,7 @@ const TabCurrent: React.FC = () => {
    );
 
   useEffect(() => {
-    setColumns(defaultColumns); 
+    setColumns(defaultColumns);
   }, [selected, defaultColumns]);
 
   useEffect(() => {
@@ -336,29 +336,29 @@ const TabCurrent: React.FC = () => {
       />
 
       {/* Xác nhận nhập */}
-      <ProducmentInventoryMultiModal 
+      <ProducmentInventoryMultiModal
           title={`Xác nhận nhập kho ${listProcurement?.map(e=> e.code).toString()}`}
           visible={showConfirm}
           listProcurement={listProcurement}
           onOk={(value: Array<PurchaseProcumentLineItem>) => {
             if (value) onReciveMultiProcument(value);
           }}
-          loading={isLoadingReceive} 
+          loading={isLoadingReceive}
           onCancel={() => {
             setShowConfirm(false);
           }}
         />
 
-          <ModalConfirm 
+          <ModalConfirm
               onCancel={(()=>{
                 setShowWarConfirm(false);
               })}
               onOk={()=>{
                 setSelected([]);
-                setShowWarConfirm(false); 
+                setShowWarConfirm(false);
               }}
               okText="Chọn lại"
-              cancelText="Hủy" 
+              cancelText="Hủy"
               title={`Nhận hàng từ nhiều phiếu nhập kho`}
               subTitle={contentWarning}
               visible={showWarConfirm}

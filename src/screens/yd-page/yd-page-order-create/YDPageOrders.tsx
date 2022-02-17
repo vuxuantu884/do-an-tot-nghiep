@@ -1,8 +1,8 @@
-import { Col, Form, FormInstance, Input, Row } from "antd";
+import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { Type } from "config/type.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-// import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 
 import {
@@ -32,7 +32,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   // DeliveryServiceResponse,
   OrderResponse,
-  // StoreCustomResponse,
+  StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
@@ -47,7 +47,8 @@ import {
   totalAmount,
 } from "utils/AppUtils";
 import {
-  DEFAULT_COMPANY, FACEBOOK,
+  DEFAULT_COMPANY,
+  FACEBOOK,
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
@@ -62,9 +63,9 @@ import OrderDetailBottomBar from "./component/OrderCreateBottomBar";
 import CardCustomer from "./component/OrderCreateCustomer";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 import CreateOrderSidebar from "./component/CreateOrderSidebar";
-// import OrderCreatePayments from "./component/OrderCreatePayments";
+import OrderCreatePayments from "./component/OrderCreatePayments";
 import OrderCreateProduct from "./component/OrderCreateProduct";
-// import OrderCreateShipment from "./component/OrderCreateShipment";
+import OrderCreateShipment from "./component/OrderCreateShipment";
 import { YDpagePermission } from "config/permissions/fpage.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
@@ -108,8 +109,7 @@ type OrdersCreatePermissionProps = {
   // setModalAction: (item: modalActionType) => void;
   // modalAction: modalActionType;
   districtId: number | null;
-
-}
+};
 
 const ordersCreatePermission = [YDpagePermission.orders_create];
 
@@ -136,25 +136,21 @@ export default function Order(props: OrdersCreatePermissionProps) {
     districtId,
     setDistrictId,
     defaultStoreId,
-    defaultSourceId
+    defaultSourceId,
   } = props;
   const dispatch = useDispatch();
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [isSaveDraft, setIsSaveDraft] = useState(false);
-  // const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
+  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
-  const [shipmentMethod, setShipmentMethod] = useState<number>(
-    ShipmentMethodOption.DELIVER_LATER
-  );
+  const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_PARTNER);
 
-	// const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+  // const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
-  const [paymentMethod, setPaymentMethod] = useState<number>(
-    PaymentMethodOption.POSTPAYMENT
-  );
+  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POSTPAYMENT);
   // const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
   // const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -173,31 +169,28 @@ export default function Order(props: OrdersCreatePermissionProps) {
     shipping_fee_paid_to_three_pls: null,
   });
   const [creating, setCreating] = useState(false);
-  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
-    number | null
-  >(0);
+  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(
+    0
+  );
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTags] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
-  // const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   // const [listOrderConfigs, setListOrderConfigs] =
   //   useState<OrderConfigResponseModel | null>(null);
 
-  const [listPaymentMethod, setListPaymentMethod] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
+  const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
   // const [shippingServiceConfig, setShippingServiceConfig] = useState<
   //   ShippingServiceConfigDetailResponseModel[]
   // >([]);
 
-  const [inventoryResponse, setInventoryResponse] =
-    useState<Array<InventoryResponse> | null>(null);
+  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
@@ -206,40 +199,40 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const cloneIdParam = queryParams.get("cloneId") || null;
   const typeParam = queryParams.get("type") || null;
 
-  // const ChangeShippingFeeCustomer = (value: number | null) => {
-  //   form.setFieldsValue({ shipping_fee_informed_to_customer: value });
-  //   setShippingFeeInformedToCustomer(value);
-  // };
+  const ChangeShippingFeeCustomer = (value: number | null) => {
+    form.setFieldsValue({ shipping_fee_informed_to_customer: value });
+    setShippingFeeInformedToCustomer(value);
+  };
 
   const [coupon, setCoupon] = useState<string>("");
-	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+  const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
   const onChangeInfoProduct = (
-		_items: Array<OrderLineItemRequest>,
-		_promotion?: OrderDiscountRequest | null,
-	) => {
-		setItems(_items);
-		let amount = totalAmount(_items);
-		setOrderAmount(amount);
-		if (_promotion !== undefined) {
-			setPromotion(_promotion);
-		}
-	};
+    _items: Array<OrderLineItemRequest>,
+    _promotion?: OrderDiscountRequest | null
+  ) => {
+    setItems(_items);
+    let amount = totalAmount(_items);
+    setOrderAmount(amount);
+    if (_promotion !== undefined) {
+      setPromotion(_promotion);
+    }
+  };
 
-  // const handlePaymentMethod = (value: number) => {
-  //   setPaymentMethod(value);
-  // };
-  // const onSelectShipment = (value: number) => {
-  //   if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-  //     setIsDisablePostPayment(true);
-  //     if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
-  //       setPaymentMethod(PaymentMethodOption.COD);
-  //     }
-  //   } else {
-  //     setIsDisablePostPayment(false);
-  //   }
-  //   setShipmentMethod(value);
-  // };
+  const handlePaymentMethod = (value: number) => {
+    setPaymentMethod(value);
+  };
+  const onSelectShipment = (value: number) => {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      setIsDisablePostPayment(true);
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    } else {
+      setIsDisablePostPayment(false);
+    }
+    setShipmentMethod(value);
+  };
 
   const [isLoadForm, setIsLoadForm] = useState(false);
 
@@ -280,14 +273,18 @@ export default function Order(props: OrdersCreatePermissionProps) {
     billing_address: null,
     payments: [],
     channel_id: null,
-		automatic_discount: true,
+    automatic_discount: true,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
   });
 
   useEffect(() => {
-    if (isNullOrUndefined(customer) && newCustomerInfo && (newCustomerInfo.full_name || newCustomerInfo.phone)) {
+    if (
+      isNullOrUndefined(customer) &&
+      newCustomerInfo &&
+      (newCustomerInfo.full_name || newCustomerInfo.phone)
+    ) {
       setModalAction("create");
       setVisibleCustomer(true);
     } else {
@@ -323,7 +320,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       total_discount: null,
       total_quantity: null,
       discount_rate: promotion?.rate || null,
-			discount_value: promotion?.value || null,
+      discount_value: promotion?.value || null,
       discount_amount: null,
       total_line_amount_after_line_discount: null,
       shipment: shipmentRequest,
@@ -380,7 +377,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       note_to_shipper: "",
       requirements: value.requirements,
       sender_address: null,
-			office_time: officeTime,
+      office_time: officeTime,
     };
 
     switch (shipmentMethod) {
@@ -416,16 +413,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
         objShipment.delivery_service_provider_type = "pick_at_store";
         let newCod = orderAmount;
         if (shippingFeeInformedToCustomer !== null) {
-          if (
-            orderAmount +
-            shippingFeeInformedToCustomer -
-            getAmountPaymentRequest(payments) >
-            0
-          ) {
+          if (orderAmount + shippingFeeInformedToCustomer - getAmountPaymentRequest(payments) > 0) {
             newCod =
-              orderAmount +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments);
+              orderAmount + shippingFeeInformedToCustomer - getAmountPaymentRequest(payments);
           }
         } else {
           if (orderAmount - getAmountPaymentRequest(payments) > 0) {
@@ -447,32 +437,32 @@ export default function Order(props: OrdersCreatePermissionProps) {
   };
 
   const createDiscountRequest = () => {
-		let listDiscountRequest = [];
-		if (promotion) {
-			listDiscountRequest.push(promotion);
-		}
-		return listDiscountRequest;
-	};
+    let listDiscountRequest = [];
+    if (promotion) {
+      listDiscountRequest.push(promotion);
+    }
+    return listDiscountRequest;
+  };
 
   const createOrderCallback = useCallback(
-		(value: OrderResponse) => {
-			setIsSaveDraft(false);
-			setCreating(false);
-			if (value.fulfillments && value.fulfillments.length > 0) {
-				showSuccess("Đơn được lưu và duyệt thành công");
+    (value: OrderResponse) => {
+      setIsSaveDraft(false);
+      setCreating(false);
+      if (value.fulfillments && value.fulfillments.length > 0) {
+        showSuccess("Đơn được lưu và duyệt thành công");
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
         // setIsClearOrderTab(true)
-			} else {
-				showSuccess("Đơn được lưu nháp thành công");
+      } else {
+        showSuccess("Đơn được lưu nháp thành công");
         handleCustomerById(customer && customer.id);
         setActiveTabKey("1");
         // setIsClearOrderTab(true)
-			}
-		},
-		[customer, handleCustomerById, setActiveTabKey]
-	);
-  
+      }
+    },
+    [customer, handleCustomerById, setActiveTabKey]
+  );
+
   const handleTypeButton = (type: string) => {
     typeButton = type;
   };
@@ -498,47 +488,50 @@ export default function Order(props: OrdersCreatePermissionProps) {
   };
 
   const reCalculatePaymentReturn = (payments: OrderPaymentRequest[]) => {
-		if (totalAmountCustomerNeedToPay < 0) {
-			let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
-			let _payments = [...payments];
-			let paymentCashIndex = _payments.findIndex(payment => payment.payment_method_code === PaymentMethodCode.CASH);
-			if (paymentCashIndex > -1) {
-				_payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
-				_payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
-				_payments[paymentCashIndex].return_amount = returnAmount;
-				
-			} else {
-				let newPaymentCash: OrderPaymentRequest | undefined = undefined;
-				newPaymentCash = {
-					code: PaymentMethodCode.CASH,
-					payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
-					amount: -returnAmount,
-					paid_amount: 0,
-					return_amount: returnAmount,
-					status: "",
-					payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
-					reference: '',
-					source: '',
-					customer_id: 1,
-					note: '',
-					type: '',
-				};
-				_payments.push(newPaymentCash)
-			}
-			return _payments;
-		}
-		return payments;
-	};
+    if (totalAmountCustomerNeedToPay < 0) {
+      let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
+      let _payments = [...payments];
+      let paymentCashIndex = _payments.findIndex(
+        (payment) => payment.payment_method_code === PaymentMethodCode.CASH
+      );
+      if (paymentCashIndex > -1) {
+        _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
+        _payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
+        _payments[paymentCashIndex].return_amount = returnAmount;
+      } else {
+        let newPaymentCash: OrderPaymentRequest | undefined = undefined;
+        newPaymentCash = {
+          code: PaymentMethodCode.CASH,
+          payment_method_id:
+            listPaymentMethod.find((single) => single.code === PaymentMethodCode.CASH)?.id || 0,
+          amount: -returnAmount,
+          paid_amount: 0,
+          return_amount: returnAmount,
+          status: "",
+          payment_method:
+            listPaymentMethod.find((single) => single.code === PaymentMethodCode.CASH)?.name || "",
+          reference: "",
+          source: "",
+          customer_id: 1,
+          note: "",
+          type: "",
+        };
+        _payments.push(newPaymentCash);
+      }
+      return _payments;
+    }
+    return payments;
+  };
 
   const onFinish = (values: OrderRequest) => {
     values.channel_id = FACEBOOK.channel_id;
-    values.company_id = DEFAULT_COMPANY.company_id
+    values.company_id = DEFAULT_COMPANY.company_id;
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
-    
+
     values.tags = tags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
@@ -547,8 +540,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.customer_ward = customer?.ward;
-		values.customer_district = customer?.district;
-		values.customer_city = customer?.city;
+    values.customer_district = customer?.district;
+    values.customer_city = customer?.city;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -577,10 +570,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
           orderAmount +
           (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
           getAmountPaymentRequest(payments) -
-          (promotion?.value || 0);;
+          (promotion?.value || 0);
       }
     }
-    
+
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -592,50 +585,50 @@ export default function Order(props: OrdersCreatePermissionProps) {
         element?.focus();
       } else {
         if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
-					showError("Vui lòng nhập địa chỉ giao hàng!");
-					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
-					scrollAndFocusToDomElement(element);
-					return;
-				}
-				let valuesCalculateReturnAmount = {
-					...values,
-					payments: reCalculatePaymentReturn(payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
-				}
+          showError("Vui lòng nhập địa chỉ giao hàng!");
+          const element: any = document.getElementById(
+            "customer_update_shipping_addresses_full_address"
+          );
+          scrollAndFocusToDomElement(element);
+          return;
+        }
+        let valuesCalculateReturnAmount = {
+          ...values,
+          payments: reCalculatePaymentReturn(payments).filter(
+            (payment) => payment.amount !== 0 || payment.paid_amount !== 0
+          ),
+        };
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (typeButton === OrderStatus.DRAFT) {
             setIsSaveDraft(true);
           } else {
             setCreating(true);
           }
-          if (
-            values.delivery_service_provider_id === null &&
-            typeButton !== OrderStatus.DRAFT
-          ) {
+          if (values.delivery_service_provider_id === null && typeButton !== OrderStatus.DRAFT) {
             showError("Vui lòng chọn đối tác giao hàng");
             setCreating(false);
           } else {
             (async () => {
               try {
-								await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
-									// on error
-									setCreating(false);
-									setIsSaveDraft(false);
-								}));
-							} catch {
-								setCreating(false);
-								setIsSaveDraft(false);
-							}
+                await dispatch(
+                  orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
+                    // on error
+                    setCreating(false);
+                    setIsSaveDraft(false);
+                  })
+                );
+              } catch {
+                setCreating(false);
+                setIsSaveDraft(false);
+              }
             })();
             // dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
-          if (
-            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-            !thirdPL.service
-          ) {
+          if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !thirdPL.service) {
             showError("Vui lòng chọn đơn vị vận chuyển!");
             const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
-						scrollAndFocusToDomElement(element)
+            scrollAndFocusToDomElement(element);
             setCreating(false);
           } else {
             if (typeButton === OrderStatus.DRAFT) {
@@ -647,17 +640,19 @@ export default function Order(props: OrdersCreatePermissionProps) {
               let isPointFocus = checkPointFocus(values);
               if (isPointFocus) {
                 (async () => {
-									try {
-										await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
-											// on error
-											setCreating(false);
-											setIsSaveDraft(false);
-										}));
-									} catch {
-										setCreating(false);
-										setIsSaveDraft(false);
-									}
-								})();
+                  try {
+                    await dispatch(
+                      orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
+                        // on error
+                        setCreating(false);
+                        setIsSaveDraft(false);
+                      })
+                    );
+                  } catch {
+                    setCreating(false);
+                    setIsSaveDraft(false);
+                  }
+                })();
               }
               // dispatch(orderCreateAction(values, createOrderCallback));
             }
@@ -674,11 +669,11 @@ export default function Order(props: OrdersCreatePermissionProps) {
     setAccounts(data.items);
   }, []);
 
-  // useEffect(() => {
-  //   if (storeId != null) {
-  //     dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
-  //   }
-  // }, [dispatch, storeId]);
+  useEffect(() => {
+    if (storeId != null) {
+      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+    }
+  }, [dispatch, storeId]);
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -763,9 +758,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 });
               setItems(responseItems);
 
-              setShippingFeeInformedToCustomer(
-                response.shipping_fee_informed_to_customer
-              );
+              setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
               if (response.store_id) {
                 setStoreId(response.store_id);
               }
@@ -773,8 +766,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 setTags(response.tags);
               }
               if (response?.discounts && response?.discounts[0]) {
-								setPromotion(response?.discounts[0])
-							}
+                setPromotion(response?.discounts[0]);
+              }
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
               let new_payments = initialForm.payments;
@@ -800,8 +793,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 items: responseItems,
                 dating_ship: newDatingShip,
                 shipper_code: newShipperCode,
-                shipping_fee_informed_to_customer:
-                  response.shipping_fee_informed_to_customer,
+                shipping_fee_informed_to_customer: response.shipping_fee_informed_to_customer,
                 payments: new_payments,
                 reference_code:
                   typeParam === "split-order"
@@ -813,7 +805,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 note: response.note,
                 tags: response.tags,
                 channel_id: response.channel_id,
-								automatic_discount: response.automatic_discount,
+                automatic_discount: response.automatic_discount,
               });
               form.resetFields();
               // load lại form sau khi set initialValue
@@ -839,9 +831,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                 response.fulfillments[0] &&
                 response?.fulfillments[0]?.shipment?.delivery_service_provider_type
               ) {
-                switch (
-                response.fulfillments[0].shipment?.delivery_service_provider_type
-                ) {
+                switch (response.fulfillments[0].shipment?.delivery_service_provider_type) {
                   case ShipmentMethod.EMPLOYEE:
                   case ShipmentMethod.EXTERNAL_SHIPPER:
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
@@ -857,8 +847,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       insurance_fee: shipmentDeliverPartner.insurance_fee,
                       delivery_service_provider_name:
                         shipmentDeliverPartner.delivery_service_provider_name,
-                      delivery_transport_type:
-                        shipmentDeliverPartner.delivery_transport_type,
+                      delivery_transport_type: shipmentDeliverPartner.delivery_transport_type,
                       service: shipmentDeliverPartner.service,
                       shipping_fee_paid_to_three_pls:
                         shipmentDeliverPartner.shipping_fee_paid_to_three_pls,
@@ -872,10 +861,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     break;
                 }
                 setShipmentMethod(newShipmentMethod);
-                if (
-                  response.fulfillments[0] &&
-                  response.fulfillments[0]?.shipment?.office_time
-                ) {
+                if (response.fulfillments[0] && response.fulfillments[0]?.shipment?.office_time) {
                   setOfficeTime(true);
                 }
               }
@@ -895,9 +881,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
         setTags("");
         setIsLoadForm(true);
         setShippingFeeInformedToCustomer(0);
-        setPromotion(null)
+        setPromotion(null);
         setOfficeTime(false);
-        setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
+        setShipmentMethod(ShipmentMethodOption.DELIVER_PARTNER);
         form.resetFields();
       }
     };
@@ -960,9 +946,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         loyaltyRate === null || loyaltyRate === undefined ? 0 : loyaltyRate.usage_rate;
 
       let enableUsingPoint =
-        loyaltyRate === null || loyaltyRate === undefined
-          ? false
-          : loyaltyRate.enable_using_point;
+        loyaltyRate === null || loyaltyRate === undefined ? false : loyaltyRate.enable_using_point;
 
       let limitOrderPercent = !rank
         ? 0
@@ -1041,21 +1025,21 @@ export default function Order(props: OrdersCreatePermissionProps) {
   // }, [dispatch]);
 
   useEffect(() => {
-		if (items && items != null && items?.length > 0) {
-			let variant_id: Array<number> = [];
-			items.forEach((element) => variant_id.push(element.variant_id));
-			dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, items?.length]);
+    if (items && items != null && items?.length > 0) {
+      let variant_id: Array<number> = [];
+      items.forEach((element) => variant_id.push(element.variant_id));
+      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, items?.length]);
 
   useEffect(() => {
-		dispatch(
-			orderConfigSaga((data: OrderConfigResponseModel) => {
-				setOrderConfig(data);
-			})
-		);
-	}, [dispatch]);
+    dispatch(
+      orderConfigSaga((data: OrderConfigResponseModel) => {
+        setOrderConfig(data);
+      })
+    );
+  }, [dispatch]);
 
   // khách cần trả
   const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
@@ -1094,135 +1078,138 @@ export default function Order(props: OrdersCreatePermissionProps) {
   return (
     <div className="yd-page-order" style={{ marginTop: 56 }}>
       <AuthWrapper acceptPermissions={ordersCreatePermission} passThrough>
-        {(allowed: boolean) => (allowed ?
-          (isLoadForm && (
-            <Form
-              layout="vertical"
-              initialValues={initialForm}
-              ref={formRef}
-              form={form}
-              onFinishFailed={({ errorFields }: any) => {
-                const element: any = document.getElementById(errorFields[0].name.join(""));
-                scrollAndFocusToDomElement(element);
-              }}
-              onFinish={onFinish}
-            >
-              <Form.Item noStyle hidden name="action">
-                <Input />
-              </Form.Item>
-              <Form.Item noStyle hidden name="currency">
-                <Input />
-              </Form.Item>
-              <Form.Item noStyle hidden name="account_code">
-                <Input />
-              </Form.Item>
-              <Form.Item noStyle hidden name="tax_treatment">
-                <Input />
-              </Form.Item>
-              <Form.Item noStyle hidden name="tags">
-                <Input />
-              </Form.Item>
-              <Row gutter={20} style={{ marginBottom: "70px" }}>
-                <Col span={24}>
-                  <CardCustomer
-                    customer={customer}
-                    newCustomerInfo={newCustomerInfo}
-                    setCustomer={setCustomer}
-                    loyaltyPoint={loyaltyPoint}
-                    loyaltyUsageRules={loyaltyUsageRules}
-                    setShippingAddress={setShippingAddress}
-                    shippingAddress={shippingAddress}
-                    setBillingAddress={setBillingAddress}
-                    isVisibleCustomer={isVisibleCustomer}
-                    setVisibleCustomer={setVisibleCustomer}
-                    modalAction={modalAction}
-                    setModalAction={setModalAction}
-                    districtId={districtId}
-                    setDistrictId={setDistrictId}
-                    setOrderSourceId={setOrderSourceId}
-                    defaultSourceId={defaultSourceId}
-                    form={form}
-                  />
-                  <OrderCreateProduct
-                    changeInfo={onChangeInfoProduct}
-                    setStoreId={(value) => {
-                      setStoreId(value);
-                      form.setFieldsValue({ store_id: value });
-                    }}
-                    storeId={storeId}
-                    defaultStoreId={defaultStoreId}
-                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-                    setItemGift={setItemGifts}
-                    form={form}
-                    items={items}
-                    setItems={setItems}
-                    orderAmount={orderAmount}
-                    totalAmountOrder={totalAmountOrder}
-                    promotion={promotion}
-                    setPromotion={setPromotion}
-                    inventoryResponse={inventoryResponse}
-                    customer={customer}
-                    setInventoryResponse={setInventoryResponse}
-                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                    orderConfig={orderConfig}
-                    orderSourceId={orderSourceId}
-                    coupon={coupon}
-                    setCoupon={setCoupon}
-                    loyaltyPoint={null}
-                  />
-
-                  {/* Không cần thanh toán và vận chuyển */}
-                  {/* <Card>
-                    <OrderCreatePayments
-                      setPaymentMethod={handlePaymentMethod}
-                      payments={payments}
-                      setPayments={setPayments}
-                      paymentMethod={paymentMethod}
-                      shipmentMethod={shipmentMethod}
-                      totalAmountOrder={totalAmountOrder}
-                      loyaltyRate={loyaltyRate}
-                      isDisablePostPayment={isDisablePostPayment}
-                      listPaymentMethod={listPaymentMethod}
-                    />
-                  </Card> */}
-
-                  {/* <Card>
-                    <OrderCreateShipment
-                      shipmentMethod={shipmentMethod}
-                      orderPrice={orderAmount}
-                      storeDetail={storeDetail}
+        {(allowed: boolean) =>
+          allowed ? (
+            isLoadForm && (
+              <Form
+                layout="vertical"
+                initialValues={initialForm}
+                ref={formRef}
+                form={form}
+                onFinishFailed={({ errorFields }: any) => {
+                  const element: any = document.getElementById(errorFields[0].name.join(""));
+                  scrollAndFocusToDomElement(element);
+                }}
+                onFinish={onFinish}>
+                <Form.Item noStyle hidden name="action">
+                  <Input />
+                </Form.Item>
+                <Form.Item noStyle hidden name="currency">
+                  <Input />
+                </Form.Item>
+                <Form.Item noStyle hidden name="account_code">
+                  <Input />
+                </Form.Item>
+                <Form.Item noStyle hidden name="tax_treatment">
+                  <Input />
+                </Form.Item>
+                <Form.Item noStyle hidden name="tags">
+                  <Input />
+                </Form.Item>
+                <Row gutter={20} style={{ marginBottom: "70px" }}>
+                  <Col span={24}>
+                    <CardCustomer
                       customer={customer}
-                      items={items}
-                      isCancelValidateDelivery={false}
-                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                      setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
-                      onSelectShipment={onSelectShipment}
-                      thirdPL={thirdPL}
-                      setThirdPL={setThirdPL}
+                      newCustomerInfo={newCustomerInfo}
+                      setCustomer={setCustomer}
+                      loyaltyPoint={loyaltyPoint}
+                      loyaltyUsageRules={loyaltyUsageRules}
+                      setShippingAddress={setShippingAddress}
+                      shippingAddress={shippingAddress}
+                      setBillingAddress={setBillingAddress}
+                      isVisibleCustomer={isVisibleCustomer}
+                      setVisibleCustomer={setVisibleCustomer}
+                      modalAction={modalAction}
+                      setModalAction={setModalAction}
+                      districtId={districtId}
+                      setDistrictId={setDistrictId}
+                      setOrderSourceId={setOrderSourceId}
+                      defaultSourceId={defaultSourceId}
                       form={form}
                     />
-                  </Card> */}
-                </Col>
-                <Col span={24}>
-                  <CreateOrderSidebar
-                    accounts={accounts}
-                    tags={tags}
-                    onChangeTag={onChangeTag}
-                    customerId={customer?.id}
-                  />
-                </Col>
-              </Row>
-              <OrderDetailBottomBar
-                formRef={formRef}
-                handleTypeButton={handleTypeButton}
-                isVisibleGroupButtons={true}
-                showSaveAndConfirmModal={showSaveAndConfirmModal}
-                creating={creating}
-                isSaveDraft={isSaveDraft}
-              />
-            </Form>
-          ))
-          : <NoPermission />)}
+                    <OrderCreateProduct
+                      changeInfo={onChangeInfoProduct}
+                      setStoreId={(value) => {
+                        setStoreId(value);
+                        form.setFieldsValue({ store_id: value });
+                      }}
+                      storeId={storeId}
+                      defaultStoreId={defaultStoreId}
+                      shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+                      setItemGift={setItemGifts}
+                      form={form}
+                      items={items}
+                      setItems={setItems}
+                      orderAmount={orderAmount}
+                      totalAmountOrder={totalAmountOrder}
+                      promotion={promotion}
+                      setPromotion={setPromotion}
+                      inventoryResponse={inventoryResponse}
+                      customer={customer}
+                      setInventoryResponse={setInventoryResponse}
+                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                      orderConfig={orderConfig}
+                      orderSourceId={orderSourceId}
+                      coupon={coupon}
+                      setCoupon={setCoupon}
+                      loyaltyPoint={null}
+                    />
+
+                    {/* Không cần thanh toán và vận chuyển */}
+                    <Card>
+                      <OrderCreatePayments
+                        setPaymentMethod={handlePaymentMethod}
+                        payments={payments}
+                        setPayments={setPayments}
+                        paymentMethod={paymentMethod}
+                        shipmentMethod={shipmentMethod}
+                        totalAmountOrder={totalAmountOrder}
+                        loyaltyRate={loyaltyRate}
+                        isDisablePostPayment={isDisablePostPayment}
+                        listPaymentMethod={listPaymentMethod}
+                      />
+                    </Card>
+
+                    <Card>
+                      <OrderCreateShipment
+                        shipmentMethod={shipmentMethod}
+                        orderPrice={orderAmount}
+                        storeDetail={storeDetail}
+                        customer={customer}
+                        items={items}
+                        isCancelValidateDelivery={false}
+                        totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                        setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                        onSelectShipment={onSelectShipment}
+                        thirdPL={thirdPL}
+                        setThirdPL={setThirdPL}
+                        form={form}
+                      />
+                    </Card>
+                  </Col>
+                  <Col span={24}>
+                    <CreateOrderSidebar
+                      accounts={accounts}
+                      tags={tags}
+                      onChangeTag={onChangeTag}
+                      customerId={customer?.id}
+                    />
+                  </Col>
+                </Row>
+                <OrderDetailBottomBar
+                  formRef={formRef}
+                  handleTypeButton={handleTypeButton}
+                  isVisibleGroupButtons={true}
+                  showSaveAndConfirmModal={showSaveAndConfirmModal}
+                  creating={creating}
+                  isSaveDraft={isSaveDraft}
+                />
+              </Form>
+            )
+          ) : (
+            <NoPermission />
+          )
+        }
       </AuthWrapper>
 
       <SaveAndConfirmOrder

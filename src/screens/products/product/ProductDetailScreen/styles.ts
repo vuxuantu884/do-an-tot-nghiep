@@ -4,7 +4,6 @@ import { borderColor } from "utils/global-styles/variables";
 export const StyledComponent = styled.div`
   padding-bottom: 40px;
   .card {
-    margin-top: 20px;
     .card-container {
       .left {
         border-right: 1px solid ${borderColor};

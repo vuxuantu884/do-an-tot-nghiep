@@ -102,13 +102,11 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         event.target instanceof HTMLBodyElement ||
         event.target instanceof HTMLDivElement
       ) {
-        console.log("event", event.target.id);
         if (event.key !== "Enter") {
           barcode = barcode + event.key;
         } else {
           if (event.key === "Enter") {
             if (barcode !== "" && event) {
-              console.log("barcode", barcode);
               // formRef.current?.validateFields(["store_request"]);
               // formRef.current?.validateFields(["order_request"]);
               let order_request = formRef.current?.getFieldValue(["order_request"]);
@@ -307,7 +305,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         showError("Sản phẩm này không có trong đơn hàng");
       }
     } else {
-      console.log("Chưa đủ thông tin");
     }
   }, [formRef, orderList]);
 
@@ -417,7 +414,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
                 onChange={(value?: number) => {
-                  console.log(value);
                 }}
                 filterOption={(input, option) => {
                   if (option) {

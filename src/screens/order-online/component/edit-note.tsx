@@ -22,8 +22,6 @@ const EditNote: React.FC<EditNoteProps> = (
   };
 
   const onChangeNote = (e: any) => {
-    console.log('e.target.value', e.target.value);
-    
     setNewNote(e.target.value)
   };
   return (

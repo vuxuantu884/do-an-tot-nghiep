@@ -165,7 +165,6 @@ const ScreenReturnDetail = (props: PropType) => {
     if (!Number.isNaN(returnOrderId)) {
       dispatch(
         actionGetOrderReturnDetails(returnOrderId, (data: OrderReturnModel) => {
-          console.log("data", data);
           setLoadingData(false);
           setIsReceivedReturnProducts(data.received);
           if (!data) {
@@ -225,11 +224,6 @@ const ScreenReturnDetail = (props: PropType) => {
       })
     );
   }, [dispatch]);
-
-  // check open tab url
-  const urlLinkCheck = `${process.env.PUBLIC_URL}${UrlConfig.ORDER_SETTINGS}`;
-  console.log("urlLinkCheck", urlLinkCheck);
-  console.log("process.env.PUBLIC_URL", process.env.PUBLIC_URL);
 
   return (
     <OrderReturnSingleContext.Provider value={orderReturnSingleContextData}>

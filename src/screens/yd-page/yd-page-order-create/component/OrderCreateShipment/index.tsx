@@ -2,41 +2,42 @@ import {
   Button,
   Checkbox,
   Col,
-  DatePicker, Divider,
+  DatePicker,
+  Divider,
   Form,
   FormInstance,
   Row,
   Select,
   Space,
+  Tooltip,
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
-import IconSelfDelivery from "assets/icon/self_shipping.svg";
-import IconWallClock from "assets/icon/wall_clock.svg";
-import {ShipperGetListAction} from "domain/actions/account/account.action";
-import {getFeesAction} from "domain/actions/order/order.action";
+import IconShoppingBag from "assets/icon/shopping_bag.svg";
+import { ShipperGetListAction } from "domain/actions/account/account.action";
+import { getFeesAction } from "domain/actions/order/order.action";
 import {
   actionGetOrderConfig,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
-import {AccountResponse} from "model/account/account.model";
-import {thirdPLModel} from "model/order/shipment.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {OrderLineItemRequest} from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {StoreCustomResponse} from "model/response/order/order.response";
+import { AccountResponse } from "model/account/account.model";
+import { thirdPLModel } from "model/order/shipment.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderLineItemRequest } from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { StoreCustomResponse } from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {getShippingAddressDefault, SumWeight} from "utils/AppUtils";
-import {ShipmentMethodOption} from "utils/Constants";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
+import { ShipmentMethodOption } from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 // shipment button action
 type ShipmentButtonType = {
@@ -129,7 +130,7 @@ function OrderCreateShipment(props: PropType) {
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
     setShippingFeeInformedToCustomer(0);
-    if(value ===ShipmentMethodOption.DELIVER_PARTNER) {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setThirdPL({
         delivery_service_provider_code: "",
         delivery_service_provider_id: null,
@@ -140,7 +141,7 @@ function OrderCreateShipment(props: PropType) {
         shipping_fee_paid_to_three_pls: null,
       });
     }
-    form.setFieldsValue({shipping_fee_informed_to_customer: 0})
+    form.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
   };
 
   const shipping_requirements = useSelector(
@@ -149,25 +150,25 @@ function OrderCreateShipment(props: PropType) {
 
   const shipmentButton: Array<ShipmentButtonType> = [
     {
-      name: "Chuyển hãng VC",
+      name: "Chuyển hãng Vận Chuyển",
       value: 1,
       icon: IconDelivery,
     },
-    {
-      name: "Tự giao hàng",
-      value: 2,
-      icon: IconSelfDelivery,
-    },
     // {
-    //   name: "Nhận tại cửa hàng",
-    //   value: 3,
-    //   icon: IconShoppingBag,
+    //   name: "Tự giao hàng",
+    //   value: 2,
+    //   icon: IconSelfDelivery,
     // },
     {
-      name: "Giao hàng sau",
-      value: 4,
-      icon: IconWallClock,
+      name: "Nhận tại CH",
+      value: 3,
+      icon: IconShoppingBag,
     },
+    // {
+    //   name: "Giao hàng sau",
+    //   value: 4,
+    //   icon: IconWallClock,
+    // },
   ];
 
   const renderShipmentTabHeader = () => {
@@ -179,8 +180,7 @@ function OrderCreateShipment(props: PropType) {
               <div
                 className="saleorder_shipment_button 2"
                 key={button.value}
-                onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}
-              >
+                onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}>
                 <span>{button.name}</span>
               </div>
             ) : (
@@ -190,8 +190,7 @@ function OrderCreateShipment(props: PropType) {
                     ? "saleorder_shipment_button border"
                     : "saleorder_shipment_button active"
                 }
-                key={button.value}
-              >
+                key={button.value}>
                 <span>{button.name}</span>
               </div>
             )}
@@ -204,15 +203,14 @@ function OrderCreateShipment(props: PropType) {
   const renderButtonCreateActionHtml = () => {
     if (isShowButtonCreateShipment) {
       return (
-        <div style={{marginTop: 20}}>
+        <div style={{ marginTop: 20 }}>
           <Button
             type="primary"
             className="create-button-custom"
-            style={{float: "right"}}
+            style={{ float: "right" }}
             onClick={() => {
               handleCreateShipment && handleCreateShipment();
-            }}
-          >
+            }}>
             Tạo đơn giao hàng
           </Button>
           <Button
@@ -220,8 +218,7 @@ function OrderCreateShipment(props: PropType) {
             onClick={() => {
               handleCancelCreateShipment && handleCancelCreateShipment();
             }}
-            style={{float: "right"}}
-          >
+            style={{ float: "right" }}>
             Hủy
           </Button>
         </div>
@@ -275,7 +272,7 @@ function OrderCreateShipment(props: PropType) {
     } else {
       setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng!");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer, dispatch, items, storeDetail]);
 
   useEffect(() => {
@@ -322,69 +319,63 @@ function OrderCreateShipment(props: PropType) {
     <StyledComponent>
       <div className="padding-12 orders-shipment">
         <Row gutter={24}>
-          <Col span={24}>
-            <Form.Item name="dating_ship" label="Hẹn giao:">
+          <Col span={11} style={{ paddingRight: 6 }}>
+            <Form.Item name="dating_ship">
               <DatePicker
                 format={dateFormat}
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
-                placeholder="Chọn ngày giao"
+                placeholder="Ngày hẹn giao"
                 disabledDate={(current: any) => moment().add(-1, "days") >= current}
               />
             </Form.Item>
           </Col>
 
-          <Col span={24}>
-            <Form.Item
-              name="office_time"
-              label="Giờ hành chính:"
-              valuePropName="checked"
-            >
-              <Checkbox style={{marginTop: "8px"}}/>
-            </Form.Item>
-          </Col>
-          <Col span={24}>
-            <Form.Item name="requirements" label="Yêu cầu:">
+          <Col span={11} style={{ paddingLeft: 6 }}>
+            <Form.Item name="requirements">
               <Select
                 className="select-with-search"
                 showSearch
                 showArrow
                 notFoundContent="Không tìm thấy kết quả"
-                style={{width: "100%"}}
-                placeholder="Chọn yêu cầu"
+                style={{ width: "100%" }}
+                placeholder="Yêu cầu xem hàng"
                 disabled={orderConfig?.for_all_order}
                 filterOption={(input, option) => {
                   if (option) {
-                    return (
-                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    );
+                    return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                   }
                   return false;
-                }}
-              >
+                }}>
                 {shipping_requirements?.map((item, index) => (
                   <Select.Option
-                    style={{width: "100%"}}
+                    style={{ width: "100%" }}
                     key={index.toString()}
-                    value={item.value}
-                  >
+                    value={item.value}>
                     {item.name}
                   </Select.Option>
                 ))}
               </Select>
             </Form.Item>
           </Col>
+
+          <Col span={2} style={{ padding: 0 }}>
+            <Form.Item name="office_time" valuePropName="checked">
+              <Tooltip placement="topRight" title="Giờ hành chính">
+                <Checkbox style={{ marginTop: "8px" }} />
+              </Tooltip>
+            </Form.Item>
+          </Col>
         </Row>
-        <Divider style={{ marginTop: 6 }} />
         <Row>
+          <span className="saleorder_shipment_method-heading">THÔNG TIN VẬN CHUYỂN</span>
           <div
             className="saleorder_shipment_method_btn 2"
             style={
               shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                ? {border: "none"}
-                : {borderBottom: "1px solid #2A2A86"}
-            }
-          >
+                ? { border: "none" }
+                : { borderBottom: "1px solid #E5E5E5" }
+            }>
             <Space size={10} align="start">
               {renderShipmentTabHeader()}
             </Space>
@@ -393,11 +384,8 @@ function OrderCreateShipment(props: PropType) {
         <div
           className="saleorder_shipment_method_content"
           style={
-            shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
-              ? {marginTop: 15}
-              : undefined
-          }
-        >
+            shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ? { marginTop: 15 } : undefined
+          }>
           {/*--- Chuyển hãng vận chuyển ----*/}
           {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
             <ShipmentMethodDeliverPartner
@@ -436,7 +424,7 @@ function OrderCreateShipment(props: PropType) {
           )}
         </div>
       </div>
-    </StyledComponent>
+    </StyledComponent >
   );
 }
 

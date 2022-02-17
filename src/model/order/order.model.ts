@@ -33,6 +33,7 @@ export interface OrderFulfillmentsModel {
   status: string;
 }
 export interface OrderModel extends BaseObject {
+  ecommerce_shop_id: null;
   company_id: number | null;
   company: string | null;
   store_id: number | null;
@@ -127,7 +128,7 @@ export interface OrderSearchQuery {
   sort_type: string | null;
   sort_column: string | null;
   code: string | null;
-  store_ids: [];
+  store_ids: Array<any>;
   source_ids: Array<any> | [];
   variant_ids: [];
   customer_ids: Array<number>;
@@ -156,6 +157,8 @@ export interface OrderSearchQuery {
   return_status: [];
   account_codes?: [];
   assignee_codes?: [];
+  coordinator_codes?: [];
+  marketer_codes?: [];
   price_min: number | undefined;
   price_max: number | undefined;
   payment_method_ids: [];

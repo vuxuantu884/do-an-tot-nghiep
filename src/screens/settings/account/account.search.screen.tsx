@@ -23,7 +23,7 @@ import {
   AccountSearchQuery,
   AccountStoreResponse
 } from "model/account/account.model";
-import { DepartmentResponse, DepartmentView } from "model/account/department.model";
+import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -31,7 +31,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { convertDepartment, generateQuery } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -60,7 +60,7 @@ const ListAccountScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [tableLoading, setTableLoading] = useState(true);
-  const [listDepartment, setDepartment] = useState<Array<DepartmentView>>();
+  const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accountSelected, setAccountSelected] = useState<Array<AccountResponse>>([]);
@@ -265,7 +265,7 @@ const ListAccountScreen: React.FC = () => {
   useEffect(() => {
     dispatch(DepartmentGetListAction((response: DepartmentResponse[]) => {
       if (response) {
-        setDepartment(convertDepartment(response));
+        setDepartment(response);
       }
     }));
     dispatch(PositionGetListAction(setPosition));

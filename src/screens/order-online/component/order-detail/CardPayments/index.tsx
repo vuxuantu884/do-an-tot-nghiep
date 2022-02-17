@@ -294,8 +294,6 @@ function CardPayments(props: CardPaymentsProps) {
                           style={{ marginLeft: 0, marginRight: 0 }}
                         >
                           {ListPaymentMethods.map((method, index) => {
-                            // console.log("method", method);
-                            // console.log("paymentData", paymentData);
                             let icon = null;
                             switch (method.code) {
                               case PaymentMethodCode.CASH:
@@ -388,8 +386,6 @@ function CardPayments(props: CardPaymentsProps) {
                           </Col>
                         </Row>
                         {payments.map((method, index) => {
-                          // console.log("paymentData", paymentData);
-                          // console.log("method", method);
                           return (
                             <Row
                               gutter={20}

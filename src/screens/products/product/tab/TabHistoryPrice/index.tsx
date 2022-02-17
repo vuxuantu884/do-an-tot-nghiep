@@ -153,8 +153,12 @@ const TabHistoryPrice: React.FC = () => {
         if(value){
           return (
             <div>
-              <span style={{ color: "#2a2a86", textTransform: "uppercase" }}>{value}</span>
-              <div>{record.action_by}</div>
+              <div>{value}</div>
+              <div>
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.action_by}`}> 
+                  {record.action_by} 
+                </Link>  
+              </div>
             </div>
           );
         }

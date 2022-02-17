@@ -67,7 +67,6 @@ const AddReportHandOver: React.FC = () => {
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setVisibleModal(false);
   };
 
@@ -167,7 +166,6 @@ const AddReportHandOver: React.FC = () => {
     });
     data.items.forEach(function (i: any) {
       codes.push(i.code);
-      console.log("code",i.code)
     });
 
     let param: any = {
@@ -182,10 +180,6 @@ const AddReportHandOver: React.FC = () => {
       // delivery_service_name: goodsReceipts.delivery_service_name,
       codes: codes,
     };
-
-    // console.log("data",data);
-    // console.log("codes",codes)
-    // console.log("param",param);
 
     dispatch(
       updateGoodsReceipts(

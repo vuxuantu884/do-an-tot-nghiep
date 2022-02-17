@@ -96,7 +96,6 @@ const initQuery: ShipmentSearchQuery = {
 
 const ShipmentsScreen: React.FC = (props: any) => {
 	const {location} = props;
-	console.log('location', location)
 	const queryParamsParsed:any = queryString.parse(
     location.search
   );
@@ -619,14 +618,12 @@ const ShipmentsScreen: React.FC = (props: any) => {
 	const onExport = useCallback((optionExport, typeExport) => {
 		let newParams: any = { ...params };
 		// let hiddenFields = [];
-		console.log('selectedRowCodes', selectedRowCodes);
 		switch (optionExport) {
 			case 1: newParams = {}
 				break
 			case 2: break
 			case 3:
 				newParams.fulfillment_code = selectedRowCodes;
-				console.log('newParams', newParams);
 				break
 			case 4:
 				delete newParams.page
@@ -634,7 +631,6 @@ const ShipmentsScreen: React.FC = (props: any) => {
 				break
 			default: break
 		}
-		// console.log('newParams', newParams);
 
 		// switch (optionExport) {
 		//   case 1:
@@ -667,7 +663,6 @@ const ShipmentsScreen: React.FC = (props: any) => {
 			});
 	}, [params, selectedRowCodes, listExportFile]);
 	const checkExportFile = useCallback(() => {
-		console.log('start check status');
 
 		let getFilePromises = listExportFile.map((code) => {
 			return getFile(code);
@@ -681,7 +676,6 @@ const ShipmentsScreen: React.FC = (props: any) => {
 					}
 					if (response.data && response.data.status === "FINISH") {
 						setStatusExport(3)
-						console.log('finishhh');
 						setExportProgress(100)
 						const fileCode = response.data.code
 						const newListExportFile = listExportFile.filter((item) => {
@@ -706,7 +700,6 @@ const ShipmentsScreen: React.FC = (props: any) => {
 	const onMenuClick = useCallback((index: number) => {
 		switch (index) {
 			case ACTION_ID.printShipment:
-				console.log('selectedRow', selectedRow)
 				let params = {
 					action: "print",
 					ids: selectedRow.map((single: ShipmentModel) => single.order_id),
@@ -797,7 +790,6 @@ const ShipmentsScreen: React.FC = (props: any) => {
 										icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
 										// onClick={onExport}
 										onClick={() => {
-											console.log("export");
 											setShowExportModal(true);
 										}}
 										disabled={!isPassed}

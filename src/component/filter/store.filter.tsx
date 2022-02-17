@@ -6,8 +6,7 @@ import {
   FormInstance,
   Input,
   Row,
-  Select,
-  TreeSelect,
+  Select
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import React, { createRef, useCallback, useEffect,  useState } from "react";
@@ -23,7 +22,7 @@ import "assets/css/custom-filter.scss";
 import { DepartmentResponse } from "model/account/department.model";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomSelect from "component/custom/select.custom";
-import TreeDepartment from "screens/settings/department/component/TreeDepartment";
+import TreeDepartment from "component/tree-node/tree-department";
 
 type StoreFilterProps = {
   initValue: StoreQuery;
@@ -105,19 +104,8 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               placeholder="Tên/ Mã cửa hàng/ Sđt"
             />
           </Form.Item> 
-          <Form.Item name="department_id" style={{ minWidth: 200 }}>
-            <TreeSelect
-              placeholder="Chọn trực thuộc"
-              treeDefaultExpandAll
-              className="selector"
-              allowClear
-              showSearch
-              treeNodeFilterProp='title'
-            >
-              {listDepartment?.map((item, index) => (
-                <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-              ))}
-            </TreeSelect> 
+          <Form.Item name="department_ids" style={{ maxWidth: 310, minWidth:250 }}>
+            <TreeDepartment listDepartment={listDepartment} placeholder="Chọn trực thuộc" />
           </Form.Item>
           <Form.Item name="status">
             <CustomSelect  

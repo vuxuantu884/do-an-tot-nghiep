@@ -24,6 +24,9 @@ import DatePromotionColumn from "../shared/date-column";
 import DiscountFilter from "./components/DiscountFilter";
 import { DiscountStyled } from "./discount-style";
 import "./discount-style.ts";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+
 const DiscountPage = () => {
 
   const initQuery: DiscountSearchQuery = {
@@ -57,7 +60,7 @@ const DiscountPage = () => {
   };
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
-
+  const [listStore, setStore] = useState<Array<StoreResponse>>();
   //phân quyền
   const [allowCancelPromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CANCEL],
@@ -71,6 +74,7 @@ const DiscountPage = () => {
       if (result)
         setDiscounts(result)
     }));
+    dispatch(StoreGetListAction(setStore));
   }, [dispatch, params]);
 
 
@@ -310,6 +314,7 @@ const DiscountPage = () => {
           params={params}
           actions={actionFilter}
           onFilter={onFilter}
+          listStore={listStore}
         />
         <CustomTable
           selectedRowKey={selectedRowKey}

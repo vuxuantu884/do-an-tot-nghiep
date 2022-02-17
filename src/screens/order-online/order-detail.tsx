@@ -67,6 +67,10 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
+import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
+import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
+import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
+import { yellowColor } from "utils/global-styles/variables";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -118,6 +122,7 @@ const OrderDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
+  const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
   const [reasons, setReasons] = useState<
     Array<{id: number; name: string; sub_reasons: any[]}>
   >([]);
@@ -125,7 +130,6 @@ const OrderDetail = (props: PropType) => {
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
-  // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
   //loyalty
@@ -134,7 +138,6 @@ const OrderDetail = (props: PropType) => {
     Array<LoyaltyUsageResponse>
   >([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  console.log("isDisablePostPayment", isDisablePostPayment);
 
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
@@ -196,7 +199,6 @@ const OrderDetail = (props: PropType) => {
         payments: payments,
         fulfillments: fulfillment,
       };
-      // console.log("request", request);
       if (OrderDetail?.id) {
         dispatch(UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess));
       }
@@ -361,6 +363,26 @@ const OrderDetail = (props: PropType) => {
     [OrderId, dispatch]
   );
 
+  const handleConfirmToEcommerce = () => {
+
+  }
+
+  const cancelPrepareGoodsModal = () => {
+    setVisibleLogisticConfirmModal(false);
+  }
+
+  const [ecommerceStoreAddress, setEcommerceStoreAddress] = useState<Array<EcommerceStoreAddress>>([]);
+
+  const handleEcommerceStoreAddress = useCallback(() => {
+    if(OrderDetail){
+      const ecommerceAddressQuery: EcommerceAddressQuery = {
+        order_sn: OrderDetail.reference_code,
+        shop_id: OrderDetail.ecommerce_shop_id,
+      }
+      dispatch(getEcommerceStoreAddress(ecommerceAddressQuery, setEcommerceStoreAddress));
+    }
+  }, [OrderDetail, dispatch])
+
   const orderActionsClick = useCallback(
     (type) => {
       switch (type) {
@@ -388,12 +410,16 @@ const OrderDetail = (props: PropType) => {
           const queryParam = generateQuery(params);
           const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewOrderUrl);
-          break;  
+          break;
+        case "confirm":
+          handleEcommerceStoreAddress();
+          setVisibleLogisticConfirmModal(true);
+          break;
         default:
           break;
       }
     },
-    [OrderDetail?.id, history, id]
+    [OrderDetail?.id, handleEcommerceStoreAddress, history, id]
   );
 
   /**
@@ -410,7 +436,6 @@ const OrderDetail = (props: PropType) => {
       };
       dispatch(
         confirmDraftOrderAction(OrderDetail.id, params, (response) => {
-          console.log("response", response);
           // handleReload();
           setReload(true);
         })
@@ -422,8 +447,6 @@ const OrderDetail = (props: PropType) => {
 
   const disabledActions = useCallback(
     (type: string) => {
-      console.log("disabledActions", type);
-      console.log("setShowPaymentPartialPayment", isShowPaymentPartialPayment);
       switch (type) {
         case "shipment":
           setShowPaymentPartialPayment(false);
@@ -440,7 +463,7 @@ const OrderDetail = (props: PropType) => {
           break;
       }
     },
-    [isShowPaymentPartialPayment]
+    []
   );
 
   useEffect(() => {
@@ -549,13 +572,7 @@ const OrderDetail = (props: PropType) => {
     returnMoneyField: [{returnMoneyMethod: undefined, returnMoneyNote: undefined}],
   };
 
-  const totalAmountCustomerNeedToPay =
-    (OrderDetail?.total_line_amount_after_line_discount || 0) +
-    shippingFeeInformedCustomer;
-  console.log("totalAmountCustomerNeedToPay111", totalAmountCustomerNeedToPay);
-
   const onSelectShipment = (value: number) => {
-    console.log("value", value);
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
@@ -706,7 +723,7 @@ const OrderDetail = (props: PropType) => {
                   >
                     <div style={{marginBottom: 20}}>
                       <Row>
-                        <Col span={12}>
+                        <Col span={8}>
                           <span className="text-field margin-right-40">
                             Đã thanh toán:
                           </span>
@@ -718,22 +735,30 @@ const OrderDetail = (props: PropType) => {
                               formatCurrency(getAmountPayment(OrderDetail.payments))}
                           </b>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                           <span className="text-field margin-right-40">
-                            {customerNeedToPayValue -
-                              totalPaid >=
-                            0
-                              ? `Còn phải trả:`
-                              : `Hoàn tiền cho khách:`}
+                            Còn phải trả:
                           </span>
 													<b style={{color: "red"}}>
 														{formatCurrency(
-															Math.abs(
-																customerNeedToPayValue - totalPaid
-															)
+														customerNeedToPayValue - totalPaid > 0 ? customerNeedToPayValue - totalPaid : 0
 														)}
                           </b>
                         </Col>
+                        {customerNeedToPayValue - totalPaid < 0 ? (
+                          <Col span={8}>
+                            <span className="text-field margin-right-40">
+                              Đã hoàn tiền cho khách:
+                            </span>
+                            <b style={{color: yellowColor}}>
+                              {formatCurrency(
+                                Math.abs(
+                                  customerNeedToPayValue - totalPaid
+                                )
+                              )}
+                            </b>
+                          </Col>
+                        ): null}
                       </Row>
                     </div>
 
@@ -1096,6 +1121,13 @@ const OrderDetail = (props: PropType) => {
           handleCancelOrder(reason_id, sub_reason_id, reason)
         }
         reasons={reasons}
+      />
+      <LogisticConfirmModal
+          visible={visibleLogisticConfirmModal}
+          ecommerceStoreAddress={ecommerceStoreAddress}
+          onOk={handleConfirmToEcommerce}
+          onCancel={cancelPrepareGoodsModal}
+          OrderDetail={OrderDetail}
       />
     </ContentContainer>
   );

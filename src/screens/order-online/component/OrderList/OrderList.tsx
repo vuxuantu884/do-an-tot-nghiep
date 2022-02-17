@@ -50,7 +50,7 @@ import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
 import { StyledComponent } from "./OrderList.styles";
 
-type PropsType = {
+type PropTypes = {
   location: any;
   initQuery: OrderSearchQuery;
   pageTitle: {
@@ -63,7 +63,7 @@ type PropsType = {
 	isHideTab?: boolean;
 };
 
-function OrderList(props: PropsType) {
+function OrderList(props: PropTypes) {
   const EXPORT_IDs = {
     allOrders: 1,
     ordersOnThisPage: 2,
@@ -121,7 +121,6 @@ function OrderList(props: PropsType) {
     setTableLoading(false);
     setIsFilter(false);
     if (!!result) {
-      console.log("result result result", result);
       setData(result);
     }
   }, []);
@@ -187,8 +186,6 @@ function OrderList(props: PropsType) {
     setSelectedRowCodes(selectedRowCodes);
   }, []);
 
-	console.log('location', location)
-
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -226,7 +223,6 @@ function OrderList(props: PropsType) {
         "print-dialog": true,
       };
       const queryParam = generateQuery(params);
-      console.log(queryParam);
       switch (index) {
         case ACTION_ID.printShipment:
           let ids: number[] = [];
@@ -267,7 +263,6 @@ function OrderList(props: PropsType) {
           break;
         case ACTION_ID.printOrder:
           const printBill = selectedRow.filter((order: any) => order.status === 'finished').map((order: any) => order.id);
-          console.log('123', printBill.length);
           const queryParamOrder = generateQuery({
             action: "print",
             ids: printBill,
@@ -287,7 +282,6 @@ function OrderList(props: PropsType) {
               }
             },
             onCancel() {
-              // console.log('Cancel');
             },
           });
           break;
@@ -313,7 +307,6 @@ function OrderList(props: PropsType) {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
-				console.log('response', response)
         setDeliveryServices(response);
       })
     );
@@ -323,7 +316,6 @@ function OrderList(props: PropsType) {
     (optionExport, typeExport) => {
       let newParams: any = { ...params };
       // let hiddenFields = [];
-      console.log("selectedRowCodes", selectedRowCodes);
       switch (optionExport) {
         case EXPORT_IDs.allOrders:
           newParams = {};
@@ -332,7 +324,6 @@ function OrderList(props: PropsType) {
           break;
         case EXPORT_IDs.selectedOrders:
           newParams.code = selectedRowCodes;
-          console.log("newParams", newParams);
           break;
         case EXPORT_IDs.ordersFound:
           delete newParams.page;
@@ -371,7 +362,6 @@ function OrderList(props: PropsType) {
     ]
   );
   const checkExportFile = useCallback(() => {
-    console.log("start check status");
 
     let getFilePromises = listExportFile.map((code) => {
       return getFile(code);
@@ -384,7 +374,6 @@ function OrderList(props: PropsType) {
           }
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
-            console.log("finishhh");
             setExportProgress(100);
             const fileCode = response.data.code;
             const newListExportFile = listExportFile.filter((item) => {
@@ -443,10 +432,12 @@ function OrderList(props: PropsType) {
   }, [dispatch]);
 
   useEffect(() => {
+    
     let dataQuery: OrderSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
     };
+    
     setPrams(dataQuery);
     handleFetchData(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -485,7 +476,6 @@ function OrderList(props: PropsType) {
                     icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
                     // onClick={onExport}
                     onClick={() => {
-                      console.log("export");
                       setShowExportModal(true);
                     }}
                     disabled={!isPassed}
