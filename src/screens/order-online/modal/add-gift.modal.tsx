@@ -71,17 +71,17 @@ const renderSearch = (item: VariantResponse) => {
           {findPrice(item.variant_prices, AppConfig.currency)}
         </span>
         <span style={{ color: "#95A1AC" }} className="text t-right p-4">
-          Có thể bán{" "}
-          <span
-            style={{
-              color:
-                item.inventory > 0
-                  ? "rgba(0, 128, 255, 1)"
-                  : "rgba(226, 67, 67, 1)",
-            }}
-          >
-            {item.inventory}
-          </span>
+          Có thể bán:
+					<span
+						style={{
+							color:
+								(item.available === null ? 0 : item.available) > 0
+									? "#2A2A86"
+									: "rgba(226, 67, 67, 1)",
+						}}
+					>
+						{` ${item.available === null ? 0 : item.available}`}
+					</span>
         </span>
       </div>
     </div>
