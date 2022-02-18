@@ -10,12 +10,11 @@ export const AppConfig = {
   import_price: "import_price",
   channel_id: 1,
   DEFAULT_PAYMENT: 1,
-  WIN_DEPARTMENT: process.env.REACT_APP_WIN_DEPARTMENT ? parseInt(process.env.REACT_APP_WIN_DEPARTMENT): 0,
+  WIN_DEPARTMENT: null,
   KD_DEPARTMENT_CODE: "KD",
   KDO_DEPARTMENT_CODE: "KDO",
-  WM_DEPARTMENT: process.env.REACT_APP_WIN_DEPARTMENT ? parseInt(process.env.REACT_APP_WIN_DEPARTMENT): 0,
-  BUSINESS_DEPARTMENT: process.env.REACT_APP_BUSINESS_DEPARTMENT ? parseInt(process.env.REACT_APP_BUSINESS_DEPARTMENT): 0,
-  RD_DEPARTMENT: process.env.REACT_APP_RD_DEPARTMENT ? parseInt(process.env.REACT_APP_RD_DEPARTMENT): 0,
+  WM_DEPARTMENT: null,
+  BUSINESS_DEPARTMENT: null,
   FASHION_INDUSTRY: "fashion",
   CONTENT_SERVICE: process.env.REACT_APP_CONTENT_SERVICE,
   PRODUCT_SERVICE: process.env.REACT_APP_PRODUCT_SERVICE,
@@ -37,13 +36,13 @@ export const AppConfig = {
   PROMOTION_QUANTITY_TEMPLATE_URL: `${process.env.REACT_APP_CDN}${process.env.REACT_APP_PROMOTION_QUANTITY_TEMPLATE_URL}`,
   DISCOUNT_CODES_TEMPLATE_URL:
     process.env.REACT_APP_PROMOTIONS_DISCOUNT_CODES_TEMPLATE_URL,
-  PROCUMENT_IMPORT_TEMPLATE_URL: process.env.REACT_APP_PROCUMENT_IMPORT_TEMPLATE_URL,
-  PO_EXPORT_TEMPLATE_URL: process.env.REACT_APP_PO_EXPORT_TEMPLATE_URL,
-  PO_EXPORT_URL: process.env.REACT_APP_PO_EXPORT_URL,
   PO_STORE_DEFAULT: 144,
   /**
    * @description: thời gian time out khi sử dụng typing request
    * sau khi dừng gõ 500ms thì mới gửi request  => hạn chế request tới server liên tục
    */
   TYPING_TIME_REQUEST: 500,
+  PROCUMENT_IMPORT_TEMPLATE_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_33c49192-d24e-4ccf-8587-12840bf3406d_original.xlsx",
+  PO_EXPORT_TEMPLATE_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_3914d806-813b-4978-bff0-7251b350b40f_original.xlsx",
+  PO_EXPORT_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_eddd98ef-0561-4172-a203-e32b4314b2b9_original.xlsx",
 };
