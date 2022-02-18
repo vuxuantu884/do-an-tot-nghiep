@@ -89,8 +89,6 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     }
   }, [formRef, visible]);
 
-  console.log("listDepartment",listDepartment)
-
   return (
     <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>

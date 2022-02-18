@@ -130,7 +130,6 @@ const OrderDetail = (props: PropType) => {
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
-  // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
   //loyalty
@@ -139,7 +138,6 @@ const OrderDetail = (props: PropType) => {
     Array<LoyaltyUsageResponse>
   >([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  console.log("isDisablePostPayment", isDisablePostPayment);
 
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
@@ -201,7 +199,6 @@ const OrderDetail = (props: PropType) => {
         payments: payments,
         fulfillments: fulfillment,
       };
-      // console.log("request", request);
       if (OrderDetail?.id) {
         dispatch(UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess));
       }
@@ -439,7 +436,6 @@ const OrderDetail = (props: PropType) => {
       };
       dispatch(
         confirmDraftOrderAction(OrderDetail.id, params, (response) => {
-          console.log("response", response);
           // handleReload();
           setReload(true);
         })
@@ -451,8 +447,6 @@ const OrderDetail = (props: PropType) => {
 
   const disabledActions = useCallback(
     (type: string) => {
-      console.log("disabledActions", type);
-      console.log("setShowPaymentPartialPayment", isShowPaymentPartialPayment);
       switch (type) {
         case "shipment":
           setShowPaymentPartialPayment(false);
@@ -469,7 +463,7 @@ const OrderDetail = (props: PropType) => {
           break;
       }
     },
-    [isShowPaymentPartialPayment]
+    []
   );
 
   useEffect(() => {
@@ -578,13 +572,7 @@ const OrderDetail = (props: PropType) => {
     returnMoneyField: [{returnMoneyMethod: undefined, returnMoneyNote: undefined}],
   };
 
-  const totalAmountCustomerNeedToPay =
-    (OrderDetail?.total_line_amount_after_line_discount || 0) +
-    shippingFeeInformedCustomer;
-  console.log("totalAmountCustomerNeedToPay111", totalAmountCustomerNeedToPay);
-
   const onSelectShipment = (value: number) => {
-    console.log("value", value);
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {

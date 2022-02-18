@@ -1008,7 +1008,6 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
 
      }
   }
-	console.log('orderReturnItems', orderReturnItems)
   return orderReturnItems;
 };
 
@@ -1047,7 +1046,6 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
       result.push(singleOrder);
     }
   }
-  console.log('result', result)
  return result;
 }
 
@@ -1137,7 +1135,6 @@ export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | 
 			totalDiscountRatePerOrder = totalDiscountRatePerOrder + singleOrderDiscount.rate;
 		}
 	});
-	console.log('totalDiscountRatePerOrder', totalDiscountRatePerOrder);
 	product.discount_value = getLineItemDiscountValue(product)
 	discountPerOrder =
 		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
@@ -1182,7 +1179,6 @@ export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 				i.discount_amount = totalDiscount;
 			}
 		});
-		// console.log("totalAmount333", _amount);
 		return _amount;
 }
 // check if value is null or undefined
@@ -1385,7 +1381,7 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
       showError(`${textApiInformation}: ${response.message}`);
       break;
     default:
-      response.errors.forEach((e:any) => showError(e));
+      response?.errors?.forEach((e:any) => showError(e));
       break;
   }
 }

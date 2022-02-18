@@ -132,7 +132,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     ),
     align: "right",
     width: "15%",
-    className: "yody-table-discount text-right",
+    className: "yody-table-discount text-right 32",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
         <div>
@@ -142,7 +142,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <div className="d-flex justify-content-end yody-table-discount-converted">
               <Typography.Text type="danger">
                 <span style={{fontSize: "0.857rem"}}>
-                  {Math.round(l.discount_items[0]?.rate * 100)/100}%
+                  {Math.round(l.discount_items[0]?.rate * 100 || 0)/100}%
                 </span>
               </Typography.Text>
             </div>

@@ -125,7 +125,6 @@ const PackUpdate: React.FC = () => {
 
   const onMenuClick = useCallback(
     (index: number) => {
-      console.log(index);
       switch (index) {
         case 1: //xóa
           if (selectedRowKeys.length === 0) {
@@ -153,7 +152,6 @@ const PackUpdate: React.FC = () => {
               if (data) {
                 showSuccess("Cập nhập biên bản thành công");
                 setPackDetail(data);
-                console.log(data);
               }
             })
           );
@@ -165,9 +163,7 @@ const PackUpdate: React.FC = () => {
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
-      // console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
       const _item = selectedRows.map((row: any) => row.order_code);
-      // console.log("_item",_item);
       setSelectedRowKeys(_item);
     },
     getCheckboxProps: (record: GoodsReceiptsInfoOrderModel) => ({
@@ -178,7 +174,6 @@ const PackUpdate: React.FC = () => {
 
   const handleSubmit = useCallback(
     (value: any) => {
-      console.log("values", value);
 
       let order_id = value.order_id;
       if (order_id) {
@@ -193,7 +188,6 @@ const PackUpdate: React.FC = () => {
 
         dispatch(
           updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
-            console.log(data);
             if (data) showSuccess("Thêm đơn hàng vào biên bản thành công");
           })
         );

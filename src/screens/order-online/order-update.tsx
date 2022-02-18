@@ -687,7 +687,6 @@ ShippingServiceConfigDetailResponseModel[]
 		values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
 		values.channel_id = OrderDetail.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
-		// console.log("onFinish onFinish", values);
 		if (!values.customer_id) {
 			showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
 			const element: any = document.getElementById("search_customer");
@@ -781,8 +780,6 @@ ShippingServiceConfigDetailResponseModel[]
 	};
 
 	// const [totalPaid, setTotalPaid] = useState(0);
-	// console.log("totalPaid", totalPaid);
-	// console.log("setTotalPaid", setTotalPaid);
 
 	/**
 	 * tổng số tiền đã trả

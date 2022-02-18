@@ -68,13 +68,6 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
   const [initMarketingAccountData, setInitMarketingAccountData] = useState<
     Array<AccountResponse>
   >([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [initCoordinatorAccountData, setInitCoordinatorAccountData] = useState<
-    Array<AccountResponse>
-  >([]);
-  // const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
-
-	// console.log(initValueCoordinatorCode, coordinatorAccountData, initCoordinatorAccountData)
 
   const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(orderDetail?.sub_status_code);
 
@@ -131,7 +124,6 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
     const pushCurrentValueToDataAccount = (fieldName: string) => {
 			let fieldNameValue = form.getFieldValue(fieldName);
       if (fieldNameValue) {
-				console.log('fieldNameValue', fieldNameValue)
         switch (fieldName) {
           case "assignee_code":
             setInitValueAssigneeCode(fieldNameValue);
@@ -168,10 +160,6 @@ function CreateOrderSidebar(props: PropType): JSX.Element {
 									case "marketer_code":
 										setInitMarketingAccountData(result);
 										setMarketingAccountData(result);
-										break;
-									case "coordinator_code":
-										setInitCoordinatorAccountData(result);
-										setCoordinatorAccountData(result);
 										break;
 									default:
 										break;

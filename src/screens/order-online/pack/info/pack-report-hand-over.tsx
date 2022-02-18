@@ -580,7 +580,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           // onRow={(record: GoodsReceiptsSearhModel) => {
           //   return {
           //     onClick: () => {
-          //       console.log("record",record);
           //     }, // click row
           //   };
           // }}

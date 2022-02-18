@@ -75,7 +75,6 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (
       let newData: StoreResponse[] = listStoreReturn.filter(function (el) {
         return el.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
       });
-      console.log("newData Store", newData);
 
       let result: StoreModel[] = [];
       newData.forEach(function (item, index) {

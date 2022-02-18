@@ -13,7 +13,6 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
   props: ShipmentDetailsModalProps
 ) => {
   const { visible, onOk, shipmentDetails } = props;
-  console.log('shipmentDetails', shipmentDetails)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [columnsItems, setColumnsItems]  = useState<Array<any>>([
     {

@@ -232,7 +232,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           }),
           contacts: formItem.contacts,
         };
-        console.log(processValue);
         dispatch(
           CustomerUpdateAction(
             formItem.id,

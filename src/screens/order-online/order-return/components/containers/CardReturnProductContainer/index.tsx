@@ -34,7 +34,6 @@ function CardReturnProductContainer(props: PropType) {
   const pointPaymentMethodId = 1;
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
-  console.log("createOrderReturnContext", createOrderReturnContext);
 
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
@@ -331,14 +330,12 @@ function CardReturnProductContainer(props: PropType) {
   //   const refund = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
   //   if (isUsingPoint) {
   //     if (OrderDetail?.customer_id && orderId && refund > 0) {
-  //       console.log("refund", refund);
   //       dispatch(
   //         actionGetOrderReturnCalculateRefund(
   //           OrderDetail.customer_id,
   //           orderId,
   //           refund,
   //           (response) => {
-  //             console.log("response", response);
   //           }
   //         )
   //       );
@@ -360,14 +357,12 @@ function CardReturnProductContainer(props: PropType) {
     const refund = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
     if (isUsingPoint) {
       if (OrderDetail?.customer_id && orderId && refund > 0) {
-        console.log("refund", refund);
         dispatch(
           actionGetOrderReturnCalculateRefund(
             OrderDetail.customer_id,
             orderId,
             refund,
             (response) => {
-              console.log("response", response);
               setPointRefund(response.point_refund);
               if (setMoneyRefund) {
                 setMoneyRefund(response.money_refund);

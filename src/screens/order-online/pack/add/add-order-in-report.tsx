@@ -65,7 +65,6 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   );
 
   useEffect(() => {
-    console.log("orderListResponse_Effect", orderListResponse);
     if (orderListResponse.length > 0) {
       let _item: Array<PackItemOrderModel> = [];
 

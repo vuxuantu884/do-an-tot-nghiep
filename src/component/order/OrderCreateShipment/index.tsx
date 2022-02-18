@@ -130,8 +130,6 @@ function OrderCreateShipment(props: PropType) {
     OrderDetail,
   } = props;
   const dateFormat = "DD/MM/YYYY";
-	console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
-	console.log('thirdPL', thirdPL)
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");

@@ -108,40 +108,6 @@ function OrderSources(props: PropTypes) {
     acceptPermissions: [SourcePermissions.UPDATE],
   });
 
-  /**
-   * thay tên của children thành tên con + tên cha
-   */
-  function renameChildrenInArrayDepartment(array: DepartmentResponse[], level = 0) {
-    return array.map(({children, parent_id, name, ...rest}) => {
-      if (Array.isArray(children) && children.length > 0) {
-        children = renameChildrenInArrayDepartment(children);
-      }
-      // check parent_id > 0 thì là có children -> thay tên
-      if (parent_id > 0) {
-        return {
-          children,
-          parent_id,
-          level: level + 1,
-          name: `${rest.parent} - ${name} `,
-          ...rest,
-        };
-      } else {
-        return {
-          children,
-          parent_id,
-          name,
-          level,
-          ...rest,
-        };
-      }
-    });
-  }
-
-  let listDepartmentFormatted = renameChildrenInArrayDepartment(listDepartments);
-
-  // console.log('listDepartments', listDepartments);
-  console.log("listDepartmentFormatted", listDepartmentFormatted);
-
   const columns: ICustomTableColumType<any>[] = [
     {
       title: "Mã nguồn",
