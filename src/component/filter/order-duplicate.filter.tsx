@@ -1,4 +1,4 @@
-import { Button, Form, Row, FormInstance, Input } from "antd";
+import { Button, Form, Row, FormInstance, Input, Select } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import React, { createRef, useCallback } from "react";
@@ -68,11 +68,13 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
       }
     }, [formSearchRef]);
 
+    console.log("listStore",listStore)
+
   return (
     <React.Fragment>
       <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValues}>
         <FilterWrapper>
-          <div  style={{ display: "flex",  paddingRight:"16px" }}>
+          <div style={{ display: "flex", paddingRight: "16px" }}>
             <Item name="issued_on_min" style={{ width: "150px", margin: 0 }}>
               <CustomDatePicker
                 format="DD-MM-YYYY"
@@ -93,8 +95,24 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
               />
             </Item>
           </div>
-          <Item name="store_ids">
-            <TreeStore  style={{ width: "280px"}} listStore={listStore} placeholder="Cửa hàng" />
+          <Item name="store_id">
+            {/* <TreeStore  style={{ width: "280px"}} listStore={listStore} placeholder="Cửa hàng" /> */}
+            <Select
+              showSearch
+              showArrow
+              optionFilterProp="children"
+              placeholder="Chọn kho"
+              style={{ width: "280px"}} 
+            >
+              {listStore?.map((item) => (
+                <Select.Option
+                  key={item.id}
+                  value={item.id}
+                >
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Item>
 
           <Item name="search_term" className="search">
@@ -102,11 +120,11 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
           </Item>
 
           <Item >
-            <Button type="primary" htmlType="submit" style={{ width: "50px"}}>
+            <Button type="primary" htmlType="submit" style={{ width: "50px" }}>
               Lọc
             </Button>
           </Item>
-          <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} style={{ width: "65px"}}></Button>
+          <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} style={{ width: "65px" }}></Button>
         </FilterWrapper>
       </Form>
     </React.Fragment>

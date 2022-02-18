@@ -256,9 +256,9 @@ const CustomerDuplicate: React.FC = () => {
     history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
   }, [history, params, columns]);
 
-  useEffect(() => {
-    dispatch(StoreGetListAction(setStore));
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(StoreGetListAction(setStore));
+  // }, [dispatch]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
