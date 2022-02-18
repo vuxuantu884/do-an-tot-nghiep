@@ -583,7 +583,7 @@ const TabList: React.FC = () => {
     }
   }, [dispatch, poId, visibleDraft, onDetail]);
 
-  const  search = useCallback(()=> {
+  const search = useCallback(()=> {
     setLoading(true);
     dispatch(
       POSearchProcurement(paramsrUrl, (result) => {
@@ -619,9 +619,8 @@ const TabList: React.FC = () => {
   return (
     <StyledComponent>
       <div className="margin-top-20">
-        <TabListFilter onClickOpen={() => setShowSettingColumn(true)} />
+        <TabListFilter paramsUrl={paramsrUrl} onClickOpen={() => setShowSettingColumn(true)} />
         <CustomTable
-          isRowSelection
           selectedRowKey={selected.map(e=>e.id)}
           isLoading={loading}
           dataSource={data.items}

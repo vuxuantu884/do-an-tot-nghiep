@@ -48,7 +48,7 @@ const ACTIONS_INDEX = {
   ACTIVE: 3,
   INACTIVE: 4,
   DELETE: 5,
-}; 
+};
 
 const initQuery: VariantSearchQuery = {
   info: "",
@@ -60,7 +60,7 @@ const initQuery: VariantSearchQuery = {
   main_color: "",
   color: "",
   supplier: "",
-};  
+};
 
 var variantResponse: VariantResponse | null = null;
 
@@ -76,10 +76,10 @@ const TabProduct: React.FC = () => {
   });
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const [listCountry, setCountry] = useState<Array<CountryResponse>>();  
+  const [listCountry, setCountry] = useState<Array<CountryResponse>>();
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
-  const [selected, setSelected] = useState<Array<VariantResponse>>([]); 
+  const [selected, setSelected] = useState<Array<VariantResponse>>([]);
   let dataQuery: VariantSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -132,17 +132,20 @@ const TabProduct: React.FC = () => {
   );
   const onFilter = useCallback((values) => {
     let {info} = values;
-    
+
     values.info = info && info.trim();
-    let newPrams = {...values, page: 1};
+    let newPrams = { ...params, ...{
+        ...values,
+        info: values.info || params.info
+      }, page: 1 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
     history.replace(`${ProductTabUrl.VARIANTS}?${queryParam}`);
-  }, [history]);
+  }, [params, history]);
 
-  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => { 
+  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!!result) {
-      setData(result); 
+      setData(result);
     }
     setTableLoading(false);
   }, []);
@@ -315,12 +318,12 @@ const TabProduct: React.FC = () => {
           AppConfig.currency
         );
         if (prices !== null) {
-         
+
           return formatCurrency(prices.retail_price);
         }
         return 0;
       },
-    }, 
+    },
     {
       title: "Có thể bán",
       dataIndex: "available",
@@ -332,7 +335,7 @@ const TabProduct: React.FC = () => {
 
     {
       title: "Trạng thái",
-      dataIndex: "saleable",  
+      dataIndex: "saleable",
       visible: true,
       align: "center",
       width: 120,
@@ -370,7 +373,7 @@ const TabProduct: React.FC = () => {
 
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<VariantResponse>>>(defaultColumn);
-  
+
   const columnFinal = useMemo(() => {
     return columns.filter((item) => item.visible === true);
   }, [columns]);
@@ -412,7 +415,7 @@ const TabProduct: React.FC = () => {
   );
 
   useEffect(() => {
-    dispatch(CountryGetAllAction(setCountry)); 
+    dispatch(CountryGetAllAction(setCountry));
     setTableLoading(true);
   }, [dispatch]);
   useEffect(() => {
@@ -428,7 +431,7 @@ const TabProduct: React.FC = () => {
         onFilter={onFilter}
         params={params}
         listStatus={listStatus}
-        listBrands={listBrands} 
+        listBrands={listBrands}
         listCountries={listCountry}
         onClickOpen={() => setShowSettingColumn(true)}
       />
@@ -438,7 +441,7 @@ const TabProduct: React.FC = () => {
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
-        scroll={{x: 1100}}
+        scroll={{x: 1200}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,

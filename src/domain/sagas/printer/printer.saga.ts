@@ -135,10 +135,9 @@ function* fetchPrintInventoryTransferIdsSaga(action: YodyAction) {
       handleData(response);
     }
     else {
-      yield put(unauthorizedAction());
+      showError("Có lỗi vui lòng thử lại sau");
     }
   } catch (error) {
-    console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());

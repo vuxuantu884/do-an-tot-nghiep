@@ -98,3 +98,14 @@ export const getStartOfDay = (date: Date | string | number | Moment) => {
 export const getEndOfDay = (date: Date | string | number | Moment) => {
   return  moment(date).endOf('day').format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z";
 }
+
+export const getStartOfDayCommon = (date: Date | string | number | Moment) => {
+  return date ? moment(date, DATE_FORMAT.DDMMYYY).startOf("day").utc(true) : undefined;
+}
+export const getEndOfDayCommon = (date: Date | string | number | Moment) => {
+  return date ? moment(date, DATE_FORMAT.DDMMYYY).endOf("day").utc(true) : undefined;
+}
+
+export const formatDateFilter = (date: Date | string | number | Moment | undefined) => {
+  return date ? moment(date).utc(false) : undefined;
+}

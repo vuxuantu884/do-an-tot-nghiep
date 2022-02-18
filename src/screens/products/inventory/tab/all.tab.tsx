@@ -496,12 +496,14 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
 
   const debouncedSearch = React.useMemo(() =>
     _.debounce((keyword: string) => {
-      setLoading(true);
-      const temps = {...params,info: keyword?.trim() };
-      delete temps.status; 
-      dispatch(searchVariantsInventoriesRequestAction(temps, onResult));
+      setLoading(true); 
+      const newValues = {...params,info: keyword?.trim()}
+      const newPrams = {...params, ...newValues, page: 1};
+      setPrams(newPrams);
+      let queryParam = generateQuery(newPrams);
+      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     }, 300),
-    [dispatch, params, onResult]
+    [params,history]
   ) 
 
   const onChangeKeySearch = useCallback(
