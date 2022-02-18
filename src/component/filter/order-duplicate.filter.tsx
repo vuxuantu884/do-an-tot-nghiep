@@ -1,6 +1,6 @@
 import { Button, Form, Row, FormInstance, Input, Select } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import CustomFilter from "component/table/custom.filter";
+// import CustomFilter from "component/table/custom.filter";
 import React, { createRef, useCallback, useMemo } from "react";
 import {
   SearchOutlined,
@@ -67,8 +67,6 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
         ])
       }
     }, [formSearchRef]);
-
-    // console.log("listStore",listStore)
 
   return (
     <React.Fragment>
