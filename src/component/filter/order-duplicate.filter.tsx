@@ -1,7 +1,7 @@
 import { Button, Form, Row, FormInstance, Input, Select } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import React, { createRef, useCallback } from "react";
+import React, { createRef, useCallback, useMemo } from "react";
 import {
   SearchOutlined,
   SettingOutlined,
@@ -12,7 +12,7 @@ import CustomDatePicker from "component/custom/new-date-picker.custom";
 import moment from "moment";
 import { StoreResponse } from "model/core/store.model";
 import { DuplicateOrderSearchQuery } from "model/order/order.model";
-import TreeStore from "component/tree-node/tree-store";
+// import TreeStore from "component/tree-node/tree-store";
 import { FilterWrapper } from "component/container/filter.container";
 
 const { Item } = Form;
@@ -21,7 +21,7 @@ type OrderDuplicateFilterProps = {
   onMenuClick?: (id: number) => void;
   actions?: Array<MenuAction>;
   onShowColumnSetting?: () => void;
-  listStore: StoreResponse[] | undefined;
+  listStore: StoreResponse[];
   onFilter: (value: any) => void;
   initialValues?: DuplicateOrderSearchQuery;
 };
@@ -35,9 +35,10 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
 
   //useState
 
-  // const initialValues=useMemo(() => {
-
-  // },[])
+  // const initialValuesCopy=useMemo(() => {
+  //   return {...initialValues}
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // },[initialValues,listStore])
 
   const onChangeDate = useCallback(
     () => {
@@ -68,7 +69,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
       }
     }, [formSearchRef]);
 
-    console.log("listStore",listStore)
+    // console.log("listStore",listStore)
 
   return (
     <React.Fragment>
@@ -103,8 +104,9 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
               optionFilterProp="children"
               placeholder="Chọn kho"
               style={{ width: "280px"}} 
+              notFoundContent="Không tìm thấy kết quả"
             >
-              {listStore?.map((item) => (
+              {listStore.length>0&&listStore.map((item) => (
                 <Select.Option
                   key={item.id}
                   value={item.id}
