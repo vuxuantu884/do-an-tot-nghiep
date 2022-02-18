@@ -1,12 +1,11 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, Row, Select, Space, Tag } from "antd";
+import { Button, FormInstance, Col, Form, Input, Row, Select, Tag } from "antd";
 import search from "assets/img/search.svg";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import ColorSearchSelect from "component/custom/select-search/color-select";
 import SizeSearchSelect from "component/custom/select-search/size-search";
 import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
-import CustomRangePicker from "component/filter/component/range-picker.custom";
 import CustomSelectOne from "component/filter/component/select-one.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
@@ -22,23 +21,29 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CountryResponse } from "model/content/country.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { ColorResponse } from "model/product/color.model";
-import { SearchVariantField, SearchVariantMapping } from "model/product/product-mapping";
+import {
+  keysDateFilter,
+  SearchVariantField,
+  SearchVariantMapping,
+} from "model/product/product-mapping";
 import { VariantSearchQuery } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import moment from "moment";
-import { useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
+import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import { StyledComponent } from "./style";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 
 let isWin = false;
-let isDesigner = false; 
+let isDesigner = false;
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
   listStatus?: Array<BaseBootstrapResponse>;
-  listBrands?: Array<BaseBootstrapResponse>;  
-  listCountries?: Array<CountryResponse>;  
+  listBrands?: Array<BaseBootstrapResponse>;
+  listCountries?: Array<CountryResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
@@ -51,10 +56,11 @@ const {Option} = Select;
 const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) => {
   const dispatch = useDispatch();
   const [formAvd] = Form.useForm();
+  const formRef = createRef<FormInstance>();
   const {
     params,
     listStatus,
-    listBrands, 
+    listBrands,
     listCountries,
     onFilter,
     onClickOpen,
@@ -62,25 +68,29 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     onMenuClick,
   } = props;
   const [visible, setVisible] = useState(false);
+  const [dateClick, setDateClick] = useState('');
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
+
   const [lstSize, setLstSize] = useState<PageResponse<SizeResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+
   const [colors, setColors] = useState<PageResponse<ColorResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+
   const [mainColors, setMainColors] = useState<PageResponse<ColorResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
-  ); 
+  );
 
   const [wins, setWins] = useState<PageResponse<AccountResponse>>(
     {
@@ -101,32 +111,51 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     metadata: { limit: 20, page: 1, total: 0 }
   });
 
+  useEffect(() => {
+    const { made_in, size, color, main_color, supplier, brand } = params;
+    const filter = {
+      ...params,
+      [SearchVariantField.from_created_date]: formatDateFilter(params.from_created_date),
+      [SearchVariantField.to_created_date]: formatDateFilter(params.to_created_date),
+      [SearchVariantField.made_in]: made_in ? Number(made_in) : null,
+      [SearchVariantField.size]: size ? Number(size) : null,
+      [SearchVariantField.color]: color ? Number(color) : null,
+      [SearchVariantField.main_color]: main_color ? Number(main_color) : null,
+      [SearchVariantField.supplier]: supplier ? Number(supplier) : null,
+      [SearchVariantField.brand]: brand ? brand : null
+    };
+
+    formAvd.setFieldsValue(filter);
+    setAdvanceFilters(filter);
+  }, [formAvd, params]);
+
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
     },
     [onFilter]
   );
+
   const onFinishAvd = useCallback(
     (values: any) => {
-      console.log("onFinishAvd: ", values);
       setAdvanceFilters(values);
-      if (values.created_date) {
-        const [from_created_date, to_created_date] = values.created_date;
-        values.from_created_date = values.created_date ? from_created_date : undefined;
-        values.to_created_date = values.created_date ? to_created_date : undefined;
-      }
+      values.from_created_date = getStartOfDayCommon(values.from_created_date)?.format();
+      values.to_created_date = getEndOfDayCommon(values.to_created_date)?.format();
+
       onFilter && onFilter(values);
     },
     [onFilter]
   );
+
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formAvd.submit();
   }, [formAvd]);
+
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
+
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
@@ -136,13 +165,10 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     formAvd.submit();
     setVisible(false);
   }, [formAvd]);
+
   const resetField = useCallback(
     (field: string) => {
-      console.log(field);
-      formAvd.setFieldsValue({
-        ...formAvd.getFieldsValue(true),
-        [field]: undefined,
-      });
+      formAvd.resetFields([field]);
       formAvd.submit();
     },
     [formAvd]
@@ -167,7 +193,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     (data: PageResponse<ColorResponse>, isColors: boolean, isMainColors: boolean) => {
       if (!data) {
         return false;
-      } 
+      }
       if (isColors) {
         setColors(data);
       }
@@ -189,7 +215,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     );
   }, [dispatch, setDataAccounts]);
 
-  const getColors = useCallback((code: string, page: number, isColor: boolean, isMainColor: boolean) => { 
+  const getColors = useCallback((code: string, page: number, isColor: boolean, isMainColor: boolean) => {
     dispatch(
       getColorAction(
         { info: code, page: page, is_main_color: isMainColor ? 1: 0 },
@@ -275,7 +301,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
           <Form
             onFinish={onFinishAvd}
             form={formAvd}
-            initialValues={{}}
+            ref={formRef}
             layout="vertical"
           >
             <Row gutter={20}>
@@ -304,7 +330,13 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     );
                     break;
                   case SearchVariantField.created_date:
-                    component = <CustomRangePicker />;
+                    component = <CustomFilterDatePicker
+                      fieldNameFrom="from_created_date"
+                      fieldNameTo="to_created_date"
+                      activeButton={dateClick}
+                      setActiveButton={setDateClick}
+                      formRef={formRef}
+                    />;
                     break;
                   case SearchVariantField.size:
                     component = (
@@ -361,8 +393,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     );
                 }
                 return (
-                  <Col span={12}>
-                    <p>{SearchVariantMapping[key]}</p>
+                  <Col span={12} key={key}>
+                    <div className="font-weight-500">{SearchVariantMapping[key]}</div>
                     <Item name={key}>{component}</Item>
                   </Col>
                 );
@@ -387,50 +419,50 @@ const FilterList = ({
   wins,
   listBrands,
 }: any) => {
-  let filtersKeys = Object.keys(filters);
+  const newFilters = {...filters};
+  let filtersKeys = Object.keys(newFilters);
   let renderTxt: any = null;
+  const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
+  filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
+
   return (
-    <Space wrap={true} style={{marginBottom: 20}}>
-      {filtersKeys.map((filterKey) => {
+    <div>
+      {[...newKeys, ...filtersKeys].map((filterKey) => {
         let value = filters[filterKey];
-        if (!value) return null;
+        if (!value && !filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return null;
         if (!SearchVariantMapping[filterKey]) return null;
         switch (filterKey) {
           case SearchVariantField.created_date:
-            let [from, to] = value;
-            let formatedFrom = moment(from).utc().format(DATE_FORMAT.DDMMYYY),
-              formatedTo = moment(to).utc().format(DATE_FORMAT.DDMMYYY);
-            let fixedDate = checkFixedDate(from, to);
-            if (fixedDate)
-              renderTxt = `${SearchVariantMapping[filterKey]} : ${fixedDate}`;
-            else
-              renderTxt = `${SearchVariantMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+            renderTxt = `${SearchVariantMapping[filterKey]} 
+            : ${filters[`from_${filterKey}`] ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'} 
+            ~ ${filters[`to_${filterKey}`] ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'}`
             break;
           case SearchVariantField.color:
-            const color = colors.items.find((e: ColorResponse)=>e.id === value);
+            const color = colors.items.find((e: ColorResponse)=> e.id === value);
             if (!color) return null;
             renderTxt = `${SearchVariantMapping[filterKey]} : ${color.name}`;
             break;
-          case SearchVariantField.main_color: 
-            const mainColor = mainColors.items.find((e: ColorResponse)=>e.id === value);
-            if (!mainColor) return null; 
+          case SearchVariantField.main_color:
+            const mainColor = mainColors.items.find((e: ColorResponse)=> e.id === value);
+            if (!mainColor) return null;
             renderTxt = `${SearchVariantMapping[filterKey]} : ${mainColor.name}`;
             break;
           case SearchVariantField.supplier:
-            const supplier = suppliers.items.find((e: SupplierResponse)=>e.id === value);
-            if (!supplier) return null;  
+            const supplier = suppliers.items.find((e: SupplierResponse)=> e.id === value);
+            if (!supplier) return null;
             renderTxt = `${SearchVariantMapping[filterKey]} : ${supplier.name}`;
             break;
           case SearchVariantField.size:
-            const size = lstSize.items.find((e: SizeResponse)=>e.id === value);
-            if (!size) return null;  
+            const size = lstSize.items.find((e: SizeResponse)=> e.id === value);
+            if (!size) return null;
             renderTxt = `${SearchVariantMapping[filterKey]} : ${size.code}`;
             break;
           case SearchVariantField.made_in:
-            let index4 = listCountries.findIndex(
+            if (!listCountries) return null;
+            let index4 = listCountries && listCountries.findIndex(
               (item: CountryResponse) => item.id === value
             );
-            renderTxt = `${SearchVariantMapping[filterKey]} : ${listCountries[index4].name}`;
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${listCountries && listCountries[index4] && listCountries[index4].name}`;
             break;
           case SearchVariantField.saleable:
             renderTxt = `${SearchVariantMapping[filterKey]} : ${
@@ -438,12 +470,12 @@ const FilterList = ({
             }`;
             break;
           case SearchVariantField.merchandiser:
-            const win = wins.items.find((e: AccountResponse)=>e.code === value);
+            const win = wins.items.find((e: AccountResponse)=> e.code === value);
             if (!win) return null;
             renderTxt = `${SearchVariantMapping[filterKey]} : ${win.full_name}`;
             break;
           case SearchVariantField.designer:
-            const designer = designers.items.find((e: AccountResponse)=>e.code === value);
+            const designer = designers.items.find((e: AccountResponse)=> e.code === value);
             if (!designer) return null;
             renderTxt = `${SearchVariantMapping[filterKey]} : ${designer.full_name}`;
             break;
@@ -456,14 +488,21 @@ const FilterList = ({
         }
         return (
           <Tag
-            onClose={() => resetField(filterKey)}
+            onClose={() => {
+              if (filterKey === "created_date") {
+                resetField("from_created_date");
+                resetField("to_created_date");
+                return;
+              }
+              resetField(filterKey)
+            }}
             key={filterKey}
-            className="fade"
+            className="fade margin-bottom-20"
             closable
           >{`${renderTxt}`}</Tag>
         );
       })}
-    </Space>
+    </div>
   );
 };
 

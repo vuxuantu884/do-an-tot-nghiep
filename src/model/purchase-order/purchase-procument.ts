@@ -3,6 +3,7 @@ import { ParsedUrlQueryInput } from "querystring";
 import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
 import { PurchaseOrder } from "./purchase-order.model";
+
 export interface PurchaseProcument extends BaseObject {
   reference: string;
   store_id: number;
@@ -16,7 +17,7 @@ export interface PurchaseProcument extends BaseObject {
   stock_in_date: string|null;
   stock_in_by: string|null;
   store?: string;
-  is_cancelled?: boolean; 
+  is_cancelled?: boolean;
 }
 export interface PurchaseProcurementViewDraft {
   id?: number,
@@ -74,7 +75,7 @@ export interface PurchaseProcumentLineItem {
 
 const POProcumentField = {
   id: "id",
-  code: "code", 
+  code: "code",
   reference: "reference",
   store_id: "store_id",
   store: "store",
@@ -105,29 +106,29 @@ const POProcumentLineItemField = {
 
 export interface ProcurementQuery extends BaseQuery, ParsedUrlQueryInput {
   content?: number,
-  active_from?: string,
-  active_to?: string,
+  active_from?: any,
+  active_to?: any,
   active_by?: string,
-  stock_in_from?: string,
-  stock_in_to?: string,
+  stock_in_from?: any,
+  stock_in_to?: any,
   stock_in_by?: string,
   merchandisers?: string,
   status?: string,
   stores?: string,
-  expect_receipt_from?: string,
-  expect_receipt_to?: string,
+  expect_receipt_from?: any,
+  expect_receipt_to?: any,
   is_cancel?: boolean
 }
 
 export interface ImportProcument {
   url: string;
   conditions: string;
-  type: string; 
+  type: string;
   url_template?: string
 }
 export interface ProcurementConfirm {
   procurement_items: Array<PurchaseProcumentLineItem>;
   refer_ids: Array<number>
-} 
+}
 
 export { POProcumentField, POProcumentLineItemField };
