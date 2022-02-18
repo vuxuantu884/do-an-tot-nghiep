@@ -32,7 +32,9 @@ export interface StoreResponse extends BaseObject {
   is_stocktaking: boolean,
   type: string,
   type_name: string,
-  reference_id?: number, 
+  reference_id?: number,
+  department_h3_id?: number,
+  department_h3?: string,
 }
 
 export interface StoreQuery extends BaseQuery {
