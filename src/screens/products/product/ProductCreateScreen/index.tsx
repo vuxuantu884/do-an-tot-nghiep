@@ -366,7 +366,7 @@ const ProductCreateScreen: React.FC = () => {
   }, [colorSelected, listVariantsFilter, sizeSelected]);
 
   const onMaterialChange = useCallback((id: number) => {
-    if (changeDescription) {
+    if (changeDescription && id) {
       dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
     }
   },[dispatch,form, changeDescription]);
