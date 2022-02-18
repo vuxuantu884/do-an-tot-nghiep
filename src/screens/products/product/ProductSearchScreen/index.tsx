@@ -57,7 +57,6 @@ const ListProductScreen: React.FC = () => {
     }
 
     if (redirectUrl === ProductTabUrl.PRODUCTS && canReadProducts) {
-      history.replace(redirectUrl);
       setActiveTab(ProductTabUrl.PRODUCTS);
     } else if (redirectUrl === ProductTabUrl.PRODUCTS) {
       redirectUrl = ProductTabUrl.PRODUCT_HISTORIES;
@@ -65,11 +64,9 @@ const ListProductScreen: React.FC = () => {
 
     if (canReadHistories) {
       if (redirectUrl === ProductTabUrl.PRODUCT_HISTORIES) {
-        history.replace(redirectUrl);
         setActiveTab(ProductTabUrl.PRODUCT_HISTORIES);
       }
       if (redirectUrl === ProductTabUrl.HISTORY_PRICES) {
-        history.replace(redirectUrl);
         setActiveTab(ProductTabUrl.HISTORY_PRICES);
       }
     }
@@ -106,7 +103,7 @@ const ListProductScreen: React.FC = () => {
   return (
     <ContentContainer
       title="Quản lý sản phẩm"
-      breadcrumb={[ 
+      breadcrumb={[
         {
           name: "Sản phẩm",
         },
