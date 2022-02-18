@@ -755,6 +755,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 	const onOKCancelFullfilment = (reasonID: string, reasonSubID: string, reason: string) => {
 		fulfillmentTypeOrderRequest(5, { reasonID, reasonSubID, reason });
 		setIsvibleCancelFullfilment(false);
+		setReload(true)
 	};
 	// cancel fulfillment 3 button modal
 	const onOkCancelAndGetGoodsBack = (reasonID: string, reasonSubID: string, reason: string) => {

@@ -57,22 +57,22 @@ type PurchaseHistoryProps = {
 function PurchaseHistory(props: PurchaseHistoryProps) {
   const { customerId } = props;
 
-  const orderPointSpend = (order: any) => {
-    if (order && order.payments.length > 0) {
-      let _pointPayment = order?.payments?.filter(
-        (item: any) => item.payment_method_id === 1
-      );
-      let totalPoint = _pointPayment.reduce(
-        (acc: any, curr: any) => acc + curr.point,
-        0
-      );
-      return totalPoint;
-    }
-  };
+  // const orderPointSpend = (order: any) => {
+  //   if (order && order.payments.length > 0) {
+  //     let _pointPayment = order?.payments?.filter(
+  //       (item: any) => item.payment_method_id === 1
+  //     );
+  //     let totalPoint = _pointPayment.reduce(
+  //       (acc: any, curr: any) => acc + curr.point,
+  //       0
+  //     );
+  //     return totalPoint;
+  //   }
+  // };
 
-  const orderPointCollected = (order: any) => {
-    return 0;
-  };
+  // const orderPointCollected = (order: any) => {
+  //   return 0;
+  // };
 
   const status_order = React.useMemo(
     () => [
@@ -562,32 +562,32 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           align: "left",
           width: 120,
         },
-        {
-          title: "Điểm",
-          // dataIndex: "",
-          render: (record: any) => (
-            <>
-              <div>
-                <span style={{ color: "#27AE60" }}>Tích:</span>
-                <span style={{ marginLeft: 10 }}>
-                  {orderPointSpend(record) || 0}
-                  {" điểm"}
-                </span>
-              </div>
-              <div>
-                <span style={{ color: "#E24343" }}>Tiêu:</span>
-                <span style={{ marginLeft: 10 }}>
-                  {orderPointCollected(record) || 0}
-                  {" điểm"}
-                </span>
-              </div>
-            </>
-          ),
-          key: "customer.amount_money",
-          visible: true,
-          align: "left",
-          width: 120,
-        },
+        // {
+        //   title: "Điểm",
+        //   // dataIndex: "",
+        //   render: (record: any) => (
+        //     <>
+        //       <div>
+        //         <span style={{ color: "#27AE60" }}>Tích:</span>
+        //         <span style={{ marginLeft: 10 }}>
+        //           {orderPointSpend(record) || 0}
+        //           {" điểm"}
+        //         </span>
+        //       </div>
+        //       <div>
+        //         <span style={{ color: "#E24343" }}>Tiêu:</span>
+        //         <span style={{ marginLeft: 10 }}>
+        //           {orderPointCollected(record) || 0}
+        //           {" điểm"}
+        //         </span>
+        //       </div>
+        //     </>
+        //   ),
+        //   key: "customer.amount_money",
+        //   visible: true,
+        //   align: "left",
+        //   width: 120,
+        // },
         {
           title: "Vận chuyển",
           key: "shipment.type",

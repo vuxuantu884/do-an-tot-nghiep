@@ -22,6 +22,7 @@ export const StyledComponent = styled.div`
     .data {
       color: #222222;
       font-weight:500;
+      word-break: break-word;
     }
   }
 `;

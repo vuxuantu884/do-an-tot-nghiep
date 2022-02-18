@@ -1,9 +1,11 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { Button } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import {
   ApprovalPoProcumentAction,
   PoProcumentDeleteAction,
@@ -27,7 +29,7 @@ import ProcumentInventoryModal from "screens/purchase-order/modal/procument-inve
 import { confirmProcumentsMerge } from "service/purchase-order/purchase-procument.service";
 import { callApiNative } from "utils/ApiUtils";
 import { ProcumentStatus } from "utils/Constants";
-import { ConvertDateToUtc, ConvertUtcToLocalDate, DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { ProcurementListWarning } from "../../components/ProcumentListWarning";
 
@@ -73,12 +75,12 @@ const TabCurrent: React.FC = () => {
    ]
    },[]);
 
-  const currentDate = getDateFromNow(0, "day");
+  const today = new Date();
   const [params, setParams] = useState<ProcurementQuery>({
     is_cancel: false,
     status: ProcumentStatus.NOT_RECEIVED,
-    expect_receipt_from: ConvertDateToUtc(currentDate.startOf("days")),
-    expect_receipt_to: ConvertDateToUtc(currentDate.endOf("days")),
+    expect_receipt_from: getStartOfDay(today),
+    expect_receipt_to: getEndOfDay(today),
   });
   const search = useCallback(() => {
     setLoading(true);
@@ -223,21 +225,25 @@ const TabCurrent: React.FC = () => {
         title: "Hành động",
         dataIndex: "purchase_order",
         render: (value, record: PurchaseProcument, index) => (
-          <Button
-            onClick={() => {
-              setShowLoadingBeforeShowModal(index);
-              setIsVisibleReceiveModal(true);
-              setSelectedProcurement(record);
-              loadDetail(record.purchase_order.id);
-            }}
+          <AuthWrapper
+            acceptPermissions={[PurchaseOrderPermission.procurements_confirm]}
           >
-            {showLoadingBeforeShowModal === index ? (
-              <LoadingOutlined />
-            ) : (
-              <Fragment />
-            )}{" "}
-            Nhận hàng
-          </Button>
+            <Button
+              onClick={() => {
+                setShowLoadingBeforeShowModal(index);
+                setIsVisibleReceiveModal(true);
+                setSelectedProcurement(record);
+                loadDetail(record.purchase_order.id);
+              }}
+            >
+              {showLoadingBeforeShowModal === index ? (
+                <LoadingOutlined />
+              ) : (
+                <Fragment />
+              )}{" "}
+              Nhận hàng
+            </Button>
+          </AuthWrapper> 
         ),
       },
     ]
