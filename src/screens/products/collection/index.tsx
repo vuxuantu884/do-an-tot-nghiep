@@ -1,7 +1,7 @@
 import { Button, Card, Form, Input, Menu, Dropdown} from "antd";
 import { Link, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch} from "react-redux"; 
+import { useDispatch} from "react-redux";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import search from "assets/img/search.svg";
 import { CollectionResponse,CollectionQuery } from "model/product/collection.model";
@@ -30,7 +30,10 @@ const updateCollectionPermission = [ProductPermission.collections_update];
 const deleteCollectionPermission = [ProductPermission.collections_delete];
 
 const { Item } = Form;
- 
+
+const CURRENT_PAGE = 1
+const PAGE_LIMIT = 30
+
 const Collection = () => {
   const history = useHistory();
   const dispatch = useDispatch();
@@ -42,15 +45,15 @@ const Collection = () => {
   const [params, setPrams] = useState<CollectionQuery>(getParams);
   const [data, setData] = useState<PageResponse<CollectionResponse>>({
     metadata: {
-      limit: 30,
-      page: 1,
+      page: CURRENT_PAGE,
+      limit: PAGE_LIMIT,
       total: 0,
     },
     items: [],
   });
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [collectionId, setCollectionId] = useState<number>(0); 
+  const [collectionId, setCollectionId] = useState<number>(0);
 
   const RenderActionColumn = (value: any, row: CollectionResponse, index: number) => {
     const [allowUpdateCollection] = useAuthorization({
@@ -64,7 +67,7 @@ const Collection = () => {
     });
 
     const isShowAction = allowUpdateCollection || allowDeleteCollection;
-    
+
     const menu = (
       <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
         {allowUpdateCollection &&
@@ -86,7 +89,7 @@ const Collection = () => {
             </Button>
           </Menu.Item>
         }
-        
+
         {allowDeleteCollection &&
           <Menu.Item key="2">
             <Button
@@ -135,7 +138,7 @@ const Collection = () => {
       title: "STT",
       key: "index",
       render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
-      visible: true, 
+      visible: true,
       width: 60,
       align: "center",
     },
@@ -146,7 +149,7 @@ const Collection = () => {
       render: (text: string, item: CollectionResponse) => {
         return <Link to={`${UrlConfig.COLLECTIONS}/${item.id}`}>{text}</Link>;
       },
-    }, 
+    },
     {
       title: "Nhóm hàng",
       dataIndex: "name",
@@ -165,13 +168,13 @@ const Collection = () => {
       render: (value: string,item: CollectionResponse) => {
         return (
           <div>
-             <Link to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}> 
+             <Link to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
                   {item.created_by} - {item.created_name}
-             </Link>  
+             </Link>
           </div>
         );
       },
-    }, 
+    },
     {
       title: "Ngày tạo",
       width: 100,
@@ -191,7 +194,7 @@ const Collection = () => {
       let query = generateQuery({...values});
 
       const newValues = {...values, condition: values.condition?.trim()};
-      
+
       setPrams({ ...newValues });
       return history.replace(`${UrlConfig.COLLECTIONS}?${query}`);
     },
@@ -200,7 +203,7 @@ const Collection = () => {
 
   const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
     setLoading(false);
-    
+
     if (results && results.items) {
       setData(results);
     }
@@ -216,10 +219,12 @@ const Collection = () => {
     (page, size) => {
       params.page = page;
       params.limit = size;
-      
+
+      history.push({search: `?page=${page}&limit=${size}`})
+
       setPrams({...params});
     },
-    [params]
+    [params, history]
   );
 
   useEffect(() => {
@@ -262,9 +267,9 @@ const Collection = () => {
                 <Button htmlType="submit" type="primary">
                   Lọc
                 </Button>
-              </Item> 
+              </Item>
             </Form>
-        </div> 
+        </div>
         <CustomTable
           isRowSelection={false}
           isLoading={loading}
@@ -291,7 +296,7 @@ const Collection = () => {
           dispatch(showLoading());
           dispatch(collectionDeleteAction(collectionId, onDeleteSuccess));
         }}
-        title="Bạn chắc chắn xóa nhóm hàng?" 
+        title="Bạn chắc chắn xóa nhóm hàng?"
         visible={isConfirmDelete}
       />
     </ContentContainer>

@@ -173,7 +173,7 @@ const UpdateSupplierScreen: React.FC = () => {
       }
     }
     isFirstLoad.current = false;
-  }, [dispatch, idNumber, setSupplierDetail]);
+  }, [dispatch, idNumber, setSupplierDetail, params]);
   return (
     <ContentContainer
       isLoading={loadingData}
