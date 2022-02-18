@@ -21,7 +21,7 @@ export const StyledComponent = styled.div`
       margin: -4px -4px -4px 30px;
   }
 
-  .custom-table .ant-table-measure-row{
+  /* .custom-table .ant-table-measure-row{
     display: none;
-  }
+  } */
   `;

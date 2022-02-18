@@ -47,7 +47,7 @@ export interface DeliverPartnerResponse {
 }
 export interface AccountSearchQuery extends BaseQuery {
   code?: string;
-  department_ids?: Array<number>;
+  department_ids?: Array<number> | Array<null>;
   from_date?: Date;
   to_date?: Date;
   condition?: string;

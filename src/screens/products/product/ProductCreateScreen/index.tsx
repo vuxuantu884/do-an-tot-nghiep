@@ -24,12 +24,12 @@ import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config"; 
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
@@ -83,8 +83,6 @@ import UploadImageModal, {
 import { StyledComponent } from "./styles";
 const { Item, List } = Form;
 
-var isWin = false;
-var isDesigner = false;
 const initialRequest: ProductRequestView = {
   goods: null,
   category_id: null,
@@ -186,19 +184,6 @@ const ProductCreateScreen: React.FC = () => {
   }, [listCategory, selectedGood]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
-  const [wins, setWins] = useState<PageResponse<AccountResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-
-  const [designer, setDeisgner] = useState<PageResponse<AccountResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
 
   const [suppliers, setSupplier] = useState<PageResponse<SupplierResponse>>({
     items: [],
@@ -249,12 +234,6 @@ const ProductCreateScreen: React.FC = () => {
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
         return false;
-      }
-      if (isWin) {
-        setWins(data);
-      }
-      if (isDesigner) {
-        setDeisgner(data);
       }
     },
     []
@@ -665,17 +644,6 @@ const ProductCreateScreen: React.FC = () => {
     dispatch(sizeSearchAction({ code: code, page: page }, setSizes));
   }, [dispatch]);
 
-  const getAccounts = useCallback((code: string, page: number, designer: boolean, win: boolean) => {
-    isDesigner = designer;
-    isWin = win;
-    dispatch(
-      searchAccountPublicAction(
-        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
-        setDataAccounts
-      )
-    );
-  }, [dispatch, setDataAccounts]);
-
   const getSuppliers = useCallback((key: string, page: number) => {
     dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier(data);
@@ -689,12 +657,11 @@ const ProductCreateScreen: React.FC = () => {
       dispatch(CountryGetAllAction(setListCountry));
       getColors('', 1);
       getSizes('', 1);
-      getAccounts('', 1, true, true);
       getSuppliers('', 1);
     }
     isLoadMaterData.current = true;
     return () => { };
-  }, [dispatch, getAccounts, getColors, getSizes, getSuppliers, setDataAccounts, setDataCategory]);
+  }, [dispatch, getColors, getSizes, getSuppliers, setDataAccounts, setDataCategory]);
 
   useEffect(() => {
     form.setFieldsValue({ made_in_id: VietNamId });
@@ -1188,45 +1155,20 @@ const ProductCreateScreen: React.FC = () => {
                     icon: <InfoCircleOutlined />,
                   }}
                 >
-                  <SelectPaging
-                    metadata={wins.metadata}
-                    placeholder="Chọn merchandiser"
-                    showSearch={false}
-                    showArrow
-                    allowClear
-                    searchPlaceholder="Tìm kiếm nhân viên"
-                    onPageChange={(key, page) => getAccounts(key, page, false, true)}
-                    onSearch={(key) => getAccounts(key, 1, false, true)}
-                  >
-                    {wins.items.map((item) => (
-                      <CustomSelect.Option key={item.code} value={item.code}>
-                        {`${item.code} - ${item.full_name}`}
-                      </CustomSelect.Option>
-                    ))}
-                  </SelectPaging>
+                  <AccountSearchPaging 
+                    placeholder="Chọn Merchandiser"
+                    fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                   />
                 </Item>
                 <Item
                   name="designer_code"
                   label="Thiết kế"
                   tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
                 >
-                  <SelectPaging
-                    metadata={designer.metadata}
-                    showSearch={false}
-                    showArrow
-                    allowClear
-                    searchPlaceholder="Tìm kiếm nhân viên"
+                  <AccountSearchPaging 
                     placeholder="Chọn thiết kế"
-                    onPageChange={(key, page) => getAccounts(key, page, true, false)}
-                    onSearch={(key) => getAccounts(key, 1, true, false)}
-                  >
-
-                    {designer.items.map((item) => (
-                      <SelectPaging.Option key={item.code} value={item.code}>
-                        {`${item.code} - ${item.full_name}`}
-                      </SelectPaging.Option>
-                    ))}
-                  </SelectPaging>
+                    fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                   />
                 </Item>
               </Card>
             </Col>

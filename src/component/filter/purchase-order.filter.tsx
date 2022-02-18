@@ -606,7 +606,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     isWin = win;
     dispatch(
       searchAccountPublicAction(
-        { condition: code, page: page, department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
+        { condition: code, page: page, status: "active" },
         setDataAccounts
       )
     );
