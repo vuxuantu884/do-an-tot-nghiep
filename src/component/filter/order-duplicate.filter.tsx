@@ -35,10 +35,9 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
 
   //useState
 
-  // const initialValuesCopy=useMemo(() => {
-  //   return {...initialValues}
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // },[initialValues,listStore])
+  const initialValuesCopy=useMemo(() => {
+    return {...initialValues, store_id:(Number)(initialValues?.store_id)}
+  },[initialValues])
 
   const onChangeDate = useCallback(
     () => {
@@ -73,7 +72,7 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
 
   return (
     <React.Fragment>
-      <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValues}>
+      <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValuesCopy}>
         <FilterWrapper>
           <div style={{ display: "flex", paddingRight: "16px" }}>
             <Item name="issued_on_min" style={{ width: "150px", margin: 0 }}>
