@@ -37,13 +37,13 @@ export const AppConfig = {
   PROMOTION_QUANTITY_TEMPLATE_URL: `${process.env.REACT_APP_CDN}${process.env.REACT_APP_PROMOTION_QUANTITY_TEMPLATE_URL}`,
   DISCOUNT_CODES_TEMPLATE_URL:
     process.env.REACT_APP_PROMOTIONS_DISCOUNT_CODES_TEMPLATE_URL,
-  PROCUMENT_IMPORT_TEMPLATE_URL: process.env.REACT_APP_PROCUMENT_IMPORT_TEMPLATE_URL,
-  PO_EXPORT_TEMPLATE_URL: process.env.REACT_APP_PO_EXPORT_TEMPLATE_URL,
-  PO_EXPORT_URL: process.env.REACT_APP_PO_EXPORT_URL,
   PO_STORE_DEFAULT: 144,
   /**
    * @description: thời gian time out khi sử dụng typing request
    * sau khi dừng gõ 500ms thì mới gửi request  => hạn chế request tới server liên tục
    */
   TYPING_TIME_REQUEST: 500,
+  PROCUMENT_IMPORT_TEMPLATE_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_33c49192-d24e-4ccf-8587-12840bf3406d_original.xlsx",
+  PO_EXPORT_TEMPLATE_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_3914d806-813b-4978-bff0-7251b350b40f_original.xlsx",
+  PO_EXPORT_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_eddd98ef-0561-4172-a203-e32b4314b2b9_original.xlsx",
 };
