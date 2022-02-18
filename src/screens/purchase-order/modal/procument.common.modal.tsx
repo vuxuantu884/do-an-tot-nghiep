@@ -292,7 +292,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         procurement_items: JSON.parse(JSON.stringify(allProcurementItems)),
       });
     }
-  }, [form, item, allProcurementItems, type]);
+  }, []);
 
   const confirmDeletePhrase: string = useMemo(() => {
     if (!item) return "";

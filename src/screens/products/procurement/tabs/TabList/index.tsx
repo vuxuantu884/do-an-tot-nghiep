@@ -484,6 +484,7 @@ const TabList: React.FC = () => {
       if (value !== null) {
         showSuccess("Xác nhận nhập kho thành công");
         setLoadingRecive(false);
+        setIsDetail(true);
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
@@ -506,6 +507,7 @@ const TabList: React.FC = () => {
   const onReciveProcument = useCallback(
     (value: PurchaseProcument) => {
       if (poId && value.id) {
+        console.log(value, 'đay')
         setLoadingRecive(true);
         dispatch(
           ConfirmPoProcumentAction(
@@ -692,6 +694,7 @@ const TabList: React.FC = () => {
           visible={visibleConfirm}
           item={procumentInventory}
           onOk={(value: PurchaseProcument) => {
+            console.log('dâd')
             onReciveProcument(value);
           }}
           onDelete={onDeleteProcument}
