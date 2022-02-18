@@ -55,6 +55,7 @@ import {useHistory} from "react-router";
 import {RegUtil} from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
+import { strForSearch } from "utils/RemoveDiacriticsString";
 
 const {Item} = Form;
 const {Panel} = Collapse;
@@ -174,7 +175,7 @@ const StoreCreateScreen: React.FC = () => {
     if (data) {
       setAccounts(data.items);
     };
-  }, []); 
+  }, []);
 
    const onResDepartment = useCallback((data: DepartmentResponse | false) => {
     if (data && data.children) {
@@ -182,19 +183,19 @@ const StoreCreateScreen: React.FC = () => {
     };
   }, []);
 
-  const backAction = ()=>{  
+  const backAction = ()=>{
     setModalConfirm({
       visible: true,
       onCancel: () => {
         setModalConfirm({visible: false});
       },
-      onOk: () => { 
+      onOk: () => {
         history.push(UrlConfig.STORE);
       },
       title: "Bạn có muốn quay lại?",
       subTitle:
         "Sau khi quay lại thay đổi sẽ không được lưu.",
-    }); 
+    });
   };
 
   useEffect(() => {
@@ -242,8 +243,8 @@ const StoreCreateScreen: React.FC = () => {
         <Row gutter={20}>
           <Col span={18}>
             <Card
-              title="Thông tin cửa hàng" 
-            >  
+              title="Thông tin cửa hàng"
+            >
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
@@ -345,6 +346,13 @@ const StoreCreateScreen: React.FC = () => {
                       placeholder="Chọn phường/xã"
                       showSearch
                       optionFilterProp="children"
+                      filterOption={(input: String, option: any) => {
+                        if (option.props.value) {
+                          return strForSearch(option.props.children).includes(strForSearch(input));
+                        }
+
+                        return false;
+                      }}
                     >
                       {wards.map((item) => (
                         <Option key={item.id} value={item.id}>
@@ -355,7 +363,7 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col>
               </Row>
-              <Row gutter={50}> 
+              <Row gutter={50}>
                 <Col flex="auto">
                   <Item
                     label="Địa chỉ"
@@ -374,9 +382,9 @@ const StoreCreateScreen: React.FC = () => {
                   <Item label="Mã bưu điện" name="zip_code">
                     <Input placeholder="Nhập mã bưu điện" />
                   </Item>
-                </Col> 
-              </Row> 
-              <Row gutter={50}> 
+                </Col>
+              </Row>
+              <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
                     rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
@@ -414,11 +422,11 @@ const StoreCreateScreen: React.FC = () => {
                       {lstDepartment?.map((item, index) => (
                         <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
                       ))}
-                    </TreeSelect> 
+                    </TreeSelect>
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item 
+                  <Item
                     name="reference_id"
                     label="Mã tham chiếu"
                   >
@@ -432,7 +440,7 @@ const StoreCreateScreen: React.FC = () => {
             <Card title="Thông tin tình trạng">
               <Row>
                  <Col span={24}>
-                    <Item name="status" 
+                    <Item name="status"
                       rules={[{required: true, message: "Vui lòng chọn trạng thái."}]}
                       label="Trạng thái">
                       <Select
@@ -508,7 +516,7 @@ const StoreCreateScreen: React.FC = () => {
             <div className="padding-20">
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item 
+                  <Item
                     tooltip={{
                       overlayStyle: {
                         backgroundColor: "transparent",
@@ -539,7 +547,7 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                <Item 
+                <Item
                     label="Diện tích cửa hàng (m²)"
                     name="square"
                   >
@@ -614,6 +622,6 @@ const StoreCreateScreen: React.FC = () => {
       <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
-}; 
+};
 
 export default StoreCreateScreen;
