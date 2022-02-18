@@ -297,7 +297,6 @@ const TabCurrent: React.FC = () => {
   return (
     <div className="margin-top-20">
       <CustomTable
-        isRowSelection
         selectedRowKey={selected.map(e=>e.id)}
         isLoading={loading}
         dataSource={data.items}
