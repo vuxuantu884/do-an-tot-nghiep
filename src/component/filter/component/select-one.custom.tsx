@@ -11,7 +11,7 @@ const CustomSelectOne: React.FC<CustomSelectOneProps> = (props: CustomSelectOneP
   return (
     <Row gutter={5}>
       {Object.keys(props.data)?.map((key) => (
-        <Col span={props.span}>
+        <Col span={props.span} key={key}>
           <Button
              className={props.value === key ? "active" : ""}
              onClick={() => props.onChange && props.onChange(key)}

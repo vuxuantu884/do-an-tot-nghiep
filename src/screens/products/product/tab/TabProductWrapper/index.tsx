@@ -41,7 +41,7 @@ const ACTIONS_INDEX = {
   ACTIVE: 3,
   INACTIVE: 4,
   DELETE: 5,
-};  
+};
 
 const TabProductWrapper: React.FC = () => {
   const dispatch = useDispatch();
@@ -233,7 +233,7 @@ const TabProductWrapper: React.FC = () => {
     setListCategory(temp);
   }, []);
 
-  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => { 
+  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => {
     dispatch(hideLoading());
     setTableLoading(false);
     if (!!result) {
@@ -241,7 +241,7 @@ const TabProductWrapper: React.FC = () => {
     }
   }, [dispatch]);
 
-  const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => { 
+  const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => {
     dispatch(hideLoading());
     setTableLoading(false);
     showSuccess("Xóa sản phẩm thành công");
@@ -266,10 +266,14 @@ const TabProductWrapper: React.FC = () => {
   const onFilter = useCallback(
     (values) => {
       let {info} = values;
+
       values.info = info && info.trim();
-      let newParams = {...params, ...values, page: 1};
-      setParams(newParams);
-      let queryParam = generateQuery(newParams);
+      let newPrams = { ...params, ...{
+          ...values,
+          info: values.info || params.info
+        }, page: 1 };
+      setParams(newPrams);
+      let queryParam = generateQuery(newPrams);
       history.replace(`${ProductTabUrl.PRODUCTS}?${queryParam}`);
     },
     [params, history]
@@ -277,10 +281,10 @@ const TabProductWrapper: React.FC = () => {
 
   const onDeleteSuccess = useCallback((res: any) => {
     if (res) {
-      setSelected([]); 
+      setSelected([]);
       dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
     }
-   
+
   }, [dispatch, setSearchResultDelete, params]);
 
   const onUpdateSuccess = useCallback(
@@ -330,10 +334,10 @@ const TabProductWrapper: React.FC = () => {
         case ACTIONS_INDEX.INACTIVE:
           onInactive(selected[0]);
           break;
-        case ACTIONS_INDEX.DELETE: 
+        case ACTIONS_INDEX.DELETE:
           setConfirmDelete(true);
           break;
-       case ACTIONS_INDEX.EXPORT_EXCEL: 
+       case ACTIONS_INDEX.EXPORT_EXCEL:
           showInfo("Tính năng đang phát triển");
           break;
         case 3:

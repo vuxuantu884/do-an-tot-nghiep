@@ -1,9 +1,8 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Collapse, Form, Input, Select, Space, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
 import search from "assets/img/search.svg";
 import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
-import CustomRangePicker from "component/filter/component/range-picker.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
@@ -16,16 +15,19 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CategoryView } from "model/product/category.model";
 import { MaterialResponse } from "model/product/material.model";
 import {
+  keysDateWrapperFilter,
   SearchVariantWrapperField,
-  SearchVariantWrapperMapping
+  SearchVariantWrapperMapping,
 } from "model/product/product-mapping";
 import { ProductWrapperSearchQuery, VariantSearchQuery } from "model/product/product.model";
 import { StatusFilterResponse } from "model/product/status.model";
 import moment from "moment";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import React, { createRef, Fragment, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
-import { StyledComponent } from "./styled"; 
+import { DATE_FORMAT, formatDateFilter, getStartOfDayCommon } from "utils/DateUtils";
+import { StyledComponent } from "./styled";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 
 var isWin = false;
 var isDesigner = false;
@@ -66,8 +68,10 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     goods,
   } = props;
   const [visible, setVisible] = useState(false);
+  const [dateClick, setDateClick] = useState('');
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [form] = Form.useForm();
+  const formRef = createRef<FormInstance>();
   const [materials, setMaterials] = useState<PageResponse<MaterialResponse>>(
     {
       items: [],
@@ -80,31 +84,34 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
-  
+
   const [designers, setDeisgners] = useState<PageResponse<AccountResponse>>(
     {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+
+  useEffect(() => {
+    setAdvanceFilters({
+      ...params,
+      [SearchVariantWrapperField.from_create_date]: formatDateFilter(params.from_create_date),
+      [SearchVariantWrapperField.to_create_date]: formatDateFilter(params.to_create_date),
+    });
+  }, [params]);
+
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
     },
     [onFilter]
   );
+
   const onFinishAvd = useCallback(
     (values: any) => {
       setAdvanceFilters(values);
-      if (values.created_date) {
-        const [from_create_date, to_create_date] = values.created_date;
-        values.from_create_date = from_create_date;
-        values.to_create_date = to_create_date;
-      } else {
-        values.from_create_date = null;
-        values.to_create_date = null;
-      }
-      console.log("form filter", values);
+      values.from_create_date = getStartOfDayCommon(values.from_create_date)?.format();
+      values.to_create_date = getStartOfDayCommon(values.to_create_date)?.format();
 
       onFilter && onFilter(values);
     },
@@ -223,10 +230,10 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
-          width={500}
+          width={700}
         >
-          <Form onFinish={onFinishAvd} form={form} initialValues={{}} layout="vertical">
-            <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
+          <Form ref={formRef} onFinish={onFinishAvd} form={form} initialValues={{}} layout="vertical">
+            <Row gutter={20}>
               {Object.keys(SearchVariantWrapperMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
@@ -242,7 +249,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                         onPageChange={(key, page) => getAccounts(key, page, true, false)}
                         onSearch={(key) => getAccounts(key, 1, true, false)}
                       >
-    
+
                         {designers.items.map((item) => (
                           <SelectPaging.Option key={item.code} value={item.code}>
                             {`${item.code} - ${item.full_name}`}
@@ -321,22 +328,24 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     </SelectPaging>
                     );
                     break;
-                  case SearchVariantWrapperField.created_date:
-                    component = <CustomRangePicker />;
+                  case SearchVariantWrapperField.create_date:
+                    component = <CustomFilterDatePicker
+                      fieldNameFrom="from_create_date"
+                      fieldNameTo="to_create_date"
+                      activeButton={dateClick}
+                      setActiveButton={setDateClick}
+                      formRef={formRef}
+                    />;
                     break;
                 }
                 return (
-                  <Collapse key={key}>
-                    <Collapse.Panel
-                      key="1"
-                      header={<span>{SearchVariantWrapperMapping[key].toUpperCase()}</span>}
-                    >
-                      <Item name={key}>{component}</Item>
-                    </Collapse.Panel>
-                  </Collapse>
+                  <Col span={12} key={key}>
+                    <div className="font-weight-500">{SearchVariantWrapperMapping[key]}</div>
+                    <Item name={key}>{component}</Item>
+                  </Col>
                 );
               })}
-            </Space>
+            </Row>
           </Form>
         </BaseFilter>
       </div>
@@ -354,8 +363,11 @@ const FilterList = ({
   wins,
   form,
 }: any) => {
-  let filtersKeys = Object.keys(filters);
   let renderTxt = "";
+  const newFilters = {...filters};
+  let filtersKeys = Object.keys(newFilters);
+  const newKeys = ConvertDatesLabel(newFilters, keysDateWrapperFilter);
+  filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateWrapperFilter, i));
 
   const formValue = form.getFieldsValue(true);
   let hasFilter = false;
@@ -369,20 +381,16 @@ const FilterList = ({
     return <Fragment />;
   } else {
     return (
-      <Space wrap={true} style={{ marginBottom: 20 }}>
-        {filtersKeys.map((filterKey) => {
+      <div>
+        {[...newKeys, ...filtersKeys].map((filterKey) => {
           let value = filters[filterKey];
-          if (!value) return null;
+          if (!value && !filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return null;
           if (!SearchVariantWrapperMapping[filterKey]) return null;
           switch (filterKey) {
-            case SearchVariantWrapperField.created_date:
-              let [from, to] = value;
-              let formatedFrom = moment(from).utc().format(DATE_FORMAT.DDMMYYY),
-                formatedTo = moment(to).utc().format(DATE_FORMAT.DDMMYYY);
-              let fixedDate = checkFixedDate(from, to);
-              if (fixedDate) renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${fixedDate}`;
-              else
-                renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+            case SearchVariantWrapperField.create_date:
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} 
+            : ${filters[`from_${filterKey}`] ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'} 
+            ~ ${filters[`to_${filterKey}`] ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'}`
               break;
             case SearchVariantWrapperField.category_id:
               let index2 = listCategory.findIndex((item: CategoryView) => item.id === value);
@@ -417,21 +425,21 @@ const FilterList = ({
           return (
             <Tag
               onClose={() => {
-                if (filterKey === "created_date") {
+                if (filterKey === "create_date") {
                   resetField("from_create_date");
                   resetField("to_create_date");
-                  resetField(filterKey);
+                  return;
                 } else {
                   resetField(filterKey);
                 }
               }}
               key={filterKey}
-              className="fade"
+              className="fade margin-bottom-20"
               closable
             >{`${renderTxt}`}</Tag>
           );
         })}
-      </Space>
+      </div>
     );
   }
 };
