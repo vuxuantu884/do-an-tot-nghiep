@@ -102,8 +102,6 @@ function CustomFilterDatePicker(props: PropTypes) {
 				default:
 					break;
 			}
-			console.log('activeButton', activeButton)
-			console.log('value', value)
 			if (activeButton === value) {
 				setActiveButton("");
 				formRef?.current?.setFieldsValue({
@@ -154,7 +152,6 @@ function CustomFilterDatePicker(props: PropTypes) {
 			setActiveButton('')
 			value = formRef?.current?.getFieldsValue([fieldNameFrom, fieldNameTo])
 			if (value[fieldNameFrom] && value[fieldNameTo] && (+moment(value[fieldNameFrom], format) > + moment(value[fieldNameTo], format))) {
-				console.log('invalid')
 				formRef?.current?.setFields([
 					{
 						name: fieldNameFrom,

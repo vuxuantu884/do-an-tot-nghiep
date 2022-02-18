@@ -128,7 +128,7 @@ function OrderCreatePayments(props: PropType): JSX.Element {
                   }
                   key="1"
                   showArrow={false}
-                  // disabled={levelOrder > 2}
+                // disabled={levelOrder > 2}
                 >
                   <div style={{ width: "1200px", maxWidth: "100%" }}>
                     {/* <Divider style={{ margin: "10px 0" }} /> */}

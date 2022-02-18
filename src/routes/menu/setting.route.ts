@@ -5,7 +5,7 @@ import {
   AccountPermissions,
   DepartmentsPermissions,
 } from "config/permissions/account.permisssion";
-import { PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
+import { AuthPermissions, PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
 import AccountMeScreen from "screens/settings/account/account.me.screen";
 import BankAccountScreen from "screens/settings/bank/bank-account.screen";
 import BankAccountCreateScreen from "screens/settings/bank/create/bank-account.create.screen";
@@ -311,6 +311,7 @@ const setting: Array<RouteMenu> = [
     key: "subMenu94",
     isShow: true,
     header: null,
+    permissions: [AuthPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.ROLES}/create`,
@@ -321,6 +322,7 @@ const setting: Array<RouteMenu> = [
         key: "subMenu941",
         isShow: true,
         header: null,
+        permissions: [AuthPermissions.CREATE],
         subMenu: [],
       },
       {
@@ -332,6 +334,7 @@ const setting: Array<RouteMenu> = [
         key: "subMenu942",
         isShow: true,
         header: null,
+        permissions: [AuthPermissions.UPDATE],
         subMenu: [],
       },
     ],

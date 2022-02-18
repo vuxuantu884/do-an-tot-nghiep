@@ -33,8 +33,6 @@ const CustomSelectMany: React.FC<CustomSelectManyProps> = (
                 newData = [...props.value];
               }
               let index = newData.findIndex((item) => item === key);
-              console.log(key);
-              console.log(index);
               if (index === -1) {
                 newData.push(key);
               } else {

@@ -4,7 +4,7 @@ export const RegUtil = {
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
   EMAIL_NO_SPECIAL_CHAR: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
   NO_SPECICAL_CHARACTER: /^[a-zA-Z0-9]*$/,
-  NUMBER_AND_CHARACTER: /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{7,}$/,
+  NUMBER_AND_CHARACTER: /^(?=.*?\d)(?=.*?[a-zA-Z])[a-zA-Z\d]{7,}$/,
   HEX_COLOR: /^([a-zA-Z0-9]{6,})*$/,
   FLOATREG: /^\d*(\.\d*)?$/,
   NUMBERREG: /^[0-9\b]+$/,

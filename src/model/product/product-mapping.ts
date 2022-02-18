@@ -3,6 +3,8 @@ const SearchVariantField = {
   designer: 'designer',
   merchandiser: 'merchandiser',
   created_date: 'created_date',
+  from_created_date: 'from_created_date',
+  to_created_date: 'to_created_date',
   size: 'size',
   color: 'color',
   main_color: 'main_color',
@@ -10,6 +12,9 @@ const SearchVariantField = {
   saleable: 'saleable',
   brand: 'brand'
 };
+
+const keysDateFilter = ['created_date'];
+const keysDateWrapperFilter = ['create_date'];
 
 const SearchVariantMapping = {
   [SearchVariantField.created_date]: "Ngày tạo",
@@ -25,7 +30,9 @@ const SearchVariantMapping = {
 };
 
 const SearchVariantWrapperField = {
-  created_date: "created_date",
+  create_date: "create_date",
+  from_create_date: 'from_create_date',
+  to_create_date: 'to_create_date',
   designer_code: "designer_code",
   merchandiser_code: "merchandiser_code",
   status: "status",
@@ -33,8 +40,9 @@ const SearchVariantWrapperField = {
   goods: "goods",
   material_id: "material_id",
 };
+
 const SearchVariantWrapperMapping = {
-  [SearchVariantWrapperField.created_date]: "Ngày khởi tạo",
+  [SearchVariantWrapperField.create_date]: "Ngày khởi tạo",
   [SearchVariantWrapperField.designer_code]: "Nhà thiết kế",
   [SearchVariantWrapperField.merchandiser_code]: "Merchandiser",
   [SearchVariantWrapperField.status]: "Trạng thái",
@@ -43,4 +51,11 @@ const SearchVariantWrapperMapping = {
   [SearchVariantWrapperField.material_id]: "Chất liệu",
 };
 
-export {SearchVariantMapping, SearchVariantField, SearchVariantWrapperMapping, SearchVariantWrapperField};
+export {
+  SearchVariantMapping,
+  SearchVariantField,
+  SearchVariantWrapperMapping,
+  SearchVariantWrapperField,
+  keysDateFilter,
+  keysDateWrapperFilter
+};

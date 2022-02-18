@@ -9,6 +9,7 @@ import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { getListStoresSimpleAction, StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
@@ -19,6 +20,7 @@ import {
 import { orderConfigSaga, OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -104,6 +106,9 @@ const ScreenReturnCreate = (props: PropType) => {
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
+  
+  const [inventoryResponse, setInventoryResponse] =
+  useState<Array<InventoryResponse> | null>(null);
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
 
@@ -120,7 +125,6 @@ const ScreenReturnCreate = (props: PropType) => {
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
   const dispatch = useDispatch();
-  console.log("itemGifts", itemGifts);
 
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<ReturnProductModel[]>([]);
@@ -137,9 +141,6 @@ const ScreenReturnCreate = (props: PropType) => {
   const [listExchangeProducts, setListExchangeProducts] = useState<
     OrderLineItemRequest[]
   >([]);
-
-  console.log('listExchangeProducts', listExchangeProducts)
-  console.log('payments', payments)
 
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
@@ -275,11 +276,8 @@ ShippingServiceConfigDetailResponseModel[]
       (promotion?.value || 0)
     );
   }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
-  console.log('totalAmountOrder', totalAmountOrder)
-
 
   const totalAmountPayment = getAmountPayment(payments);
-  console.log('totalAmountPayment', totalAmountPayment)
 
   /**
    * if return > exchange: positive
@@ -296,12 +294,10 @@ ShippingServiceConfigDetailResponseModel[]
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
-    console.log("1");
     setIsFetchData(true);
     if (!data) {
       setError(true);
     } else {
-      console.log("2");
       const _data = { ...data };
       _data.fulfillments = _data.fulfillments?.filter(
         (f) =>
@@ -316,7 +312,6 @@ ShippingServiceConfigDetailResponseModel[]
         setIsOrderFinished(true);
       }
       let listItemCanReturn = getListItemsCanReturn(_data);
-      console.log('listItemCanReturn', listItemCanReturn)
       if (listItemCanReturn.length > 0) {
         setIsReturnAll(false);
       }
@@ -334,7 +329,6 @@ ShippingServiceConfigDetailResponseModel[]
           })
         };
       });
-      console.log("returnProduct", returnProduct);
       setListReturnProducts(returnProduct);
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
@@ -414,7 +408,6 @@ ShippingServiceConfigDetailResponseModel[]
       let itemsResult = items.filter((single) => {
         return single.quantity > 0;
       });
-      console.log('itemsResult', itemsResult)
       let payments: OrderPaymentRequest[] | null = [];
       // tính toán lại discount
       let discounts = handleRecalculateOriginDiscount(itemsResult);
@@ -471,7 +464,6 @@ ShippingServiceConfigDetailResponseModel[]
         total_discount: getTotalOrderDiscount(discounts),
         total_line_amount_after_line_discount: getTotalAmountAfterDiscount(itemsResult),
       };
-      console.log('orderDetailResult', orderDetailResult);
       // return;
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
@@ -590,8 +582,6 @@ ShippingServiceConfigDetailResponseModel[]
     return payments;
   };
 
-  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
-
   const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
     const methods = [ShipmentMethodOption.PICK_AT_STORE]
     if (totalAmountOrderAfterPayments > 0 && methods.includes(shipmentMethod) && isOrderFromPOS(OrderDetail)) {
@@ -621,7 +611,7 @@ ShippingServiceConfigDetailResponseModel[]
           return;
         }
 				if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && !shippingAddress) {
-					showError("Vui lòng nhập địa chỉ giao hàng!");
+					showError("Vui lòng cập nhật địa chỉ giao hàng!");
 					const element: any = document.getElementById("customer_update_shipping_addresses_full_address");
 					scrollAndFocusToDomElement(element);
 					return;
@@ -701,10 +691,9 @@ ShippingServiceConfigDetailResponseModel[]
           values.company_id = DEFAULT_COMPANY.company_id;
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
-              console.log('valuesResult', valuesResult)
               valuesResult.order_return_id = orderReturnId;
               valuesResult.payments = valuesResult.payments ? reCalculatePaymentReturn(valuesResult.payments).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0)) : null;
-              valuesResult.items = listExchangeProducts;
+              valuesResult.items = listExchangeProducts.concat(itemGifts);
               if (isErrorExchange) {
                 // showWarning("Đã tạo đơn đổi hàng không thành công!");
                 dispatch(
@@ -1170,8 +1159,8 @@ ShippingServiceConfigDetailResponseModel[]
                     form={form}
                     items={listExchangeProducts}
                     setItems={setListExchangeProducts}
-                    inventoryResponse={null}
-                    setInventoryResponse={() => { }}
+                    inventoryResponse={inventoryResponse}
+                    setInventoryResponse={setInventoryResponse}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     returnOrderInformation={{
                       totalAmountReturn: totalAmountReturnProducts,
@@ -1311,7 +1300,6 @@ ShippingServiceConfigDetailResponseModel[]
   useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      console.log("customer check", customer)
       if (customer.shipping_addresses) {
         let shipping_addresses_index: number = customer.shipping_addresses.findIndex(x => x.default === true);
         let shipping_addresses=shipping_addresses_index !== -1 ? customer.shipping_addresses[shipping_addresses_index] : null
@@ -1402,6 +1390,15 @@ ShippingServiceConfigDetailResponseModel[]
       }
     }
   }, [OrderDetail, OrderDetail?.source_id, form, isStepExchange, shipmentMethod])
+
+  useEffect(() => {
+		if (listExchangeProducts && listExchangeProducts != null && listExchangeProducts?.length > 0) {
+			let variant_id: Array<number> = [];
+			listExchangeProducts.forEach((element) => variant_id.push(element.variant_id));
+			dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, listExchangeProducts?.length]);
 
 
   return (

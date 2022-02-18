@@ -93,7 +93,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		onFilter,
 		onShowColumnSetting
 	} = props;
-	console.log('shippers', shippers)
 	const [visible, setVisible] = useState(false);
 	const [rerender, setRerender] = useState(false);
 	const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
@@ -173,8 +172,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	const [accountFound, setAccountFound] = useState<Array<AccountResponse>>(
 		[]
 	);
-
-	console.log('assigneeFound', assigneeFound)
+	const [marketerFound, setMarketerFound] = useState<Array<AccountResponse>>(
+		[]
+	);
+	const [coordinatorFound, setCoordinatorFound] = useState<Array<AccountResponse>>(
+		[]
+	);
 
 	useEffect(() => {
 		if (params.assignee_codes && params.assignee_codes?.length > 0) {
@@ -191,11 +194,24 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				setAccountFound(response.data.items)
 			})
 		}
+		if (params.marketer_codes && params.marketer_codes?.length > 0) {
+			searchAccountApi({
+				codes: params.marketer_codes
+			}).then((response) => {
+				setMarketerFound(response.data.items)
+			})
+		}
+		if (params.coordinator_codes && params.coordinator_codes?.length > 0) {
+			searchAccountApi({
+				codes: params.coordinator_codes
+			}).then((response) => {
+				setCoordinatorFound(response.data.items)
+			})
+		}
 
-	}, [params.assignee_codes, params.account_codes])
+	}, [params.assignee_codes, params.account_codes, params.marketer_codes, params.coordinator_codes])
 
 	const onChangeOrderOptions = useCallback((e) => {
-		console.log('ok lets go', e.target.value);
 		onFilter && onFilter({ ...params, is_online: e.target.value });
 	}, [onFilter, params]);
 
@@ -220,8 +236,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		(e, tag) => {
 			e.preventDefault();
 			setRerender(false);
-			console.log('key', tag.key)
-			console.log('params', params);
 			switch (tag.key) {
 				case 'store':
 					onFilter && onFilter({ ...params, store_ids: [] });
@@ -266,6 +280,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 					break;
 				case 'account_codes':
 					onFilter && onFilter({ ...params, account_codes: [] });
+					break;
+				case 'coordinator_codes':
+					onFilter && onFilter({ ...params, coordinator_codes: [] });
+					break;
+				case 'marketer_codes':
+					onFilter && onFilter({ ...params, marketer_codes: [] });
 					break;
 				case 'price':
 					onFilter && onFilter({ ...params, price_min: null, price_max: null });
@@ -326,8 +346,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 	}, [listSource]);
 
 	const initialValues = useMemo(() => {
-		console.log('params', params);
-
 		return {
 			...params,
 			store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
@@ -344,11 +362,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
 			assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
 			account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
+			coordinator_codes: Array.isArray(params.coordinator_codes) ? params.coordinator_codes : [params.coordinator_codes],
+			marketer_codes: Array.isArray(params.marketer_codes) ? params.marketer_codes : [params.marketer_codes],
 			delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
 			services: Array.isArray(params.services) ? params.services : [params.services],
 		}
 	}, [params])
-	console.log('initialValues', initialValues)
 	const [services, setServices] = useState<any[]>([]);
 	const onFinish = useCallback(
 		(values) => {
@@ -374,7 +393,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						price_max: values?.price_min,
 					}
 				}
-				console.log('values', values)
 				onFilter && onFilter(values);
 				setRerender(false)
 			}
@@ -528,7 +546,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				}
 			]
 			let mappedReturnStatus = option?.filter((status) => initialValues.return_status?.some((item) => item === status.value.toString()))
-			console.log('mappedReturnStatus', mappedReturnStatus)
 			let text = getFilterString(mappedReturnStatus, "label", undefined, undefined);
 			
 			list.push({
@@ -567,7 +584,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 		}
 		if (initialValues.variant_ids.length) {
-			console.log('optionsVariant', optionsVariant)
 			let textVariant = "";
 			for (let i = 0; i < optionsVariant.length; i++) {
 				if (i < optionsVariant.length - 1) {
@@ -604,7 +620,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			}
 			list.push({
 				key: 'services',
-        name: 'Đơn tự giao hàng',
+        		name: 'Đơn tự giao hàng',
 				value: <React.Fragment>{text}</React.Fragment>
 			})
     }
@@ -614,6 +630,24 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			list.push({
 				key: 'account_codes',
 				name: 'Nhân viên tạo đơn',
+				value: text,
+			})
+		}
+		
+		if (initialValues.coordinator_codes.length ) {
+			let text = getFilterString(coordinatorFound, "full_name", UrlConfig.ACCOUNTS, "code", "coordinator_codes");
+			list.push({
+				key: 'coordinator_codes',
+				name: 'Nhân viên điều phối',
+				value: text,
+			})
+		}
+
+		if (initialValues.marketer_codes.length) {
+			let text = getFilterString(marketerFound, "full_name", UrlConfig.ACCOUNTS, "code", "marketer_codes");
+			list.push({
+				key: 'marketer_codes',
+				name: 'Nhân viên marketing',
 				value: text,
 			})
 		}
@@ -646,8 +680,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			})
 		}
 		if (initialValues.delivery_provider_ids.length) {
-			console.log('deliveryService', deliveryService)
-			console.log('initialValues.delivery_provider_ids', initialValues.delivery_provider_ids)
 			let mappedDeliverProviderIds = deliveryService?.filter((deliveryServiceSingle) => initialValues.delivery_provider_ids?.some((item) => item === deliveryServiceSingle.id.toString()))
 			let text = getFilterString(mappedDeliverProviderIds, "name", undefined, undefined);
 			list.push({
@@ -658,8 +690,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 		}
 		if (initialValues.shipper_codes.length) {
 			let mappedShippers = shippers?.filter((account) => initialValues.shipper_codes?.some((single) => single === account.code.toString()))
-			console.log('mappedShippers', mappedShippers)
-			console.log('shippers', shippers)
 			let text = getFilterString(mappedShippers, "name", UrlConfig.ACCOUNTS, "code");
 			list.push({
 				key: 'shipper_codes',
@@ -707,9 +737,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 				value: <React.Fragment>{initialValues.reference_code}</React.Fragment>
 			})
 		}
-		console.log('filters list', list);
 		return list
-	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, listPaymentMethod, serviceType, deliveryService, shippers]);
+	}, [initialValues.store_ids, initialValues.source_ids, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.variant_ids.length, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.reference_code, assigneeFound, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, optionsVariant, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers]);
 
 	const widthScreen = () => {
 		if (window.innerWidth >= 1600) {
@@ -720,8 +749,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			return 800
 		}
 	}
-
-	console.log('optionsVariant', optionsVariant)
 
 	const handleSelectServices = useCallback((service) => {
     let cloneServices = [...services]
@@ -747,7 +774,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 			default: 
 				break;  
     }
-    console.log('cloneServices', cloneServices)
     setServices(cloneServices)
   }, [serviceVariables.deliver4h, serviceVariables.deliverStandard, services]);
 
@@ -791,7 +817,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 						} catch { }
 					})
 					);
-					console.log('variants', variants);
 					setOptionsVariant(variants);
 					if(variants?.length > 0) {
 						setRerenderSearchVariant(true)

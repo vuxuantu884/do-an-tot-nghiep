@@ -13,7 +13,6 @@ type PropType = {
 
 function SelectThirdPartyLogistic(props: PropType) {
   const { initialFormValue, list3rdPartyLogistic, form } = props;
-  console.log('initialFormValue', initialFormValue)
   const list3rdPartyLogisticFormat = list3rdPartyLogistic.map((single) => {
     return {
       ...single,

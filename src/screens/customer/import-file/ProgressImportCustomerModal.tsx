@@ -3,11 +3,11 @@ import { Button, Modal, Progress } from "antd";
 
 import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
-// import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 
-type ProgressDownloadOrdersModalType = {
+
+type ProgressImportCustomerModalType = {
   visible: boolean;
   isDownloading: boolean;
   onOk: () => void;
@@ -17,77 +17,52 @@ type ProgressDownloadOrdersModalType = {
 };
 
 
-const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
-  props: ProgressDownloadOrdersModalType
+const ProgressImportCustomerModal: React.FC<ProgressImportCustomerModalType> = (
+  props: ProgressImportCustomerModalType
 ) => {
   const { visible, isDownloading, onOk, onCancel, progressData, progressPercent } = props;
+
   const [errorData, setErrorData] = useState<Array<any>>([]);
-  const okProgressDownloadModal = () => {
+
+  useEffect(() => {
+    if (progressData?.message) {
+    const errorList = progressData?.message.slice(1).split("\n");
+    setErrorData(errorList);
+    }
+  }, [progressData?.message]);
+
+  const okProgressImportCustomerModal = () => {
     onOk && onOk();
   };
 
-  const cancelProgressDownloadModal = () => {
+  const cancelProgressImportCustomerModal = () => {
     onCancel && onCancel();
   };
-
-  useEffect(() => {
-    if (progressData?.errors_msg) {
-      const errorList = progressData?.errors_msg.slice(1).split("\n");
-      setErrorData(errorList);
-    }
-  }, [progressData?.errors_msg]);
-
-  // const columns: Array<ICustomTableColumType<any>> = [
-  //   {
-  //     title: "STT",
-  //     align: "center",
-  //     width: 70,
-  //     render: (value: any, row: any, index: any) => {
-  //       return <span>{index + 1}</span>;
-  //     },
-  //   },
-  //   {
-  //     title: "Mã đơn hàng",
-  //     dataIndex: "order_sn",
-  //     width: 155,
-  //   },
-  //   {
-  //     title: "Nội dung",
-  //     dataIndex: "error_message",
-  //     render: (value: any, item: any, index: number) => {
-  //       return (
-  //         <div>
-  //           {value[0]}
-  //         </div>
-  //       );
-  //     },
-  //   },
-  // ];
 
 
   return (
     <Modal
-      width="620px"
+      width="600px"
       centered
       visible={visible}
-      title="Tải đơn hàng"
+      title="Nhập file"
       okText="Xác nhận"
       cancelText="Hủy"
-      onCancel={cancelProgressDownloadModal}
+      onCancel={cancelProgressImportCustomerModal}
       closable={false}
       maskClosable={false}
       footer={
         <StyledModalFooter>
           {isDownloading ?
-            <Button danger onClick={cancelProgressDownloadModal}>
+            <Button danger onClick={cancelProgressImportCustomerModal}>
               Hủy
             </Button>
-            : <div></div>
+            : <div/>
           }
 
           <Button
             type="primary"
-            onClick={okProgressDownloadModal}
+            onClick={okProgressImportCustomerModal}
             loading={isDownloading}
             >
             Xác nhận
@@ -113,12 +88,12 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
             </div>
             
             <div>
-              <div>ĐH mới</div>
-              <div className="total-created">
-                {isNullOrUndefined(progressData?.total_created) ?
+              <div>Đã xử lý</div>
+              <div style={{fontWeight: "bold"}}>
+                {isNullOrUndefined(progressData?.processed) ?
                   "--" :
                   <NumberFormat
-                    value={progressData?.total_created}
+                    value={progressData?.processed}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
@@ -127,12 +102,12 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
             </div>
             
             <div>
-              <div>ĐH cập nhật</div>
+              <div>Thành công</div>
               <div className="total-updated">
-                {isNullOrUndefined(progressData?.total_updated) ?
+                {isNullOrUndefined(progressData?.success) ?
                   "--" :
                   <NumberFormat
-                    value={progressData?.total_updated}
+                    value={progressData?.success}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
@@ -143,10 +118,10 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
             <div>
               <div>Lỗi</div>
               <div className="total-error">
-                {isNullOrUndefined(progressData?.total_error) ?
+                {isNullOrUndefined(progressData?.error) ?
                   "--" :
                   <NumberFormat
-                    value={progressData?.total_error}
+                    value={progressData?.error}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
@@ -186,4 +161,4 @@ const ProgressDownloadOrdersModal: React.FC<ProgressDownloadOrdersModalType> = (
   );
 };
 
-export default ProgressDownloadOrdersModal;
+export default ProgressImportCustomerModal;

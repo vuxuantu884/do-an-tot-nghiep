@@ -2,6 +2,7 @@
 // nếu có resource con :  resouces cha [s] + resource con [s] + action => products_categories_create
 
 const accounts = `accounts`; 
+const departments = `departments`;
 
 const AccountPermissions = {
   READ: `${accounts}_read`,
@@ -12,9 +13,9 @@ const AccountPermissions = {
 };
 
 const DepartmentsPermissions = {
-  READ: `${accounts}_departments_read`, 
-  CREATE: `${accounts}_departments_create`,
-  UPDATE: `${accounts}_departments_update`,
+  READ : `${departments}_read`,
+  CREATE : `${departments}_create`,
+  UPDATE : `${departments}_update`,
 };
 
 export {DepartmentsPermissions, AccountPermissions};

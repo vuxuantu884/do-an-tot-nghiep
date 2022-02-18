@@ -100,7 +100,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
       }
       else{
         handleAddOrder(barcode)
-        console.log("barcode", barcode);
         barcode = "";
       }
     }
@@ -258,7 +257,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     placeholder="Chọn cửa hàng"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
-                      console.log(value);
                     }}
                     filterOption={(input, option) => {
                       if (option) {
@@ -296,7 +294,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     placeholder="Chọn hãng vận chuyển"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
-                      console.log(value);
                     }}
                     filterOption={(input, option) => {
                       if (option) {
@@ -334,7 +331,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     placeholder="Chọn loại biên bản"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
-                      console.log(value);
                     }}
                     filterOption={(input, option) => {
                       if (option) {
@@ -372,7 +368,6 @@ const AddReportHandOver: React.FC<any> = (props: any) => {
                     placeholder="Chọn biên bản sàn"
                     notFoundContent="Không tìm thấy kết quả"
                     onChange={(value?: number) => {
-                      console.log(value);
                     }}
                     filterOption={(input, option) => {
                       if (option) {

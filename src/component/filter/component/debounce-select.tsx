@@ -20,7 +20,6 @@ interface Props extends SelectProps<any> {
   // any props that come into the component
 }
 const DebounceSelect: FC<Props> =({ fetchOptions, debounceTimeout = 800, optionsVariant, ...props }) => {
-  console.log('props.value', props.value);
   
   const [fetching, setFetching] = React.useState(false);
   const [options, setOptions] = React.useState(optionsVariant);
@@ -36,8 +35,6 @@ const DebounceSelect: FC<Props> =({ fetchOptions, debounceTimeout = 800, options
           // for fetch callback order
           return;
         }
-        console.log('newOptions', newOptions);
-        
         setOptions(newOptions);
         setFetching(false);
       });

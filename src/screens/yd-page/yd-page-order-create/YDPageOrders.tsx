@@ -146,7 +146,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
-  const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_LATER);
+  const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_PARTNER);
 
   // const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
@@ -883,7 +883,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
         setShippingFeeInformedToCustomer(0);
         setPromotion(null);
         setOfficeTime(false);
-        setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
+        setShipmentMethod(ShipmentMethodOption.DELIVER_PARTNER);
         form.resetFields();
       }
     };
@@ -951,8 +951,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
       let limitOrderPercent = !rank
         ? 0
         : !rank.limit_order_percent
-        ? 100
-        : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
+          ? 100
+          : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
 
       let limitAmount = point * usageRate;
 

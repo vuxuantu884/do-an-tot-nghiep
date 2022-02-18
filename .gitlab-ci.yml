@@ -15,9 +15,11 @@ docker build dev:
   stage: docker_build
   image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
   tags:
-  - npd-dev
+  - builder
   only:
     - develop
+  before_script:
+    - unset DOCKER_HOST
   variables:
     PREFIX: dev
     DOCKER_FILE: Dockerfile
@@ -30,7 +32,9 @@ docker build uat:
   stage: docker_build
   image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
   tags:
-  - npd-dev
+  - builder
+  before_script:
+    - unset DOCKER_HOST
   only:
     - uat
   variables:
@@ -45,12 +49,32 @@ docker build production:
   stage: docker_build
   image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
   tags:
-  - npd-dev
+  - builder
+  before_script:
+    - unset DOCKER_HOST
   only:
     - master
   variables:
     PREFIX: prod
     DOCKER_FILE: Dockerfile-production
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
+
+docker build accountant:
+  stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/yody-build:1b5817c2
+  tags:
+  - builder
+  before_script:
+    - unset DOCKER_HOST
+  only:
+    - accountant
+  variables:
+    PREFIX: accountant
+    DOCKER_FILE: Dockerfile-accountant
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
@@ -108,3 +132,22 @@ deploy to production:
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
     - bash deployment/deploy.sh app-admin
+
+deploy to accountant:
+  stage: deploy
+  when: manual
+  cache: {}
+  tags:
+    - deploy-accountant
+  only:
+    - accountant
+  variables:
+    PREFIX: accountant
+    HOST: quanlybanhang.yody.io
+    NAMESPACE: accountant
+    ENVIRONMENT: accountant
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/deploy.sh app-admin
+

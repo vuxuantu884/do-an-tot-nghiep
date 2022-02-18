@@ -69,9 +69,13 @@ const productsDisconnectPermission = [
   EcommerceProductPermission.products_disconnect,
 ];
 
-const ConnectedItems: React.FC = () => {
-  const history = useHistory();
+type ConnectedItemsProps = {
+  handleSyncStockJob: (x: number) => void;
+}
 
+const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
+  const {handleSyncStockJob} = props;
+  const history = useHistory();
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -230,8 +234,8 @@ const ConnectedItems: React.FC = () => {
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
-          showSuccess("Đồng bộ tồn kho sản phẩm thành công");
-          reloadPage();
+          console.log(result)
+          handleSyncStockJob(result.process_id)
         }
       })
     );

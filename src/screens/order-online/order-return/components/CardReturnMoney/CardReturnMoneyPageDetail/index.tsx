@@ -26,8 +26,6 @@ function CardReturnMoneyPageDetail(props: PropType) {
     setIsShowPaymentMethod,
   } = props;
 
-  console.log("totalAmountReturnToCustomer", totalAmountReturnToCustomer);
-
   const renderCardTitle = () => {
     return (
       <React.Fragment>
@@ -90,7 +88,6 @@ function CardReturnMoneyPageDetail(props: PropType) {
               Cần hoàn trả khách: {formatCurrency(totalAmountReturnToCustomer)} đ
               <Button
                 onClick={() => {
-                  console.log("333");
                   setIsShowPaymentMethod(true);
                 }}
               >

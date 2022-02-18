@@ -194,7 +194,6 @@ const PackDetail: React.FC = () => {
   const handlePrintPack = useCallback((type:string) => { 
     dispatch(getPrintGoodsReceipts([PackId],type,(data:GoodReceiptPrint[])=>{
       setHtmlContent(data[0].html_content);
-      console.log("html_content",data[0].html_content);
       setTimeout(() => {
         if (handlePrint) {
           handlePrint();
@@ -204,7 +203,6 @@ const PackDetail: React.FC = () => {
   },[dispatch,PackId,handlePrint]);
 
   const handleExportExcelOrderPack = useCallback(() => {
-    console.log("ok")
   },[]);
 
   const handleAddOrderInPack = () => { };

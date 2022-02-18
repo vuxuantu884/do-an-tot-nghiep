@@ -22,7 +22,6 @@ const MergeOrderModel: React.FC<MergeOrderType> = (props: MergeOrderType) => {
     const checkOrderShipment = (order_id: number) => {
         let logistics=false
         let order = props.selectedOrder.find(x => x.id === order_id);
-        console.log(order)
         order?.fulfillments?.forEach(function (item) {
             // let shipment_delivery_service_provider_id = item.shipment?.delivery_service_provider_id;
             // let index = props.deliveryServices.findIndex(x => x.id === shipment_delivery_service_provider_id);

@@ -1,4 +1,5 @@
 // import { BugOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Col, Divider, Input, InputNumber, Row } from "antd";
 // import Cash from "component/icon/Cash";
 // import CreditCardOutlined from "component/icon/CreditCardOutlined";
@@ -126,9 +127,47 @@ function OrderPayments(props: PropType): JSX.Element {
     setPayments(_paymentData);
   };
 
+  const handleInputMonney = (code?: string) => {
+    if (code && code.length === 0) return;
+    let paymentCopy: OrderPaymentRequest[] = payments;
+    let indexPayment = paymentCopy.findIndex(x => x.code === code);
+
+    if (indexPayment !== -1 && totalAmountCustomerNeedToPay >= 0) {
+
+      if (paymentCopy[indexPayment].code === PaymentMethodCode.POINT) {
+
+        let addPoint = Math.round(totalAmountCustomerNeedToPay / usageRate);
+        let point = paymentCopy[indexPayment].point ? paymentCopy[indexPayment].point : 0 + addPoint;
+
+        paymentCopy[indexPayment].point = point;
+
+        let amount = paymentCopy[indexPayment].amount + (addPoint * usageRate);
+        let paid_amount = paymentCopy[indexPayment].paid_amount + (addPoint * usageRate);
+
+        paymentCopy[indexPayment].amount = amount;
+        paymentCopy[indexPayment].paid_amount = paid_amount;
+
+      }
+
+      else {
+        let amount = paymentCopy[indexPayment].amount + totalAmountCustomerNeedToPay;
+        let paid_amount = paymentCopy[indexPayment].paid_amount + totalAmountCustomerNeedToPay;
+
+        paymentCopy[indexPayment].amount = amount;
+        paymentCopy[indexPayment].paid_amount = paid_amount;
+      }
+
+    }
+
+    setPayments([...paymentCopy])
+  }
+
   return (
     <StyledComponent>
       <Col span={24} style={{ padding: 0 }}>
+        <div style={{ margin: "6px 12px" }}>
+          <Divider />
+        </div>
         <Row
           className="btn-list-method"
           gutter={5}
@@ -157,13 +196,6 @@ function OrderPayments(props: PropType): JSX.Element {
             return (
               <Col key={method.code} className="btn-payment-method">
                 <Button
-                  style={{
-                    padding: 0,
-                    marginLeft: "12px",
-                    display: "flex",
-                    boxShadow: "none",
-                    border: "none",
-                  }}
                   type={
                     payments.some(
                       (p) =>
@@ -187,10 +219,6 @@ function OrderPayments(props: PropType): JSX.Element {
           })}
         </Row>
       </Col>
-
-      <div style={{ margin: "0 12px" }}>
-        <Divider />
-      </div>
 
       <Col span={24}>
         <Row gutter={24} style={{ margin: "8px 0", alignItems: "center" }}>
@@ -367,23 +395,34 @@ function OrderPayments(props: PropType): JSX.Element {
                   lg={6}
                   xxl={6}
                   style={{ padding: 0, marginLeft: 10, textAlign: "end" }}>
-                  <InputNumber
-                    size="middle"
-                    min={0}
-                    max={totalAmountOrder}
-                    value={method.amount}
-                    disabled={method.code === PaymentMethodCode.POINT || levelOrder > 2}
-                    className="yody-payment-input hide-number-handle"
-                    formatter={(value) => formatCurrency(value ? value : "0")}
-                    placeholder="Nhập tiền mặt"
-                    style={{
-                      textAlign: "right",
-                      width: 84,
-                      borderRadius: 5,
-                    }}
-                    onChange={(value) => handleInputMoney(index, value)}
-                    onFocus={(e) => e.target.select()}
-                  />
+                  <Input.Group compact>
+                    <InputNumber
+                      size="middle"
+                      min={0}
+                      max={totalAmountOrder}
+                      value={method.amount}
+                      disabled={method.code === PaymentMethodCode.POINT || levelOrder > 2}
+                      className="yody-payment-input hide-number-handle"
+                      formatter={(value) => formatCurrency(value ? value : "0")}
+                      placeholder="Nhập tiền mặt"
+                      style={{
+                        textAlign: "right",
+                        width: 84,
+                        height: 32,
+                        borderRadius: 5,
+                      }}
+                      onChange={(value) => handleInputMoney(index, value)}
+                      onFocus={(e) => e.target.select()}
+                    />
+                    <Button
+                      style={{ width: 32, height: 32, lineHeight: "unset", margin: 0 }}
+                      type="default"
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => {
+                        handleInputMonney(method.code)
+                      }}
+                    ></Button>
+                  </Input.Group>
                 </Col>
               ) : (
                 <Col

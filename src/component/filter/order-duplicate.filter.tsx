@@ -1,7 +1,7 @@
-import { Button, Form,Row, FormInstance, Input } from "antd";
+import { Button, Form, Row, FormInstance, Input, Select } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import CustomFilter from "component/table/custom.filter";
-import React, { createRef, useCallback } from "react";
+// import CustomFilter from "component/table/custom.filter";
+import React, { createRef, useCallback, useMemo } from "react";
 import {
   SearchOutlined,
   SettingOutlined,
@@ -12,7 +12,8 @@ import CustomDatePicker from "component/custom/new-date-picker.custom";
 import moment from "moment";
 import { StoreResponse } from "model/core/store.model";
 import { DuplicateOrderSearchQuery } from "model/order/order.model";
-import TreeStore from "component/tree-node/tree-store";
+// import TreeStore from "component/tree-node/tree-store";
+import { FilterWrapper } from "component/container/filter.container";
 
 const { Item } = Form;
 
@@ -20,30 +21,29 @@ type OrderDuplicateFilterProps = {
   onMenuClick?: (id: number) => void;
   actions?: Array<MenuAction>;
   onShowColumnSetting?: () => void;
-  listStore: StoreResponse[] | undefined;
-  onFilter:(value:any)=>void;
-  initialValues?:DuplicateOrderSearchQuery;
+  listStore: StoreResponse[];
+  onFilter: (value: any) => void;
+  initialValues?: DuplicateOrderSearchQuery;
 };
 
 const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
   props: OrderDuplicateFilterProps
 ) => {
-  const { onMenuClick, onShowColumnSetting, listStore,onFilter,initialValues } = props;
+  const { onShowColumnSetting, listStore, onFilter, initialValues } = props;
 
   const formSearchRef = createRef<FormInstance>();
 
   //useState
 
-  // const initialValues=useMemo(() => {
-
-  // },[])
+  const initialValuesCopy=useMemo(() => {
+    return {...initialValues, store_id:(Number)(initialValues?.store_id)}
+  },[initialValues])
 
   const onChangeDate = useCallback(
     () => {
       let value: any = {};
       value = formSearchRef?.current?.getFieldsValue(["issued_on_min", "issued_on_max"])
       if (value["issued_on_min"] && value["issued_on_max"] && (+moment(value["issued_on_min"], 'DD-MM-YYYY') > + moment(value["issued_on_max"], 'DD-MM-YYYY'))) {
-        console.log('invalid')
         formSearchRef?.current?.setFields([
           {
             name: "issued_on_min",
@@ -70,64 +70,62 @@ const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
 
   return (
     <React.Fragment>
-      <div className="order-filter dupticate-filter">
-        <CustomFilter onMenuClick={onMenuClick}>
-          <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValues}>
-            <Row style={{ display: "flex", marginRight:"42px", width:"35%" }}>
-              <Item name="issued_on_min" style={{ width: "47%", margin: 0 }}>
-                <CustomDatePicker
-                  format="DD-MM-YYYY"
-                  placeholder="Từ ngày"
-                  style={{ width: "100%", borderRadius:0 }}
-                  onChange={() => onChangeDate()}
-                />
-              </Item>
-              <div style={{width: "5%", padding:"10px 0px 10px 3px" }}>
-                <SwapRightOutlined />
-              </div>
-              <Item name="issued_on_max" style={{ width: "48%", margin: 0 }}>
-                <CustomDatePicker
-                  format="DD-MM-YYYY"
-                  placeholder="Đến ngày"
-                  style={{ width: "100%", borderRadius:0 }}
-                  onChange={() => onChangeDate()}
-                />
-              </Item> 
-            </Row>
-            <Item name="store_ids" style={{ width: "20%", marginRight:"42px" }}>
-              {/* <Select
-                showSearch
-                allowClear
-                optionFilterProp="children"
-                placeholder={
-                  <div style={{ color: "#878790" }}>
-                    <SearchOutlined />
-                    <span>Cửa hàng</span>
-                  </div>
-                }
-              >
-                {listStore?.map((item, index) => (
-                  <Option key={index.toString()} value={item.id}>{item.name}</Option>
-                ))}
-
-                <Option value="2">Closed</Option>
-              </Select> */}
-              <TreeStore listStore={listStore} placeholder="Cửa hàng"/>
+      <Form onFinish={onFilter} ref={formSearchRef} layout="inline" initialValues={initialValuesCopy}>
+        <FilterWrapper>
+          <div style={{ display: "flex", paddingRight: "16px" }}>
+            <Item name="issued_on_min" style={{ width: "150px", margin: 0 }}>
+              <CustomDatePicker
+                format="DD-MM-YYYY"
+                placeholder="Từ ngày"
+                style={{ width: "100%", borderRadius: 0 }}
+                onChange={() => onChangeDate()}
+              />
             </Item>
-
-            <Item name="search_term" style={{ width: "200px" ,marginRight:"42px"}}>
-              <Input placeholder="Tên, Số điện thoại khách hàng" prefix={<SearchOutlined />} />
+            <div style={{ width: "5%", padding: "10px 0px 10px 3px" }}>
+              <SwapRightOutlined />
+            </div>
+            <Item name="issued_on_max" style={{ width: "150px", margin: 0 }}>
+              <CustomDatePicker
+                format="DD-MM-YYYY"
+                placeholder="Đến ngày"
+                style={{ width: "100%", borderRadius: 0 }}
+                onChange={() => onChangeDate()}
+              />
             </Item>
+          </div>
+          <Item name="store_id">
+            {/* <TreeStore  style={{ width: "280px"}} listStore={listStore} placeholder="Cửa hàng" /> */}
+            <Select
+              showSearch
+              showArrow
+              optionFilterProp="children"
+              placeholder="Chọn kho"
+              style={{ width: "280px"}} 
+              notFoundContent="Không tìm thấy kết quả"
+            >
+              {listStore.length>0&&listStore.map((item) => (
+                <Select.Option
+                  key={item.id}
+                  value={item.id}
+                >
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Item>
 
-            <Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Item>
-            <Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
-          </Form>
-        </CustomFilter>
-      </div>
+          <Item name="search_term" className="search">
+            <Input placeholder="Tên, Số điện thoại khách hàng" prefix={<SearchOutlined />} />
+          </Item>
+
+          <Item >
+            <Button type="primary" htmlType="submit" style={{ width: "50px" }}>
+              Lọc
+            </Button>
+          </Item>
+          <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} style={{ width: "65px" }}></Button>
+        </FilterWrapper>
+      </Form>
     </React.Fragment>
   );
 };

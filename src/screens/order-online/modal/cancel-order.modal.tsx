@@ -26,7 +26,6 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
     setReasonID(value)
     setReason('')
     const reasonDetails = reasons.find((reason: any) => reason.id == value)
-    console.log('set reasonSubs', reasonID, reasonDetails);
     if (reasonDetails && reasonDetails.sub_reasons.length) {
       setReasonSubID(reasonDetails.sub_reasons[0].id.toString())
       setReasonSubs(reasonDetails.sub_reasons)
@@ -34,7 +33,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
       setReasonSubID('')
       setReasonSubs([])
     }
-  }, [reasonID, reasons])
+  }, [reasons])
   return (
     <Modal
       title={`Huỷ đơn hàng ${orderCode}`}

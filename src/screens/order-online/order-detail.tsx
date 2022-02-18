@@ -70,6 +70,7 @@ import CardShowReturnProducts from "./order-return/components/CardShowReturnProd
 import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
 import {getEcommerceStoreAddress} from "../../domain/actions/ecommerce/ecommerce.actions";
 import {EcommerceAddressQuery, EcommerceStoreAddress} from "../../model/ecommerce/ecommerce.model";
+import { yellowColor } from "utils/global-styles/variables";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -129,7 +130,6 @@ const OrderDetail = (props: PropType) => {
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
-  // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
   //loyalty
@@ -138,7 +138,6 @@ const OrderDetail = (props: PropType) => {
     Array<LoyaltyUsageResponse>
   >([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  console.log("isDisablePostPayment", isDisablePostPayment);
 
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
@@ -200,7 +199,6 @@ const OrderDetail = (props: PropType) => {
         payments: payments,
         fulfillments: fulfillment,
       };
-      // console.log("request", request);
       if (OrderDetail?.id) {
         dispatch(UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess));
       }
@@ -438,7 +436,6 @@ const OrderDetail = (props: PropType) => {
       };
       dispatch(
         confirmDraftOrderAction(OrderDetail.id, params, (response) => {
-          console.log("response", response);
           // handleReload();
           setReload(true);
         })
@@ -450,8 +447,6 @@ const OrderDetail = (props: PropType) => {
 
   const disabledActions = useCallback(
     (type: string) => {
-      console.log("disabledActions", type);
-      console.log("setShowPaymentPartialPayment", isShowPaymentPartialPayment);
       switch (type) {
         case "shipment":
           setShowPaymentPartialPayment(false);
@@ -468,7 +463,7 @@ const OrderDetail = (props: PropType) => {
           break;
       }
     },
-    [isShowPaymentPartialPayment]
+    []
   );
 
   useEffect(() => {
@@ -577,13 +572,7 @@ const OrderDetail = (props: PropType) => {
     returnMoneyField: [{returnMoneyMethod: undefined, returnMoneyNote: undefined}],
   };
 
-  const totalAmountCustomerNeedToPay =
-    (OrderDetail?.total_line_amount_after_line_discount || 0) +
-    shippingFeeInformedCustomer;
-  console.log("totalAmountCustomerNeedToPay111", totalAmountCustomerNeedToPay);
-
   const onSelectShipment = (value: number) => {
-    console.log("value", value);
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
@@ -734,7 +723,7 @@ const OrderDetail = (props: PropType) => {
                   >
                     <div style={{marginBottom: 20}}>
                       <Row>
-                        <Col span={12}>
+                        <Col span={8}>
                           <span className="text-field margin-right-40">
                             Đã thanh toán:
                           </span>
@@ -746,22 +735,30 @@ const OrderDetail = (props: PropType) => {
                               formatCurrency(getAmountPayment(OrderDetail.payments))}
                           </b>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                           <span className="text-field margin-right-40">
-                            {customerNeedToPayValue -
-                              totalPaid >=
-                            0
-                              ? `Còn phải trả:`
-                              : `Hoàn tiền cho khách:`}
+                            Còn phải trả:
                           </span>
 													<b style={{color: "red"}}>
 														{formatCurrency(
-															Math.abs(
-																customerNeedToPayValue - totalPaid
-															)
+														customerNeedToPayValue - totalPaid > 0 ? customerNeedToPayValue - totalPaid : 0
 														)}
                           </b>
                         </Col>
+                        {customerNeedToPayValue - totalPaid < 0 ? (
+                          <Col span={8}>
+                            <span className="text-field margin-right-40">
+                              Đã hoàn tiền cho khách:
+                            </span>
+                            <b style={{color: yellowColor}}>
+                              {formatCurrency(
+                                Math.abs(
+                                  customerNeedToPayValue - totalPaid
+                                )
+                              )}
+                            </b>
+                          </Col>
+                        ): null}
                       </Row>
                     </div>
 

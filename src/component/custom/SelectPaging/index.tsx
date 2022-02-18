@@ -65,7 +65,6 @@ const SelectPaging = (props: IProps) => {
                 disabled={metadata.page >= totalPage}
                 onClick={() => {
                   let newPage = metadata.page + 1;
-                  console.log(newPage, totalPage);
                   if (newPage <= totalPage) {
                     onPageChange && onPageChange(key, newPage);
                   }

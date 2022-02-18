@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import exportIcon from "assets/icon/export.svg";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { MenuAction } from "component/table/ActionButton";
 import OrderDuplicateFilter from "component/filter/order-duplicate.filter";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -57,7 +57,7 @@ const CustomerDuplicate: React.FC = () => {
   let [params, setPrams] = useState<DuplicateOrderSearchQuery>(dataQuery);
 
   const tableLoading = false;
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [listStore, setStore] = useState<Array<StoreResponse>>([]);
 
   const dataTest: CustomerDuplicateModel[] = [];
 
@@ -210,7 +210,7 @@ const CustomerDuplicate: React.FC = () => {
       ...items[0],
       render: (value: string, i: CustomerDuplicateModel) => {
         let queryParamDetail=generateQuery({
-          store_ids:i.store_id,
+          store_id:i.store_id,
           issued_on_min:newPrams.issued_on_min,
           issued_on_max:newPrams.issued_on_max,
           full_address:i.full_address,
@@ -233,7 +233,7 @@ const CustomerDuplicate: React.FC = () => {
       ...items[1],
       render: (value: string, i: CustomerDuplicateModel) => {
         let queryParamDetail=generateQuery({
-          store_ids:i.store_id,
+          store_id:i.store_id,
           issued_on_min:newPrams.issued_on_min,
           issued_on_max:newPrams.issued_on_max,
           full_address:i.full_address,
@@ -256,14 +256,12 @@ const CustomerDuplicate: React.FC = () => {
     history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
   }, [history, params, columns]);
 
-  console.log("columns",columns)
-
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
-  }, [dispatch]);
+  }, [dispatch,params]);
 
   useEffect(() => {
-    dispatch(StoreGetListAction(setStore));
+    //dispatch(StoreGetListAction(setStore));
     dispatch(getOrderDuplicateAction(params, (data: PageResponse<CustomerDuplicateModel>) => {
       let result: PageResponse<CustomerDuplicateModel> = {
         metadata: {
@@ -290,7 +288,6 @@ const CustomerDuplicate: React.FC = () => {
     }))
   }, [dispatch, params]);
 
-  console.log("data", data)
   return (
     <ContentContainer
       title="Đơn trùng"
@@ -316,7 +313,6 @@ const CustomerDuplicate: React.FC = () => {
                   icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
                   // onClick={onExport}
                   onClick={() => {
-                    console.log("export");
                   }}
                   disabled={!isPassed}
                 >

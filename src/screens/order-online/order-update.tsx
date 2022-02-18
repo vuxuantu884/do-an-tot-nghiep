@@ -102,6 +102,7 @@ import {
 	TaxTreatment
 } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { yellowColor } from "utils/global-styles/variables";
 import { showError, showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
@@ -686,7 +687,6 @@ ShippingServiceConfigDetailResponseModel[]
 		values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
 		values.channel_id = OrderDetail.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
-		// console.log("onFinish onFinish", values);
 		if (!values.customer_id) {
 			showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
 			const element: any = document.getElementById("search_customer");
@@ -780,8 +780,6 @@ ShippingServiceConfigDetailResponseModel[]
 	};
 
 	// const [totalPaid, setTotalPaid] = useState(0);
-	// console.log("totalPaid", totalPaid);
-	// console.log("setTotalPaid", setTotalPaid);
 
 	/**
 	 * tổng số tiền đã trả
@@ -1346,7 +1344,7 @@ ShippingServiceConfigDetailResponseModel[]
 											>
 												<div style={{ marginBottom: 20 }}>
 													<Row>
-														<Col span={12}>
+														<Col span={8}>
 															<span className="text-field margin-right-40">
 																Đã thanh toán:
 															</span>
@@ -1358,18 +1356,30 @@ ShippingServiceConfigDetailResponseModel[]
 																	formatCurrency(getAmountPayment(OrderDetail.payments))}
 															</b>
 														</Col>
-														<Col span={12}>
+														<Col span={8}>
 															<span className="text-field margin-right-40">
-																{totalAmountCustomerNeedToPay >= 0
-																	? `Còn phải trả:`
-																	: `Hoàn tiền cho khách:`}
+																Còn phải trả:
 															</span>
-															<b style={{ color: "red" }}>
+															<b style={{color: "red"}}>
 																{formatCurrency(
-																	Math.abs(totalAmountCustomerNeedToPay)
+																totalAmountCustomerNeedToPay > 0 ? totalAmountCustomerNeedToPay : 0
 																)}
 															</b>
 														</Col>
+														{totalAmountCustomerNeedToPay < 0 ? (
+															<Col span={8}>
+																<span className="text-field margin-right-40">
+																	Đã hoàn tiền cho khách:
+																</span>
+																<b style={{color: yellowColor}}>
+																	{formatCurrency(
+																		Math.abs(
+																			totalAmountCustomerNeedToPay
+																		)
+																	)}
+																</b>
+															</Col>
+														): null}
 													</Row>
 												</div>
 												{OrderDetail?.payments && (
