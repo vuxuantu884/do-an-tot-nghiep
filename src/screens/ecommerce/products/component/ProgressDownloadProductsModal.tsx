@@ -6,7 +6,8 @@ import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 
 import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
-// import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import {ECOMMERCE_JOB_TYPE} from "../../../../utils/Constants";
+import {ECOMMERCE_JOB_DETAIL} from "../../common/EcommerceJobEnum";
 
 
 type ProgressDownloadProductsModalType = {
@@ -34,7 +35,6 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
     } = props;
 
   const [errorData, setErrorData] = useState<Array<any>>([]);
-
   useEffect(() => {
     if (progressData?.errors_msg) {
       const errorList = progressData?.errors_msg.slice(1).split("\n");
@@ -50,40 +50,12 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
     onCancel && onCancel();
   };
 
-  // const columns: Array<ICustomTableColumType<any>> = [
-  //   {
-  //     title: "STT",
-  //     align: "center",
-  //     width: 70,
-  //     render: (value: any, row: any, index: any) => {
-  //       return <span>{index + 1}</span>;
-  //     },
-  //   },
-  //   {
-  //     title: "SKU",
-  //     dataIndex: "order_sn",
-  //     width: 155,
-  //   },
-  //   {
-  //     title: "Nội dung",
-  //     dataIndex: "error_message",
-  //     render: (value: any, item: any, index: number) => {
-  //       return (
-  //         <div>
-  //           {value[0]}
-  //         </div>
-  //       );
-  //     },
-  //   },
-  // ];
-
-
   return (
     <Modal
-      width="600px"
+      width="620px"
       centered
       visible={visible}
-      title={processType === "variant" ? "Tải sản phẩm" : "Đồng bộ tồn"}
+      title={ECOMMERCE_JOB_DETAIL.getDisplay(processType)}
       okText="Xác nhận"
       cancelText="Hủy"
       onCancel={cancelProgressDownloadModal}
@@ -95,7 +67,7 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
             <Button danger onClick={cancelProgressDownloadModal}>
               Hủy
             </Button>
-            : <div></div>
+            : <div/>
           }
 
           <Button
@@ -125,7 +97,7 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
               </div>
             </div>
 
-            {processType === "variant" &&
+            {processType === ECOMMERCE_JOB_TYPE.VARIANT &&
             <div>
               <div>SP mới</div>
               <div className="total-created">
@@ -141,7 +113,7 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
             </div>
             }
 
-            {processType === "variant" &&
+            {processType === ECOMMERCE_JOB_TYPE.VARIANT &&
                 <div>
                   <div>SP cập nhật</div>
                   <div className="total-updated">
@@ -157,9 +129,11 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
                 </div>
             }
 
-            {processType === "stock" &&
+            {(processType === ECOMMERCE_JOB_TYPE.STOCK ||
+                    processType === ECOMMERCE_JOB_TYPE.SYNC_VARIANT) &&
                 <div>
-                  <div>Đồng bộ tồn thành công</div>
+                  {processType === ECOMMERCE_JOB_TYPE.STOCK && <div>Đồng bộ tồn thành công</div>}
+                  {processType === ECOMMERCE_JOB_TYPE.SYNC_VARIANT && <div>Ghép nối thành công</div>}
                   <div className="total-updated">
                     {isNullOrUndefined(progressData?.total_success) ?
                         "--" :
@@ -199,16 +173,21 @@ const ProgressDownloadProductsModal: React.FC<ProgressDownloadProductsModalType>
         {errorData.length ?
             <div className="error-orders">
               <div className="title">Chi tiết lỗi:</div>
-              <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
-                <ul style={{ color: "#E24343" }}>
-                  {errorData.map((error, index) => (
-                      <li key={index} style={{ marginBottom: "5px"}}>
-                        <span>{error}</span>
-                      </li>
-                  ))}
-                </ul>
+              <div className="error_message">
+                <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
+                  <ul style={{ color: "#E24343" }}>
+                    {errorData.map((error, index) => (
+                        <li key={index} style={{ marginBottom: "5px"}}>
+                          <span style={{fontWeight: 500}}>{error.split(":")[0]}</span>
+                          <span>:</span>
+                          <span>{error.split(":")[1]}</span>
+                        </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div> : <div/>}
+            </div>
+            : <div/>}
       </StyledProgressDownloadModal>
     </Modal>
   );

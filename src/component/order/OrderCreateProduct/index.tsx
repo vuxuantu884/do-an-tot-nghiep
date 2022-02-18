@@ -105,6 +105,7 @@ import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
+import _ from "lodash";
 
 type PropType = {
 	storeId: number | null;
@@ -1229,7 +1230,7 @@ function OrderCreateProduct(props: PropType) {
 		let result = 0;
 		responseData.line_items.forEach(lineItem => {
 			let suggestDiscount = lineItem.suggested_discounts[0];
-			let discountSingleLineItem = getDiscountValue(suggestDiscount.value_type, suggestDiscount.value, lineItem.original_total );
+			let discountSingleLineItem = getDiscountValue(suggestDiscount?.value_type, suggestDiscount?.value, lineItem?.original_total );
 			result = result + discountSingleLineItem;
 		})
 		return result;
@@ -1302,9 +1303,7 @@ function OrderCreateProduct(props: PropType) {
 						if(totalDiscountLineItems > totalDiscountOrder) {
 							let result = getApplyDiscountLineItem(response, items);
 							calculateChangeMoney(result, null);
-							form.setFieldsValue({
-								note: ""
-							})
+							console.log('result', result)
 						} else {
 							let itemsAfterRemove = items.map(single => {
 								removeDiscountItem(single)
@@ -1321,7 +1320,7 @@ function OrderCreateProduct(props: PropType) {
 					} else if(isOrderHasDiscountLineItems(response.data)) {
 							let result = getApplyDiscountLineItem(response, items);
 							calculateChangeMoney(result, null)
-					} else {
+					} else if(isOrderHasDiscountOrder(response.data)) {
 						let itemsAfterRemove = items.map(single => {
 							removeDiscountItem(single)
 							return single
@@ -1333,10 +1332,16 @@ function OrderCreateProduct(props: PropType) {
 							})
 						}
 						calculateChangeMoney(items, promotionResult)
-
+					} else {
+						form.setFieldsValue({
+							note: ``
+						})
 					}
 					showSuccess("Cập nhật chiết khấu tự động thành công!");
 				} else {
+					form.setFieldsValue({
+						note: ""
+					})
 					showError("Có lỗi khi áp dụng chiết khấu!");
 				}
       } catch (error) {
@@ -1753,6 +1758,37 @@ function OrderCreateProduct(props: PropType) {
 			}
 		}
 	};
+
+	const fillCustomNote = (items: OrderLineItemRequest[]) => {
+		if(items.some(item => {
+			return (item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason) 
+		})) {
+			let discountTitleArr: string[] = [];
+			items.forEach(item => {
+				let reason = item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason;
+				if(reason) {
+					return discountTitleArr.push(reason)
+				}
+			})
+			discountTitleArr = _.uniq(discountTitleArr);
+			console.log('discountTitleArr', discountTitleArr)
+			if(discountTitleArr && discountTitleArr.length > 0) {
+				let title = "Chương trình chiết khấu: "
+				for (let i = 0; i < discountTitleArr.length; i++) {
+					if(i< discountTitleArr.length -1) {
+						title = title + discountTitleArr[i] + ", "
+					} else {
+						title = title + discountTitleArr[i] + "."
+					}
+				}
+				console.log('title', title)
+				form.setFieldsValue({
+					note: title
+				})
+			}
+		}
+	};
+
 	const calculateChangeMoney = (
 		_items: Array<OrderLineItemRequest>,
 		_promotion?: OrderDiscountRequest | null,
@@ -1783,6 +1819,7 @@ function OrderCreateProduct(props: PropType) {
 				_promotion = null
 			}
 		}
+		fillCustomNote(_items);
 		props.changeInfo(_items, _promotion);
 	};
 
@@ -1872,6 +1909,9 @@ function OrderCreateProduct(props: PropType) {
 				lineItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(lineItem);
 			}
 		});
+		form.setFieldsValue({
+			note: undefined
+		})
 		// calculateChangeMoney(_items, autoPromotionRate , autoPromotionValue);
 		showSuccess("Xóa tất cả chiết khấu tự động trước đó thành công!");
 	};
@@ -1892,6 +1932,9 @@ function OrderCreateProduct(props: PropType) {
 			lineItem.discount_value = 0;
 			lineItem.line_amount_after_line_discount = lineItem.price * lineItem.quantity;
 		});
+		form.setFieldsValue({
+			note: undefined
+		})
 		// showSuccess("Xóa tất cả chiết khấu trước đó thành công!");
 	};
 
@@ -1989,9 +2032,12 @@ function OrderCreateProduct(props: PropType) {
 
 	useEffect(() => {
 		if (items && items.length === 0) {
+			form.setFieldsValue({
+				note: ""
+			})
 			setPromotion && setPromotion(null)
 		}
-	}, [items, setPromotion]);
+	}, [form, items, setPromotion]);
 
 	return (
 		<StyledComponent>
@@ -2204,6 +2250,7 @@ function OrderCreateProduct(props: PropType) {
 					onCancel={onCancleConfirm}
 					onOk={onOkConfirm}
 					visible={isVisibleGift}
+					storeId={storeId}
 				/>
 				<Table
 					locale={{

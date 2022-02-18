@@ -26,6 +26,7 @@ import useAuthorization from "hook/useAuthorization";
 
 import {StyledComponent} from "screens/ecommerce/products/styles";
 import {isNullOrUndefined} from "utils/AppUtils";
+import {ECOMMERCE_JOB_TYPE} from "../../../utils/Constants";
 
 const { TabPane } = Tabs;
 
@@ -119,7 +120,7 @@ const Products: React.FC = () => {
     dispatch(
       exitProgressDownloadEcommerceAction(processId, (responseData) => {
         if (responseData) {
-          showSuccess(responseData);
+          showSuccess("Đã hủy quá trình xử lý");
           setIsVisibleExitDownloadProductsModal(false);
           resetProgress();
           setIsVisibleProgressModal(false);
@@ -129,7 +130,6 @@ const Products: React.FC = () => {
     );
   }
   // end
-
   const getProgress = useCallback(() => {
     let getProgressPromises: Promise<BaseResponse<any>> = getProgressDownloadEcommerceApi(processId);
 
@@ -198,13 +198,19 @@ const Products: React.FC = () => {
   }, []);
 
   const handleSyncStockJob =(id: any) => {
-    console.log(id)
     if(id){
-      setProcessType("stock");
+      setProcessType(ECOMMERCE_JOB_TYPE.STOCK);
       setProcessId(id);
       setIsVisibleProgressModal(true);
       setIsDownloading(true);
     }
+  }
+
+  const handleMappingVariantJob = (id: any) => {
+    setProcessType(ECOMMERCE_JOB_TYPE.SYNC_VARIANT);
+    setProcessId(id);
+    setIsVisibleProgressModal(true);
+    setIsDownloading(true);
   }
 
   const getProductsFromEcommerce = (params: any) => {
@@ -282,7 +288,7 @@ const Products: React.FC = () => {
               }
               
               {activeTab === PRODUCT_TAB.notConnected.key &&
-                <NotConnectedItems isReloadPage={isReloadPage} />
+                <NotConnectedItems isReloadPage={isReloadPage} handleMappingVariantJob={handleMappingVariantJob}/>
               }
             </>
           : <NoPermission />)}

@@ -18,7 +18,7 @@ type ImportCustomerFileType = {
   onOk: () => void;
 };
 
-const exampleCustomerFile = 'https://np.cdn.yody.io/files/customer.xlsx';
+const exampleCustomerFile = 'https://cdn.yody.io/files/customer-import/template.xlsx';
 
 const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
   props: ImportCustomerFileType

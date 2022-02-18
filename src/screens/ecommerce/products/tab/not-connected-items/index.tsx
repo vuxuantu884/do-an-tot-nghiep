@@ -70,6 +70,7 @@ let connectedYodyProductsRequest: object;
 
 type NotConnectedItemsPropsType = {
   isReloadPage: boolean;
+  handleMappingVariantJob: (x: any) => void;
 };
 
 const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConnectedItemsPropsType) => {
@@ -78,7 +79,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const { Option } = Select;
   const history = useHistory();
 
-  const {isReloadPage} = props;
+  const {isReloadPage, handleMappingVariantJob} = props;
 
   const [allowProductsConnect] = useAuthorization({
     acceptPermissions: productsConnectPermission,
@@ -112,15 +113,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
   let notMatchSelectedRow: any[] = [];
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
-
-  const [isShowResultConnectProductModal, setIsShowResultConnectProductModal] = useState(false);
-  const [connectProductData, setConnectProductData] = useState<any>({
-    total: 0,
-    success_total: 0,
-    error_total: 0,
-    error_list: []
-  });
-
+  
   const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
@@ -214,7 +207,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     const [isSaving, setIsSaving] = useState(false);
     const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
     const [isShowResultConnectionModal, setIsShowResultConnectionModal] = useState(false);
-    const [resultConnectionData, setResultConnectionData] = useState<any>({
+    const [resultConnectionData,] = useState<any>({
       total: 0,
       success_total: 0,
       error_total: 0,
@@ -263,8 +256,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
       if (data) {
         setProductSelected(null);
-        setResultConnectionData(data);
-        setIsShowResultConnectionModal(true);
+        handleMappingVariantJob(data.process_id);
       }
     }, []);
 
@@ -737,8 +729,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       updateConnectItemList(notMatchConnectItemList);
       setConnectItemList(tempConnectItemList);
       setSelectedRow(notMatchSelectedRow);
-      setConnectProductData(data);
-      setIsShowResultConnectProductModal(true);
+      handleMappingVariantJob(data.process_id);
+      // setIsShowResultConnectProductModal(true);
     }
   };
 
@@ -897,11 +889,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setSelectedRow(newSelectedRow);
   }, []);
 
-  const closeResultConnectProductModal = () => {
-    setIsShowResultConnectProductModal(false);
-    history.replace(`${history.location.pathname}#connected-item`);
-  };
-
+  // const closeResultConnectProductModal = () => {
+  //   setIsShowResultConnectProductModal(false);
+  //   history.replace(`${history.location.pathname}#connected-item`);
+  // };
 
   const [allowProductsDelete] = useAuthorization({
     acceptPermissions: productsDeletePermission,
@@ -1162,12 +1153,22 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         />
       }
 
-      <ResultConnectProductModal
-        visible={isShowResultConnectProductModal}
-        onCancel={closeResultConnectProductModal}
-        onOk={closeResultConnectProductModal}
-        connectProductData={connectProductData}
-      />
+      {/*<ResultConnectProductModal*/}
+      {/*  visible={isShowResultConnectProductModal}*/}
+      {/*  onCancel={closeResultConnectProductModal}*/}
+      {/*  onOk={closeResultConnectProductModal}*/}
+      {/*  connectProductData={connectProductData}*/}
+      {/*/>*/}
+
+      {/*<ProgressDownloadProductsModal*/}
+      {/*    visible={isShowResultConnectProductModal}*/}
+      {/*    isDownloading={false}*/}
+      {/*    onOk={closeResultConnectProductModal}*/}
+      {/*    onCancel={closeResultConnectProductModal}*/}
+      {/*    progressData={connectProductData}*/}
+      {/*    progressPercent={100}*/}
+      {/*    processType="sync-variant"*/}
+      {/*/>*/}
 
       <Modal
         width="600px"
