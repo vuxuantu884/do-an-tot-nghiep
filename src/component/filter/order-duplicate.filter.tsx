@@ -29,7 +29,7 @@ type OrderDuplicateFilterProps = {
 const OrderDuplicateFilter: React.FC<OrderDuplicateFilterProps> = (
   props: OrderDuplicateFilterProps
 ) => {
-  const { onMenuClick, onShowColumnSetting, listStore, onFilter, initialValues } = props;
+  const { onShowColumnSetting, listStore, onFilter, initialValues } = props;
 
   const formSearchRef = createRef<FormInstance>();
 
