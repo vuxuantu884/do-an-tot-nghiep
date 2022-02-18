@@ -1381,7 +1381,7 @@ export function handleFetchApiError(response: BaseResponse<any>, textApiInformat
       showError(`${textApiInformation}: ${response.message}`);
       break;
     default:
-      response.errors.forEach((e:any) => showError(e));
+      response?.errors?.forEach((e:any) => showError(e));
       break;
   }
 }

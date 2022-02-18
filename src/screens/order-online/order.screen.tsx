@@ -171,6 +171,8 @@ export default function Order() {
 	const [coupon, setCoupon] = useState<string>("");
 	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
 
+	
+
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
 ShippingServiceConfigDetailResponseModel[]
 >([]);
