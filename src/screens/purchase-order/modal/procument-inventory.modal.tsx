@@ -24,6 +24,9 @@ import {
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { ProcurementStatusName } from "../../../utils/Constants";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import useAuthorization from "hook/useAuthorization";
 
 type ProducmentInventoryModalProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
@@ -72,9 +75,13 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
   const dispatch = useDispatch();
   const { id } = useParams<PurchaseOrderParam>();
   let idNumber = parseInt(id);
+  
+  const [allowConfirm] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.procurements_confirm],
+  });
 
   const itemForm = useMemo(()=>{
-    if (itemProcument === null) {
+    if (itemProcument === null || Object.keys(itemProcument).length === 0) {
       return item;
     }
 
@@ -128,12 +135,16 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
             <span style={{ color: "#2A2A86" }}>{item?.code} - {ProcurementStatusName[String(item?.status)]}</span>
           </div>
         }
-        okText={isEdit ? "Lưu phiếu nhập kho" : "Xác nhận nhập"}
+        okText={isEdit ? "Lưu phiếu nhập kho" : (allowConfirm ? "Xác nhận nhập": "")}
       >
         {(onQuantityChange, onRemove, line_items) => {
+          
           return (
             <>
               {!isDetail && (
+                <AuthWrapper
+                acceptPermissions={[PurchaseOrderPermission.procurements_confirm]}
+                >
                 <div style={{float: "right", marginBottom: 10}}>
                   <Button
                     className="light"
@@ -144,6 +155,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                     Nhập file
                   </Button>
                 </div>
+                </AuthWrapper>
               )}
                <Table
                 className="product-table"
