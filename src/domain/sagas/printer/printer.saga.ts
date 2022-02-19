@@ -2,7 +2,6 @@ import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { fetchApiErrorAction } from "domain/actions/app.action";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import { PageResponse } from "model/base/base-metadata.response";

@@ -69,7 +69,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
             >
               <div className="ant-layout-sider-user">
                 <Avatar src="" size={36} />
-                <div className="sider-user-info">
+                <div className="sider-user-info yody-text-ellipsis">
                   {props.account?.full_name}
                 </div>
                 <RiArrowDropDownLine size={25} color="#737373" />
