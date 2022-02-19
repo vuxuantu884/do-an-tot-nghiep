@@ -140,6 +140,9 @@ const ListSupplierScreen: React.FC = () => {
     {
       title: "Merchandiser",
       dataIndex: "pic",
+      render: (_, item: SupplierResponse) => (
+        <span>{`${item.pic_code} - ${item.pic}`}</span>
+      ),
       visible: true,
     },
     {
