@@ -1,11 +1,9 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Collapse, Form, Input, Space, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 import { useForm } from "antd/es/form/Form";
 import search from "assets/img/search.svg";
 import AccountSearchSelect from "component/custom/select-search/account-select";
 import BaseFilter from "component/filter/base.filter";
-import CustomRangePicker from "component/filter/component/range-picker.custom";
-// import SelectStoreField from "component/filter/component/select-store-field";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 import ButtonSetting from "component/table/ButtonSetting";
 import { AppConfig } from "config/app.config";
@@ -15,15 +13,17 @@ import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { ProcurementQuery } from "model/purchase-order/purchase-procument";
-import moment from "moment";
 import querystring from "querystring";
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, { createRef, Fragment, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
-import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
 import { FilterProcurementStyle, ProcurementStatusStyle } from "./styles";
+import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import { isArray } from "lodash";
 const { Item } = Form;
 const BaseProcumentField = {
   content: "content",
@@ -32,11 +32,14 @@ const BaseProcumentField = {
 };
 
 interface ProcurementFilter {
-  stockDate: string;
+  active_from: string;
+  active_to: string;
+  stock_in_from: string;
+  stock_in_to: string;
+  expect_receipt_from: string;
+  expect_receipt_to: string;
   stockUser: string;
-  confirmDate: string;
   confirmUser: string;
-  expectDate: string;
   status: string;
   cancelDate: string;
   merchandisers: string;
@@ -44,14 +47,24 @@ interface ProcurementFilter {
   suppliers: string;
 }
 
+const SearchProcurementField = {
+  active_from: 'active_from',
+  active_to: 'active_to',
+  stock_in_from: 'stock_in_from',
+  stock_in_to: 'stock_in_to',
+  expect_receipt_from: 'expect_receipt_from',
+  expect_receipt_to: 'expect_receipt_to'
+};
+
 interface ProcurementFilterProps{
   onClickOpen?: () => void;
+  paramsUrl?: any;
 }
 
 const ProcurementFilterItem = {
-  stockDate: "stockDate",
-  confirmDate: "confirmDate",
-  expectDate: "expectDate",
+  stockDate: "active",
+  confirmDate: "stock_in",
+  expectDate: "expect_receipt",
   status: "status",
   stores: "stores",
 };
@@ -63,18 +76,23 @@ const ProcurementFilterName = {
   [ProcurementFilterItem.stores]: "Kho nhận hàng",
   [ProcurementFilterItem.expectDate]: "Ngày nhận dự kiến",
 };
-const { Panel } = Collapse;
+
+const keysDateFilter = [ProcurementFilterItem.stockDate, ProcurementFilterItem.confirmDate, ProcurementFilterItem.expectDate]
+
 function TabListFilter(props: ProcurementFilterProps) {
   const {
     onClickOpen,
+    paramsUrl,
   } = props;
   const history = useHistory();
   const dispatch = useDispatch();
+  const formRef = createRef<FormInstance>()
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const [visible, setVisible] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [dateClick, setDateClick] = useState('');
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [allStore, setAllStore] = useState<Array<StoreResponse>>();
-
 
   const [formBase] = useForm();
   const [formAdvanced] = useForm();
@@ -85,39 +103,97 @@ function TabListFilter(props: ProcurementFilterProps) {
   const cancelFilter = () => {
     setVisible(false);
   };
-  const resetFilter = () => {
+
+  const resetFilter = useCallback(() => {
+    let fields = formAdvanced.getFieldsValue(true);
+    for (let key in fields) {
+      if(fields[key] instanceof Array) {
+        fields[key] = [];
+      } else {
+        fields[key] = null;
+      }
+    }
     formAdvanced.resetFields();
     formAdvanced.submit();
     setVisible(false);
-  };
+  }, [formAdvanced]);
 
-  const resetField = useCallback(
-    (field: string) => {
-      formAdvanced.setFieldsValue({
-        ...formAdvanced.getFieldsValue(true),
-        [field]: undefined,
-      });
-      formAdvanced.submit();
+  const onAdvanceFinish = useCallback(
+    (data: ProcurementFilter) => {
+      setVisible(false);
+      const params: ProcurementQuery = parseDataToString(data);
+
+      const formBaseData = formBase.getFieldsValue(true);
+      const newFormBaseData = { ...formBaseData };
+      newFormBaseData.merchandisers = formBaseData?.merchandisers?.toString();
+      setAdvanceFilters(data);
+      history.replace(
+        `${UrlConfig.PROCUREMENT}?${querystring.stringify({
+          ...params,
+          ...newFormBaseData,
+        })}`
+      );
     },
     [formAdvanced]
   );
+
+  const resetField = useCallback(
+    (field: string[]) => {
+      if (field.length === 1) {
+        formAdvanced.resetFields([field[0]]);
+        if (field[0] === 'status') setSelectedStatuses([]);
+      }
+
+      formAdvanced.resetFields([field[0], field[1]]);
+
+      onAdvanceFinish(field.length === 1 ? {
+        ...advanceFilters,
+        [field[0]]: undefined,
+      } : {
+        ...advanceFilters,
+        [field[0]]: undefined,
+        [field[1]]: undefined,
+      });
+    },
+    [formAdvanced, onAdvanceFinish, advanceFilters]
+  );
+
+  const convertParams = (params: any) => {
+    return {
+      ...params,
+      [SearchProcurementField.active_from]: formatDateFilter(params[SearchProcurementField.active_from])?.format(DATE_FORMAT.DDMMYYY),
+      [SearchProcurementField.active_to]: formatDateFilter(params[SearchProcurementField.active_to])?.format(DATE_FORMAT.DDMMYYY),
+      [SearchProcurementField.stock_in_from]: formatDateFilter(params[SearchProcurementField.stock_in_from])?.format(DATE_FORMAT.DDMMYYY),
+      [SearchProcurementField.stock_in_to]: formatDateFilter(params[SearchProcurementField.stock_in_to])?.format(DATE_FORMAT.DDMMYYY),
+      [SearchProcurementField.expect_receipt_from]: formatDateFilter(params[SearchProcurementField.expect_receipt_from])?.format(DATE_FORMAT.DDMMYYY),
+      [SearchProcurementField.expect_receipt_to]: formatDateFilter(params[SearchProcurementField.expect_receipt_to])?.format(DATE_FORMAT.DDMMYYY),
+      [ProcurementFilterItem.stores]: params.stores ? params.stores?.split(',').map((x: string) => parseInt(x)) : undefined,
+    };
+  }
+
+  useEffect(() => {
+    const filters = convertParams(paramsUrl);
+
+    setAdvanceFilters(filters);
+    formAdvanced.setFieldsValue(filters);
+    handleClickStatus(paramsUrl.status);
+  }, [formAdvanced, paramsUrl]);
+
   const parseDataToString = (data: ProcurementFilter) => {
     const params: ProcurementQuery = {} as ProcurementQuery;
-    //;ngay duyet phieu
-    if (data.stockDate) {
-      params.active_from = data.stockDate[0];
-      params.active_to = data.stockDate[1];
-    }
+    const { active_from, active_to, stock_in_from, stock_in_to, expect_receipt_from, expect_receipt_to } = data;
+
+    //ngay duyet
+    if (active_from) params.active_from = getStartOfDayCommon(active_from)?.format();
+    if (active_to ) params.active_to = getEndOfDayCommon(active_to)?.format();
+
     //ngay xac nhan phieu
-    if (data.confirmDate) {
-      params.stock_in_from = data.confirmDate[0];
-      params.stock_in_to = data.confirmDate[1];
-    }
+    if (stock_in_from) params.stock_in_from = getStartOfDayCommon(stock_in_from)?.format();
+    if (stock_in_to) params.stock_in_to = getEndOfDayCommon(stock_in_to)?.format();
+
     // ngay nhan du kien
-    if (data.expectDate) {
-      params.expect_receipt_from = data.expectDate[0];
-      params.expect_receipt_to = data.expectDate[1];
-    }
+    if (expect_receipt_from) params.expect_receipt_from = getStartOfDayCommon(expect_receipt_from)?.format();
+    if (expect_receipt_to) params.expect_receipt_to = getEndOfDayCommon(expect_receipt_to)?.format();
 
     //trang thai
     if (data.status) {
@@ -132,23 +208,8 @@ function TabListFilter(props: ProcurementFilterProps) {
     if (data?.suppliers) {
       params.suppliers = data.suppliers.toString();
     }
+
     return params;
-  };
-
-  const onAdvanceFinish = (data: ProcurementFilter) => {
-    setVisible(false);
-    const params: ProcurementQuery = parseDataToString(data);
-
-    const formBaseData = formBase.getFieldsValue(true);
-    const newFormBaseData = { ...formBaseData };
-    newFormBaseData.merchandisers = formBaseData?.merchandisers?.toString();
-    setAdvanceFilters(data);
-    history.replace(
-      `${UrlConfig.PROCUREMENT}?${querystring.stringify({
-        ...params,
-        ...newFormBaseData,
-      })}`
-    );
   };
 
   const onBaseFinish = (data: any) => {
@@ -166,7 +227,12 @@ function TabListFilter(props: ProcurementFilterProps) {
   };
 
   const handleClickStatus = (value: string) => {
-    let statusList = advanceFilters?.status || [];
+    let statusList = formAdvanced.getFieldValue('status') || [];
+
+    if (!isArray(statusList)) {
+      statusList = statusList.split(',');
+    }
+
     if (statusList && !statusList.includes(value)) {
       statusList.push(value);
     } else if (statusList && statusList.includes(value)) {
@@ -175,12 +241,15 @@ function TabListFilter(props: ProcurementFilterProps) {
         statusList.splice(index, 1);
       }
     } else {
-      advanceFilters.status = [];
       statusList.push(value);
     }
-    advanceFilters.status = statusList;
-    formAdvanced.setFieldsValue(advanceFilters);
-    setAdvanceFilters({ ...advanceFilters });
+
+    formAdvanced.setFieldsValue({
+      ...formAdvanced.getFieldsValue(),
+      status: statusList
+    });
+
+    setSelectedStatuses([...statusList]);
   };
 
   useEffect(() => {
@@ -196,6 +265,7 @@ function TabListFilter(props: ProcurementFilterProps) {
       })
     );
   }, [dispatch]);
+
   return (
     <Form.Provider>
       <Form onFinish={onBaseFinish} form={formBase} layout="inline">
@@ -248,6 +318,7 @@ function TabListFilter(props: ProcurementFilterProps) {
           filters={advanceFilters}
           resetField={resetField}
           allSupplier={allSupplier}
+          stores={allStore}
         />
       )}
       <BaseFilter
@@ -257,20 +328,24 @@ function TabListFilter(props: ProcurementFilterProps) {
         }}
         onCancel={cancelFilter}
         visible={visible}
-        width={500}
+        width={700}
       >
-        <Form onFinish={onAdvanceFinish} initialValues={{}} form={formAdvanced}>
-          <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
-            {Object.keys(ProcurementFilterItem).map((field) => {
+        <Form ref={formRef} onFinish={onAdvanceFinish} form={formAdvanced}>
+          <Row gutter={20}>
+            {Object.values(ProcurementFilterItem).map((field) => {
               let component: any = null;
               switch (field) {
                 case ProcurementFilterItem.stockDate:
                 case ProcurementFilterItem.confirmDate:
                 case ProcurementFilterItem.expectDate:
-
-                  component = <CustomRangePicker />;
+                  component = <CustomFilterDatePicker
+                    fieldNameFrom={`${field}_from`}
+                    fieldNameTo={`${field}_to`}
+                    activeButton={dateClick}
+                    setActiveButton={setDateClick}
+                    formRef={formRef}
+                  />;
                   break;
-
                 case ProcurementFilterItem.stores:
                   component = <TreeStore name={field} form={formAdvanced} listStore={allStore}/>;
                   break;
@@ -283,7 +358,7 @@ function TabListFilter(props: ProcurementFilterProps) {
                           value={item}
                           onClick={() => handleClickStatus(item)}
                           className={
-                            advanceFilters?.status?.includes(item) ? "active" : ""
+                            selectedStatuses.includes(item) ? "active" : ""
                           }
                         >
                           {ProcurementStatusName[item]}
@@ -294,17 +369,13 @@ function TabListFilter(props: ProcurementFilterProps) {
                   break;
               }
               return (
-                <Collapse key={field}>
-                  <Panel
-                    key="1"
-                    header={<span>{ProcurementFilterName[field]?.toUpperCase()}</span>}
-                  >
-                    <Item name={field}>{component}</Item>
-                  </Panel>
-                </Collapse>
+                <Col span={12} key={field}>
+                  <div className="font-weight-500">{ProcurementFilterName[field]}</div>
+                  <Item name={field}>{component}</Item>
+                </Col>
               );
             })}
-          </Space>
+          </Row>
         </Form>
       </BaseFilter>
     </Form.Provider>
@@ -312,17 +383,32 @@ function TabListFilter(props: ProcurementFilterProps) {
 }
 type FilterListProps = {
   filters: any;
-  resetField: (field: string) => void;
+  resetField: (field: string[]) => void;
   allSupplier: Array<SupplierResponse> | undefined;
+  stores: Array<StoreResponse> | undefined;
 };
-const FilterList = ({ filters, resetField, allSupplier }: FilterListProps) => {
-  let filtersKeys = Object.keys(filters);
+const FilterList = ({ filters, resetField, stores }: FilterListProps) => {
+  const newFilters = {...filters};
+  let filtersKeys = Object.keys(newFilters);
   let renderTxt: any = null;
+  const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
+  filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
+
+  const getStoreName = (storeId: number) => {
+    if (!stores) return '';
+
+    if (stores?.length > 0) {
+      const storesFiltered = stores?.filter((i) => i.id === Number(storeId));
+      return storesFiltered[0].name
+    }
+
+    return '';
+  };
+
   return (
-    <Space wrap={true} style={{ marginBottom: 20 }}>
-      {filtersKeys.map((filterKey) => {
+    <div>
+      {[...newKeys, ...filtersKeys].map((filterKey, index) => {
         let value = filters[filterKey];
-        if (!value) return <Fragment />;
 
         if (!ProcurementFilterName[filterKey]) return <Fragment />;
 
@@ -330,55 +416,46 @@ const FilterList = ({ filters, resetField, allSupplier }: FilterListProps) => {
           case ProcurementFilterItem.stockDate:
           case ProcurementFilterItem.confirmDate:
           case ProcurementFilterItem.expectDate:
-
-            let [from, to] = value;
-            let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
-              formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
-            let fixedDate = checkFixedDate(from, to);
-            if (fixedDate)
-              renderTxt = `${ProcurementFilterName[filterKey]} : ${fixedDate}`;
-            else
-              renderTxt = `${ProcurementFilterName[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+            renderTxt = `${ProcurementFilterName[filterKey]} 
+            : ${filters[`${filterKey}_from`] ? filters[`${filterKey}_from`] : '??'} 
+            ~ ${filters[`${filterKey}_to`] ? filters[`${filterKey}_to`] : '??'}`
             break;
-
-          // case ProcurementFilterItem.suppliers:
-          //   if (Array.isArray(value) && value.length > 0) {
-          //     let text = "";
-          //     value?.forEach((id: number) => {
-          //       allSupplier?.forEach((element: SupplierResponse, index: number) => {
-          //         if (id === element.id) {
-          //           text += ", " + allSupplier[index].name;
-          //         }
-          //       });
-          //     });
-          //     renderTxt = `${ProcurementFilterName[filterKey]} : ${text.substr(1)}`;
-          //   }
-          //   break;
           case ProcurementFilterItem.stores:
-            if (Array.isArray(value) && value.length > 0) {
-              renderTxt = `${ProcurementFilterName[filterKey]} : ${value}`;
-            }
+            if (!value) return null;
+            const newValuesStore = Array.isArray(value) ? value : value.split(',');
+
+            renderTxt = `${ProcurementFilterName[filterKey]} : `;
+            newValuesStore.forEach((i: number, index: number) => {
+              renderTxt = renderTxt + `${getStoreName(i)}${newValuesStore.length - 1 === index ? '' : ', '}`
+            });
             break;
           case ProcurementFilterItem.status:
-            if (Array.isArray(value) && value.length > 0) {
-              let statusText = "";
-              value?.forEach(
-                (item: string) => (statusText += ", " + ProcurementStatusName[item])
-              );
-              renderTxt = `${ProcurementFilterName[filterKey]} : ${statusText.substr(1)}`;
-            }
+            if (!value || value === '') return null;
+            let newValuesStatus = Array.isArray(value) ? value : value.split(',');
+
+            newValuesStatus = newValuesStatus.filter((e: any) => e !== '');
+            renderTxt = `${ProcurementFilterName[filterKey]} : `;
+            newValuesStatus.forEach((i: string, index: number) => {
+              renderTxt = renderTxt + `${ProcurementStatusName[i]}${newValuesStatus.length - 1 === index ? '' : ', '}`
+            });
         }
-        if (!renderTxt) return <Fragment />;
+
         return (
           <Tag
-            onClose={() => resetField(filterKey)}
-            key={filterKey}
-            className="fade"
+            onClose={() => {
+              if (keysDateFilter.indexOf(filterKey) !== -1) {
+                resetField([`${filterKey}_from`, `${filterKey}_to`]);
+                return;
+              }
+              resetField([filterKey]);
+            }}
+            key={index}
+            className="fade margin-bottom-20"
             closable
           >{`${renderTxt}`}</Tag>
         );
       })}
-    </Space>
+    </div>
   );
 };
 export default TabListFilter;

@@ -451,9 +451,9 @@
             &:hover,
             &:focus,
             &.active {
-                color: $white;
-                background-color: $primary-color;
-                border-color: $primary-color;
+                color: $white !important;
+                background-color: $primary-color !important;
+                border-color: $primary-color !important;
             }
             &.light {
                 background-color: $white;
@@ -596,7 +596,7 @@
         height: 2px;
         background-color: $white;
     }
-    
+
     //Picker
     &-picker {
         height: 38px;
@@ -1082,7 +1082,7 @@
             .ant-menu-item-icon {
                 margin-left: 25px !important;
             }
-    
+
         }
 
     }
@@ -1091,7 +1091,7 @@
 .ant-menu-submenu-popup {
     .ant-menu {
         .ant-menu {
-            &-item { 
+            &-item {
                 height: 40px;
                 line-height: 40px;
                 color: $black;
@@ -1139,7 +1139,7 @@
             }
             &-submenu {
                 padding: 0;
-                color: $black; 
+                color: $black;
                 background-color: transparent;
                 .ant-menu-title-content,
                 .ant-menu-submenu-arrow {
