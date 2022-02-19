@@ -105,9 +105,9 @@ const OrderDetail = (props: PropType) => {
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
 
   const showOrderDetailUtm = useMemo(() => {
-    return OrderDetail?.utm_campain || OrderDetail?.utm_content
-      || OrderDetail?.utm_medium || OrderDetail?.utm_source
-      || OrderDetail?.utm_term || OrderDetail?.affiliate
+    return OrderDetail?.utm_tracking?.utm_campaign || OrderDetail?.utm_tracking?.utm_content
+      || OrderDetail?.utm_tracking?.utm_medium || OrderDetail?.utm_tracking?.utm_source
+      || OrderDetail?.utm_tracking?.utm_term || OrderDetail?.utm_tracking?.affiliate
   }, [OrderDetail]);
   const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
     useState<OrderResponse | null>(null);
@@ -309,7 +309,7 @@ const OrderDetail = (props: PropType) => {
       //   affiliate: '123',
       //   utm_source: '123',
       //   utm_medium: '123',
-      //   utm_campain: '123',
+      //   utm_campaign: '123',
       //   utm_term: '123',
       //   utm_content: '123',
       // });
