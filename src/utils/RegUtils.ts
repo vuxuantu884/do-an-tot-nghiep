@@ -23,4 +23,5 @@ export const RegUtil = {
   // BOTH_NUMBER_AND_STRING: /(?=.*[A-Z])(?=.*[0-9])/,
   BOTH_NUMBER_AND_STRING: /^(?=.*?\d)(?=.*?[a-zA-Z])[a-zA-Z\d]+$/,
   ONLY_NUMBER: /^[0-9]+$/,
+  BARCODE_NUMBER: /^[0-9]{13}$/,
 };
