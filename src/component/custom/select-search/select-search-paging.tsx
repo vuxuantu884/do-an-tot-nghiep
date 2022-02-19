@@ -20,7 +20,7 @@ function SelectSearchPaging<T>({
   mode = undefined,
   fixedQuery,
   key = "code",
-  data,
+  data = [],
   renderItem,
   metadata,
   maxTagCount = "responsive",
@@ -41,10 +41,10 @@ function SelectSearchPaging<T>({
       loading={isLoading}
       defaultValue={value}
       metadata={metadata}
+      labelInValue
+      filterOption={false}
       showSearch
-      showArrow
       allowClear
-      optionFilterProp="children"
       maxTagCount="responsive"
       onSearch={(value) => handleSearch({ condition: value })}
       onClear={() => handleSearch({ condition: "" })}
