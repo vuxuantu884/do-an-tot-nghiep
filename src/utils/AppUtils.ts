@@ -1454,3 +1454,9 @@ export const splitEllipsis=(value:string,length:number,lastLength:number):string
 
   return `${strFirst} [...] ${strLast}`;
 };
+
+
+export const trimText = (text?: string) => {
+  if(!text) return
+  return text.replace(/(\s)+/g, '')
+}
