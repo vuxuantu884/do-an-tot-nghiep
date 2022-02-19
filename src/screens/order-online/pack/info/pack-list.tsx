@@ -7,13 +7,6 @@ import UrlConfig from "config/url.config";
 
 function PackList(props: any) {
   const { data } = props;
-  // const [dataPack, setDataPack]=useState([])
-  // useEffect(() => {
-  //   if (data.items.length > 0) {
-  //     setDataPack(data.items);
-  //   }
-  // }, [data])
-
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
     {
@@ -64,6 +57,16 @@ function PackList(props: any) {
     },
   ];
 
+  const rowSelection = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
+      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+    },
+    getCheckboxProps: (record: any) => ({
+      disabled: record.name === 'Disabled User', // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
+
   return (
     <Card
       title="Đơn đã đóng gói "
@@ -85,6 +88,10 @@ function PackList(props: any) {
         className="ecommerce-order-list"
         //rowKey={(item: any) => item.code}
         key={Math.random()}
+        rowSelection={{
+          type: "checkbox",
+          ...rowSelection,
+        }}
       />
       </div>
     </Card>
