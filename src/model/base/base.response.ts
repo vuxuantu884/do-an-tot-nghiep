@@ -8,4 +8,6 @@ export interface BaseObject {
   updated_name?: string;
   updated_date?: Date;
   version?: number;
+  request_id?: string | null;
+  operator_kc_id?: string | null;
 }

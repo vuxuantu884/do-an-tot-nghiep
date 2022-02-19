@@ -40,6 +40,7 @@ import { promoCodeSaga } from "./promotion/promo-code/promo-code.saga";
 import { collectionSaga } from "./product/collection.saga";
 import { OrderDuplicateSaga } from "./order/order-duplicate.saga";
 import { importSaga } from "./core/import.saga";
+import bankAccountSagas from "./bank/bank-account.saga";
 
 function* rootSaga() {
   yield all([
@@ -83,7 +84,8 @@ function* rootSaga() {
     GoodsReceiptsSaga(),
     moduleSaga(),
     OrderDuplicateSaga(),
-    importSaga()
+    importSaga(),
+    bankAccountSagas()
   ]);
 }
 

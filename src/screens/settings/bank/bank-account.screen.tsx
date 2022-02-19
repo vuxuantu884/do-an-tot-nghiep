@@ -38,12 +38,13 @@ const BankAccountScreen: React.FC = () => {
         {
             id: 0,
             code: "111",
+            bank_code:"222",
             account_number: "4239878973249823",
             account_holder: "le van long",
             bank_name: "vietcombank",
-            //store:StoreResponse[];
-            status: "active",
-            is_default: true
+            store_ids:[],
+            status: true,
+            default: true
         }
     ];
 
@@ -112,7 +113,7 @@ const BankAccountScreen: React.FC = () => {
             align: "center",
             dataIndex: "is_default",
             render: (value, row, index) => {
-                let text = row.is_default ? "text-success" : "text-error";
+                let text = row.default ? "text-success" : "text-error";
 
                 return (
                     <div style={{ textAlign: "center", fontSize: "20px" }} className={text}>

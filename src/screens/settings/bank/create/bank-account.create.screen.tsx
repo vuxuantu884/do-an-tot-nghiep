@@ -1,24 +1,40 @@
-import { Card, Checkbox, Col, Form, Input, Row } from "antd";
+import { Card, Checkbox, Col, Form, Input, Row, Select,FormInstance } from "antd";
 import ContentContainer from "component/container/content.container";
 import TreeStore from "component/tree-node/tree-store";
 import UrlConfig from "config/url.config";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import AddBankAccountBottombar from "../component/add-bank-account-bottombar";
 
 const BankAccountCreateScreen: React.FC = () => {
+
+  const initialValues = {
+    account_number: "",
+    account_holder: "",
+    bank_code: "",
+    bank_name: "",
+    store_ids: [],
+    status: "true",
+    default: false
+  }
+
+  const formRef = React.createRef<FormInstance>();
   const dispatch = useDispatch();
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
 
   useEffect(() => {
-      dispatch(
-          getListStoresSimpleAction((stores) => {
-              setListStore(stores);
-          })
-      );
+    dispatch(
+      StoreGetListAction((stores) => {
+        setListStore(stores);
+      })
+    );
   }, [dispatch]);
+
+  const onSubmitForm = useCallback((value: any) => {
+
+  }, [])
 
   const onOkPress = useCallback(() => {
     //goodsReceiptsForm.submit();
@@ -42,6 +58,9 @@ const BankAccountCreateScreen: React.FC = () => {
       <Card>
         <Form
           layout="vertical"
+          initialValues={initialValues}
+          onFinish={onSubmitForm}
+          ref={formRef}
         >
           <Row gutter={24}>
             <Col md={12}>
@@ -86,7 +105,16 @@ const BankAccountCreateScreen: React.FC = () => {
                   },
                 ]}
               >
-                <Input placeholder="Nhập số tài khoản" />
+                <Select
+                  showSearch
+                  allowClear
+                  placeholder="Chọn ngân hàng"
+
+                >
+                  <Select.Option key={1} value={1}>Vietcombank-0</Select.Option>
+                  <Select.Option key={2} value={2}>Vietcombank-1</Select.Option>
+                  <Select.Option key={3} value={3}>Vietcombank-2</Select.Option>
+                </Select>
               </Form.Item>
             </Col>
 
@@ -101,25 +129,31 @@ const BankAccountCreateScreen: React.FC = () => {
                   },
                 ]}
               >
-                <TreeStore listStore={listStore} placeholder="Chọn cửa hàng áp dụng"/>
+                <TreeStore listStore={listStore} placeholder="Chọn cửa hàng áp dụng" />
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24} style={{alignItems:"end"}}>
+          <Row gutter={24} style={{ alignItems: "end" }}>
             <Col md={12}>
               <Form.Item
                 label="Trạng thái"
-                name="account_number"
+                name="status"
               >
-                <Input placeholder="Nhập số tài khoản" />
+                <Select
+                  placeholder="Chọn ngân hàng"
+
+                >
+                  <Select.Option key={"true"} value={"true"}>active</Select.Option>
+                  <Select.Option key={"false"} value={"false"}>isactive</Select.Option>
+                </Select>
               </Form.Item>
             </Col>
 
             <Col md={12}>
               <Form.Item
-                name="account_holder"
+                name="default"
               >
-                 <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()}>Mặc định</Checkbox>
+                <Checkbox onClick={e => e.stopPropagation()}>Mặc định</Checkbox>
               </Form.Item>
             </Col>
           </Row>
