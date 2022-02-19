@@ -16,7 +16,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_source:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
-              {OrderDetail?.utm_source}
+              {OrderDetail?.utm_tracking?.utm_source}
             </span>
           </Col>
         </Row>
@@ -24,15 +24,15 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_medium:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
-              {OrderDetail?.utm_medium}
+              {OrderDetail?.utm_tracking?.utm_medium}
             </span>
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_campain:</Col>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_campaign:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
-              {OrderDetail?.utm_campain}
+              {OrderDetail?.utm_tracking?.utm_campaign}
             </span>
           </Col>
         </Row>
@@ -40,7 +40,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_term:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
-              {OrderDetail?.utm_term}
+              {OrderDetail?.utm_tracking?.utm_term}
             </span>
           </Col>
         </Row>
@@ -48,7 +48,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_content:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
-              {OrderDetail?.utm_content}
+              {OrderDetail?.utm_tracking?.utm_content}
             </span>
           </Col>
         </Row>
@@ -56,7 +56,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>Affiliate:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
-              {OrderDetail?.affiliate}
+              {OrderDetail?.utm_tracking?.affiliate}
             </span>
           </Col>
         </Row>
