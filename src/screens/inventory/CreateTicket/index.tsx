@@ -10,6 +10,7 @@ import './index.scss'
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
+  AutoComplete,
   Button,
   Card,
   Col,
@@ -21,7 +22,6 @@ import {
   Table,
   Upload,
 } from "antd";
-import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -54,7 +54,7 @@ import ProductItem from "../../purchase-order/component/product-item";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { UploadFile } from "antd/es/upload/interface";
-import { findAvatar } from "utils/AppUtils";
+import { findAvatar, handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -66,8 +66,13 @@ import { getAccountDetail } from "service/accounts/account.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";import {
   AccountStoreResponse
 } from "model/account/account.model";
+import { RegUtil } from "utils/RegUtils"; 
+import { getVariantByBarcode } from "service/product/variant.service";
+import { RefSelectProps } from "antd/lib/select";
 
 const { Option } = Select;
+
+let barCode = "";
 
 const VARIANTS_FIELD = "line_items";
 
@@ -79,8 +84,8 @@ const CreateTicket: FC = () => {
     [] as Array<VariantResponse>
   );
 
+  const productSearchRef = React.useRef<any>(null);
   const history = useHistory();
-  const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>); 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -88,6 +93,8 @@ const CreateTicket: FC = () => {
 
   const [fromStoreData, setFormStoreData] = useState<Store>();
   const [toStoreData, setToStoreData] = useState<Store>();
+  const [keySearch, setKeySearch] = useState<string>("");
+  const productAutoCompleteRef = createRef<RefSelectProps>();
 
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
@@ -186,26 +193,27 @@ const CreateTicket: FC = () => {
     PageResponse<VariantResponse> | any
   >();
 
-  const onSearchProduct = (value: string) => {
-    const storeId = form.getFieldValue("from_store_id");
-    if (!storeId) {
-      showError("Vui lòng chọn kho gửi");
-      return;
-    } else if (value.trim() !== "" && value.length >= 3) {
-      dispatch(
-        inventoryGetVariantByStoreAction(
-          {
-            status: "active",
-            limit: 10,
-            page: 1,
-            store_ids: storeId,
-            info: value.trim(),
-          },
-          setResultSearch
-        )
-      );
-    }
-  };
+  const onSearchProduct = useCallback(
+    (value: string) => {
+      const storeId = form.getFieldValue("from_store_id");
+      if (!storeId) {
+        showError("Vui lòng chọn kho gửi");
+        return;
+      } else if (value.trim() !== "" && value.length >= 3) {
+        dispatch(
+          inventoryGetVariantByStoreAction(
+            {
+              status: "active",
+              limit: 10,
+              page: 1,
+              store_ids: storeId,
+              info: value.trim(),
+            },
+            setResultSearch
+          )
+        );
+      }
+  },[dispatch, setResultSearch, form]);
 
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
   
@@ -219,29 +227,46 @@ const CreateTicket: FC = () => {
     });
     
     return options;
-  }, [resultSearch]);
+  }, [resultSearch]); 
 
-  const onSelectProduct = (value: string) => {
-    const dataTemp = [...dataTable];
-    const selectedItem = resultSearch?.items?.find(
+  const onSearch = useCallback((value: string)=>{ 
+    setKeySearch(value);
+  },[setKeySearch]);
+
+  const onSelectProduct = useCallback((value: string, item?: VariantResponse) => {
+    let dataTemp = [...dataTable]; 
+
+    let selectedItem = resultSearch?.items?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
+
+    if (item) 
+      selectedItem = item;
+
     if (
       !dataTemp.some(
         (variant: VariantResponse) => variant.id === selectedItem.id
       )
     ) {
-      setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 0}]));
+      setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 1}]));
+    }else{
+      dataTemp?.forEach((e: VariantResponse) => {
+        if (e.id === selectedItem.id) {
+          e.transfer_quantity += 1;
+        }
+      })
+      setDataTable(dataTemp);
     }
-  };
+  },[resultSearch, dataTable]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
       return {
         ...item,
-        transfer_quantity: 0,
+        transfer_quantity: 1,
       };
     });
+
     const dataTemp = [...dataTable, ...newResult];
 
     const arrayUnique = [
@@ -250,8 +275,6 @@ const CreateTicket: FC = () => {
 
     setDataTable(arrayUnique);
     form.setFieldsValue({ [VARIANTS_FIELD]: arrayUnique });
-
-    setDataTable(arrayUnique);
     setVisibleManyProduct(false);
   };
 
@@ -521,7 +544,70 @@ const CreateTicket: FC = () => {
       }
     });
   
-  }, [dataTable]);
+  }, [dataTable]);   
+  
+  const eventKeydown = useCallback(
+     (event: KeyboardEvent) => {
+      const handleSearchProduct = async (keyCode: string, code: string) => { 
+        if (keyCode === "Enter" && code){ 
+          setKeySearch("");  
+          barCode ="";  
+          
+          if (RegUtil.BARCODE_NUMBER.test(code) && event) {
+            const storeId = form.getFieldValue("from_store_id");
+            if (!storeId) {
+              showError("Vui lòng chọn kho gửi");
+              return;
+            }
+            const item  = await callApiNative({isShowLoading: false}, dispatch, getVariantByBarcode,code);
+            if (item && item.id) { 
+              // if (!item.available || item.available === 0) {
+              //   showError("Không đủ tồn kho gửi");
+              //   return;
+              // }  
+              onSelectProduct(item.id.toString(),item); 
+            }else{ 
+              showError("Không tìm thấy sản phẩm");
+            }
+          }
+        } 
+        else{
+          const txtSearchProductElement: any =
+            document.getElementById("product_search_variant");
+
+          onSearchProduct(txtSearchProductElement?.value); 
+        } 
+      };
+
+      if (event.target instanceof HTMLInputElement) {
+        if (event.target.id === "product_search_variant") {
+          if (event.key !== "Enter" && event.key !== "Shift")
+            barCode = barCode + event.key;
+         
+          handleDelayActionWhenInsertTextInSearchInput(
+            productAutoCompleteRef,
+            () => handleSearchProduct(event.key, barCode),
+            500
+          );
+          return;
+        }
+      }
+      
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onSelectProduct,form, dispatch, onSearchProduct]
+  );
+
+  const onSelect = useCallback((o,v)=>{
+    onSelectProduct(o);
+  },[onSelectProduct])
+
+  useEffect(() => { 
+      window.addEventListener("keydown", eventKeydown);
+      return () => {
+        window.removeEventListener("keydown", eventKeydown);
+      };
+  }, [eventKeydown]);  
   
   const columns: ColumnsType<any> = [
     {
@@ -626,7 +712,7 @@ const CreateTicket: FC = () => {
         />
       ),
     },
-  ];
+  ]; 
 
   return (
       <ContentContainer
@@ -774,22 +860,33 @@ const CreateTicket: FC = () => {
               >
                 <div>
                   <Input.Group className="display-flex">
-                    <CustomAutoComplete
-                      id="#product_search_variant"
-                      dropdownClassName="product"
+
+                  <AutoComplete
+                    notFoundContent={
+                      keySearch.length >= 3
+                        ? "Không tìm thấy sản phẩm"
+                        : undefined
+                    }
+                    value={keySearch}
+                    ref={productAutoCompleteRef}
+                    onSelect={onSelect}
+                    style={{ width: "100%" }}
+                    dropdownClassName="product dropdown-search-header"
+                    dropdownMatchSelectWidth={635}
+                    className="w-100 searchProductId"
+                    onSearch={onSearch}
+                    options={renderResult}
+                    defaultActiveFirstOption
+                    id="product_search_variant"
+                  >
+                    <Input
+                      size="middle"
+                      className="yody-search"
                       placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
-                      onSearch={onSearchProduct}
-                      dropdownMatchSelectWidth={456}
-                      style={{ width: "100%" }}
-                      showAdd={true}
-                      textAdd="Thêm mới sản phẩm"
-                      onSelect={onSelectProduct}
-                      options={renderResult}
-                      onClickAddNew={() => {
-                        window.open(`/admin${UrlConfig.PRODUCT}/create`, "_blank");
-                      }}
+                      prefix={<i className="icon-search icon" />}
                       ref={productSearchRef}
                     />
+                  </AutoComplete> 
                     <Button
                       onClick={() => {
                         if (form.getFieldValue("from_store_id")) {
