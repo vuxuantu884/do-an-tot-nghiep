@@ -558,10 +558,8 @@ const TabList: React.FC = () => {
         break;
     }
     setProcumentCode(code);
-    setPOId((prevPOId) => {
-      if (prevPOId !== record?.purchase_order.id) {
-        return record?.purchase_order.id;
-      }
+    setPOId(() => {
+      return record?.purchase_order.id;
     });
     setStoreExpect(expect_store_id);
   };
