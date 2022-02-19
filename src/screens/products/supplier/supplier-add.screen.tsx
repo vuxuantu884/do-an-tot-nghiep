@@ -234,7 +234,7 @@ const CreateSupplierScreen: React.FC = () => {
       setListSupplier([]);
     }
     }))
-  }, [dispatch, onGetSuccess, params, data.metadata]);
+  }, [dispatch, onGetSuccess, params]);
 
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountries));
@@ -414,7 +414,7 @@ const CreateSupplierScreen: React.FC = () => {
                     label="Nhóm hàng"
                   >
                     <SelectSearchPaging
-                      data={data.items || []}
+                      data={data.items}
                       renderItem={renderGroupProductItem}
                       onSearch={onSearchGroupProducts}
                       isLoading={isSearchingGroupProducts}
