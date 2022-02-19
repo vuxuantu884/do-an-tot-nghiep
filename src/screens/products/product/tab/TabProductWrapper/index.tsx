@@ -34,6 +34,7 @@ import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showInfo, showSuccess, showWarning} from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 import { StyledComponent } from "../style";
+import { getQueryParams, useQuery } from "utils/useQuery";
 
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -44,6 +45,7 @@ const ACTIONS_INDEX = {
 };
 
 const TabProductWrapper: React.FC = () => {
+  const query = useQuery();
   const dispatch = useDispatch();
   const history = useHistory();
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
@@ -92,9 +94,11 @@ const TabProductWrapper: React.FC = () => {
     ];
   },[selected]);
 
-  const [params, setParams] = useState<ProductWrapperSearchQuery>(
-    {} as ProductWrapperSearchQuery
-  );
+  let dataQuery: ProductWrapperSearchQuery = {
+    ...getQueryParams(query),
+  };
+
+  const [params, setParams] = useState<ProductWrapperSearchQuery>(dataQuery);
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<ProductResponse>>>([
     {

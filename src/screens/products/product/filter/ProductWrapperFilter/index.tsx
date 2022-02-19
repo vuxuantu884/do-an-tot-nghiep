@@ -93,12 +93,18 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   );
 
   useEffect(() => {
-    setAdvanceFilters({
+    const { category_id, material_id } = params;
+    const filters = {
       ...params,
       [SearchVariantWrapperField.from_create_date]: formatDateFilter(params.from_create_date),
       [SearchVariantWrapperField.to_create_date]: formatDateFilter(params.to_create_date),
-    });
-  }, [params]);
+      [SearchVariantWrapperField.category_id]: category_id ? Number(category_id) : null,
+      [SearchVariantWrapperField.material_id]: material_id ? Number(material_id) : null,
+    };
+
+    setAdvanceFilters(filters);
+    form.setFieldsValue(filters);
+  }, [params, form]);
 
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
@@ -232,7 +238,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
           visible={visible}
           width={700}
         >
-          <Form ref={formRef} onFinish={onFinishAvd} form={form} initialValues={{}} layout="vertical">
+          <Form ref={formRef} onFinish={onFinishAvd} form={form} layout="vertical">
             <Row gutter={20}>
               {Object.keys(SearchVariantWrapperMapping).map((key) => {
                 let component: any = null;
@@ -393,6 +399,7 @@ const FilterList = ({
             ~ ${filters[`to_${filterKey}`] ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'}`
               break;
             case SearchVariantWrapperField.category_id:
+              if (listCategory.length === 0) return null;
               let index2 = listCategory.findIndex((item: CategoryView) => item.id === value);
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listCategory[index2].name}`;
               break;
