@@ -3,7 +3,6 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import CustomSelect from "component/custom/select.custom";
 import { AppConfig } from "config/app.config";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
@@ -26,6 +25,7 @@ import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
+import SelectSearchPaging from "../../../component/custom/select-search/select-search-paging";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -117,7 +117,7 @@ const CreateSupplierScreen: React.FC = () => {
   });
   const [data, setData] = useState<PageResponse<CollectionResponse>>({
     metadata: {
-      limit: 30,
+      limit: 10,
       page: 1,
       total: 0,
     },
@@ -125,6 +125,8 @@ const CreateSupplierScreen: React.FC = () => {
   });
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSearchingGroupProducts, setIsSearchingGroupProducts] = React.useState(false);
+
 
   const params: CollectionQuery = useParams() as CollectionQuery;
 
@@ -191,8 +193,14 @@ const CreateSupplierScreen: React.FC = () => {
   const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
     if (results && results.items) {
       setData(results);
+      setIsSearchingGroupProducts(false)
     }
   }, []);
+
+  const onSearchGroupProducts = (values: any) => {
+    setIsSearchingGroupProducts(true)
+    dispatch(getCollectionRequestAction({...params, ...values, limit: data.metadata.limit}, onGetSuccess));
+  }
 
   const validatePhone = (rule: any, value: any, callback: any): void => {
     if (value) {
@@ -213,8 +221,12 @@ const CreateSupplierScreen: React.FC = () => {
     }
   };
 
+  const renderGroupProductItem = useCallback((item: CollectionResponse) => {
+    return <Option key={item.id} value={item.id}>{item.name}</Option>
+  }, [])
+
   useEffect(() => {
-    dispatch(getCollectionRequestAction(params, onGetSuccess));
+    dispatch(getCollectionRequestAction({ ...params, limit: data.metadata.limit }, onGetSuccess));
     dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
       if(response){
       setListSupplier(response.items)
@@ -401,18 +413,14 @@ const CreateSupplierScreen: React.FC = () => {
                     name="group_product"
                     label="Nhóm hàng"
                   >
-                    <CustomSelect
-                      showSearch
-                      showArrow 
-                      optionFilterProp="children"
+                    <SelectSearchPaging
+                      data={data.items}
+                      renderItem={renderGroupProductItem}
+                      onSearch={onSearchGroupProducts}
+                      isLoading={isSearchingGroupProducts}
+                      metadata={data.metadata}
                       placeholder="Chọn nhóm hàng"
-                    >
-                      {data?.items.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </CustomSelect>
+                    />
                   </Item>
                 </Col>
               </Row>

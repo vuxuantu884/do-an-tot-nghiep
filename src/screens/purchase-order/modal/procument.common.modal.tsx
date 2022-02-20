@@ -1,4 +1,4 @@
-import { Col, Form, Input, Modal, Row, Select, Checkbox, Button, Tabs } from "antd";
+import { Col, Form, Input, Modal, Row, Select, Checkbox, Button, Tabs, ButtonProps } from "antd";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -59,6 +59,7 @@ export type ProcumentModalProps = {
     onRemove: (index: number) => void,
     line_items: Array<PurchaseProcumentLineItem>
   ): ReactNode;
+  okButtonProps?: ButtonProps
 };
 
 const { TabPane } = Tabs;
@@ -84,6 +85,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     isEdit,
     isDetail,
     isConfirmModal,
+    okButtonProps
   } = props;
   const [form] = Form.useForm();
   const [data, setData] = useState<Array<PurchaseProcumentLineItem>>([]);
@@ -205,7 +207,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         showError("Cần ít nhất một item nhập kho");
         return;
       }
-      onOk(value);
+      onOk && onOk(value);
     },
     [onOk, type]
   );
@@ -292,7 +294,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         procurement_items: JSON.parse(JSON.stringify(allProcurementItems)),
       });
     }
-  }, [form, item, allProcurementItems, type]);
+  }, []);
 
   const confirmDeletePhrase: string = useMemo(() => {
     if (!item) return "";
@@ -355,6 +357,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         visible={visible}
         confirmLoading={loading}
         title={titleTabModal}
+        okButtonProps={okButtonProps}
       >
         <PurchaseOrderDraft>
           {

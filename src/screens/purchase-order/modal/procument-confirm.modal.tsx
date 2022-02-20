@@ -15,6 +15,8 @@ import ProcumentCommonModal from "./procument.common.modal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import useAuthorization from "hook/useAuthorization";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 
 export type ProcumentConfirmProps = {
   visible: boolean;
@@ -54,6 +56,9 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     useState(false);
   const [message, setMessage] = useState("");
   const [removeIndex, setRemoveIndex] = useState(-1);
+  const [allowApproval] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.procurements_approve],
+  });
 
   const handleRemoveLineItem = (
     item: PurchaseProcumentLineItem,
@@ -96,7 +101,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
             <span style={{ color: "#2A2A86" }}>{item?.code}</span>
           </div>
         }
-        okText={isEdit ? "Lưu phiếu duyệt" : "Duyệt phiếu nháp"}
+        okText={isEdit ? "Lưu phiếu duyệt" : (allowApproval ? "Duyệt phiếu nháp": "") }
       >
         {(onQuantityChange, onRemove, line_items) => {
           const listItems = line_items.filter(item => item.quantity > 0);
