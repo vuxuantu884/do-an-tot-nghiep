@@ -55,6 +55,7 @@ import TreeDepartment from "../department/component/TreeDepartment";
 import { DepartmentResponse } from "model/account/department.model";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { showSuccess } from "utils/ToastUtils";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Item} = Form;
 const {Option} = Select;
@@ -92,7 +93,7 @@ const StoreUpdateScreen: React.FC = () => {
   const firstload = useRef(true);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
-  }); 
+  });
   const [dataOrigin, setDataOrigin] = useState<StoreUpdateRequest | null>(null);
 
   //EndState
@@ -118,7 +119,7 @@ const StoreUpdateScreen: React.FC = () => {
     setLoading(false);
     history.push(UrlConfig.STORE);
     showSuccess("Lưu dữ liệu thành công");
-  }, [history]); 
+  }, [history]);
   const onFinish = useCallback(
     (values: StoreUpdateRequest) => {
       setLoading(true);
@@ -137,21 +138,21 @@ const StoreUpdateScreen: React.FC = () => {
     }
   }, [formMain]);
 
-  const backAction = ()=>{ 
+  const backAction = ()=>{
     if (JSON.stringify(formMain.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
       setModalConfirm({
         visible: true,
         onCancel: () => {
           setModalConfirm({visible: false});
         },
-        onOk: () => { 
+        onOk: () => {
           setModalConfirm({visible: false});
           history.goBack();
         },
         title: "Bạn có muốn quay lại?",
         subTitle:
           "Sau khi quay lại thay đổi sẽ không được lưu.",
-      }); 
+      });
     }else{
       history.goBack();
     }
@@ -159,7 +160,7 @@ const StoreUpdateScreen: React.FC = () => {
 
   const onResult = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
-      if (data) 
+      if (data)
         setAccounts(data.items);
     }, [] );
 
@@ -174,7 +175,7 @@ const StoreUpdateScreen: React.FC = () => {
       setLoadingData(true);
       dispatch(CountryGetAllAction(setCountries));
       dispatch(DistrictGetByCountryAction(DefaultCountry, setCityView));
-      dispatch(StoreRankAction(setStoreRank)); 
+      dispatch(StoreRankAction(setStoreRank));
       dispatch(StoreGetTypeAction(setType));
       if (!Number.isNaN(idNumber)) {
         dispatch(StoreDetailAction(idNumber, setResult));
@@ -220,7 +221,7 @@ const StoreUpdateScreen: React.FC = () => {
           <Row gutter={20}>
           <Col span={18}>
           <Card
-            title="Thông tin cửa hàng" 
+            title="Thông tin cửa hàng"
           >
             <Row gutter={50}>
               <Item hidden noStyle name="version">
@@ -350,7 +351,7 @@ const StoreUpdateScreen: React.FC = () => {
                 </Item>
               </Col>
             </Row>
-            <Row gutter={50}> 
+            <Row gutter={50}>
               <Col flex="auto">
                 <Item
                   label="Địa chỉ"
@@ -369,8 +370,8 @@ const StoreUpdateScreen: React.FC = () => {
                 <Item label="Mã bưu điện" name="zip_code">
                   <Input placeholder="Nhập mã bưu điện" />
                 </Item>
-              </Col> 
-            </Row> 
+              </Col>
+            </Row>
             <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
                 <Item
@@ -409,11 +410,11 @@ const StoreUpdateScreen: React.FC = () => {
                     {lstDepartment?.map((item, index) => (
                       <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
                     ))}
-                  </TreeSelect> 
+                  </TreeSelect>
                 </Item>
-              </Col> 
+              </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                  <Item 
+                  <Item
                     name="reference_id"
                     label="Mã tham chiếu"
                   >
@@ -489,7 +490,7 @@ const StoreUpdateScreen: React.FC = () => {
               </Row>
             </Card>
           </Col>
-          </Row> 
+          </Row>
           <Collapse
             style={{marginBottom: 50}}
             defaultActiveKey="1"
@@ -500,7 +501,7 @@ const StoreUpdateScreen: React.FC = () => {
               <div className="padding-20">
                 <Row gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <Item 
+                    <Item
                     tooltip={{
                       overlayStyle: {
                         backgroundColor: "transparent",
@@ -531,7 +532,7 @@ const StoreUpdateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <Item 
+                    <Item
                       label="Diện tích cửa hàng (m²)"
                       name="square"
                       >
@@ -563,18 +564,7 @@ const StoreUpdateScreen: React.FC = () => {
                       icon: <InfoCircleOutlined />,
                     }}
                   >
-                    <CustomSelect
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      placeholder="Chọn VM phụ trách"
-                    >
-                      {accounts.map((item) => (
-                        <CustomSelect.Option key={item.code} value={item.code}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
+                    <AccountSearchPaging placeholder="Chọn VM phụ trách"/>
                   </Item>
                 </Col>
                 </Row>

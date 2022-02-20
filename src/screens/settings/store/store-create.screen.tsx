@@ -56,6 +56,7 @@ import {RegUtil} from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
 import { strForSearch } from "utils/RemoveDiacriticsString";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
 const {Item} = Form;
 const {Panel} = Collapse;
@@ -580,18 +581,7 @@ const StoreCreateScreen: React.FC = () => {
                       icon: <InfoCircleOutlined />,
                     }}
                   >
-                    <CustomSelect
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      placeholder="Chọn VM phụ trách"
-                    >
-                      {accounts.map((item) => (
-                        <CustomSelect.Option key={item.code} value={item.code}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
+                    <AccountSearchPaging placeholder="Chọn VM phụ trách"/>
                   </Item>
                 </Col>
               </Row>
