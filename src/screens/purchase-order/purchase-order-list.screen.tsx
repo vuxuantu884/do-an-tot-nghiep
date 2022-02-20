@@ -41,7 +41,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
-import { PurchaseOrderListContainer } from "./purchase-order-list.style"; 
+import { PurchaseOrderListContainer } from "./purchase-order-list.style";
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -58,7 +58,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [isError, setError] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const [selected, setSelected] = useState<Array<PurchaseOrder>>([]); 
+  const [selected, setSelected] = useState<Array<PurchaseOrder>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -80,7 +80,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       total: 0,
     },
     items: [],
-  }); 
+  });
 
   const onExport = useCallback(() => {
     let queryParams = generateQuery(params);
@@ -131,7 +131,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         // onDelete();
         break;
     }
-  }, []); 
+  }, []);
 
   const [canDeletePO] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.delete],
@@ -152,7 +152,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         dataIndex: "code",
         render: (value: string, i: PurchaseOrder) => {
           return (
-            <> 
+            <>
               <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{fontWeight: 500}}>
                 {value}
               </Link>
@@ -170,16 +170,37 @@ const PurchaseOrderListScreen: React.FC = () => {
         title: "Nhà cung cấp",
         dataIndex: "supplier",
         visible: true,
+        render: (value, row) => {
+          return (
+            <Link
+              to={`${UrlConfig.SUPPLIERS}/${row.supplier_id}`}
+              className="primary"
+              target="_blank"
+              style={{ fontSize: "16px" }}
+            >
+              {value}
+            </Link>
+          )
+        }
       },
       {
         title: "Merchandiser",
         dataIndex: 'merchandiser',
         render: (value, row: PurchaseOrder) => {
           if (!row || !row.merchandiser_code || !row.merchandiser) return "";
-          return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
+          return (
+            <Link
+              to={`${UrlConfig.ACCOUNTS}/${row.merchandiser_code}`}
+              className="primary"
+              target="_blank"
+              style={{ fontSize: "16px" }}
+            >
+              {`${row.merchandiser_code} - ${row.merchandiser}`}
+            </Link>
+          )
         },
         visible: true,
-      }, 
+      },
       {
         title: "Trạng thái đơn",
         width: 150,
@@ -204,8 +225,8 @@ const PurchaseOrderListScreen: React.FC = () => {
             case POStatus.DRAFT:
               type = TagStatusType.nomarl;
               break;
-          } 
-  
+          }
+
           return <TagStatus type={type}>{ArrPoStatus.find(e=>e.key === value)?.value}</TagStatus>;
         },
         visible: true,
@@ -216,7 +237,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         align: "center",
         render: (value: string) => {
           let processIcon = null;
-  
+
           switch (value) {
             case ProcumentStatus.NOT_RECEIVED:
             case null:
@@ -282,10 +303,11 @@ const PurchaseOrderListScreen: React.FC = () => {
       {
         title: "Tổng SL sp",
         dataIndex: "planned_quantity",
-        render: (value, row: PurchaseOrder) => { 
-          return <div>{formatCurrency(value,".")}</div>;
+        render: (value, row: PurchaseOrder) => {
+          return <div>{formatCurrency(value,",")}</div>;
         },
         visible: true,
+        align: "right"
       },
       {
         title: "Tổng tiền",
@@ -299,6 +321,7 @@ const PurchaseOrderListScreen: React.FC = () => {
           />
         ),
         visible: true,
+        align: "right"
       },
       {
         title: "QC",
@@ -381,7 +404,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         visible: true,
       },
     ];
-  }, []); 
+  }, []);
 
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<PurchaseOrder>>>(defaultColumns);
@@ -430,7 +453,7 @@ const PurchaseOrderListScreen: React.FC = () => {
                 setLstConfig(res.data);
                 if (res.data && res.data.length > 0) {
                   const userConfigColumn = res.data.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_PO);
-                
+
                    if (userConfigColumn){
                       let cf = JSON.parse(userConfigColumn.json_content) as Array<ICustomTableColumType<PurchaseOrder>>;
                       cf.forEach(e => {
@@ -454,7 +477,7 @@ const PurchaseOrderListScreen: React.FC = () => {
         })
         .finally(() => {
           dispatch(hideLoading());
-        }); 
+        });
     }
   },[account, dispatch, defaultColumns]);
 
@@ -501,7 +524,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<PurchaseOrder>>) => {
       let config = lstConfig.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_PO) as FilterConfigRequest;
       if (!config) config = {} as FilterConfigRequest;
-      
+
       const json_content = JSON.stringify(data);
       config.type = COLUMN_CONFIG_TYPE.COLUMN_PO;
       config.json_content = json_content;
@@ -511,7 +534,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       }else{
         dispatch(createConfigPoAction(config));
       }
-    
+
   }, [dispatch,account?.code, lstConfig]);
 
   return (
@@ -556,7 +579,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               params={params}
               onMenuClick={onMenuClick}
               actions={actions}
-              onFilter={onFilter} 
+              onFilter={onFilter}
               listStore={listStore}
             />
             <CustomTable
