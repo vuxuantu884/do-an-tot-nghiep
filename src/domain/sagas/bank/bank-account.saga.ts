@@ -1,3 +1,4 @@
+import { getIdBankAccountService } from './../../../service/bank/bank.service';
 import { fetchApiErrorAction } from 'domain/actions/app.action';
 import { isFetchApiSuccessful } from 'utils/AppUtils';
 import { call } from 'redux-saga/effects';
@@ -11,7 +12,26 @@ import { hideLoading } from 'domain/actions/loading.action';
 import { showError } from '../../../utils/ToastUtils';
 import { YodyAction } from 'base/base.action';
 import { PageResponse } from 'model/base/base-metadata.response';
-import { getBankAccountService, postBankAccountService, putBankAccountService } from 'service/bank/bank.service';
+import { getBankAccountService, postBankAccountService, putBankAccountService,deleteBankAccountService } from 'service/bank/bank.service';
+
+function* getIdBankAccountSaga(action:YodyAction){
+    const {id,setData}= action.payload;
+    yield put(showLoading());
+    try{
+        const response:BaseResponse<BankAccountResponse>= yield call(getIdBankAccountService,id);
+        if (isFetchApiSuccessful(response)) {
+            setData(response.data);
+        } else {
+            yield put(fetchApiErrorAction(response, "Lấy thông tin tài khoản ngân hàng"));
+        }
+    }
+    catch (e) {
+        showError("Lỗi Lấy thông tin tài khoản ngân hàng");
+    }
+    finally {
+        yield put(hideLoading());
+    }
+}
 
 function* getBankAccountSaga(action: YodyAction) {
     const { query, setData } = action.payload;
@@ -71,8 +91,29 @@ function* putBankAccountSaga(action: YodyAction) {
     }
 }
 
+function* deleteBankAccountSaga(action:YodyAction){
+    const {id, setData}= action.payload;
+    yield put(showLoading());
+    try{
+        const response:BaseResponse<BankAccountResponse>= yield call(deleteBankAccountService,id);
+        if (isFetchApiSuccessful(response)) {
+            setData(response.data);
+        } else {
+            yield put(fetchApiErrorAction(response, "xóa thông tin tài khoản ngân hàng"));
+        }
+    }
+    catch (e) {
+        showError("Lỗi xóa thông tin tài khoản ngân hàng");
+    }
+    finally {
+        yield put(hideLoading());
+    }
+}
+
 export default function* bankAccountSagas() {
     yield takeLatest(BankType.GET_BANK_ACCOUNT, getBankAccountSaga);
     yield takeLatest(BankType.POST_BANK_ACCOUNT, postBankAcountSaga);
     yield takeLatest(BankType.PUT_BANK_ACCOUNT, putBankAccountSaga);
+    yield takeLatest(BankType.DELETE_BANK_ACCOUNT, deleteBankAccountSaga);
+    yield takeLatest(BankType.GET_ID_BANK_ACCOUNT, getIdBankAccountSaga);
 }

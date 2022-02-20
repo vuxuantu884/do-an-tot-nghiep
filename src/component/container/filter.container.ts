@@ -10,7 +10,7 @@ export const FilterWrapper = styled.div`
     min-width: 250 px;
   }
   .ant-form-item {
-    //flex: auto;
+    flex: auto;
   }
   .ant-form-item:last-child {
     margin-right: 0;

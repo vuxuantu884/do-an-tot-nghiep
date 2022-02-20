@@ -19,3 +19,11 @@ export const postBankAccountService=(param:BankAccountRequest):Promise<BaseRespo
 export const putBankAccountService=(param:BankAccountRequest):Promise<BaseResponse<BankAccountResponse>>=>{
     return BaseAxios.put(`${ApiConfig.ORDER}/bank-accounts`, param);
 }
+
+export const deleteBankAccountService=(id:number):Promise<BaseResponse<BankAccountResponse>>=>{
+    return BaseAxios.delete(`${ApiConfig.ORDER}/bank-accounts/${id}`);
+}
+
+export const getIdBankAccountService=(id:number):Promise<BaseResponse<BankAccountResponse>>=>{
+    return BaseAxios.get(`${ApiConfig.ORDER}/bank-accounts/${id}`);
+}

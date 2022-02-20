@@ -1,11 +1,11 @@
-import { Button, Card } from "antd";
+import { Button, Card, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import BankAccountFilter from "component/filter/bank-account.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { BankAccountResponse, BankAccountSearchQuery } from "model/bank/bank.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
@@ -13,12 +13,16 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import iconEdit from "assets/icon/edit.svg";
 import { RiCheckboxCircleLine } from "react-icons/ri";
 import ButtonCreate from "component/header/ButtonCreate";
+import { getBankAccountAction } from 'domain/actions/bank/bank.action';
 
 
 const initQuery: BankAccountSearchQuery = {
-    account_number: "string",
+    ids: null,
     store_ids: [],
-    status: "",
+    account_number: "",
+    account_holders: "",
+    status: null,
+    is_default: null,
 };
 
 const BankAccountScreen: React.FC = () => {
@@ -34,27 +38,13 @@ const BankAccountScreen: React.FC = () => {
 
     let [params, setPrams] = useState<BankAccountSearchQuery>(dataQuery);
 
-    const dataTest: BankAccountResponse[] = [
-        {
-            id: 0,
-            code: "111",
-            bank_code:"222",
-            account_number: "4239878973249823",
-            account_holder: "le van long",
-            bank_name: "vietcombank",
-            store_ids:[],
-            status: true,
-            default: true
-        }
-    ];
-
     const [data, setData] = useState<PageResponse<BankAccountResponse>>({
         metadata: {
             limit: 0,
             page: 1,
             total: 0,
         },
-        items: dataTest
+        items: []
     });
 
     const defaultColumns: Array<ICustomTableColumType<BankAccountResponse>> = [
@@ -91,10 +81,15 @@ const BankAccountScreen: React.FC = () => {
             //width: 300,
             render: (value, row, index) => (
                 <React.Fragment>
-                    {/* {row.store.length < 3 ? (
+                    <span>
+                        {row?.store_ids?.map((item) => {
+                            return <Tag color="green">{item.store_name}</Tag>;
+                        })}
+                    </span>
+                    {/* {row.store_ids.length < 3 ? (
                         <span>
-                            {row.store?.map((item) => {
-                                return <Tag color="green">{item.name}</Tag>;
+                            {row?.store_ids?.map((item) => {
+                                return <Tag color="green">{item.store_name}</Tag>;
                             })}
                         </span>
                     ) : (
@@ -161,11 +156,24 @@ const BankAccountScreen: React.FC = () => {
             params.limit = size;
             let queryParam = generateQuery(params);
             setPrams({ ...params });
-            history.replace(`${UrlConfig.ACCOUNTS}?${queryParam}`);
+            history.replace(`${UrlConfig.BANK_ACCOUNT}?${queryParam}`);
         },
         [history, params]
     );
 
+    const handleSearchResult = useCallback(() => {
+        setTableLoading(true);
+        dispatch(getBankAccountAction(params, (data:PageResponse<BankAccountResponse>)=>{
+            setData(data);
+            setTableLoading(false);
+        }));
+    }, [dispatch, params]);
+
+    useEffect(() => {
+        handleSearchResult();
+    }, [handleSearchResult]);
+
+    console.log("data",data)
     return (
         <ContentContainer
             title="Tài khoản ngân hàng"
